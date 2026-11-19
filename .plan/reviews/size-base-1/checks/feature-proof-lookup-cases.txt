@@ -1,0 +1,293 @@
+# Narrowed feature proof of #72's two fixes: the reviewer's own runs
+# Run by the reviewer on 2026-11-19 at d41499005, in a new detached worktree
+# outside the slots, after `aube ci` and `aube exec just size-reading`, which
+# built the packages and wrote the head reading (sha256 67cc657e…751ea52, as at
+# 910c5e4b3).
+#
+# How. extract.mjs (below) takes the `run` text of the steps "Sizes at the
+# merge base" and "Report" verbatim from verify.yml with the `yaml` package.
+# case.sh runs each under `bash -e`, as GitHub Actions runs a step, from the
+# tree's root, with RUNNER_TEMP, GITHUB_OUTPUT and GITHUB_STEP_SUMMARY as
+# scratch files, GITHUB_REPOSITORY=ausginer/material-x and BASE_REF=main.
+# `git merge-base HEAD origin/main` gives 91fc5d662, as on CI.
+#
+# API "real": the reviewer's own token against GitHub, read-only.
+# Any other API: the real `gh` binary with GH_CONFIG_DIR set to a scratch
+# directory whose config.yml sets `http_unix_socket` to mock.mjs's socket, and
+# GH_TOKEN set to a dummy. Every request gh makes then goes to the local mock,
+# and none reaches GitHub. Each mocked case lists the requests the mock got.
+# The mock answers the three calls the step makes (the run list, the artifact
+# list, the artifact's zip) with the status or JSON that MODE names. In "found"
+# the zip holds a head-size.json whose box-quad row is 82 B smaller than the
+# head's, so the comparison shows. No workflow, branch or artifact name is
+# substituted. The mock's 403 body is GitHub's "Resource not accessible by
+# integration", which a token without `actions: read` gets.
+#
+# gh's exit status: `gh help exit-codes` says a command that fails for any
+# reason exits 1. The step reads only exit statuses and the API's JSON.
+
+### no-run (event pull_request, API: no-run)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+::notice title=Measurement::main has no push run for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2, so no size reading is stored
+exit 0; GITHUB_OUTPUT: [missing=true ]; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+$ bash -e <Report> (EVENT=pull_request, MISSING=true)
+exit 0; the summary's sentence and first row:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### no-artifact (event pull_request, API: no-artifact)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+::notice title=Measurement::main's run 777 for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+exit 0; GITHUB_OUTPUT: [missing=true ]; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?name=size-reading
+$ bash -e <Report> (EVENT=pull_request, MISSING=true)
+exit 0; the summary's sentence and first row:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### expired (event pull_request, API: expired)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+::notice title=Measurement::main's run 777 for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+exit 0; GITHUB_OUTPUT: [missing=true ]; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?name=size-reading
+$ bash -e <Report> (EVENT=pull_request, MISSING=true)
+exit 0; the summary's sentence and first row:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### 403-runs (event pull_request, API: 403-runs)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+gh: Resource not accessible by integration (HTTP 403)
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### 403-artifacts (event pull_request, API: 403-artifacts)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+gh: Resource not accessible by integration (HTTP 403)
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?name=size-reading
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### 403-download (event pull_request, API: 403-download)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+error downloading size-reading: HTTP 403: Resource not accessible by integration (https://api.github.com/repos/ausginer/material-x/actions/artifacts/1/zip)
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?name=size-reading
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?per_page=100
+  mock: GET /repos/ausginer/material-x/actions/artifacts/1/zip
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### 429-runs (event pull_request, API: 429-runs)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+gh: status 429 (HTTP 429)
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### 500-runs (event pull_request, API: 500-runs)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+gh: status 500 (HTTP 500)
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### unreachable (event pull_request, API: unreachable)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+Get "https://api.github.com/repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2": dial unix ../cases/unreachable/none.sock: connect: no such file or directory
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### real-no-artifact (event pull_request, API: real)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+::notice title=Measurement::main's run 44448397868 for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+exit 0; GITHUB_OUTPUT: [missing=true ]; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=true)
+exit 0; the summary's sentence and first row:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### merge-base-fails (event pull_request, API: no-run)
+$ bash -e <Sizes at the merge base>
+fatal: stub merge-base failure
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### corrupt-reading (event pull_request, API: found)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+base reading: run 777, artifact 1
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: present
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?name=size-reading
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?per_page=100
+  mock: GET /repos/ausginer/material-x/actions/artifacts/1/zip
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+| box-quad | index | 1182 | — |  | — | — |
+
+### push (event push, API: real)
+$ bash -e <Report> (EVENT=push, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+Brotli bytes at the head. gzip at the head, where the instrument reports it.
+| box-quad | index | 1182 | — |  | — | — |
+
+### manual (event workflow_dispatch, API: real)
+$ bash -e <Report> (EVENT=workflow_dispatch, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+Brotli bytes at the head. gzip at the head, where the instrument reports it.
+| box-quad | index | 1182 | — |  | — | — |
+
+### found (event pull_request, API: found)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+base reading: run 777, artifact 1
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: present
+  mock: GET /repos/ausginer/material-x/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=91fc5d66201b052c5a1c88271102fda17fea75a2
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?name=size-reading
+  mock: GET /repos/ausginer/material-x/actions/runs/777/artifacts?per_page=100
+  mock: GET /repos/ausginer/material-x/actions/artifacts/1/zip
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the summary's sentence and first row:
+Brotli bytes at the head and at the merge base with the base branch. gzip at the head, where the instrument reports it.
+| box-quad | index | 1182 | 1100 | +82 | — | — |
+
+# merge-base-fails puts a stub `git` first in PATH that fails `merge-base` with
+# exit 128. corrupt-reading serves a zip whose head-size.json is
+# {"error":"not a reading"}.
+
+## The real API's artifact filter, read-only
+$ gh api "repos/ausginer/material-x/actions/runs/44276375207/artifacts" --jq .total_count
+21
+$ gh api ".../runs/44276375207/artifacts?name=reading-0.02-hover" --jq '[.total_count, (.artifacts[] | {id, name, expired})]'
+[1,{"expired":false,"id":14415650325,"name":"reading-0.02-hover"}]
+$ gh api ".../runs/44276375207/artifacts?name=size-reading" --jq '[.total_count, .artifacts]'
+[0,[]]
+
+## CI run 44453760453 at d41499005, job measurements (135323970811): success
+2026-11-19T03:49:03.5128200Z merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+2026-11-19T03:49:05.8159003Z ##[notice]main's run 44448397868 for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+#72's size comment, updated 2026-11-19T03:49:06Z, opens with:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+
+## The size-report tests at d41499005
+$ aube exec -- vitest run .scripts/size-report.node.test.ts --reporter=verbose
+Test Files 1 passed (1); Tests 20 passed (20); Type Errors no errors
+
+## The harness
+### extract.mjs
+// Writes the `run` text of verify.yml's measurements steps, verbatim.
+import { createRequire } from 'node:module';
+import { readFileSync, writeFileSync } from 'node:fs';
+const [tree, out] = process.argv.slice(2);
+const YAML = createRequire(`${tree}/package.json`)('yaml');
+const wf = YAML.parse(readFileSync(`${tree}/.github/workflows/verify.yml`, 'utf8'));
+for (const step of wf.jobs.measurements.steps) {
+  if (step.name === 'Sizes at the merge base') writeFileSync(`${out}/lookup.sh`, step.run);
+  if (step.name === 'Report') writeFileSync(`${out}/report.sh`, step.run);
+}
+### mock.mjs
+// A local stand-in for api.github.com on a unix socket. MODE picks the answer.
+import { createServer } from 'node:http';
+import { readFileSync, appendFileSync, rmSync } from 'node:fs';
+const [socket, mode, zipPath, log] = process.argv.slice(2);
+const json = (res, code, body) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)); };
+const deny = (res, code) => json(res, code, { message: code === 403 ? 'Resource not accessible by integration' : `status ${code}` });
+rmSync(socket, { force: true });
+createServer((req, res) => {
+  appendFileSync(log, `${req.method} ${req.url}\n`);
+  const u = new URL(req.url, 'http://x');
+  if (/\/actions\/workflows\/verify\.yml\/runs$/.test(u.pathname)) {
+    if (mode === '403-runs') return deny(res, 403);
+    if (mode === '429-runs') return deny(res, 429);
+    if (mode === '500-runs') return deny(res, 500);
+    if (mode === 'no-run') return json(res, 200, { total_count: 0, workflow_runs: [] });
+    return json(res, 200, { total_count: 1, workflow_runs: [{ id: 777, head_sha: u.searchParams.get('head_sha') }] });
+  }
+  if (/\/actions\/runs\/777\/artifacts$/.test(u.pathname)) {
+    if (mode === '403-artifacts') return deny(res, 403);
+    if (mode === 'no-artifact') return json(res, 200, { total_count: 0, artifacts: [] });
+    const expired = mode === 'expired';
+    return json(res, 200, { total_count: 1, artifacts: [{ id: 1, name: 'size-reading', expired, size_in_bytes: 100,
+      archive_download_url: 'https://api.github.com/repos/ausginer/material-x/actions/artifacts/1/zip' }] });
+  }
+  if (/\/actions\/artifacts\/1\/zip$/.test(u.pathname)) {
+    if (mode === '403-download') return deny(res, 403);
+    res.writeHead(200, { 'content-type': 'application/zip' });
+    return res.end(readFileSync(zipPath));
+  }
+  deny(res, 404);
+}).listen(socket);
+### case.sh
+#!/usr/bin/env bash
+# case.sh <name> <mode|real> <event>: runs the two steps' text verbatim under bash -e.
+set -u
+B=$(cd "$(dirname "$0")" && pwd); S=$(dirname "$B"); name=$1; mode=$2; event=$3
+C="${S:?}/cases/${name:?}"; rm -rf "${C:?}"; mkdir -p "$C/temp"
+cp "$S/head-size.json" "$C/temp/head-size.json"; : > "$C/output"; : > "$C/summary"; : > "$C/requests"
+export RUNNER_TEMP="$C/temp" GITHUB_OUTPUT="$C/output" GITHUB_STEP_SUMMARY="$C/summary" GITHUB_REPOSITORY=ausginer/material-x BASE_REF=main
+if [ "$mode" != real ]; then
+  mkdir -p "$C/gh"; printf 'http_unix_socket: %s\n' "${SOCK:-../cases/$name/api.sock}" > "$C/gh/config.yml"
+  (cd "$C" && exec node "$B/mock.mjs" api.sock "$mode" "$B/base.zip" "$C/requests") & mock=$!
+  for _ in $(seq 50); do [ -S "$C/api.sock" ]  && break; sleep 0.1; done
+  export GH_CONFIG_DIR="$C/gh" GH_TOKEN=dummy-not-a-token
+fi
+echo "### $name (event $event, API: $mode)"
+cd "$S/tree"
+if [ "$event" = pull_request ]; then
+  echo '$ bash -e <Sizes at the merge base>'
+  PATH="${STUBPATH:-}${STUBPATH:+:}$PATH" bash -e "$B/lookup.sh" 2>&1 | sed "s#$S#<w>#g"
+  echo "exit ${PIPESTATUS[0]}; GITHUB_OUTPUT: [$(tr '\n' ' ' < "$C/output")]; base-reading/head-size.json: $([ -f "$C/temp/base-reading/head-size.json" ] && echo present || echo absent)"
+  [ -s "$C/requests" ] && sed 's/^/  mock: /' "$C/requests"
+fi
+[ "$mode" != real ] && kill "$mock" 2>/dev/null
+missing=$(sed -n 's/^missing=//p' "$C/output")
+echo "\$ bash -e <Report> (EVENT=$event, MISSING=${missing:-<empty>})"
+EVENT=$event MISSING=$missing bash -e "$B/report.sh" > "$C/report.log" 2>&1; rc=$?
+echo "exit $rc; the summary's sentence and first row:"
+sed -n '4p' "$C/summary"; grep -m1 '^| box-quad' "$C/summary"
+echo

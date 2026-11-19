@@ -1,0 +1,55 @@
+# RF-65 on CI: run 44284889649 (#66 at bdaf13ee2), job 134735173584 (measurements)
+# Read by the architect on 2026-11-19 with `gh run view 44284889649 --job 134735173584 --log`. Lines kept verbatim, colour codes removed.
+
+## Measurement rows: `_package-builds` at the head (nx's order is by schedule for box-quad)
+Measurement rows	2026-11-18T10:24:34.9933865Z ##[endgroup]
+Measurement rows	2026-11-18T10:24:35.1185423Z nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+Measurement rows	2026-11-18T10:24:36.3611378Z 
+Measurement rows	2026-11-18T10:24:36.3612818Z  NX   Running target build for 5 projects and 1 task they depend on:
+Measurement rows	2026-11-18T10:24:36.3613478Z 
+Measurement rows	2026-11-18T10:24:36.3614644Z - @ydinjs/box-quad
+Measurement rows	2026-11-18T10:24:36.3615228Z - @ydinjs/core
+Measurement rows	2026-11-18T10:24:36.3615605Z - @ydinjs/tproc
+Measurement rows	2026-11-18T10:24:36.3616050Z - @ydinjs/vite-custom-element-assets
+Measurement rows	2026-11-18T10:24:36.3616617Z - @ydinjs/vite-traits-plugin
+Measurement rows	2026-11-18T10:24:36.3616864Z 
+Measurement rows	2026-11-18T10:24:36.3617313Z 
+Measurement rows	2026-11-18T10:24:37.0980042Z ✔  nx run @ydinjs/vite-traits-plugin:build
+Measurement rows	2026-11-18T10:24:37.2284097Z ✔  nx run size-limit-preset-rolldown:build
+Measurement rows	2026-11-18T10:24:37.2874397Z ✔  nx run @ydinjs/vite-custom-element-assets:build
+Measurement rows	2026-11-18T10:24:38.0740596Z ✔  nx run @ydinjs/tproc:build
+Measurement rows	2026-11-18T10:24:38.1075121Z ✔  nx run @ydinjs/box-quad:build
+Measurement rows	2026-11-18T10:24:38.2623597Z ✔  nx run @ydinjs/core:build
+Measurement rows	2026-11-18T10:24:38.2637358Z 
+Measurement rows	2026-11-18T10:24:38.2638174Z 
+
+## Sizes at the merge base
+Sizes at the merge base	2026-11-18T10:25:21.1727440Z merge base: a133bebee4e4dd8cd72356e94d72d5b119724723
+Sizes at the merge base	2026-11-18T10:25:23.3955551Z Error: aube exec just build failed in /home/runner/work/_temp/base/packages/box-quad:
+Sizes at the merge base	2026-11-18T10:25:23.3956350Z ℹ tsdown v0.23.7 powered by rolldown v1.3.2
+Sizes at the merge base	2026-11-18T10:25:23.3956667Z tsdown --config tsdown.config.ts
+Sizes at the merge base	2026-11-18T10:25:23.3956999Z /etc/bash.bashrc: line 7: PS1: unbound variable
+Sizes at the merge base	2026-11-18T10:25:23.3957211Z 
+Sizes at the merge base	2026-11-18T10:25:23.3957505Z  ERROR  Error: Failed to load the config file. Try setting the --config-loader CLI flag to `tsx` or `unrun`.
+Sizes at the merge base	2026-11-18T10:25:23.3957994Z 
+Sizes at the merge base	2026-11-18T10:25:23.3958543Z Cannot find module '/home/runner/work/_temp/base/node_modules/@ydinjs/vite-traits-plugin/index.js' imported from /home/runner/work/_temp/base/.scripts/tsdown-library.ts
+Sizes at the merge base	2026-11-18T10:25:23.3959272Z     at file:///home/runner/work/_temp/base/node_modules/tsdown/dist/options-C2rtkmcY.mjs:587:63
+Sizes at the merge base	2026-11-18T10:25:23.3959857Z     at async nativeImport (file:///home/runner/work/_temp/base/node_modules/tsdown/dist/options-C2rtkmcY.mjs:586:14)
+Sizes at the merge base	2026-11-18T10:25:23.4076000Z ##[notice]The merge base gave no machine-readable size reading
+
+# The newest run: 44446773137 (#68 at a3ce6d8b3), job 135300952873 (measurements)
+# Read by the architect on 2026-11-19 with `gh api repos/{owner}/{repo}/actions/jobs/135300952873/logs`. Colour codes removed.
+
+## Measurement rows: `_package-builds`
+2026-11-19T02:54:32.0636373Z ✔  nx run @ydinjs/vite-traits-plugin:build
+2026-11-19T02:54:32.1431400Z ✔  nx run size-limit-preset-rolldown:build
+2026-11-19T02:54:32.1502268Z ✔  nx run @ydinjs/vite-custom-element-assets:build
+2026-11-19T02:54:32.9872542Z ✔  nx run @ydinjs/box-quad:build
+2026-11-19T02:54:33.0632330Z ✔  nx run @ydinjs/tproc:build
+2026-11-19T02:54:33.1470404Z ✔  nx run @ydinjs/core:build
+
+## Sizes at the merge base
+2026-11-19T02:55:15.6198611Z merge base: bc7fe07d6d6e1f2be25a133dbbdab8c07227b9bc
+2026-11-19T02:55:17.1139477Z Error: aube exec just build failed in /home/runner/work/_temp/base/packages/box-quad:
+2026-11-19T02:55:17.1144123Z Cannot find module '/home/runner/work/_temp/base/node_modules/@ydinjs/vite-traits-plugin/index.js' imported from /home/runner/work/_temp/base/.scripts/tsdown-library.ts
+2026-11-19T02:55:17.1197097Z ##[notice]The merge base gave no machine-readable size reading

@@ -1,0 +1,38 @@
+# Facts behind the alternatives to the merge-base build
+# Read by the architect on 2026-11-19 with read-only `gh` calls.
+
+## Main's rules: `gh api repos/{owner}/{repo}/rulesets/20963220` ("Main protection")
+{"bypass_actors":[],"conditions":{"ref_name":{"exclude":[],"include":["~DEFAULT_BRANCH"]}},"current_user_can_bypass":"never","rules":[{"parameters":null,"type":"deletion"},{"parameters":null,"type":"non_fast_forward"},{"parameters":null,"type":"required_linear_history"},{"parameters":{"allowed_merge_methods":["squash"],"dismiss_stale_reviews_on_push":false,"dismissal_restriction":{"allowed_actors":[],"enabled":false},"require_code_owner_review":false,"require_extra_approval_for_unattributed_changes":true,"require_last_push_approval":false,"required_approving_review_count":0,"required_review_thread_resolution":false,"required_reviewers":[]},"type":"pull_request"},{"parameters":{"do_not_enforce_on_create":false,"required_status_checks":[{"context":"verify","integration_id":15368}],"strict_required_status_checks_policy":false},"type":"required_status_checks"}]}
+
+`gh api repos/{owner}/{repo}/branches/main/protection` answers 404 "Branch not
+protected": the ruleset above is the only rule on main.
+
+## Artifact retention: `gh api repos/{owner}/{repo}/actions/permissions/artifact-and-log-retention`
+{"days":90,"maximum_allowed_days":90}
+## Timings of run 44446773137 (#68 at a3ce6d8b3)
+### `measurements` steps (job 135300952873), from each step's first log line
+2026-11-19T02:47:46.9879530Z ##[group]Run reason=''
+2026-11-19T02:54:30.3628369Z ##[group]Run aube exec -- just test --tags-filter measurement --project
+2026-11-19T02:55:09.2569502Z ##[group]Run aube exec just size-reading "$RUNNER_TEMP/head-size.json"
+2026-11-19T02:55:15.6111778Z ##[group]Run base="$(git merge-base HEAD "origin/$BASE_REF")"
+2026-11-19T02:55:17.1220500Z ##[group]Run aube exec -- just size-report --head "$RUNNER_TEMP/head-si
+2026-11-19T02:55:19.8468353Z Post job cleanup.
+
+### Jobs: `gh run view 44446773137 --json jobs`
+scope	2026-11-19T02:46:52Z	2026-11-19T02:47:07Z
+static	2026-11-19T02:47:11Z	2026-11-19T02:48:30Z
+system-deps (firefox)	2026-11-19T02:47:11Z	2026-11-19T02:47:25Z
+system-deps (chromium)	2026-11-19T02:47:10Z	2026-11-19T02:47:17Z
+system-deps (webkit)	2026-11-19T02:47:11Z	2026-11-19T02:47:27Z
+records	2026-11-19T02:47:08Z	2026-11-19T02:47:07Z
+firefox	2026-11-19T02:47:29Z	2026-11-19T02:55:44Z
+measurements	2026-11-19T02:47:29Z	2026-11-19T02:55:21Z
+docs	2026-11-19T02:47:29Z	2026-11-19T02:49:03Z
+webkit	2026-11-19T02:47:30Z	2026-11-19T02:51:37Z
+chromium	2026-11-19T02:47:30Z	2026-11-19T03:00:41Z
+deploy	2026-11-19T02:49:04Z	2026-11-19T02:49:04Z
+verify	2026-11-19T03:00:44Z	2026-11-19T03:00:46Z
+
+The head reading (`just size-reading`, after `just test` built the prerequisites)
+took 6.4 s. The failing base step took 1.5 s, `aube ci` included. `measurements`
+completed 5 min 20 s before `chromium`, which `verify` waits for.

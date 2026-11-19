@@ -1,0 +1,264 @@
+# Witness 1: a fresh tree reads at the repair, and fails at its parent
+# Run by the implementer on 2026-11-19. Each tree is a new detached worktree
+# (`git worktree add --detach <tree> <commit>`), where only `aube ci` ran
+# before `aube exec just size-reading <file>`. <scratch> is the session's
+# scratch directory.
+#
+# A first attempt at 0021a710e failed inside nx with ENOENT on
+# ~/.nx/<hash>/cache/terminalOutputs/…: the implementer had run `nx reset` in
+# another tree at the same moment, for witness 3's mutation, which deleted that
+# shared directory. It is not counted. The run below is a second new tree, with
+# nothing else running.
+
+## 0021a710e (the repair), new tree
+$ aube ci
+exit 0
+$ aube exec just size-reading <scratch>/reading2-0021a710e.json
+exit 0
+rows: 33 {"box-quad":1,"core":3,"material-x":19,"drag":10}
+sha256 67cc657e5e77c28d4868ac8316dacc1a36fc99c7b4cbc22973112b995751ea52
+
+## f7dfee61f (the parent), new tree
+$ aube ci
+exit 0
+$ aube exec just size-reading <scratch>/reading-f7dfee61f.json
+exit 1
+Error: aube exec just build failed in <scratch>/wit/tree-f7dfee61f/packages/box-quad:
+Cannot find module '<scratch>/wit/tree-f7dfee61f/node_modules/@ydinjs/vite-traits-plugin/index.js' imported from <scratch>/wit/tree-f7dfee61f/.scripts/tsdown-library.ts
+
+## The reading at 0021a710e
+{
+  "rows": [
+    {
+      "package": "box-quad",
+      "row": "index",
+      "brotli": 1182,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "core",
+      "row": "element",
+      "brotli": 312,
+      "gzip": null,
+      "limit": 340
+    },
+    {
+      "package": "core",
+      "row": "emitter",
+      "brotli": 198,
+      "gzip": null,
+      "limit": 210
+    },
+    {
+      "package": "core",
+      "row": "traits/reorderable",
+      "brotli": 3270,
+      "gzip": null,
+      "limit": 3500
+    },
+    {
+      "package": "material-x",
+      "row": "button/button",
+      "brotli": 4828,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/icon-button",
+      "brotli": 5380,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/link-button",
+      "brotli": 4799,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-button",
+      "brotli": 5411,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-icon-button",
+      "brotli": 5870,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/split-button",
+      "brotli": 7514,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/button-group",
+      "brotli": 3308,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/connected-button-group",
+      "brotli": 4024,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "checkbox/checkbox",
+      "brotli": 4144,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "fab/fab",
+      "brotli": 4351,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "icon/icon",
+      "brotli": 661,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list",
+      "brotli": 3664,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-item",
+      "brotli": 2585,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-button-item",
+      "brotli": 4555,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-link-item",
+      "brotli": 4763,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "radio/radio",
+      "brotli": 3581,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/multiline-text-field",
+      "brotli": 4434,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/text-field",
+      "brotli": 8396,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "complete",
+      "brotli": 17137,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "drag",
+      "row": "draggable alone",
+      "brotli": 2189,
+      "gzip": 2422,
+      "limit": 2189
+    },
+    {
+      "package": "drag",
+      "row": "draggable + lift",
+      "brotli": 3932,
+      "gzip": 4362,
+      "limit": 3932
+    },
+    {
+      "package": "drag",
+      "row": "example: resize handle",
+      "brotli": 3265,
+      "gzip": 3607,
+      "limit": 3265
+    },
+    {
+      "package": "drag",
+      "row": "example: drop zone",
+      "brotli": 4570,
+      "gzip": 5058,
+      "limit": 4570
+    },
+    {
+      "package": "drag",
+      "row": "example: canvas group",
+      "brotli": 3261,
+      "gzip": 3573,
+      "limit": 3261
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag",
+      "brotli": 4984,
+      "gzip": 5526,
+      "limit": 4984
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag + bounds + landing",
+      "brotli": 5465,
+      "gzip": 6041,
+      "limit": 5465
+    },
+    {
+      "package": "drag",
+      "row": "sortable + y",
+      "brotli": 6533,
+      "gzip": 7232,
+      "limit": 6533
+    },
+    {
+      "package": "drag",
+      "row": "sortable + xy",
+      "brotli": 6484,
+      "gzip": 7191,
+      "limit": 6484
+    },
+    {
+      "package": "drag",
+      "row": "complete",
+      "brotli": 7143,
+      "gzip": 7900,
+      "limit": 7143
+    }
+  ]
+}
