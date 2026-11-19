@@ -170,3 +170,29 @@ Architect B ruled Mx Reviewer's repair verification in the plan's [Rulings on th
 | N2: `trait-module.ts`, the write check that reads only an identifier on the left of `=` and an update's argument | a brand that a destructuring (R4), a `for…of` (R5), or a second declaration assigns again; 3 of 13 |
 
 W3's rows and V1 to V4 keep their results. A `declare namespace` that names the composition only as a type flattens. With both files restored, all 95 plugin tests pass. **Proof 7, rerun at `7b04eb862`:** `just build` (no `trait-member-conflict`), `typecheck`, `typecheck-declarations`, `lint` and `fmt-check` pass.
+
+## The repairs from the final verification
+
+Mx Reviewer's final verification found two shapes that the counters still missed, each under Architect B's ruling that a counter fails closed. Commit `9db2f67f5` repairs both:
+
+- **final-1:** `countValueReferences` counts every identifier-like node, `JSXIdentifier` included. `<FooBase />` and `<FooBase.Inner />` in a `.tsx` module are references. The exceptions are a JSX attribute's name, the property of a JSX member name, and a private or namespaced JSX name. The plugin document also says that a direct `eval('FooBase')` can't be seen.
+- **final-2:** the brand's second-declaration check counts every `var` in the module, in a block or a loop head as at the top level, because `var` hoists to the module's scope. The document's list of write forms now matches the code.
+
+**Each new test fails without its repair.** Each source file was put back to its `4dea13f38` state alone, the new tests run, and the file restored.
+
+| Reverted | Fails |
+| --- | --- |
+| P1: `annotation.ts` | a JSX element and a JSX member element named after the composition; 2 of 45 |
+| P2: `trait-module.ts` | a brand that a `var` in a block, or a `for…of`'s `var`, declares again; 2 of 15 |
+
+A JSX attribute named `FooBase` still flattens. With both files restored, all 100 plugin tests pass.
+
+**Reruns at `9db2f67f5`:**
+
+| Check | Result |
+| --- | --- |
+| `just build` | passed; no `trait-member-conflict` |
+| `just typecheck`, `typecheck-declarations`, `lint`, `fmt-check` | passed |
+| the plugin's tests | 8 files, 100 tests, all passed |
+| core's tests | 26 files, 297 tests, all passed |
+| material-x's tests, proof 1 among them in Chromium | 20 files, 427 tests, all passed |
