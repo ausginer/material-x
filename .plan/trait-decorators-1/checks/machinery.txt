@@ -1,0 +1,21 @@
+# P8 — node .plan/trait-decorators-1/probes/toolchain/machinery.ts, at d1ea40e22, 2026-11-19
+== 1. analyzeModule on the decorator-marker component
+compositions: 0 bailouts: 0
+== 2. collectFreeReferences on each member of the class traits
+Disableable.get disabled: [ 'attr', 'Bool' ]
+Disableable.set disabled: [ 'attr', 'Bool' ]
+FocusForwarding.method focus: [ 'controls' ]
+CallsSuper.focus: retained — a member uses Super, which the analysis doesn't model
+== 3. strip every decorator span with RolldownMagicString
+import { ControlledElement, traits } from './element.ts';
+import { Disableable, FocusForwarding } from './traits.ts';
+import { attr, Bool } from './attr.ts';
+
+export interface Button extends Disableable, FocusForwarding {}
+export class Button extends ControlledElement {
+  accessor pressed!: boolean;
+  check(): boolean {
+    return this.disabled;
+  }
+}
+

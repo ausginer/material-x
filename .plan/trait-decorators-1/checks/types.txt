@@ -1,0 +1,295 @@
+# P1–P12 — .plan/trait-decorators-1/probes/types/run.sh, at d1ea40e22, 2026-11-19
+=== p1-decorator-only — Version 7.0.2
+p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
+exit 2
+=== p1-decorator-only — Version 6.0.3
+p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
+exit 2
+=== p2-decorator-interface — Version 7.0.2
+p2-decorator-interface.ts(20,18): error TS2339: Property 'disabled' does not exist on type 'ControlledElement'.
+p2-decorator-interface.ts(38,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(41,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(57,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p2-decorator-interface.ts(64,18): error TS2320: Interface 'Clash' cannot simultaneously extend types 'NamedString' and 'NamedNumber'.
+  Named property 'name' of types 'NamedString' and 'NamedNumber' are not identical.
+exit 2
+=== p2-decorator-interface — Version 6.0.3
+p2-decorator-interface.ts(20,18): error TS2339: Property 'disabled' does not exist on type 'ControlledElement'.
+p2-decorator-interface.ts(38,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(41,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(57,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p2-decorator-interface.ts(64,18): error TS2320: Interface 'Clash' cannot simultaneously extend types 'NamedString' and 'NamedNumber'.
+  Named property 'name' of types 'NamedString' and 'NamedNumber' are not identical.
+exit 2
+=== p2-typed-marker — Version 7.0.2
+p2-typed-marker.ts(30,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Missing' is not assignable to parameter of type 'abstract new (...args: any[]) => Disableable & FocusForwarding'.
+    Type 'Missing' is not assignable to type 'Disableable & FocusForwarding'.
+      Property 'disabled' is missing in type 'Missing' but required in type 'Disableable'.
+exit 2
+=== p2-typed-marker — Version 6.0.3
+p2-typed-marker.ts(30,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Missing' is not assignable to parameter of type 'abstract new (...args: any[]) => Disableable & FocusForwarding'.
+    Type 'Missing' is not assignable to type 'Disableable & FocusForwarding'.
+      Property 'disabled' is missing in type 'Missing' but required in type 'Disableable'.
+exit 2
+=== p6-member-kinds — Version 7.0.2
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+p6-member-kinds.ts(20,16): error TS2611: 'value' is defined as a property in class 'FieldA', but is overridden here in 'SubFieldA' as an accessor.
+p6-member-kinds.ts(41,18): error TS2430: Interface 'Incompatible' incorrectly extends interface 'Disableable'.
+  Types of property 'disabled' are incompatible.
+    Type 'string' is not assignable to type 'boolean'.
+p6-member-kinds.ts(61,41): error TS2339: Property 'formAssociated' does not exist on type 'typeof Form'.
+exit 2
+=== p6-member-kinds — Version 6.0.3
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+p6-member-kinds.ts(20,16): error TS2611: 'value' is defined as a property in class 'FieldA', but is overridden here in 'SubFieldA' as an accessor.
+p6-member-kinds.ts(41,18): error TS2430: Interface 'Incompatible' incorrectly extends interface 'Disableable'.
+  Types of property 'disabled' are incompatible.
+    Type 'string' is not assignable to type 'boolean'.
+p6-member-kinds.ts(61,41): error TS2339: Property 'formAssociated' does not exist on type 'typeof Form'.
+exit 2
+=== p9-brand-props — Version 7.0.2
+p9-brand-props.ts(16,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9-brand-props.ts(21,17): error TS2741: Property '[$forwarding]' is missing in type 'ControlledElement' but required in type 'Forwarding'.
+p9-brand-props.ts(23,18): error TS2320: Interface 'Adopter' cannot simultaneously extend types 'ControlledElement' and 'Forwarding'.
+  Named property 'focus' of types 'ControlledElement' and 'Forwarding' are not identical.
+p9-brand-props.ts(44,42): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type 'TraitProps<Disableable>'.
+exit 1
+=== p9-brand-props — Version 6.0.3
+p9-brand-props.ts(16,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9-brand-props.ts(21,17): error TS2345: Argument of type 'ControlledElement' is not assignable to parameter of type 'Forwarding'.
+  Property '[$forwarding]' is missing in type 'ControlledElement' but required in type 'Forwarding'.
+p9-brand-props.ts(23,18): error TS2320: Interface 'Adopter' cannot simultaneously extend types 'ControlledElement' and 'Forwarding'.
+  Named property 'focus' of types 'ControlledElement' and 'Forwarding' are not identical.
+p9-brand-props.ts(44,42): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type 'TraitProps<Disableable>'.
+exit 1
+=== p9b-brand-forms — Version 7.0.2
+p9b-brand-forms.ts(7,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(13,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(26,14): error TS2741: Property '#brand' is missing in type 'ControlledElement' but required in type 'PrivateBrand'.
+exit 1
+=== p9b-brand-forms — Version 6.0.3
+p9b-brand-forms.ts(7,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(13,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(26,14): error TS2345: Argument of type 'ControlledElement' is not assignable to parameter of type 'PrivateBrand'.
+  Property '#brand' is missing in type 'ControlledElement' but required in type 'PrivateBrand'.
+exit 1
+=== p10-today-own-field — Version 7.0.2
+exit 0
+=== p10-today-own-field — Version 6.0.3
+exit 0
+=== p11-type-argument — Version 7.0.2
+p11-type-argument.ts(49,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p11-type-argument.ts(78,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[typeof Disableable]>', but is overridden here in 'OwnField' as an instance property.
+exit 2
+=== p11-type-argument — Version 6.0.3
+p11-type-argument.ts(49,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p11-type-argument.ts(78,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[typeof Disableable]>', but is overridden here in 'OwnField' as an instance property.
+exit 2
+=== p12-instance-arguments — Version 7.0.2
+p12-instance-arguments.ts(33,39): error TS2344: Type '[HTMLElement]' does not satisfy the constraint 'readonly ControlledElement[]'.
+  Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+exit 2
+=== p12-instance-arguments — Version 6.0.3
+p12-instance-arguments.ts(33,39): error TS2344: Type '[HTMLElement]' does not satisfy the constraint 'readonly ControlledElement[]'.
+  Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+exit 2
+=== p3-interface-only — Version 7.0.2
+exit 0
+=== p3-interface-only — Version 6.0.3
+exit 0
+=== p4-impl-class — Version 7.0.2
+p4-impl-class.ts(24,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p4-impl-class.ts(27,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+p4-impl-class.ts(49,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'Counter' as an accessor.
+exit 1
+=== p4-impl-class — Version 6.0.3
+p4-impl-class.ts(24,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p4-impl-class.ts(27,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+p4-impl-class.ts(49,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'Counter' as an accessor.
+exit 1
+=== p5-attribute-accessor — Version 7.0.2
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+exit 2
+=== p5-attribute-accessor — Version 6.0.3
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+exit 2
+=== p1-decorator-only with experimentalDecorators — Version 7.0.2
+p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.
+p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
+exit 2
+=== emitted out/p2-decorator-interface/p2-decorator-interface.d.ts
+import { ControlledElement } from './element.ts';
+import { Counted, Disableable, FocusForwarding, NamedNumber, NamedString } from './traits.ts';
+export interface Button extends Disableable, FocusForwarding {
+}
+export declare class Button extends ControlledElement {
+    check(): boolean;
+    readSuper(): boolean;
+}
+export interface Linkish extends Disableable {
+}
+export declare class Linkish extends ControlledElement {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export interface Linkish2 extends Disableable {
+}
+export declare class Linkish2 extends ControlledElement {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class SubButton extends Button {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export interface Counter extends Counted {
+}
+export declare class Counter extends ControlledElement {
+}
+export declare class SubCounter extends Counter {
+    get count(): number;
+    set count(_value: number);
+}
+export interface Clash extends NamedString, NamedNumber {
+}
+export declare class Clash extends ControlledElement {
+}
+export declare function useDisableable(host: Disableable): void;
+export declare function setUp(button: Button): void;
+export declare function isDisabled(element: Element): boolean;
+export declare class SubButton2 extends Button {
+    focus(options?: FocusOptions): void;
+}
+=== emitted out/p3-interface-only/p3-interface-only.d.ts
+import { ControlledElement } from './element.ts';
+import { Disableable, FocusForwarding } from './traits.ts';
+export declare class ButtonLike extends ControlledElement {
+    get color(): string | null;
+    set color(value: string | null);
+}
+/** A shared group, as BUTTON_CORE_TRAITS is today. */
+export interface ButtonCore extends ButtonLike, Disableable {
+}
+export declare function useButtonCore(host: ButtonCore): string | null;
+export interface IconButton extends ButtonCore, FocusForwarding {
+}
+export declare class IconButton extends ControlledElement {
+    connectedCallback(): void;
+}
+=== emitted out/p6-member-kinds/p6-member-kinds.d.ts
+import { ControlledElement } from './element.ts';
+import { Disableable } from './traits.ts';
+export declare class DeclaredValue extends ControlledElement {
+    value: string | null;
+}
+export interface FieldA extends DeclaredValue {
+}
+export declare class FieldA extends ControlledElement {
+}
+export declare class SubFieldA extends FieldA {
+    get value(): string | null;
+    set value(_value: string | null);
+}
+export declare class AccessorValue extends ControlledElement {
+    accessor value: string | null;
+}
+export interface FieldB extends AccessorValue {
+}
+export declare class FieldB extends ControlledElement {
+}
+export declare class SubFieldB extends FieldB {
+    get value(): string | null;
+    set value(_value: string | null);
+}
+export interface Incompatible extends Disableable {
+}
+export declare class Incompatible extends ControlledElement {
+    get disabled(): string;
+    set disabled(_value: string);
+}
+export interface OwnField extends Disableable {
+}
+export declare class OwnField extends ControlledElement {
+    disabled: boolean;
+}
+export declare class FormTrait extends ControlledElement {
+    static formAssociated: boolean;
+}
+export interface Form extends FormTrait {
+}
+export declare class Form extends ControlledElement {
+}
+export declare const associated: boolean;
+export declare abstract class Abstract extends ControlledElement {
+    get flag(): boolean;
+}
+export interface UsesAbstract extends Abstract {
+}
+export declare class UsesAbstract extends ControlledElement {
+}
+export declare function readFlag(element: Element): boolean;
+=== emitted out/p9-brand-props/p9-brand-props.d.ts
+(none)
+=== emitted out/p11-type-argument/p11-type-argument.d.ts
+import { ControlledElement } from './element.ts';
+import { Counted, Disableable, FocusForwarding } from './traits.ts';
+type Ctor = abstract new (...args: any[]) => object;
+type All<T extends readonly Ctor[]> = T extends readonly [
+    infer H extends Ctor,
+    ...infer R extends readonly Ctor[]
+] ? InstanceType<H> & All<R> : unknown;
+/** The instance type a trait list gives a host, for use* helpers. */
+export type Traited<T extends readonly Ctor[]> = ControlledElement & All<T>;
+/**
+ * The marker. At runtime it is ControlledElement, or a subclass whose
+ * constructor throws when the flattener didn't run.
+ */
+export declare const Traits: typeof ControlledElement & (new <const T extends readonly Ctor[]>() => Traited<T>);
+export declare class Button extends Traits<[
+    typeof Disableable,
+    typeof FocusForwarding
+]> {
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export declare class Linkish extends Traits<[typeof Disableable]> {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class Counter extends Traits<[typeof Counted]> {
+}
+export declare class SubCounter extends Counter {
+    get count(): number;
+    set count(_value: number);
+}
+export type ButtonCoreTraits = readonly [typeof Disableable];
+export type ButtonCore = Traited<ButtonCoreTraits>;
+export declare function useButtonCore(host: ButtonCore): boolean;
+export declare class IconButton extends Traits<[
+    ...ButtonCoreTraits,
+    typeof FocusForwarding
+]> {
+    connectedCallback(): void;
+}
+export declare const observed: readonly string[] | undefined;
+export declare class Bare extends Traits {
+}
+export declare class OwnField extends Traits<[typeof Disableable]> {
+    disabled: boolean;
+}
+export {};

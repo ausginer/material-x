@@ -1,0 +1,25 @@
+# The language service on the probes, through this harness's TypeScript language
+# server (the LSP tool), at d1ea40e22, 2026-11-19. Positions are 1-based.
+
+The first hover on each file returned `any`, before the server had loaded the
+probes' tsconfig. After it loaded them, it published these diagnostics, the same
+as `tsc` and `tsc6` in types.txt:
+
+p2-decorator-interface.ts: 20:18 TS2339, 38:16 TS4113, 41:16 TS4113,
+  57:16 TS2611, 64:18 TS2320
+p11-type-argument.ts: 47:16 TS2611, 76:12 TS2610
+
+These reads were taken before oxfmt formatted the probes. Formatting moved
+p11-type-argument.ts's lines down by two: today `this.disabled` is at 31:12 and
+the errors are at 49:16 and 78:12, as types.txt shows. The language server
+hadn't reloaded the file when this was written, so the positions below are the
+unformatted ones. p2-decorator-interface.ts didn't move.
+
+Form D, p11-type-argument.ts 29:17 (`this.disabled` in a class that extends
+`Traits<[typeof Disableable, typeof FocusForwarding]>`):
+  hover:            (property) Disableable.disabled: boolean
+  goToDefinition:   traits.ts:5:7 and traits.ts:8:7 (the trait's getter and setter)
+
+Form A, p2-decorator-interface.ts 17:17 (`this.disabled` in a class merged
+with `interface Button extends Disableable, FocusForwarding`):
+  hover:            (property) Disableable.disabled: boolean
