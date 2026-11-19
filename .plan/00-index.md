@@ -1331,7 +1331,7 @@ No register entry held that design. It lived in the code, in that document and i
    - The plugin's layer (b) code is a part of its own, and nothing in layer (a)'s code imports it.
 7. **The brand install names symbols, not classes.**
    - The generated block reads `impl(this, $a, $b)`.
-   - In the trait's own build, `trait(this)` becomes `/* @__PURE__ */ trait(this, $brand)`, where `$brand` is a module-level `Symbol` that the build exports.
+   - In the trait's own build, `trait(this)` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class. One that uses it keeps the class, without its members where property 8 applies. _(Amended 2026-11-19, below.)_
    - The author still writes `trait(this)`. `trait`'s second parameter is optional, so an unbuilt trait module still runs.
 8. **An application build deletes each trait class's copied instance members** from the trait module. An application build is Vite's `build` without `build.lib`. A library build keeps them, because another package copies from its `.js`.
 9. **The flattener is a required build step** for every module that composes traits.
@@ -1354,6 +1354,16 @@ No register entry held that design. It lived in the code, in that document and i
 - a bundle that uses `instanceof` keeps the class, and property 8 takes its members out: 1,890 B with them, 1,643 B without.
 
 That is the size the owner's _"where `instanceof` is needed"_ asks for. It also keeps today's size: today's flattened output links a module-level brand, and its trait objects are pure and dropped.
+
+**Amended 2026-11-19 by the architect, on Architect B's proposal in the [migration plan](trait-decorators-1/trait-migration-plan.md#proposed-rd-26-amendment) at `b53beff07`. The owner approved it the same day,** relayed by the coordinator: _keep `trait(this)` in source, and have the build emit the static method._ Property 7's second bullet now names the static `[Symbol.hasInstance]` method, which replaces the accepted `/* @__PURE__ */ trait(this, $brand)`.
+
+- **Why the pure call goes:** it breaks `instanceof`. The implementer found this in the migration's commit 3. rolldown and esbuild remove a pure call whose result is unused, even inside a class they keep, so the brand is never installed. P41 read only whether the class survived, and its bytes. Its figures for the pure-marked form with `instanceof` describe a bundle whose `instanceof` is false.
+- **The evidence is [P42](trait-decorators-1/trait-decorators-plan.md#evidence)** ([transcript](trait-decorators-1/checks/brand-install.txt)). It runs each bundle in Node 26.13, minified, with rolldown 1.3.2 and esbuild 0.28.1, from the trait's own build and from a rolldown library build of it.
+  - **The static method:** a bundle that never uses `instanceof` drops the class. With rolldown that bundle is 446 B, 213 B brotli. A bundle that uses `instanceof` keeps the class: `instanceof` is `true` for the trait's element and `false` for another element and for `null`. The library build keeps the install.
+  - **The pure call:** `instanceof` is `false` for every object in both bundlers, and the library build drops the install.
+  - **The unmarked call:** every trait class stays, with its members.
+  - **A static field of the same value:** holds all four of the plan's properties too. It is rejected because a toolchain that lowers class fields to assignment, such as `useDefineForClassFields: false`, makes it throw. `Function.prototype[Symbol.hasInstance]` isn't writable, so the assignment raises a `TypeError`.
+- **The owner's intended follow-up, not decided here:** after this pull request, an `@trait` decorator that the plugin compiles replaces `static { trait(this); }` in source. Trait sources are always built and tested through the plugin, as material-x's CSS is. That pass needs its own decision.
 
 **One branch and one pull request,** on the owner's decision 5:
 
@@ -1384,6 +1394,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **a decorator that names the traits:** it can't change the class's type (P1);
 - **a merged interface beside the class** (the study's forms A and B): it is the boilerplate the owner wanted gone, and it repeats the list;
 - **`impl(this, Linked)`,** which names the trait class: every bundle keeps the class (P41);
+- **`/* @__PURE__ */ trait(this, $brand)` in the trait's own build,** which property 7 first named: a bundler removes the call, so `instanceof` is false (P42, amended 2026-11-19);
+- **a static `[Symbol.hasInstance]` field:** a toolchain that lowers class fields to assignment makes it throw (P42);
 - **a shared key as a build error:** the owner chose last-wins;
 - **stripping types in the plugin before inserting JavaScript into a `.ts` module:** Vite re-reads the code by the module's id and ignores `moduleType` ([P39](trait-decorators-1/trait-decorators-plan.md#evidence) §5, `RF-44`'s note of 2026-11-19);
 - **deduplicating `observedAttributes`:** each engine calls back once per change despite duplicates (P39 §3).
@@ -2517,8 +2529,8 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item
 **Dated 2026-11-19 by the architect: this entry closes with `RD-26`'s migration, and the repair on hold isn't needed.**
 
 - **No shared list is left.** Under `RD-26`, each `*_TRAITS` value list becomes a tuple type, and each component's brand install is a generated literal, `impl(this, $a, $b)`. So a bundler has no runtime list to keep.
-- **A trait class that only brands drops** where nothing uses `instanceof`, because the trait's own build marks `trait()` pure. [P41](trait-decorators-1/trait-decorators-plan.md#evidence), with rolldown, gives 1,486 B against 1,988 B.
-- **The closure reads both named bundlers.** P41 measured rolldown only, and this entry names rolldown and esbuild. So the closure reads the eight `FocusForwarding` adopters' entries at the migration's last commit, with both bundlers, as this entry's direction states: whether the `trait()` call, a trait class or a list survives, and the bytes.
+- **A trait class that only brands drops** where nothing uses `instanceof`, because the trait's own build installs the brand as a static `[Symbol.hasInstance]` method, which has no side effect (`RD-26` property 7, amended 2026-11-19). [P41](trait-decorators-1/trait-decorators-plan.md#evidence), with rolldown, gives 1,486 B against 1,988 B. [P42](trait-decorators-1/trait-decorators-plan.md#evidence) shows that the class drops with the static method in both bundlers.
+- **The closure reads both named bundlers.** P41 measured rolldown only, and this entry names rolldown and esbuild. So the closure reads the eight `FocusForwarding` adopters' entries at the migration's last commit, with both bundlers, as this entry's direction states: whether the brand install, a trait class or a list survives; `instanceof` in each bundle that keeps a trait class; and the bytes.
   - If esbuild keeps a trait class, the closure records it under the required property's second branch: the bundler, the bytes and why that is accepted.
 - **It closes** on that reading, on `repo/traits-migration-1`, before its pull request opens. The architect writes the closure.
 
