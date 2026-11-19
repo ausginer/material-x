@@ -13,9 +13,8 @@
  * measurement rows. `--base-missing` states that `main`'s run stored no reading
  * for the merge base. Otherwise a `--base` file that is absent or holds no
  * reading is a failed lookup, and a run without `--base` looked up no base.
- * Every exceeded limit and
- * every failed measurement row is also printed to stdout as a GitHub Actions
- * warning annotation.
+ * Every exceeded limit and every failed measurement row is also printed to
+ * stdout as a GitHub Actions warning annotation.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
