@@ -1,0 +1,71 @@
+# RF-60: what the flattener generates for the failing row, at 91fc5d662 (origin/main)
+# Printed by the architect on 2026-11-19 with a scratch script that calls tests/helpers.ts's
+# flattenToDir('consumer.ts', { augment: ['checkable.ts', 'nameable.ts'], passthrough: ['base.ts'] })
+# exactly as tests/flatten.node.test.ts's first describe block does, and prints the files.
+
+===== foo-flat.ts
+import __mxflat_attr from "@ydinjs/core/attribute.js";
+import { __mxflat_$checkable_90a5ac53 as __mxflat_lnk_6fda5f37 } from "./checkable.ts";
+import { CHECKABLE_ATTRS as __mxflat_lnk_195741f8 } from "./checkable.ts";
+import { __mxflat_$nameable_d7b7babf as __mxflat_lnk_7a4fb491 } from "./nameable.ts";
+import { NAMEABLE_ATTRS as __mxflat_lnk_e184c421 } from "./nameable.ts";
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+import { Nameable } from './nameable.ts';
+
+
+
+export default class Foo extends Base {
+  static observedAttributes = [...new Set([...(Base.observedAttributes ?? []), "checked", "name"])];
+  get "checked"() { return __mxflat_attr.get(this, "checked", __mxflat_lnk_195741f8.checked); }
+  set "checked"(value) { __mxflat_attr.set(this, "checked", value, __mxflat_lnk_195741f8.checked); }
+  get "name"() { return __mxflat_attr.get(this, "name", __mxflat_lnk_e184c421.name); }
+  set "name"(value) { __mxflat_attr.set(this, "name", value, __mxflat_lnk_e184c421.name); }
+  static {
+    Object.defineProperties(this.prototype, {
+      [__mxflat_lnk_6fda5f37]: { value: true },
+      [__mxflat_lnk_7a4fb491]: { value: true },
+    });
+  }
+
+  extra = 'here';
+}
+
+===== nameable.ts
+import { Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+
+const $nameable: unique symbol = Symbol('Nameable');
+
+export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
+  name: Str,
+};
+
+export const Nameable: Trait<{ name: string | null }, typeof $nameable> = trait(
+  NAMEABLE_ATTRS,
+  $nameable,
+);
+
+export { $nameable as __mxflat_$nameable_d7b7babf, $nameable };
+
+===== checkable.ts
+import { Bool, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+
+const $checkable: unique symbol = Symbol('Checkable');
+
+export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
+  checked: Bool,
+};
+
+export const Checkable: Trait<{ checked: boolean }, typeof $checkable> = trait(
+  CHECKABLE_ATTRS,
+  $checkable,
+);
+
+export { $checkable as __mxflat_$checkable_90a5ac53, $checkable };
+

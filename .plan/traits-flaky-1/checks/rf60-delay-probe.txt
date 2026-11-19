@@ -1,0 +1,27 @@
+# RF-60: does a slow transform of a generated trait make the runner evaluate it twice?
+# Run by the architect on 2026-11-19 at 91fc5d662 (origin/main). A scratch configuration,
+# packages/vite-traits-plugin/vitest.rf60-probe.config.ts, deleted afterwards, ran only
+# tests/flatten.node.test.ts with one extra Vite plugin. For the generated
+# fixtures/gen-*/<RF60_FILE>.ts, the plugin:
+#   - waits RF60_DELAY ms in `transform` before the module's code is returned;
+#   - appends a line that writes "evaluate <file>" to a log each time the module is evaluated.
+# Command, from packages/vite-traits-plugin:
+#   RF60_FILE=<file> RF60_DELAY=<ms> RF60_LOG=<log> aube exec -- vitest run --config vitest.rf60-probe.config.ts
+
+| RF60_FILE | RF60_DELAY | Tests        | Evaluations of the generated file                        |
+| --------- | ---------- | ------------ | -------------------------------------------------------- |
+| nameable  | 0          | 8 passed (8) | 1                                                        |
+| nameable  | 300        | 8 passed (8) | 1                                                        |
+| nameable  | 1000       | 8 passed (8) | not logged (that run only counted console lines, which Vitest captured) |
+| nameable  | 2000       | 8 passed (8) | 1                                                        |
+| checkable | 2000       | 8 passed (8) | 2: one in each describe block's own gen-* directory      |
+
+A transform log of the RF60_DELAY=300 run showed each generated file transformed once:
+foo-composed, foo-flat, checkable, nameable, base in the first block's directory.
+
+Not settled: which URL strings the runner sends for the test's `import(gen.url(…))` and for
+foo-flat.ts's `import … from "./nameable.ts"`. A hook on `server.environments.ssr.fetchModule`
+recorded nothing, so Vitest's project server fetches through another path, and this probe
+didn't find it.
+
+So a delayed transform alone doesn't make the generated trait module evaluate twice.
