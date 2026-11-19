@@ -112,6 +112,16 @@ Each witness is saved in this record's `checks/` with the command, the commit an
 
 Witnesses 4 to 6 can only be observed after the merge, because only a push to `main` stores a reading. Before the merge, a reviewer reads the workflow and runs the lookup by hand with `gh`, read-only, against any `main` push run, where it finds no artifact. That shows the missing-reading path.
 
+## Implementation
+
+Implemented by the implementer on 2026-11-19 at `0021a710e`, on the coordinator's task, to properties 1 to 7.
+
+- **Properties 1 and 3:** `box-quad`'s and `drag`'s `project.json` declare the plugin, `nx.json` gives `size` the default `["^build"]`, and material-x's `project.json` has no `targets`.
+- **Property 2:** `.scripts/size-reading.ts` builds its `MEASURED` list with one `nx run-many -t build --skipNxCache` and reads the same list. The packages are read concurrently, because each instrument bundles into its own temporary directory, and the rows keep the list's order.
+- **Properties 4 to 6:** on a push, `measurements` uploads `head-size.json` as the artifact `size-reading` with the repository's retention. On a pull request, it finds `verify.yml`'s push run on `main` for the merge base and downloads that artifact. It builds nothing. The job has `actions: read`. A missing run or artifact logs a notice, and the report says _"`main`'s run for the merge base stored no size reading"_. A push run's summary says the same, because a push has no base reading either.
+
+Witnesses: [1](checks/witness-1-fresh-tree.txt) (33 rows at the repair, `box-quad`'s plugin error at its parent), [2](checks/witness-2-ordering.txt) (byte-identical), [3](checks/witness-3-graphs.txt) (both graphs and the mutation), and [6 by hand](checks/witness-6-lookup.txt), which also states how 4 to 6 are read after the merge.
+
 ## What the closure needs
 
 `RF-65` closes when:
