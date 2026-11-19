@@ -78,9 +78,13 @@ function commitOnReorder(list: HTMLElement): void {
  * message of a row whose landing wait gives up in Safari (`repo:RF-36`). It
  * records the gesture's pointer events, each `animate()` call on the item and
  * when its `finished` settles, the item's `toggle` events, each change of its
- * inline `position`, every frame with `document.timeline.currentTime`, the
- * lateness of a 50 ms timer, and the page's visibility and focus. Times are
- * milliseconds from the call.
+ * inline `position`, each poll of the row's wait with
+ * `document.timeline.currentTime`, and the page's visibility and focus. Times
+ * are milliseconds from the call.
+ *
+ * Until the wait gives up, it schedules no callback of its own, so that it
+ * can't prevent the stall it reports: the polls stand in for frames and a
+ * timer. Only `watch` requests frames and runs a timer.
  */
 function traceLanding(list: HTMLElement, item: HTMLElement) {
   const start = performance.now();
@@ -154,52 +158,82 @@ function traceLanding(list: HTMLElement, item: HTMLElement) {
     value: tracedAnimate,
   });
 
-  const frames: Array<[at: number, timeline: number | null]> = [];
-  let frame = requestAnimationFrame(function onFrame() {
-    frames.push([at(), timelineTime()]);
-    frame = requestAnimationFrame(onFrame);
-  });
-
-  const timerLateness: number[] = [];
-  let ticks = 0;
-  const timer = setInterval(() => {
-    ticks += 1;
-    timerLateness.push(
-      Math.round((performance.now() - start - ticks * 50) * 10) / 10,
-    );
-  }, 50);
+  const polls: Array<[at: number, timeline: number | null]> = [];
 
   const atStart = pageState();
 
   return {
     mark,
-    /** The trace so far as JSON, with the item's animation as it is now. */
-    read(): string {
+    /** Records one poll of the row's wait. */
+    poll(): void {
+      polls.push([at(), timelineTime()]);
+    },
+    /**
+     * Called once the wait has given up: watches frames and a 50 ms timer for
+     * `bound` ms, then gives the whole trace as JSON, with the page and the
+     * item's animation as they were when the wait gave up.
+     */
+    async watch(bound: number): Promise<string> {
+      const now = pageState();
       const timing = animation?.effect?.getComputedTiming();
+      const animationState = animation && {
+        playState: animation.playState,
+        currentTime:
+          animation.currentTime == null
+            ? null
+            : Math.round(Number(animation.currentTime) * 10) / 10,
+        progress: timing?.progress ?? null,
+        duration: timing?.duration ?? null,
+      };
+      const marksBefore = marks.length;
+      const watchStart = performance.now();
+      const frames: Array<[at: number, timeline: number | null]> = [];
+      const timerLateness: number[] = [];
+      let frame = requestAnimationFrame(function onFrame() {
+        frames.push([at(), timelineTime()]);
+        frame = requestAnimationFrame(onFrame);
+      });
+      let ticks = 0;
+      const timer = setInterval(() => {
+        ticks += 1;
+        timerLateness.push(
+          Math.round((performance.now() - watchStart - ticks * 50) * 10) / 10,
+        );
+      }, 50);
+      await new Promise((resolve) => {
+        setTimeout(resolve, bound);
+      });
+      cancelAnimationFrame(frame);
+      clearInterval(timer);
+
+      const lastTimeline = frames.at(-1)?.[1] ?? null;
       return JSON.stringify({
         marks,
         lastMove,
         atStart,
-        now: pageState(),
-        animation: animation && {
-          playState: animation.playState,
-          currentTime:
-            animation.currentTime == null
-              ? null
-              : Math.round(Number(animation.currentTime) * 10) / 10,
-          progress: timing?.progress ?? null,
-          duration: timing?.duration ?? null,
+        atGiveUp: now,
+        animation: animationState,
+        polls,
+        afterGiveUp: {
+          bound,
+          framesArrived: frames.length > 0,
+          timelineAdvanced:
+            lastTimeline != null &&
+            now.timeline != null &&
+            lastTimeline > now.timeline,
+          tornDown: marks
+            .slice(marksBefore)
+            .some(([name]) => name.startsWith('position ')),
+          frames,
+          timerLateness,
         },
-        frames,
-        timerLateness,
       });
     },
+    /** Removes what the trace installed. */
     dispose(): void {
       controller.abort();
       observer.disconnect();
       Object.defineProperty(Element.prototype, 'animate', nativeAnimate);
-      cancelAnimationFrame(frame);
-      clearInterval(timer);
     },
   };
 }
@@ -1052,15 +1086,22 @@ describe('useReorderable', () => {
 
       // Sole item, so the drop is a no-op that just animates home; wait for the
       // teardown to restore the target's own inline styles. If the wait gives
-      // up, the failure carries the landing's trace.
+      // up, the trace watches the page for one more second, and the failure
+      // carries it.
       await vi
-        .waitFor(() => expect(item.style.position).toBe('relative'), {
-          timeout: 1000,
-        })
-        .catch((error: unknown) => {
-          throw new Error(`The landing didn't tear down: ${trace.read()}`, {
-            cause: error,
-          });
+        .waitFor(
+          () => {
+            trace.poll();
+            expect(item.style.position).toBe('relative');
+          },
+          { timeout: 1000 },
+        )
+        .catch(async (error: unknown) => {
+          const watched = 1000;
+          throw new Error(
+            `The landing didn't tear down; the trace watched ${watched} ms more: ${await trace.watch(watched)}`,
+            { cause: error },
+          );
         });
     } finally {
       trace.dispose();
