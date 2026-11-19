@@ -24,6 +24,9 @@
     },
     "docs:api:prepare": {
       "dependsOn": ["^build"]
+    },
+    "size": {
+      "dependsOn": ["^build"]
     }
   },
   "analytics": false

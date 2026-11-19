@@ -1,0 +1,102 @@
+# The lookup's paths: a missing reading, a failed lookup, a found reading, and a push
+# Run by the implementer on 2026-11-19 on repo/size-base-1, with the working
+# tree of the fix (parent 895878db4). Read-only against GitHub.
+#
+# How: the `run` text of the steps "Sizes at the merge base" and "Report" is
+# taken verbatim from verify.yml with the `yaml` package, and run under
+# `bash -e`, as GitHub Actions runs a step, from the slot's root. GITHUB_OUTPUT,
+# GITHUB_STEP_SUMMARY and RUNNER_TEMP are scratch files, BASE_REF is `main`,
+# and GH_TOKEN is the implementer's token, except in failed-api. A stub `git`
+# first in PATH answers `git merge-base` with the commit named in each heading,
+# or fails for `fail`. The head reading is witness 1's. <w> is the scratch
+# directory.
+#
+# found and failed-download use the lookup with three substitutions, because
+# no `size-reading` artifact exists before the merge: the workflow
+# state-layer-reading.yml for verify.yml, the branch repo/state-layer-visual-1
+# for main, and the artifact reading-0.02-hover for size-reading:
+#   run="$(gh api "$api/workflows/state-layer-reading.yml/runs?event=push&branch=repo/state-layer-visual-1&head_sha=$base" \
+#   artifact="$(gh api "$api/runs/$run/artifacts?name=reading-0.02-hover" \
+#     --name reading-0.02-hover --dir "$RUNNER_TEMP/base-reading" || failed
+# failed-download makes the download fail by putting a file where its
+# directory goes. In found, that artifact holds no head-size.json, so a copy of
+# the head reading is placed by hand to show the report's comparison.
+#
+# What tells the cases apart: `missing=true` in GITHUB_OUTPUT is written only
+# when a call succeeded and returned no run, or no unexpired artifact. Any call
+# that exits non-zero ends the step through `failed`, which writes nothing. The
+# report then reads `--base` with `--base-missing` (missing), or `--base` whose
+# file is absent (failed). A push passes neither. No gh error text is read.
+
+### missing-no-run (event pull_request, merge base 895878db4876e25c1f82d4205a66f29ca8f0c598)
+$ bash -e <Sizes at the merge base>
+merge base: 895878db4876e25c1f82d4205a66f29ca8f0c598
+::notice title=Measurement::main has no push run for the merge base 895878db4876e25c1f82d4205a66f29ca8f0c598, so no size reading is stored
+exit 0; GITHUB_OUTPUT: [missing=true ]; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=true)
+exit 0; the report's sentence:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+the first row: | box-quad | index | 1182 | — |  | — | — |
+
+### missing-no-artifact (event pull_request, merge base 91fc5d66201b052c5a1c88271102fda17fea75a2)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+::notice title=Measurement::main's run 44448397868 for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+exit 0; GITHUB_OUTPUT: [missing=true ]; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=true)
+exit 0; the report's sentence:
+**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.
+the first row: | box-quad | index | 1182 | — |  | — | — |
+
+### failed-api (event pull_request, merge base 91fc5d66201b052c5a1c88271102fda17fea75a2)
+$ bash -e <Sizes at the merge base>
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+gh: Bad credentials (HTTP 401)
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the report's sentence:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+the first row: | box-quad | index | 1182 | — |  | — | — |
+
+### failed-merge-base (event pull_request, merge base fail)
+$ bash -e <Sizes at the merge base>
+fatal: stub merge-base failure
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the report's sentence:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+the first row: | box-quad | index | 1182 | — |  | — | — |
+
+### failed-download (event pull_request, merge base e29c54651843fca3cc78234d36d8a939fb562029)
+$ bash -e <Sizes at the merge base>
+merge base: e29c54651843fca3cc78234d36d8a939fb562029
+error downloading reading-0.02-hover: error opening destination directory: mkdir <w>/run-failed-download/base-reading: not a directory
+::warning title=Measurement::The lookup of main's size reading for the merge base failed
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the report's sentence:
+**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.
+the first row: | box-quad | index | 1182 | — |  | — | — |
+
+### found (event pull_request, merge base e29c54651843fca3cc78234d36d8a939fb562029)
+$ bash -e <Sizes at the merge base>
+merge base: e29c54651843fca3cc78234d36d8a939fb562029
+base reading: run 44276375207, artifact 14415650325
+exit 0; GITHUB_OUTPUT: []; base-reading/head-size.json: absent
+  downloaded: attachments
+  downloaded: environment.txt
+  downloaded: result.json
+  (head-size.json copied in by hand, for the report only)
+$ bash -e <Report> (EVENT=pull_request, MISSING=<empty>)
+exit 0; the report's sentence:
+Brotli bytes at the head and at the merge base with the base branch. gzip at the head, where the instrument reports it.
+the first row: | box-quad | index | 1182 | 1182 | 0 | — | — |
+
+### push (event push, merge base -)
+$ bash -e <Report> (EVENT=push, MISSING=<empty>)
+exit 0; the report's sentence:
+Brotli bytes at the head. gzip at the head, where the instrument reports it.
+the first row: | box-quad | index | 1182 | — |  | — | — |
+
