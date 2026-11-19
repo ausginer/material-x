@@ -118,7 +118,9 @@ describe('renderSizeReport', () => {
       measurements: [],
     });
 
-    expect(report).toContain('**No base reading:**');
+    expect(report).toContain(
+      "**No base reading:** `main`'s run for the merge base stored no size reading",
+    );
     expect(lineOf(report, 'a')).toBe('| drag | a | 100 | — |  | 1000 | 150 |');
   });
 

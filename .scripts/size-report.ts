@@ -107,7 +107,7 @@ export function renderSizeReport(input: SizeReportInput): string {
   lines.push(
     base
       ? 'Brotli bytes at the head and at the merge base with the base branch. gzip at the head, where the instrument reports it.'
-      : '**No base reading:** the merge base gave no machine-readable reading, so only the head is reported.',
+      : "**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.",
     '',
     '| Package | Row | Brotli | Base | Change | Limit | gzip |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: |',

@@ -1,11 +1,13 @@
 /**
  * Writes the machine-readable size reading of the tree it runs in: every row
  * that the root `just size` measures, with its package, Brotli bytes, gzip bytes
- * where the instrument reports them, and its limit. Each package is built first,
- * as its `size` recipe builds it, and then measured by its own instrument:
- * size-limit's `--json` for `box-quad`, `core` and `material-x`, and
- * `bench/size/measure.ts --json` for `drag`. A row over its limit is still
- * read; an instrument that prints no reading fails the script.
+ * where the instrument reports them, and its limit. One nx run builds the
+ * measured packages, and nx's task graph builds their prerequisites first, so
+ * the script reads a tree where only the install has run. Each package is then
+ * measured by its own instrument: size-limit's `--json` for `box-quad`, `core`
+ * and `material-x`, and `bench/size/measure.ts --json` for `drag`. A row over
+ * its limit is still read; an instrument that prints no reading fails the
+ * script.
  *
  * `node .scripts/size-reading.ts <output.json>`
  */
@@ -74,8 +76,6 @@ function parseLastJSON(stdout: string, instrument: string): unknown {
 async function readSizeLimit(name: string): Promise<SizeRow[]> {
   const cwd = join(ROOT, 'packages', name);
 
-  await run('aube', ['exec', 'just', 'build'], cwd);
-
   // size-limit exits non-zero when a row is over its limit, and still prints it.
   const { stdout } = await run(
     'aube',
@@ -98,8 +98,6 @@ async function readSizeLimit(name: string): Promise<SizeRow[]> {
 
 async function readDrag(): Promise<SizeRow[]> {
   const cwd = join(ROOT, 'packages/drag');
-
-  await run('aube', ['exec', 'just', 'build'], cwd);
 
   // The gate exits non-zero on a violation, and still prints the reading.
   const { stdout } = await run(
@@ -125,14 +123,34 @@ if (output == null) {
   throw new Error('usage: node .scripts/size-reading.ts <output.json>');
 }
 
-const reading: SizeReading = {
-  rows: [
-    ...(await readSizeLimit('box-quad')),
-    ...(await readSizeLimit('core')),
-    // After `core`, because material-x's graph reads core's built output.
-    ...(await readSizeLimit('material-x')),
-    ...(await readDrag()),
+/** The packages that the root `just size` measures, in the reading's order. */
+const MEASURED = ['box-quad', 'core', 'material-x', 'drag'] as const;
+
+await run(
+  'aube',
+  [
+    'exec',
+    '--',
+    'nx',
+    'run-many',
+    '-t',
+    'build',
+    `--projects=${MEASURED.join(',')}`,
+    '--skipNxCache',
   ],
+  ROOT,
+);
+
+// Each instrument bundles into its own temporary directory, so the packages
+// are read concurrently. The rows keep the list's order.
+const reading: SizeReading = {
+  rows: (
+    await Promise.all(
+      MEASURED.map(async (name) =>
+        name === 'drag' ? await readDrag() : await readSizeLimit(name),
+      ),
+    )
+  ).flat(),
 };
 
 await writeFile(output, `${JSON.stringify(reading, null, 2)}\n`);

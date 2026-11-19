@@ -412,6 +412,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      actions: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -441,25 +442,37 @@ jobs:
           aube exec -- just test --tags-filter measurement --project '!declaration*' --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
       - name: Sizes at the head
         run: aube exec just size-reading "$RUNNER_TEMP/head-size.json"
-      # The merge base's tree, with its own instruments. A tree that can't give
-      # a machine-readable reading leaves no file, which the report states.
+      # A push to `main` keeps its reading, for the pull requests whose merge
+      # base is this commit. The retention is the repository's.
+      - name: Store the reading
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: size-reading
+          path: ${{ runner.temp }}/head-size.json
+      # The reading that `main`'s push run stored for the merge base. Nothing
+      # is built. No run, no artifact or an expired one leaves no file, which
+      # the report states.
       - name: Sizes at the merge base
         if: github.event_name == 'pull_request'
         env:
+          GH_TOKEN: ${{ github.token }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           base="$(git merge-base HEAD "origin/$BASE_REF")"
           echo "merge base: $base"
-          git worktree add "$RUNNER_TEMP/base" "$base"
-          (
-            cd "$RUNNER_TEMP/base" &&
-            aube ci &&
-            aube exec just size-reading "$RUNNER_TEMP/base-size.json"
-          ) || echo "::notice title=Measurement::The merge base gave no machine-readable size reading"
+          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=$base" \
+            --jq '.workflow_runs[0].id // empty')" || run=""
+          if [ -n "$run" ] && gh run download "$run" --repo "$GITHUB_REPOSITORY" \
+            --name size-reading --dir "$RUNNER_TEMP/base-reading"; then
+            echo "base reading: run $run"
+          else
+            echo "::notice title=Measurement::main's run for the merge base $base stored no size reading"
+          fi
       - name: Report
         run: |
           aube exec -- just size-report --head "$RUNNER_TEMP/head-size.json" \
-            --base "$RUNNER_TEMP/base-size.json" \
+            --base "$RUNNER_TEMP/base-reading/head-size.json" \
             --tests "$RUNNER_TEMP/measurements.json" \
             --out "$RUNNER_TEMP/size-report.md"
           cat "$RUNNER_TEMP/size-report.md" >> "$GITHUB_STEP_SUMMARY"
