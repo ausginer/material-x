@@ -6,6 +6,8 @@
 
 **Amended 2026-11-19 by Architect B, on the coordinator's task: the trait module's build installs the brand with a static `[Symbol.hasInstance]` method, not with a pure-marked `trait()` call.** The implementer found in commit 3 that rolldown removes a pure-marked call from a static block it keeps, so `instanceof` is false for every trait. Core's tsdown build already emitted an empty `static {}`. P41 read only whether the class survived and its bytes, never `instanceof`. [P42](trait-decorators-plan.md#evidence) runs each bundle with rolldown and esbuild. The first bullet of [Decided here](#decided-here) gives the form and its reasons, and [the proposed `RD-26` amendment](#proposed-rd-26-amendment) is for the main slot's architect.
 
+**Amended 2026-11-19 by the main slot's architect, on the coordinator's task: each trait is trimmed alone in the instance type, and a trait's `declare` member is a key in the types only** (`RD-26` property 4). The implementer found that P40's form dropped FocusForwarding's `#brand` in SwitchIconButton. [P43](trait-decorators-plan.md#evidence) reads both forms. The changed lines are in [Decided here](#decided-here), [Core: layer (a)](#core-layer-a-traitscompositionts) and proof 6.
+
 **Open questions: none.** Each choice the owner didn't make is decided below, with its reason.
 
 ## The owner's decisions, 2026-11-19
@@ -59,7 +61,7 @@ Relayed by the coordinator, translated:
 
 - **`MergeInstances` doesn't count the base's keys.** Every trait carries its bound's members, so two attribute traits share every `HTMLElement` key. The first version of the type treated that as a conflict, sent every pair through `Omit`, and lost the checks. Excluding the base's keys keeps TS2610 and TS2611 for every pair that shares no key of its own ([P40](trait-decorators-plan.md#evidence) (b)).
 
-  Only a pair that does share a key goes through `Omit`. `Omit` is a mapped type, so the earlier trait's other accessors lose TS2610 there (P40 (c)). The flattener's warning names that pair.
+  **Each trait is trimmed alone** (`RD-26` property 4, amended 2026-11-19). A trait that loses a key to a later trait goes through `Omit` without those keys, and no other trait does. `Omit` is a mapped type, so that trait's other members lose TS2610 and TS2611, and its ES-private members go ([P43](trait-decorators-plan.md#evidence) (c), (d)). P40's form trimmed every earlier trait together, which dropped FocusForwarding's `#brand` in SwitchIconButton (P43 (a)). The flattener's warning names every pair that supplies one key. A `declare` member supplies nothing, so a key that a later trait only declares isn't warned about.
 
 - **The deletion rule runs only where nothing copies from the output.** That is an application build, Vite's `build` without `build.lib`. A library build keeps every member, because another package copies from its `.js`. tsdown is always a library build, and the dev server is excluded.
 - **File names.** Layer (a) is `packages/core/src/traits/composition.ts`, and layer (b) is `packages/core/src/traits/attribute-traits.ts`. Both replace `primitives.ts` and `attributes.ts`, which are deleted.
@@ -71,7 +73,7 @@ Relayed by the coordinator, translated:
 
 ## Core: layer (a), `traits/composition.ts`
 
-Published as `@ydinjs/core/traits/composition.js`. Elements and attributes are unknown to it. Its runtime is the accepted one. Its types are [P40's `composition.ts`](probes/types/last-wins/composition.ts), which both compilers accept.
+Published as `@ydinjs/core/traits/composition.js`. Elements and attributes are unknown to it. Its runtime is the accepted one. Its types are [P40's `composition.ts`](probes/types/last-wins/composition.ts), with the instance type of [P43's `trimmed.ts`](probes/types/last-wins/trimmed.ts). Both compilers accept them.
 
 ```ts
 // runtime
@@ -90,7 +92,7 @@ export function compose<
 export type Bound<I extends object, S extends object = {}>; // keyed by a type-only unique symbol
 export type Applicable<B extends AbstractConstructor<unknown>>;
 export type MergeStatics<A, B>;    // arrays: readonly (EA | EB)[]; objects: Omit<A, keyof B> & B; other kinds: B
-export type MergeInstances<A, B, X>; // A & B, or Omit<A, shared> & B when A and B share a key outside X
+// instances: each trait whole, or Omit<trait, keys a later trait declares>, keys of the base excluded
 export type Composed<B, T>;        // B & AbstractConstructor<InstanceType<B> & Instances<T, keyof InstanceType<B>>> & Statics<T>
 ```
 
@@ -103,7 +105,7 @@ export type Composed<B, T>;        // B & AbstractConstructor<InstanceType<B> & 
 **How the types resolve a shared key:**
 
 - **Statics:** `Statics<T>` folds `MergeStatics` over the list, left to right.
-- **Instances:** `Instances<T, X>` folds `MergeInstances` the same way.
+- **Instances:** `Instances<T, X>` reads the list from the last trait back, and trims each trait alone of the keys a later trait declares ([P43](trait-decorators-plan.md#evidence)).
 - **The last trait wins a shared key** in both. A component that declares the key itself wins over all traits, through ordinary class typing.
 
 ## Core: layer (b), `traits/attribute-traits.ts`
@@ -311,7 +313,7 @@ At commit 7, each must hold. Each result is committed under `.plan/trait-migrati
    - each trait module's `trait()` call becomes a static `[Symbol.hasInstance]` method;
    - `observedAttributes` loses its `new Set`;
    - a trait's static is linked rather than inlined.
-6. **No flattener warning.** Building core and material-x prints no `trait-member-conflict`. No composition in the tree shares a key between two traits today. A warning is a finding, not noise.
+6. **No flattener warning.** Building core and material-x prints no `trait-member-conflict`. No composition in the tree has two traits that supply one key. One pair shares a key in the types only: IconButtonLike's `declare color` over ButtonLike's `color`, in IconButton and SwitchIconButton, which copies nothing (`RD-26` property 4, amended 2026-11-19). A warning is a finding, not noise.
 7. **The repository's own checks:** `just typecheck`, `just typecheck-declarations`, `just lint`, `just fmt-check`, and `just build` for every package.
 
 ## Files that change
