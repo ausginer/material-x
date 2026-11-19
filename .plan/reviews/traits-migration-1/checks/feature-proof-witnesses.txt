@@ -1,0 +1,332 @@
+# Feature proof of PR #76 (RD-26), witnesses. Tree: 0c5705d87, detached scratch worktree.
+# Built with: aube install; aube exec just build (6 nx tasks succeeded).
+
+## W1. Application build, plugin running, built core trait vs source trait (RD-26 property 8)
+### probe-p8/build.ts
+import { build } from 'vite';
+import { viteTraitsPlugin } from '../packages/vite-traits-plugin/src/plugin.ts';
+for (const entry of ['entry.js', 'entry2.ts']) {
+  const out = await build({
+    root: import.meta.dirname, logLevel: 'silent', configFile: false,
+    plugins: [viteTraitsPlugin()],
+    build: { write: false, minify: false, rollupOptions: { input: entry } },
+  });
+  const code = out.output.filter((c) => c.type === 'chunk').map((c) => c.code).join('\n');
+  console.log(`== ${entry} (application build) ==`);
+  console.log(code);
+}
+### entry.js
+import { Disableable } from '@ydinjs/core/traits/disableable.js';
+globalThis.result = document.body instanceof Disableable;
+### entry2.ts
+import { Local } from './local-trait.ts';
+globalThis.result = document.body instanceof Local;
+### local-trait.ts
+import { trait } from '@ydinjs/core/traits/composition.js';
+import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+export class Local extends AnyElement {
+  static { trait(this); }
+  get localMember(): string { return 'local-member-body'; }
+}
+### output (trait classes only)
+== entry.js (application build) ==
+// packages/core/traits/disableable.js
+var DISABLEABLE_ATTRS = { disabled: Bool };
+/**
+* Element trait that exposes a presence-based `disabled` boolean field.
+*/
+var $disableable = Symbol("Disableable");
+var __mxflat_Disableable_observedAttributes_e2af3a58 = ["disabled"];
+var Disableable = class extends AnyElement {
+	static observedAttributes = __mxflat_Disableable_observedAttributes_e2af3a58;
+	static [Symbol.hasInstance](o) {
+		return o != null && o[$disableable] === true;
+	}
+	get disabled() {
+		return operator.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+	}
+	set disabled(value) {
+		operator.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+	}
+};
+// probe-p8/entry.js
+== entry2.ts (application build) ==
+// probe-p8/local-trait.ts
+var $local = Symbol("Local");
+var Local = class extends AnyElement {
+	static [Symbol.hasInstance](o) {
+		return o != null && o[$local] === true;
+	}
+};
+// probe-p8/entry2.ts
+### built core trait modules: occurrences of 'trait(' (the adapter's pre-filter, plugin.ts:274)
+packages/core/traits/disableable.js:0
+packages/core/traits/checkable.js:0
+packages/core/traits/composition.js:2
+packages/core/traits/linkable.js:0
+packages/core/traits/typeable.js:0
+packages/core/traits/reorderable.js:0
+packages/core/traits/selectable.js:0
+packages/core/traits/nameable.js:0
+packages/core/traits/attribute-traits.js:1
+packages/core/traits/valuable.js:0
+packages/core/traits/valuable.js:0
+packages/core/traits/disableable.js:0
+packages/core/traits/checkable.js:0
+### probe-p8/build3.ts: application build of @ydinjs/material-x/button-group/connected-button-group.js
+import { build } from 'vite';
+import { viteTraitsPlugin } from '../packages/vite-traits-plugin/src/plugin.ts';
+const out = await build({
+  root: import.meta.dirname, logLevel: 'silent', configFile: false,
+  plugins: [viteTraitsPlugin()],
+  build: { write: false, minify: false, rollupOptions: { input: 'entry3.js' } },
+});
+const code = out.output.filter((c) => c.type === 'chunk').map((c) => c.code).join('\n');
+for (const name of ['ButtonLike', 'Valuable', 'Checkable', 'Disableable']) {
+  const m = new RegExp(`var ${name} = class[\\s\\S]*?\\n\\};`, 'u').exec(code);
+  console.log(`--- ${name}: ${m ? m[0].split('\n').filter((l) => /^\t(get|set|static|[a-zA-Z]+\()/u.test(l)).map((l) => l.trim().replace(/\{.*$/u, '')).join(' | ') : 'class not in bundle'}`);
+}
+import { writeFileSync } from 'node:fs'; writeFileSync(new URL('./out3.js', import.meta.url), code);
+--- ButtonLike: class not in bundle
+--- Valuable: static observedAttributes = __mxflat_Valuable_observedAttributes_624f2c17; | static [Symbol.hasInstance](o)  | get value()  | set value(value) 
+--- Checkable: static observedAttributes = __mxflat_Checkable_observedAttributes_cad06aa5; | static [Symbol.hasInstance](o)  | get checked()  | set checked(value) 
+--- Disableable: static observedAttributes = __mxflat_Disableable_observedAttributes_e2af3a58; | static [Symbol.hasInstance](o)  | get disabled()  | set disabled(value) 
+
+## W2. A base whose static has another kind than a trait's (RD-26 property 3)
+### tests/zz-probe.node.test.ts (scratch, removed after the run)
+import { it } from 'vitest';
+import { fixtureId, transform } from './helpers.ts';
+
+const HEADER = `import { compose, trait, type Composed } from '@ydinjs/core/traits/composition.js';
+import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+`;
+const LISTED = `export class Listed extends AnyElement {
+  static { trait(this); }
+  static readonly styles: readonly string[] = ['trait-sheet'];
+}
+`;
+
+async function show(label: string, body: string) {
+  const id = fixtureId('virtual.ts');
+  const files = {
+    [id]: `${HEADER}${body}`,
+    [fixtureId('kbase.ts')]: 'export class KBase {\n  static styles: CSSStyleSheet = new CSSStyleSheet();\n}\n',
+    [fixtureId('sbase.ts')]: "export class SBase {\n  static styles: string = 'ab';\n}\n",
+  };
+  try {
+    const { code, warnings } = await transform(id, { files });
+    console.log(`=== ${label}: no error; warnings ${JSON.stringify(warnings)}\n${code.split('\n').filter((l) => /static|extends|impl/u.test(l)).join('\n')}`);
+  } catch (error) {
+    console.log(`=== ${label}: ${(error as { code?: string }).code} ${(error as Error).message}`);
+  }
+}
+
+it('probe', async () => {
+  await show('base CSSStyleSheet vs trait array', `import { KBase } from './kbase.ts';\n${LISTED}const FooBase: Composed<typeof KBase, [typeof Listed]> = compose(KBase);\nexport class Foo extends FooBase {}\n`);
+  await show('base string vs trait array', `import { SBase } from './sbase.ts';\n${LISTED}const FooBase: Composed<typeof SBase, [typeof Listed]> = compose(SBase);\nexport class Foo extends FooBase {}\n`);
+  await show('component own string vs trait array', `import { SBase } from './sbase.ts';\n${LISTED}const FooBase: Composed<typeof SBase, [typeof Listed]> = compose(SBase);\nexport class Foo extends FooBase {\n  static override styles: string = 'own';\n}\n`);
+  await show('component own static getter vs trait array', `import { SBase } from './sbase.ts';\n${LISTED}const FooBase: Composed<typeof SBase, [typeof Listed]> = compose(SBase);\nexport class Foo extends FooBase {\n  static override get styles(): readonly string[] { return ['own-getter']; }\n}\n`);
+});
+stdout | tests/zz-probe.node.test.ts:28 > probe
+=== base CSSStyleSheet vs trait array: no error; warnings []
+import { impl as __mxflat_impl } from "@ydinjs/core/traits/composition.js";
+export class Listed extends AnyElement {
+  static [Symbol.hasInstance](o) {
+  static readonly styles: readonly string[] = __mxflat_Listed_styles_1c7b45d4;
+export class Foo extends KBase {
+  static styles = [...(KBase.styles ?? []), ...__mxflat_Listed_styles_1c7b45d4];
+  static {
+    __mxflat_impl(this, $listed);
+stdout | tests/zz-probe.node.test.ts:28 > probe
+=== base string vs trait array: no error; warnings []
+import { impl as __mxflat_impl } from "@ydinjs/core/traits/composition.js";
+export class Listed extends AnyElement {
+  static [Symbol.hasInstance](o) {
+  static readonly styles: readonly string[] = __mxflat_Listed_styles_1c7b45d4;
+export class Foo extends SBase {
+  static styles = [...(SBase.styles ?? []), ...__mxflat_Listed_styles_1c7b45d4];
+  static {
+    __mxflat_impl(this, $listed);
+stdout | tests/zz-probe.node.test.ts:28 > probe
+=== component own string vs trait array: no error; warnings []
+import { impl as __mxflat_impl } from "@ydinjs/core/traits/composition.js";
+export class Listed extends AnyElement {
+  static [Symbol.hasInstance](o) {
+  static readonly styles: readonly string[] = __mxflat_Listed_styles_1c7b45d4;
+export class Foo extends SBase {
+  static styles = [...(SBase.styles ?? []), ...__mxflat_Listed_styles_1c7b45d4, ...('own')];
+  static {
+    __mxflat_impl(this, $listed);
+stdout | tests/zz-probe.node.test.ts:28 > probe
+=== component own static getter vs trait array: no error; warnings []
+import { impl as __mxflat_impl } from "@ydinjs/core/traits/composition.js";
+export class Listed extends AnyElement {
+  static [Symbol.hasInstance](o) {
+  static readonly styles: readonly string[] = __mxflat_Listed_styles_1c7b45d4;
+export class Foo extends SBase {
+  static styles = [...(SBase.styles ?? []), ...__mxflat_Listed_styles_1c7b45d4];
+  static {
+    __mxflat_impl(this, $listed);
+  static override get styles(): readonly string[] { return ['own-getter']; }
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+### the emitted shapes evaluated in Node 26
+string base: ["a","b","trait-sheet"]
+object base: TypeError (KBase.styles ?? []) is not iterable
+### TypeScript (core tsconfig) on the same compositions: only the component's own string field is reported
+import { bound, compose, trait, type Bound, type Composed } from '../../src/traits/composition.ts';
+const AnyElement: Bound<HTMLElement> = bound();
+class KBase extends HTMLElement { static styles: CSSStyleSheet = new CSSStyleSheet(); }
+class SBase extends HTMLElement { static styles: string = 'ab'; }
+class Listed extends AnyElement { static { trait(this); } static readonly styles: readonly string[] = ['trait-sheet']; }
+const KFooBase: Composed<typeof KBase, [typeof Listed]> = compose(KBase);
+export class KFoo extends KFooBase {}
+const SFooBase: Composed<typeof SBase, [typeof Listed]> = compose(SBase);
+export class SFoo extends SFooBase {}
+export class SOwn extends SFooBase { static override styles: string = 'own'; }
+tests/traits/zz-kind.declaration.test.ts(10,14): error TS2417: Class static side 'typeof SOwn' incorrectly extends base class static side 'typeof SBase & MergeStatics<{}, OwnStatics<typeof Listed>>'.
+### where the kind check reads contributors
+packages/vite-traits-plugin/src/diagnostics.ts:33:  STATIC_KIND_MISMATCH: 'static-kind-mismatch',
+packages/vite-traits-plugin/src/composition/rules.ts:198:          CODE.STATIC_KIND_MISMATCH,
+
+## W3. composition-shape on valid modules (annotation.ts:150)
+import { it } from 'vitest';
+import { fixtureId, transform } from './helpers.ts';
+const HEADER = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+const FooBase: Composed<typeof Base, [typeof Checkable]> = compose(Base);
+export class Foo extends FooBase {}
+`;
+it('probe', async () => {
+  for (const [label, extra] of [
+    ['control', ''],
+    ['a type query', 'export type FooShape = InstanceType<typeof FooBase>;\n'],
+    ['a property key', 'export const names = { FooBase: 1 };\n'],
+  ]) {
+    const id = fixtureId('virtual.ts');
+    try {
+      await transform(id, { files: { [id]: `${HEADER}${extra}` } });
+      console.log(`${label}: flattened`);
+    } catch (error) {
+      console.log(`${label}: ${(error as { code?: string }).code} ${(error as Error).message}`);
+    }
+  }
+});
+control: flattened
+a type query: composition-shape FooBase is used as the superclass of one class, and nowhere else
+a property key: composition-shape FooBase is used as the superclass of one class, and nowhere else
+
+## W4. Mutations, one at a time, each reverted with git checkout before the next
+### harness (mut.sh)
+#!/usr/bin/env bash
+# usage: mut.sh <label> <file relative to w4> <perl-substitution> <dir relative to w4> <command...>
+set -u
+W="${W:?}"
+label=$1 file=$2 subst=$3 dir=$4; shift 4
+cd "$W" || exit 2
+before=$(sha1sum "$file")
+perl -0pi -e "$subst" "$file"
+after=$(sha1sum "$file")
+if [ "$before" = "$after" ]; then echo "[$label] MUTATION DID NOT APPLY"; exit 3; fi
+out=$(cd "$W/$dir" && timeout 600 "$@" 2>&1); rc=$?
+git -C "$W" checkout -q -- "$file"
+summary=$(printf '%s\n' "$out" | grep -E "Tests +[0-9]|error TS|✗|FAIL|×" | head -6)
+echo "[$label] exit=$rc"; printf '%s\n' "$summary" | sed 's/^/    /'
+### unmutated: packages/vite-traits-plugin `aube exec vitest run -c vitest.config.ts` -> Test Files 7 passed (7), Tests 71 passed (71)
+### results (plugin suite unless marked core tsc). "killed" = a test or tsc failed.
+M1  rules.ts:130  conflict warning no longer silenced by the component's own key      killed: "should not warn when the component declares the key"
+M2  rules.ts:146  same, for a simple static                                           killed: same test
+M3  rules.ts:196  static-kind-mismatch never raised                                   killed: "a static that two traits give different kinds"
+M4  copy.ts:57    every pair copies                                                   killed: 4 tests (copy rule rows, trait-source-language row)
+M5  plugin.ts:177 deletion in every non-serve build (library too): kind !== 'serve'   SURVIVED: 71 passed (71)
+M6  lower.ts:126  first trait wins a simple static                                    killed: "should take the later trait's simple static"
+M7  lower.ts:174  trait members emitted in reverse order                              killed: 2 tests (later method after earlier; prototype keys)
+M8  lower.ts:132  base's value left out of an array/object merge                      killed: 2 tests (concatenate array static; merge with base's)
+M9  trait-module.ts:170  hasInstance ignores the brand (o != null)                    killed: 6 tests (trait-module and bundles)
+M10 composition.ts Without: Omit<I, K> (trimmed trait keeps the base's keys)          core tsc killed: TS2425 at composition.declaration.test.ts:360, TS2578 at :368
+M11 composition.ts every trait through Omit, trimmed or not                           core tsc killed: TS2578 x5, TS2739 at :302
+M12 trait-module.ts:446 no deletion in an application build                           killed: 3 tests
+M14 rules.ts:120  accessor-half check off                                             killed: 2 tests (trait-accessor-half, class-accessor-half)
+### M5 survives because no test reads the adapter's build kind: grep of tests/ for configResolved, build.lib, 'application' or kind: finds nothing;
+### the deletion tests call transformTraitModule directly with applicationBuild=true (helpers.ts transformTrait, bundles.node.test.ts:89).
+
+## W5. A conflict warning reaches the tsdown console (proof 6's instrument)
+radio.ts list mutated to [...CheckableCoreTraits, ...CheckableCoreTraits], material-x 'aube exec just build-lib', then reverted and rebuilt:
+(trait-flattener plugin) trait-flattener (trait-member-conflict): traits Checkable and Checkable both supply checked; Checkable's wins
+(trait-flattener plugin) trait-flattener (trait-member-conflict): traits Valuable and Valuable both supply value; Valuable's wins
+(trait-flattener plugin) trait-flattener (trait-member-conflict): traits Disableable and Disableable both supply disabled; Disableable's wins
+(trait-flattener plugin) trait-flattener (trait-member-conflict): traits Nameable and Nameable both supply name; Nameable's wins
+
+## W6. Copy rule across extensions (copy.ts canCopy)
+import { parseSync } from '../w4/packages/vite-traits-plugin/node_modules/oxc-parser/src-js/index.js';
+import { canCopy } from '../w4/packages/vite-traits-plugin/src/composition/copy.ts';
+const cases: Array<[string, string, string]> = [
+  ['m(a: number) { return a; }', 'a.ts', 'b.mts'],
+  ['m(a: number) { return a; }', 'a.ts', 'b.cts'],
+  ['m(a) { return <number>a; }', 'a.ts', 'b.mts'],
+  ['m(a) { return <number>a; }', 'a.ts', 'b.tsx'],
+  ['m(a) { return a; }', 'a.js', 'b.mts'],
+  ['m(a) { return a; }', 'a.mjs', 'b.ts'],
+];
+for (const [m, o, c] of cases) console.log(`${o} -> ${c}: ${canCopy(m, o, c)}   ${m}`);
+for (const ext of ['ts', 'mts', 'cts', 'tsx', 'js', 'mjs']) {
+  const r = parseSync(`member.${ext}`, '(class {\nm(a: number) { return <number>a; }\n});', { astType: 'ts' });
+  console.log(ext, 'errors:', r.errors.length, r.errors[0]?.message ?? '');
+}
+a.ts -> b.mts: true   m(a: number) { return a; }
+a.ts -> b.cts: true   m(a: number) { return a; }
+a.ts -> b.mts: false   m(a) { return <number>a; }
+a.ts -> b.tsx: false   m(a) { return <number>a; }
+a.js -> b.mts: true   m(a) { return a; }
+a.mjs -> b.ts: true   m(a) { return a; }
+ts errors: 0 
+mts errors: 1 This syntax is reserved in files with the .mts or .cts extension. Use an `as` expression instead.
+cts errors: 1 This syntax is reserved in files with the .mts or .cts extension. Use an `as` expression instead.
+tsx errors: 1 Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+js errors: 1 Expected `,` or `)` but found `:`
+mjs errors: 1 Expected `,` or `)` but found `:`
+
+## W7. Every public .js entry of core and material-x exports each value its .d.ts declares
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parseSync } from 'oxc-parser';
+for (const pkg of ['packages/core', 'packages/material-x']) {
+  const manifest = JSON.parse(readFileSync(join(pkg, 'package.json'), 'utf8'));
+  for (const [key, value] of Object.entries<any>(manifest.exports)) {
+    if (typeof value !== 'object' || !value.default?.endsWith('.js') || !value.types) continue;
+    const names = (file: string, dts: boolean) => {
+      const { program } = parseSync(file, readFileSync(join(pkg, file), 'utf8'));
+      const out = new Set<string>();
+      for (const n of program.body as any[]) {
+        if (n.type === 'ExportNamedDeclaration') {
+          if (n.exportKind === 'type' && !n.declaration) continue;
+          const d = n.declaration;
+          if (d) {
+            if (d.type === 'TSTypeAliasDeclaration' || d.type === 'TSInterfaceDeclaration') continue;
+            if (d.id?.name) out.add(d.id.name);
+            for (const v of d.declarations ?? []) if (v.id?.name) out.add(v.id.name);
+          }
+          for (const s of n.specifiers ?? []) if (s.exportKind !== 'type') out.add(s.exported.name ?? s.exported.value);
+        }
+        if (n.type === 'ExportDefaultDeclaration') out.add('default');
+      }
+      return out;
+    };
+    const js = names(value.default, false);
+    const ts = names(value.types, true);
+    const missing = [...ts].filter((n) => !js.has(n));
+    if (missing.length) console.log(`${pkg} ${key}: declared in .d.ts, absent from .js: ${missing.join(', ')}`);
+  }
+}
+console.log('done');
+done
+
+## W8. Built output: no pure mark on a brand install; built trait modules
+core/traits/reorderable.js:94:const itemTargets = /* @__PURE__ */ new WeakMap();
+core/traits/reorderable.js:100:	const rects = /* @__PURE__ */ new Map();
+core/traits/reorderable.js:185:	const saved = /* @__PURE__ */ new Map();
+core/traits/reorderable.js:289:	let rects = /* @__PURE__ */ new Map();
+core/traits/reorderable.js:299:	let savedStyles = /* @__PURE__ */ new Map();
+core/traits/reorderable.js:588:	let itemSet = /* @__PURE__ */ new Set();
+material-x/core/traits/focus-forwarding.js:3:const controls = /* @__PURE__ */ new WeakMap();
