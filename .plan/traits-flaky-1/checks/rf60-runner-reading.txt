@@ -1,0 +1,86 @@
+# RF-60: how the test's imports are evaluated, read in the installed tools
+# Read by the architect on 2026-11-19 at origin/main: vite 8.4.0-beta.1 and vitest 5.1.0,
+# the same versions as the failing tree c1a40a3fc's lockfile. Line numbers are of the
+# installed dist files. Lines kept verbatim.
+
+## 1. Vitest returns a module's exports without checking a named import exists
+# node_modules/vitest/dist/chunks/index.Bi0NXYPf.js
+	/**
+	* Vite checks that the module has exports emulating the Node.js behaviour,
+	* but Vitest is more relaxed.
+	*
+	* We should keep the Vite behavior when there is a `strict` flag.
+	* @internal
+	*/
+	processImport(exports) {
+		return exports;
+	}
+
+So a named import that the module doesn't export reads as `undefined` where it is used.
+
+## 2. The module runner hands out a module's unfinished exports only on a cycle
+# node_modules/vite/dist/node/module-runner.js
+	isCircularRequest(mod, callstack, visited = /* @__PURE__ */ new Set()) {
+		if (visited.has(mod.id)) return !1;
+		visited.add(mod.id);
+		for (let importedModuleId of mod.imports) {
+			let importedModule = this.evaluatedModules.getModuleById(importedModuleId);
+			if (importedModule?.promise && !importedModule.evaluated && (callstack.includes(importedModuleId) || this.isCircularRequest(importedModule, callstack, visited))) return !0;
+		}
+		return !1;
+	}
+	async cachedRequest(url, mod, callstack = [], metadata) {
+		let meta = mod.meta, moduleId = meta.id, importee = callstack.at(-1);
+		if (importee && mod.importers.add(importee), mod.evaluated && mod.promise) return this.processImport(await mod.promise, meta, metadata);
+		if (mod.promise) return mod.exports && (callstack.includes(moduleId) || this.isCircularRequest(mod, callstack)) ? this.processImport(mod.exports, meta, metadata) : this.processImport(await mod.promise, meta, metadata);
+		let debugTimer;
+
+`mod.exports` before evaluation ends is returned only when a module that `mod` imports,
+still being evaluated, is on the requester's call stack. The generated trait modules
+import only @ydinjs/core, and no core module imports a test module or a generated
+consumer, so the row's imports have no such cycle.
+
+## 3. Every import request asks the server, and an `invalidate` answer discards the module
+# node_modules/vite/dist/node/module-runner.js (cachedModule, getModuleInformation)
+	async cachedModule(url, importer) {
+		let cached = this.concurrentModuleNodePromises.get(url);
+		if (cached) this.debug?.("[module runner] using cached module info for", url);
+		else {
+			let cachedModule = this.evaluatedModules.getModuleByUrl(url);
+			cached = this.getModuleInformation(url, importer, cachedModule).finally(() => {
+				this.concurrentModuleNodePromises.delete(url);
+			}), this.concurrentModuleNodePromises.set(url, cached);
+		}
+		return cached;
+		let moduleId = "externalize" in fetchedModule ? fetchedModule.externalize : fetchedModule.id, moduleUrl = "url" in fetchedModule ? fetchedModule.url : url, module = this.evaluatedModules.ensureModule(moduleId, moduleUrl);
+		return "invalidate" in fetchedModule && fetchedModule.invalidate && (this.evaluatedModules.invalidateModule(module), this.moduleHotContexts.delete(module.url)), fetchedModule.url = moduleUrl, fetchedModule.id = moduleId, module.meta = fetchedModule, module.url.startsWith("/@vite/lazy?") && this.evaluatedModules.removeModule(module, { retainSourceMap: !0 }), module;
+# node_modules/vite/dist/node/module-runner.js (invalidateModule)
+		this.retainedSourceMaps.delete(node.id), node.evaluated = !1, node.meta = void 0, node.map = void 0, node.promise = void 0, node.exports = void 0, node.imports.clear();
+# node_modules/vite/dist/node/chunks/node.js (fetchModule)
+	const mod = await environment.moduleGraph.ensureEntryFromUrl(url);
+	const cached = !!mod.transformResult;
+	if (options.cached && cached) return { cache: true };
+	let result = await environment.transformRequest(url);
+	if (!result) throw new Error(`[vite] transform failed for module '${url}'${importer ? ` imported from '${importer}'` : ""}.`);
+	if (options.inlineSourceMap !== false) result = inlineSourceMap(mod.id, result, options.startOffset);
+	if (result.code[0] === "#") result.code = result.code.replace(/^#!.*/, (s) => " ".repeat(s.length));
+	return {
+		code: result.code,
+		file: mod.file,
+		id: mod.id,
+		url: mod.url,
+		invalidate: !cached
+	};
+
+A request is deduplicated only by its URL string while it is in flight. A server answer
+with `invalidate: true` for a module the runner already holds resets its promise and
+exports, and the next request evaluates the file again: a second module instance.
+
+## 4. No file watcher in `vitest run`
+# node_modules/vitest/dist/chunks/index.Di8au7q4.js and cli-api.COfZo8lK.js
+index.Di8au7q4.js:3917:				// project servers never watch; the top-level server owns the watcher
+index.Di8au7q4.js:3918:				config.server.watch = null;
+cli-api.COfZo8lK.js:12942:		// In run mode we don't need the watcher; closing it improves performance (#415).
+cli-api.COfZo8lK.js:12943:		if (!resolved.watch) await server.watcher.close();
+
+So no file event can invalidate a generated module during a run.

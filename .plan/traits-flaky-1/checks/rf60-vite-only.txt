@@ -1,0 +1,69 @@
+# RF-60: the second evaluation reproduced with Vite's module runner alone, without Vitest
+# Run by the architect on 2026-11-19 in the dev container (12 processors), unloaded,
+# Vite 8.4.0-beta.1 (the repository's) and Node v26.13.1. Scratch files, not committed.
+
+## 1. The upstream draft's script, run exactly as the draft shows it
+# A scratch directory with node_modules/vite linked to the repository's Vite, and repro.mjs:
+// One module, imported concurrently under two URL strings: its file URL, and
+// the root-relative URL that another module's relative import becomes.
+// Prints how many of the repeats evaluated the module twice.
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { createServer, createServerModuleRunner } from 'vite';
+
+const root = join(import.meta.dirname, 'root');
+const form = process.argv[2] ?? 'file'; // 'file' or 'root'
+const repeats = 1000;
+
+await mkdir(root, { recursive: true });
+const server = await createServer({
+  root,
+  configFile: false,
+  logLevel: 'silent',
+  server: { middlewareMode: true, ws: false, watch: null },
+});
+const runner = createServerModuleRunner(server.environments.ssr, { hmr: false });
+const urlOf = (dir, file) =>
+  form === 'file'
+    ? pathToFileURL(join(dir, file)).href
+    : `/${join(dir, file).slice(root.length + 1)}`;
+
+let twice = 0;
+for (let i = 0; i < repeats; i += 1) {
+  const dir = await mkdtemp(join(root, 'gen-'));
+  await writeFile(join(dir, 'mod.js'), "export const s = Symbol('s');\n");
+  await writeFile(join(dir, 'user.js'), "export { s as viaUser } from './mod.js';\n");
+  const [{ viaUser }, { s }] = await Promise.all([
+    runner.import(urlOf(dir, 'user.js')),
+    runner.import(urlOf(dir, 'mod.js')),
+  ]);
+  if (viaUser !== s) twice += 1;
+  await rm(dir, { recursive: true, force: true });
+}
+
+console.log(`form ${form}: ${twice} of ${repeats} repeats evaluated mod.js twice`);
+await runner.close();
+await server.close();
+
+# `node repro.mjs file` three times, then `node repro.mjs root` twice:
+form file: 14 of 1000 repeats evaluated mod.js twice
+form file: 23 of 1000 repeats evaluated mod.js twice
+form file: 12 of 1000 repeats evaluated mod.js twice
+form root: 0 of 1000 repeats evaluated mod.js twice
+form root: 0 of 1000 repeats evaluated mod.js twice
+
+## 2. An earlier variant of the same script, with TypeScript files and a configurable form
+# (optimizeDeps discovery off, otherwise as above), 1,000 repeats each:
+ts,  file URLs:           36, then 50, then 50 second evaluations
+js,  file URLs:           16
+js,  root-relative URLs:  0
+ts,  root-relative URLs:  0
+
+## 3. The draft's script as oxfmt formatted it in upstream-vite-issue.md
+# The formatter wrapped three long lines and changed nothing else (diff checked). Run once more:
+form file: 10 of 1000 repeats evaluated mod.js twice
+form root: 0 of 1000 repeats evaluated mod.js twice
+
+So two URL strings for one file in flight together are necessary, and Vite's runner and
+server alone are sufficient. With one URL string per file, 4,000 repeats gave none.
