@@ -74,35 +74,31 @@ type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> =
     ? MergeStatics<Statics<R>, OwnStatics<L>>
     : {};
 
-/**
- * Two traits' instance members, the later trait winning a key that both
- * declare. A key of the base's instance, `X`, doesn't count: every trait has
- * its bound's members.
- *
- * With no other shared key the result is the intersection, which keeps each
- * member's declaration kind, so an own field over a trait's accessor and an
- * accessor over a trait's field are still errors in the component. A pair that
- * shares a key goes through `Omit`, a mapped type, and the earlier trait's
- * other accessors lose that check.
- *
- * @typeParam A - The earlier traits' instance members.
- * @typeParam B - The later trait's instance members.
- * @typeParam X - The keys of the base's instance.
- */
-export type MergeInstances<A, B, X> = [Exclude<keyof A & keyof B, X>] extends [
-  never,
-]
-  ? A & B
-  : Omit<A, Exclude<keyof A & keyof B, X>> & B;
+/** `I` without the keys `K`, or `I` itself when `K` is empty. */
+type Without<I, K extends PropertyKey> = [K] extends [never] ? I : Omit<I, K>;
 
+/**
+ * The traits' instance members, read from the last trait back. `Later` holds
+ * the keys the later traits declare, and `X` the base's instance keys, which
+ * don't count: every trait has its bound's members.
+ *
+ * Each trait is trimmed alone. A trait loses only the keys a later trait
+ * declares, through `Omit`, so the later trait wins them. A trait that loses
+ * no key enters the intersection whole, with each member's declaration kind
+ * and its private brand, so an own field over a trait's accessor and an
+ * accessor over a trait's field are still errors in the component. A trait
+ * that does lose a key loses those checks and its private brand.
+ */
 type Instances<
   T extends ReadonlyArray<AbstractConstructor<unknown>>,
   X,
+  Later = never,
 > = T extends readonly [
   ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>,
   infer L extends AbstractConstructor<unknown>,
 ]
-  ? MergeInstances<Instances<R, X>, InstanceType<L>, X>
+  ? Instances<R, X, Later | keyof InstanceType<L>> &
+      Without<InstanceType<L>, Exclude<keyof InstanceType<L> & Later, X>>
   : unknown;
 
 /**

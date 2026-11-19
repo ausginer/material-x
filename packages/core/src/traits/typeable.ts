@@ -1,9 +1,8 @@
 import { Str, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $typeable: unique symbol = Symbol('Typeable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const TYPEABLE_ATTRS: Readonly<{ type: ConverterOf<string> }> = {
   type: Str,
@@ -12,15 +11,14 @@ export const TYPEABLE_ATTRS: Readonly<{ type: ConverterOf<string> }> = {
 /**
  * Element trait that exposes a string-backed nullable `type` field.
  */
-export const Typeable: Trait<{ type: string | null }, typeof $typeable> = trait(
-  TYPEABLE_ATTRS,
-  $typeable,
-);
+export class Typeable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, TYPEABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Typeable}.
- */
-export type Typeable = Interface<typeof Typeable>;
+  accessor type!: string | null;
+}
 
 /**
  * Framework-facing props derived from {@link Typeable}.

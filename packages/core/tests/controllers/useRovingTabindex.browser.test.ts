@@ -2,18 +2,23 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useRovingTabindex } from '../../src/controllers/useRovingTabindex.ts';
 import { ControlledElement } from '../../src/element.ts';
-import { impl } from '../../src/traits/attributes.ts';
-import { Checkable } from '../../src/traits/checkable.ts';
-import { Disableable } from '../../src/traits/disableable.ts';
-import { Valuable } from '../../src/traits/valuable.ts';
+import type { Checkable } from '../../src/traits/checkable.ts';
+import { compose, type Composed } from '../../src/traits/composition.ts';
+import type { Disableable } from '../../src/traits/disableable.ts';
+import type { Valuable } from '../../src/traits/valuable.ts';
 import { cleanupDOM, defineCE, host, nameCE, nextFrame } from '../browser.ts';
 
-const HostBase = impl(ControlledElement, [Valuable] as const);
-const ItemBase = impl(ControlledElement, [
-  Checkable,
-  Valuable,
-  Disableable,
-] as const);
+const HostComposition: Composed<typeof ControlledElement, [typeof Valuable]> =
+  compose(ControlledElement);
+
+class HostBase extends HostComposition {}
+
+const ItemComposition: Composed<
+  typeof ControlledElement,
+  [typeof Checkable, typeof Valuable, typeof Disableable]
+> = compose(ControlledElement);
+
+class ItemBase extends ItemComposition {}
 
 class TestItem extends ItemBase {
   constructor() {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ControlledElement } from '../../src/element.ts';
-import { impl } from '../../src/traits/attributes.ts';
-import { Selectable, useSelectable } from '../../src/traits/selectable.ts';
+import { compose, type Composed } from '../../src/traits/composition.ts';
+import { type Selectable, useSelectable } from '../../src/traits/selectable.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
 function createElement<T extends CustomElementConstructor>(
@@ -15,8 +15,13 @@ function createElement<T extends CustomElementConstructor>(
   return document.createElement(tag) as InstanceType<T>;
 }
 
+const SelectableBase: Composed<typeof ControlledElement, [typeof Selectable]> =
+  compose(ControlledElement);
+
+class SelectableElement extends SelectableBase {}
+
 function createSelectableClass() {
-  return impl(ControlledElement, [Selectable] as const);
+  return class extends SelectableElement {};
 }
 
 function createHostWithTarget() {

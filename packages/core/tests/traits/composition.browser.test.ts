@@ -1,12 +1,16 @@
 // oxlint-disable typescript/no-extraneous-class
 import { describe, expect, it } from 'vitest';
+import * as composition from '../../src/traits/composition.ts';
 import {
   bound,
-  compose,
   impl,
   trait,
   type Bound,
 } from '../../src/traits/composition.ts';
+
+// Called through the namespace: the build rejects a direct `compose()` call
+// outside a composition's constant, and these cases call it unbuilt.
+const { compose } = composition;
 
 const AnyObject: Bound<object> = bound();
 

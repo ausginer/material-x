@@ -250,3 +250,72 @@ describe('trait', () => {
     expectTypeOf<Unlabelled>().toExtend<Labelled>();
   });
 });
+
+class Wide extends AnyElement {
+  static {
+    trait(this);
+  }
+
+  get width(): 'wide' | 'narrow' | null {
+    return null;
+  }
+
+  set width(_value: 'wide' | 'narrow' | null) {}
+
+  declare color: 'tonal' | null;
+}
+
+/** SwitchIconButton's order: the nominal trait before the one that shares a key. */
+const SharedBase: Composed<
+  typeof ControlledElement,
+  [typeof ButtonLike, typeof Disableable, typeof Focusing, typeof Wide]
+> = compose(ControlledElement);
+class Shared extends SharedBase {}
+
+class Sized extends AnyElement {
+  static {
+    trait(this);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
+  readonly #brand!: true;
+
+  declare size: 'small' | null;
+}
+
+class Large extends AnyElement {
+  static {
+    trait(this);
+  }
+
+  declare size: 'large' | null;
+}
+
+const SizedLargeBase: Composed<
+  typeof ControlledElement,
+  [typeof Sized, typeof Large]
+> = compose(ControlledElement);
+class SizedLarge extends SizedLargeBase {}
+
+describe('Composed with a key that two traits share', () => {
+  it('should keep the private brand of a trait that loses no key', () => {
+    expectTypeOf<Shared>().toExtend<Focusing>();
+  });
+
+  it("should give the later trait's type to the shared key", () => {
+    expectTypeOf<Shared['color']>().toEqualTypeOf<'tonal' | null>();
+  });
+
+  it('should report an own field over the accessor of a trait that loses no key', () => {
+    class OwnDisabled extends SharedBase {
+      // @ts-expect-error: TS2610, Disableable keeps its accessor
+      override disabled = true;
+    }
+
+    expectTypeOf<OwnDisabled>().toExtend<Shared>();
+  });
+
+  it('should drop the private brand of a trait that loses a key', () => {
+    expectTypeOf<SizedLarge>().not.toExtend<Sized>();
+  });
+});

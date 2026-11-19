@@ -15,12 +15,12 @@
     "controllers/useSlot",
     "element",
     "emitter",
-    "traits/attributes",
+    "traits/attribute-traits",
     "traits/checkable",
+    "traits/composition",
     "traits/disableable",
     "traits/linkable",
     "traits/nameable",
-    "traits/primitives",
     "traits/reorderable",
     "traits/selectable",
     "traits/typeable",
@@ -29,6 +29,8 @@
     "utils/runtime"
   ],
   "clean": {
-    "extras": ["_virtual"]
+    "extras": [
+      "_virtual"
+    ]
   }
 }

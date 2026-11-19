@@ -1,9 +1,8 @@
 import { Str, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $nameable: unique symbol = Symbol('Nameable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
   name: Str,
@@ -12,15 +11,14 @@ export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
 /**
  * Element trait that exposes a string-backed nullable `name` field.
  */
-export const Nameable: Trait<{ name: string | null }, typeof $nameable> = trait(
-  NAMEABLE_ATTRS,
-  $nameable,
-);
+export class Nameable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, NAMEABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Nameable}.
- */
-export type Nameable = Interface<typeof Nameable>;
+  accessor name!: string | null;
+}
 
 /**
  * Framework-facing props derived from {@link Nameable}.

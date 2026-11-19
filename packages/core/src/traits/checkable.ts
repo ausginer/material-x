@@ -1,9 +1,8 @@
 import { Bool, type ConverterOf } from '../attribute.ts';
 import { useAttributes, via } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $checkable: unique symbol = Symbol('Checkable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
   checked: Bool,
@@ -12,15 +11,14 @@ export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
 /**
  * Element trait that exposes a presence-based `checked` boolean field.
  */
-export const Checkable: Trait<{ checked: boolean }, typeof $checkable> = trait(
-  CHECKABLE_ATTRS,
-  $checkable,
-);
+export class Checkable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, CHECKABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Checkable}.
- */
-export type Checkable = Interface<typeof Checkable>;
+  accessor checked!: boolean;
+}
 
 /**
  * Framework-facing props derived from {@link Checkable}.
