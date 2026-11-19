@@ -73,6 +73,172 @@ function commitOnReorder(list: HTMLElement): void {
   });
 }
 
+/**
+ * Records one landing of `item` from the gesture's start, for the failure
+ * message of a row whose landing wait gives up in Safari (`repo:RF-36`). It
+ * records the gesture's pointer events, each `animate()` call on the item and
+ * when its `finished` settles, the item's `toggle` events, each change of its
+ * inline `position`, each poll of the row's wait with
+ * `document.timeline.currentTime`, and the page's visibility and focus. Times
+ * are milliseconds from the call.
+ *
+ * Until the wait gives up, it schedules no callback of its own, so that it
+ * can't prevent the stall it reports: the polls stand in for frames and a
+ * timer. Only `watch` requests frames and runs a timer.
+ */
+function traceLanding(list: HTMLElement, item: HTMLElement) {
+  const start = performance.now();
+  const at = () => Math.round((performance.now() - start) * 10) / 10;
+  const marks: Array<[name: string, at: number]> = [];
+  const mark = (name: string) => {
+    marks.push([name, at()]);
+  };
+  const timelineTime = () => {
+    const time = document.timeline.currentTime;
+    return time == null ? null : Math.round(Number(time) * 10) / 10;
+  };
+  const pageState = () => ({
+    at: at(),
+    visibility: document.visibilityState,
+    focus: document.hasFocus(),
+    timeline: timelineTime(),
+  });
+
+  const controller = new AbortController();
+  const { signal } = controller;
+  let lastMove: number | null = null;
+
+  list.addEventListener('pointerdown', () => mark('pointerdown'), { signal });
+  list.addEventListener(
+    'pointermove',
+    () => {
+      lastMove = at();
+    },
+    { signal },
+  );
+  list.addEventListener('pointerup', () => mark('pointerup'), { signal });
+  item.addEventListener('toggle', (event) => mark(`toggle ${event.newState}`), {
+    signal,
+  });
+
+  let { position } = item.style;
+  const observer = new MutationObserver(() => {
+    if (item.style.position !== position) {
+      ({ position } = item.style);
+      mark(`position ${position || '(none)'}`);
+    }
+  });
+  observer.observe(item, { attributes: true, attributeFilter: ['style'] });
+
+  const nativeAnimate = Object.getOwnPropertyDescriptor(
+    Element.prototype,
+    'animate',
+  )!;
+  let animation: Animation | null = null;
+  function tracedAnimate(
+    this: Element,
+    ...args: Parameters<Element['animate']>
+  ): Animation {
+    const result = (nativeAnimate.value as Element['animate']).apply(
+      this,
+      args,
+    );
+    if (this === item) {
+      animation = result;
+      mark('animate');
+      result.finished.then(
+        () => mark('finished'),
+        () => mark('finished rejected'),
+      );
+    }
+    return result;
+  }
+  Object.defineProperty(Element.prototype, 'animate', {
+    ...nativeAnimate,
+    value: tracedAnimate,
+  });
+
+  const polls: Array<[at: number, timeline: number | null]> = [];
+
+  const atStart = pageState();
+
+  return {
+    mark,
+    /** Records one poll of the row's wait. */
+    poll(): void {
+      polls.push([at(), timelineTime()]);
+    },
+    /**
+     * Called once the wait has given up: watches frames and a 50 ms timer for
+     * `bound` ms, then gives the whole trace as JSON, with the page and the
+     * item's animation as they were when the wait gave up.
+     */
+    async watch(bound: number): Promise<string> {
+      const now = pageState();
+      const timing = animation?.effect?.getComputedTiming();
+      const animationState = animation && {
+        playState: animation.playState,
+        currentTime:
+          animation.currentTime == null
+            ? null
+            : Math.round(Number(animation.currentTime) * 10) / 10,
+        progress: timing?.progress ?? null,
+        duration: timing?.duration ?? null,
+      };
+      const marksBefore = marks.length;
+      const watchStart = performance.now();
+      const frames: Array<[at: number, timeline: number | null]> = [];
+      const timerLateness: number[] = [];
+      let frame = requestAnimationFrame(function onFrame() {
+        frames.push([at(), timelineTime()]);
+        frame = requestAnimationFrame(onFrame);
+      });
+      let ticks = 0;
+      const timer = setInterval(() => {
+        ticks += 1;
+        timerLateness.push(
+          Math.round((performance.now() - watchStart - ticks * 50) * 10) / 10,
+        );
+      }, 50);
+      await new Promise((resolve) => {
+        setTimeout(resolve, bound);
+      });
+      cancelAnimationFrame(frame);
+      clearInterval(timer);
+
+      const end = pageState();
+      return JSON.stringify({
+        marks,
+        lastMove,
+        atStart,
+        atGiveUp: now,
+        animation: animationState,
+        polls,
+        afterGiveUp: {
+          bound,
+          framesArrived: frames.length > 0,
+          end,
+          timelineAdvanced:
+            end.timeline == null || now.timeline == null
+              ? null
+              : end.timeline > now.timeline,
+          tornDown: marks
+            .slice(marksBefore)
+            .some(([name]) => name.startsWith('position ')),
+          frames,
+          timerLateness,
+        },
+      });
+    },
+    /** Removes what the trace installed. */
+    dispose(): void {
+      controller.abort();
+      observer.disconnect();
+      Object.defineProperty(Element.prototype, 'animate', nativeAnimate);
+    },
+  };
+}
+
 function createReorderEvent(): ReorderEvent {
   return new ReorderEvent(document.createElement('div'), 0, 1);
 }
@@ -909,17 +1075,38 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await nextFrame();
 
-    await ue.pointer([
-      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
-      { coords: { clientY: 100 } },
-      { keys: '[/MouseLeft]' },
-    ]);
+    const trace = traceLanding(list, item);
 
-    // Sole item, so the drop is a no-op that just animates home; wait for the
-    // teardown to restore the target's own inline styles.
-    await vi.waitFor(() => expect(item.style.position).toBe('relative'), {
-      timeout: 1000,
-    });
+    try {
+      await ue.pointer([
+        { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+        { coords: { clientY: 100 } },
+        { keys: '[/MouseLeft]' },
+      ]);
+      trace.mark('ue.pointer returned');
+
+      // Sole item, so the drop is a no-op that just animates home; wait for the
+      // teardown to restore the target's own inline styles. If the wait gives
+      // up, the trace watches the page for one more second, and the failure
+      // carries it.
+      await vi
+        .waitFor(
+          () => {
+            trace.poll();
+            expect(item.style.position).toBe('relative');
+          },
+          { timeout: 1000 },
+        )
+        .catch(async (error: unknown) => {
+          const watched = 1000;
+          throw new Error(
+            `The landing didn't tear down; the trace watched ${watched} ms more: ${await trace.watch(watched)}`,
+            { cause: error },
+          );
+        });
+    } finally {
+      trace.dispose();
+    }
     expect(item.style.transform).toBe('translateX(5px)');
   });
 
