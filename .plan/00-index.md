@@ -221,8 +221,12 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 2. **Marking.** Each measurement row carries the Vitest tag `measurement`, which the shared factory declares. The gate's test jobs run with that tag filtered out. The measurement job runs only that tag. **A local `just test` runs every row, as it does today,** so `drag:DRD-68` property 5 stays true where it is stated: an over-ceiling row fails `npx just test` until the unit re-bases.
 3. **The rows at this decision.** In `packages/drag/tests/size.node.test.ts`, each composition's ceiling and control verdict. Its graph verdict (`present`, `absent`) is `drag:DRI-18`'s and stays in the gate, so each composition's row splits into a graph row and a ceiling row. The assertions themselves don't change. In `packages/drag/tests/hot-path.browser.test.ts`, the two rows that bound bytes allocated per sample. **No speed row exists.** The implementer confirms there are no others.
 4. **The measurement job is outside the gate.** `verify` doesn't need it. It concludes successfully whenever it ran to its report. An exceeded ceiling or a failing measurement row becomes a warning annotation and a line in the report, never a failed step. `continue-on-error` covers a crash, so even a broken measurement can't fail the workflow.
-5. **The size comment (O5).** It reports every row that the root `just size` measures (`box-quad` and `core` through size-limit, `drag` through `bench/size/measure.ts`): the reading at the head, the reading at the merge base of the head and the pull request's base branch, the difference, and the row's limit at the head. Brotli for every row, and gzip where the instrument reports it. Rows that exist at one side only are marked added or removed. **Both sides are measured in the same job, on the same runner, each tree with its own instruments.** (Before the amendment of 2026-11-16, which changed only these words: _"in the same image"_.) A base tree whose instruments cannot produce the machine-readable reading gives "no base reading", and the head is still reported. The comment is one per pull request, identified by a hidden marker and updated on each run. It is posted only when the pull request comes from this repository. Otherwise, and on a push or a manual run, the report goes to the job summary only.
+5. **The size comment (O5).** It reports every row that the root `just size` measures (`box-quad`, `core` and `material-x` through size-limit, `drag` through `bench/size/measure.ts`): the reading at the head, the reading at the merge base of the head and the pull request's base branch, the difference, and the row's limit at the head. Brotli for every row, and gzip where the instrument reports it. Rows that exist at one side only are marked added or removed. **Both sides are measured in the same job, on the same runner, each tree with its own instruments.** (Before the amendment of 2026-11-16, which changed only these words: _"in the same image"_.) A base tree whose instruments cannot produce the machine-readable reading gives "no base reading", and the head is still reported. The comment is one per pull request, identified by a hidden marker and updated on each run. It is posted only when the pull request comes from this repository. Otherwise, and on a push or a manual run, the report goes to the job summary only.
 6. **The allocation result** is reported in the same comment and summary as each row's pass or fail, with its message.
+
+**Noted 2026-11-18 by the architect, not substantive:** property 5's parenthesis gains `material-x`, whose size-limit rows `RD-24` adds and which land with #68. Until then it read _"`box-quad` and `core` through size-limit"_. The rule doesn't change.
+
+**Dated 2026-11-18 by the architect:** the merge-base reading of property 5 has failed on every pull request since this decision was implemented, so no comment has shown a base or a difference. That is `RF-65`.
 
 **Why.**
 
@@ -1171,6 +1175,32 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: a row titled _hovered_ or _focused_ exists to show that state, and at 0.1 three of its baselines are wrong without anything failing. One setting, because `RD-9` pins the environment that the default threshold absorbs. The reading chooses the value, not the arithmetic. Not adopted: the documentation branch by default, per-row thresholds, fixtures with more contrast, and an allowance of mismatched pixels.
 
+#### RD-24 — material-x is measured by size-limit with the Rolldown preset, one row per runtime entry and one complete row, with no ceiling until its first publication
+
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's [size plan](mx-size-1/mx-size-plan.md) at `d512c8def`, which answers `RF-45`. The owner answered in two steps: _"Let's leave it without limits for now. The package is under heavy development, so there's no point in setting limits yet."_ Then yes to all 18 runtime entries plus `complete`, and yes to CI notifying as `RD-7` decides. Recorded by the main slot's architect on `repo/mx-size-1`. It was proposed as `RD-23`. That number went to `RF-41`'s decision on `repo/state-layer-visual-1`, and `RD-20` to `RD-22` are on `repo/traits-plugin-1`, `main` and `repo/work-queue-1`, so this entry is `RD-24`. **Unimplemented:** the plan's [Implementation](mx-size-1/mx-size-plan.md#implementation) implements it.
+
+**Properties:** the plan's [properties 1 to 8](mx-size-1/mx-size-plan.md#decision-registered-as-repord-24), as written at registration. In short:
+
+- one row per entry in `files.json`'s `runtime` list, and one `complete` row that measures a single module importing every entry. A row never lists several files for a composition (property 1);
+- the rows come from `files.json`, or the size configuration fails when the two disagree (property 2);
+- size-limit 14.3.0 and `size-limit-preset-rolldown` as devDependencies, a `size` recipe that builds first, and material-x in the root `just size` and `.scripts/size-reading.ts` after `core` (property 3);
+- Brotli governs (property 4);
+- no ceiling until the first publication, so the rows report and never signal. A unit that changes material-x's runtime output reports each row against its base, with its control row (property 5);
+- before the first publication of `@ydinjs/material-x`, which the owner performs, a unit sets each ceiling to its reading after the release's last change, with no slack. The size configuration's comment states the rule and names this decision (property 6);
+- CI notifies, as `RD-7` decides (property 7);
+- hand readings with another bundler end (property 8).
+
+**No issue stands for the boundary.** On 2026-11-18 the owner removed material-x's release item: _"Let's remove the material-x release card for now. It'll be built up from the spec, and that's quite big."_ The coordinator closed #58 as not planned. The plan's property 6 named that issue until registration, and the plan records the change.
+
+**`RF-45` stays open** until the ceilings exist ([How this meets `RF-45`](mx-size-1/mx-size-plan.md#how-this-meets-rf-45)). A row without a ceiling isn't the budget its required property asks for.
+
+**`RD-7`'s property 5** lists the packages that the root `just size` measures. When this unit's rows land, the main slot's architect adds material-x there in a dated, non-substantive note. The rule doesn't change.
+
+- **Done 2026-11-18** on `repo/mx-size-1`, so that the note lands with the rows.
+- **Dated 2026-11-18 by the architect: the comment shows no base or difference** while `RF-65` is open. Property 5's own reading is then the only signal of a row's growth: a unit that changes material-x's runtime output reads its rows before and after. The **Why**'s _"the pull requests' comments show it"_ holds once `RF-65` is repaired.
+
+**Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: the repository's instrument, not a new one. Every entry, because a row costs about a tenth of a second and an entry without a row is `RF-45`'s gap. No ceiling while almost every change moves rows on purpose. A boundary that the owner performs, not a schedule. Not adopted: ceilings re-based at each approved change, amending `RF-45`'s required property, slack, rows for only some entries, and hand measurement.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -1778,6 +1808,7 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings 
   - material-x's public entries have rows in the `measurements` job, each with a budget;
   - or the record states that material-x is measured by hand for each change, and how.
 - **Routed** to the owner. The repository's measurement tool is still a [brief](../.agents/docs/measure/brief.md), so it may supply the instrument. **It doesn't block** the findings unit.
+- **Dated 2026-11-18 by the architect: `RD-24` is its repair,** on the owner's answers, relayed by the coordinator. The [size plan](mx-size-1/mx-size-plan.md) on `repo/mx-size-1` adds the rows without ceilings. The ceilings are owed before material-x's first publication, and the pull request that sets them closes this entry. Until then, the entry stays open, and the rows' pull request says `Refs` for its issue.
 
 #### RF-46 — The deployed docs site doesn't load: Vite's build under the forced `rolldown` 1.3.2 writes a malformed `__vitePreload` call
 
@@ -2184,6 +2215,27 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from the host-has f
 - **Required property:** the list item's supporting text is clamped to the line count that Material gives for the item's configuration, and no declaration remains that no rule reads.
 - **The architect's direction,** for the unit that takes it: read first. Read Material's list item tables through tproc, and render an item whose supporting text wraps, with `support` alone and with `support` and `overline`, in all three engines. The repair is decided from that reading.
 - **Routed** to the owner to order, through the work queue (`RD-22`). **It doesn't block** #59.
+
+#### RF-65 — CI's merge-base size reading has failed on every pull request since `RD-7` was implemented, so no size comment shows a base or a difference
+
+Tier B, **open**. Registered on 2026-11-18 by the architect, from `reviewer-1` of the [feature proof](reviews/mx-size-1/feature-proof-claude.md) of `RD-24`'s rows and the coordinator's report on #68, relayed by the coordinator. `RF-64` is on `main`, so this is the next free number. **No row is disabled.**
+
+- **Observed.** The `measurements` job's _Sizes at the merge base_ step (`.github/workflows/verify.yml`) runs `aube ci` in a worktree of the merge base, then `just size-reading`. `.scripts/size-reading.ts` first runs `just build` in `box-quad`, which runs `tsdown` alone. Its configuration imports `.scripts/tsdown-library.ts`, which imports `@ydinjs/vite-traits-plugin`, and that package's `index.js` is build output that nothing in the worktree has built. The step logs `Cannot find module '…/_temp/base/node_modules/@ydinjs/vite-traits-plugin/index.js'` and the notice _"The merge base gave no machine-readable size reading"_. The architect read this in #68's run 44279774938 (job 134717402054, merge base `a133bebee`).
+- **Since the first merge base that had the script.** #29's run 44012472388, on merge base `275ad0f5c`, which is #27 and `RD-7`'s implementation, fails the same way. Every size comment the architect read opens with "No base reading": #27 to #31, #33 to #35, #37 to #39, #59, #61 and #66 to #68. #36 has no size comment. So no comment has ever shown a base. The feature proof's _"#37, #38, …"_ and the coordinator's _"since about #37"_ read fewer comments.
+- **Why the head side reads.** The job's _Measurement rows_ step runs `just test` first, and its `_package-builds` builds `vite-traits-plugin` along with `box-quad`, `core`, `tproc` and `vite-custom-element-assets`. So the head's reading depends on an earlier step. The four packages whose `tsdown.config.ts` uses `.scripts/tsdown-library.ts` are `box-quad`, `core`, `tproc` and `drag`. Each needs the plugin's build, and none declares the plugin.
+- **What it falls short of:**
+  - **`RD-7` property 5:** the base, the difference, and the _added_ and _removed_ marks. Its _"no base reading"_ clause is for a base whose instruments can't give the reading. These bases have the instruments, and the reading fails on a build that nothing ran.
+  - **`RD-24` property 5's comment, and its **Why**.**
+  - **The size plan's step 4,** _"as added"_.
+- **Tier B:** an instrument the repository relies on gives no answer, and the comment reports that as an expected absence.
+- **What stands in until the repair:** each unit's own reading before and after its change, as `RD-24` property 5 requires for material-x and CONTRIBUTING §15 for every package.
+- **Required property:** in a tree where only `aube ci` has run, `aube exec just size-reading <output>` exits 0 and writes every row that the root `just size` measures. The merge-base step then reads every base that contains the repair with the base tree's own instruments, as `RD-7` property 5 states, and the workflow needs no change.
+- **The architect's direction,** for the unit that takes it:
+  - **Declare the prerequisite once,** where the build order is derived. Each package whose build imports `@ydinjs/vite-traits-plugin` declares it, and the reading builds each package so that its declared prerequisites build first. `size-reading.ts` keeps no second, hand-kept list of packages to build.
+  - **Witness 1:** in a fresh worktree at the repair's commit, after `aube ci`, `aube exec just size-reading` exits 0 with every row. At the parent commit it fails as above. Save both.
+  - **Witness 2:** the first pull request whose merge base contains the repair shows a base reading and the differences in its comment. A pull request whose merge base predates the repair still says "No base reading", as `RD-7` property 5 allows. That isn't a failure of the repair.
+- **Not established:** whether `_package-builds`, which builds the plugin beside the four packages in one `nx run-many`, orders the plugin first, or succeeds because the plugin happens to finish first. The direction orders it either way.
+- **Routed** to the owner to order, as its own unit, through the work queue (`RD-22`). The architect recommends ordering it before the next pull request that changes a measured package's runtime output. **It doesn't block** #68. #68's merge base predates any repair, so the repair in #68 wouldn't give #68 a base reading.
 
 ## Questions
 

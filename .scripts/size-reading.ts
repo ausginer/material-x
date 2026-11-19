@@ -3,9 +3,9 @@
  * that the root `just size` measures, with its package, Brotli bytes, gzip bytes
  * where the instrument reports them, and its limit. Each package is built first,
  * as its `size` recipe builds it, and then measured by its own instrument:
- * size-limit's `--json` for `box-quad` and `core`, and `bench/size/measure.ts
- * --json` for `drag`. A row over its limit is still read; an instrument that
- * prints no reading fails the script.
+ * size-limit's `--json` for `box-quad`, `core` and `material-x`, and
+ * `bench/size/measure.ts --json` for `drag`. A row over its limit is still
+ * read; an instrument that prints no reading fails the script.
  *
  * `node .scripts/size-reading.ts <output.json>`
  */
@@ -129,6 +129,8 @@ const reading: SizeReading = {
   rows: [
     ...(await readSizeLimit('box-quad')),
     ...(await readSizeLimit('core')),
+    // After `core`, because material-x's graph reads core's built output.
+    ...(await readSizeLimit('material-x')),
     ...(await readDrag()),
   ],
 };

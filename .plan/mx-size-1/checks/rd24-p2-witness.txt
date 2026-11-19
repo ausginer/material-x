@@ -1,0 +1,137 @@
+# RD-24 property 2 witness, run by the implementer on 2026-11-18, local devcontainer (slot d), in packages/material-x,
+# on repo/mx-size-1 at the merge b77795e25 with this unit's changes. Run in the working tree and reverted. The reading in
+# rd24-reading.txt was taken after the revert.
+#
+# The mechanism: .size-limit.ts builds its rows from files.json's runtime list, so there is no second list to drift.
+# A runtime entry can be left unmeasured only if its row finds no built file. The witness shows both sides:
+#   (a) an entry added to files.json gets a row with no change to the size configuration;
+#   (b) an entry that files.json lists and whose built file is missing makes size-limit exit 1.
+# (b) runs the recipe's measuring step after its build, because 'just size' rebuilds the file first. Here the
+# 'complete' row fails first: its generated module cannot resolve the entry. Python's json.dumps rewrote files.json,
+# which also expanded its short arrays; only the 'icon/witness' line is the change.
+
+## (a) A new runtime entry gets a row
+$ git diff files.json
+diff --git a/packages/material-x/files.json b/packages/material-x/files.json
+index 611d7298c..42cd1d3cf 100644
+--- a/packages/material-x/files.json
++++ b/packages/material-x/files.json
+@@ -17,10 +17,16 @@
+     "list/list-link-item",
+     "radio/radio",
+     "text-field/multiline-text-field",
+-    "text-field/text-field"
++    "text-field/text-field",
++    "icon/witness"
++  ],
++  "typeOnly": [
++    "react"
+   ],
+-  "typeOnly": ["react"],
+   "clean": {
+-    "extras": ["core", "custom-elements.json"]
++    "extras": [
++      "core",
++      "custom-elements.json"
++    ]
+   }
+ }
+$ cat src/icon/witness.ts
+export const witness = 1;
+$ aube exec just size  (build output omitted)
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.83 kB brotlied
+  
+  button/icon-button
+  Size: 5.38 kB brotlied
+  
+  button/link-button
+  Size: 4.8 kB brotlied
+  
+  button/switch-button
+  Size: 5.41 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.87 kB brotlied
+  
+  button/split-button
+  Size: 7.51 kB brotlied
+  
+  button-group/button-group
+  Size: 3.31 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 4.02 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.14 kB brotlied
+  
+  fab/fab
+  Size: 4.35 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.66 kB brotlied
+  
+  list/list-item
+  Size: 2.67 kB brotlied
+  
+  list/list-button-item
+  Size: 4.62 kB brotlied
+  
+  list/list-link-item
+  Size: 4.81 kB brotlied
+  
+  radio/radio
+  Size: 3.58 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.53 kB brotlied
+  
+  text-field/text-field
+  Size: 8.49 kB brotlied
+  
+  icon/witness
+  Size: 35 B brotlied
+  
+  complete
+  Size: 17.26 kB brotlied
+  
+exit: 0
+
+## (b) A listed entry with no built file fails
+$ rm icon/witness.js   # files.json still lists icon/witness; its built file is gone
+$ aube exec -- size-limit   # the recipe's measuring step, after its build
+- Bundling with Rolldown
+✖ Bundling with Rolldown
+ ERROR  Error: Build failed with 1 error:
+
+[UNRESOLVED_IMPORT] Could not resolve '/workspaces/worktrees/d/packages/material-x/icon/witness.js' in node_modules/.cache/size-limit/complete.js
+    ╭─[ node_modules/.cache/size-limit/complete.js:19:8 ]
+    │
+ 19 │ import "/workspaces/worktrees/d/packages/material-x/icon/witness.js";
+    │        ──────────────────────────────┬──────────────────────────────  
+    │                                      ╰──────────────────────────────── Module not found.
+────╯
+
+    at aggregateBindingErrorsIntoJsError (file:///workspaces/worktrees/d/node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:110:18)
+    at unwrapBindingResult (file:///workspaces/worktrees/d/node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:78:128)
+    at #build (file:///workspaces/worktrees/d/node_modules/rolldown/dist/shared/rolldown-D1DJCGXB.mjs:147:34)
+    at async Object.step60 (file:///workspaces/worktrees/d/packages/size-limit-preset-rolldown/index.js:43:23)
+    at async Promise.all (index 19)
+    at async step (file:///workspaces/worktrees/d/node_modules/size-limit/calc.js:19:11)
+    at async calc (file:///workspaces/worktrees/d/node_modules/size-limit/calc.js:48:36)
+    at async calcAndShow (file:///workspaces/worktrees/d/node_modules/size-limit/run.js:79:7)
+    at async default (file:///workspaces/worktrees/d/node_modules/size-limit/run.js:84:5)
+exit: 1
+
+## Revert
+$ git checkout -- files.json && rm src/icon/witness.ts icon/witness.*
+$ aube exec just size
+exit: 0
