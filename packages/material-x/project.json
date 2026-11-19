@@ -4,5 +4,10 @@
   "implicitDependencies": [
     "@ydinjs/vite-custom-element-assets",
     "@ydinjs/vite-traits-plugin"
-  ]
+  ],
+  "targets": {
+    "size": {
+      "dependsOn": ["^build"]
+    }
+  }
 }

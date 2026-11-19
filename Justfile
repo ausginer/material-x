@@ -108,7 +108,7 @@ _test-builds: _package-builds
 
 # Check bundle-size budgets for all measured packages
 size:
-    nx run-many -t size --projects=box-quad,core,drag --skipNxCache
+    nx run-many -t size --projects=box-quad,core,drag,material-x --parallel=1 --skipNxCache
 
 # Write the rows that `size` measures, as JSON, to FILE (builds first)
 size-reading FILE:

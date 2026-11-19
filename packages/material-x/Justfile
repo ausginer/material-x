@@ -29,6 +29,11 @@ build-cem:
 clean-build:
     node ../../.scripts/package-files.ts clean --package .
 
+# Measure the size rows (builds first — Size Limit weighs built output). It
+# reads `@ydinjs/core`'s built output, so build core first.
+size *ARGS: build
+    size-limit {{ ARGS }}
+
 # Run publint
 publint:
     publint

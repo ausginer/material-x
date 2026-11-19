@@ -1,0 +1,365 @@
+# RD-24 reading: material-x's size rows. The current reading is the last section, after the second merge of origin/main.
+# First reading: read by the implementer on 2026-11-18, local devcontainer (slot d),
+# on repo/mx-size-1 at the merge b77795e25 with this unit's changes, as committed in the commit that adds this file.
+# Built first: core by the root order; then 'aube exec just size' in packages/material-x (its recipe builds material-x).
+# Instrument: size-limit 14.3.0 with size-limit-preset-rolldown 0.1.0, rows from packages/material-x/.size-limit.ts. Brotli, bytes.
+# The root 'aube exec just size-reading <file>' gave the same 19 rows with limit null, after box-quad and core, before drag.
+#
+# Columns: the row's reading; the probe at 377ca72df (rf45-entry-sizes.txt); the difference;
+# the probe's own script re-run at this tree (same build); the module count in the entry's graph, probe then and now.
+# 'complete': the probe re-exported every entry ('export * from'); the row imports every entry for its effects
+# ('import "<entry>.js"'), which is what a consumer writes.
+
+row                                    reading   probe  diff  re-run  mods  now
+button/button                             4828    4816   +12    4828    36   37
+button/icon-button                        5380    5355   +25    5380    42   43
+button/link-button                        4799    4797    +2    4799    34   35
+button/switch-button                      5411    5404    +7    5411    43   44
+button/switch-icon-button                 5870    5831   +39    5870    47   48
+button/split-button                       7514    7466   +48    7514    59   60
+button-group/button-group                 3308    3296   +12    3308    37   37
+button-group/connected-button-group       4024    4008   +16    4024    39   39
+checkbox/checkbox                         4144    4144    +0    4144    28   28
+fab/fab                                   4351    4371   -20    4351    28   29
+icon/icon                                  661     661    +0     661     7    7
+list/list                                 3664    3664    +0    3664    15   15
+list/list-item                            2674    2690   -16    2674    16   16
+list/list-button-item                     4615    4637   -22    4615    29   30
+list/list-link-item                       4813    4854   -41    4813    30   31
+radio/radio                               3581    3581    +0    3581    26   26
+text-field/multiline-text-field           4533    4533    +0    4533    27   27
+text-field/text-field                     8492    8409   +83    8492    58   59
+complete                                 17258   17258    +0   17274   119  120
+
+# Reading against the probe:
+# - Every entry row equals the probe's own script re-run at this tree, to the byte. size-limit's preset and the probe
+#   measure the same thing; no difference comes from how size-limit streams the file to the compressor.
+# - Thirteen entry rows differ from the probe at 377ca72df, by -41 to +83 B. Ten of them have one more module in their
+#   graph now; button-group, connected-button-group and list-item moved with the same module count. The five rows that
+#   did not move kept their module count. The source is the cause, because the re-run equals the rows: the merge of
+#   origin/main brought three changes to the runtime sources since 377ca72df, #61 (method traits flattened; the focus
+#   forward moves to a trait), #37 (declarations and trait field types) and #39 (createContext's token). Which change
+#   moves which row was not read separately.
+# - 'complete' reads 17,258 B, the probe's figure. That is a coincidence of two changes: the probe's re-export form
+#   reads 17,274 B at this tree (+16 B from the source changes), and the effect-import form drops the 16 B that
+#   keeping every entry's exports costs.
+#
+# material-x's 'just size', from size-limit on (build output omitted):
+
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.83 kB brotlied
+  
+  button/icon-button
+  Size: 5.38 kB brotlied
+  
+  button/link-button
+  Size: 4.8 kB brotlied
+  
+  button/switch-button
+  Size: 5.41 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.87 kB brotlied
+  
+  button/split-button
+  Size: 7.51 kB brotlied
+  
+  button-group/button-group
+  Size: 3.31 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 4.02 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.14 kB brotlied
+  
+  fab/fab
+  Size: 4.35 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.66 kB brotlied
+  
+  list/list-item
+  Size: 2.67 kB brotlied
+  
+  list/list-button-item
+  Size: 4.62 kB brotlied
+  
+  list/list-link-item
+  Size: 4.81 kB brotlied
+  
+  radio/radio
+  Size: 3.58 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.53 kB brotlied
+  
+  text-field/text-field
+  Size: 8.49 kB brotlied
+  
+  complete
+  Size: 17.26 kB brotlied
+exit: 0
+
+# size-limit --json, the form .scripts/size-reading.ts parses:
+
+[
+  {
+    "name": "button/button",
+    "size": 4828
+  },
+  {
+    "name": "button/icon-button",
+    "size": 5380
+  },
+  {
+    "name": "button/link-button",
+    "size": 4799
+  },
+  {
+    "name": "button/switch-button",
+    "size": 5411
+  },
+  {
+    "name": "button/switch-icon-button",
+    "size": 5870
+  },
+  {
+    "name": "button/split-button",
+    "size": 7514
+  },
+  {
+    "name": "button-group/button-group",
+    "size": 3308
+  },
+  {
+    "name": "button-group/connected-button-group",
+    "size": 4024
+  },
+  {
+    "name": "checkbox/checkbox",
+    "size": 4144
+  },
+  {
+    "name": "fab/fab",
+    "size": 4351
+  },
+  {
+    "name": "icon/icon",
+    "size": 661
+  },
+  {
+    "name": "list/list",
+    "size": 3664
+  },
+  {
+    "name": "list/list-item",
+    "size": 2674
+  },
+  {
+    "name": "list/list-button-item",
+    "size": 4615
+  },
+  {
+    "name": "list/list-link-item",
+    "size": 4813
+  },
+  {
+    "name": "radio/radio",
+    "size": 3581
+  },
+  {
+    "name": "text-field/multiline-text-field",
+    "size": 4533
+  },
+  {
+    "name": "text-field/text-field",
+    "size": 8492
+  },
+  {
+    "name": "complete",
+    "size": 17258
+  }
+]
+
+
+# ---------------------------------------------------------------------------
+# After merging origin/main at a133bebee (#59) into repo/mx-size-1, as merge 51b3b27bc. Read the same day, the same way.
+# Six rows moved, all smaller. The merge changed one runtime source, packages/material-x/src/core/utils/polyfills.ts:
+# useHasSlottedPolyfill no longer probes ':host:has()' support at import (an element appended to the body, a shadow root,
+# a style and getComputedStyle) and sets the state in every engine. The moved rows are exactly the entries that import it:
+# list-item, list-button-item and list-link-item through ListItemCore.ts, multiline-text-field, text-field through
+# TextFieldCore.ts, and complete. The other thirteen rows did not move.
+
+row                                     before     now  diff
+button/button                             4828    4828    +0
+button/icon-button                        5380    5380    +0
+button/link-button                        4799    4799    +0
+button/switch-button                      5411    5411    +0
+button/switch-icon-button                 5870    5870    +0
+button/split-button                       7514    7514    +0
+button-group/button-group                 3308    3308    +0
+button-group/connected-button-group       4024    4024    +0
+checkbox/checkbox                         4144    4144    +0
+fab/fab                                   4351    4351    +0
+icon/icon                                  661     661    +0
+list/list                                 3664    3664    +0
+list/list-item                            2674    2585   -89
+list/list-button-item                     4615    4555   -60
+list/list-link-item                       4813    4763   -50
+radio/radio                               3581    3581    +0
+text-field/multiline-text-field           4533    4434   -99
+text-field/text-field                     8492    8396   -96
+complete                                 17258   17137  -121
+
+# material-x's 'just size', from size-limit on (build output omitted):
+
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.83 kB brotlied
+  
+  button/icon-button
+  Size: 5.38 kB brotlied
+  
+  button/link-button
+  Size: 4.8 kB brotlied
+  
+  button/switch-button
+  Size: 5.41 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.87 kB brotlied
+  
+  button/split-button
+  Size: 7.51 kB brotlied
+  
+  button-group/button-group
+  Size: 3.31 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 4.02 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.14 kB brotlied
+  
+  fab/fab
+  Size: 4.35 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.66 kB brotlied
+  
+  list/list-item
+  Size: 2.58 kB brotlied
+  
+  list/list-button-item
+  Size: 4.55 kB brotlied
+  
+  list/list-link-item
+  Size: 4.76 kB brotlied
+  
+  radio/radio
+  Size: 3.58 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.43 kB brotlied
+  
+  text-field/text-field
+  Size: 8.4 kB brotlied
+  
+  complete
+  Size: 17.14 kB brotlied
+exit: 0
+
+# size-limit --json:
+
+[
+  {
+    "name": "button/button",
+    "size": 4828
+  },
+  {
+    "name": "button/icon-button",
+    "size": 5380
+  },
+  {
+    "name": "button/link-button",
+    "size": 4799
+  },
+  {
+    "name": "button/switch-button",
+    "size": 5411
+  },
+  {
+    "name": "button/switch-icon-button",
+    "size": 5870
+  },
+  {
+    "name": "button/split-button",
+    "size": 7514
+  },
+  {
+    "name": "button-group/button-group",
+    "size": 3308
+  },
+  {
+    "name": "button-group/connected-button-group",
+    "size": 4024
+  },
+  {
+    "name": "checkbox/checkbox",
+    "size": 4144
+  },
+  {
+    "name": "fab/fab",
+    "size": 4351
+  },
+  {
+    "name": "icon/icon",
+    "size": 661
+  },
+  {
+    "name": "list/list",
+    "size": 3664
+  },
+  {
+    "name": "list/list-item",
+    "size": 2585
+  },
+  {
+    "name": "list/list-button-item",
+    "size": 4555
+  },
+  {
+    "name": "list/list-link-item",
+    "size": 4763
+  },
+  {
+    "name": "radio/radio",
+    "size": 3581
+  },
+  {
+    "name": "text-field/multiline-text-field",
+    "size": 4434
+  },
+  {
+    "name": "text-field/text-field",
+    "size": 8396
+  },
+  {
+    "name": "complete",
+    "size": 17137
+  }
+]

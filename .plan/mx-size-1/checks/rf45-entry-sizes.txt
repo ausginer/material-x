@@ -1,0 +1,69 @@
+# RF-45 plan: Brotli size of each material-x runtime entry, read by the architect at 377ca72df on 2026-11-18, local devcontainer.
+# Built first: 'aube exec just build' in packages/core, then in packages/material-x.
+# Method: the steps of size-limit-preset-rolldown 0.1.0 (Rolldown, platform neutral, ESM, minify),
+# then Brotli quality 11 as @size-limit/file 14.3.0 computes it, and gzip level 9. Bytes. Run twice; the second run matched.
+# Columns: minified, Brotli, gzip, chunks, modules in the graph, of which from @ydinjs/core.
+# 'all runtime entries' bundles the 18 entries as 18 inputs, as a size-limit row with 18 paths would, and sums the chunks.
+# 'complete' bundles one module that re-exports every entry: the single graph a consumer's bundler builds.
+# Run from packages/material-x: node --input-type=module < <the script below>
+
+entry                                        min  brotli    gzip chk mods core
+button/button                              17037    4816    5387   1   36   15
+button/icon-button                         20957    5355    5990   1   42   18
+button/link-button                         17059    4797    5372   1   34   14
+button/switch-button                       21009    5404    6058   1   43   17
+button/switch-icon-button                  26624    5831    6546   1   47   18
+button/split-button                        30783    7466    8370   1   59   23
+button-group/button-group                  10837    3296    3755   1   37   18
+button-group/connected-button-group        13438    4008    4549   1   39   21
+checkbox/checkbox                          12229    4144    4654   1   28   15
+fab/fab                                    16560    4371    4941   1   28   14
+icon/icon                                   1613     661     830   1    7    3
+list/list                                   9932    3664    4147   1   15   10
+list/list-item                              9518    2690    3132   1   16    7
+list/list-button-item                      14960    4637    5255   1   29   15
+list/list-link-item                        15691    4854    5475   1   30   16
+radio/radio                                10005    3581    4021   1   26   13
+text-field/multiline-text-field            16585    4533    5094   1   27   15
+text-field/text-field                      35289    8409    9416   1   58   21
+all runtime entries (one graph, chunks summed)  101904   33867   38826  51  118   27
+complete (one module re-exporting all)     90304   17258   20122   1  119   27
+
+# The script:
+#   // Probe: each material-x runtime entry bundled as size-limit-preset-rolldown bundles it
+#   // (Rolldown, platform neutral, ESM, minify), then Brotli (quality 11, as @size-limit/file) and gzip level 9.
+#   import { readFile, mkdtemp, rm } from 'node:fs/promises';
+#   import { tmpdir } from 'node:os';
+#   import { join, resolve } from 'node:path';
+#   import { brotliCompressSync, gzipSync, constants } from 'node:zlib';
+#   import { rolldown } from 'rolldown';
+#   const pkg = process.cwd();
+#   const { runtime } = JSON.parse(await readFile(join(pkg, 'files.json'), 'utf8'));
+#   async function measure(name, inputs) {
+#     const dir = await mkdtemp(join(tmpdir(), 'mx-size-'));
+#     const bundle = await rolldown({ input: inputs.map((e) => resolve(pkg, `${e}.js`)), platform: 'neutral' });
+#     try {
+#       const { output } = await bundle.write({ dir, format: 'es', minify: true });
+#       let min = 0, br = 0, gz = 0, modules = new Set();
+#       for (const c of output) {
+#         if (c.type !== 'chunk') continue;
+#         const b = Buffer.from(c.code);
+#         min += b.length;
+#         br += brotliCompressSync(b, { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } }).length;
+#         gz += gzipSync(b, { level: 9 }).length;
+#         for (const m of c.moduleIds) modules.add(m);
+#       }
+#       const core = [...modules].filter((m) => m.includes('/packages/core/')).length;
+#       console.log([name.padEnd(40), String(min).padStart(7), String(br).padStart(7), String(gz).padStart(7), String(output.filter(c=>c.type==='chunk').length).padStart(3), String(modules.size).padStart(4), String(core).padStart(4)].join(' '));
+#     } finally { await bundle.close(); await rm(dir, { recursive: true, force: true }); }
+#   }
+#   console.log(['entry'.padEnd(40), 'min'.padStart(7), 'brotli'.padStart(7), 'gzip'.padStart(7), 'chk', 'mods', 'core'].join(' '));
+#   for (const e of runtime) await measure(e, [e]);
+#   await measure('all runtime entries (one graph, chunks summed)', runtime);
+#   // A consumer's single graph: one module importing every runtime entry.
+#   import { writeFile } from 'node:fs/promises';
+#   const fx = await mkdtemp(join(tmpdir(), 'mx-complete-'));
+#   const entry = join(fx, 'complete.js');
+#   await writeFile(entry, runtime.map((e) => `export * from ${JSON.stringify(resolve(pkg, `${e}.js`))};`).join('\n'));
+#   await measure('complete (one module re-exporting all)', [entry.slice(0, -3)]);
+#   await rm(fx, { recursive: true, force: true });
