@@ -4,7 +4,9 @@
 
 **Registered 2026-11-19 as [`RD-26`](../00-index.md) by the main slot's architect,** on `repo/traits-migration-1`, where this plan is implemented. The owner accepted the symbol brand on the same day. [Proposed record changes](#proposed-record-changes) are made, with one addition: `RF-63`'s closure reads the eight adopters' entries with esbuild as well as rolldown, because P41 measured rolldown only.
 
-**Amended 2026-11-19 by Architect B, on the coordinator's task: the trait module's build installs the brand with a static `[Symbol.hasInstance]` method, not with a pure-marked `trait()` call.** The implementer found in commit 3 that rolldown removes a pure-marked call from a static block it keeps, so `instanceof` is false for every trait. Core's tsdown build already emitted an empty `static {}`. P41 read only whether the class survived and its bytes, never `instanceof`. [P42](trait-decorators-plan.md#evidence) runs each bundle with rolldown and esbuild. The first bullet of [Decided here](#decided-here) gives the form and its reasons, and [the proposed `RD-26` amendment](#proposed-rd-26-amendment) is for the main slot's architect.
+**Amended 2026-11-19 by Architect B, on the coordinator's task: the trait module's build installs the brand with a static `[Symbol.hasInstance]` method, not with a pure-marked `trait()` call.** The implementer found in commit 3 that rolldown removes a pure-marked call from a static block it keeps, so `instanceof` is false for every trait. Core's tsdown build already emitted an empty `static {}`. P41 read only whether the class survived and its bytes, never `instanceof`. [P42](trait-decorators-plan.md#evidence) runs each bundle with rolldown and esbuild. The first bullet of [Decided here](#decided-here) gives the form and its reasons, and [the proposed `RD-26` amendment](#proposed-rd-26-amendment) is for the main slot's architect. **Applied** to `RD-26` property 7 at `c2e701d4f`, with the owner's approval.
+
+**Amended again 2026-11-19 by Architect B, on the coordinator's task: proof 3's rulings, and a trimmed trait also loses the base's keys.** At `2bf0418ab`, proof 3 left two kinds of difference. [Proof 3](#the-proofs-before-the-pull-request) now names both as expected. Reading them with [P44](trait-decorators-plan.md#evidence) found a regression that the surface reading can't see: a subclass of IconButton or SwitchIconButton can't override `click()`, or any other method of the base, because the trimmed trait's `Omit` turns every member it inherits from its bound into a property. The change is in [Decided here](#decided-here) and [Core: layer (a)](#core-layer-a-traitscompositionts), and [the proposed `RD-26` amendment](#proposed-rd-26-amendment-property-4) is for the main slot's architect. Proof 4 records the owner's acceptance of the size rows.
 
 **Amended 2026-11-19 by the main slot's architect, on the coordinator's task: each trait is trimmed alone in the instance type, and a trait's `declare` member is a key in the types only** (`RD-26` property 4). The implementer found that P40's form dropped FocusForwarding's `#brand` in SwitchIconButton. [P43](trait-decorators-plan.md#evidence) reads both forms. The changed lines are in [Decided here](#decided-here), [Core: layer (a)](#core-layer-a-traitscompositionts) and proof 6.
 
@@ -63,6 +65,8 @@ Relayed by the coordinator, translated:
 
   **Each trait is trimmed alone** (`RD-26` property 4, amended 2026-11-19). A trait that loses a key to a later trait goes through `Omit` without those keys, and no other trait does. `Omit` is a mapped type, so that trait's other members lose TS2610 and TS2611, and its ES-private members go ([P43](trait-decorators-plan.md#evidence) (c), (d)). P40's form trimmed every earlier trait together, which dropped FocusForwarding's `#brand` in SwitchIconButton (P43 (a)). The flattener's warning names every pair that supplies one key. A `declare` member supplies nothing, so a key that a later trait only declares isn't warned about.
 
+  **A trimmed trait also loses the base's keys** (amended 2026-11-19, [P44](trait-decorators-plan.md#evidence)). Every trait carries its bound's members, so `Omit<Trait, K>` maps every `HTMLElement` member too, and a mapped type has no methods or accessors, only properties. At `2bf0418ab` that gave TS2425 on a subclass's legitimate `override click()` of IconButton and SwitchIconButton, and lost TS2610 on an own field over an accessor of the base. The old types allowed both. The base's instance supplies those keys unmapped, so the trimmed trait drops them as well: `Omit<Trait, K | keyof Base>`. Only the trait's own members are mapped, which is the cost that P43 (c) records, and P43's cases report the same errors on the same lines with the change.
+
 - **The deletion rule runs only where nothing copies from the output.** That is an application build, Vite's `build` without `build.lib`. A library build keeps every member, because another package copies from its `.js`. tsdown is always a library build, and the dev server is excluded.
 - **File names.** Layer (a) is `packages/core/src/traits/composition.ts`, and layer (b) is `packages/core/src/traits/attribute-traits.ts`. Both replace `primitives.ts` and `attributes.ts`, which are deleted.
   - Layer (a) stays in `@ydinjs/core` behind its own subpath. It imports nothing from core, so a later package of its own changes no API.
@@ -105,7 +109,7 @@ export type Composed<B, T>;        // B & AbstractConstructor<InstanceType<B> & 
 **How the types resolve a shared key:**
 
 - **Statics:** `Statics<T>` folds `MergeStatics` over the list, left to right.
-- **Instances:** `Instances<T, X>` reads the list from the last trait back, and trims each trait alone of the keys a later trait declares ([P43](trait-decorators-plan.md#evidence)).
+- **Instances:** `Instances<T, X>` reads the list from the last trait back, and trims each trait alone of the keys a later trait declares ([P43](trait-decorators-plan.md#evidence)). A trait that is trimmed also loses the base's instance keys, `X` ([P44](trait-decorators-plan.md#evidence)).
 - **The last trait wins a shared key** in both. A component that declares the key itself wins over all traits, through ordinary class typing.
 
 ## Core: layer (b), `traits/attribute-traits.ts`
@@ -244,7 +248,7 @@ On a new branch, `repo/traits-migration-1`, from `origin/main` at its head when 
 1. **The baseline, on the old path.** The baseline instruments of the next section, and their output recorded at this commit. Nothing else changes.
 2. **Core's layers.** `composition.ts` and `attribute-traits.ts`, with their tests:
    - `tests/traits/composition.browser.test.ts`: brands, `instanceof`, `compose` throwing, `impl`;
-   - `composition.declaration.test.ts`: P40's cases, plus P31's and P35's that still apply;
+   - `composition.declaration.test.ts`: P40's cases, plus P31's and P35's that still apply, and P44's §3 and §4: on a composition that trims a trait, a subclass's override of a base method has no error, and an own field over a base accessor is TS2610;
    - `attribute-traits.declaration.test.ts`: the table checks and `Props`.
 3. **The plugin.** The structure above, with the old recognition removed. Fixtures are rewritten as class traits and `Composed` constants. The tests:
    - every error code's row asserts a build error;
@@ -307,7 +311,16 @@ At commit 7, each must hold. Each result is committed under `.plan/trait-migrati
 
    Every remaining difference is listed in the check, and each one goes to the architect before the pull request opens.
 
+   **Expected differences,** ruled 2026-11-19 on the reading at `2bf0418ab` ([P44](trait-decorators-plan.md#evidence)):
+   - **`static [$bound]` on each trait class's static side,** typed `(instance: I, statics: S) => void` from the trait's bound. It is the key through which `Applicable<B>` checks a trait against a component's base, so a trait class must carry it, in this package and in any package that defines a trait. It is a type-only `unique symbol` that `composition.js` doesn't export, so no consumer can name it (P44 §1), and it has no runtime value. `Composed`'s statics leave it out.
+   - **`focus` on FocusForwarding's eight adopters,** typed `HTMLElement`'s `focus` intersected with FocusForwarding's `override focus`, which has the same signature. The intersection restates the inherited member, as `RF-33`'s ruling requires of the forward, and every call and assignment that `HTMLElement`'s `focus` allows is allowed (P44 §2). **Known limit:** TypeScript doesn't check a subclass's override against an intersection of two method signatures, so a subclass's `focus(options: number)` compiles, where a subclass of `HTMLElement` gets TS2416. A single signature would need a mapped type over the trait or the base. Over the trait, it turns every member the trait inherits from its bound into a property, so a legitimate `override focus()` gets TS2425, and TS2610 goes (P44 §5). Over the base, it loses TS2610 on the base's accessors. Both cost more than the lost check. The limit applies to every trait member that overrides a member of its bound, and FocusForwarding's `focus` is the only one in the tree.
+
+   A difference that the surface reading can't show, a lost or added error in a subclass, is read by `composition.declaration.test.ts` (commit 2).
+
 4. **Size is within noise.** `just size` in material-x and core: every row within 1% or 10 B of commit 1's reading, in brotli bytes, whichever is larger.
+
+   **The owner accepts the 11 rows outside the bound at `2bf0418ab`,** relayed by the coordinator on 2026-11-19: each is a decrease, and a decrease is always approved under his standing rule. The cause of each is in `.plan/trait-migration-1/checks/size.md`.
+
 5. **The flattened JavaScript, diffed per component.** `git diff --no-index` of commit 1's built tree against commit 7's, one file per component entry, is committed as `flattened.diff` and summarised in the pull request description. The expected differences:
    - the brand install becomes `impl(this, …)`;
    - each trait module's `trait()` call becomes a static `[Symbol.hasInstance]` method;
@@ -343,9 +356,23 @@ The paths are `origin/main`'s at `24c6672ce`. Commit 5 greps for `traits/primiti
   - Root `README.md`: the plugin's one-line description.
   - `AGENTS.md` and `work-queue.md` name the plugin only by name, and don't change.
 
+## Proposed RD-26 amendment, property 4
+
+For the main slot's architect, Mx Architect, from the second amendment of 2026-11-19. This plan doesn't edit records or the index. No owner decision is needed: the change restores what the old types allowed, and changes no rule the owner set.
+
+- **`RD-26` property 4, third bullet,** a sentence added after _"A key of the base's instance doesn't count."_:
+
+  > A trait that is trimmed loses the base's instance keys as well, because the base supplies them unmapped. So a subclass's override of a base member keeps its kind check, and only the trimmed trait's own members lose theirs.
+
+- **A dated note under the property 4 amendment,** proposed wording:
+
+  > _Amended again 2026-11-19 by the architect._ At `2bf0418ab`, `Omit<Trait, K>` also mapped every member that the trait inherits from its bound, so a subclass of IconButton or SwitchIconButton got TS2425 on `override click()`, and an own field over a base accessor lost TS2610. The old types allowed both. [P44](trait-decorators-plan.md#evidence) ([transcript](checks/surface.txt)) reads it on the built components, and reads P43's cases with `Omit<Trait, K | keyof Base>`: each prints the same, and both overrides compile.
+
+- **`RF-57`'s exception:** the cost of a trait that is trimmed is its own members only, as recorded. At `2bf0418ab` it also reached the base's members, and the change above repairs that.
+
 ## Proposed RD-26 amendment
 
-For the main slot's architect, Mx Architect, from the amendment of 2026-11-19. This plan doesn't edit records or the index.
+**Applied** to `RD-26` property 7 and `RF-63` at `c2e701d4f`, with the owner's approval. For the main slot's architect, Mx Architect, from the amendment of 2026-11-19. This plan doesn't edit records or the index.
 
 - **`RD-26` property 7, second bullet,** proposed wording:
 

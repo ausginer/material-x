@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@ydinjs/core/*": ["../../../../../packages/core/*"],
+      "@ydinjs/material-x/*": ["../../../../../packages/material-x/*"]
+    },
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "isolatedDeclarations": false,
+    "rootDir": "../../../../.."
+  },
+  "files": ["p44-surface.ts"]
+}
