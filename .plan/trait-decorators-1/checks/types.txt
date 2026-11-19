@@ -1,4 +1,4 @@
-# P1–P12 — .plan/trait-decorators-1/probes/types/run.sh, at d1ea40e22, 2026-11-19
+# P1–P6, P9–P14, P16 — .plan/trait-decorators-1/probes/types/run.sh, at 20817d665, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -100,6 +100,79 @@ exit 2
 === p12-instance-arguments — Version 6.0.3
 p12-instance-arguments.ts(33,39): error TS2344: Type '[HTMLElement]' does not satisfy the constraint 'readonly ControlledElement[]'.
   Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+exit 2
+=== p13-attribute-forms — Version 7.0.2
+p13-attribute-forms.ts(53,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(61,5): error TS2353: Object literal may only specify known properties, and 'hidden2' does not exist in type 'AttributeTable<UnknownKey>'.
+p13-attribute-forms.ts(80,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Explicit]>', but is overridden here in 'FieldExplicit' as an instance property.
+p13-attribute-forms.ts(89,16): error TS2611: 'disabled' is defined as a property in class 'UsesDeclared', but is overridden here in 'SubDeclared' as an accessor.
+p13-attribute-forms.ts(101,14): error TS2515: Non-abstract class 'UsesAbstractPair' does not implement inherited abstract member disabled from class 'Traited<[AbstractPair]>'.
+p13-attribute-forms.ts(116,14): error TS2515: Non-abstract class 'UsesAbstractAuto' does not implement inherited abstract member disabled from class 'Traited<[AbstractAuto]>'.
+p13-attribute-forms.ts(138,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[PlainAuto]>', but is overridden here in 'FieldPlainAuto' as an instance property.
+p13-attribute-forms.ts(152,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Decorated]>', but is overridden here in 'FieldDecorated' as an instance property.
+p13-attribute-forms.ts(162,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p13-attribute-forms.ts(166,16): error TS2611: 'busy' is defined as a property in class 'UsesDeclaredReadonly', but is overridden here in 'SubDeclaredReadonly' as an accessor.
+p13-attribute-forms.ts(174,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(177,32): error TS2345: Argument of type 'boolean' is not assignable to parameter of type 'string'.
+exit 2
+=== p13-attribute-forms — Version 6.0.3
+p13-attribute-forms.ts(53,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(61,5): error TS2353: Object literal may only specify known properties, and 'hidden2' does not exist in type 'AttributeTable<UnknownKey>'.
+p13-attribute-forms.ts(80,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Explicit]>', but is overridden here in 'FieldExplicit' as an instance property.
+p13-attribute-forms.ts(89,16): error TS2611: 'disabled' is defined as a property in class 'UsesDeclared', but is overridden here in 'SubDeclared' as an accessor.
+p13-attribute-forms.ts(101,14): error TS2515: Non-abstract class 'UsesAbstractPair' does not implement inherited abstract member disabled from class 'Traited<[AbstractPair]>'.
+p13-attribute-forms.ts(116,14): error TS2515: Non-abstract class 'UsesAbstractAuto' does not implement inherited abstract member disabled from class 'Traited<[AbstractAuto]>'.
+p13-attribute-forms.ts(138,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[PlainAuto]>', but is overridden here in 'FieldPlainAuto' as an instance property.
+p13-attribute-forms.ts(152,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Decorated]>', but is overridden here in 'FieldDecorated' as an instance property.
+p13-attribute-forms.ts(162,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p13-attribute-forms.ts(166,16): error TS2611: 'busy' is defined as a property in class 'UsesDeclaredReadonly', but is overridden here in 'SubDeclaredReadonly' as an accessor.
+p13-attribute-forms.ts(174,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(177,39): error TS2345: Argument of type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to parameter of type 'Readonly<{ from(value: string | null): boolean | null; to(value: boolean | null): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean | null'.
+      Type 'string' is not assignable to type 'boolean | null'.
+exit 2
+=== p14-read-only — Version 7.0.2
+p14-read-only.ts(29,32): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(32,12): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(35,21): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(55,3): error TS1206: Decorators are not valid here.
+p14-read-only.ts(67,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(76,14): error TS2515: Non-abstract class 'UsesTableGetter' does not implement inherited abstract member busy from class 'Traited<[TableGetter]>'.
+p14-read-only.ts(78,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(86,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p14-read-only — Version 6.0.3
+p14-read-only.ts(29,32): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(32,12): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(35,21): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(55,3): error TS1206: Decorators are not valid here.
+p14-read-only.ts(67,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(76,14): error TS2515: Non-abstract class 'UsesTableGetter' does not implement inherited abstract member busy from class 'Traited<[TableGetter]>'.
+p14-read-only.ts(78,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(86,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p16-interface-accessors — Version 7.0.2
+p16-interface-accessors.ts(30,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p16-interface-accessors.ts(37,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p16-interface-accessors — Version 6.0.3
+p16-interface-accessors.ts(30,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p16-interface-accessors.ts(37,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
 exit 2
 === p3-interface-only — Version 7.0.2
 exit 0
@@ -293,3 +366,193 @@ export declare class OwnField extends Traits<[typeof Disableable]> {
     disabled: boolean;
 }
 export {};
+=== emitted out/p13-attribute-forms/p13-attribute-forms.d.ts
+import { ControlledElement } from './element.ts';
+import { Traits, type AttributeTable } from './marker.ts';
+export declare class Explicit extends ControlledElement {
+    static observedAttributes: readonly string[];
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class Declared extends ControlledElement {
+    static readonly attributes: AttributeTable<Declared>;
+    disabled: boolean;
+}
+export declare abstract class AbstractPair extends ControlledElement {
+    static readonly attributes: AttributeTable<AbstractPair>;
+    abstract get disabled(): boolean;
+    abstract set disabled(value: boolean);
+}
+export declare abstract class AbstractAuto extends ControlledElement {
+    static readonly attributes: AttributeTable<AbstractAuto>;
+    abstract accessor disabled: boolean;
+}
+export declare class PlainAuto extends ControlledElement {
+    static readonly attributes: AttributeTable<PlainAuto>;
+    accessor disabled: boolean;
+}
+export declare abstract class WrongConverter extends ControlledElement {
+    static readonly attributes: AttributeTable<WrongConverter>;
+    abstract accessor disabled: boolean;
+}
+export declare abstract class UnknownKey extends ControlledElement {
+    static readonly attributes: AttributeTable<UnknownKey>;
+    abstract accessor disabled: boolean;
+}
+export declare class UsesExplicit extends Traits<[Explicit]> {
+    enable(): void;
+}
+export declare class SubExplicit extends UsesExplicit {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldExplicit extends Traits<[Explicit]> {
+    disabled: boolean;
+}
+export declare class UsesDeclared extends Traits<[Declared]> {
+    enable(): void;
+}
+export declare class SubDeclared extends UsesDeclared {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldDeclared extends Traits<[Declared]> {
+    disabled: boolean;
+}
+export declare class UsesAbstractPair extends Traits<[AbstractPair]> {
+    enable(): void;
+}
+export declare class SubAbstractPair extends UsesAbstractPair {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldAbstractPair extends Traits<[AbstractPair]> {
+    disabled: boolean;
+}
+export declare class UsesAbstractAuto extends Traits<[AbstractAuto]> {
+    enable(): void;
+}
+export declare class SubAbstractAuto extends UsesAbstractAuto {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldAbstractAuto extends Traits<[AbstractAuto]> {
+    disabled: boolean;
+}
+export declare class SubPlainAuto extends Traits<[PlainAuto]> {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldPlainAuto extends Traits<[PlainAuto]> {
+    disabled: boolean;
+}
+export declare class Decorated extends ControlledElement {
+    accessor disabled: boolean;
+}
+export declare class SubDecorated extends Traits<[Decorated]> {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldDecorated extends Traits<[Decorated]> {
+    disabled: boolean;
+}
+export declare class DeclaredReadonly extends ControlledElement {
+    static readonly attributes: AttributeTable<DeclaredReadonly>;
+    readonly busy: boolean;
+}
+export declare class UsesDeclaredReadonly extends Traits<[DeclaredReadonly]> {
+    set(): void;
+}
+export declare class SubDeclaredReadonly extends UsesDeclaredReadonly {
+    get busy(): boolean;
+}
+export declare class WrongExplicit extends ControlledElement {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+=== emitted out/p14-read-only/p14-read-only.d.ts
+import { ControlledElement } from './element.ts';
+import { Traits, type AttributeTable, type Converter } from './marker.ts';
+/** An accessor decorator, as in P5. */
+export declare function attrAccessor<T>(_converter: Converter<T>): <This extends HTMLElement>(target: ClassAccessorDecoratorTarget<This, T>, context: ClassAccessorDecoratorContext<This, T>) => void;
+/** A getter decorator. */
+export declare function attrGetter<T>(_converter: Converter<T>): <This extends HTMLElement>(target: (this: This) => T, context: ClassGetterDecoratorContext<This, T>) => void;
+export declare class ReadonlyAuto extends ControlledElement {
+    readonly accessor busy: boolean;
+}
+export declare class ReadonlyAutoBare extends ControlledElement {
+    readonly accessor busy: boolean;
+}
+export declare abstract class ReadonlyAutoAbstract extends ControlledElement {
+    abstract readonly accessor busy: boolean;
+}
+export declare class GetterOnly extends ControlledElement {
+    static observedAttributes: readonly string[];
+    get busy(): boolean;
+}
+export declare class DecoratedGetter extends ControlledElement {
+    get busy(): boolean;
+}
+export declare abstract class DecoratedAbstractGetter extends ControlledElement {
+    abstract get busy(): boolean;
+}
+export declare abstract class TableGetter extends ControlledElement {
+    static readonly attributes: AttributeTable<TableGetter>;
+    abstract get busy(): boolean;
+}
+export declare class UsesGetterOnly extends Traits<[GetterOnly]> {
+    set(): void;
+}
+export declare class SubGetterOnly extends UsesGetterOnly {
+    get busy(): boolean;
+    set busy(_value: boolean);
+}
+export declare class UsesTableGetter extends Traits<[TableGetter]> {
+    set(): void;
+}
+export declare class FieldTableGetter extends Traits<[TableGetter]> {
+    busy: boolean;
+}
+export declare class UsesDecoratedGetter extends Traits<[DecoratedGetter]> {
+    set(): void;
+}
+export declare class UsesReadonlyAuto extends Traits<[ReadonlyAuto]> {
+    set(): void;
+}
+export declare class SubReadonlyAuto extends UsesReadonlyAuto {
+    get busy(): boolean;
+}
+=== emitted out/p16-interface-accessors/p16-interface-accessors.d.ts
+import { ControlledElement } from './element.ts';
+import { Traits, type AttributeTable } from './marker.ts';
+export interface Disableable {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class Disableable extends ControlledElement {
+    static readonly attributes: AttributeTable<Disableable>;
+}
+/** A read-only attribute: a getter signature alone. */
+export interface Busy {
+    get busy(): boolean;
+}
+export declare class Busy extends ControlledElement {
+    static readonly attributes: AttributeTable<Busy>;
+}
+export interface Wrong {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class Wrong extends ControlledElement {
+    static readonly attributes: AttributeTable<Wrong>;
+}
+export declare class Component extends Traits<[Disableable, Busy]> {
+    enable(): void;
+}
+export declare class SubComponent extends Component {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class OwnField extends Traits<[Disableable]> {
+    disabled: boolean;
+}

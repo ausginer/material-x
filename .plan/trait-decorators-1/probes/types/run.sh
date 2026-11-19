@@ -6,7 +6,7 @@ set -u
 here="$(cd "$(dirname "$0")" && pwd)"
 bin="$(cd "${here:?}/../../../.." && pwd)/node_modules/.bin"
 cd "${here:?}"
-for probe in p1-decorator-only p2-decorator-interface p2-typed-marker p6-member-kinds p9-brand-props p9b-brand-forms p10-today-own-field p11-type-argument p12-instance-arguments \
+for probe in p1-decorator-only p2-decorator-interface p2-typed-marker p6-member-kinds p9-brand-props p9b-brand-forms p10-today-own-field p11-type-argument p12-instance-arguments p13-attribute-forms p14-read-only p16-interface-accessors \
   p3-interface-only p4-impl-class p5-attribute-accessor; do
   config=".tsconfig.${probe}.json"
   printf '{"extends":"./tsconfig.json","files":["%s.ts"],"compilerOptions":{"outDir":"out/%s"}}\n' \
@@ -21,7 +21,7 @@ done
 echo "=== p1-decorator-only with experimentalDecorators — $("${bin}/tsc" -v)"
 "${bin}/tsc" -p tsconfig.experimental.json --pretty false
 echo "exit $?"
-for probe in p2-decorator-interface p3-interface-only p6-member-kinds p9-brand-props p11-type-argument; do
+for probe in p2-decorator-interface p3-interface-only p6-member-kinds p9-brand-props p11-type-argument p13-attribute-forms p14-read-only p16-interface-accessors; do
   echo "=== emitted out/${probe}/${probe}.d.ts"
   cat "out/${probe}/${probe}.d.ts" 2>/dev/null || echo '(none)'
 done

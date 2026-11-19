@@ -1,4 +1,4 @@
-# P7 — node .plan/trait-decorators-1/probes/toolchain/probe.ts, at d1ea40e22, 2026-11-19
+# P7 — node .plan/trait-decorators-1/probes/toolchain/probe.ts, at 20817d665, 2026-11-19
 == 1. parse: top-level statements, class decorators, interface heritage
 parse errors: 0
 interface Button extends [ 'Disableable', 'FocusForwarding' ]
