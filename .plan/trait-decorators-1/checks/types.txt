@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33 — .plan/trait-decorators-1/probes/types/run.sh, at cc98563a3, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33, P35 — .plan/trait-decorators-1/probes/types/run.sh, at 486d0147e, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -669,6 +669,30 @@ exit 2
 exit 0
 === layer-b/p33-layer-b-form — Version 6.0.3
 exit 0
+=== layer-a-only/traits — Version 7.0.2
+exit 0
+=== layer-a-only/traits — Version 6.0.3
+exit 0
+=== layer-a-only/p35-layer-a-only — Version 7.0.2
+layer-a-only/p35-layer-a-only.ts(28,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-a-only/p35-layer-a-only.ts(40,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(43,32): error TS2345: Argument of type 'boolean' is not assignable to parameter of type 'string'.
+layer-a-only/p35-layer-a-only.ts(51,29): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(108,54): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+layer-a-only/p35-layer-a-only.ts(120,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+exit 2
+=== layer-a-only/p35-layer-a-only — Version 6.0.3
+layer-a-only/p35-layer-a-only.ts(28,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-a-only/p35-layer-a-only.ts(40,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(43,32): error TS2345: Argument of type 'boolean' is not assignable to parameter of type 'string'.
+layer-a-only/p35-layer-a-only.ts(51,29): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(108,54): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+layer-a-only/p35-layer-a-only.ts(120,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+exit 2
 === p1-decorator-only with experimentalDecorators — Version 7.0.2
 p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
   The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.

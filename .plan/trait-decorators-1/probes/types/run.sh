@@ -50,6 +50,19 @@ for probe in piirre ydin traits p31-layer-b-attributes p32-layer-b-component p33
   done
   rm -f "${config}"
 done
+# Layer (a) alone, attributes written by hand, on core's real
+# ControlledElement and operator, under layer-a-only/tsconfig.json.
+for probe in traits p35-layer-a-only; do
+  config="layer-a-only/.tsconfig.${probe}.json"
+  printf '{"extends":"./tsconfig.json","files":["%s.ts"],"compilerOptions":{"outDir":"out/%s"}}\n' \
+    "${probe}" "${probe}" > "${config}"
+  for tsc in tsc tsc6; do
+    echo "=== layer-a-only/${probe} — $("${bin}/${tsc}" -v)"
+    "${bin}/${tsc}" -p "${config}" --pretty false
+    echo "exit $?"
+  done
+  rm -f "${config}"
+done
 echo "=== p1-decorator-only with experimentalDecorators — $("${bin}/tsc" -v)"
 "${bin}/tsc" -p tsconfig.experimental.json --pretty false
 echo "exit $?"
@@ -65,4 +78,4 @@ for name in ydin traits p33-layer-b-form; do
   echo "=== emitted layer-b/out/p33-layer-b-form/…/layer-b/${name}.d.ts"
   cat "layer-b/out/p33-layer-b-form/.plan/trait-decorators-1/probes/types/layer-b/${name}.d.ts" 2>/dev/null || echo '(none)'
 done
-rm -rf "${here:?}/out" "${here:?}/out-exp" "${here:?}/example4/out" "${here:?}/layer-b/out"
+rm -rf "${here:?}/out" "${here:?}/out-exp" "${here:?}/example4/out" "${here:?}/layer-b/out" "${here:?}/layer-a-only/out"

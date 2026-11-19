@@ -19,6 +19,8 @@
 
 **Revised a sixth time on 2026-11-19,** at the owner's request, relayed by the coordinator. [Layer (b): ydin on layer (a)](#layer-b-ydin-on-layer-a) is new, with probes P31 to P34. It covers attributes, `observedAttributes`, props, bounds and brands, on the accepted layer (a). [Migration surface](#migration-surface) is rewritten as one branch that replaces the old path, as the owner directed. Questions 2, 3, 4, 5 and 8 carry layer (b)'s answers.
 
+**Revised a seventh time on 2026-11-19,** at the owner's request, relayed by the coordinator. [Layer (a) alone, and layer (a) across packages](#layer-a-alone-and-layer-a-across-packages) is new, with probes P35 to P37. It compares layer (a) alone, with attributes written by hand, against layers (a) and (b), and studies how a layer (a) trait with code crosses packages. It recommends keeping layer (b) as a separate part over layer (a), and adding the parse-equivalence check. Question 3 and the migration's commit 3 carry that answer. The count of attributes is corrected from 24 to 22.
+
 ## The verdict
 
 **A decorator can't carry the types, and that holds in every TypeScript the repository runs.** A class decorator doesn't change the type of the class it decorates. That is true for standard decorators and for `experimentalDecorators`, in TypeScript 7.0.2 (`tsc`) and 6.0.3 (`tsc6`) alike ([P1](#evidence)). So a form in which only `@traits(A, B)` names the traits doesn't typecheck.
@@ -28,7 +30,7 @@
 - **A merged interface,** `interface Button extends Disableable, FocusForwarding {}`, beside the class. With it the decorator form works (form A), but the interface is exactly the boilerplate the owner hoped to avoid. Once the interface exists, the decorator only repeats its list.
 - **Type arguments on the base,** `class Button extends Traits<[Disableable, FocusForwarding]>` (form D). `Traits` is a generic constructor value, as `Array` is in `class A extends Array<number>`. The list is written once, erases with the types, and needs no interface. This form also reports two override hazards that today's form misses.
 
-**The architect recommends form D,** and for the generic layer that the owner asked for later, form E ([Layer (a)](#layer-a-traits-on-any-base)) in the owner's refined shape with its six fixes ([The owner's refinement of form E](#the-owners-refinement-of-form-e)), which the owner accepted. [Layer (b)](#layer-b-ydin-on-layer-a) puts ydin's attributes, props and bounds on it. It is a syntax-only marker that the flattener removes, which is what the owner asked for, although the marker isn't a decorator. Its costs are shared by every class form. The flattener becomes a required compiler step rather than an optimization. A trait whose code crosses packages would need the language rule widened. With attributes as tables (question 2), no trait's code crosses packages today. [Open questions](#open-questions-for-the-owner) puts the choice to the owner.
+**The architect recommends form D,** and for the generic layer that the owner asked for later, form E ([Layer (a)](#layer-a-traits-on-any-base)) in the owner's refined shape with its six fixes ([The owner's refinement of form E](#the-owners-refinement-of-form-e)), which the owner accepted. [Layer (b)](#layer-b-ydin-on-layer-a) puts ydin's attributes, props and bounds on it. It is a syntax-only marker that the flattener removes, which is what the owner asked for, although the marker isn't a decorator. Its costs are shared by every class form. The flattener becomes a required compiler step rather than an optimization. A trait whose code crosses packages needs the language rule widened. With attributes as tables (question 2), no trait's code crosses packages today. For a universal layer (a), the study recommends the parse-equivalence check ([Layer (a) across packages](#2-how-portable-layer-a-is)). [Open questions](#open-questions-for-the-owner) puts the choice to the owner.
 
 **Nothing from today's form has to stay** for any of the forms A, B or D. If the owner rejects them all, form C keeps today's `impl` call and annotated constructor, with class traits in place of `trait(…)` objects. `isolatedDeclarations` is what forces that annotation ([P4](#evidence)).
 
@@ -675,7 +677,7 @@ Real `ControlledElement` declares no static `observedAttributes`, so `Controlled
 - A wrong value fails with TS2322, and a method fails with TS2353.
 - **`Interface<typeof X>` goes:** the trait class's own name is its instance type.
 
-**The limit:** a member counts as an attribute when it is neither a method nor an `HTMLElement` member. A trait with an accessor that isn't an attribute would show it as a prop. No trait has one, and none of the 24 attributes collides with an `HTMLElement` member.
+**The limit:** a member counts as an attribute when it is neither a method nor an `HTMLElement` member. A trait with an accessor that isn't an attribute would show it as a prop. No trait has one, and none of the 22 attributes collides with an `HTMLElement` member. (The sixth revision said 24. A recount of today's tables at `486d0147e` finds 22.)
 
 ### 4. Bounds and brands
 
@@ -692,6 +694,160 @@ Real `ControlledElement` declares no static `observedAttributes`, so `Controlled
 - **Question 3, what crosses the package boundary.** Core's built trait module is a class with `trait(this)` and `attributes(this, DISABLEABLE_ATTRS)` in its static block, with its `accessor` lines deleted. material-x's flattener reads the names and the converter references, and follows the constant to its object literal, as it does with today's `trait(DISABLEABLE_ATTRS, $disableable)`. **No member code crosses.** A core trait with methods would make it cross. **Recommendation unchanged: (a),** a method trait is written in the package that uses it, as `FocusForwarding` is.
 - **Question 5, `RF-63`.** In layer (a) groups are tuple types, which erase. The values the flattener emits in each `impl(this, …)` block are per-component literals. `BUTTON_CORE_TRAITS` and its kin go, so no shared spread list is left, and `RF-63` closes with the migration. **Recommended:** the migration is one branch ([Migration surface](#migration-surface)), so keep the repair on hold if that branch starts soon. Land the repair, five literals and a lint rule, if it waits.
 - **Question 8, conflicts.** Two traits with one attribute of different types give no error at the composition: `ButtonLike.size` and a `FABLike.size` intersect to `'large' | null`, and the component's `size = 'medium'` then fails far from the cause ([P32](#evidence) (f)). Instance members of other kinds intersect to `never`, and statics overload. **Recommended: yes, a build error** when two traits supply one key, whether an attribute, a method, an accessor or a static, unless the component declares the key itself. No component combines two such traits today.
+
+## Layer (a) alone, and layer (a) across packages
+
+At the owner's request, relayed by the coordinator on 2026-11-19, this section compares two options. The first is layer (a) alone, with every attribute written by hand. The second is layers (a) and (b) together. It also asks how portable layer (a) is between packages. **The owner's concern:** _"I still aim for a universal solution, and what you describe seems to make layer (a) less portable."_
+
+The probes:
+
+- P35 is in [`layer-a-only/`](probes/types/layer-a-only/), on core's real `ControlledElement` and operator, read with `tsc` and `tsc6`.
+- [P36](#evidence) runs the real plugin in real Vite 8 builds, against a package installed in a scratch `node_modules`.
+- [P37](#evidence) bundles the emitted shapes with rolldown.
+
+### 1. Layer (a) alone, with attributes written by hand
+
+**The trait** declares each attribute as an explicit `get`/`set` pair that calls core's operator, and its attribute names in its own static list:
+
+```ts
+export class Disableable extends AnyElement {
+  static {
+    trait(this);
+  }
+  static readonly observedAttributes: readonly string[] = ['disabled'];
+  get disabled(): boolean {
+    return attr.get(this, 'disabled', Bool);
+  }
+  set disabled(value: boolean) {
+    attr.set(this, 'disabled', value, Bool);
+  }
+}
+```
+
+**What the flattener still does:**
+
+- **It copies core's member code into material-x.** Each `get`/`set` pair is a member with real code, so core's eight traits become traits whose code crosses packages. Today's language rule refuses that copy (P36 §1 A: `trait-source-language`). Layer (a) has no runtime fallback, so every material-x component would fail to build. **Option 1 needs a cross-package copy rule from its first commit,** one of the routes in [part 2](#2-how-portable-layer-a-is).
+- **It still merges `observedAttributes`.** Every attribute trait supplies the static key `observedAttributes`.
+  - In the types, `Statics<T>` intersects the lists with no error (P35 (e)).
+  - Copied as statics, the last trait's list would win.
+  - The flattener therefore needs a rule that knows this one key: read each trait's list as a literal, merge it with the base's list and the component's own, and exempt the key from question 8's conflict rule.
+
+  **That is element knowledge in layer (a)'s flattener.** A runtime alternative needs the same knowledge in core. Core's element would read a list of each class's traits, which layer (a) would have to expose, and the key would still collide between traits in the types.
+
+**What the plugin drops:**
+
+- the table reading;
+- the generated accessors;
+- the deletion of `accessor` lines in trait modules.
+
+**Plugin size, estimated against today's `src`** (2,971 lines, 114 test cases). The basis:
+
+- today's sizes, by function, with doc comments: `normalizeDescriptorTrait` 124 lines, `readDescriptorKey` 27, the descriptor IR types 26, `accessorMembers` 23, and the `observedAttributes` emission about 10;
+- this study's probe implementations of the new pieces: P34 §2 and §3 read the table and delete the `accessor` lines in about 30 lines, and P36 §3's parse-equivalence check is 30 lines.
+
+The rows below are estimates. Only the two probe implementations are measured.
+
+| Piece | Layers (a) + (b) | Layer (a) alone |
+| --- | --- | --- |
+| Descriptor reading, IR and generated accessors (today about 220 lines) | carried, adapted from `trait(ATTRS, $brand)` to `attributes(this, ATTRS)`: about 210 | deleted |
+| `accessor` lines matched against table keys, two build errors | new, about 30 | none |
+| `accessor` lines deleted in the trait's module, in every build | new, about 20 | none |
+| Each trait's `static observedAttributes` read as a literal, exempted from question 8 and merged | none | new, about 40 |
+| `observedAttributes` emission, and the component's own list folded in | carried, plus about 15 new | carried, plus about 15 new |
+| Copying code across packages: the parse-equivalence check, wired in place of `canCopySource` | not needed for core's traits today | needed from the first commit: about 45 |
+| **Total for the attribute part** | **about 275, about 65 of it new** | **about 110, all new** |
+| **Test cases** | about 20 of today's descriptor cases rewritten, about 8 new | about 20 deleted, about 11 new: the static list, the merge and the exemption, and the parse-equivalence rows |
+
+**Dropping layer (b) saves about 160 lines,** about 5% of today's `src`. If the plugin needs the parse-equivalence check in both options, as part 2 recommends, the saving is about 200 lines. Either way, the plugin keeps an element rule for `observedAttributes`. Layer (a)'s generic machinery is the same size in both options: recognition, normalisation, the generated `impl` block, conflicts and errors.
+
+**Checks** ([P35](#evidence)), against layer (b) ([P31](#evidence)):
+
+- **Kept in both:**
+  - an own field over an attribute fails with TS2610 (a);
+  - a subclass's `override get`/`set` typechecks (a);
+  - an accessor over a trait field fails with TS2611 (h);
+  - `Props<T>` still works (g).
+  - The converter is checked in both. In option 1 it is checked through the accessor's own type, both ways: `Str` in a `boolean` getter fails with TS2322, a `boolean` value into `Str` fails with TS2345, and `Bool` in a `number` setter fails with TS2345 (b).
+- **Lost in option 1:**
+  - **The attribute's name is unchecked text:** `attr.get(this, 'disabld', Bool)` compiles, and so does a getter and setter pair that names two different attributes (c). Layer (b) generates both halves from one table key.
+  - **The static list is unchecked against the accessors:** a missing name and a misspelt one both compile (d). In layer (b), the list is the table's keys.
+  - **Two traits' lists intersect in silence** (e).
+- **Gained in option 1:** none in the types. **The trait module is valid TypeScript and JavaScript as written,** so it needs no transform of its own. That doesn't make the flattener optional, because the component still needs it.
+
+**Lines per attribute,** in the formatted probe files:
+
+| Form | Lines per attribute | Disableable | Linkable | ButtonLike |
+| --- | --- | --- | --- | --- |
+| Layer (b) | 2: the `accessor` line and its table entry | 7 | 8 | 11 |
+| Option 1 | 6, plus one list entry | 12 | 18 | 18 |
+
+For the 22 attributes in today's tables, 9 in core's eight traits and 13 in material-x's, option 1 is about 90 more lines.
+
+**Bundle size** ([P37](#evidence)), measured as minified output plus brotli, on core's real element and operator. Each component is emitted as the flattener writes it. That text is identical in both options, because the flattener writes the same pairs whether it reads a table or copies them. Only the trait modules differ:
+
+| Form | Button (3 attributes) | LinkButton (5 attributes) |
+| --- | --- | --- |
+| Layer (b) | 1,751 B, 640 B brotli | 1,980 B, 686 B brotli |
+| Option 1 | 2,075 B (+324), 661 B brotli (+21) | 2,504 B (+524), 713 B brotli (+27) |
+| Option 1, copied members deleted from trait modules in the consumer's build | 1,751 B, 640 B brotli | 1,980 B, 686 B brotli |
+
+- **The cost is about 105 B per attribute per entry, minified.** The generated `impl(this, …)` block references each trait class for its brand, so its members ship once more, beside the copies.
+- **Deleting the copied members** in the consumer's build closes the gap to zero. That is one more rule in the plugin, about 20 lines, which rewrites the other package's built trait modules.
+
+### 2. How portable layer (a) is
+
+**The coordinator's account is right, and it holds whether or not layer (b) exists.** In the probes, the trait package `@probe/traits` ships two traits as `.ts` source and as built `.js`:
+
+- material-x's real `FocusForwarding`, copied byte for byte;
+- core's `Disableable`, with its attribute written by hand.
+
+The consumer, in another package, is `impl(ControlledElement, [Disableable, FocusForwarding])`. Both traits are in today's method-trait form, because the plugin recognises only today's forms. The copy rule that refuses them, `canCopySource`, is the rule layer (a)'s flattener inherits ([P36](#evidence) §1):
+
+| Case | Consumer | Resolves the trait to | Real plugin, real Vite build |
+| --- | --- | --- | --- |
+| A | `.ts` | built `.js` | refused, `trait-source-language`: the runtime composition is kept, 2,212 B |
+| B | `.js` | built `.js` | flattened, 1,659 B |
+| C | `.ts` | `.ts` source, through the export condition `ydin-source` | flattened, 1,659 B |
+| D | `.js` | `.ts` source, through the same condition | refused, `trait-source-language` |
+
+Today the refused case keeps the runtime composition, with a warning. In layer (a), with no runtime composition, it is a build error. So **a layer (a) trait with code is portable only between files of one extension,** until one of the routes below is built.
+
+**Layer (b) doesn't change that, in either direction.** It changes how much code crosses: for core's attribute traits, only names cross. A trait with methods, such as `FocusForwarding` consumed by a third party, crosses with or without layer (b).
+
+**The routes:**
+
+| Route | How it works | Probe ([P36](#evidence)) | Cost | For a third party |
+| --- | --- | --- | --- | --- |
+| **Parse equivalence** | Copy a member when its text parses without error in the origin's language and in the consumer's, and the two trees are equal apart from positions. Class bodies are always strict, so the text means the same in both. | §3: both traits' built members agree (3 of 3). Over real built JavaScript, it refuses none: 44 members of core's 27 built files and 1,250 members of Vite's 12 `dist` files. It refuses `a < b > (c)` from `.js` into `.ts`, `<string>x` from `.ts` into `.tsx` and into `.mts`, and `x as string` from `.ts` into `.js`. | About 30 lines in the probe, about 45 wired in place of `canCopySource`. One extra parse per copied member. Nothing for the publisher. | **Works with any published JavaScript, in any consumer language.** It refuses, by name, only a member whose text means something else in the consumer. |
+| **Ship the source** | The publisher ships `.ts` beside its build, under a namespaced export condition. The consumer's resolver picks the source, and the copy is `.ts` into `.ts`. | §1 C flattens. §2: oxc-resolver, rolldown's resolver, picks the source only with the condition, and Node's `import.meta.resolve` only with `--conditions`. §1 D: a `.js` consumer is still refused. | The publisher ships `src` and adds the condition to every export. The consumer sets `resolve.conditions`. **The plugin's fallback for an external `@ydinjs/*` package is Node's `import.meta.resolve`, which ignores Vite's conditions,** so it would need a resolver that takes them. The publisher's code is then compiled under the consumer's compiler options. A `.tsx`, `.mts` or `.js` consumer still mismatches. | **Needs the publisher's cooperation,** and covers only a `.ts` consumer. |
+| **After the type transform** | Flatten JavaScript into JavaScript, after TypeScript is removed from both sides. | §4: the consumer stripped of its types flattens against the built `.js`. **Layer (a)'s list is a type, and the transform deletes it:** `const ButtonBase = compose(ControlledElement);` no longer names `Disableable`. In rolldown, a plugin's hook sees TypeScript, and JavaScript returned for a `.ts` module is read again as TypeScript unless the hook returns `moduleType: 'js'`. Without it, `a < b > (c)` became a call and threw _"1 is not a function"_. | Two phases. Before the transform, the plugin reads the annotation and writes the `impl(this, …)` block, which the plan already generates. After it, the plugin copies. Under tsdown and rolldown, the plugin strips the types itself and returns `moduleType: 'js'`. Source maps chain across both phases. The language rule and its reason code go. | **Works with any published JavaScript and any consumer language.** It is the largest change. |
+| **A runtime `impl`** | `impl(this, …)` copies each trait prototype's descriptors at runtime, as form C does ([P4](#evidence)). | Not probed here. | Reverses the accepted fixes 5 and 6: an unflattened component would run instead of failing. A trait member's `super` binds to the trait. Every trait's list would have to be a value, because a type erases. | Needs no build step at all, but the owner chose a required flattener. |
+
+**Recommended: the parse-equivalence check,** with the plugin reading the other package's built JavaScript as it does today.
+
+- It is the only route that needs nothing from the publisher, and it covers every consumer language.
+- It is small, and it refused nothing in 1,294 real members.
+- Its refusal names the member, so the rare refused case is fixed in the publisher's code.
+- It is `RF-44`'s named route back.
+- **Keep flattening after the type transform** as the route if refusals ever matter. **Don't ship the source:** it asks the most of the publisher and the consumer, and it covers the fewest pairs.
+
+**What makes layer (a) usable by a third party,** beyond the copy rule:
+
+- **The flattener in its build.** Layer (a) has no runtime fallback, so a third party that doesn't build with Vite or rolldown can't use layer (a). This is the accepted cost of fixes 5 and 6, not a portability defect in the copy.
+- **In a plain JavaScript component,** an annotation can't carry the list. The author writes the `static { impl(this, …) }` block that the flattener otherwise generates, and the flattener reads it. That is one more recognised input, about 20 lines, and it makes layer (a) usable from JavaScript.
+
+### 3. Recommendation
+
+**Keep layer (b), as ydin's extension over layer (a).** In plain words: **layer (b) helps universality.** It doesn't take anything from layer (a)'s portability.
+
+- **It keeps element knowledge out of layer (a).** Without layer (b), the generic flattener still needs a rule for `observedAttributes` (part 1). With it, every rule about elements, attributes and converters sits in one place: the table, the accessors, the list and the `accessor` deletion.
+- **It keeps what crosses packages to names.** Layer (a)'s cross-package limit is its own (part 2), with or without layer (b). Dropping layer (b) would make core's eight traits hit that limit on the first commit, and it would add about 105 B per attribute per entry (P37). It would also lose the name checks (P35 (c) to (e)). All of that saves about 160 to 200 plugin lines.
+- **Make it optional, in the code's structure:**
+  - The plugin's layer (a) part copies members, generates the `impl` block and applies the conflict rule with no exception.
+  - Layer (b)'s part, which reads the table, generates the accessors, merges `observedAttributes` and deletes the `accessor` lines, is a separate module of the plugin that layer (a) doesn't import.
+  - A trait author on layer (a) can always write the `get`/`set` pair by hand, and the trait works once the copy rule is in.
+  - The [migration](#migration-surface) needs no change for this: commit 3 builds the plugin's new path in these two parts.
+- **Build the parse-equivalence check** into the migration's commit 3. Core's traits don't need it with layer (b), but a universal layer (a) does, for any trait with methods that another package consumes. It is about 45 lines.
 
 ## What every class form asks of the flattener
 
@@ -749,7 +905,7 @@ Real `ControlledElement` declares no static `observedAttributes`, so `Controlled
    It also records each component's public declaration surface: instance and static member names and types, read through the TypeScript checker. And it records the `size-limit` reading. The baseline and the script are committed first, before anything changes.
 
 2. **Core's layers (a) and (b),** with their own tests. Nothing uses them yet.
-3. **The plugin's new path,** with its rewritten fixtures and tests. **The old path stays in the plugin in this commit only,** so that material-x still builds between commits. It is scaffolding inside the branch: no release has both, and commit 5 deletes it. If the owner prefers no scaffolding even inside the branch, commits 3 to 5 become one, and the intermediate commits don't build material-x.
+3. **The plugin's new path,** with its rewritten fixtures and tests. It is built in two parts: layer (a)'s part, with the parse-equivalence check in place of `canCopySource`, and layer (b)'s part, a separate module that layer (a)'s part doesn't import ([Recommendation](#3-recommendation)). **The old path stays in the plugin in this commit only,** so that material-x still builds between commits. It is scaffolding inside the branch: no release has both, and commit 5 deletes it. If the owner prefers no scaffolding even inside the branch, commits 3 to 5 become one, and the intermediate commits don't build material-x.
 4. **Core's 8 traits, material-x's components and their tests, together.** The traits are shared by nearly every component, so they can't move apart. The commit is mechanical, and it is reviewed by directory.
 5. **The old path deleted:** the old `primitives.ts` and `attributes.ts` API, the plugin's old recognition and its fixtures. Then the documents.
 
@@ -782,6 +938,8 @@ Real `ControlledElement` declares no static `observedAttributes`, so `Controlled
 
    **Recommended: (a),** with question 2's table. Build (b) when a trait with methods first has to cross packages.
 
+   **Revised again for a universal layer (a):** build (b), the parse-equivalence check, in the migration. A layer (a) trait with code is portable only between files of one extension until a copy rule is built, and that holds with or without layer (b) ([P36](#evidence)). The check refused none of 1,294 members of real built JavaScript, and it needs nothing from the publisher. Shipping `.ts` source under an export condition covers only `.ts` consumers and needs the publisher's cooperation. Flattening after the type transform works, but it needs two phases, because layer (a)'s list is a type. [Layer (a) across packages](#2-how-portable-layer-a-is) compares them.
+
 4. **Should a trait whose members the base already has get a type brand?** That is `FocusForwarding` and `ButtonGroupLike`. **Recommended: yes, a required `#brand!: true` field,** which the flattener doesn't copy. Without one, `useFocusForwarding` accepts any element. **Still needed in layer (b):** `trait(this)` brands at runtime only ([P32](#evidence) (d)).
 5. **What happens to `RF-63`'s repair on hold?** **Recommended:** keep it on hold if you choose B or D and the migration starts soon. Close `RF-63` when the migration removes the lists. Land the repair, which is small, if the migration waits. **Revised for layer (b):** the migration is one branch, and in it the lists become tuple types and generated literals, so `RF-63` closes when it merges. The recommendation holds for that branch.
 6. **Should the flattener lower `super.key` for a trait's key** inside the component, so that a component can wrap a trait's method? Today that site is retained. In forms A, B and D it would be a build error. **Recommended: no, not now.** No component does it. The error names the case, and lowering is added when a component needs it.
@@ -803,12 +961,13 @@ For the main slot's architect. This study doesn't edit them.
 - **A question, if the owner wants it registered:** the marker choice and questions 2 to 5 above, routed to the owner. Question 6 is answered.
 - **A decision, proposed wording, for layer (a), which the owner accepted on 2026-11-19:** _"A trait is a plain class. A class it extends is a bound, `bound()`, which is `null` at runtime and records what the trait requires of its base. A component names its base and its traits once, in the annotation of a constant, `Composed<Base, [Traits…]>`, initialized by `compose(Base)`. The flattener replaces that constant with the base, copies each trait's members and generates the component's `impl(this, …)` brand block. `compose` throws unless its argument is a bound, so a component that isn't flattened fails when its module is evaluated. A trait brands itself with `trait(this)` in its static block."_ Links: [The owner's refinement of form E](#the-owners-refinement-of-form-e) and [A bound as `null`](#a-bound-as-null).
 - **Layer (b) and the migration, if the owner accepts them:** a decision in the same form for [Layer (b)](#layer-b-ydin-on-layer-a): attributes as `accessor` lines with the table in `attributes(this, …)`, `observedAttributes` merged by the flattener, `Props<T>`, the bounds `AnyElement` and `Controlled`, and `#brand!: true` where a trait's members are its bound's. And a plan record for the one-branch migration in [Migration surface](#migration-surface). **`RF-54`:** add a dated note that layer (b) keeps the fix, because its attributes are `accessor` declarations and not `declare` properties (P31 (d)).
+- **`RF-44`, if the owner adopts layer (a):** add a dated note. Layer (a) has no runtime composition, so a refused copy becomes a build error, and a trait with code that another package consumes needs the parse-equivalence check that the ruling named as the route back. Over real built JavaScript, P36 found that it refuses none of 1,294 members and refuses `a < b > (c)`. Link [Layer (a) across packages](#2-how-portable-layer-a-is). The layer (b) decision above should also say that layer (b)'s part of the plugin is a separate module over layer (a)'s.
 
 ## Evidence
 
-Every probe is under [`probes/`](probes/), and every transcript is under [`checks/`](checks/), read on 2026-11-19. P1 to P12 were read at `d1ea40e22`, P13 to P16 at `20817d665`, P17 to P22 at `dc5bc5853`, P23 to P26 at `28014c589`, P27 to P29 at `554cdf7dc`, P30 at `85c644b85`, and P31 to P34 at `cc98563a3`. P27 to P29 were run again at `85c644b85` with the fixed file's `null` bound, and printed the same. Each of those commits changed only this study, and the type transcript was regenerated at each.
+Every probe is under [`probes/`](probes/), and every transcript is under [`checks/`](checks/), read on 2026-11-19. P1 to P12 were read at `d1ea40e22`, P13 to P16 at `20817d665`, P17 to P22 at `dc5bc5853`, P23 to P26 at `28014c589`, P27 to P29 at `554cdf7dc`, P30 at `85c644b85`, P31 to P34 at `cc98563a3`, and P35 to P37 at `486d0147e`. P27 to P29 were run again at `85c644b85` with the fixed file's `null` bound, and printed the same. Each of those commits changed only this study, and the type transcript was regenerated at each.
 
-- **The type probes, P1 to P6, P9 to P14, P16, P17 to P21, P23 to P25, P27, P28 and P31 to P33** ([`probes/types/`](probes/types/), [transcript](checks/types.txt)). [`run.sh`](probes/types/run.sh) checks each probe alone with `tsc` (TypeScript 7.0.2) and `tsc6` (6.0.3), under a tsconfig that copies `tsconfig.base.json`'s checking options, `isolatedDeclarations` and `erasableSyntaxOnly` among them. It prints the declarations for the probes that compile. Each case states its expected result in a comment. **The two compilers agree on every line,** apart from the wording of one message in P9. In P13 (10), the explicit setter with the wrong converter, both report TS2345: TypeScript 7 at the value argument, and TypeScript 6 at the converter.
+- **The type probes, P1 to P6, P9 to P14, P16, P17 to P21, P23 to P25, P27, P28, P31 to P33 and P35** ([`probes/types/`](probes/types/), [transcript](checks/types.txt)). [`run.sh`](probes/types/run.sh) checks each probe alone with `tsc` (TypeScript 7.0.2) and `tsc6` (6.0.3), under a tsconfig that copies `tsconfig.base.json`'s checking options, `isolatedDeclarations` and `erasableSyntaxOnly` among them. It prints the declarations for the probes that compile. Each case states its expected result in a comment. **The two compilers agree on every line,** apart from the wording of one message in P9. In P13 (10), the explicit setter with the wrong converter, both report TS2345: TypeScript 7 at the value argument, and TypeScript 6 at the converter.
   - P1: a decorator alone, also under `experimentalDecorators`.
   - P2: form A, and P2b: the typed decorator.
   - P3: form B with a group. P4: form C.
@@ -819,6 +978,7 @@ Every probe is under [`probes/`](probes/), and every transcript is under [`check
   - P17: the owner's sketch as written, read through [`sketch/_example.ts`](probes/types/sketch/_example.ts), a byte-for-byte copy. Its `../attribute.ts` import resolves to [`attribute.ts`](probes/types/attribute.ts), which re-exports core's real `attribute.ts`. P18: the sketch with the fewest fixes, [`sketch-fixed.ts`](probes/types/sketch-fixed.ts). P19: groups in the sketch's shape and in form D. P20: required and provided members, in form D and in the sketch's shape. P21: a trait class as its own `instanceof` target.
   - P23: layer (a), how a component names its base and its traits, in three candidates. P24: layer (a), bounds, `this`, brands, groups and Rust-like members. P25: form E with no error case, whose declarations are printed. All three read [`layer-a.ts`](probes/types/layer-a.ts) and [`traits-a.ts`](probes/types/traits-a.ts).
   - P27: the owner's refinement of form E as written, read through [`example4/traits/_example4.ts`](probes/types/example4/traits/_example4.ts), a byte-for-byte copy, with core's real `ControlledElement`, under [`example4/tsconfig.json`](probes/types/example4/tsconfig.json), which turns on `experimentalDecorators`. P28: the fixed version, [`example4/traits/fixed.ts`](probes/types/example4/traits/fixed.ts), whose declarations are printed. Both files themselves compile clean in both compilers. In P27, TypeScript 6 reports TS9010 only when it emits declarations, so `run.sh` doesn't pass `--noEmit`.
+  - P35: layer (a) alone, with attributes as explicit `get`/`set` pairs and a static `observedAttributes` per trait: the override checks, the converter checked through the accessor's type, the unchecked attribute name and list, the silent intersection of two lists, `Props` and `RF-57`'s shape. It reads [`layer-a-only/`](probes/types/layer-a-only/), on core's real `ControlledElement` and operator, under [`layer-a-only/tsconfig.json`](probes/types/layer-a-only/tsconfig.json).
   - P31: layer (b)'s attribute form on layer (a): own fields, overrides, the converter check and the shared table. It also covers the static-member table, the `declare` helper and the explicit pair. P32: a component's `observedAttributes`, `ControlledElementConstructor`, props, brands, bounds and an attribute conflict. P33: the recommended form with no error case, whose declarations are printed. All three read [`layer-b/`](probes/types/layer-b/) on core's real `ControlledElement` and converters, under [`layer-b/tsconfig.json`](probes/types/layer-b/tsconfig.json), with no `experimentalDecorators`.
 - **P7, the toolchain** ([`probes/toolchain/probe.ts`](probes/toolchain/probe.ts), [transcript](checks/toolchain.txt)). oxc-parser's view of forms A and D, oxc-transform's output for each decorator mode and for form D, oxc's isolated declarations, and Node's reading of a decorator.
 - **P15, each attribute form's JavaScript** ([`probes/toolchain/attribute-js.ts`](probes/toolchain/attribute-js.ts), [transcript](checks/attribute-js.txt)). oxc-transform's output for each form with no flattener, and whether Node 26.13 parses it (`node --check`).
@@ -826,6 +986,8 @@ Every probe is under [`probes/`](probes/), and every transcript is under [`check
 - **P29, the owner's refinement at runtime** ([`probes/toolchain/example4.ts`](probes/toolchain/example4.ts), [transcript](checks/example4.txt)), in Node 26.13 with an `HTMLElement` stand-in. §1: Node on the file unbuilt. §1b: `tsc` and `tsc6` emit under `experimentalDecorators`. §2: Vite 8's oxc transform with and without the flag in the file's tsconfig, and whether its helper resolves. §3 and §4: the owner's file lowered and evaluated, as written and with `bound()` returning a class. §5 and §6: the fixed file unbuilt, and its brands with components as the flattener would emit them.
 - **P30, a bound as `class {}` against `null`** ([`probes/toolchain/bound-null.ts`](probes/toolchain/bound-null.ts), [transcript](checks/bound-null.txt)), in Node 26.13: what a trait class that extends each one does, and the fixed `compose` with a `null` bound.
 - **P34, layer (b) at runtime** ([`probes/toolchain/layer-b.ts`](probes/toolchain/layer-b.ts), [transcript](checks/layer-b.txt)), in Node 26.13 with an `HTMLElement` stand-in, on core's real `ControlledElement` and attribute operator. §1: Node on the trait module as written. §2: what oxc-parser gives the flattener in each trait class. §3: the trait module with its `accessor` lines deleted, evaluated. §4: a component as the flattener emits it: reflection, `observedAttributes`, `instanceof` and a subclass.
+- **P36, a trait with code across packages** ([`probes/toolchain/portability.ts`](probes/toolchain/portability.ts), [transcript](checks/portability.txt)), in Node 26.13 with Vite 8.4.0-beta.1, oxc-parser 0.158.0, oxc-resolver 11.21.2 and rolldown 1.3.2. A scratch package, `@probe/traits`, ships material-x's real `FocusForwarding`, copied byte for byte, and core's `Disableable` with its attribute written by hand, as `.ts` source and as built `.js`. Both traits are in today's method-trait form, because the plugin recognises only today's forms. §1: real Vite builds with the real plugin, a `.ts` and a `.js` consumer, with and without the export condition. §2: which file oxc-resolver and Node's `import.meta.resolve` pick, with and without the condition. §3: the parse-equivalence check on both traits, on core's 27 built files and on Vite's 12 `dist` files, and on cases that change meaning between languages. §4: the plugin's `analyzeModule` on the consumer before and after the type transform, a layer (a) composition after it, and rolldown reading JavaScript returned for a `.ts` module.
+- **P37, the bundle cost of attributes written by hand** ([`probes/toolchain/attribute-bytes.ts`](probes/toolchain/attribute-bytes.ts), [transcript](checks/attribute-bytes.txt)): two components as the flattener emits them, bundled and minified with rolldown 1.3.2, on core's real element and operator, with layer (b)'s trait modules, option 1's, and option 1's with the copied members deleted. One module per trait, as core has.
 - **P26, layer (a) through oxc-parser** ([`probes/toolchain/layer-a.ts`](probes/toolchain/layer-a.ts), [transcript](checks/layer-a.txt)): form E's base and list, and each trait's bound and brand block.
 - **P8, the flattener's machinery** ([`probes/toolchain/machinery.ts`](probes/toolchain/machinery.ts), [transcript](checks/machinery.txt)). It runs the plugin's own `analyzeModule` on form A, its `collectFreeReferences` on class-declaration traits, and a decorator strip with `RolldownMagicString`.
 - **The language service** ([transcript](checks/lsp.txt)): hover and go-to-definition on a trait member in forms A and D, in the sketch with its fixes, in layer (a)'s form E, in the owner's refinement with its fixes and in layer (b)'s component, a trait's static member, the base's and a trait's `accessor` attribute included, through this harness's TypeScript language server. Its diagnostics match `tsc`'s, apart from TS9021, which it didn't publish for the sketch's probe.
@@ -833,7 +995,9 @@ Every probe is under [`probes/`](probes/), and every transcript is under [`check
 **Not read:**
 
 - a runnable prototype of the flattener in any form. The owner asked for feasibility, and the machinery probe stops at the parts that carry over;
-- bundle sizes. Form D's output is today's lowered shape, so nothing is expected to change, but that isn't measured;
+- bundle sizes against today's output. Form D's output is today's lowered shape, so nothing is expected to change, but that isn't measured. P37 measures only option 1 against layer (b);
+- the plugin's line counts for option 1 and for layer (b), which are estimates from today's function sizes and the probes' implementations;
+- a runtime `impl` as a portability route;
 - conflicting members in form C, and the own-field case in form C;
 - whether a bundler drops an unused literal group with no spread ([Groups of traits](#groups-of-traits) (b)). That is `RF-63`'s measurement;
 - browsers. No decorator reaches the output in a working build.
