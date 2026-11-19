@@ -1,6 +1,8 @@
 # Merge-base size reading — repair plan
 
-**Status: proposed, and the owner chooses.** Written by the architect on 2026-11-19, on the coordinator's task, on `repo/size-base-1`. It plans the repair of `repo:RF-65`. **No identifier is minted and no record is edited:** the main slot's architect owns `RF-65`'s entry, `RD-7` and the index, and [Proposed record changes](#proposed-record-changes) lists what this plan asks of them.
+**Status: accepted by the owner on 2026-11-19, with option (b) and the workflow artifact,** relayed by the coordinator: _"Yes, the artifact looks good. I could argue with the architect's conclusions or suggest fixes, like enabling the wiki and trying it, but why? If the artifact idea doesn't work out, we'll look again then."_ (translated). The main slot's architect recorded the choice the same day as an amendment of `RD-7` property 5 and its **Why**, and as a dated amendment of `RF-65` that makes the [Proposed record changes](#proposed-record-changes) ([`00-index.md`](../00-index.md)). The implementer implements [The repair, for (b) with the artifact](#the-repair-for-b-with-the-artifact) on this branch. Until the owner's answer, this line said _"proposed, and the owner chooses"_.
+
+Written by the architect on 2026-11-19, on the coordinator's task, on `repo/size-base-1`. It plans the repair of `repo:RF-65`. **No identifier is minted and no record is edited:** the main slot's architect owns `RF-65`'s entry, `RD-7` and the index, and [Proposed record changes](#proposed-record-changes) lists what this plan asks of them.
 
 - **First version,** at `a3ce6d8b3` (`7faee4441`): repair the base build inside `RF-65`'s direction. That is option (d) below.
 - **Revised the same day, at `9300123a0`,** for the owner's question, relayed by the coordinator: _"Can't we keep main's size table in a file somewhere on main, and update it from main's build results? Building main again in every PR just to compare sizes… I'm even ready to give up the comparison if the idea with stored data doesn't work."_ He then added that any store will do, such as the wiki, an issue or a comment, an artifact, a cache entry or a third-party service. What he wants to avoid is building main in every pull request. The [options](#options) compare those stores, and the [recommendation](#recommendation) changes the repair to a stored reading. The first version's property 4, which named an instrument's failure, is dropped for less machinery.
@@ -60,7 +62,7 @@ What `RD-7` property 5 requires the comment to show: each row's reading at the h
 
 ## Recommendation
 
-**(b), with the workflow artifact: main's own reading, kept as a workflow artifact of `main`'s push run and found by the merge base's commit.** The owner wants no base build in every pull request, and (a) keeps the whole comparison under that condition.
+**(b), with the workflow artifact: main's own reading, kept as a workflow artifact of `main`'s push run and found by the merge base's commit.** The owner wants no base build in every pull request, and (b) keeps the whole comparison under that condition. (Corrected on 2026-11-19 by the main slot's architect: this sentence said _"(a)"_, but the recommended option is (b).)
 
 - **It adds the least of the stores.** The run that writes the reading measures `main` already. The lookup is the one `scope` already makes, with the permission it already has.
 - **It finds any merge base, not only `main`'s tip.** One reading per commit can't be stale. A missing reading takes the report's existing "No base reading" path.
