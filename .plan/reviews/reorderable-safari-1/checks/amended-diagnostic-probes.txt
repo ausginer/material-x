@@ -1,0 +1,67 @@
+# RF-36 amended diagnostic, probes by the reviewer on 2026-11-19, at cfed2376e in a detached scratch worktree, local devcontainer.
+# Vitest 5.1.0; no testTimeout is configured, so a browser row's timeout is Vitest's default of 15,000 ms.
+# Each run, from the repository root, with <p> browser/core (chromium) or browser/core/webkit (webkit):
+#   MX_TEST_ENGINES=<engine> aube exec -- vitest run --project <p> --reporter=<default|verbose> [-t <row>] packages/core/tests/traits/reorderable.browser.test.ts
+# Each mutation was a local edit of the row, reverted after the run (git checkout); the tree was clean afterwards.
+# "trace lines" counts lines holding "didn't tear down". m2 and m3 each have 3 in both engines: the message, the source excerpt and the error summary.
+# Trace summaries keep the marks, the state at give-up and the animation in full, and shorten polls and frames to count, first and last.
+
+## pass: no change
+### chromium: Tests  47 passed (47)
+trace lines: 0; stdout/stderr blocks: 0
+### webkit: Tests  47 passed (47)
+trace lines: 0; stdout/stderr blocks: 0
+
+## m2-paused: after 'ue.pointer returned', the row pauses item.getAnimations(), as in the earlier proof's probe (verbose reporter, for the row's duration)
+### chromium: Tests  1 failed | 46 passed (47)
+× |browser/core (chromium)| tests/traits/reorderable.browser.test.ts:1064 > useReorderable > should restore pre-existing inline styles on the target after landing 2133ms
+{"marks":[["pointerdown",0.8],["position fixed",1.5],["toggle open",1.6],["animate",1.8],["pointerup",1.8],["ue.pointer returned",2.1]],"atGiveUp":{"at":1003.1,"visibility":"visible","focus":false,"timeline":3812.9},"animation":{"playState":"paused","currentTime":0,"progress":0,"duration":200},"polls":20,"firstPoll":[2.4,2812.9],"lastPoll":[954.6,3762.9],"bound":1000,"framesArrived":true,"timelineAdvanced":true,"tornDown":false,"frames":61,"firstFrame":[1003.6,3812.9],"lastFrame":[1999.8,4812.9],"timerTicks":20}
+### webkit: Tests  1 failed | 46 passed (47)
+× |browser/core/webkit (webkit)| tests/traits/reorderable.browser.test.ts:1064 > useReorderable > should restore pre-existing inline styles on the target after landing 2193ms
+{"marks":[["pointerdown",2],["position fixed",6],["toggle open",6],["animate",7],["pointerup",7],["ue.pointer returned",8]],"atGiveUp":{"at":1011,"visibility":"visible","focus":false,"timeline":3304},"animation":{"playState":"paused","currentTime":0,"progress":0,"duration":200},"polls":20,"firstPoll":[9,2307],"lastPoll":[997,3304],"bound":1000,"framesArrived":true,"timelineAdvanced":true,"tornDown":false,"frames":61,"firstFrame":[1028,3335],"lastFrame":[2004,4311],"timerTicks":19}
+
+## m3-late: as m2, and the probe calls play() on each animation 1500 ms after 'ue.pointer returned', so teardown runs during the watch
+### chromium: Tests  1 failed | 46 passed (47)
+× |browser/core (chromium)| tests/traits/reorderable.browser.test.ts:1064 > useReorderable > should restore pre-existing inline styles on the target after landing 2116ms
+{"marks":[["pointerdown",1.1],["position fixed",2.9],["toggle open",3.1],["animate",3.5],["pointerup",3.6],["ue.pointer returned",4.1],["finished",1733.4],["position relative",1733.6],["toggle closed",1734.3]],"atGiveUp":{"at":1014.3,"visibility":"visible","focus":false,"timeline":3965.5},"animation":{"playState":"paused","currentTime":0,"progress":0,"duration":200},"polls":20,"firstPoll":[4.7,2965.5],"lastPoll":[955.3,3915.5],"bound":1000,"framesArrived":true,"timelineAdvanced":true,"tornDown":true,"frames":60,"firstFrame":[1025.3,3982.1],"lastFrame":[1999.8,4965.5],"timerTicks":20}
+### webkit: Tests  1 failed | 46 passed (47)
+× |browser/core/webkit (webkit)| tests/traits/reorderable.browser.test.ts:1064 > useReorderable > should restore pre-existing inline styles on the target after landing 2173ms
+{"marks":[["pointerdown",2],["position fixed",10],["toggle open",11],["animate",11],["pointerup",12],["ue.pointer returned",15],["finished",1739],["position relative",1739],["toggle closed",1740]],"atGiveUp":{"at":1018,"visibility":"visible","focus":false,"timeline":3547},"animation":{"playState":"paused","currentTime":0,"progress":0,"duration":200},"polls":20,"firstPoll":[16,2541],"lastPoll":[1006,3547],"bound":1000,"framesArrived":true,"timelineAdvanced":true,"tornDown":true,"frames":61,"firstFrame":[1035,3576],"lastFrame":[2017,4558],"timerTicks":19}
+
+## p1: before traceLanding(), the probe wraps window.requestAnimationFrame, setTimeout and setInterval and records each call with two stack frames, by phase:
+##   'traced' from traceLanding() until the wait's .catch; 'gave-up' from the .catch until finally. Natives restored in finally. Row only (-t).
+##   Stack lines are of the served, transformed modules, so their line numbers are not source lines. Vitest's own waitFor timers come from its safe timers and are not seen.
+### p1-pass chromium: Tests  1 passed | 46 skipped (47)
+4x traced setTimeout <- at @testing-library_user-event.js:1764:58 <- at new Promise (<anonymous>)
+1x traced requestAnimationFrame <- at host.addEventListener.signal reorderable.ts:482:11 <- at @testing-library_user-event.js:1562:32
+1x traced setTimeout <- at Object.withGlobal index.CZzC1gGg-BEvynFbL.js:3532:28 <- at new FakeTimers index.CZzC1gGg-BEvynFbL.js:5177:43
+### p1-pass webkit: Tests  1 passed | 46 skipped (47)
+3x traced setTimeout <- wait@@testing-library_user-event.js:1764:33 <- pointer$1@@testing-library_user-event.js:3062:13
+1x traced requestAnimationFrame <- dispatchEvent@[native code] <- move@@testing-library_user-event.js:2602:29
+1x traced setTimeout <- wait@@testing-library_user-event.js:1764:33 <- @@testing-library_user-event.js:3371:14
+1x traced setTimeout <- FakeTimers@index.CZzC1gGg-BEvynFbL.js:5177:53 <- timers@index.CZzC1gGg-BEvynFbL.js:5652:49
+### p1-paused chromium: Tests  1 failed | 46 skipped (47)
+4x traced setTimeout <- at @testing-library_user-event.js:1764:58 <- at new Promise (<anonymous>)
+1x traced requestAnimationFrame <- at host.addEventListener.signal reorderable.ts:482:11 <- at @testing-library_user-event.js:1562:32
+1x traced setTimeout <- at Object.withGlobal index.CZzC1gGg-BEvynFbL.js:3532:28 <- at new FakeTimers index.CZzC1gGg-BEvynFbL.js:5177:43
+1x gave-up requestAnimationFrame <- at Object.watch reorderable.browser.test.ts:151:16 <- at reorderable.browser.test.ts:953:104
+1x gave-up setInterval <- at Object.watch reorderable.browser.test.ts:156:18 <- at reorderable.browser.test.ts:953:104
+1x gave-up setTimeout <- at reorderable.browser.test.ts:161:5 <- at new Promise (<anonymous>)
+61x gave-up requestAnimationFrame <- at onFrame reorderable.browser.test.ts:153:13
+### p1-paused webkit: Tests  1 failed | 46 skipped (47)
+3x traced setTimeout <- wait@@testing-library_user-event.js:1764:33 <- pointer$1@@testing-library_user-event.js:3062:13
+1x traced requestAnimationFrame <- dispatchEvent@[native code] <- move@@testing-library_user-event.js:2602:29
+1x traced setTimeout <- wait@@testing-library_user-event.js:1764:33 <- @@testing-library_user-event.js:3371:14
+1x traced setTimeout <- FakeTimers@index.CZzC1gGg-BEvynFbL.js:5177:53 <- timers@index.CZzC1gGg-BEvynFbL.js:5652:49
+1x gave-up requestAnimationFrame <- @reorderable.browser.test.ts:953:109
+1x gave-up setInterval <- @reorderable.browser.test.ts:953:109
+1x gave-up setTimeout <- Promise@[native code] <- watch@reorderable.browser.test.ts:160:21
+61x gave-up requestAnimationFrame
+
+## p5-dispose: m2-paused, and the probe logs Element.prototype.animate.name in finally, before and after trace.dispose()
+### chromium: Tests  1 failed | 46 passed (47)
+PROBE before dispose: tracedAnimate
+PROBE after dispose: animate
+### webkit: Tests  1 failed | 46 passed (47)
+PROBE before dispose: tracedAnimate
+PROBE after dispose: animate
