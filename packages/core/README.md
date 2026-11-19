@@ -67,17 +67,33 @@ import { Bool, Num, Str } from '@ydinjs/core/attribute.js';
 
 ### Traits
 
-Traits add attribute-backed properties to an element class without manual `observedAttributes` wiring.
+A trait is a plain class. It adds attribute-backed properties, or methods and accessors, to an element class without manual `observedAttributes` wiring. A component names its base and its traits once, in the annotation of a constant:
 
 ```ts
-import { trait, impl } from '@ydinjs/core/traits/attributes.js';
 import { Bool, Str } from '@ydinjs/core/attribute.js';
+import { ControlledElement } from '@ydinjs/core/element.js';
+import {
+  AnyElement,
+  attributes,
+} from '@ydinjs/core/traits/attribute-traits.js';
+import {
+  compose,
+  trait,
+  type Composed,
+} from '@ydinjs/core/traits/composition.js';
 
-const brand = Symbol('MyTrait');
-const MyTrait = trait({ disabled: Bool, label: Str }, brand);
+export class Labelled extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { disabled: Bool, label: Str });
+  }
 
-// Compose with ControlledElement (or any subclass)
-const MyCore = impl(ControlledElement, [MyTrait] as const);
+  accessor disabled!: boolean;
+  accessor label!: string | null;
+}
+
+const MyCore: Composed<typeof ControlledElement, [typeof Labelled]> =
+  compose(ControlledElement);
 
 class MyElement extends MyCore {
   constructor() {
@@ -87,6 +103,8 @@ class MyElement extends MyCore {
   }
 }
 ```
+
+`@ydinjs/vite-traits-plugin` is a required build step. In a trait's own build it turns each `accessor` line into a getter and a setter that read and write the attribute through the table's converter. In a component's build it copies each trait's members into the class, in list order, merges `observedAttributes` with the base's, and brands the class, so `element instanceof Labelled` is `true`. Without the plugin, `compose()` throws.
 
 Pre-built traits:
 
@@ -144,7 +162,15 @@ toggleState(internals, 'checked', true); // add/remove a custom state from Eleme
 
 ```ts
 import { ControlledElement, define } from '@ydinjs/core/element.js';
-import { trait, impl } from '@ydinjs/core/traits/attributes.js';
+import {
+  AnyElement,
+  attributes,
+} from '@ydinjs/core/traits/attribute-traits.js';
+import {
+  compose,
+  trait,
+  type Composed,
+} from '@ydinjs/core/traits/composition.js';
 import { Disableable } from '@ydinjs/core/traits/disableable.js';
 import { useShadowDOM } from '@ydinjs/core/controllers/useShadowDOM.js';
 import {
@@ -154,12 +180,19 @@ import {
 import { Str } from '@ydinjs/core/attribute.js';
 import { $ } from '@ydinjs/core/utils/DOM.js';
 
-const brand = Symbol('MyButton');
-const MyButtonTrait = trait({ color: Str }, brand);
-const MyButtonCore = impl(ControlledElement, [
-  MyButtonTrait,
-  Disableable,
-] as const);
+class Colored extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { color: Str });
+  }
+
+  accessor color!: string | null;
+}
+
+const MyButtonCore: Composed<
+  typeof ControlledElement,
+  [typeof Colored, typeof Disableable]
+> = compose(ControlledElement);
 
 const template = document.createElement('template');
 template.innerHTML = `<button type="button"><slot></slot></button>`;
