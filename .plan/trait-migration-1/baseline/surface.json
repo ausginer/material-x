@@ -1,0 +1,1520 @@
+{
+  "core/attribute.js": {
+    "classes": {},
+    "aliases": {
+      "AttributePrimitive": {
+        "type": "string | number | boolean",
+        "properties": {}
+      },
+      "Bool": {
+        "type": "import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).ConverterOf<boolean>",
+        "properties": {
+          "from": "(value: string | null) => boolean",
+          "to": "(value: boolean) => string | null"
+        }
+      },
+      "ConverterForPrimitive": {
+        "type": "T extends boolean ? import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).ConverterOf<boolean> : T extends number ? import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).ConverterOf<number> : import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).ConverterOf<string>"
+      },
+      "ConverterReadValue": {
+        "type": "C extends { from(value: string | null): infer T; } ? T : never"
+      },
+      "ConverterWriteValue": {
+        "type": "C extends { to(value: infer T): string | null; } ? T : never"
+      },
+      "NullablePrimitive": {
+        "type": "T extends boolean ? T : T | null"
+      },
+      "Num": {
+        "type": "import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).ConverterOf<number>",
+        "properties": {
+          "from": "(value: string | null) => number | null",
+          "to": "(value: number | null | undefined) => string | null"
+        }
+      },
+      "Str": {
+        "type": "import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).ConverterOf<string>",
+        "properties": {
+          "from": "(value: string | null) => string | null",
+          "to": "(value: string | null | undefined) => string | null"
+        }
+      }
+    }
+  },
+  "core/controllers/useARIA.js": {
+    "classes": {},
+    "aliases": {
+      "ARIATransformer": {
+        "type": "(name: string, value: string | null) => string | null",
+        "properties": {}
+      }
+    }
+  },
+  "core/controllers/useAttributes.js": {
+    "classes": {},
+    "aliases": {
+      "ConvertedUpdateCallback": {
+        "type": "(oldValue: import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).NullablePrimitive<T>, newValue: import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).NullablePrimitive<T>) => void"
+      },
+      "StateCondition": {
+        "type": "(oldValue: string | null, newValue: string | null) => boolean",
+        "properties": {}
+      },
+      "UpdateCallback": {
+        "type": "(oldValue: string | null, newValue: string | null) => void",
+        "properties": {}
+      }
+    }
+  },
+  "core/controllers/useConnected.js": {
+    "classes": {},
+    "aliases": {
+      "ConnectedSetupCallback": {
+        "type": "() => void",
+        "properties": {}
+      }
+    }
+  },
+  "core/controllers/useContext.js": {
+    "classes": {},
+    "aliases": {
+      "Context": {
+        "type": "string & { brand: typeof $ctx; value: T; }"
+      },
+      "ContextEffect": {
+        "type": "(value: T | undefined) => import(\"<root>/packages/core/emitter\", { with: { \"resolution-mode\": \"import\" } }).Unsubscribe | undefined"
+      }
+    }
+  },
+  "core/controllers/useCSSProps.js": {
+    "classes": {
+      "CSSVariableError": {
+        "instance": {
+          "name": "string"
+        },
+        "static": {}
+      }
+    },
+    "aliases": {
+      "CSSPropDescription": {
+        "type": "readonly [name: `--${string}`, parse: import(\"<root>/packages/core/controllers/useCSSProps\", { with: { \"resolution-mode\": \"import\" } }).CSSPropParser<T>]"
+      },
+      "CSSPropParser": {
+        "type": "(value: string, target: HTMLElement, name: `--${string}`) => T"
+      },
+      "CSSPropsResult": {
+        "type": "{ readonly [P in keyof { [K in keyof T]: ReturnType<T[K][1]>; }]: { [K in keyof T]: ReturnType<T[K][1]>; }[P]; }"
+      }
+    }
+  },
+  "core/controllers/useEvents.js": {
+    "classes": {},
+    "aliases": {
+      "ControlledElementEventEntry": {
+        "type": "import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventListener<N> | readonly [import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventListener<N>, import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ListenerOptions]"
+      },
+      "ControlledElementEventListener": {
+        "type": "(event: HTMLElementEventMap[N]) => void | Promise<void>"
+      },
+      "ControlledElementEventListenerMap": {
+        "type": "{ readonly fullscreenchange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"fullscreenchange\"> | undefined; readonly fullscreenerror?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"fullscreenerror\"> | undefined; readonly abort?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"abort\"> | undefined; readonly animationcancel?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"animationcancel\"> | undefined; readonly animationend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"animationend\"> | undefined; readonly animationiteration?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"animationiteration\"> | undefined; readonly animationstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"animationstart\"> | undefined; readonly auxclick?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"auxclick\"> | undefined; readonly beforeinput?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"beforeinput\"> | undefined; readonly beforematch?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"beforematch\"> | undefined; readonly beforetoggle?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"beforetoggle\"> | undefined; readonly blur?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"blur\"> | undefined; readonly cancel?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"cancel\"> | undefined; readonly canplay?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"canplay\"> | undefined; readonly canplaythrough?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"canplaythrough\"> | undefined; readonly change?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"change\"> | undefined; readonly click?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"click\"> | undefined; readonly close?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"close\"> | undefined; readonly command?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"command\"> | undefined; readonly compositionend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"compositionend\"> | undefined; readonly compositionstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"compositionstart\"> | undefined; readonly compositionupdate?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"compositionupdate\"> | undefined; readonly contextlost?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"contextlost\"> | undefined; readonly contextmenu?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"contextmenu\"> | undefined; readonly contextrestored?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"contextrestored\"> | undefined; readonly copy?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"copy\"> | undefined; readonly cuechange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"cuechange\"> | undefined; readonly cut?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"cut\"> | undefined; readonly dblclick?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"dblclick\"> | undefined; readonly drag?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"drag\"> | undefined; readonly dragend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"dragend\"> | undefined; readonly dragenter?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"dragenter\"> | undefined; readonly dragleave?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"dragleave\"> | undefined; readonly dragover?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"dragover\"> | undefined; readonly dragstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"dragstart\"> | undefined; readonly drop?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"drop\"> | undefined; readonly durationchange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"durationchange\"> | undefined; readonly emptied?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"emptied\"> | undefined; readonly ended?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"ended\"> | undefined; readonly error?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"error\"> | undefined; readonly focus?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"focus\"> | undefined; readonly focusin?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"focusin\"> | undefined; readonly focusout?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"focusout\"> | undefined; readonly formdata?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"formdata\"> | undefined; readonly gotpointercapture?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"gotpointercapture\"> | undefined; readonly input?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"input\"> | undefined; readonly invalid?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"invalid\"> | undefined; readonly keydown?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"keydown\"> | undefined; readonly keypress?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"keypress\"> | undefined; readonly keyup?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"keyup\"> | undefined; readonly load?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"load\"> | undefined; readonly loadeddata?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"loadeddata\"> | undefined; readonly loadedmetadata?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"loadedmetadata\"> | undefined; readonly loadstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"loadstart\"> | undefined; readonly lostpointercapture?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"lostpointercapture\"> | undefined; readonly mousedown?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mousedown\"> | undefined; readonly mouseenter?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mouseenter\"> | undefined; readonly mouseleave?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mouseleave\"> | undefined; readonly mousemove?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mousemove\"> | undefined; readonly mouseout?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mouseout\"> | undefined; readonly mouseover?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mouseover\"> | undefined; readonly mouseup?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"mouseup\"> | undefined; readonly paste?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"paste\"> | undefined; readonly pause?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pause\"> | undefined; readonly play?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"play\"> | undefined; readonly playing?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"playing\"> | undefined; readonly pointercancel?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointercancel\"> | undefined; readonly pointerdown?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerdown\"> | undefined; readonly pointerenter?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerenter\"> | undefined; readonly pointerleave?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerleave\"> | undefined; readonly pointermove?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointermove\"> | undefined; readonly pointerout?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerout\"> | undefined; readonly pointerover?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerover\"> | undefined; readonly pointerrawupdate?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerrawupdate\"> | undefined; readonly pointerup?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"pointerup\"> | undefined; readonly progress?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"progress\"> | undefined; readonly ratechange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"ratechange\"> | undefined; readonly reset?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"reset\"> | undefined; readonly resize?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"resize\"> | undefined; readonly scroll?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"scroll\"> | undefined; readonly scrollend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"scrollend\"> | undefined; readonly securitypolicyviolation?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"securitypolicyviolation\"> | undefined; readonly seeked?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"seeked\"> | undefined; readonly seeking?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"seeking\"> | undefined; readonly select?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"select\"> | undefined; readonly selectionchange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"selectionchange\"> | undefined; readonly selectstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"selectstart\"> | undefined; readonly slotchange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"slotchange\"> | undefined; readonly stalled?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"stalled\"> | undefined; readonly submit?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"submit\"> | undefined; readonly suspend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"suspend\"> | undefined; readonly timeupdate?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"timeupdate\"> | undefined; readonly toggle?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"toggle\"> | undefined; readonly touchcancel?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"touchcancel\"> | undefined; readonly touchend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"touchend\"> | undefined; readonly touchmove?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"touchmove\"> | undefined; readonly touchstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"touchstart\"> | undefined; readonly transitioncancel?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"transitioncancel\"> | undefined; readonly transitionend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"transitionend\"> | undefined; readonly transitionrun?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"transitionrun\"> | undefined; readonly transitionstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"transitionstart\"> | undefined; readonly volumechange?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"volumechange\"> | undefined; readonly waiting?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"waiting\"> | undefined; readonly webkitanimationend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"webkitanimationend\"> | undefined; readonly webkitanimationiteration?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"webkitanimationiteration\"> | undefined; readonly webkitanimationstart?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"webkitanimationstart\"> | undefined; readonly webkittransitionend?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"webkittransitionend\"> | undefined; readonly wheel?: import(\"<root>/packages/core/controllers/useEvents\", { with: { \"resolution-mode\": \"import\" } }).ControlledElementEventEntry<\"wheel\"> | undefined; }",
+        "properties": {}
+      },
+      "ListenerOptions": {
+        "type": "{ once?: boolean | undefined; passive?: boolean | undefined; capture?: boolean | undefined; }",
+        "properties": {}
+      }
+    }
+  },
+  "core/controllers/useKeyboard.js": {
+    "classes": {},
+    "aliases": {
+      "KeyboardListener": {
+        "type": "(e: KeyboardEvent) => void",
+        "properties": {}
+      },
+      "KeyboardListenerSet": {
+        "type": "{ readonly down?: import(\"<root>/packages/core/controllers/useKeyboard\", { with: { \"resolution-mode\": \"import\" } }).KeyboardListener | undefined; readonly up?: import(\"<root>/packages/core/controllers/useKeyboard\", { with: { \"resolution-mode\": \"import\" } }).KeyboardListener | undefined; }",
+        "properties": {
+          "down": "?: import(\"<root>/packages/core/controllers/useKeyboard\", { with: { \"resolution-mode\": \"import\" } }).KeyboardListener | undefined",
+          "up": "?: import(\"<root>/packages/core/controllers/useKeyboard\", { with: { \"resolution-mode\": \"import\" } }).KeyboardListener | undefined"
+        }
+      }
+    }
+  },
+  "core/controllers/useMutationObserver.js": {
+    "classes": {},
+    "aliases": {}
+  },
+  "core/controllers/useResizeObserver.js": {
+    "classes": {},
+    "aliases": {}
+  },
+  "core/controllers/useRovingTabindex.js": {
+    "classes": {},
+    "aliases": {}
+  },
+  "core/controllers/useShadowDOM.js": {
+    "classes": {},
+    "aliases": {}
+  },
+  "core/controllers/useSlot.js": {
+    "classes": {},
+    "aliases": {
+      "SlotControllerUpdateCallback": {
+        "type": "(slot: HTMLSlotElement, nodes: readonly T[]) => void"
+      }
+    }
+  },
+  "core/element.js": {
+    "classes": {
+      "ControlledElement": {
+        "instance": {
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "connectedCallback": "() => void",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void"
+        },
+        "static": {}
+      }
+    },
+    "aliases": {
+      "ControlledElementConstructor": {
+        "type": "typeof import(\"<root>/packages/core/element\", { with: { \"resolution-mode\": \"import\" } }).ControlledElement & import(\"<root>/packages/core/element\", { with: { \"resolution-mode\": \"import\" } }).CustomElementStatics",
+        "properties": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined",
+          "prototype": "import(\"<root>/packages/core/element\", { with: { \"resolution-mode\": \"import\" } }).ControlledElement"
+        }
+      }
+    }
+  },
+  "core/emitter.js": {
+    "classes": {
+      "EventEmitter": {
+        "instance": {
+          "#private": "any",
+          "emit": "(...data: T) => void",
+          "err": "(handler: import(\"<root>/packages/core/utils/runtime\", { with: { \"resolution-mode\": \"import\" } }).ForEachMaybePromiseErrorHandler) => void",
+          "on": "(callback: import(\"<root>/packages/core/emitter\", { with: { \"resolution-mode\": \"import\" } }).UpdateCallback<T>) => import(\"<root>/packages/core/emitter\", { with: { \"resolution-mode\": \"import\" } }).Unsubscribe"
+        },
+        "static": {}
+      }
+    },
+    "aliases": {
+      "ErrorHandler": {
+        "type": "(error: unknown) => void",
+        "properties": {}
+      },
+      "Unsubscribe": {
+        "type": "() => void",
+        "properties": {}
+      },
+      "UpdateCallback": {
+        "type": "(...data: T) => void | Promise<void>"
+      }
+    }
+  },
+  "core/traits/attributes.js": {
+    "classes": {},
+    "aliases": {
+      "Interface": {
+        "type": "T extends import(\"<root>/packages/core/traits/attributes\", { with: { \"resolution-mode\": \"import\" } }).Trait<infer P extends Readonly<Record<string, import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).NullablePrimitive<import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).AttributePrimitive>>>, infer B extends symbol> ? { [KeyType in keyof (P & Readonly<Record<B, true>>)]: (P & Readonly<Record<B, true>>)[KeyType]; } : never"
+      },
+      "Props": {
+        "type": "T extends import(\"<root>/packages/core/traits/attributes\", { with: { \"resolution-mode\": \"import\" } }).Trait<infer P extends Readonly<Record<string, import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).NullablePrimitive<import(\"<root>/packages/core/attribute\", { with: { \"resolution-mode\": \"import\" } }).AttributePrimitive>>>, any> ? PropsFromTraitFields<P> : never"
+      },
+      "Trait": {
+        "type": "import(\"<root>/packages/core/traits/primitives\", { with: { \"resolution-mode\": \"import\" } }).Trait<P, {}, B, import(\"<root>/packages/core/element\", { with: { \"resolution-mode\": \"import\" } }).ControlledElement, import(\"<root>/packages/core/element\", { with: { \"resolution-mode\": \"import\" } }).CustomElementStatics>"
+      },
+      "Traited": {
+        "type": "T & TraitListProps<TL, {}>"
+      },
+      "TraitedConstructor": {
+        "type": "import(\"<root>/node_modules/type-fest/source/basic\", { with: { \"resolution-mode\": \"import\" } }).Constructor<import(\"<root>/packages/core/traits/primitives\", { with: { \"resolution-mode\": \"import\" } }).Traited<T, TL>, Args> & U & TraitListStaticProps<TL, {}>"
+      }
+    }
+  },
+  "core/traits/checkable.js": {
+    "classes": {},
+    "aliases": {
+      "Checkable": {
+        "type": "{ checked: boolean; readonly [$checkable]: true; }",
+        "properties": {
+          "[$checkable]": "true",
+          "checked": "boolean"
+        }
+      },
+      "CheckableProps": {
+        "type": "{ checked?: boolean | undefined; }",
+        "properties": {
+          "checked": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/disableable.js": {
+    "classes": {},
+    "aliases": {
+      "Disableable": {
+        "type": "{ disabled: boolean; readonly [$disableable]: true; }",
+        "properties": {
+          "[$disableable]": "true",
+          "disabled": "boolean"
+        }
+      },
+      "DisableableProps": {
+        "type": "{ disabled?: boolean | undefined; }",
+        "properties": {
+          "disabled": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/linkable.js": {
+    "classes": {},
+    "aliases": {
+      "Linkable": {
+        "type": "{ href: string | null; target: string | null; readonly [$linkable]: true; }",
+        "properties": {
+          "[$linkable]": "true",
+          "href": "string | null",
+          "target": "string | null"
+        }
+      },
+      "LinkableProps": {
+        "type": "{ href?: string | null | undefined; target?: string | null | undefined; }",
+        "properties": {
+          "href": "?: string | null | undefined",
+          "target": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/nameable.js": {
+    "classes": {},
+    "aliases": {
+      "Nameable": {
+        "type": "{ name: string | null; readonly [$nameable]: true; }",
+        "properties": {
+          "[$nameable]": "true",
+          "name": "string | null"
+        }
+      },
+      "NameableProps": {
+        "type": "{ name?: string | null | undefined; }",
+        "properties": {
+          "name": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/primitives.js": {
+    "classes": {},
+    "aliases": {
+      "Traited": {
+        "type": "T & TraitListProps<TL, {}>"
+      },
+      "TraitedConstructor": {
+        "type": "import(\"<root>/node_modules/type-fest/source/basic\", { with: { \"resolution-mode\": \"import\" } }).Constructor<import(\"<root>/packages/core/traits/primitives\", { with: { \"resolution-mode\": \"import\" } }).Traited<T, TL>, Args> & U & TraitListStaticProps<TL, {}>"
+      }
+    }
+  },
+  "core/traits/reorderable.js": {
+    "classes": {
+      "ReorderEvent": {
+        "instance": {
+          "from": "number",
+          "item": "HTMLElement",
+          "to": "number"
+        },
+        "static": {}
+      }
+    },
+    "aliases": {
+      "AnimationTiming": {
+        "type": "{ duration?: string | number | CSSNumericValue | undefined; easing?: string | undefined; }",
+        "properties": {}
+      },
+      "Reorderable": {
+        "type": "{ reorderable: boolean; readonly [$reorderable]: true; }",
+        "properties": {
+          "[$reorderable]": "true",
+          "reorderable": "boolean"
+        }
+      },
+      "ReorderableProps": {
+        "type": "{ reorderable?: boolean | undefined; }",
+        "properties": {
+          "reorderable": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/selectable.js": {
+    "classes": {},
+    "aliases": {
+      "Selectable": {
+        "type": "{ selected: boolean; readonly [$selectable]: true; }",
+        "properties": {
+          "[$selectable]": "true",
+          "selected": "boolean"
+        }
+      },
+      "SelectableProps": {
+        "type": "{ selected?: boolean | undefined; }",
+        "properties": {
+          "selected": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/typeable.js": {
+    "classes": {},
+    "aliases": {
+      "Typeable": {
+        "type": "{ type: string | null; readonly [$typeable]: true; }",
+        "properties": {
+          "[$typeable]": "true",
+          "type": "string | null"
+        }
+      },
+      "TypeableProps": {
+        "type": "{ type?: string | null | undefined; }",
+        "properties": {
+          "type": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "core/traits/valuable.js": {
+    "classes": {},
+    "aliases": {
+      "Valuable": {
+        "type": "{ value: string | null; readonly [$valuable]: true; }",
+        "properties": {
+          "[$valuable]": "true",
+          "value": "string | null"
+        }
+      },
+      "ValuableProps": {
+        "type": "{ value?: string | null | undefined; }",
+        "properties": {
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "core/utils/DOM.js": {
+    "classes": {
+      "FrameRequestHandler": {
+        "instance": {
+          "#private": "any",
+          "cancel": "() => void",
+          "schedule": "(callback: FrameRequestCallback) => void"
+        },
+        "static": {}
+      }
+    },
+    "aliases": {
+      "EventDefinitions": {
+        "type": "{ readonly [P in keyof Record<T, Readonly<EventInit>>]: Record<T, Readonly<EventInit>>[P]; }"
+      },
+      "EventNotifier": {
+        "type": "(target: EventTarget, ...types: readonly T[]) => void"
+      },
+      "ExistingSiblingUpdateCallback": {
+        "type": "(sibling: HTMLElement) => void",
+        "properties": {}
+      },
+      "SiblingUpdateCallback": {
+        "type": "(sibling?: HTMLElement | undefined) => void",
+        "properties": {}
+      }
+    }
+  },
+  "core/utils/runtime.js": {
+    "classes": {},
+    "aliases": {
+      "ForEachMaybePromiseCallback": {
+        "type": "(item: T) => void | Promise<void | null | undefined> | null | undefined"
+      },
+      "ForEachMaybePromiseErrorHandler": {
+        "type": "(error: unknown) => void",
+        "properties": {}
+      }
+    }
+  },
+  "material-x/button/button.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonLike]": "true",
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$nameable]": "true",
+          "[$typeable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "name": "string | null",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "type": "string | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ButtonCSSProperties": {
+        "type": "{ readonly \"--md-button-container-height\"?: string | undefined; readonly \"--md-button-leading-space\"?: string | undefined; readonly \"--md-button-trailing-space\"?: string | undefined; readonly \"--md-button-icon-size\"?: string | undefined; readonly \"--md-button-icon-label-space\"?: string | undefined; readonly \"--md-button-label-text-line-height\"?: string | undefined; readonly \"--md-button-press-duration\"?: string | undefined; readonly \"--md-button-press-easing\"?: string | undefined; }",
+        "properties": {
+          "\"--md-button-container-height\"": "?: string | undefined",
+          "\"--md-button-icon-label-space\"": "?: string | undefined",
+          "\"--md-button-icon-size\"": "?: string | undefined",
+          "\"--md-button-label-text-line-height\"": "?: string | undefined",
+          "\"--md-button-leading-space\"": "?: string | undefined",
+          "\"--md-button-press-duration\"": "?: string | undefined",
+          "\"--md-button-press-easing\"": "?: string | undefined",
+          "\"--md-button-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "ButtonEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "ButtonProperties": {
+        "type": "PropsFromTraitFields<{ color: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null; size: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null; shape: \"square\" | null; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ name: string | null; }>",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined",
+          "disabled": "?: boolean | undefined",
+          "name": "?: string | null | undefined",
+          "shape": "?: \"square\" | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/button/icon-button.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonLike]": "true",
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$iconButtonLike]": "true",
+          "[$typeable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "\"outlined\" | \"elevated\" | \"tonal\" | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "type": "string | null",
+          "width": "import(\"<root>/packages/material-x/button/IconButtonCore\", { with: { \"resolution-mode\": \"import\" } }).IconButtonWidth | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {}
+  },
+  "material-x/button/link-button.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonLike]": "true",
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$linkable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "href": "string | null",
+          "movedCallback": "() => void",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "target": "string | null"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "LinkButtonCSSProperties": {
+        "type": "{ readonly \"--md-button-container-height\"?: string | undefined; readonly \"--md-button-leading-space\"?: string | undefined; readonly \"--md-button-trailing-space\"?: string | undefined; readonly \"--md-button-icon-size\"?: string | undefined; readonly \"--md-button-icon-label-space\"?: string | undefined; readonly \"--md-button-label-text-line-height\"?: string | undefined; readonly \"--md-button-press-duration\"?: string | undefined; readonly \"--md-button-press-easing\"?: string | undefined; }",
+        "properties": {
+          "\"--md-button-container-height\"": "?: string | undefined",
+          "\"--md-button-icon-label-space\"": "?: string | undefined",
+          "\"--md-button-icon-size\"": "?: string | undefined",
+          "\"--md-button-label-text-line-height\"": "?: string | undefined",
+          "\"--md-button-leading-space\"": "?: string | undefined",
+          "\"--md-button-press-duration\"": "?: string | undefined",
+          "\"--md-button-press-easing\"": "?: string | undefined",
+          "\"--md-button-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "LinkButtonEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "LinkButtonProps": {
+        "type": "{ color?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined; size?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined; shape?: \"square\" | null | undefined; disabled?: boolean | undefined; href?: string | null | undefined; target?: string | null | undefined; }",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined",
+          "disabled": "?: boolean | undefined",
+          "href": "?: string | null | undefined",
+          "shape": "?: \"square\" | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined",
+          "target": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/button/switch-button.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonLike]": "true",
+          "[$checkable]": "true",
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "checked": "boolean",
+          "color": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "SwitchButtonColor": {
+        "type": "\"outlined\" | \"elevated\" | \"tonal\"",
+        "properties": {}
+      },
+      "SwitchButtonCSSProperties": {
+        "type": "{ readonly \"--md-button-container-height\"?: string | undefined; readonly \"--md-button-leading-space\"?: string | undefined; readonly \"--md-button-trailing-space\"?: string | undefined; readonly \"--md-button-icon-size\"?: string | undefined; readonly \"--md-button-icon-label-space\"?: string | undefined; readonly \"--md-button-label-text-line-height\"?: string | undefined; readonly \"--md-button-press-duration\"?: string | undefined; readonly \"--md-button-press-easing\"?: string | undefined; }",
+        "properties": {
+          "\"--md-button-container-height\"": "?: string | undefined",
+          "\"--md-button-icon-label-space\"": "?: string | undefined",
+          "\"--md-button-icon-size\"": "?: string | undefined",
+          "\"--md-button-label-text-line-height\"": "?: string | undefined",
+          "\"--md-button-leading-space\"": "?: string | undefined",
+          "\"--md-button-press-duration\"": "?: string | undefined",
+          "\"--md-button-press-easing\"": "?: string | undefined",
+          "\"--md-button-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "SwitchButtonEvents": {
+        "type": "{ readonly change: Event; readonly input: Event; }",
+        "properties": {
+          "change": "Event",
+          "input": "Event"
+        }
+      },
+      "SwitchButtonProperties": {
+        "type": "PropsFromTraitFields<{ color: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null; size: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null; shape: \"square\" | null; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ checked: boolean; }> & PropsFromTraitFields<{ value: string | null; }> & Readonly<{ color?: import(\"<root>/packages/material-x/button/switch-button\", { with: { \"resolution-mode\": \"import\" } }).SwitchButtonColor | undefined; }>",
+        "properties": {
+          "checked": "?: boolean | undefined",
+          "color": "?: \"outlined\" | \"elevated\" | \"tonal\" | undefined",
+          "disabled": "?: boolean | undefined",
+          "shape": "?: \"square\" | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/button/switch-icon-button.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonLike]": "true",
+          "[$checkable]": "true",
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$iconButtonLike]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "checked": "boolean",
+          "color": "\"outlined\" | \"elevated\" | \"tonal\" | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "value": "string | null",
+          "width": "import(\"<root>/packages/material-x/button/IconButtonCore\", { with: { \"resolution-mode\": \"import\" } }).IconButtonWidth | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {}
+  },
+  "material-x/button/split-button.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonLike]": "true",
+          "[$disableable]": "true",
+          "[$splitButtonLike]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "open": "boolean",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "SplitButtonCSSProperties": {
+        "type": "{ readonly \"--md-button-container-height\"?: string | undefined; readonly \"--md-button-leading-space\"?: string | undefined; readonly \"--md-button-trailing-space\"?: string | undefined; readonly \"--md-button-icon-size\"?: string | undefined; readonly \"--md-button-icon-label-space\"?: string | undefined; readonly \"--md-button-label-text-line-height\"?: string | undefined; readonly \"--md-button-press-duration\"?: string | undefined; readonly \"--md-button-press-easing\"?: string | undefined; }",
+        "properties": {
+          "\"--md-button-container-height\"": "?: string | undefined",
+          "\"--md-button-icon-label-space\"": "?: string | undefined",
+          "\"--md-button-icon-size\"": "?: string | undefined",
+          "\"--md-button-label-text-line-height\"": "?: string | undefined",
+          "\"--md-button-leading-space\"": "?: string | undefined",
+          "\"--md-button-press-duration\"": "?: string | undefined",
+          "\"--md-button-press-easing\"": "?: string | undefined",
+          "\"--md-button-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "SplitButtonEvents": {
+        "type": "{ readonly secondaryaction: Event; }",
+        "properties": {
+          "secondaryaction": "Event"
+        }
+      },
+      "SplitButtonLike": {
+        "type": "{ open: boolean; readonly [$splitButtonLike]: true; }",
+        "properties": {
+          "[$splitButtonLike]": "true",
+          "open": "boolean"
+        }
+      },
+      "SplitButtonLikeProps": {
+        "type": "{ open?: boolean | undefined; }",
+        "properties": {
+          "open": "?: boolean | undefined"
+        }
+      },
+      "SplitButtonProperties": {
+        "type": "{ color?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined; size?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined; shape?: \"square\" | null | undefined; disabled?: boolean | undefined; open?: boolean | undefined; }",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined",
+          "disabled": "?: boolean | undefined",
+          "open": "?: boolean | undefined",
+          "shape": "?: \"square\" | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/button-group/button-group.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonGroupLike]": "true",
+          "[$buttonLike]": "true",
+          "[$disableable]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ButtonGroupCSSProperties": {
+        "type": "{ readonly \"--md-button-group-between-space\"?: string | undefined; readonly \"--md-button-group-interaction-width-multiplier\"?: string | undefined; readonly \"--md-button-group-inner-corner-size\"?: string | undefined; }",
+        "properties": {
+          "\"--md-button-group-between-space\"": "?: string | undefined",
+          "\"--md-button-group-inner-corner-size\"": "?: string | undefined",
+          "\"--md-button-group-interaction-width-multiplier\"": "?: string | undefined"
+        }
+      },
+      "ButtonGroupEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "ButtonGroupProperties": {
+        "type": "PropsFromTraitFields<{ color: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null; size: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null; shape: \"square\" | null; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ value: string | null; }>",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined",
+          "disabled": "?: boolean | undefined",
+          "shape": "?: \"square\" | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/button-group/connected-button-group.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$buttonGroupLike]": "true",
+          "[$buttonLike]": "true",
+          "[$disableable]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "shape": "\"square\" | null",
+          "size": "import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ConnectedButtonGroupCSSProperties": {
+        "type": "{ readonly \"--md-button-group-between-space\"?: string | undefined; readonly \"--md-button-group-interaction-width-multiplier\"?: string | undefined; readonly \"--md-button-group-inner-corner-size\"?: string | undefined; }",
+        "properties": {
+          "\"--md-button-group-between-space\"": "?: string | undefined",
+          "\"--md-button-group-inner-corner-size\"": "?: string | undefined",
+          "\"--md-button-group-interaction-width-multiplier\"": "?: string | undefined"
+        }
+      },
+      "ConnectedButtonGroupEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "ConnectedButtonGroupProperties": {
+        "type": "PropsFromTraitFields<{ color: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null; size: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null; shape: \"square\" | null; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ value: string | null; }>",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonColor | null | undefined",
+          "disabled": "?: boolean | undefined",
+          "shape": "?: \"square\" | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/button/ButtonCore\", { with: { \"resolution-mode\": \"import\" } }).ButtonSize | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/checkbox/checkbox.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$checkable]": "true",
+          "[$disableable]": "true",
+          "[$indeterminable]": "true",
+          "[$nameable]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "checked": "boolean",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "indeterminate": "boolean",
+          "movedCallback": "() => void",
+          "name": "string | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "CheckboxCSSProperties": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "CheckboxEvents": {
+        "type": "{ readonly change: Event; readonly input: Event; }",
+        "properties": {
+          "change": "Event",
+          "input": "Event"
+        }
+      },
+      "CheckboxProperties": {
+        "type": "PropsFromTraitFields<{ checked: boolean; }> & PropsFromTraitFields<{ value: string | null; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ name: string | null; }> & PropsFromTraitFields<{ indeterminate: boolean; }>",
+        "properties": {
+          "checked": "?: boolean | undefined",
+          "disabled": "?: boolean | undefined",
+          "indeterminate": "?: boolean | undefined",
+          "name": "?: string | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      },
+      "Indeterminable": {
+        "type": "{ indeterminate: boolean; readonly [$indeterminable]: true; }",
+        "properties": {
+          "[$indeterminable]": "true",
+          "indeterminate": "boolean"
+        }
+      },
+      "IndeterminatableProps": {
+        "type": "{ indeterminate?: boolean | undefined; }",
+        "properties": {
+          "indeterminate": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "material-x/fab/fab.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$disableable]": "true",
+          "[$fabLike]": "true",
+          "[$focusForwarding]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "color": "import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "extended": "import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "size": "import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null",
+          "tonal": "boolean"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "FABColor": {
+        "type": "\"primary\" | \"secondary\"",
+        "properties": {}
+      },
+      "FABCSSProperties": {
+        "type": "{ readonly \"--md-fab-container-height\"?: string | undefined; readonly \"--md-fab-container-width\"?: string | undefined; readonly \"--md-fab-icon-size\"?: string | undefined; readonly \"--md-fab-icon-label-space\"?: string | undefined; readonly \"--md-fab-unfold-duration\"?: string | undefined; readonly \"--md-fab-unfold-easing\"?: string | undefined; readonly \"--md-fab-level\"?: string | undefined; readonly \"--md-fab-hover-level\"?: string | undefined; }",
+        "properties": {
+          "\"--md-fab-container-height\"": "?: string | undefined",
+          "\"--md-fab-container-width\"": "?: string | undefined",
+          "\"--md-fab-hover-level\"": "?: string | undefined",
+          "\"--md-fab-icon-label-space\"": "?: string | undefined",
+          "\"--md-fab-icon-size\"": "?: string | undefined",
+          "\"--md-fab-level\"": "?: string | undefined",
+          "\"--md-fab-unfold-duration\"": "?: string | undefined",
+          "\"--md-fab-unfold-easing\"": "?: string | undefined"
+        }
+      },
+      "FABEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "FABExtended": {
+        "type": "\"open\" | \"closed\"",
+        "properties": {}
+      },
+      "FABLike": {
+        "type": "{ size: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null; color: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null; extended: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null; tonal: boolean; readonly [$fabLike]: true; }",
+        "properties": {
+          "[$fabLike]": "true",
+          "color": "import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null",
+          "extended": "import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null",
+          "size": "import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null",
+          "tonal": "boolean"
+        }
+      },
+      "FABLikeProps": {
+        "type": "{ size?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null | undefined; color?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null | undefined; extended?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null | undefined; tonal?: boolean | undefined; }",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null | undefined",
+          "extended": "?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null | undefined",
+          "tonal": "?: boolean | undefined"
+        }
+      },
+      "FABProperties": {
+        "type": "{ readonly size?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null | undefined; readonly color?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null | undefined; readonly extended?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null | undefined; readonly tonal?: boolean | undefined; readonly disabled?: boolean | undefined; }",
+        "properties": {
+          "color": "?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABColor | null | undefined",
+          "disabled": "?: boolean | undefined",
+          "extended": "?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABExtended | null | undefined",
+          "size": "?: import(\"<root>/packages/material-x/fab/fab\", { with: { \"resolution-mode\": \"import\" } }).FABSize | null | undefined",
+          "tonal": "?: boolean | undefined"
+        }
+      },
+      "FABSize": {
+        "type": "\"medium\" | \"large\"",
+        "properties": {}
+      }
+    }
+  },
+  "material-x/icon/icon.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "connectedCallback": "() => void",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void"
+        },
+        "static": {}
+      }
+    },
+    "aliases": {
+      "IconCSSProperties": {
+        "type": "{ readonly \"--md-icon-size\"?: string | undefined; readonly \"--md-icon-font\"?: string | undefined; }",
+        "properties": {
+          "\"--md-icon-font\"": "?: string | undefined",
+          "\"--md-icon-size\"": "?: string | undefined"
+        }
+      },
+      "IconEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "IconProperties": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      }
+    }
+  },
+  "material-x/list/list.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$reorderable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "connectedCallback": "() => void",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "reorderable": "boolean"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ListCSSProperties": {
+        "type": "{ readonly \"--md-list-container-color\"?: string | undefined; readonly \"--md-list-container-shape\"?: string | undefined; }",
+        "properties": {
+          "\"--md-list-container-color\"": "?: string | undefined",
+          "\"--md-list-container-shape\"": "?: string | undefined"
+        }
+      },
+      "ListEvents": {
+        "type": "{ readonly reorder: import(\"<root>/packages/core/traits/reorderable\", { with: { \"resolution-mode\": \"import\" } }).ReorderEvent; }",
+        "properties": {
+          "reorder": "import(\"<root>/packages/core/traits/reorderable\", { with: { \"resolution-mode\": \"import\" } }).ReorderEvent"
+        }
+      },
+      "ListProperties": {
+        "type": "{ reorderable?: boolean | undefined; }",
+        "properties": {
+          "reorderable": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "material-x/list/list-item.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "connectedCallback": "() => void",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ListItemCSSProperties": {
+        "type": "{ readonly \"--md-list-item-container-color\"?: string | undefined; readonly \"--md-list-item-container-height\"?: string | undefined; readonly \"--md-list-item-container-shape\"?: string | undefined; readonly \"--md-list-item-leading-space\"?: string | undefined; readonly \"--md-list-item-trailing-space\"?: string | undefined; readonly \"--md-list-item-leading-icon-size\"?: string | undefined; readonly \"--md-list-item-trailing-icon-size\"?: string | undefined; }",
+        "properties": {
+          "\"--md-list-item-container-color\"": "?: string | undefined",
+          "\"--md-list-item-container-height\"": "?: string | undefined",
+          "\"--md-list-item-container-shape\"": "?: string | undefined",
+          "\"--md-list-item-leading-icon-size\"": "?: string | undefined",
+          "\"--md-list-item-leading-space\"": "?: string | undefined",
+          "\"--md-list-item-trailing-icon-size\"": "?: string | undefined",
+          "\"--md-list-item-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "ListItemEvents": {
+        "type": "{ readonly click: PointerEvent; }",
+        "properties": {
+          "click": "PointerEvent"
+        }
+      },
+      "ListItemProperties": {
+        "type": "{}",
+        "properties": {}
+      }
+    }
+  },
+  "material-x/list/list-button-item.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$selectable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "selected": "boolean"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ListButtonItemCSSProperties": {
+        "type": "Readonly<{ \"--md-list-item-container-color\"?: string | undefined; \"--md-list-item-container-height\"?: string | undefined; \"--md-list-item-container-shape\"?: string | undefined; \"--md-list-item-leading-space\"?: string | undefined; \"--md-list-item-trailing-space\"?: string | undefined; \"--md-list-item-leading-icon-size\"?: string | undefined; \"--md-list-item-trailing-icon-size\"?: string | undefined; }> & Readonly<{ \"--md-list-item-press-duration\"?: string | undefined; \"--md-list-item-press-easing\"?: string | undefined; }>",
+        "properties": {
+          "\"--md-list-item-container-color\"": "?: string | undefined",
+          "\"--md-list-item-container-height\"": "?: string | undefined",
+          "\"--md-list-item-container-shape\"": "?: string | undefined",
+          "\"--md-list-item-leading-icon-size\"": "?: string | undefined",
+          "\"--md-list-item-leading-space\"": "?: string | undefined",
+          "\"--md-list-item-press-duration\"": "?: string | undefined",
+          "\"--md-list-item-press-easing\"": "?: string | undefined",
+          "\"--md-list-item-trailing-icon-size\"": "?: string | undefined",
+          "\"--md-list-item-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "ListButtonItemEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "ListButtonItemProperties": {
+        "type": "import(\"<root>/packages/material-x/list/ListItemCore\", { with: { \"resolution-mode\": \"import\" } }).ListItemCoreProperties & PropsFromTraitFields<{ selected: boolean; }> & PropsFromTraitFields<{ disabled: boolean; }>",
+        "properties": {
+          "disabled": "?: boolean | undefined",
+          "selected": "?: boolean | undefined"
+        }
+      }
+    }
+  },
+  "material-x/list/list-link-item.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$disableable]": "true",
+          "[$focusForwarding]": "true",
+          "[$linkable]": "true",
+          "[$selectable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "href": "string | null",
+          "movedCallback": "() => void",
+          "selected": "boolean",
+          "target": "string | null"
+        },
+        "static": {
+          "formAssociated": "?: boolean | undefined",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "ListLinkItemCSSProperties": {
+        "type": "Readonly<{ \"--md-list-item-container-color\"?: string | undefined; \"--md-list-item-container-height\"?: string | undefined; \"--md-list-item-container-shape\"?: string | undefined; \"--md-list-item-leading-space\"?: string | undefined; \"--md-list-item-trailing-space\"?: string | undefined; \"--md-list-item-leading-icon-size\"?: string | undefined; \"--md-list-item-trailing-icon-size\"?: string | undefined; }> & Readonly<{ \"--md-list-item-press-duration\"?: string | undefined; \"--md-list-item-press-easing\"?: string | undefined; }>",
+        "properties": {
+          "\"--md-list-item-container-color\"": "?: string | undefined",
+          "\"--md-list-item-container-height\"": "?: string | undefined",
+          "\"--md-list-item-container-shape\"": "?: string | undefined",
+          "\"--md-list-item-leading-icon-size\"": "?: string | undefined",
+          "\"--md-list-item-leading-space\"": "?: string | undefined",
+          "\"--md-list-item-press-duration\"": "?: string | undefined",
+          "\"--md-list-item-press-easing\"": "?: string | undefined",
+          "\"--md-list-item-trailing-icon-size\"": "?: string | undefined",
+          "\"--md-list-item-trailing-space\"": "?: string | undefined"
+        }
+      },
+      "ListLinkItemEvents": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "ListLinkItemProperties": {
+        "type": "{ selected?: boolean | undefined; disabled?: boolean | undefined; href?: string | null | undefined; target?: string | null | undefined; }",
+        "properties": {
+          "disabled": "?: boolean | undefined",
+          "href": "?: string | null | undefined",
+          "selected": "?: boolean | undefined",
+          "target": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/radio/radio.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$checkable]": "true",
+          "[$disableable]": "true",
+          "[$nameable]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "checked": "boolean",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "movedCallback": "() => void",
+          "name": "string | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "RadioCSSProperties": {
+        "type": "{ [emptyObjectSymbol]?: undefined; }",
+        "properties": {
+          "[emptyObjectSymbol]": "?: undefined"
+        }
+      },
+      "RadioEvents": {
+        "type": "{ change: Event; input: Event; }",
+        "properties": {
+          "change": "Event",
+          "input": "Event"
+        }
+      },
+      "RadioProperties": {
+        "type": "PropsFromTraitFields<{ checked: boolean; }> & PropsFromTraitFields<{ value: string | null; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ name: string | null; }>",
+        "properties": {
+          "checked": "?: boolean | undefined",
+          "disabled": "?: boolean | undefined",
+          "name": "?: string | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/text-field/multiline-text-field.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$disableable]": "true",
+          "[$nameable]": "true",
+          "[$textFieldLike]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "checkValidity": "() => boolean",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "inputmode": "import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldInputMode | null",
+          "isPopulated": "boolean",
+          "movedCallback": "() => void",
+          "name": "string | null",
+          "outlined": "boolean",
+          "reportValidity": "() => boolean",
+          "setValidity": "(flags?: ValidityStateFlags | undefined, message?: string | undefined) => void",
+          "type": "import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldType | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "TextFieldCSSProperties": {
+        "type": "{ readonly \"--md-text-field-container-height\"?: string | undefined; readonly \"--md-text-field-input-line-height\"?: string | undefined; readonly \"--md-text-field-container-padding-inline\"?: string | undefined; readonly \"--md-text-field-container-icon-padding-inline\"?: string | undefined; readonly \"--md-text-field-leading-icon-size\"?: string | undefined; readonly \"--md-text-field-trailing-icon-size\"?: string | undefined; readonly \"--md-text-field-focus-duration\"?: string | undefined; readonly \"--md-text-field-focus-easing\"?: string | undefined; readonly \"--md-text-field-prefix-gap\"?: string | undefined; readonly \"--md-text-field-suffix-gap\"?: string | undefined; readonly \"--md-text-field-supporting-text-row-gap\"?: string | undefined; }",
+        "properties": {
+          "\"--md-text-field-container-height\"": "?: string | undefined",
+          "\"--md-text-field-container-icon-padding-inline\"": "?: string | undefined",
+          "\"--md-text-field-container-padding-inline\"": "?: string | undefined",
+          "\"--md-text-field-focus-duration\"": "?: string | undefined",
+          "\"--md-text-field-focus-easing\"": "?: string | undefined",
+          "\"--md-text-field-input-line-height\"": "?: string | undefined",
+          "\"--md-text-field-leading-icon-size\"": "?: string | undefined",
+          "\"--md-text-field-prefix-gap\"": "?: string | undefined",
+          "\"--md-text-field-suffix-gap\"": "?: string | undefined",
+          "\"--md-text-field-supporting-text-row-gap\"": "?: string | undefined",
+          "\"--md-text-field-trailing-icon-size\"": "?: string | undefined"
+        }
+      },
+      "TextFieldEvents": {
+        "type": "{ readonly change: Event; readonly input: InputEvent; }",
+        "properties": {
+          "change": "Event",
+          "input": "InputEvent"
+        }
+      },
+      "TextFieldProperties": {
+        "type": "PropsFromTraitFields<{ type: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldType | null; inputmode: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldInputMode | null; outlined: boolean; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ value: string | null; }>",
+        "properties": {
+          "disabled": "?: boolean | undefined",
+          "inputmode": "?: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldInputMode | null | undefined",
+          "outlined": "?: boolean | undefined",
+          "type": "?: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldType | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/text-field/text-field.js": {
+    "classes": {
+      "default": {
+        "instance": {
+          "[$disableable]": "true",
+          "[$nameable]": "true",
+          "[$textFieldLike]": "true",
+          "[$valuable]": "true",
+          "#private": "any",
+          "adoptedCallback": "() => void",
+          "attributeChangedCallback": "(name: string, oldValue: string | null, newValue: string | null, namespace: string | null) => void",
+          "checkValidity": "() => boolean",
+          "connectedCallback": "() => void",
+          "disabled": "boolean",
+          "disconnectedCallback": "() => void",
+          "formAssociatedCallback": "() => void",
+          "formDisabledCallback": "() => void",
+          "formResetCallback": "() => void",
+          "formStateRestoreCallback": "() => void",
+          "inputmode": "import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldInputMode | null",
+          "isPopulated": "boolean",
+          "movedCallback": "() => void",
+          "name": "string | null",
+          "outlined": "boolean",
+          "reportValidity": "() => boolean",
+          "setValidity": "(flags?: ValidityStateFlags | undefined, message?: string | undefined) => void",
+          "type": "import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldType | null",
+          "value": "string | null"
+        },
+        "static": {
+          "formAssociated": "boolean",
+          "observedAttributes": "?: readonly string[] | undefined"
+        }
+      }
+    },
+    "aliases": {
+      "TextFieldCSSProperties": {
+        "type": "{ readonly \"--md-text-field-container-height\"?: string | undefined; readonly \"--md-text-field-input-line-height\"?: string | undefined; readonly \"--md-text-field-container-padding-inline\"?: string | undefined; readonly \"--md-text-field-container-icon-padding-inline\"?: string | undefined; readonly \"--md-text-field-leading-icon-size\"?: string | undefined; readonly \"--md-text-field-trailing-icon-size\"?: string | undefined; readonly \"--md-text-field-focus-duration\"?: string | undefined; readonly \"--md-text-field-focus-easing\"?: string | undefined; readonly \"--md-text-field-prefix-gap\"?: string | undefined; readonly \"--md-text-field-suffix-gap\"?: string | undefined; readonly \"--md-text-field-supporting-text-row-gap\"?: string | undefined; }",
+        "properties": {
+          "\"--md-text-field-container-height\"": "?: string | undefined",
+          "\"--md-text-field-container-icon-padding-inline\"": "?: string | undefined",
+          "\"--md-text-field-container-padding-inline\"": "?: string | undefined",
+          "\"--md-text-field-focus-duration\"": "?: string | undefined",
+          "\"--md-text-field-focus-easing\"": "?: string | undefined",
+          "\"--md-text-field-input-line-height\"": "?: string | undefined",
+          "\"--md-text-field-leading-icon-size\"": "?: string | undefined",
+          "\"--md-text-field-prefix-gap\"": "?: string | undefined",
+          "\"--md-text-field-suffix-gap\"": "?: string | undefined",
+          "\"--md-text-field-supporting-text-row-gap\"": "?: string | undefined",
+          "\"--md-text-field-trailing-icon-size\"": "?: string | undefined"
+        }
+      },
+      "TextFieldEvents": {
+        "type": "{ readonly change: Event; readonly input: InputEvent; }",
+        "properties": {
+          "change": "Event",
+          "input": "InputEvent"
+        }
+      },
+      "TextFieldProperties": {
+        "type": "PropsFromTraitFields<{ type: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldType | null; inputmode: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldInputMode | null; outlined: boolean; }> & PropsFromTraitFields<{ disabled: boolean; }> & PropsFromTraitFields<{ value: string | null; }>",
+        "properties": {
+          "disabled": "?: boolean | undefined",
+          "inputmode": "?: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldInputMode | null | undefined",
+          "outlined": "?: boolean | undefined",
+          "type": "?: import(\"<root>/packages/material-x/text-field/TextFieldCore\", { with: { \"resolution-mode\": \"import\" } }).TextFieldType | null | undefined",
+          "value": "?: string | null | undefined"
+        }
+      }
+    }
+  },
+  "material-x/react.js": {
+    "classes": {},
+    "aliases": {}
+  }
+}
