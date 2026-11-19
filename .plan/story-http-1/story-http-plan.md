@@ -1,6 +1,6 @@
 # Stories over plain HTTP — plan
 
-**Status: proposed.** Written by the architect on 2026-11-19, on the coordinator's task, on `repo/story-http-1` at `10eaa68cc` (`origin/main`). It plans `repo:RF-62`, which is registered on `repo/work-queue-1` (read at `1028c65f6`). **No identifier is minted and no record is edited:** the main slot's architect owns `RF-62`'s entry, `RD-14` and the index, and [Proposed record changes](#proposed-record-changes) lists what this plan asks of them.
+**Status: done, and `RF-62` is closed.** `d6674ecfb` implements it, and on 2026-11-19 the main slot's architect applied the [proposed record changes](#proposed-record-changes), amended `RD-14` property 6, and closed `RF-62` at `0900d5aee` ([index](../00-index.md)). Written by the architect on 2026-11-19, on the coordinator's task, on `repo/story-http-1` at `10eaa68cc` (`origin/main`). It plans `repo:RF-62`, which is registered on `repo/work-queue-1` (read at `1028c65f6`). **No identifier is minted and no record is edited:** the main slot's architect owns `RF-62`'s entry, `RD-14` and the index, and [Proposed record changes](#proposed-record-changes) lists what this plan asks of them.
 
 Canonical entry: `RF-62` — the checkbox's `WithLabel` story calls `crypto.randomUUID`, so it throws in a Storybook served over plain HTTP from a LAN address. Its required property: no story or docs code calls an API that the platform restricts to secure contexts, so every story renders over plain HTTP from any host.
 
