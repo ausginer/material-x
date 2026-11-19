@@ -1440,6 +1440,14 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - The transcript ends with P43's cases run with `Omit<Trait, K | keyof Base>`, and two `override click()` cases added. Every error is the same, on the same line, apart from the printed type, and the two TS2425 go.
 - **P43's `trimmed.ts` doesn't meet the bullet as it now reads:** its `Without` leaves the base's keys in. The form on the branch is the implementer's.
 
+**Dated 2026-11-19 by the architect: implemented on `repo/traits-migration-1`, and the proofs hold.** Read at `aa73be64e`, relayed by the coordinator. The _Unimplemented_ line above is answered, and the implementer opens the pull request next. The [proofs record](trait-migration-1/checks/proofs.md) holds the readings:
+
+- proofs 1 (the runtime baseline), 3 (the declaration surface, with its 19 expected differences), 5 (the flattened JavaScript), 6 (no flattener warning) and 7 (the repository's checks);
+- proof 4: eleven size rows smaller, which the owner accepted;
+- proof 2: 2,116 of 2,117 tests pass. The one failure is drag's per-sample allocation row, which the migration doesn't touch. It is recorded under `drag:DRF-53`.
+
+`RF-54`, `RF-57` and `RF-63` are closed on this date.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -2303,7 +2311,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
 
 #### RF-54 — material-x's published `TextFieldCore.d.ts` doesn't type-check: the `@ts-expect-error` on `value` isn't in the declaration
 
-Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ below). Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
+Tier C, **closed 2026-11-19** (below). Before closure: decided 2026-11-18 (see _Decided_ below), repaired in #37, and open. Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
 
 - **What was read:**
   - `src/text-field/TextFieldCore.ts:223` suppresses TS2611 on `override get value()` with `@ts-expect-error`, citing microsoft/TypeScript#54879;
@@ -2341,6 +2349,17 @@ Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ belo
   - `static [$bound]` on each trait class's static side: a type-only `unique symbol` that `composition.js` doesn't export, with no runtime value;
   - `focus` on FocusForwarding's eight adopters, typed as `HTMLElement`'s `focus` intersected with FocusForwarding's override of the same signature. **Known limit:** a subclass's override with a wrong signature isn't reported against that intersection (no TS2416). The plan's proof 3 records why each repair costs more.
 - **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs 3 and 7 hold on `repo/traits-migration-1`: the declaration surface, and `just typecheck-declarations`. The architect writes the closure on that branch before its pull request opens.
+
+**Closed 2026-11-19 by the architect** on `repo/traits-migration-1` at `aa73be64e`, not yet merged, relayed by the coordinator. It rests on the migration's [proofs](trait-migration-1/checks/proofs.md). The required property holds: every published declaration file type-checks with `skipLibCheck` off.
+
+- **Proof 7:** `just typecheck-declarations` passed at `15d50a10e`, after the trimmed-trait fix. It builds every package that writes declarations, then type-checks them as a consumer. The architect read it in the proofs record and didn't run it again.
+- **The case this entry read is gone at the source.** `TextFieldCore.ts:220` and `:224` override `value` with `get` and `set` and no directive. Valuable declares `accessor value!: string | null` (`traits/valuable.ts:20`), which layer (b) lowers to a `get`/`set` pair. Neither `Branded` nor `primitives.ts` is left in any package's sources.
+- **Proof 3:** the surface differs from commit 1's only by 15 named renames and 19 differences, both of the two kinds the plan expects ([comparison](trait-migration-1/checks/surface-compare.txt)): `static [$bound]` on the 11 trait classes, and `focus` on the 8 `FocusForwarding` adopters. The reading after `15d50a10e` is byte-identical to the one before it.
+- **Recorded with it:**
+  - IconButtonLike's `declare color`: in IconButton and SwitchIconButton, an accessor over `color` fails with TS2611 ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (f)). No declaration in the repository overrides it.
+  - The `focus` limit: a subclass's `focus` override with a wrong signature isn't reported against the adopters' intersection (no TS2416).
+- **What reopens it:** a published declaration file that fails `just typecheck-declarations`, which is in the gate.
+- **No GitHub issue** names this entry.
 
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
 
@@ -2381,7 +2400,7 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop
 
 #### RF-57 — A transformer trait's class field shadows a subclass's accessor at runtime, and TypeScript doesn't report the override
 
-Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the architect, on the owner's request relayed by the coordinator, from the note in `RF-54`'s decision and its [probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt). `RF-56` is allocated on `repo/host-invariant-1`. **No row is disabled.**
+Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-11-18 by the architect, on the owner's request relayed by the coordinator, from the note in `RF-54`'s decision and its [probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt). `RF-56` is allocated on `repo/host-invariant-1`. **No row is disabled.**
 
 - **What was read** at `2544a24fd`:
   - core's transformer `trait()` (`src/traits/primitives.ts`) types a trait's instance fields as `Omit<InstanceType<U>, keyof InstanceType<T>>`, which is a mapped type. So TypeScript doesn't apply TS2610 or TS2611 to them.
@@ -2412,6 +2431,18 @@ Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the 
   - One composition has such a key today: IconButtonLike's `declare color` over ButtonLike's `color`, in IconButton and SwitchIconButton. There ButtonLike's `size` and `shape` don't report an own field (P43 (c)).
   - **The cost is the trimmed trait's own members only** (`RD-26` property 4, amended again 2026-11-19). At `2bf0418ab` it also reached the base's members: a subclass of IconButton or SwitchIconButton got TS2425 on `override click()`, and an own field over a base accessor lost TS2610 ([P44](trait-decorators-1/trait-decorators-plan.md#evidence)). The trimmed trait now loses the base's keys as well, which repairs both.
 - **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs hold on `repo/traits-migration-1`. The architect writes the closure on that branch before its pull request opens, with this exception recorded.
+
+**Closed 2026-11-19 by the architect** on `repo/traits-migration-1` at `aa73be64e`, not yet merged, relayed by the coordinator. It rests on the migration's [proofs](trait-migration-1/checks/proofs.md), all of which hold. The required property holds: the hazard can't be written, and the types report the overrides that this entry's case hid.
+
+- **The transformer `trait()` is gone.** `primitives.ts` is deleted, and no package's sources build a trait from a transformer.
+- **A trait can't install an instance field.** The flattener fails any instance field of a trait class with `trait-field`, except a `declare` field and a private field with no initializer, neither of which is copied (`vite-traits-plugin/src/composition/trait-class.ts:414`). That is stricter than the plan's row, which names a field with an initializer. `diagnostics.node.test.ts` reads it.
+- **The types keep the kinds.** core's `composition.declaration.test.ts` passes at `15d50a10e`, in core's 297 tests:
+  - TS2610 on an own field over a trait's accessor;
+  - TS2611 on an accessor over a trait's field;
+  - after a shared key, TS2610 on another trait's accessor and on a base accessor, the [P44](trait-decorators-1/trait-decorators-plan.md#evidence) §3 and §4 cases. The proofs record states that those two fail without the fix.
+- **The exception stays as recorded above:** only the trimmed trait's own members lose their kinds. A trait can't install an instance field, so the exception doesn't bear on this entry's property.
+- **What reopens it:** a trait form that installs an instance member the copy doesn't carry as an accessor or a method, or a type form that maps a trait that loses no key.
+- **GitHub:** issue #50. The migration's pull request closes it.
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
 
@@ -2527,7 +2558,7 @@ Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-
 
 #### RF-63 — A shared trait list built with a spread keeps a flattened method trait's dead class layer in an esbuild bundle, and other bundlers aren't measured
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item 3 measurement and the owner's answer on it, relayed by the coordinator. `RF-62` is on `repo/work-queue-1`, so this is the next free number. **No row is disabled.**
+Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-11-18 by the architect, from `RF-44`'s item 3 measurement and the owner's answer on it, relayed by the coordinator. `RF-62` is on `repo/work-queue-1`, so this is the next free number. **No row is disabled.**
 
 - **What was measured** ([W1](traits-plugin-1/checks/item3-witness.txt)), by the implementer, with esbuild 0.28.1 (`--bundle --minify --format=esm`), at `17065ddf0`. `icon-button`, `switch-button` and `switch-icon-button` grow by 84 minified bytes against the per-class form. The five other adopters grow by 19 or 20. Of the 84, 64 or 65 bytes are dead code:
   - `ICON_BUTTON_CORE_TRAITS` (`IconButtonCore.ts:56`) and `SWITCH_CORE_TRAITS` (`SwitchCore.ts:33`) are module-level arrays built with a spread, `[...BUTTON_CORE_TRAITS, …]`;
@@ -2555,6 +2586,15 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item
   - The owner accepted all eleven on 2026-11-19, relayed by the coordinator: a decrease is always approved under his standing rule.
   - Each row's cause is in [`size.md`](trait-migration-1/checks/size.md), and the plan's proof 4 records the acceptance. The closure cites them.
 - **It closes** on that reading, on `repo/traits-migration-1`, before its pull request opens. The architect writes the closure.
+
+**Closed 2026-11-19 by the architect** on `repo/traits-migration-1` at `aa73be64e`, not yet merged, relayed by the coordinator. It rests on the migration's [proofs](trait-migration-1/checks/proofs.md) and on the adopters' [reading](trait-migration-1/checks/rf63-adopters.txt) ([script](trait-migration-1/checks/rf63-adopters.ts)). The required property holds by its first branch, in both named bundlers.
+
+- **No list is left.** No package's sources build a trait list as a value: each list is a tuple type, and each brand install is a generated `impl(this, …)`.
+- **No adopter's bundle keeps a trait class.** All eight adopters' built entries were bundled, minified, with rolldown 1.3.2 and esbuild 0.28.1. Each of the 16 bundles keeps no trait class, so no `[Symbol.hasInstance]` method survives. esbuild drops them as rolldown does. The bytes per bundle are in the reading, from 14,655 B (`list-button-item`, rolldown) to 25,920 B (`switch-icon-button`, esbuild) minified.
+- **`instanceof` holds where a class is kept.** With `instanceof Disableable` added, each bundle keeps that one class. In Chromium, an adopter, a `div` and `null` read `true`, `false` and `false`, in all 16.
+- **The size rows:** the eleven decreases above, which the owner accepted.
+- **What reopens it:** a runtime trait list, or a bundle of an adopter that keeps a trait class it never tests with `instanceof`.
+- **GitHub:** issue #63. The migration's pull request closes it.
 
 #### RF-64 — The list item sets `--_support-row-size`, which no rule reads, and clamps its supporting text to two lines whatever the item's line count
 
