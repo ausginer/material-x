@@ -128,6 +128,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -136,14 +140,10 @@
         "value": "Button"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -151,37 +151,17 @@
         "constructor": "Button",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "color",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "size",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "shape",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
             "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "name",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "type",
             "kind": "get+set",
             "enumerable": false
           },
@@ -191,12 +171,32 @@
             "enumerable": false
           },
           {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "symbol:ButtonLike",
             "kind": "value",
             "enumerable": false
           },
           {
             "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
             "kind": "value",
             "enumerable": false
           },
@@ -211,8 +211,8 @@
             "enumerable": false
           },
           {
-            "key": "symbol:FocusForwarding",
-            "kind": "value",
+            "key": "type",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -339,10 +339,10 @@
         "value": "ButtonGroup"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -350,17 +350,17 @@
         "constructor": "ButtonGroup",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "color",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "size",
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
             "kind": "get+set",
             "enumerable": false
           },
@@ -370,13 +370,13 @@
             "enumerable": false
           },
           {
-            "key": "disabled",
+            "key": "size",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "value",
-            "kind": "get+set",
+            "key": "symbol:ButtonGroupLike",
+            "kind": "value",
             "enumerable": false
           },
           {
@@ -390,13 +390,13 @@
             "enumerable": false
           },
           {
-            "key": "symbol:ButtonGroupLike",
+            "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:Valuable",
-            "kind": "value",
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -515,6 +515,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -523,14 +527,10 @@
         "value": "Checkbox"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -538,27 +538,17 @@
         "constructor": "Checkbox",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "checked",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "value",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
             "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "name",
             "kind": "get+set",
             "enumerable": false
           },
@@ -568,12 +558,12 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Checkable",
-            "kind": "value",
+            "key": "name",
+            "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "symbol:Valuable",
+            "key": "symbol:Checkable",
             "kind": "value",
             "enumerable": false
           },
@@ -583,13 +573,23 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Indeterminable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Nameable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:Indeterminable",
+            "key": "symbol:Valuable",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -716,10 +716,10 @@
         "value": "ConnectedButtonGroup"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -727,17 +727,17 @@
         "constructor": "ConnectedButtonGroup",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "color",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "size",
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
             "kind": "get+set",
             "enumerable": false
           },
@@ -747,13 +747,13 @@
             "enumerable": false
           },
           {
-            "key": "disabled",
+            "key": "size",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "value",
-            "kind": "get+set",
+            "key": "symbol:ButtonGroupLike",
+            "kind": "value",
             "enumerable": false
           },
           {
@@ -767,13 +767,13 @@
             "enumerable": false
           },
           {
-            "key": "symbol:ButtonGroupLike",
+            "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:Valuable",
-            "kind": "value",
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -900,10 +900,10 @@
         "value": "FAB"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -911,17 +911,17 @@
         "constructor": "FAB",
         "keys": [
           {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "constructor",
             "kind": "function",
             "enumerable": false
           },
           {
-            "key": "size",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "color",
+            "key": "disabled",
             "kind": "get+set",
             "enumerable": false
           },
@@ -931,23 +931,13 @@
             "enumerable": false
           },
           {
-            "key": "tonal",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
             "key": "focus",
             "kind": "function",
             "enumerable": false
           },
           {
-            "key": "symbol:FABLike",
-            "kind": "value",
+            "key": "size",
+            "kind": "get+set",
             "enumerable": false
           },
           {
@@ -956,8 +946,18 @@
             "enumerable": false
           },
           {
+            "key": "symbol:FABLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:FocusForwarding",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "tonal",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -1142,6 +1142,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -1150,14 +1154,10 @@
         "value": "IconButton"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -1165,37 +1165,17 @@
         "constructor": "IconButton",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "color",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "size",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "shape",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
             "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "width",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "type",
             "kind": "get+set",
             "enumerable": false
           },
@@ -1205,12 +1185,27 @@
             "enumerable": false
           },
           {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "symbol:ButtonLike",
             "kind": "value",
             "enumerable": false
           },
           {
             "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
             "kind": "value",
             "enumerable": false
           },
@@ -1225,8 +1220,13 @@
             "enumerable": false
           },
           {
-            "key": "symbol:FocusForwarding",
-            "kind": "value",
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "width",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -1370,10 +1370,10 @@
         "value": "LinkButton"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -1381,17 +1381,27 @@
         "constructor": "LinkButton",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "color",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "size",
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "href",
             "kind": "get+set",
             "enumerable": false
           },
@@ -1401,23 +1411,8 @@
             "enumerable": false
           },
           {
-            "key": "disabled",
+            "key": "size",
             "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "href",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "target",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "focus",
-            "kind": "function",
             "enumerable": false
           },
           {
@@ -1431,13 +1426,18 @@
             "enumerable": false
           },
           {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Linkable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:FocusForwarding",
-            "kind": "value",
+            "key": "target",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -1496,10 +1496,10 @@
         "value": "List"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -1594,10 +1594,10 @@
         "value": "ListButtonItem"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -1615,13 +1615,13 @@
             "enumerable": false
           },
           {
-            "key": "selected",
-            "kind": "get+set",
+            "key": "focus",
+            "kind": "function",
             "enumerable": false
           },
           {
-            "key": "focus",
-            "kind": "function",
+            "key": "selected",
+            "kind": "get+set",
             "enumerable": false
           },
           {
@@ -1630,12 +1630,12 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Selectable",
+            "key": "symbol:FocusForwarding",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:FocusForwarding",
+            "key": "symbol:Selectable",
             "kind": "value",
             "enumerable": false
           }
@@ -1795,10 +1795,10 @@
         "value": "ListLinkItem"
       },
       {
-        "key": "prototype"
+        "key": "observedAttributes"
       },
       {
-        "key": "observedAttributes"
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -1816,11 +1816,6 @@
             "enumerable": false
           },
           {
-            "key": "selected",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
             "key": "focus",
             "kind": "function",
             "enumerable": false
@@ -1831,17 +1826,12 @@
             "enumerable": false
           },
           {
-            "key": "target",
+            "key": "selected",
             "kind": "get+set",
             "enumerable": false
           },
           {
             "key": "symbol:Disableable",
-            "kind": "value",
-            "enumerable": false
-          },
-          {
-            "key": "symbol:Selectable",
             "kind": "value",
             "enumerable": false
           },
@@ -1853,6 +1843,16 @@
           {
             "key": "symbol:Linkable",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Selectable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "target",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -1988,6 +1988,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -1997,10 +2001,6 @@
       },
       {
         "key": "prototype"
-      },
-      {
-        "key": "formAssociated",
-        "value": true
       }
     ],
     "prototype": [
@@ -2018,12 +2018,17 @@
         "constructor": "TextFieldCore",
         "keys": [
           {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
             "key": "constructor",
             "kind": "function",
             "enumerable": false
           },
           {
-            "key": "type",
+            "key": "disabled",
             "kind": "get+set",
             "enumerable": false
           },
@@ -2033,18 +2038,8 @@
             "enumerable": false
           },
           {
-            "key": "outlined",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "value",
-            "kind": "get+set",
+            "key": "isPopulated",
+            "kind": "get",
             "enumerable": false
           },
           {
@@ -2053,13 +2048,8 @@
             "enumerable": false
           },
           {
-            "key": "isPopulated",
-            "kind": "get",
-            "enumerable": false
-          },
-          {
-            "key": "checkValidity",
-            "kind": "function",
+            "key": "outlined",
+            "kind": "get+set",
             "enumerable": false
           },
           {
@@ -2073,12 +2063,17 @@
             "enumerable": false
           },
           {
-            "key": "symbol:TextFieldLike",
+            "key": "symbol:Disableable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:Disableable",
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:TextFieldLike",
             "kind": "value",
             "enumerable": false
           },
@@ -2088,8 +2083,13 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Nameable",
-            "kind": "value",
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -2191,6 +2191,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -2199,14 +2203,10 @@
         "value": "Radio"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -2214,18 +2214,13 @@
         "constructor": "Radio",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "checked",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "value",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
@@ -2244,11 +2239,6 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Valuable",
-            "kind": "value",
-            "enumerable": false
-          },
-          {
             "key": "symbol:Disableable",
             "kind": "value",
             "enumerable": false
@@ -2256,6 +2246,16 @@
           {
             "key": "symbol:Nameable",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -2374,6 +2374,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -2382,14 +2386,10 @@
         "value": "SplitButton"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -2397,23 +2397,13 @@
         "constructor": "SplitButton",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "color",
             "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "size",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "shape",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
@@ -2423,6 +2413,16 @@
           },
           {
             "key": "open",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
             "kind": "get+set",
             "enumerable": false
           },
@@ -2574,6 +2574,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -2582,14 +2586,10 @@
         "value": "SwitchButton"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -2597,8 +2597,8 @@
         "constructor": "SwitchButton",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
+            "key": "checked",
+            "kind": "get+set",
             "enumerable": false
           },
           {
@@ -2607,27 +2607,12 @@
             "enumerable": false
           },
           {
-            "key": "size",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "shape",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
             "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "checked",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "value",
             "kind": "get+set",
             "enumerable": false
           },
@@ -2637,12 +2622,17 @@
             "enumerable": false
           },
           {
-            "key": "symbol:ButtonLike",
-            "kind": "value",
+            "key": "shape",
+            "kind": "get+set",
             "enumerable": false
           },
           {
-            "key": "symbol:Disableable",
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
             "kind": "value",
             "enumerable": false
           },
@@ -2652,13 +2642,23 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Valuable",
+            "key": "symbol:Disableable",
             "kind": "value",
             "enumerable": false
           },
           {
             "key": "symbol:FocusForwarding",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -2811,6 +2811,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -2819,14 +2823,10 @@
         "value": "SwitchIconButton"
       },
       {
-        "key": "prototype"
-      },
-      {
         "key": "observedAttributes"
       },
       {
-        "key": "formAssociated",
-        "value": true
+        "key": "prototype"
       }
     ],
     "prototype": [
@@ -2834,8 +2834,8 @@
         "constructor": "SwitchIconButton",
         "keys": [
           {
-            "key": "constructor",
-            "kind": "function",
+            "key": "checked",
+            "kind": "get+set",
             "enumerable": false
           },
           {
@@ -2844,27 +2844,12 @@
             "enumerable": false
           },
           {
-            "key": "size",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "shape",
-            "kind": "get+set",
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           },
           {
             "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "checked",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "value",
             "kind": "get+set",
             "enumerable": false
           },
@@ -2874,7 +2859,12 @@
             "enumerable": false
           },
           {
-            "key": "width",
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
             "kind": "get+set",
             "enumerable": false
           },
@@ -2884,17 +2874,12 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Disableable",
-            "kind": "value",
-            "enumerable": false
-          },
-          {
             "key": "symbol:Checkable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:Valuable",
+            "key": "symbol:Disableable",
             "kind": "value",
             "enumerable": false
           },
@@ -2906,6 +2891,21 @@
           {
             "key": "symbol:IconButtonLike",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "width",
+            "kind": "get+set",
             "enumerable": false
           }
         ]
@@ -3041,6 +3041,10 @@
     },
     "statics": [
       {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
         "key": "length",
         "value": 0
       },
@@ -3050,10 +3054,6 @@
       },
       {
         "key": "prototype"
-      },
-      {
-        "key": "formAssociated",
-        "value": true
       }
     ],
     "prototype": [
@@ -3071,12 +3071,17 @@
         "constructor": "TextFieldCore",
         "keys": [
           {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
             "key": "constructor",
             "kind": "function",
             "enumerable": false
           },
           {
-            "key": "type",
+            "key": "disabled",
             "kind": "get+set",
             "enumerable": false
           },
@@ -3086,18 +3091,8 @@
             "enumerable": false
           },
           {
-            "key": "outlined",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "disabled",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "value",
-            "kind": "get+set",
+            "key": "isPopulated",
+            "kind": "get",
             "enumerable": false
           },
           {
@@ -3106,13 +3101,8 @@
             "enumerable": false
           },
           {
-            "key": "isPopulated",
-            "kind": "get",
-            "enumerable": false
-          },
-          {
-            "key": "checkValidity",
-            "kind": "function",
+            "key": "outlined",
+            "kind": "get+set",
             "enumerable": false
           },
           {
@@ -3126,12 +3116,17 @@
             "enumerable": false
           },
           {
-            "key": "symbol:TextFieldLike",
+            "key": "symbol:Disableable",
             "kind": "value",
             "enumerable": false
           },
           {
-            "key": "symbol:Disableable",
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:TextFieldLike",
             "kind": "value",
             "enumerable": false
           },
@@ -3141,8 +3136,13 @@
             "enumerable": false
           },
           {
-            "key": "symbol:Nameable",
-            "kind": "value",
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
             "enumerable": false
           }
         ]

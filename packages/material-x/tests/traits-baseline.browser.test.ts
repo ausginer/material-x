@@ -11,8 +11,8 @@ import files from '../files.json' with { type: 'json' };
  * - the reflection of each observed attribute that has an accessor of the same
  *   name, both ways;
  * - `instanceof` against every trait;
- * - its own statics;
- * - each prototype level's own keys up to `ControlledElement`.
+ * - its own statics, sorted by name;
+ * - each prototype level's own keys up to `ControlledElement`, sorted by name.
  *
  * Every module is imported after `customElements.define` is wrapped, so the
  * wrapper sees each tag that an entry defines.
@@ -177,12 +177,32 @@ function reflection(tag: string, name: string) {
 }
 
 /**
+ * An object's own keys, sorted by name. Engines list them in different
+ * orders: a class constructor's `length`, `name` and `prototype`, and a key
+ * that one class body defines twice, which WebKit places at its last
+ * definition and Chromium at its first. So the order isn't part of the shape;
+ * `observedAttributes` keeps the traits' order.
+ */
+function sortedKeys(target: object): Array<string | symbol> {
+  return Reflect.ownKeys(target).toSorted((a, b) => {
+    const left = keyName(a);
+    const right = keyName(b);
+
+    if (left === right) {
+      return 0;
+    }
+
+    return left < right ? -1 : 1;
+  });
+}
+
+/**
  * Each own static's name, and its value when the value is a primitive or an
  * array of primitives. `observedAttributes` is recorded without duplicates in
  * the shape's own field, so its value isn't repeated here.
  */
 function statics(constructor: CustomElementConstructor) {
-  return Reflect.ownKeys(constructor).map((key) => {
+  return sortedKeys(constructor).map((key) => {
     const value: unknown = Reflect.get(constructor, key);
     const primitive =
       value === null ||
@@ -208,7 +228,7 @@ function prototypeChain(constructor: CustomElementConstructor) {
     levels.push({
       constructor: (level as { constructor: { name: string } }).constructor
         .name,
-      keys: Reflect.ownKeys(level).map((key) => {
+      keys: sortedKeys(level).map((key) => {
         const descriptor = Object.getOwnPropertyDescriptor(level, key)!;
 
         return {

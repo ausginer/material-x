@@ -2,9 +2,26 @@
 
 The proofs of [the migration plan](../../trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request), read on `repo/traits-migration-1` in slot f. They first ran on `0ab734f61` plus the two formatting repairs that `2bf0418ab` carries. Proofs 3 and 7 and the core and material-x tests were run again at `15d50a10e`, after the trimmed-trait type fix. The baseline is commit 1, `42e94d48c`, measured on the old path.
 
-## 1. The runtime baseline is identical: holds
+## 1. The runtime baseline is identical: holds, in Chromium, Firefox and WebKit
 
-`packages/material-x/tests/traits-baseline.browser.test.ts` passes against commit 1's `tests/__snapshots__/traits-baseline.json`, which is unchanged. It runs in `just test` (below) and was also run alone: 1 passed, no snapshot written. The test file itself is unchanged since commit 1: the trait names are the same and their import lines still resolve.
+`packages/material-x/tests/traits-baseline.browser.test.ts` records each element's runtime shape, and the migrated tree matches the snapshot that the old path writes.
+
+**The snapshot doesn't depend on the engine.** The first version recorded each own-property listing in the engine's order, and PR #76's first CI run, 44558959512, failed on it in Firefox and WebKit, the only failure in either job:
+
+- Firefox lists a class constructor's `prototype` before `length` and `name`;
+- WebKit places a key that one class body defines twice at its last definition, and Chromium at its first: TextField's `value`, which `Valuable` supplies and `TextFieldCore` overrides.
+
+The test now sorts a constructor's statics and each prototype level's keys by name. The traits' order stays in `observedAttributes`, which isn't sorted. No other value in the snapshot depends on the engine: it records no error message.
+
+**How the snapshot was made, and read:**
+
+1. On the commit 1 tree, `42e94d48c`, the old path, with only the test file replaced by the sorted one: the snapshot was written in Chromium, then matched in Firefox and WebKit, 2 of 2.
+2. On the migrated tree, the same test wrote a snapshot in Chromium that is byte-identical to step 1's.
+3. With step 1's snapshot in place, the migrated tree matched it in Chromium, Firefox and WebKit, 3 of 3.
+
+The snapshot's sha256 is `a043937b25367f3048daa5f7371cc7906e22fc0d4ecc61b0701a8d2a25e008ec`.
+
+The first reading, before the sort, held in Chromium against commit 1's snapshot.
 
 ## 2. Behaviour is unchanged: holds, with one measurement failure that passed when run alone
 
