@@ -451,28 +451,54 @@ jobs:
           name: size-reading
           path: ${{ runner.temp }}/head-size.json
       # The reading that `main`'s push run stored for the merge base. Nothing
-      # is built. No run, no artifact or an expired one leaves no file, which
-      # the report states.
+      # is built. No push run, or no unexpired `size-reading` artifact in its
+      # list, is a missing reading, which sets `missing`. A call that fails is
+      # a failed lookup: it sets nothing and leaves no file. Exit statuses and
+      # the API's JSON tell them apart, never gh's error text.
       - name: Sizes at the merge base
+        id: base
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          base="$(git merge-base HEAD "origin/$BASE_REF")"
+          failed() {
+            echo "::warning title=Measurement::The lookup of main's size reading for the merge base failed"
+            exit 0
+          }
+          missing() {
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Measurement::$1"
+            exit 0
+          }
+          api="repos/$GITHUB_REPOSITORY/actions"
+          base="$(git merge-base HEAD "origin/$BASE_REF")" || failed
           echo "merge base: $base"
-          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=$base" \
-            --jq '.workflow_runs[0].id // empty')" || run=""
-          if [ -n "$run" ] && gh run download "$run" --repo "$GITHUB_REPOSITORY" \
-            --name size-reading --dir "$RUNNER_TEMP/base-reading"; then
-            echo "base reading: run $run"
-          else
-            echo "::notice title=Measurement::main's run for the merge base $base stored no size reading"
-          fi
+          run="$(gh api "$api/workflows/verify.yml/runs?event=push&branch=main&head_sha=$base" \
+            --jq '.workflow_runs[0].id // empty')" || failed
+          [ -n "$run" ] || missing "main has no push run for the merge base $base, so no size reading is stored"
+          artifact="$(gh api "$api/runs/$run/artifacts?name=size-reading" \
+            --jq '[.artifacts[] | select(.expired | not)][0].id // empty')" || failed
+          [ -n "$artifact" ] || missing "main's run $run for the merge base $base stored no size reading"
+          gh run download "$run" --repo "$GITHUB_REPOSITORY" \
+            --name size-reading --dir "$RUNNER_TEMP/base-reading" || failed
+          echo "base reading: run $run, artifact $artifact"
+      # A pull request's report reads the downloaded file, or states that none
+      # is stored. A push or a manual run looks up no base and passes neither.
       - name: Report
+        env:
+          EVENT: ${{ github.event_name }}
+          MISSING: ${{ steps.base.outputs.missing }}
         run: |
+          base=()
+          if [ "$EVENT" = pull_request ]; then
+            base=(--base "$RUNNER_TEMP/base-reading/head-size.json")
+            if [ "$MISSING" = true ]; then
+              base+=(--base-missing)
+            fi
+          fi
           aube exec -- just size-report --head "$RUNNER_TEMP/head-size.json" \
-            --base "$RUNNER_TEMP/base-reading/head-size.json" \
+            "${base[@]}" \
             --tests "$RUNNER_TEMP/measurements.json" \
             --out "$RUNNER_TEMP/size-report.md"
           cat "$RUNNER_TEMP/size-report.md" >> "$GITHUB_STEP_SUMMARY"

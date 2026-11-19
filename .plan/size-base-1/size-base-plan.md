@@ -121,6 +121,12 @@ Implemented by the implementer on 2026-11-19 at `0021a710e`, on the coordinator'
 - **Property 2:** `.scripts/size-reading.ts` builds its `MEASURED` list with one `nx run-many -t build --skipNxCache` and reads the same list. The packages are read concurrently, because each instrument bundles into its own temporary directory, and the rows keep the list's order.
 - **Properties 4 to 6:** on a push, `measurements` uploads `head-size.json` as the artifact `size-reading` with the repository's retention. On a pull request, it finds `verify.yml`'s push run on `main` for the merge base and downloads that artifact. It builds nothing. The job has `actions: read`. A missing run or artifact logs a notice, and the report says _"`main`'s run for the merge base stored no size reading"_. A push run's summary says the same, because a push has no base reading either. (Overruled on 2026-11-19 by the main slot's architect: a run that looks up no base says nothing about a stored reading, as property 6's amendment and `RD-7` property 5 state.)
 
+- **Property 6 as amended,** implemented on 2026-11-19 on the coordinator's task, after the feature proof:
+  - The lookup step writes `missing=true` only when a call succeeded and returned no push run, or no unexpired `size-reading` artifact. Any call that exits non-zero, `git merge-base` included, ends the step with a warning and writes nothing. No gh error text is read.
+  - The report takes `--base-missing` for a missing reading. A `--base` file that is absent or holds no reading is a failed lookup.
+  - A push or a manual run passes neither, and its summary names no base. The step and the job still succeed in each case.
+  - [Witness of each path](checks/witness-7-lookup-paths.txt).
+
 Witnesses: [1](checks/witness-1-fresh-tree.txt) (33 rows at the repair, `box-quad`'s plugin error at its parent), [2](checks/witness-2-ordering.txt) (byte-identical), [3](checks/witness-3-graphs.txt) (both graphs and the mutation), and [6 by hand](checks/witness-6-lookup.txt), which also states how 4 to 6 are read after the merge.
 
 ## What the closure needs
