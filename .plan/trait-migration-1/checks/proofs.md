@@ -1,6 +1,6 @@
 # RD-26 migration: the proofs before the pull request
 
-The proofs of [the migration plan](../../trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request), read on `repo/traits-migration-1` in slot f. They ran on the tree that is the parent of the commit adding this file, `0ab734f61` plus the two formatting repairs that commit carries. The baseline is commit 1, `42e94d48c`, measured on the old path.
+The proofs of [the migration plan](../../trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request), read on `repo/traits-migration-1` in slot f. They first ran on `0ab734f61` plus the two formatting repairs that `2bf0418ab` carries. Proofs 3 and 7 and the core and material-x tests were run again at `15d50a10e`, after the trimmed-trait type fix. The baseline is commit 1, `42e94d48c`, measured on the old path.
 
 ## 1. The runtime baseline is identical: holds
 
@@ -26,7 +26,7 @@ The proofs of [the migration plan](../../trait-decorators-1/trait-migration-plan
 - `core/tests/traits/overrides.declaration.test.ts`: rewritten, as the plan says. Its case _"should keep the trait brand nominal"_ is gone, because an attribute trait carries no brand in the types any more; a field over an attribute member, TS2610, replaces it.
 - `material-x/tests/core/traits/focus-forwarding.browser.test.ts`: one assertion read `FocusForwarding.brand`, which no longer exists. It now finds the brand among the prototype's own symbols by its description.
 
-## 3. The declaration surface: differences go to the architect
+## 3. The declaration surface: holds, with the two expected differences
 
 `baseline/surface.ts` read the built `.d.ts` at commit 7 into [`surface.json`](surface.json), and [`baseline/surface-compare.ts`](../baseline/surface-compare.ts) compared it with commit 1's after the normalisation: brand members and `#private` removed, each trait's `type X = Interface<typeof X>` paired with its class `X`, and the renamed modules listed. The full output is [`surface-compare.txt`](surface-compare.txt).
 
@@ -38,6 +38,8 @@ The proofs of [the migration plan](../../trait-decorators-1/trait-migration-plan
 2. **`focus` on the eight FocusForwarding adopters' default classes** (`button`, `icon-button`, `link-button`, `switch-button`, `switch-icon-button`, `fab`, `list-button-item`, `list-link-item`): `((options?: FocusOptions) => void) & ((options?: FocusOptions) => void)`. The old trait type contributed no member, so `focus` was only `HTMLElement`'s, which the reading leaves out. The trait class now declares its `override focus`, with the same signature.
 
 IconButton's and SwitchIconButton's `color` is unchanged, `"outlined" | "elevated" | "tonal" | null`, through `IconButtonLike`'s `declare color`.
+
+**The plan lists both kinds as expected differences** since `f8eef5262`, from P44. At `15d50a10e`, after a trimmed trait also loses the base's keys, the reading is byte-identical to the one above, with the same 19 differences. That change touches no member the reading records: a trimmed trait's base keys come from the base.
 
 ## 4. Size: 11 rows outside the bound, all smaller
 
@@ -58,15 +60,21 @@ The copy of commit 1's built tree under `baseline/build/` is removed in this com
 
 `just build` at the root built core, tproc and material-x and their prerequisites. Its log has no `trait-member-conflict`, and no other warning from the flattener.
 
-## 7. The repository's checks
+## 7. The repository's checks: holds
+
+Rerun at `15d50a10e`:
 
 | Check | Result |
 | --- | --- |
-| `just build` | passed |
+| `just build` | passed; no `trait-member-conflict` |
 | `just typecheck` | passed |
 | `just typecheck-declarations` | passed: it builds every package that writes declarations, then type-checks them as a consumer |
 | `just lint` | passed |
-| `just fmt-check` | fails on one file outside this work: `.plan/trait-decorators-1/probes/types/p14-read-only.ts`, which oxfmt can't parse (TS1243, `readonly accessor`), present since `dc5bc5853`. The two findings that this work made, core's `files.json` and the material-x baseline snapshot, are repaired here: `files.json` is formatted, and the snapshot directory joins `.oxfmtrc.json`'s ignored instrument outputs, because the test writes it and compares it as text. |
+| `just fmt-check` | passed. The P14 probe, which oxfmt can't parse, is kept out of oxfmt since `f8eef5262`. Two findings of this work were repaired at the first run: core's `files.json` is formatted, and the material-x baseline snapshot's directory joins `.oxfmtrc.json`'s ignored instrument outputs, because the test writes it and compares it as text. |
+| core's tests | 26 files, 297 tests, all passed, with the two P44 cases (§3 and §4) in `composition.declaration.test.ts` |
+| material-x's tests | 20 files, 427 tests, all passed |
+
+**The P44 cases fail without the fix.** With `composition.ts` at `2bf0418ab`, both new cases fail and the other 45 declaration tests pass. With the fix, all 47 pass.
 
 ## RF-63: the eight adopters' entries, with rolldown and esbuild
 
