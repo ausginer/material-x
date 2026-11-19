@@ -4,7 +4,6 @@ import type { AbstractConstructor } from 'type-fest';
 import { ControlledElement } from '../element.ts';
 
 const BRANDS = new WeakMap<AbstractConstructor<unknown>, symbol>();
-const BOUNDS = new WeakSet<AbstractConstructor<unknown>>(); // fix 5
 
 // fix 1: called from the trait's static block, not as a decorator, so no
 // tsconfig needs experimentalDecorators and Node runs the module unbuilt.
@@ -61,11 +60,11 @@ export type Bound<
 > = AbstractConstructor<I> &
   S & { readonly [$bound]: (instance: I, statics: S) => void };
 
-// fix 3: a class, since a trait extends its bound when its module is evaluated.
+// fix 3: `null`, which a class can extend when its module is evaluated. A
+// trait class is never constructed and its members never run in place: the
+// flattener copies them into the component.
 export function bound<I extends object, S extends object = {}>(): Bound<I, S> {
-  const ctr = class {};
-  BOUNDS.add(ctr); // fix 5
-  return ctr as any;
+  return null as any;
 }
 
 // fix 2: Applicable restored.
@@ -84,9 +83,10 @@ export function compose<
   const B extends AbstractConstructor<unknown>,
   const T extends ReadonlyArray<Applicable<B>>, // fix 2
 >(base: B): Composed<B, T> {
-  // fix 5: a supertrait composes a bound, and that runs unbuilt; a component's
-  // composition is replaced by the flattener, so one that runs is a build error.
-  if (!BOUNDS.has(base)) {
+  // fix 5: a supertrait composes a bound, which is null, and that runs
+  // unbuilt; a component's composition is replaced by the flattener, so one
+  // that runs is a build error.
+  if (base !== null) {
     throw new Error('compose() of a component is replaced by the flattener');
   }
   return base as any;

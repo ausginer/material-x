@@ -1,4 +1,4 @@
-# P29 — node .plan/trait-decorators-1/probes/toolchain/example4.ts, at 554cdf7dc, 2026-11-19
+# P29 — node .plan/trait-decorators-1/probes/toolchain/example4.ts, at 554cdf7dc; regenerated with fixed.ts's null bound at 85c644b85, unchanged, 2026-11-19
 == 1. node runs the owner's file unbuilt (type stripping)
 exit 1 SyntaxError: Invalid or unexpected token
 == 1b. tsc 7 and tsc 6 emit JavaScript under experimentalDecorators

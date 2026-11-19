@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28 — .plan/trait-decorators-1/probes/types/run.sh, at 554cdf7dc, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28 — .plan/trait-decorators-1/probes/types/run.sh, at 554cdf7dc; regenerated with fixed.ts's null bound at 85c644b85, unchanged, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2

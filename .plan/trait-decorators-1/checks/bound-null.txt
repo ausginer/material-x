@@ -1,0 +1,31 @@
+# P30 — node .plan/trait-decorators-1/probes/toolchain/bound-null.ts, at 85c644b85, 2026-11-19
+== bound() returns class {}
+  a trait class that extends the bound evaluates → ok
+  the trait prototype inherits Object.prototype → true
+  the trait prototype has toString → function
+  the trait constructor inherits Function.prototype → through the bound
+  new Disableable() → object
+  super.focus in an instance member, on an object → undefined
+  this.observedAttributes in a static member → []
+  super.observedAttributes in a static member → undefined
+  component instanceof Disableable → true
+  {} instanceof Disableable → false
+  Object.create(Disableable.prototype) instanceof Disableable → false
+  without trait(): Object.create(Plain.prototype) instanceof Plain → true
+== bound() returns null
+  a trait class that extends the bound evaluates → ok
+  the trait prototype inherits Object.prototype → false
+  the trait prototype has toString → undefined
+  the trait constructor inherits Function.prototype → directly
+  new Disableable() → throws TypeError: Super constructor null of Disableable is not a constructor
+  super.focus in an instance member, on an object → throws TypeError: Cannot read properties of null (reading 'focus')
+  this.observedAttributes in a static member → []
+  super.observedAttributes in a static member → undefined
+  component instanceof Disableable → true
+  {} instanceof Disableable → false
+  Object.create(Disableable.prototype) instanceof Disableable → false
+  without trait(): Object.create(Plain.prototype) instanceof Plain → true
+== compose() with bound() returning null
+  a supertrait: class extends compose(AnyElement) → function
+  a component: compose(class Base {}) → throws Error: compose() of a component is replaced by the flattener
+  a base still in its temporal dead zone: compose(undefined) → throws Error: compose() of a component is replaced by the flattener

@@ -15,6 +15,8 @@
 
 **Revised a fourth time on 2026-11-19,** at the owner's request, relayed by the coordinator. [The owner's refinement of form E](#the-owners-refinement-of-form-e) is new. It reads the owner's own revision, with probes P27 to P29, and recommends it, with six fixes, in place of the study's form E. Its trait is branded by `trait(this)` in a static block rather than `@trait`, and the flattener generates the component's `impl(this, …)` block.
 
+**Revised a fifth time on 2026-11-19.** The owner accepted the six fixes, with one alternative: a bound that is `null`. [The owner's answers](#the-owners-answers) records them. [A bound as `null`](#a-bound-as-null) probes the alternative with P30 and adopts it: fix 3 becomes `null`, and fix 5's `compose` checks `base !== null`.
+
 ## The verdict
 
 **A decorator can't carry the types, and that holds in every TypeScript the repository runs.** A class decorator doesn't change the type of the class it decorates. That is true for standard decorators and for `experimentalDecorators`, in TypeScript 7.0.2 (`tsc`) and 6.0.3 (`tsc6`) alike ([P1](#evidence)). So a form in which only `@traits(A, B)` names the traits doesn't typecheck.
@@ -418,7 +420,7 @@ export const ObservedElement: Bound<
 > = bound();
 ```
 
-`Bound<I, S>` is an abstract constructor of `I` with statics `S`, plus a type-only static key, `[$bound]: (instance: I, statics: S) => void`, that records the requirement. At runtime a bound is an empty class, so a trait module needs no element class to load. A trait with no requirement extends nothing.
+`Bound<I, S>` is an abstract constructor of `I` with statics `S`, plus a type-only static key, `[$bound]: (instance: I, statics: S) => void`, that records the requirement. At runtime a bound is `null` (revised from an empty class, see [A bound as `null`](#a-bound-as-null)), so a trait module needs no element class to load. A trait with no requirement extends nothing.
 
 - **`this`** in a trait's member is the bound's instance type plus the trait's own members. `Disableable extends AnyElement` calls `this.hasAttribute` and `this.toggleAttribute`. A static member's `this` sees the bound's statics: `Observing.observed()` reads `this.observedAttributes` ([`traits-a.ts`](probes/types/traits-a.ts), which compiles clean). A trait with no bound that calls an element member fails with TS2339 ([P24](#evidence) (a)).
 - **A trait may override a member of its bound,** with `override`, as `FocusForwarding.focus` does.
@@ -446,13 +448,13 @@ The owner refined form E in his own file, relayed by the coordinator, and asked 
 - `impl(this, ...traits)` in the component's static block installs each trait's brand on the component's prototype. The flattener is to generate that block.
 - `Composed<B, T>` is `AbstractConstructor<InstanceType<B> & Instances<T>> & Statics<T>`. `compose<const B, const T>(base)` takes `B` from its argument and `T` from the annotation. `bound()` returns `{}`. There is no `Applicable`, and `Bound` isn't exported.
 
-**The verdict: it replaces the study's form E as the recommended layer (a), with six fixes.** Its shape is form E's: one annotated constant per component, and the list written once in a type. Its `compose` catches a case that form E's let through, and its `impl` makes the brand install a plain runtime call. The fixes are in [`example4/traits/fixed.ts`](probes/types/example4/traits/fixed.ts), each marked in the file. That file compiles clean in both compilers and emits declarations ([P28](#evidence)).
+**The verdict: it replaces the study's form E as the recommended layer (a), with six fixes.** The owner accepted them, and fix 3 changed to `null` ([The owner's answers](#the-owners-answers)). Its shape is form E's: one annotated constant per component, and the list written once in a type. Its `compose` catches a case that form E's let through, and its `impl` makes the brand install a plain runtime call. The fixes are in [`example4/traits/fixed.ts`](probes/types/example4/traits/fixed.ts), each marked in the file. That file compiles clean in both compilers and emits declarations ([P28](#evidence)).
 
 1. **`trait(this)` in a static block, not `@trait`.** Same behaviour, and none of the decorator's costs (below).
 2. **`Applicable` comes back,** as the owner said, and with it `Bound`'s type-only key `[$bound]: (instance: I, statics: S) => void`. `Bound` is exported, and `Statics` omits the key.
-3. **`bound()` returns a class,** `class {}`, because a trait class extends its bound when its module is evaluated.
+3. **`bound()` returns `null`,** because a trait class extends its bound when its module is evaluated, and `{}` can't be extended. First proposed as `class {}`. The owner proposed `null`, which [A bound as `null`](#a-bound-as-null) adopts.
 4. **`Composed` starts with `B &`,** which keeps the base's own statics.
-5. **`compose` throws unless its argument is a bound.** A supertrait composes a bound and runs unbuilt. A component's composition is replaced by the flattener, so one that runs means the flattener didn't.
+5. **`compose` throws unless its argument is a bound,** that is, unless `base === null`. A supertrait composes a bound and runs unbuilt. A component's composition is replaced by the flattener, so one that runs means the flattener didn't.
 6. **No hand-written `impl`.** The flattener derives the list from the annotation, with supertraits expanded.
 
 #### 1. Does it typecheck, and what does it keep from form E?
@@ -490,7 +492,7 @@ The owner refined form E in his own file, relayed by the coordinator, and asked 
 
 #### 3. At runtime without the flattener
 
-- **`bound()` returning `{}` throws** when the trait's module is evaluated: `TypeError: Class extends value #<Object> is not a constructor or null` ([P29](#evidence) §3). Trait modules stay runtime code for `instanceof`, so a bound has to be a constructor (fix 3). An empty class is enough: the flattener drops the bound, and a trait class is never constructed.
+- **`bound()` returning `{}` throws** when the trait's module is evaluated: `TypeError: Class extends value #<Object> is not a constructor or null` ([P29](#evidence) §3). Trait modules stay runtime code for `instanceof`, so a bound has to be something a class can extend: a constructor or `null` (fix 3). The flattener drops the bound, and a trait class is never constructed.
 - **`compose` returning the base fails silently** (§4, with fix 3 alone applied). `IconButton` extends `ControlledElement` with no trait members. `disabled` and `count` read `undefined`, and `check()` returns `undefined`. Only a call to a trait method throws: `IconButton.zero is not a function`. `focus()` assigns an own `disabled` property. **And `instanceof Disableable` is true,** because the hand-written `impl` installed the brand on a class that doesn't have the trait's members.
 - **With fix 5, it fails loudly:** importing the component throws `compose() of a component is replaced by the flattener` at module evaluation (§5). A supertrait's `compose(AnyElement)` still returns the bound (§6). The flattener rewrites the component's initializer to its base, so no flattened component calls `compose`.
 
@@ -516,6 +518,54 @@ In Node ([P29](#evidence) §6), with components as the flattener would emit them
 - A group can't be spread, because a group is a type, `ButtonCoreTraits`, and has no value. A value group would bring `RF-63` back.
 
 **The flattener can derive the list from the annotation alone.** oxc-parser gives the annotation's tuple, each `typeof X` and each `...Group` ([P26](#evidence)). The flattener resolves a group alias as it resolves any type alias, and a supertrait through that supertrait's own annotation, so it expands both. It also adds a value import for each trait the generated block names, since a component may import a trait with `import type`. So the list stays written once, and `impl` stays a runtime helper that only generated code calls.
+
+#### The owner's answers
+
+The owner answered on 2026-11-19, relayed by the coordinator:
+
+1. **`trait(this)` in a static block rather than `@trait`:** _"a pity, but valid."_ Accepted.
+2. **`Applicable`, and a keyed, exported `Bound`:** _"yes, all correct."_ Accepted.
+3. **`bound()`:** _"maybe bound returns `null`? It can be extended too."_ Probed below, and adopted.
+4. **`Composed = B & …`:** _"right, I missed it."_ Accepted.
+5. **A `compose` that throws for a component:** _"yes, I thought about that too."_ Accepted.
+6. **An `impl` block that only the flattener writes:** _"that's what I planned; I just expressed it badly in code."_ Accepted.
+
+#### A bound as `null`
+
+**Recommended: `null`.** [`fixed.ts`](probes/types/example4/traits/fixed.ts) now returns `null` from `bound()`, and its `compose` throws when `base !== null`.
+
+**The types don't change.** `bound()` keeps its signature, and a trait class extends the annotated constant `AnyElement`, not a `null` literal, so TypeScript sees `Bound<HTMLElement>` either way. With the fixed file switched to `null`, P27 and P28 print exactly what they printed with `class {}` in both compilers, the declarations included. P29 prints the same too. So `compose(AnyElement)` still returns the bound, and the unbuilt component still throws.
+
+**At runtime, what differs only matters where a trait class is used as a class** ([P30](#evidence)), in Node, `class {}` against `null`:
+
+|  | `class {}` | `null` |
+| --- | --- | --- |
+| The trait module evaluates | yes | yes |
+| The trait's prototype inherits `Object.prototype` | yes | **no:** no `toString`, `hasOwnProperty` or the like |
+| The trait's constructor inherits `Function.prototype` | through the bound | directly |
+| `new Trait()` | an object | **throws:** _"Super constructor null of Disableable is not a constructor"_ |
+| `super.x` in an instance member called in place | `undefined` | **throws:** _"Cannot read properties of null"_ |
+| `this.observedAttributes` and `super.x` in a static member | `[]`, `undefined` | `[]`, `undefined` |
+| `instanceof` the trait: a branded component, `{}`, an object made from the trait's prototype | true, false, false | true, false, false |
+| `instanceof` without `trait()`, by the prototype chain | true | true |
+
+**Nothing in the mechanism does the things that differ.**
+
+- A trait class is never constructed, built or unbuilt. A component's base becomes the real base, and the unbuilt component throws in `compose` first.
+- A trait's members never run in place. The flattener copies their source into the component, where `super` means the component's base.
+- The test-only equivalence reference ([item 6](#what-every-class-form-asks-of-the-flattener)) reads a trait's own property descriptors, which don't depend on the prototype's prototype.
+
+Where `null` differs, it throws rather than quietly returning `undefined`, so a misuse fails loudly.
+
+**`compose` checks `base !== null`.** Every bound is the same value, so the `BOUNDS` `WeakSet` goes. A `WeakSet` can't hold `null` anyway. A supertrait's `compose(AnyElement)` gets `null`, returns it, and its class extends `null` unbuilt (P30). A component's `compose(ControlledElement)` throws. So does `compose(undefined)`, the value a base has while an import cycle leaves it uninitialized: such a base fails loudly instead of being taken for a bound.
+
+**The flattener tells bounds apart by source only.**
+
+- At runtime, every bound is `null`, and nothing needs to tell them apart. `Applicable`'s check is type-only, and the brands are keyed by trait classes, not bounds.
+- In source, the flattener needs to know that a trait's superclass is a bound in order to drop it. It does that by resolving the superclass identifier to its declaration, a constant initialized by `bound()` and annotated `Bound<…>`, as oxc-parser gives it ([P26](#evidence)).
+- It needs no bound's identity for anything else.
+
+**What `null` saves:** a class per bound in each trait module's runtime code, the `WeakSet`, and its lookup.
 
 ## What every class form asks of the flattener
 
@@ -563,7 +613,7 @@ In Node ([P29](#evidence) §6), with components as the flattener would emit them
 
 ## Open questions for the owner
 
-1. **Which marker?** Form A (decorator and interface), B (interface only), C (`impl()` over class traits) or D (type arguments). **Revised: for layer (a), where the component chooses its base, form E,** an annotated composition ([Layer (a)](#layer-a-traits-on-any-base)), **in the owner's refined shape with six fixes** ([The owner's refinement of form E](#the-owners-refinement-of-form-e)): `trait(this)` in a static block rather than `@trait`, `Applicable` restored, `bound()` returning a class, `B &` in `Composed`, a `compose` that throws for a component, and an `impl` block that only the flattener writes. Form D's type arguments can't carry the base's statics or a trait's. The rest of this answer is the first recommendation: **D.** Its list is written once and erases, it needs no interface, `override` works on trait members, and it reports both override hazards. The decorator you proposed can't carry the types, and form A needs the interface beside it. If you want the decorator anyway, A works, and the flattener checks that its two lists agree.
+1. **Which marker?** Form A (decorator and interface), B (interface only), C (`impl()` over class traits) or D (type arguments). **Revised: for layer (a), where the component chooses its base, form E,** an annotated composition ([Layer (a)](#layer-a-traits-on-any-base)), **in the owner's refined shape with six fixes** ([The owner's refinement of form E](#the-owners-refinement-of-form-e)): `trait(this)` in a static block rather than `@trait`, `Applicable` restored, `bound()` returning `null`, `B &` in `Composed`, a `compose` that throws for a component, and an `impl` block that only the flattener writes. Form D's type arguments can't carry the base's statics or a trait's. The rest of this answer is the first recommendation: **D.** Its list is written once and erases, it needs no interface, `override` works on trait members, and it reports both override hazards. The decorator you proposed can't carry the types, and form A needs the interface beside it. If you want the decorator anyway, A works, and the flattener checks that its two lists agree.
 2. **How does a trait declare an attribute?** Every form is in [Attributes](#attributes). Three keep every check:
    - a static table and an `accessor` line, two lines per attribute;
    - `@attr(Converter) accessor`, one line;
@@ -604,7 +654,7 @@ For the main slot's architect. This study doesn't edit them.
 
 ## Evidence
 
-Every probe is under [`probes/`](probes/), and every transcript is under [`checks/`](checks/), read on 2026-11-19. P1 to P12 were read at `d1ea40e22`, P13 to P16 at `20817d665`, P17 to P22 at `dc5bc5853`, P23 to P26 at `28014c589`, and P27 to P29 at `554cdf7dc`. Each of those commits changed only this study, and the type transcript was regenerated at each.
+Every probe is under [`probes/`](probes/), and every transcript is under [`checks/`](checks/), read on 2026-11-19. P1 to P12 were read at `d1ea40e22`, P13 to P16 at `20817d665`, P17 to P22 at `dc5bc5853`, P23 to P26 at `28014c589`, P27 to P29 at `554cdf7dc`, and P30 at `85c644b85`. P27 to P29 were run again at `85c644b85` with the fixed file's `null` bound, and printed the same. Each of those commits changed only this study, and the type transcript was regenerated at each.
 
 - **The type probes, P1 to P6, P9 to P14, P16, P17 to P21, P23 to P25, P27 and P28** ([`probes/types/`](probes/types/), [transcript](checks/types.txt)). [`run.sh`](probes/types/run.sh) checks each probe alone with `tsc` (TypeScript 7.0.2) and `tsc6` (6.0.3), under a tsconfig that copies `tsconfig.base.json`'s checking options, `isolatedDeclarations` and `erasableSyntaxOnly` among them. It prints the declarations for the probes that compile. Each case states its expected result in a comment. **The two compilers agree on every line,** apart from the wording of one message in P9. In P13 (10), the explicit setter with the wrong converter, both report TS2345: TypeScript 7 at the value argument, and TypeScript 6 at the converter.
   - P1: a decorator alone, also under `experimentalDecorators`.
@@ -621,6 +671,7 @@ Every probe is under [`probes/`](probes/), and every transcript is under [`check
 - **P15, each attribute form's JavaScript** ([`probes/toolchain/attribute-js.ts`](probes/toolchain/attribute-js.ts), [transcript](checks/attribute-js.txt)). oxc-transform's output for each form with no flattener, and whether Node 26.13 parses it (`node --check`).
 - **P22, the sketch through the toolchain** ([`probes/toolchain/sketch.ts`](probes/toolchain/sketch.ts), [transcript](checks/sketch.txt)). §1: what oxc-parser gives the flattener in the sketch, with no `@trait`. §2: the brand at runtime in Node, with plain classes in place of `HTMLElement`.
 - **P29, the owner's refinement at runtime** ([`probes/toolchain/example4.ts`](probes/toolchain/example4.ts), [transcript](checks/example4.txt)), in Node 26.13 with an `HTMLElement` stand-in. §1: Node on the file unbuilt. §1b: `tsc` and `tsc6` emit under `experimentalDecorators`. §2: Vite 8's oxc transform with and without the flag in the file's tsconfig, and whether its helper resolves. §3 and §4: the owner's file lowered and evaluated, as written and with `bound()` returning a class. §5 and §6: the fixed file unbuilt, and its brands with components as the flattener would emit them.
+- **P30, a bound as `class {}` against `null`** ([`probes/toolchain/bound-null.ts`](probes/toolchain/bound-null.ts), [transcript](checks/bound-null.txt)), in Node 26.13: what a trait class that extends each one does, and the fixed `compose` with a `null` bound.
 - **P26, layer (a) through oxc-parser** ([`probes/toolchain/layer-a.ts`](probes/toolchain/layer-a.ts), [transcript](checks/layer-a.txt)): form E's base and list, and each trait's bound and brand block.
 - **P8, the flattener's machinery** ([`probes/toolchain/machinery.ts`](probes/toolchain/machinery.ts), [transcript](checks/machinery.txt)). It runs the plugin's own `analyzeModule` on form A, its `collectFreeReferences` on class-declaration traits, and a decorator strip with `RolldownMagicString`.
 - **The language service** ([transcript](checks/lsp.txt)): hover and go-to-definition on a trait member in forms A and D, in the sketch with its fixes, in layer (a)'s form E and in the owner's refinement with its fixes, a trait's static member and the base's included, through this harness's TypeScript language server. Its diagnostics match `tsc`'s, apart from TS9021, which it didn't publish for the sketch's probe.
