@@ -30,6 +30,7 @@ import type {
   Program,
   Statement,
   StaticBlock,
+  VariableDeclarator,
 } from '@oxc-project/types';
 import { RolldownMagicString } from 'rolldown';
 import { collectFreeReferences } from '../free-references.ts';
@@ -143,7 +144,8 @@ function addTargetNames(target: unknown, into: Set<string>): void {
  * The module-scope names that the module writes after declaring them: any
  * assignment or update target, including each name in a destructuring
  * pattern, the left side of a `for…in` or `for…of` that isn't a declaration,
- * and a name that the module declares more than once.
+ * and a name that the module declares more than once, counting every `var`
+ * in a block or a loop head, which hoists to the module's scope.
  */
 function assignedNames(program: Program): Set<string> {
   const names = new Set<string>();
@@ -160,32 +162,49 @@ function assignedNames(program: Program): Set<string> {
     }
   });
   const declared = new Set<string>();
+  const declare = (id: string): void => {
+    if (declared.has(id)) {
+      names.add(id);
+    }
+    declared.add(id);
+  };
+  // Every `var` hoists to the module's scope, from a block or a loop head as
+  // much as from the top level, so each one is a declaration of its names.
+  const vars = new Set<VariableDeclarator>();
+  walk(program, (node) => {
+    if (node.type === 'VariableDeclaration' && node.kind === 'var') {
+      for (const declarator of node.declarations) {
+        vars.add(declarator);
+      }
+    }
+  });
   for (const statement of program.body) {
     const declaration =
       statement.type === 'ExportNamedDeclaration' ||
       statement.type === 'ExportDefaultDeclaration'
         ? statement.declaration
         : statement;
-    const ids: string[] = [];
     if (declaration?.type === 'VariableDeclaration') {
       for (const declarator of declaration.declarations) {
+        if (vars.has(declarator)) {
+          continue;
+        }
         const local = new Set<string>();
         addTargetNames(declarator.id, local);
-        ids.push(...local);
+        local.forEach(declare);
       }
     } else if (
       (declaration?.type === 'FunctionDeclaration' ||
         declaration?.type === 'ClassDeclaration') &&
       declaration.id
     ) {
-      ids.push(declaration.id.name);
+      declare(declaration.id.name);
     }
-    for (const id of ids) {
-      if (declared.has(id)) {
-        names.add(id);
-      }
-      declared.add(id);
-    }
+  }
+  for (const declarator of vars) {
+    const local = new Set<string>();
+    addTargetNames(declarator.id, local);
+    local.forEach(declare);
   }
 
   return names;

@@ -122,10 +122,14 @@ function isTypeOnly(
 /**
  * Counts each name's value references under `node`. It fails closed: every
  * node is walked, TypeScript or not, so a shape this function doesn't know
- * counts its identifiers, which can only refuse a composition. Only these
- * aren't counted: a type position, a type-only declaration, a `declare`
- * declaration, a non-computed property key or member name, a label, and an
- * import. A shorthand property `{ X }` and an export specifier are counted.
+ * counts its identifiers, which can only refuse a composition. Any
+ * identifier-like node counts, `JSXIdentifier` included, so `<X />` and
+ * `<X.Inner />` are references. Only these aren't counted: a type position,
+ * a type-only declaration, a `declare` declaration, a non-computed property
+ * key or member name, a JSX attribute name, the property of a JSX member name,
+ * a private or namespaced JSX name, a label, and an import. A shorthand
+ * property `{ X }` and an export specifier are counted. A direct
+ * `eval('X')` can't be seen.
  */
 function countValueReferences(
   node: unknown,
@@ -142,8 +146,14 @@ function countValueReferences(
   }
   const value = node as Readonly<Record<string, unknown>> & { type?: string };
   const { type } = value;
-  if (type === 'Identifier') {
-    const name = value['name'] as string;
+  if (type === 'PrivateIdentifier' || type === 'JSXNamespacedName') {
+    // A private name and a namespaced JSX name never name a module binding.
+    return;
+  }
+  const { name } = value;
+  if (type?.endsWith('Identifier') && typeof name === 'string') {
+    // Any identifier-like node counts, `JSXIdentifier` included, unless its
+    // position is a known non-reference, which the parent skips.
     counts.set(name, (counts.get(name) ?? 0) + 1);
     return;
   }
@@ -166,7 +176,9 @@ function countValueReferences(
       (keyed && field === 'key' && value['computed'] !== true) ||
       (type === 'MemberExpression' &&
         field === 'property' &&
-        value['computed'] !== true)
+        value['computed'] !== true) ||
+      (type === 'JSXMemberExpression' && field === 'property') ||
+      (type === 'JSXAttribute' && field === 'name')
     ) {
       continue;
     }

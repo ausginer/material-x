@@ -124,6 +124,24 @@ describe('the brand of a built trait module', () => {
     ).toContain('linked-member');
   });
 
+  it('should not recognize a brand that a var in a block declares again', () => {
+    expect(
+      transformBuilt(
+        'var $linked = Symbol("Linked");',
+        'if (globalThis.other) {\n  var $linked = Symbol("Other");\n}\n',
+      ),
+    ).toContain('linked-member');
+  });
+
+  it("should not recognize a brand that a for-of's var declares again", () => {
+    expect(
+      transformBuilt(
+        'var $linked = Symbol("Linked");',
+        'for (var $linked of [Symbol("Other")]) {}\n',
+      ),
+    ).toContain('linked-member');
+  });
+
   it('should not recognize a brand that the module declares twice', () => {
     expect(
       transformBuilt(

@@ -13,8 +13,12 @@ import { Checkable } from './checkable.ts';
  * Transforms a module that exists only in memory, beside the fixtures, with
  * `others` as more such modules by name.
  */
-function run(body: string, others: Readonly<Record<string, string>> = {}) {
-  const id = fixtureId('virtual.ts');
+function run(
+  body: string,
+  others: Readonly<Record<string, string>> = {},
+  name = 'virtual.ts',
+) {
+  const id = fixtureId(name);
   const files = Object.fromEntries([
     [id, `${HEADER}${body}`],
     ...Object.entries(others).map(([name, code]) => [
@@ -372,6 +376,27 @@ describe('composition-shape and value references', () => {
     ],
   ])('should fail the build for a value reference in %s', async (_, extra) => {
     await expect(run(`${base}${extra}`)).rejects.toMatchObject({
+      code: CODE.COMPOSITION_SHAPE,
+    });
+  });
+
+  it('should flatten with the name as a JSX attribute name', async () => {
+    const { code } = await run(
+      `${base}export const el = <div FooBase="a" />;\n`,
+      {},
+      'virtual.tsx',
+    );
+
+    expect(code).toContain('export class Foo extends Base');
+  });
+
+  it.each([
+    ['a JSX element', 'export const el = <FooBase />;\n'],
+    ['a JSX member element', 'export const el = <FooBase.Inner />;\n'],
+  ])('should fail the build for %s named after it', async (_, extra) => {
+    await expect(
+      run(`${base}${extra}`, {}, 'virtual.tsx'),
+    ).rejects.toMatchObject({
       code: CODE.COMPOSITION_SHAPE,
     });
   });
