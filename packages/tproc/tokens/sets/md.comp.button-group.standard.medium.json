@@ -7,12 +7,20 @@
     "token_class": "COMPONENT"
   },
   "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "Pressed",
+      "orderInParentTokenSet": 1
+    }
+  ],
   "tokens": [
     {
       "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
       "displayName": "Button group medium pressed motion spring dampening",
       "tokenValueType": "DURATION",
-      "displayGroup": "Pressed",
+      "displayGroup": [
+        "Pressed"
+      ],
       "values": [
         {
           "tokenName": "md.sys.motion.spring.fast.spatial.damping"
@@ -29,7 +37,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 0
               }
             ]
           },
@@ -47,7 +56,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 1
               }
             ]
           },
@@ -65,7 +75,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -83,7 +94,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -101,7 +113,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -119,7 +132,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -137,7 +151,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -155,7 +170,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -169,7 +185,9 @@
       "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
       "displayName": "Button group medium pressed motion spring stiffness",
       "tokenValueType": "DURATION",
-      "displayGroup": "Pressed",
+      "displayGroup": [
+        "Pressed"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -187,7 +205,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 0
               }
             ]
           },
@@ -205,7 +224,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 1
               }
             ]
           },
@@ -223,7 +243,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -241,7 +262,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -259,7 +281,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -277,7 +300,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -295,7 +319,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -313,7 +338,8 @@
             "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -327,7 +353,9 @@
       "tokenName": "md.comp.button-group.standard.medium.pressed.item.width.multiplier",
       "displayName": "Button group medium pressed width multiplier",
       "tokenValueType": "LENGTH",
-      "displayGroup": "Pressed",
+      "displayGroup": [
+        "Pressed"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {

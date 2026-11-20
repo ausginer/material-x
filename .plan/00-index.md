@@ -1669,6 +1669,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **Amended 2026-11-20 by the architect,** on `reviewer-1` and `reviewer-2` of the step's [feature proof](reviews/tokens-source-1/feature-proof-claude.md). Property 4 gains the [second field rulings](tokens-source-1/tokens-source-plan.md#field-rulings-from-the-feature-proof). They change the store in PR #84, before it merges. The implementer reruns P1–P5, P10 and P11, and the new P12, from the 14 tables read at `a182ba6aa`. They stay inside the owner's _"fields and data stay original"_: they keep token data that was dropped, and they leave out only Material's component catalogue, which isn't token data.
 
+**The second rulings implemented 2026-11-20 by the implementer,** in PR #84. P1–P5, P10, P11 and P12 hold ([transcript](tokens-source-1/checks/step-1.txt), its last section). The store is 58.9 MB, and `storeVersion` stays 1. No child value is unresolved, and the 704 conflicts are unchanged.
+
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**
   1. **tproc reads only the committed store,** through a reader with no network path. A missing or invalid store file fails the load and names the file. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.

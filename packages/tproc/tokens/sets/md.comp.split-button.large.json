@@ -53,7 +53,8 @@
             "tokenName": "md.comp.split-button.large.inner-corner.pressed.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.large-increased"
+                "tokenName": "md.sys.shape.corner-value.large-increased",
+                "value": 0
               }
             ]
           },
@@ -83,7 +84,8 @@
             "tokenName": "md.comp.split-button.large.inner-corner.hovered.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.large-increased"
+                "tokenName": "md.sys.shape.corner-value.large-increased",
+                "value": 0
               }
             ]
           },
@@ -113,7 +115,8 @@
             "tokenName": "md.comp.split-button.large.inner-corner.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.small"
+                "tokenName": "md.sys.shape.corner-value.small",
+                "value": 0
               }
             ]
           },
@@ -143,7 +146,8 @@
             "tokenName": "md.comp.split-button.large.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },

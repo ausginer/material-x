@@ -1,0 +1,76 @@
+// P12: reads the store back through the tables, independently of the
+// converter. Prints counts only. Run from packages/tproc as
+// `node <this> <tables directory>`.
+import { readFile } from 'node:fs/promises';
+import { isDeepStrictEqual } from 'node:util';
+import { loadStore } from './src/store/Store.ts';
+
+const ORDER = ['COLOR', 'ELEVATION', 'TOKEN_TYPE_UNSPECIFIED', 'TYPOGRAPHY'].map((k) => `${k}.20543ce18892f7d9`).concat(
+  ['1c4257f8804f9478', '41587918e51cca98', '60990dd98dea0998', '36500f77b86d20a5', '0fe2282006ae098b', '082d7fd6e058b011', '624e8f2da4007fc8', '31f16b44fe03b0c0', '6acb269a58d5f93f', '6c818a16475113bd'].map((id) => `TOKEN_TABLE.${id}`),
+);
+const dir = new URL(process.argv[2]!.replace(/\/?$/u, '/'), `file://${process.cwd()}/`);
+const store = await loadStore(new URL('./tokens/', import.meta.url));
+const c: Record<string, number> = {};
+const inc = (k: string, ok: boolean) => { const key = `${ok ? 'same' : 'DIFF'}:${k}`; c[key] = (c[key] ?? 0) + 1; };
+const parentId = (id: string, seg: string) => id.slice(0, id.lastIndexOf(`/${seg}/`));
+
+// First table wins, by id, as DB.load() read them.
+const tokens = new Map<string, any>(); const trees = new Map<string, any>();
+const valuesOf = new Map<string, string[]>(); const groups = new Map<string, any>(); const setIdByName = new Map<string, string>();
+for (const name of ORDER) {
+  const { system } = JSON.parse(await readFile(new URL(`${name}.json`, dir), 'utf8'));
+  const vals = new Map<string, string[]>();
+  for (const v of system.values) { const p = parentId(v.name, 'values'); (vals.get(p) ?? vals.set(p, []).get(p)!).push(v.name); }
+  for (const t of system.tokens) if (!tokens.has(t.tokenName)) {
+    tokens.set(t.tokenName, t); valuesOf.set(t.tokenName, vals.get(t.name) ?? []);
+    trees.set(t.tokenName, system.contextualReferenceTrees[t.name]);
+  }
+  for (const g of system.displayGroups ?? []) if (!groups.has(g.name)) groups.set(g.name, g);
+  for (const s of system.tokenSets) if (!setIdByName.has(s.tokenSetName)) setIdByName.set(s.tokenSetName, s.name);
+}
+
+// The tables' own path for a group id.
+const pathOf = (id: string): string[] => { const g = groups.get(id); return g.parentGroup ? [...pathOf(g.parentGroup), g.displayName] : [g.displayName]; };
+const groupIdByPath = new Map<string, string>();
+for (const id of groups.keys()) groupIdByPath.set(JSON.stringify([parentId(id, 'displayGroups'), ...pathOf(id)]), id);
+
+let groupCount = 0; let childCount = 0; let tokenCount = 0;
+for (const set of store.sets) {
+  const setId = setIdByName.get(set.tokenSetName);
+  const tableGroups = [...groups.values()].filter((g) => parentId(g.name, 'displayGroups') === setId);
+  inc('group count per set', (set.displayGroups ?? []).length === tableGroups.length);
+  (set.displayGroups ?? []).forEach((stored, i) => {
+    groupCount++;
+    const raw = tableGroups[i];
+    const id = groupIdByPath.get(JSON.stringify([setId, ...(stored.parentGroup ?? []), stored.displayName]));
+    inc('group path gives its id, in upstream order', id === raw?.name);
+    const parentId_ = stored.parentGroup ? groupIdByPath.get(JSON.stringify([setId, ...stored.parentGroup])) : undefined;
+    inc('parentGroup path gives the parentGroup id', parentId_ === raw?.parentGroup);
+    for (const k of ['description', 'orderInParentTokenSet', 'orderInParentDisplayGroup'] as const) inc(`group ${k}`, stored[k] === raw?.[k]);
+  });
+  for (const token of set.tokens) {
+    tokenCount++;
+    const raw = tokens.get(token.tokenName);
+    const id = token.displayGroup ? groupIdByPath.get(JSON.stringify([setId, ...token.displayGroup])) : undefined;
+    inc('token displayGroup path gives its id', id === raw.displayGroup);
+    const rawEntries = trees.get(token.tokenName)?.contextualReferenceTree ?? [];
+    inc('tree entry count', (token.contextualReferenceTree ?? []).length === rawEntries.length);
+    const walk = (node: any, rawNode: any, root: boolean): void => {
+      inc('node tokenName', node.tokenName === rawNode.tokenName);
+      inc('node fieldNames', isDeepStrictEqual(node.fieldNames, rawNode.fieldNames));
+      if (!root) {
+        childCount++;
+        inc('child index gives the value id', valuesOf.get(node.tokenName)?.[node.value] === rawNode.value?.name);
+      }
+      const kids = node.childNodes ?? []; const rawKids = rawNode.childNodes ?? [];
+      inc('child count', kids.length === rawKids.length);
+      kids.forEach((k: any, i: number) => walk(k, rawKids[i], false));
+    };
+    (token.contextualReferenceTree ?? []).forEach((e, i) => {
+      inc('root index gives the value id', valuesOf.get(token.tokenName)?.[e.value] === rawEntries[i].referenceTree.value.name);
+      walk(e.referenceTree, rawEntries[i].referenceTree, true);
+    });
+  }
+}
+console.log('tokens', tokenCount, 'groups', groupCount, 'child nodes', childCount);
+for (const [k, n] of Object.entries(c).sort()) console.log(n, k);

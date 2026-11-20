@@ -25,7 +25,8 @@
             "tokenName": "md.comp.split-button.xlarge.inner-corner.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.medium"
+                "tokenName": "md.sys.shape.corner-value.medium",
+                "value": 0
               }
             ]
           },
@@ -55,7 +56,8 @@
             "tokenName": "md.comp.split-button.xlarge.inner-corner.hovered.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.large-increased"
+                "tokenName": "md.sys.shape.corner-value.large-increased",
+                "value": 0
               }
             ]
           },
@@ -113,7 +115,8 @@
             "tokenName": "md.comp.split-button.xlarge.inner-corner.pressed.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.large-increased"
+                "tokenName": "md.sys.shape.corner-value.large-increased",
+                "value": 0
               }
             ]
           },
@@ -199,7 +202,8 @@
             "tokenName": "md.comp.split-button.xlarge.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },

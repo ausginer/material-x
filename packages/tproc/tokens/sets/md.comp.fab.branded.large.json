@@ -7,12 +7,95 @@
     "token_class": "COMPONENT"
   },
   "order": 110,
+  "displayGroups": [
+    {
+      "displayName": "[Deprecated] State layer",
+      "parentGroup": [
+        "[Deprecated] Pressed (ripple)"
+      ],
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "[Deprecated] Container",
+      "parentGroup": [
+        "[Deprecated] Pressed (ripple)"
+      ],
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "[Deprecated] Pressed (ripple)",
+      "orderInParentTokenSet": 4
+    },
+    {
+      "displayName": "[Deprecated] State layer",
+      "parentGroup": [
+        "[Deprecated] Focused"
+      ],
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "[Deprecated] Container",
+      "parentGroup": [
+        "[Deprecated] Focused"
+      ],
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "[Deprecated] Focus indicator",
+      "parentGroup": [
+        "[Deprecated] Focused"
+      ]
+    },
+    {
+      "displayName": "[Deprecated] Focused",
+      "orderInParentTokenSet": 3
+    },
+    {
+      "displayName": "[Deprecated] State layer",
+      "parentGroup": [
+        "[Deprecated] Hovered"
+      ],
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "[Deprecated] Container",
+      "parentGroup": [
+        "[Deprecated] Hovered"
+      ],
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "[Deprecated] Hovered",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "[Deprecated] Icon",
+      "parentGroup": [
+        "[Deprecated] Enabled"
+      ],
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "[Deprecated] Container",
+      "parentGroup": [
+        "[Deprecated] Enabled"
+      ],
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "[Deprecated] Enabled",
+      "orderInParentTokenSet": 1
+    }
+  ],
   "tokens": [
     {
       "tokenName": "md.comp.fab.branded.large.pressed.state-layer.opacity",
       "displayName": "FAB (large branded) pressed state layer opacity",
       "tokenValueType": "OPACITY",
-      "displayGroup": "[Deprecated] State layer",
+      "displayGroup": [
+        "[Deprecated] Pressed (ripple)",
+        "[Deprecated] State layer"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -29,7 +112,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.opacity",
             "childNodes": [
               {
-                "tokenName": "md.sys.state.pressed.state-layer-opacity"
+                "tokenName": "md.sys.state.pressed.state-layer-opacity",
+                "value": 0
               }
             ]
           },
@@ -43,7 +127,10 @@
       "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
       "displayName": "FAB (large branded) pressed state layer color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] State layer",
+      "displayGroup": [
+        "[Deprecated] Pressed (ripple)",
+        "[Deprecated] State layer"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -67,7 +154,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 6
               }
             ]
           },
@@ -86,7 +174,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 7
               }
             ]
           },
@@ -105,7 +194,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -125,7 +215,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -146,7 +237,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -167,9 +259,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -197,9 +291,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -227,9 +323,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -257,9 +355,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -287,9 +387,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -317,9 +419,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -347,9 +451,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -377,9 +483,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -407,9 +515,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -437,9 +547,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -467,9 +579,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -497,9 +611,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -527,9 +643,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -557,9 +675,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -587,9 +707,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -617,9 +739,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -647,9 +771,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -677,9 +803,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -707,9 +835,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -737,9 +867,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -767,9 +899,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -797,9 +931,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -827,9 +963,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -857,9 +995,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -887,9 +1027,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -917,9 +1059,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -945,7 +1089,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 9
               }
             ]
           },
@@ -966,9 +1111,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -996,9 +1143,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -1026,9 +1175,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -1056,9 +1207,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -1086,9 +1239,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -1116,9 +1271,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -1146,9 +1303,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -1176,9 +1335,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -1206,9 +1367,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -1236,9 +1399,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -1266,9 +1431,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -1296,9 +1463,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -1326,9 +1495,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -1356,9 +1527,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -1379,7 +1552,10 @@
       "tokenName": "md.comp.fab.branded.large.pressed.container.elevation",
       "displayName": "FAB (large branded) pressed container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Pressed (ripple)",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -1396,7 +1572,8 @@
             "tokenName": "md.comp.fab.branded.large.pressed.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level3"
+                "tokenName": "md.sys.elevation.level3",
+                "value": 0
               }
             ]
           },
@@ -1413,7 +1590,10 @@
       "tokenName": "md.comp.fab.branded.large.lowered.pressed.container.elevation",
       "displayName": "FAB (large branded) lowered pressed container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Pressed (ripple)",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -1430,7 +1610,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.pressed.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level1"
+                "tokenName": "md.sys.elevation.level1",
+                "value": 0
               }
             ]
           },
@@ -1447,7 +1628,10 @@
       "tokenName": "md.comp.fab.branded.large.focus.state-layer.opacity",
       "displayName": "FAB (large branded) focus state layer opacity",
       "tokenValueType": "OPACITY",
-      "displayGroup": "[Deprecated] State layer",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] State layer"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -1464,7 +1648,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.opacity",
             "childNodes": [
               {
-                "tokenName": "md.sys.state.focus.state-layer-opacity"
+                "tokenName": "md.sys.state.focus.state-layer-opacity",
+                "value": 0
               }
             ]
           },
@@ -1478,7 +1663,10 @@
       "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
       "displayName": "FAB (large branded) focus state layer color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] State layer",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] State layer"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -1502,7 +1690,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 6
               }
             ]
           },
@@ -1521,7 +1710,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 7
               }
             ]
           },
@@ -1540,7 +1730,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -1560,7 +1751,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -1581,7 +1773,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -1602,9 +1795,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -1632,9 +1827,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -1662,9 +1859,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -1692,9 +1891,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -1722,9 +1923,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -1752,9 +1955,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -1782,9 +1987,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -1812,9 +2019,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -1842,9 +2051,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -1872,9 +2083,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -1902,9 +2115,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -1932,9 +2147,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -1962,9 +2179,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -1992,9 +2211,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -2022,9 +2243,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -2052,9 +2275,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2082,9 +2307,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2112,9 +2339,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2142,9 +2371,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2172,9 +2403,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -2202,9 +2435,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -2232,9 +2467,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -2262,9 +2499,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -2292,9 +2531,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -2322,9 +2563,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -2352,9 +2595,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -2380,7 +2625,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 9
               }
             ]
           },
@@ -2401,9 +2647,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -2431,9 +2679,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -2461,9 +2711,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -2491,9 +2743,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -2521,9 +2775,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -2551,9 +2807,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -2581,9 +2839,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -2611,9 +2871,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -2641,9 +2903,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -2671,9 +2935,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -2701,9 +2967,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -2731,9 +2999,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -2761,9 +3031,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -2791,9 +3063,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -2814,7 +3088,10 @@
       "tokenName": "md.comp.fab.branded.large.lowered.focus.container.elevation",
       "displayName": "FAB (large branded) lowered focus container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -2831,7 +3108,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.focus.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level1"
+                "tokenName": "md.sys.elevation.level1",
+                "value": 0
               }
             ]
           },
@@ -2848,7 +3126,10 @@
       "tokenName": "md.comp.fab.branded.large.focus.container.elevation",
       "displayName": "FAB (large branded) focus focus container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -2865,7 +3146,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level3"
+                "tokenName": "md.sys.elevation.level3",
+                "value": 0
               }
             ]
           },
@@ -2882,7 +3164,10 @@
       "tokenName": "md.comp.fab.branded.large.focus.indicator.outline.offset",
       "displayName": "FAB (large branded) focus indicator offset",
       "tokenValueType": "LENGTH",
-      "displayGroup": "[Deprecated] Focus indicator",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] Focus indicator"
+      ],
       "orderInDisplayGroup": 3,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -2899,7 +3184,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.outline.offset",
             "childNodes": [
               {
-                "tokenName": "md.sys.state.focus-indicator.outer-offset"
+                "tokenName": "md.sys.state.focus-indicator.outer-offset",
+                "value": 0
               }
             ]
           },
@@ -2916,7 +3202,10 @@
       "tokenName": "md.comp.fab.branded.large.focus.indicator.thickness",
       "displayName": "FAB (large branded) focus indicator thickness",
       "tokenValueType": "LENGTH",
-      "displayGroup": "[Deprecated] Focus indicator",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] Focus indicator"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -2933,7 +3222,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.thickness",
             "childNodes": [
               {
-                "tokenName": "md.sys.state.focus-indicator.thickness"
+                "tokenName": "md.sys.state.focus-indicator.thickness",
+                "value": 0
               }
             ]
           },
@@ -2950,7 +3240,10 @@
       "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
       "displayName": "FAB (large branded) focus indicator color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] Focus indicator",
+      "displayGroup": [
+        "[Deprecated] Focused",
+        "[Deprecated] Focus indicator"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -2974,7 +3267,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.secondary"
+                "tokenName": "md.sys.color.secondary",
+                "value": 0
               }
             ]
           },
@@ -2993,7 +3287,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.secondary"
+                "tokenName": "md.sys.color.secondary",
+                "value": 1
               }
             ]
           },
@@ -3012,7 +3307,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.secondary"
+                "tokenName": "md.sys.color.secondary",
+                "value": 2
               }
             ]
           },
@@ -3032,7 +3328,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.secondary"
+                "tokenName": "md.sys.color.secondary",
+                "value": 2
               }
             ]
           },
@@ -3053,7 +3350,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.secondary"
+                "tokenName": "md.sys.color.secondary",
+                "value": 2
               }
             ]
           },
@@ -3074,9 +3372,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary95"
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 0
                   }
                 ]
               }
@@ -3104,9 +3404,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary95"
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 0
                   }
                 ]
               }
@@ -3134,9 +3436,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary95"
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 0
                   }
                 ]
               }
@@ -3164,9 +3468,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary95"
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 1
                   }
                 ]
               }
@@ -3194,9 +3500,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary95"
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 1
                   }
                 ]
               }
@@ -3224,9 +3532,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary95"
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 1
                   }
                 ]
               }
@@ -3254,9 +3564,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 0
                   }
                 ]
               }
@@ -3284,9 +3596,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 0
                   }
                 ]
               }
@@ -3314,9 +3628,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 0
                   }
                 ]
               }
@@ -3344,9 +3660,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
                   }
                 ]
               }
@@ -3374,9 +3692,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
                   }
                 ]
               }
@@ -3404,9 +3724,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
                   }
                 ]
               }
@@ -3434,9 +3756,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary90"
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
                   }
                 ]
               }
@@ -3464,9 +3788,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
                   }
                 ]
               }
@@ -3494,9 +3820,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
                   }
                 ]
               }
@@ -3524,9 +3852,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
                   }
                 ]
               }
@@ -3554,9 +3884,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -3583,9 +3915,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -3612,9 +3946,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -3641,9 +3977,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 0
                   }
                 ]
               }
@@ -3671,9 +4009,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 0
                   }
                 ]
               }
@@ -3701,9 +4041,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 0
                   }
                 ]
               }
@@ -3731,9 +4073,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3760,9 +4104,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3789,9 +4135,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3818,9 +4166,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary30"
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3845,7 +4195,8 @@
             "tokenName": "md.comp.fab.branded.large.focus.indicator.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.secondary"
+                "tokenName": "md.sys.color.secondary",
+                "value": 7
               }
             ]
           },
@@ -3866,9 +4217,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 0
                   }
                 ]
               }
@@ -3896,9 +4249,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 0
                   }
                 ]
               }
@@ -3926,9 +4281,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 0
                   }
                 ]
               }
@@ -3956,9 +4313,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
                   }
                 ]
               }
@@ -3986,9 +4345,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
                   }
                 ]
               }
@@ -4016,9 +4377,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
                   }
                 ]
               }
@@ -4046,9 +4409,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary80"
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
                   }
                 ]
               }
@@ -4076,9 +4441,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 0
                   }
                 ]
               }
@@ -4106,9 +4473,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 0
                   }
                 ]
               }
@@ -4136,9 +4505,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 0
                   }
                 ]
               }
@@ -4166,9 +4537,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
                   }
                 ]
               }
@@ -4195,9 +4568,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
                   }
                 ]
               }
@@ -4224,9 +4599,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
                   }
                 ]
               }
@@ -4253,9 +4630,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary40"
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
                   }
                 ]
               }
@@ -4275,7 +4654,10 @@
       "tokenName": "md.comp.fab.branded.large.hover.state-layer.opacity",
       "displayName": "FAB (large branded) hover state layer opacity",
       "tokenValueType": "OPACITY",
-      "displayGroup": "[Deprecated] State layer",
+      "displayGroup": [
+        "[Deprecated] Hovered",
+        "[Deprecated] State layer"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -4292,7 +4674,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.opacity",
             "childNodes": [
               {
-                "tokenName": "md.sys.state.hover.state-layer-opacity"
+                "tokenName": "md.sys.state.hover.state-layer-opacity",
+                "value": 0
               }
             ]
           },
@@ -4306,7 +4689,10 @@
       "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
       "displayName": "FAB (large branded) hover state layer color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] State layer",
+      "displayGroup": [
+        "[Deprecated] Hovered",
+        "[Deprecated] State layer"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -4330,7 +4716,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 6
               }
             ]
           },
@@ -4349,7 +4736,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 7
               }
             ]
           },
@@ -4368,7 +4756,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -4388,7 +4777,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -4409,7 +4799,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 8
               }
             ]
           },
@@ -4430,9 +4821,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -4460,9 +4853,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -4490,9 +4885,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
                   }
                 ]
               }
@@ -4520,9 +4917,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -4550,9 +4949,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -4580,9 +4981,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 0,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary95"
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
                   }
                 ]
               }
@@ -4610,9 +5013,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -4640,9 +5045,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -4670,9 +5077,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
                   }
                 ]
               }
@@ -4700,9 +5109,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -4730,9 +5141,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -4760,9 +5173,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary20"
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
                   }
                 ]
               }
@@ -4790,9 +5205,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -4820,9 +5237,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -4850,9 +5269,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
                   }
                 ]
               }
@@ -4880,9 +5301,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4910,9 +5333,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4940,9 +5365,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4970,9 +5397,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 1,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary90"
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
                   }
                 ]
               }
@@ -5000,9 +5429,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -5030,9 +5461,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -5060,9 +5493,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
                   }
                 ]
               }
@@ -5090,9 +5525,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5120,9 +5557,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5150,9 +5589,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5180,9 +5621,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary30"
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5208,7 +5651,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.primary"
+                "tokenName": "md.sys.color.primary",
+                "value": 9
               }
             ]
           },
@@ -5229,9 +5673,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -5259,9 +5705,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -5289,9 +5737,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
                   }
                 ]
               }
@@ -5319,9 +5769,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -5349,9 +5801,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -5379,9 +5833,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -5409,9 +5865,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 2,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary80"
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
                   }
                 ]
               }
@@ -5439,9 +5897,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -5469,9 +5929,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -5499,9 +5961,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
                   }
                 ]
               }
@@ -5529,9 +5993,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -5559,9 +6025,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -5589,9 +6057,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -5619,9 +6089,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.primary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.primary40"
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
                   }
                 ]
               }
@@ -5642,7 +6114,10 @@
       "tokenName": "md.comp.fab.branded.large.hover.container.elevation",
       "displayName": "FAB (large branded) hover container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Hovered",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -5659,7 +6134,8 @@
             "tokenName": "md.comp.fab.branded.large.hover.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level4"
+                "tokenName": "md.sys.elevation.level4",
+                "value": 0
               }
             ]
           },
@@ -5676,7 +6152,10 @@
       "tokenName": "md.comp.fab.branded.large.lowered.hover.container.elevation",
       "displayName": "FAB (large branded) lowered hover container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Hovered",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -5693,7 +6172,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.hover.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level2"
+                "tokenName": "md.sys.elevation.level2",
+                "value": 0
               }
             ]
           },
@@ -5710,7 +6190,10 @@
       "tokenName": "md.comp.fab.branded.large.icon.size",
       "displayName": "FAB (large branded) icon size",
       "tokenValueType": "LENGTH",
-      "displayGroup": "[Deprecated] Icon",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Icon"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -5742,7 +6225,10 @@
       "tokenName": "md.comp.fab.branded.large.lowered.container.elevation",
       "displayName": "FAB (large branded) lowered container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 9,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -5759,7 +6245,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level1"
+                "tokenName": "md.sys.elevation.level1",
+                "value": 0
               }
             ]
           },
@@ -5776,7 +6263,10 @@
       "tokenName": "md.comp.fab.branded.large.container.shadow-color",
       "displayName": "FAB (large branded) container shadow color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 8,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -5800,7 +6290,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 0
               }
             ]
           },
@@ -5819,7 +6310,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 1
               }
             ]
           },
@@ -5838,7 +6330,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 2
               }
             ]
           },
@@ -5858,7 +6351,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 2
               }
             ]
           },
@@ -5879,7 +6373,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 2
               }
             ]
           },
@@ -5898,7 +6393,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 3
               }
             ]
           },
@@ -5918,9 +6414,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -5944,9 +6442,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -5970,9 +6470,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -5996,9 +6498,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6022,9 +6526,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6048,9 +6554,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6075,9 +6583,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6102,9 +6612,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6128,9 +6640,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6154,9 +6668,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6180,9 +6696,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6206,9 +6724,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6232,9 +6752,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6258,9 +6780,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6285,9 +6809,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6312,9 +6838,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6332,7 +6860,10 @@
       "tokenName": "md.comp.fab.branded.large.container.elevation",
       "displayName": "FAB (large branded) container elevation",
       "tokenValueType": "ELEVATION",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 6,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -6349,7 +6880,8 @@
             "tokenName": "md.comp.fab.branded.large.container.elevation",
             "childNodes": [
               {
-                "tokenName": "md.sys.elevation.level3"
+                "tokenName": "md.sys.elevation.level3",
+                "value": 0
               }
             ]
           },
@@ -6366,7 +6898,10 @@
       "tokenName": "md.comp.fab.branded.large.container.height",
       "displayName": "FAB (large branded) container height",
       "tokenValueType": "LENGTH",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 5,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -6398,7 +6933,10 @@
       "tokenName": "md.comp.fab.branded.large.container.width",
       "displayName": "FAB (large branded) container width",
       "tokenValueType": "LENGTH",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 4,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -6430,7 +6968,10 @@
       "tokenName": "md.comp.fab.branded.large.container.shape",
       "displayName": "FAB (large branded) container shape",
       "tokenValueType": "SHAPE",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 3,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -6447,7 +6988,8 @@
             "tokenName": "md.comp.fab.branded.large.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.extra-large"
+                "tokenName": "md.sys.shape.corner.extra-large",
+                "value": 0
               }
             ]
           },
@@ -6467,7 +7009,10 @@
       "tokenName": "md.comp.fab.branded.large.lowered.container.color",
       "displayName": "FAB (large branded) lowered container color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -6491,7 +7036,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 0
               }
             ]
           },
@@ -6512,7 +7058,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 1
               }
             ]
           },
@@ -6538,7 +7085,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 1
               }
             ]
           },
@@ -6562,7 +7110,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 2
               }
             ]
           },
@@ -6581,7 +7130,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 3
               }
             ]
           },
@@ -6601,7 +7151,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 3
               }
             ]
           },
@@ -6622,7 +7173,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 3
               }
             ]
           },
@@ -6641,7 +7193,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 4
               }
             ]
           },
@@ -6660,7 +7213,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -6684,7 +7238,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -6708,7 +7263,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -6734,7 +7290,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -6760,7 +7317,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -6784,7 +7342,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -6808,7 +7367,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -6832,7 +7392,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -6857,7 +7418,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -6882,7 +7444,8 @@
             "tokenName": "md.comp.fab.branded.large.lowered.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -6907,9 +7470,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral10"
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
                   }
                 ]
               }
@@ -6936,9 +7501,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral10"
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
                   }
                 ]
               }
@@ -6965,9 +7532,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral10"
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
                   }
                 ]
               }
@@ -6994,9 +7563,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral96"
+                    "tokenName": "md.ref.palette.neutral96",
+                    "value": 0
                   }
                 ]
               }
@@ -7023,9 +7594,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral96"
+                    "tokenName": "md.ref.palette.neutral96",
+                    "value": 0
                   }
                 ]
               }
@@ -7052,9 +7625,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral96"
+                    "tokenName": "md.ref.palette.neutral96",
+                    "value": 0
                   }
                 ]
               }
@@ -7075,7 +7650,10 @@
       "tokenName": "md.comp.fab.branded.large.container.color",
       "displayName": "FAB (large branded) container color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 1,
       "deprecationMessage": {
         "message": "This token is deprecated. Use the corresponding token from the large fab size `md.comp.fab.large` and branded fab `md.comp.fab.branded` token sets instead."
@@ -7099,7 +7677,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 0
               }
             ]
           },
@@ -7120,7 +7699,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 1
               }
             ]
           },
@@ -7146,7 +7726,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 1
               }
             ]
           },
@@ -7170,7 +7751,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 2
               }
             ]
           },
@@ -7189,7 +7771,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 3
               }
             ]
           },
@@ -7209,7 +7792,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 3
               }
             ]
           },
@@ -7230,7 +7814,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 3
               }
             ]
           },
@@ -7249,7 +7834,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 4
               }
             ]
           },
@@ -7268,7 +7854,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 5
               }
             ]
           },
@@ -7292,7 +7879,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 5
               }
             ]
           },
@@ -7316,7 +7904,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 5
               }
             ]
           },
@@ -7342,7 +7931,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 5
               }
             ]
           },
@@ -7368,7 +7958,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 5
               }
             ]
           },
@@ -7392,7 +7983,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 6
               }
             ]
           },
@@ -7416,7 +8008,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 6
               }
             ]
           },
@@ -7440,7 +8033,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 6
               }
             ]
           },
@@ -7465,7 +8059,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 6
               }
             ]
           },
@@ -7490,7 +8085,8 @@
             "tokenName": "md.comp.fab.branded.large.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-high"
+                "tokenName": "md.sys.color.surface-container-high",
+                "value": 6
               }
             ]
           },
@@ -7515,9 +8111,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-high",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral17"
+                    "tokenName": "md.ref.palette.neutral17",
+                    "value": 0
                   }
                 ]
               }
@@ -7544,9 +8142,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-high",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral17"
+                    "tokenName": "md.ref.palette.neutral17",
+                    "value": 0
                   }
                 ]
               }
@@ -7573,9 +8173,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-high",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral17"
+                    "tokenName": "md.ref.palette.neutral17",
+                    "value": 0
                   }
                 ]
               }
@@ -7602,9 +8204,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-high",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral92"
+                    "tokenName": "md.ref.palette.neutral92",
+                    "value": 0
                   }
                 ]
               }
@@ -7631,9 +8235,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-high",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral92"
+                    "tokenName": "md.ref.palette.neutral92",
+                    "value": 0
                   }
                 ]
               }
@@ -7660,9 +8266,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-high",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral92"
+                    "tokenName": "md.ref.palette.neutral92",
+                    "value": 0
                   }
                 ]
               }
@@ -7683,7 +8291,10 @@
       "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
       "displayName": "FAB (large branded) container surface tint layer color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] Container",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Container"
+      ],
       "orderInDisplayGroup": 7,
       "deprecationMessage": {
         "message": "Deprecated as part of the update from opacity based surfaces to tonal surfaces. Surfaces no longer use surface-tint layers for tinting, please use the desired surface role directly as the container color. "
@@ -7707,7 +8318,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 0
               }
             ]
           },
@@ -7726,7 +8338,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 1
               }
             ]
           },
@@ -7745,7 +8358,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 2
               }
             ]
           },
@@ -7765,7 +8379,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 2
               }
             ]
           },
@@ -7786,7 +8401,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 2
               }
             ]
           },
@@ -7805,7 +8421,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 3
               }
             ]
           },
@@ -7824,7 +8441,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 4
               }
             ]
           },
@@ -7848,7 +8466,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 4
               }
             ]
           },
@@ -7872,7 +8491,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 4
               }
             ]
           },
@@ -7897,7 +8517,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 4
               }
             ]
           },
@@ -7922,7 +8543,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 4
               }
             ]
           },
@@ -7946,7 +8568,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 5
               }
             ]
           },
@@ -7970,7 +8593,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 5
               }
             ]
           },
@@ -7994,7 +8618,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 5
               }
             ]
           },
@@ -8019,7 +8644,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 5
               }
             ]
           },
@@ -8044,7 +8670,8 @@
             "tokenName": "md.comp.fab.branded.large.container.surface-tint-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-tint"
+                "tokenName": "md.sys.color.surface-tint",
+                "value": 5
               }
             ]
           },
@@ -8070,12 +8697,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 0,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary95"
+                        "tokenName": "md.ref.palette.primary95",
+                        "value": 0
                       }
                     ]
                   }
@@ -8105,12 +8735,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 0,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary95"
+                        "tokenName": "md.ref.palette.primary95",
+                        "value": 0
                       }
                     ]
                   }
@@ -8140,12 +8773,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 0,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary95"
+                        "tokenName": "md.ref.palette.primary95",
+                        "value": 0
                       }
                     ]
                   }
@@ -8175,12 +8811,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 1,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary90"
+                        "tokenName": "md.ref.palette.primary90",
+                        "value": 0
                       }
                     ]
                   }
@@ -8210,12 +8849,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 1,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary90"
+                        "tokenName": "md.ref.palette.primary90",
+                        "value": 0
                       }
                     ]
                   }
@@ -8245,12 +8887,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 1,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary90"
+                        "tokenName": "md.ref.palette.primary90",
+                        "value": 0
                       }
                     ]
                   }
@@ -8280,12 +8925,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 2,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary80"
+                        "tokenName": "md.ref.palette.primary80",
+                        "value": 0
                       }
                     ]
                   }
@@ -8315,12 +8963,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 2,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary80"
+                        "tokenName": "md.ref.palette.primary80",
+                        "value": 0
                       }
                     ]
                   }
@@ -8350,12 +9001,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 6,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 2,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary80"
+                        "tokenName": "md.ref.palette.primary80",
+                        "value": 0
                       }
                     ]
                   }
@@ -8385,12 +9039,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 3,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary20"
+                        "tokenName": "md.ref.palette.primary20",
+                        "value": 0
                       }
                     ]
                   }
@@ -8420,12 +9077,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 3,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary20"
+                        "tokenName": "md.ref.palette.primary20",
+                        "value": 0
                       }
                     ]
                   }
@@ -8455,12 +9115,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 3,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary20"
+                        "tokenName": "md.ref.palette.primary20",
+                        "value": 0
                       }
                     ]
                   }
@@ -8490,12 +9153,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 4,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary30"
+                        "tokenName": "md.ref.palette.primary30",
+                        "value": 0
                       }
                     ]
                   }
@@ -8525,12 +9191,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 4,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary30"
+                        "tokenName": "md.ref.palette.primary30",
+                        "value": 0
                       }
                     ]
                   }
@@ -8560,12 +9229,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 4,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary30"
+                        "tokenName": "md.ref.palette.primary30",
+                        "value": 0
                       }
                     ]
                   }
@@ -8595,12 +9267,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 5,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary40"
+                        "tokenName": "md.ref.palette.primary40",
+                        "value": 0
                       }
                     ]
                   }
@@ -8630,12 +9305,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 5,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary40"
+                        "tokenName": "md.ref.palette.primary40",
+                        "value": 0
                       }
                     ]
                   }
@@ -8665,12 +9343,15 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-tint",
+                "value": 7,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.color.primary",
+                    "value": 5,
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.palette.primary40"
+                        "tokenName": "md.ref.palette.primary40",
+                        "value": 0
                       }
                     ]
                   }
@@ -8693,7 +9374,10 @@
       "tokenName": "md.comp.fab.branded.large.icon.color",
       "displayName": "FAB (large branded) icon color",
       "tokenValueType": "COLOR",
-      "displayGroup": "[Deprecated] Icon",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Icon"
+      ],
       "orderInDisplayGroup": 2,
       "deprecationMessage": {
         "message": "Bug fix. The branded FAB is using a four-colored icon."
@@ -8717,7 +9401,8 @@
             "tokenName": "md.comp.fab.branded.large.icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-secondary"
+                "tokenName": "md.sys.color.on-secondary",
+                "value": 0
               }
             ]
           },
@@ -8736,7 +9421,8 @@
             "tokenName": "md.comp.fab.branded.large.icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-secondary"
+                "tokenName": "md.sys.color.on-secondary",
+                "value": 1
               }
             ]
           },
@@ -8755,7 +9441,8 @@
             "tokenName": "md.comp.fab.branded.large.icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-secondary"
+                "tokenName": "md.sys.color.on-secondary",
+                "value": 2
               }
             ]
           },
@@ -8775,7 +9462,8 @@
             "tokenName": "md.comp.fab.branded.large.icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-secondary"
+                "tokenName": "md.sys.color.on-secondary",
+                "value": 2
               }
             ]
           },
@@ -8796,7 +9484,8 @@
             "tokenName": "md.comp.fab.branded.large.icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-secondary"
+                "tokenName": "md.sys.color.on-secondary",
+                "value": 2
               }
             ]
           },
@@ -8817,9 +9506,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary0"
+                    "tokenName": "md.ref.palette.secondary0",
+                    "value": 0
                   }
                 ]
               }
@@ -8844,9 +9535,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary0"
+                    "tokenName": "md.ref.palette.secondary0",
+                    "value": 0
                   }
                 ]
               }
@@ -8871,9 +9564,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary0"
+                    "tokenName": "md.ref.palette.secondary0",
+                    "value": 0
                   }
                 ]
               }
@@ -8898,9 +9593,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary0"
+                    "tokenName": "md.ref.palette.secondary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8925,9 +9622,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary0"
+                    "tokenName": "md.ref.palette.secondary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8952,9 +9651,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary0"
+                    "tokenName": "md.ref.palette.secondary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8979,9 +9680,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 0
                   }
                 ]
               }
@@ -9009,9 +9712,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 0
                   }
                 ]
               }
@@ -9039,9 +9744,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 0
                   }
                 ]
               }
@@ -9069,9 +9776,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 1
                   }
                 ]
               }
@@ -9098,9 +9807,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 1
                   }
                 ]
               }
@@ -9127,9 +9838,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 1
                   }
                 ]
               }
@@ -9156,9 +9869,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary10"
+                    "tokenName": "md.ref.palette.secondary10",
+                    "value": 1
                   }
                 ]
               }
@@ -9185,9 +9900,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9215,9 +9932,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9245,9 +9964,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9275,9 +9996,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9305,9 +10028,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9335,9 +10060,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9365,9 +10092,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9395,9 +10124,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9425,9 +10156,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9455,9 +10188,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9485,9 +10220,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9515,9 +10252,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9545,9 +10284,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9573,7 +10314,8 @@
             "tokenName": "md.comp.fab.branded.large.icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-secondary"
+                "tokenName": "md.sys.color.on-secondary",
+                "value": 7
               }
             ]
           },
@@ -9594,9 +10336,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
                   }
                 ]
               }
@@ -9624,9 +10368,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
                   }
                 ]
               }
@@ -9654,9 +10400,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
                   }
                 ]
               }
@@ -9684,9 +10432,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -9713,9 +10463,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -9742,9 +10494,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -9771,9 +10525,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary20"
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
                   }
                 ]
               }
@@ -9800,9 +10556,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9830,9 +10588,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9860,9 +10620,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9890,9 +10652,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9920,9 +10684,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9950,9 +10716,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9980,9 +10748,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-secondary",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.secondary100"
+                    "tokenName": "md.ref.palette.secondary100",
+                    "value": 1
                   }
                 ]
               }

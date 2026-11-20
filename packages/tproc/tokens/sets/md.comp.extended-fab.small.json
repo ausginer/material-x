@@ -59,58 +59,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -179,58 +238,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -299,58 +417,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -419,58 +596,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -539,58 +775,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -659,58 +954,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -779,58 +1133,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -899,58 +1312,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wght"
+                    "tokenName": "md.sys.typescale.title-medium.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.grad"
+                    "tokenName": "md.sys.typescale.title-medium.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.wdth"
+                    "tokenName": "md.sys.typescale.title-medium.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.rond"
+                    "tokenName": "md.sys.typescale.title-medium.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.opsz"
+                    "tokenName": "md.sys.typescale.title-medium.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.crsv"
+                    "tokenName": "md.sys.typescale.title-medium.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.slnt"
+                    "tokenName": "md.sys.typescale.title-medium.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.fill"
+                    "tokenName": "md.sys.typescale.title-medium.fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.hexp"
+                    "tokenName": "md.sys.typescale.title-medium.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -1019,31 +1491,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1084,31 +1579,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1149,31 +1667,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1213,31 +1754,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1277,31 +1841,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1342,31 +1929,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1407,31 +2017,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1472,31 +2105,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1537,31 +2193,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1602,31 +2281,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1667,31 +2369,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1731,31 +2456,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1795,31 +2543,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1859,31 +2630,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1923,31 +2717,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1987,31 +2804,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.title-medium",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.title-medium.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.title-medium.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.size"
+                    "tokenName": "md.sys.typescale.title-medium.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.line-height"
+                    "tokenName": "md.sys.typescale.title-medium.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.title-medium.tracking"
+                    "tokenName": "md.sys.typescale.title-medium.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -2086,7 +2926,8 @@
             "tokenName": "md.comp.extended-fab.small.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.large"
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
               }
             ]
           },

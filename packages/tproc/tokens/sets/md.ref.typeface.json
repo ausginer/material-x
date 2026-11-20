@@ -7,12 +7,40 @@
     "token_class": "REFERENCE"
   },
   "order": 2,
+  "displayGroups": [
+    {
+      "displayName": "Roundness",
+      "orderInParentTokenSet": 6
+    },
+    {
+      "displayName": "Variable wght",
+      "orderInParentTokenSet": 5
+    },
+    {
+      "displayName": "Weight",
+      "orderInParentTokenSet": 4
+    },
+    {
+      "displayName": "Variable",
+      "orderInParentTokenSet": 3
+    },
+    {
+      "displayName": "Plain",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Brand",
+      "orderInParentTokenSet": 1
+    }
+  ],
   "tokens": [
     {
       "tokenName": "md.ref.typeface.variable.wght-medium",
       "displayName": "Variable medium wght",
       "tokenValueType": "AXIS_VALUE",
-      "displayGroup": "Variable wght",
+      "displayGroup": [
+        "Variable wght"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -41,7 +69,9 @@
       "tokenName": "md.ref.typeface.variable.wght-regular",
       "displayName": "Variable regular wght",
       "tokenValueType": "AXIS_VALUE",
-      "displayGroup": "Variable wght",
+      "displayGroup": [
+        "Variable wght"
+      ],
       "values": [
         {
           "axisValue": {
@@ -69,7 +99,9 @@
       "tokenName": "md.ref.typeface.emphasized.rond",
       "displayName": "Emphasized rond",
       "tokenValueType": "AXIS_VALUE",
-      "displayGroup": "Roundness",
+      "displayGroup": [
+        "Roundness"
+      ],
       "values": [
         {
           "contextTags": {
@@ -123,7 +155,9 @@
       "tokenName": "md.ref.typeface.weight-bold",
       "displayName": "Bold weight",
       "tokenValueType": "FONT_WEIGHT",
-      "displayGroup": "Weight",
+      "displayGroup": [
+        "Weight"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -146,7 +180,9 @@
       "tokenName": "md.ref.typeface.weight-semibold",
       "displayName": "Semi bold weight",
       "tokenValueType": "FONT_WEIGHT",
-      "displayGroup": "Weight",
+      "displayGroup": [
+        "Weight"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -169,7 +205,9 @@
       "tokenName": "md.ref.typeface.variable.wght-bold",
       "displayName": "Variable bold wght",
       "tokenValueType": "AXIS_VALUE",
-      "displayGroup": "Variable wght",
+      "displayGroup": [
+        "Variable wght"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -198,7 +236,9 @@
       "tokenName": "md.ref.typeface.variable.wght-semibold",
       "displayName": "Variable semi bold wght",
       "tokenValueType": "AXIS_VALUE",
-      "displayGroup": "Variable wght",
+      "displayGroup": [
+        "Variable wght"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -227,7 +267,9 @@
       "tokenName": "md.ref.typeface.weight-medium",
       "displayName": "Medium weight",
       "tokenValueType": "FONT_WEIGHT",
-      "displayGroup": "Weight",
+      "displayGroup": [
+        "Weight"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -250,7 +292,9 @@
       "tokenName": "md.ref.typeface.weight-regular",
       "displayName": "Regular weight",
       "tokenValueType": "FONT_WEIGHT",
-      "displayGroup": "Weight",
+      "displayGroup": [
+        "Weight"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -273,7 +317,9 @@
       "tokenName": "md.ref.typeface.variable.plain",
       "displayName": "Variable plain typeface",
       "tokenValueType": "FONT_NAMES",
-      "displayGroup": "Variable",
+      "displayGroup": [
+        "Variable"
+      ],
       "values": [
         {
           "contextTags": {
@@ -333,7 +379,9 @@
       "tokenName": "md.ref.typeface.variable.brand",
       "displayName": "Variable brand typeface",
       "tokenValueType": "FONT_NAMES",
-      "displayGroup": "Variable",
+      "displayGroup": [
+        "Variable"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -394,7 +442,9 @@
       "tokenName": "md.ref.typeface.brand",
       "displayName": "Brand typeface",
       "tokenValueType": "FONT_NAMES",
-      "displayGroup": "Brand",
+      "displayGroup": [
+        "Brand"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -549,7 +599,9 @@
       "tokenName": "md.ref.typeface.plain",
       "displayName": "Plain typeface",
       "tokenValueType": "FONT_NAMES",
-      "displayGroup": "Plain",
+      "displayGroup": [
+        "Plain"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {

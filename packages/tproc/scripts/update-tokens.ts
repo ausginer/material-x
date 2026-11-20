@@ -108,7 +108,7 @@ function report({ manifest, conflicts }: Conversion): string {
         `- database ${versionName} (version ${versionId}, published ${publishTime})`,
     ),
     `- sets: ${manifest.files.length - 1}`,
-    `- conflicts: ${conflicts.length}, each kept from the table read first`,
+    `- conflicts: ${conflicts.length}. A token, set, context or group conflict keeps the table read first. A value conflict is a child node stored without its value's index.`,
     '',
   ];
   if (conflicts.length > 0) {

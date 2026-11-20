@@ -81,7 +81,8 @@
             "tokenName": "md.comp.fab.small.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.medium"
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
               }
             ]
           },

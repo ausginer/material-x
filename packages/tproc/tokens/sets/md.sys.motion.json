@@ -6,6 +6,23 @@
     "token_class": "SYSTEM"
   },
   "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "Spring"
+    },
+    {
+      "displayName": "Style",
+      "orderInParentTokenSet": 3
+    },
+    {
+      "displayName": "Easing",
+      "orderInParentTokenSet": 1
+    },
+    {
+      "displayName": "Duration",
+      "orderInParentTokenSet": 2
+    }
+  ],
   "tokens": [
     {
       "tokenName": "md.sys.motion.spring.slow.effects",
@@ -37,10 +54,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 0,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 0,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -69,10 +94,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 1,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 1,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -101,10 +134,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -133,10 +174,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -165,10 +214,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -197,10 +254,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -229,10 +294,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -261,10 +334,18 @@
             "tokenName": "md.sys.motion.spring.slow.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+                "tokenName": "md.sys.motion.spring.slow.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -289,7 +370,9 @@
       "tokenName": "md.sys.motion.spring.slow.effects.damping",
       "displayName": "Motion spring slow effects damping",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 15,
       "values": [
         {
@@ -434,7 +517,9 @@
       "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
       "displayName": "Motion spring slow effects stiffness",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 16,
       "values": [
         {
@@ -605,10 +690,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 0,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 0,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -637,10 +730,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 1,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 1,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -669,10 +770,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -701,10 +810,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -733,10 +850,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -765,10 +890,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -797,10 +930,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -829,10 +970,18 @@
             "tokenName": "md.sys.motion.spring.slow.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -857,7 +1006,9 @@
       "tokenName": "md.sys.motion.spring.slow.spatial.damping",
       "displayName": "Motion spring slow spatial damping",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -1002,7 +1153,9 @@
       "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
       "displayName": "Motion spring slow spatial stiffness",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -1173,10 +1326,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 0,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 0,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1205,10 +1366,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 1,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 1,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1237,10 +1406,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1269,10 +1446,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1301,10 +1486,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1333,10 +1526,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1365,10 +1566,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1397,10 +1606,18 @@
             "tokenName": "md.sys.motion.spring.default.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.effects.damping"
+                "tokenName": "md.sys.motion.spring.default.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1425,7 +1642,9 @@
       "tokenName": "md.sys.motion.spring.default.effects.damping",
       "displayName": "Motion spring default effects damping",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -1570,7 +1789,9 @@
       "tokenName": "md.sys.motion.spring.default.effects.stiffness",
       "displayName": "Motion spring default effects stiffness",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -1741,10 +1962,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 0,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 0,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1773,10 +2002,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 1,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 1,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1805,10 +2042,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1837,10 +2082,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1869,10 +2122,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1901,10 +2162,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1933,10 +2202,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1965,10 +2242,18 @@
             "tokenName": "md.sys.motion.spring.default.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+                "tokenName": "md.sys.motion.spring.default.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -1993,7 +2278,9 @@
       "tokenName": "md.sys.motion.spring.default.spatial.damping",
       "displayName": "Motion spring default spatial damping",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -2138,7 +2425,9 @@
       "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
       "displayName": "Motion spring default spatial stiffness",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -2309,10 +2598,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 0,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 0,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2341,10 +2638,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 1,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 1,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2373,10 +2678,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2405,10 +2718,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2437,10 +2758,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2469,10 +2798,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2501,10 +2838,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2533,10 +2878,18 @@
             "tokenName": "md.sys.motion.spring.fast.spatial",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2561,7 +2914,9 @@
       "tokenName": "md.sys.motion.spring.fast.spatial.damping",
       "displayName": "Motion spring fast spatial damping",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -2706,7 +3061,9 @@
       "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
       "displayName": "Motion spring fast spatial stiffness",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -2877,10 +3234,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 0,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 0,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2909,10 +3274,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 1,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 1,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2941,10 +3314,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -2973,10 +3354,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -3005,10 +3394,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 2,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 2,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -3037,10 +3434,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -3069,10 +3474,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -3101,10 +3514,18 @@
             "tokenName": "md.sys.motion.spring.fast.effects",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+                "tokenName": "md.sys.motion.spring.fast.effects.damping",
+                "value": 3,
+                "fieldNames": [
+                  "damping"
+                ]
               },
               {
-                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+                "value": 3,
+                "fieldNames": [
+                  "stiffness"
+                ]
               }
             ]
           },
@@ -3129,7 +3550,9 @@
       "tokenName": "md.sys.motion.spring.fast.effects.damping",
       "displayName": "Motion spring fast effects damping",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -3274,7 +3697,9 @@
       "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
       "displayName": "Motion spring fast effects stiffness",
       "tokenValueType": "NUMERIC",
-      "displayGroup": "Spring",
+      "displayGroup": [
+        "Spring"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -3419,7 +3844,9 @@
       "tokenName": "md.sys.motion.easing.linear",
       "displayName": "Linear",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -3448,7 +3875,9 @@
       "tokenName": "md.sys.motion.easing.legacy",
       "displayName": "Legacy",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -3479,7 +3908,9 @@
       "tokenName": "md.sys.motion.duration.medium2",
       "displayName": "Medium 2",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -3502,7 +3933,9 @@
       "tokenName": "md.sys.motion.path",
       "displayName": "Motion path",
       "tokenValueType": "MOTION_PATH",
-      "displayGroup": "Style",
+      "displayGroup": [
+        "Style"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -3529,7 +3962,9 @@
       "tokenName": "md.sys.motion.easing.emphasized.accelerate",
       "displayName": "Emphasized accelerate",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -3560,7 +3995,9 @@
       "tokenName": "md.sys.motion.easing.standard.decelerate",
       "displayName": "Standard decelerate",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -3587,7 +4024,9 @@
       "tokenName": "md.sys.motion.duration.long3",
       "displayName": "Long 3",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -3610,7 +4049,9 @@
       "tokenName": "md.sys.motion.duration.short4",
       "displayName": "Short 4",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -3633,7 +4074,9 @@
       "tokenName": "md.sys.motion.duration.short1",
       "displayName": "Short 1",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -3656,7 +4099,9 @@
       "tokenName": "md.sys.motion.duration.short2",
       "displayName": "Short 2",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -3679,7 +4124,9 @@
       "tokenName": "md.sys.motion.duration.extra-long4",
       "displayName": "Extra long 4",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 16,
       "values": [
         {
@@ -3702,7 +4149,9 @@
       "tokenName": "md.sys.motion.duration.extra-long1",
       "displayName": "Extra long 1",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -3725,7 +4174,9 @@
       "tokenName": "md.sys.motion.duration.long4",
       "displayName": "Long 4",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -3748,7 +4199,9 @@
       "tokenName": "md.sys.motion.duration.long1",
       "displayName": "Long 1",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -3771,7 +4224,9 @@
       "tokenName": "md.sys.motion.easing.standard",
       "displayName": "Standard",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -3800,7 +4255,9 @@
       "tokenName": "md.sys.motion.easing.legacy.accelerate",
       "displayName": "Legacy accelerate",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -3831,7 +4288,9 @@
       "tokenName": "md.sys.motion.easing.legacy.decelerate",
       "displayName": "Legacy decelerate",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -3860,7 +4319,9 @@
       "tokenName": "md.sys.motion.duration.extra-long3",
       "displayName": "Extra long 3",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 15,
       "values": [
         {
@@ -3883,7 +4344,9 @@
       "tokenName": "md.sys.motion.easing.standard.accelerate",
       "displayName": "Standard accelerate",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -3914,7 +4377,9 @@
       "tokenName": "md.sys.motion.duration.short3",
       "displayName": "Short 3",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -3937,7 +4402,9 @@
       "tokenName": "md.sys.motion.duration.extra-long2",
       "displayName": "Extra long 2",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -3960,7 +4427,9 @@
       "tokenName": "md.sys.motion.duration.medium3",
       "displayName": "Medium 3",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -3983,7 +4452,9 @@
       "tokenName": "md.sys.motion.duration.long2",
       "displayName": "Long 2",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -4006,7 +4477,9 @@
       "tokenName": "md.sys.motion.easing.emphasized",
       "displayName": "Emphasized",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -4061,7 +4534,8 @@
             "tokenName": "md.sys.motion.easing.emphasized",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.easing.standard"
+                "tokenName": "md.sys.motion.easing.standard",
+                "value": 0
               }
             ]
           },
@@ -4082,7 +4556,8 @@
             "tokenName": "md.sys.motion.easing.emphasized",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.easing.standard"
+                "tokenName": "md.sys.motion.easing.standard",
+                "value": 0
               }
             ]
           },
@@ -4129,7 +4604,8 @@
             "tokenName": "md.sys.motion.easing.emphasized",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.easing.standard"
+                "tokenName": "md.sys.motion.easing.standard",
+                "value": 0
               }
             ]
           },
@@ -4146,7 +4622,9 @@
       "tokenName": "md.sys.motion.easing.emphasized.decelerate",
       "displayName": "Emphasized decelerate",
       "tokenValueType": "CUBIC_BEZIER",
-      "displayGroup": "Easing",
+      "displayGroup": [
+        "Easing"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -4179,7 +4657,9 @@
       "tokenName": "md.sys.motion.duration.medium1",
       "displayName": "Medium 1",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -4202,7 +4682,9 @@
       "tokenName": "md.sys.motion.duration.medium4",
       "displayName": "Medium 4",
       "tokenValueType": "DURATION",
-      "displayGroup": "Duration",
+      "displayGroup": [
+        "Duration"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {

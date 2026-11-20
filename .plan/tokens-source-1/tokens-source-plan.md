@@ -283,6 +283,16 @@ Proofs:
 
   The store is 53.8 MB and 1,956,718 lines, against the estimate of 45.3 MB, and gzips to 1.27 MB. The update report's diff sections are step 2's (P7). `--release` and `--current` are implemented and haven't run yet.
 
+- **Rerun 2026-11-20** by the implementer at the [second field rulings](#field-rulings-from-the-feature-proof), from the 14 tables read at `a182ba6aa` ([transcript](checks/step-1.txt), its last section). All nine proofs hold:
+  - **P1, P2 and P4** as before. tproc passes 111 tests and material-x 427.
+  - **P3:** no email address or `gaiaId` key in the store, and a raw token with an extra key is refused, naming the key.
+  - **P5:** sixteen mutations of the tables are refused, with the table, the token and the key's path, including the seven new witnesses. A child value that isn't its token's is listed in legacy mode.
+  - **P10:** all 3,950 tokens read the same as `DB`, against `DB`'s reading regenerated from `a182ba6aa`.
+  - **P11:** the same 704 conflicts for 217 tokens, and no unresolved child value.
+  - **P12:** read back through the tables, all 982 groups' paths, parents and orders, all 3,950 tokens' groups, and all 129,895 child nodes' indexes and `fieldNames` give the tables' own ids and values.
+
+  The store is now 58.9 MB and 2,134,917 lines, and gzips to 1.42 MB. `storeVersion` stays 1. The exact match closed two gaps in `schema.ts`: a `type` value's `variationAxes`, and its `FILL` and `HEXP` axes, are optional, as upstream gives them; and a resolved `type` holds literals, so it has its own type, `ResolvedTokenType`.
+
 **Step 2 — the first update, to a dated release,** after step 1: P6–P8 as planned, and no duplicate conflict. It doesn't wait for the history rewrite, which the owner has deferred: the update writes only the store, and a rewrite run later rewrites any branch open then with the rest. Until the owner deferred the rewrite, this step read: _"after the history rewrite"_.
 
 **Step 3 — change notification,** weekly, because the owner answered yes to `Q1`: P9 as planned, after step 1, whose manifest it compares. Until his answer, this step read: _"only if the owner answers yes to `Q1`"_.

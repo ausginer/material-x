@@ -53,7 +53,8 @@
             "tokenName": "md.comp.split-button.medium.inner-corner.pressed.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.medium"
+                "tokenName": "md.sys.shape.corner-value.medium",
+                "value": 0
               }
             ]
           },
@@ -83,7 +84,8 @@
             "tokenName": "md.comp.split-button.medium.inner-corner.hovered.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.medium"
+                "tokenName": "md.sys.shape.corner-value.medium",
+                "value": 0
               }
             ]
           },
@@ -113,7 +115,8 @@
             "tokenName": "md.comp.split-button.medium.inner-corner.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.extra-small"
+                "tokenName": "md.sys.shape.corner-value.extra-small",
+                "value": 0
               }
             ]
           },
@@ -199,7 +202,8 @@
             "tokenName": "md.comp.split-button.medium.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },

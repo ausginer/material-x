@@ -9,6 +9,8 @@ const TOKEN = `${SET}/tokens/k1`;
 const VALUE = `${TOKEN}/values/v1`;
 const OTHER = `${SET}/tokens/k2`;
 const OTHER_VALUE = `${OTHER}/values/v2`;
+const DISPLAY_GROUP = `${SET}/displayGroups/d1`;
+const SUBGROUP = `${SET}/displayGroups/d2`;
 
 type Table = Readonly<Record<string, unknown>>;
 type Path = ReadonlyArray<string | number>;
@@ -62,11 +64,12 @@ function createTable(versionName = '1.0.0'): Table {
   return {
     system: {
       displayName: 'Test system',
-      revisionAuthor: { emailAddress: 'someone@example.com' },
+      author: { email: 'someone@example.com', gaiaId: '1' },
       version: {
         name: `${DS}/versions/ver1`,
         versionName,
         createTime: '2026-01-01T00:00:00Z',
+        revisionAuthor: { gaiaId: '1' },
       },
       components: [{ name: `${DS}/components/c1`, displayName: 'Test' }],
       contextTagGroups: [
@@ -87,7 +90,21 @@ function createTable(versionName = '1.0.0'): Table {
           tagOrder: 0,
         },
       ],
-      displayGroups: [{ name: `${DS}/displayGroups/d1`, displayName: 'Group' }],
+      displayGroups: [
+        {
+          name: DISPLAY_GROUP,
+          displayName: 'Group',
+          orderInParentTokenSet: 0,
+          revisionId: 'r',
+        },
+        {
+          name: SUBGROUP,
+          displayName: 'Group',
+          parentGroup: DISPLAY_GROUP,
+          description: 'A subgroup',
+          orderInParentDisplayGroup: 0,
+        },
+      ],
       tokenSets: [
         {
           name: SET,
@@ -107,10 +124,9 @@ function createTable(versionName = '1.0.0'): Table {
           tokenNameSuffix: 'a',
           displayName: 'A',
           tokenValueType: 'LENGTH',
-          displayGroup: `${DS}/displayGroups/d1`,
+          displayGroup: SUBGROUP,
           orderInDisplayGroup: 0,
           state: 'ACTIVE',
-          revisionAuthor: { gaiaId: '1' },
         },
         {
           name: OTHER,
@@ -140,8 +156,9 @@ function createTable(versionName = '1.0.0'): Table {
                 tokenName: 'md.comp.test.a',
                 childNodes: [
                   {
-                    value: { name: OTHER_VALUE },
+                    value: { name: OTHER_VALUE, version: 'x', revisionId: 'y' },
                     tokenName: 'md.comp.test.b',
+                    fieldNames: ['damping'],
                   },
                 ],
               },
@@ -180,12 +197,21 @@ describe('convert', () => {
       tokenType: 'TOKEN_TYPE_UNSPECIFIED',
       custom: { token_class: 'component' },
       order: 1,
+      displayGroups: [
+        { displayName: 'Group', orderInParentTokenSet: 0 },
+        {
+          displayName: 'Group',
+          parentGroup: ['Group'],
+          description: 'A subgroup',
+          orderInParentDisplayGroup: 0,
+        },
+      ],
       tokens: [
         {
           tokenName: 'md.comp.test.a',
           displayName: 'A',
           tokenValueType: 'LENGTH',
-          displayGroup: 'Group',
+          displayGroup: ['Group', 'Group'],
           orderInDisplayGroup: 0,
           values: [
             {
@@ -200,7 +226,13 @@ describe('convert', () => {
               value: 0,
               referenceTree: {
                 tokenName: 'md.comp.test.a',
-                childNodes: [{ tokenName: 'md.comp.test.b' }],
+                childNodes: [
+                  {
+                    tokenName: 'md.comp.test.b',
+                    value: 0,
+                    fieldNames: ['damping'],
+                  },
+                ],
               },
               resolvedValue: { length: { value: 4, unit: 'DP' } },
             },
@@ -222,10 +254,12 @@ describe('convert', () => {
     expect([...second]).toEqual([...first]);
   });
 
-  it('should drop a field the schema does not name', () => {
+  it('should refuse a raw token key that is neither kept nor dropped', () => {
     const table = createTable();
-    edit(table, ['system', 'tokens', 0, 'upstreamAddedField'], 'x');
-    expect(setFile([table]).tokens[0]).not.toHaveProperty('upstreamAddedField');
+    edit(table, ['system', 'tokens', 0, 'gaiaId'], '1');
+    expect(() => convert([source(table)], options)).toThrow(
+      'TOKEN_TABLE.c1: md.comp.test.a: tokens.gaiaId: is neither kept nor dropped',
+    );
   });
 
   it('should keep no email address or gaiaId key', () => {
@@ -333,18 +367,27 @@ describe('convert refusals', () => {
     );
   });
 
-  it('should refuse a renamed resolvedValue', () => {
+  it('should refuse an entry without a resolved form', () => {
     const table = createTable();
-    rename(table, [...TREE, 'resolvedValue'], 'resolved');
+    edit(table, [...TREE, 'resolvedValue']);
     refuses(
       table,
       'TOKEN_TABLE.c1: md.comp.test.a: contextualReferenceTree: has 0 resolved forms, not one',
     );
   });
 
-  it('should refuse a value with no known value field', () => {
+  it('should refuse a value with an unknown value kind', () => {
     const table = createTable();
     rename(table, ['system', 'values', 0, 'tokenName'], 'upstreamKind');
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.a: values.upstreamKind: is neither kept nor dropped',
+    );
+  });
+
+  it('should refuse a value with no value field', () => {
+    const table = createTable();
+    edit(table, ['system', 'values', 0, 'tokenName']);
     refuses(
       table,
       'TOKEN_TABLE.c1: md.comp.test.a: values: has 0 value fields (), not one',
@@ -365,7 +408,146 @@ describe('convert refusals', () => {
     edit(table, ['system', 'values', 1, 'length'], 4);
     refuses(
       table,
-      'TOKEN_TABLE.c1: md.comp.test.b: values.length: is not a object',
+      'TOKEN_TABLE.c1: md.comp.test.b: values.length: is not an object',
+    );
+  });
+
+  it('should refuse an extra key in a literal', () => {
+    const table = createTable();
+    edit(table, ['system', 'values', 1, 'length']);
+    edit(table, ['system', 'values', 1, 'color'], { red: 1, hue: 0 });
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.b: values.color.hue: is not in the schema',
+    );
+  });
+
+  it('should refuse a literal without a key the schema requires', () => {
+    const table = createTable();
+    edit(table, ['system', 'values', 1, 'length']);
+    edit(table, ['system', 'values', 1, 'axisValue'], { value: 1 });
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.b: values.axisValue.tag: is missing',
+    );
+  });
+
+  it('should refuse a customComposite property with two value fields', () => {
+    const table = createTable();
+    edit(table, ['system', 'values', 0, 'tokenName']);
+    edit(table, ['system', 'values', 0, 'customComposite'], {
+      properties: { damping: { tokenName: 'md.comp.test.b', numeric: 1 } },
+    });
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.a: values.customComposite.properties.damping: has 2 value fields (tokenName, numeric), not one',
+    );
+  });
+
+  describe('a resolvedCustomCompositeValue', () => {
+    const COMPOSITE = 'contextualReferenceTree.resolvedCustomCompositeValue';
+    const withResolved = (property: unknown): Table => {
+      const table = createTable();
+      edit(table, [...TREE, 'resolvedValue']);
+      edit(table, [...TREE, 'resolvedCustomCompositeValue'], {
+        properties: { damping: property },
+      });
+      return table;
+    };
+
+    it('should be refused with an extra key', () => {
+      refuses(
+        withResolved({ resolvedValue: { numeric: 1 }, extra: 1 }),
+        `TOKEN_TABLE.c1: md.comp.test.a: ${COMPOSITE}.properties.damping.extra: is not in the schema`,
+      );
+    });
+
+    it('should be refused with two literal fields in a resolvedValue', () => {
+      refuses(
+        withResolved({ resolvedValue: { numeric: 1, opacity: 1 } }),
+        `TOKEN_TABLE.c1: md.comp.test.a: ${COMPOSITE}.properties.damping.resolvedValue: has 2 value fields (opacity, numeric), not one`,
+      );
+    });
+
+    it('should be refused with no literal field in a resolvedValue', () => {
+      refuses(
+        withResolved({ resolvedValue: {} }),
+        `TOKEN_TABLE.c1: md.comp.test.a: ${COMPOSITE}.properties.damping.resolvedValue: has 0 value fields (), not one`,
+      );
+    });
+
+    it('should be refused with a resolvedValue that is not an object', () => {
+      refuses(
+        withResolved({ resolvedValue: 1 }),
+        `TOKEN_TABLE.c1: md.comp.test.a: ${COMPOSITE}.properties.damping.resolvedValue: is not an object`,
+      );
+    });
+  });
+
+  it('should refuse a display group key that is neither kept nor dropped', () => {
+    const table = createTable();
+    edit(table, ['system', 'displayGroups', 0, 'extra'], 1);
+    refuses(
+      table,
+      `TOKEN_TABLE.c1: ${DISPLAY_GROUP}: displayGroups.extra: is neither kept nor dropped`,
+    );
+  });
+
+  it('should refuse a parentGroup that names no display group', () => {
+    const table = createTable();
+    edit(
+      table,
+      ['system', 'displayGroups', 1, 'parentGroup'],
+      `${SET}/displayGroups/missing`,
+    );
+    refuses(
+      table,
+      `TOKEN_TABLE.c1: ${SUBGROUP}: parentGroup: names no display group`,
+    );
+  });
+
+  it('should refuse two groups of a set with one path', () => {
+    const table = createTable();
+    edit(table, ['system', 'displayGroups', 1, 'parentGroup']);
+    refuses(
+      table,
+      `TOKEN_TABLE.c1: ${SUBGROUP}: displayName: has the path of another group`,
+    );
+  });
+
+  it("should refuse a token's display group of another set", () => {
+    const table = createTable();
+    edit(table, ['system', 'tokenSets', 1], {
+      name: `${DS}/tokenSets/s2`,
+      tokenSetName: 'md.comp.other',
+      displayName: 'Other',
+      description: 'Another set',
+    });
+    edit(table, ['system', 'displayGroups', 2], {
+      name: `${DS}/tokenSets/s2/displayGroups/d3`,
+      displayName: 'Other',
+    });
+    edit(
+      table,
+      ['system', 'tokens', 0, 'displayGroup'],
+      `${DS}/tokenSets/s2/displayGroups/d3`,
+    );
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.a: displayGroup: is a group of another set',
+    );
+  });
+
+  it("should refuse a child node whose value isn't its token's", () => {
+    const table = createTable();
+    edit(
+      table,
+      [...TREE, 'referenceTree', 'childNodes', 0, 'value', 'name'],
+      VALUE,
+    );
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.a: contextualReferenceTree.referenceTree.childNodes.value: names no value of md.comp.test.b in the store',
     );
   });
 
@@ -475,5 +657,39 @@ describe('convert legacy', () => {
       '1.0.0',
       '2.0.0',
     ]);
+  });
+
+  it("should list a child node whose value isn't its token's, and store it without one", () => {
+    const table = createTable();
+    edit(
+      table,
+      [...TREE, 'referenceTree', 'childNodes', 0, 'value', 'name'],
+      VALUE,
+    );
+    const { conflicts, files } = convert([source(table)], {
+      release: null,
+      fetchDate: null,
+      legacy: true,
+    });
+
+    expect(conflicts).toEqual([
+      {
+        kind: 'value',
+        name: 'md.comp.test.a → md.comp.test.b',
+        keptTable: 'TOKEN_TABLE.c1',
+        otherTable: 'TOKEN_TABLE.c1',
+      },
+    ]);
+    expect(
+      at(JSON.parse(files.get('sets/md.comp.test.json')!) as Table, [
+        'tokens',
+        0,
+        'contextualReferenceTree',
+        0,
+        'referenceTree',
+        'childNodes',
+        0,
+      ]),
+    ).toEqual({ tokenName: 'md.comp.test.b', fieldNames: ['damping'] });
   });
 });

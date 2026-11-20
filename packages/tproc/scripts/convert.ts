@@ -2,14 +2,20 @@ import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import {
   STORE_VERSION,
+  TextTransform,
+  TokenShapeFamily,
   type ContextTags,
   type ContextualEntry,
+  type DisplayGroupPath,
   type Literal,
+  type ResolvedCustomCompositeValue,
+  type ResolvedLiteral,
   type Manifest,
   type ManifestDatabase,
   type ManifestTable,
   type ReferenceTree,
   type StoredContext,
+  type StoredDisplayGroup,
   type StoredSet,
   type StoredTag,
   type StoredTagGroup,
@@ -38,9 +44,14 @@ export type ConvertOptions = Readonly<{
   legacy?: boolean;
 }>;
 
-/** A token or context group that two tables convert differently. */
+/**
+ * A record that two tables convert differently, or a child node whose value
+ * isn't one of its token's kept values. For a `value` conflict, `name` is the
+ * tree's token and the child's, `keptTable` the table the child's token is
+ * kept from, and `otherTable` the tree's.
+ */
 export type Conflict = Readonly<{
-  kind: 'token' | 'set' | 'context';
+  kind: 'token' | 'set' | 'context' | 'group' | 'value';
   name: string;
   keptTable: string;
   otherTable: string;
@@ -53,32 +64,281 @@ export type Conversion = Readonly<{
   conflicts: readonly Conflict[];
 }>;
 
-const LITERAL_TYPES = {
-  color: 'object',
-  length: 'object',
-  shape: 'object',
-  type: 'object',
+/**
+ * The shape of a value field's contents, as `src/store/schema.ts` gives it: a
+ * primitive's `typeof`, a one-element tuple for an array of that element, a set
+ * of the strings allowed, `OneOf` for an object with exactly one of some
+ * fields, or an object naming each key. An object's key ends in `?` when it's
+ * optional, and `*` stands for any key.
+ */
+type Spec =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | readonly [Spec]
+  | ReadonlySet<string>
+  | OneOf
+  | Readonly<{ [key: string]: Spec }>;
+
+/** An object with exactly one of `fields`, and no other key. */
+class OneOf {
+  readonly fields: () => Readonly<Record<string, Spec>>;
+
+  constructor(fields: () => Readonly<Record<string, Spec>>) {
+    this.fields = fields;
+  }
+}
+
+const LENGTH: Spec = { 'value?': 'number', 'unit?': 'string' };
+
+const FONT_NAMES: Spec = { values: ['string'] };
+
+function variationAxes(axis: Spec): Spec {
+  return {
+    wght: axis,
+    GRAD: axis,
+    wdth: axis,
+    ROND: axis,
+    opsz: axis,
+    CRSV: axis,
+    slnt: axis,
+    'FILL?': axis,
+    'HEXP?': axis,
+  };
+}
+
+const LITERALS = {
+  color: {
+    'red?': 'number',
+    'green?': 'number',
+    'blue?': 'number',
+    'alpha?': 'number',
+  },
+  length: LENGTH,
+  shape: {
+    family: new Set<string>(Object.values(TokenShapeFamily)),
+    'defaultSize?': LENGTH,
+    'top?': LENGTH,
+    'bottom?': LENGTH,
+    'left?': LENGTH,
+    'right?': LENGTH,
+    'topLeft?': LENGTH,
+    'topRight?': LENGTH,
+    'bottomLeft?': LENGTH,
+    'bottomRight?': LENGTH,
+  },
+  type: {
+    fontNameTokenName: 'string',
+    fontWeightTokenName: 'string',
+    fontSizeTokenName: 'string',
+    fontTrackingTokenName: 'string',
+    lineHeightTokenName: 'string',
+    'variationAxes?': variationAxes({ axisValueTokenName: 'string' }),
+  },
   opacity: 'number',
   numeric: 'number',
   durationMs: 'number',
-  cubicBezier: 'object',
-  motionPath: 'object',
-  customComposite: 'object',
-  axisValue: 'object',
-  textTransform: 'string',
-  fontNames: 'object',
+  cubicBezier: {
+    'x0?': 'number',
+    'y0?': 'number',
+    'x1?': 'number',
+    'y1?': 'number',
+  },
+  motionPath: { standardPath: 'string' },
+  customComposite: {
+    properties: { '*': new OneOf(() => VALUE_FIELDS) },
+  },
+  axisValue: { tag: 'string', 'value?': 'number' },
+  textTransform: new Set<string>(Object.values(TextTransform)),
+  fontNames: FONT_NAMES,
   fontWeight: 'number',
-  fontSize: 'object',
-  fontTracking: 'object',
-  lineHeight: 'object',
-  elevation: 'object',
+  fontSize: LENGTH,
+  fontTracking: LENGTH,
+  lineHeight: LENGTH,
+  elevation: LENGTH,
   svgPath: 'string',
   undefined: 'boolean',
-} as const satisfies Record<keyof Literal, string>;
+} as const satisfies Record<keyof Literal, Spec>;
 
-const LITERAL_FIELDS: readonly string[] = Object.keys(LITERAL_TYPES);
+const VALUE_FIELDS: Readonly<Record<string, Spec>> = {
+  tokenName: 'string',
+  ...LITERALS,
+};
 
-const VALUE_FIELDS: readonly string[] = ['tokenName', ...LITERAL_FIELDS];
+const RESOLVED_LITERALS = {
+  ...LITERALS,
+  type: {
+    fontNames: FONT_NAMES,
+    fontWeight: 'number',
+    fontSize: LENGTH,
+    fontTracking: LENGTH,
+    lineHeight: LENGTH,
+    'variationAxes?': variationAxes({ axisValue: 'number' }),
+  },
+} as const satisfies Record<keyof ResolvedLiteral, Spec>;
+
+const RESOLVED_VALUE = new OneOf(() => RESOLVED_LITERALS);
+
+const RESOLVED_CUSTOM_COMPOSITE_VALUE: Spec = {
+  properties: { '*': { resolvedValue: RESOLVED_VALUE } },
+};
+
+const REVISION = ['createTime', 'revisionCreateTime', 'revisionId', 'state'];
+
+/**
+ * Every key the converter meets outside a value field, by record: the keys it
+ * keeps or reads, and the keys it drops. A key in neither refuses the
+ * conversion, so a field upstream adds is ruled on before it's kept or
+ * dropped. A value field has no drop list: its keys are `Spec`'s.
+ */
+const RECORD_KEYS = {
+  table: { kept: ['system'], dropped: [] },
+  system: {
+    kept: [
+      'tokenSets',
+      'tokens',
+      'values',
+      'contextTagGroups',
+      'tags',
+      'contextualReferenceTrees',
+      'displayGroups',
+      'version',
+      // A component table's component, and a system table's own displayName,
+      // give the manifest's componentName.
+      'components',
+      'displayName',
+    ],
+    dropped: [
+      '_isResolved',
+      'author',
+      'carbonProject',
+      'componentDisplayGroups',
+      'connections',
+      'createTime',
+      'custom',
+      'description',
+      'dsdbVersion',
+      'name',
+      'parentVersions',
+      'parentVersionsMapping',
+      'revisionAuthor',
+      'revisionCreateTime',
+      'revisionId',
+      'settings',
+      'state',
+      'tokenNamePrefix',
+      'versions',
+    ],
+  },
+  version: {
+    kept: ['name', 'versionName', 'createTime'],
+    dropped: [
+      'description',
+      'revisionAuthor',
+      'revisionCreateTime',
+      'revisionId',
+      'state',
+    ],
+  },
+  component: {
+    kept: ['displayName'],
+    dropped: [
+      'name',
+      'alternativeNames',
+      'componentDisplayGroup',
+      'componentImage',
+      'connectedPage',
+      'definition',
+      'tokenSets',
+      ...REVISION,
+    ],
+  },
+  tokenSet: {
+    kept: [
+      'name',
+      'tokenSetName',
+      'displayName',
+      'description',
+      'tokenType',
+      'custom',
+      'order',
+    ],
+    dropped: ['tokenSetNameSuffix', ...REVISION],
+  },
+  custom: { kept: ['token_class'], dropped: [] },
+  displayGroup: {
+    kept: [
+      'name',
+      'displayName',
+      'parentGroup',
+      'description',
+      'orderInParentTokenSet',
+      'orderInParentDisplayGroup',
+    ],
+    dropped: REVISION,
+  },
+  token: {
+    kept: [
+      'name',
+      'tokenName',
+      'displayName',
+      'tokenValueType',
+      'description',
+      'displayGroup',
+      'orderInDisplayGroup',
+      'deprecationMessage',
+    ],
+    // tokenNameSuffix isn't stored. It names a set that no table carries.
+    dropped: ['tokenNameSuffix', ...REVISION],
+  },
+  deprecationMessage: {
+    kept: ['message', 'replacementTokenName'],
+    dropped: [],
+  },
+  value: {
+    kept: [
+      'name',
+      'contextTags',
+      'specificityScore',
+      ...Object.keys(VALUE_FIELDS),
+    ],
+    dropped: REVISION,
+  },
+  contextTagGroup: {
+    kept: [
+      'name',
+      'contextTagGroupName',
+      'displayName',
+      'specificity',
+      'defaultTag',
+    ],
+    dropped: REVISION,
+  },
+  tag: {
+    kept: ['name', 'tagName', 'displayName', 'tagOrder'],
+    dropped: REVISION,
+  },
+  tree: { kept: ['contextualReferenceTree'], dropped: [] },
+  entry: {
+    kept: [
+      'contextTags',
+      'referenceTree',
+      'resolvedValue',
+      'resolvedCustomCompositeValue',
+    ],
+    dropped: [],
+  },
+  node: {
+    kept: ['tokenName', 'value', 'fieldNames', 'childNodes'],
+    dropped: [],
+  },
+  nodeValue: { kept: ['name'], dropped: ['revisionId', 'version'] },
+} as const satisfies Record<
+  string,
+  Readonly<{ kept: readonly string[]; dropped: readonly string[] }>
+>;
+
+type RecordKind = keyof typeof RECORD_KEYS;
 
 const EMAIL_ADDRESS = /[\w.%+-]+@[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}/iu;
 
@@ -113,26 +373,57 @@ function parentId(id: string, segment: string): string {
 
 type TagIndex = ReadonlyMap<string, Readonly<{ group: string; tag: string }>>;
 
-/** Reads one table's fields and converts its tokens, with the input checks. */
+/** A display group row, with its ids. */
+type GroupRow = Readonly<{
+  id: string;
+  displayName: string;
+  parentGroup?: string;
+  description?: string;
+  orderInParentTokenSet?: number;
+  orderInParentDisplayGroup?: number;
+}>;
+
+/** What converting a token reads from every table. */
+type Lookups = Readonly<{
+  /** Each display group's set id and path, by group id. */
+  groups: ReadonlyMap<
+    string,
+    Readonly<{ setId: string; path: DisplayGroupPath }>
+  >;
+  /** The value ids of each token's kept copy, by token name. */
+  values: ReadonlyMap<
+    string,
+    Readonly<{ table: string; ids: readonly string[] }>
+  >;
+}>;
+
+/** A converted token, and the child nodes whose value isn't in the store. */
+type TokenConversion = readonly [
+  id: string,
+  token: StoredToken,
+  unresolved: readonly string[],
+];
+
+/** Reads one table's fields and converts its records, with the input checks. */
 class TableReader {
   readonly name: string;
   readonly system: RawObject;
   readonly tags: TagIndex;
   readonly #valuesByToken = new Map<string, RawObject[]>();
-  readonly #displayGroups: ReadonlyMap<string, string>;
 
-  constructor(
-    { kind, componentId, table }: SourceTable,
-    displayGroups: ReadonlyMap<string, string>,
-  ) {
+  constructor({ kind, componentId, table }: SourceTable) {
     this.name = `${kind}.${componentId}`;
-    this.#displayGroups = displayGroups;
 
-    const system = isObject(table) ? table['system'] : undefined;
+    if (!isObject(table)) {
+      refuse(this.name, '-', '-', 'is not an object');
+    }
+    this.ruled('-', table, 'table', '');
+    const { system } = table;
     if (!isObject(system)) {
       refuse(this.name, '-', 'system', 'is not an object');
     }
     this.system = system;
+    this.ruled('-', system, 'system', 'system');
 
     for (const field of [
       'tokenSets',
@@ -145,17 +436,23 @@ class TableReader {
     }
     this.object('-', system, 'contextualReferenceTrees');
     const version = this.object('-', system, 'version');
+    this.ruled('-', version, 'version', 'system.version');
     this.string('-', version, 'versionName');
+    for (const component of this.optionalArray('components')) {
+      this.ruled('-', component, 'component', 'system.components');
+    }
 
     const groups = new Map<string, string>();
     for (const group of this.array('contextTagGroups')) {
       const id = this.string('-', group, 'name');
+      this.ruled(id, group, 'contextTagGroup', 'contextTagGroups');
       groups.set(id, this.string(id, group, 'contextTagGroupName'));
     }
 
     const tags = new Map<string, { group: string; tag: string }>();
     for (const tag of this.array('tags')) {
       const id = this.string('-', tag, 'name');
+      this.ruled(id, tag, 'tag', 'tags');
       const group = groups.get(parentId(id, 'tags'));
       if (group == null) {
         refuse(this.name, id, 'tags', 'names no context tag group');
@@ -175,12 +472,39 @@ class TableReader {
     }
   }
 
+  /** Refuses a key of `record` that `RECORD_KEYS[kind]` neither keeps nor drops. */
+  ruled(
+    token: string,
+    record: RawObject,
+    kind: RecordKind,
+    path: string,
+  ): void {
+    const { kept, dropped } = RECORD_KEYS[kind];
+    for (const key of Object.keys(record)) {
+      if (
+        !(kept as readonly string[]).includes(key) &&
+        !(dropped as readonly string[]).includes(key)
+      ) {
+        refuse(
+          this.name,
+          token,
+          path ? `${path}.${key}` : key,
+          'is neither kept nor dropped',
+        );
+      }
+    }
+  }
+
   array(field: string): readonly RawObject[] {
     const value = this.system[field];
     if (!Array.isArray(value) || !value.every(isObject)) {
       refuse(this.name, '-', field, 'is not an array of objects');
     }
     return value;
+  }
+
+  optionalArray(field: string): readonly RawObject[] {
+    return this.system[field] == null ? [] : this.array(field);
   }
 
   object(token: string, record: RawObject, field: string): RawObject {
@@ -223,6 +547,13 @@ class TableReader {
     return value ?? undefined;
   }
 
+  /** The ids of a token's values in this table, in upstream order. */
+  valueIds(id: string): readonly string[] {
+    return (this.#valuesByToken.get(id) ?? []).map(
+      ({ name }) => name as string,
+    );
+  }
+
   contextTags(token: string, record: RawObject): ContextTags | undefined {
     const ids = record['contextTags'];
     if (ids == null) {
@@ -249,56 +580,146 @@ class TableReader {
     );
   }
 
-  /** Copies the one value field of a value or resolved value. */
+  /** Copies a value field's contents, which must match `spec` exactly. */
+  copy(token: string, value: unknown, spec: Spec, path: string): unknown {
+    if (typeof spec === 'string') {
+      if (typeof value !== spec) {
+        refuse(this.name, token, path, `is not a ${spec}`);
+      }
+      return value;
+    }
+    if (spec instanceof Set) {
+      if (typeof value !== 'string' || !spec.has(value)) {
+        refuse(this.name, token, path, `is not one of ${[...spec].join(', ')}`);
+      }
+      return value;
+    }
+    if (Array.isArray(spec)) {
+      if (!Array.isArray(value)) {
+        refuse(this.name, token, path, 'is not an array');
+      }
+      const [item] = spec;
+      return value.map((element, i) =>
+        this.copy(token, element, item, `${path}.${i}`),
+      );
+    }
+    if (!isObject(value)) {
+      refuse(this.name, token, path, 'is not an object');
+    }
+    if (spec instanceof OneOf) {
+      const fields = spec.fields();
+      for (const key of Object.keys(value)) {
+        if (!Object.hasOwn(fields, key)) {
+          refuse(this.name, token, `${path}.${key}`, 'is not in the schema');
+        }
+      }
+      return this.valueField(token, value, fields, path);
+    }
+
+    const keys = spec as Readonly<Record<string, Spec>>;
+    const copy: Record<string, unknown> = {};
+    for (const [key, element] of Object.entries(value)) {
+      const name = [key, `${key}?`, '*'].find((k) => Object.hasOwn(keys, k));
+      if (name == null) {
+        refuse(this.name, token, `${path}.${key}`, 'is not in the schema');
+      }
+      copy[key] = this.copy(token, element, keys[name]!, `${path}.${key}`);
+    }
+    for (const key of Object.keys(keys)) {
+      if (key !== '*' && !key.endsWith('?') && !Object.hasOwn(value, key)) {
+        refuse(this.name, token, `${path}.${key}`, 'is missing');
+      }
+    }
+    return copy;
+  }
+
+  /** Copies the one value field of `record`, of `fields`. */
   valueField(
     token: string,
     record: RawObject,
-    field: string,
-    fields: readonly string[],
+    fields: Readonly<Record<string, Spec>>,
+    path: string,
   ): RawObject {
-    const present = fields.filter((name) => record[name] != null);
+    const present = Object.keys(fields).filter((name) => record[name] != null);
     if (present.length !== 1) {
       refuse(
         this.name,
         token,
-        field,
+        path,
         `has ${present.length} value fields (${present.join(', ')}), not one`,
       );
     }
 
     const [name] = present as [string];
-    const value = record[name];
-    const expected =
-      name === 'tokenName'
-        ? 'string'
-        : LITERAL_TYPES[name as keyof typeof LITERAL_TYPES];
-    if (
-      typeof value !== expected ||
-      (expected === 'object' && !isObject(value))
-    ) {
-      refuse(this.name, token, `${field}.${name}`, `is not a ${expected}`);
-    }
-
-    return { [name]: structuredClone(value) };
+    return {
+      [name]: this.copy(token, record[name], fields[name]!, `${path}.${name}`),
+    };
   }
 
-  referenceTree(token: string, node: unknown, field: string): ReferenceTree {
+  referenceTree(
+    token: string,
+    node: unknown,
+    path: string,
+    lookups: Lookups,
+    unresolved: string[],
+  ): ReferenceTree {
     if (!isObject(node)) {
-      refuse(this.name, token, field, 'is not an object');
+      refuse(this.name, token, path, 'is not an object');
     }
+    this.ruled(token, node, 'node', path);
     const tokenName = this.string(token, node, 'tokenName');
+
+    // A child node's value is one of its token's values. The root's is the
+    // entry's, which entry() reads.
+    let value: number | undefined;
+    if (path.endsWith('.childNodes')) {
+      let id: string | undefined;
+      if (node['value'] != null) {
+        const record = this.object(token, node, 'value');
+        this.ruled(token, record, 'nodeValue', `${path}.value`);
+        id = this.optionalString(token, record, 'name');
+      }
+      const index =
+        id == null
+          ? -1
+          : (lookups.values.get(tokenName)?.ids.indexOf(id) ?? -1);
+      if (index < 0) {
+        unresolved.push(tokenName);
+      } else {
+        value = index;
+      }
+    }
+
+    const fieldNames =
+      node['fieldNames'] == null
+        ? undefined
+        : (this.copy(
+            token,
+            node['fieldNames'],
+            ['string'],
+            `${path}.fieldNames`,
+          ) as string[]);
+
     const children = node['childNodes'];
-    if (children == null) {
-      return { tokenName };
+    if (children != null && !Array.isArray(children)) {
+      refuse(this.name, token, `${path}.childNodes`, 'is not an array');
     }
-    if (!Array.isArray(children)) {
-      refuse(this.name, token, `${field}.childNodes`, 'is not an array');
-    }
+
     return {
       tokenName,
-      childNodes: children.map((child) =>
-        this.referenceTree(token, child, `${field}.childNodes`),
-      ),
+      ...(value != null && { value }),
+      ...(fieldNames && { fieldNames }),
+      ...(children && {
+        childNodes: children.map((child) =>
+          this.referenceTree(
+            token,
+            child,
+            `${path}.childNodes`,
+            lookups,
+            unresolved,
+          ),
+        ),
+      }),
     };
   }
 
@@ -306,13 +727,19 @@ class TableReader {
     token: string,
     raw: RawObject,
     values: readonly RawObject[],
+    lookups: Lookups,
+    unresolved: string[],
   ): ContextualEntry {
+    this.ruled(token, raw, 'entry', 'contextualReferenceTree');
     const tree = this.object(token, raw, 'referenceTree');
-    const rootValue = this.string(
+    const root = this.object(token, tree, 'value');
+    this.ruled(
       token,
-      this.object(token, tree, 'value'),
-      'name',
+      root,
+      'nodeValue',
+      'contextualReferenceTree.referenceTree.value',
     );
+    const rootValue = this.string(token, root, 'name');
     const index = values.findIndex(({ name }) => name === rootValue);
     if (index < 0) {
       refuse(
@@ -340,6 +767,8 @@ class TableReader {
       token,
       tree,
       'contextualReferenceTree.referenceTree',
+      lookups,
+      unresolved,
     );
 
     return {
@@ -348,36 +777,49 @@ class TableReader {
       referenceTree,
       ...(raw['resolvedValue'] != null
         ? {
-            resolvedValue: this.valueField(
+            resolvedValue: this.copy(
               token,
-              this.object(token, raw, 'resolvedValue'),
+              raw['resolvedValue'],
+              RESOLVED_VALUE,
               'contextualReferenceTree.resolvedValue',
-              LITERAL_FIELDS,
-            ),
+            ) as ResolvedLiteral,
           }
         : {
-            resolvedCustomCompositeValue: structuredClone(
-              this.object(token, raw, 'resolvedCustomCompositeValue'),
-            ) as ContextualEntry['resolvedCustomCompositeValue'],
+            resolvedCustomCompositeValue: this.copy(
+              token,
+              raw['resolvedCustomCompositeValue'],
+              RESOLVED_CUSTOM_COMPOSITE_VALUE,
+              'contextualReferenceTree.resolvedCustomCompositeValue',
+            ) as ResolvedCustomCompositeValue,
           }),
     };
   }
 
   /** Converts one token record, in the store's key order. */
-  token(raw: RawObject): readonly [id: string, token: StoredToken] {
+  token(raw: RawObject, lookups: Lookups): TokenConversion {
     const id = this.string('-', raw, 'name');
     const tokenName = this.string(id, raw, 'tokenName');
+    this.ruled(tokenName, raw, 'token', 'tokens');
     const displayName = this.string(tokenName, raw, 'displayName');
     const tokenValueType = this.string(tokenName, raw, 'tokenValueType');
     const description = this.optionalString(tokenName, raw, 'description');
 
-    const displayGroupId = this.optionalString(tokenName, raw, 'displayGroup');
-    const displayGroup =
-      displayGroupId == null
-        ? undefined
-        : this.#displayGroups.get(displayGroupId);
-    if (displayGroupId != null && displayGroup == null) {
-      refuse(this.name, tokenName, 'displayGroup', 'names no display group');
+    const groupId = this.optionalString(tokenName, raw, 'displayGroup');
+    let displayGroup: DisplayGroupPath | undefined;
+    if (groupId != null) {
+      const group = lookups.groups.get(groupId);
+      if (!group) {
+        refuse(this.name, tokenName, 'displayGroup', 'names no display group');
+      }
+      if (group.setId !== parentId(id, 'tokens')) {
+        refuse(
+          this.name,
+          tokenName,
+          'displayGroup',
+          'is a group of another set',
+        );
+      }
+      displayGroup = group.path;
     }
 
     const orderInDisplayGroup = this.optionalNumber(
@@ -389,6 +831,12 @@ class TableReader {
     let deprecationMessage: StoredToken['deprecationMessage'];
     if (raw['deprecationMessage'] != null) {
       const deprecation = this.object(tokenName, raw, 'deprecationMessage');
+      this.ruled(
+        tokenName,
+        deprecation,
+        'deprecationMessage',
+        'deprecationMessage',
+      );
       const replacementTokenName = this.optionalString(
         tokenName,
         deprecation,
@@ -402,6 +850,7 @@ class TableReader {
 
     const rawValues = this.#valuesByToken.get(id) ?? [];
     const values = rawValues.map((value): StoredValue => {
+      this.ruled(tokenName, value, 'value', 'values');
       const contextTags = this.contextTags(tokenName, value);
       const specificityScore = this.optionalString(
         tokenName,
@@ -411,17 +860,25 @@ class TableReader {
       return {
         ...(contextTags && { contextTags }),
         ...(specificityScore != null && { specificityScore }),
-        ...this.valueField(tokenName, value, 'values', VALUE_FIELDS),
+        ...this.valueField(tokenName, value, VALUE_FIELDS, 'values'),
       };
     });
 
     const trees = this.object('-', this.system, 'contextualReferenceTrees');
     const tree = trees[id];
+    const unresolved: string[] = [];
     let contextualReferenceTree: ContextualEntry[] | undefined;
     if (tree != null) {
-      const entries = isObject(tree)
-        ? tree['contextualReferenceTree']
-        : undefined;
+      if (!isObject(tree)) {
+        refuse(
+          this.name,
+          tokenName,
+          'contextualReferenceTrees',
+          'is not an object',
+        );
+      }
+      this.ruled(tokenName, tree, 'tree', 'contextualReferenceTrees');
+      const entries = tree['contextualReferenceTree'];
       if (!Array.isArray(entries) || !entries.every(isObject)) {
         refuse(
           this.name,
@@ -431,7 +888,7 @@ class TableReader {
         );
       }
       contextualReferenceTree = entries.map((entry) =>
-        this.entry(tokenName, entry, rawValues),
+        this.entry(tokenName, entry, rawValues, lookups, unresolved),
       );
     }
 
@@ -442,12 +899,13 @@ class TableReader {
         displayName,
         tokenValueType,
         ...(description != null && { description }),
-        ...(displayGroup != null && { displayGroup }),
+        ...(displayGroup && { displayGroup }),
         ...(orderInDisplayGroup != null && { orderInDisplayGroup }),
         ...(deprecationMessage && { deprecationMessage }),
         values,
         ...(contextualReferenceTree && { contextualReferenceTree }),
       },
+      unresolved,
     ];
   }
 
@@ -455,13 +913,16 @@ class TableReader {
   set(raw: RawObject): readonly [id: string, set: Omit<StoredSet, 'tokens'>] {
     const id = this.string('-', raw, 'name');
     const tokenSetName = this.string(id, raw, 'tokenSetName');
+    this.ruled(tokenSetName, raw, 'tokenSet', 'tokenSets');
     const tokenType = this.optionalString(tokenSetName, raw, 'tokenType');
     const order = this.optionalNumber(tokenSetName, raw, 'order');
     let custom: StoredSet['custom'];
     if (raw['custom'] != null) {
+      const record = this.object(tokenSetName, raw, 'custom');
+      this.ruled(tokenSetName, record, 'custom', 'tokenSets.custom');
       const tokenClass = this.optionalString(
         tokenSetName,
-        this.object(tokenSetName, raw, 'custom'),
+        record,
         'token_class',
       );
       custom = tokenClass == null ? {} : { token_class: tokenClass };
@@ -478,6 +939,34 @@ class TableReader {
         ...(order != null && { order }),
       },
     ];
+  }
+
+  /** Reads the display group rows, with their ids. */
+  displayGroups(): readonly GroupRow[] {
+    return this.optionalArray('displayGroups').map((raw) => {
+      const id = this.string('-', raw, 'name');
+      this.ruled(id, raw, 'displayGroup', 'displayGroups');
+      const parentGroup = this.optionalString(id, raw, 'parentGroup');
+      const description = this.optionalString(id, raw, 'description');
+      const orderInParentTokenSet = this.optionalNumber(
+        id,
+        raw,
+        'orderInParentTokenSet',
+      );
+      const orderInParentDisplayGroup = this.optionalNumber(
+        id,
+        raw,
+        'orderInParentDisplayGroup',
+      );
+      return {
+        id,
+        displayName: this.string(id, raw, 'displayName'),
+        ...(parentGroup != null && { parentGroup }),
+        ...(description != null && { description }),
+        ...(orderInParentTokenSet != null && { orderInParentTokenSet }),
+        ...(orderInParentDisplayGroup != null && { orderInParentDisplayGroup }),
+      };
+    });
   }
 
   /** Converts the context tag groups, with tag ids replaced by names. */
@@ -580,7 +1069,9 @@ function checkReferences(
       for (const [property, { tokenName }] of Object.entries(
         value.customComposite?.properties ?? {},
       )) {
-        check(tokenName, `values.customComposite.properties.${property}`);
+        if (tokenName != null) {
+          check(tokenName, `values.customComposite.properties.${property}`);
+        }
       }
     }
 
@@ -603,27 +1094,7 @@ export function convert(
   sources: readonly SourceTable[],
   { release, fetchDate, legacy = false }: ConvertOptions,
 ): Conversion {
-  // Display groups are named across tables: a token that a table carries only
-  // as a reference keeps its group's id from the table that defines it.
-  const displayGroups = new Map<string, string>();
-  for (const { table } of sources) {
-    const system = isObject(table) ? table['system'] : undefined;
-    const groups = isObject(system) ? system['displayGroups'] : undefined;
-    for (const group of Array.isArray(groups) ? groups : []) {
-      if (
-        isObject(group) &&
-        typeof group['name'] === 'string' &&
-        typeof group['displayName'] === 'string' &&
-        !displayGroups.has(group['name'])
-      ) {
-        displayGroups.set(group['name'], group['displayName']);
-      }
-    }
-  }
-
-  const readers = sources.map(
-    (source) => new TableReader(source, displayGroups),
-  );
+  const readers = sources.map((source) => new TableReader(source));
   const databases: ManifestDatabase[] = [];
   for (const reader of readers) {
     const database = reader.database();
@@ -657,6 +1128,90 @@ export function convert(
     conflicts.push({ kind, name, keptTable, otherTable });
   };
 
+  // Display groups are read across tables, as tokens are: a token that a
+  // table carries only as a reference keeps its group from the table that
+  // defines it.
+  const groupRows = new Map<string, { table: string; row: GroupRow }>();
+  for (const reader of readers) {
+    for (const row of reader.displayGroups()) {
+      const kept = groupRows.get(row.id);
+      if (!kept) {
+        groupRows.set(row.id, { table: reader.name, row });
+      } else if (!isDeepStrictEqual(kept.row, row)) {
+        conflict('group', row.id, kept.table, reader.name);
+      }
+    }
+  }
+
+  const groups = new Map<
+    string,
+    { setId: string; path: DisplayGroupPath; group: StoredDisplayGroup }
+  >();
+  const group = (
+    id: string,
+    ancestors: ReadonlySet<string>,
+  ): Readonly<{ setId: string; path: DisplayGroupPath }> => {
+    const known = groups.get(id);
+    if (known) {
+      return known;
+    }
+    const { table, row } = groupRows.get(id)!;
+    const setId = parentId(id, 'displayGroups');
+    let parentPath: DisplayGroupPath | undefined;
+    if (row.parentGroup != null) {
+      if (!groupRows.has(row.parentGroup)) {
+        refuse(table, id, 'parentGroup', 'names no display group');
+      }
+      if (ancestors.has(row.parentGroup)) {
+        refuse(table, id, 'parentGroup', 'is its own ancestor');
+      }
+      const parent = group(row.parentGroup, new Set([...ancestors, id]));
+      if (parent.setId !== setId) {
+        refuse(table, id, 'parentGroup', 'is a group of another set');
+      }
+      parentPath = parent.path;
+    }
+    const { id: _id, parentGroup: _parentGroup, displayName, ...fields } = row;
+    const resolved = {
+      setId,
+      path: [...(parentPath ?? []), displayName],
+      group: {
+        displayName,
+        ...(parentPath && { parentGroup: parentPath }),
+        ...fields,
+      },
+    };
+    groups.set(id, resolved);
+    return resolved;
+  };
+  for (const id of groupRows.keys()) {
+    group(id, new Set());
+  }
+
+  // A child node's value is an index into its token's kept values, which are
+  // those of the first table that carries the token.
+  const keptValues = new Map<
+    string,
+    { table: string; ids: readonly string[] }
+  >();
+  const keptIds = new Set<string>();
+  for (const reader of readers) {
+    for (const raw of reader.array('tokens')) {
+      const id = reader.string('-', raw, 'name');
+      const tokenName = reader.string(id, raw, 'tokenName');
+      if (!keptIds.has(id)) {
+        keptIds.add(id);
+        if (!keptValues.has(tokenName)) {
+          keptValues.set(tokenName, {
+            table: reader.name,
+            ids: reader.valueIds(id),
+          });
+        }
+      }
+    }
+  }
+  const lookups: Lookups = { groups, values: keptValues };
+
   const sets = new Map<
     string,
     { table: string; set: Omit<StoredSet, 'tokens'> }
@@ -665,7 +1220,12 @@ export function convert(
     string,
     { table: string; token: StoredToken; raw: RawObject }
   >();
-  const groups = new Map<
+  const unresolvedChildren: Array<{
+    table: string;
+    token: StoredToken;
+    child: string;
+  }> = [];
+  const tagGroups = new Map<
     string,
     { table: string; group: StoredTagGroup; tags: StoredTag[] }
   >();
@@ -682,19 +1242,22 @@ export function convert(
     }
 
     for (const raw of reader.array('tokens')) {
-      const [id, token] = reader.token(raw);
+      const [id, token, unresolved] = reader.token(raw, lookups);
       const kept = tokens.get(id);
       if (!kept) {
         tokens.set(id, { table: reader.name, token, raw });
+        for (const child of unresolved) {
+          unresolvedChildren.push({ table: reader.name, token, child });
+        }
       } else if (!isDeepStrictEqual(kept.token, token)) {
         conflict('token', token.tokenName, kept.table, reader.name);
       }
     }
 
     for (const group of reader.tagGroups()) {
-      const kept = groups.get(group.contextTagGroupName);
+      const kept = tagGroups.get(group.contextTagGroupName);
       if (!kept) {
-        groups.set(group.contextTagGroupName, {
+        tagGroups.set(group.contextTagGroupName, {
           table: reader.name,
           group,
           tags: [...group.tags],
@@ -721,6 +1284,23 @@ export function convert(
   }
 
   checkReferences(tokens);
+
+  for (const { table, token, child } of unresolvedChildren) {
+    if (!legacy) {
+      refuse(
+        table,
+        token.tokenName,
+        'contextualReferenceTree.referenceTree.childNodes.value',
+        `names no value of ${child} in the store`,
+      );
+    }
+    conflicts.push({
+      kind: 'value',
+      name: `${token.tokenName} → ${child}`,
+      keptTable: keptValues.get(child)!.table,
+      otherTable: table,
+    });
+  }
 
   // A token belongs to the first set whose id prefixes its id. A token that no
   // set holds forms a set named after it.
@@ -752,8 +1332,33 @@ export function convert(
     list.push(token);
   }
 
+  const setGroups = new Map<string, StoredDisplayGroup[]>(
+    setIds.map((id) => [id, []]),
+  );
+  const paths = new Set<string>();
+  for (const [id, { table }] of groupRows) {
+    const { setId, path, group: stored } = groups.get(id)!;
+    const list = setGroups.get(setId);
+    if (!list) {
+      refuse(table, id, 'name', 'is a group of no token set');
+    }
+    const key = JSON.stringify([setId, ...path]);
+    if (paths.has(key)) {
+      refuse(table, id, 'displayName', 'has the path of another group');
+    }
+    paths.add(key);
+    list.push(stored);
+  }
+
   const storedSets: StoredSet[] = [
-    ...setIds.map((id) => ({ ...sets.get(id)!.set, tokens: members.get(id)! })),
+    ...setIds.map((id) => {
+      const displayGroups = setGroups.get(id)!;
+      return {
+        ...sets.get(id)!.set,
+        ...(displayGroups.length > 0 && { displayGroups }),
+        tokens: members.get(id)!,
+      };
+    }),
     ...Iterator.from(orphans).map(([tokenSetName, list]) => ({
       tokenSetName,
       tokens: list,
@@ -769,7 +1374,7 @@ export function convert(
   }
 
   const context: StoredContext = {
-    contextTagGroups: [...groups.values()].map(({ group, tags }) => ({
+    contextTagGroups: [...tagGroups.values()].map(({ group, tags }) => ({
       ...group,
       tags,
     })),

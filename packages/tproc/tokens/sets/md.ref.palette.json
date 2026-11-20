@@ -7,12 +7,167 @@
     "token_class": "REFERENCE"
   },
   "order": 2,
+  "displayGroups": [
+    {
+      "displayName": "Baseline palette",
+      "description": "Colors used in the baseline color scheme."
+    },
+    {
+      "displayName": "Static palette",
+      "description": "Formerly known as the extended palette, these static colors remain unaffected by dynamic color. They're most often applied to elements where color has a specific meaning, particularly in things like banners, charts, and graphs.",
+      "orderInParentTokenSet": 6
+    },
+    {
+      "displayName": "Baseline – Neutral variant",
+      "parentGroup": [
+        "Baseline palette"
+      ],
+      "orderInParentTokenSet": 5,
+      "orderInParentDisplayGroup": 5
+    },
+    {
+      "displayName": "Baseline – Neutral",
+      "parentGroup": [
+        "Baseline palette"
+      ],
+      "orderInParentTokenSet": 4,
+      "orderInParentDisplayGroup": 4
+    },
+    {
+      "displayName": "Baseline – Tertiary",
+      "parentGroup": [
+        "Baseline palette"
+      ],
+      "orderInParentTokenSet": 2,
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "Baseline – Error",
+      "parentGroup": [
+        "Baseline palette"
+      ],
+      "orderInParentTokenSet": 3,
+      "orderInParentDisplayGroup": 3
+    },
+    {
+      "displayName": "Baseline – Secondary",
+      "parentGroup": [
+        "Baseline palette"
+      ],
+      "orderInParentTokenSet": 1,
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "Baseline – Primary",
+      "parentGroup": [
+        "Baseline palette"
+      ],
+      "orderInParentTokenSet": 1
+    },
+    {
+      "displayName": "Static – Orange",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 1,
+      "orderInParentDisplayGroup": 10
+    },
+    {
+      "displayName": "Static – Pink",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 1,
+      "orderInParentDisplayGroup": 11
+    },
+    {
+      "displayName": "Static – Grey variant",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 2,
+      "orderInParentDisplayGroup": 9
+    },
+    {
+      "displayName": "Static – Green",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 3,
+      "orderInParentDisplayGroup": 8
+    },
+    {
+      "displayName": "Static – Grey",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 4,
+      "orderInParentDisplayGroup": 7
+    },
+    {
+      "displayName": "Static – Cyan",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 6,
+      "orderInParentDisplayGroup": 6
+    },
+    {
+      "displayName": "Static – Blue variant",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 7,
+      "orderInParentDisplayGroup": 5
+    },
+    {
+      "displayName": "Static – Yellow",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 9,
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "Static – Red",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentDisplayGroup": 3
+    },
+    {
+      "displayName": "Static – Purple",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 8,
+      "orderInParentDisplayGroup": 4
+    },
+    {
+      "displayName": "Static – Blue",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 11,
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "Static – Black white",
+      "parentGroup": [
+        "Static palette"
+      ],
+      "orderInParentTokenSet": 17
+    }
+  ],
   "tokens": [
     {
       "tokenName": "md.ref.palette.tertiary80",
       "displayName": "Tertiary 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -77,7 +232,10 @@
       "tokenName": "md.ref.palette.tertiary20",
       "displayName": "Tertiary 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -142,7 +300,10 @@
       "tokenName": "md.ref.palette.tertiary30",
       "displayName": "Tertiary 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -207,7 +368,10 @@
       "tokenName": "md.ref.palette.tertiary0",
       "displayName": "Tertiary 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 15,
       "values": [
         {
@@ -260,7 +424,10 @@
       "tokenName": "md.ref.palette.tertiary100",
       "displayName": "Tertiary 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -325,7 +492,10 @@
       "tokenName": "md.ref.palette.secondary80",
       "displayName": "Secondary 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -390,7 +560,10 @@
       "tokenName": "md.ref.palette.secondary20",
       "displayName": "Secondary 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -453,7 +626,10 @@
       "tokenName": "md.ref.palette.secondary30",
       "displayName": "Secondary 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -516,7 +692,10 @@
       "tokenName": "md.ref.palette.secondary0",
       "displayName": "Secondary 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -569,7 +748,10 @@
       "tokenName": "md.ref.palette.secondary100",
       "displayName": "Secondary 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -634,7 +816,10 @@
       "tokenName": "md.ref.palette.neutral6",
       "displayName": "Neutral 6",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 22,
       "values": [
         {
@@ -703,7 +888,10 @@
       "tokenName": "md.ref.palette.neutral87",
       "displayName": "Neutral 87",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -772,7 +960,10 @@
       "tokenName": "md.ref.palette.neutral100",
       "displayName": "Neutral 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -837,7 +1028,10 @@
       "tokenName": "md.ref.palette.neutral24",
       "displayName": "Neutral 24",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 16,
       "values": [
         {
@@ -906,7 +1100,10 @@
       "tokenName": "md.ref.palette.neutral98",
       "displayName": "Neutral 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -975,7 +1172,10 @@
       "tokenName": "md.ref.palette.tertiary10",
       "displayName": "Tertiary 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -1040,7 +1240,10 @@
       "tokenName": "md.ref.palette.tertiary90",
       "displayName": "Tertiary 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -1105,7 +1308,10 @@
       "tokenName": "md.ref.palette.tertiary40",
       "displayName": "Tertiary 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -1170,7 +1376,10 @@
       "tokenName": "md.ref.palette.primary0",
       "displayName": "Primary 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -1223,7 +1432,10 @@
       "tokenName": "md.ref.palette.primary20",
       "displayName": "Primary 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -1288,7 +1500,10 @@
       "tokenName": "md.ref.palette.primary100",
       "displayName": "Primary 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -1353,7 +1568,10 @@
       "tokenName": "md.ref.palette.primary30",
       "displayName": "Primary 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -1418,7 +1636,10 @@
       "tokenName": "md.ref.palette.primary80",
       "displayName": "Primary 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -1483,7 +1704,10 @@
       "tokenName": "md.ref.palette.primary10",
       "displayName": "Primary 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -1546,7 +1770,10 @@
       "tokenName": "md.ref.palette.primary90",
       "displayName": "Primary 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -1611,7 +1838,10 @@
       "tokenName": "md.ref.palette.primary40",
       "displayName": "Primary 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -1676,7 +1906,10 @@
       "tokenName": "md.ref.palette.secondary10",
       "displayName": "Secondary 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -1739,7 +1972,10 @@
       "tokenName": "md.ref.palette.secondary90",
       "displayName": "Secondary 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -1804,7 +2040,10 @@
       "tokenName": "md.ref.palette.secondary40",
       "displayName": "Secondary 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -1867,7 +2106,10 @@
       "tokenName": "md.ref.palette.error80",
       "displayName": "Error 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -1932,7 +2174,10 @@
       "tokenName": "md.ref.palette.error60",
       "displayName": "Error 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -1997,7 +2242,10 @@
       "tokenName": "md.ref.palette.error30",
       "displayName": "Error 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -2062,7 +2310,10 @@
       "tokenName": "md.ref.palette.error40",
       "displayName": "Error 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -2127,7 +2378,10 @@
       "tokenName": "md.ref.palette.error90",
       "displayName": "Error 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -2192,7 +2446,10 @@
       "tokenName": "md.ref.palette.error0",
       "displayName": "Error 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -2245,7 +2502,10 @@
       "tokenName": "md.ref.palette.error100",
       "displayName": "Error 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -2310,7 +2570,10 @@
       "tokenName": "md.ref.palette.tertiary95",
       "displayName": "Tertiary 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -2375,7 +2638,10 @@
       "tokenName": "md.ref.palette.primary95",
       "displayName": "Primary 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -2440,7 +2706,10 @@
       "tokenName": "md.ref.palette.secondary98",
       "displayName": "Secondary 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -2505,7 +2774,10 @@
       "tokenName": "md.ref.palette.neutral-variant98",
       "displayName": "Neutral Variant 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -2570,7 +2842,10 @@
       "tokenName": "md.ref.palette.neutral-variant95",
       "displayName": "Neutral Variant 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -2635,7 +2910,10 @@
       "tokenName": "md.ref.palette.neutral-variant40",
       "displayName": "Neutral Variant 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -2700,7 +2978,10 @@
       "tokenName": "md.ref.palette.neutral-variant70",
       "displayName": "Neutral Variant 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -2765,7 +3046,10 @@
       "tokenName": "md.ref.palette.neutral-variant10",
       "displayName": "Neutral Variant 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -2830,7 +3114,10 @@
       "tokenName": "md.ref.palette.neutral-variant60",
       "displayName": "Neutral Variant 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -2895,7 +3182,10 @@
       "tokenName": "md.ref.palette.neutral-variant90",
       "displayName": "Neutral Variant 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -2960,7 +3250,10 @@
       "tokenName": "md.ref.palette.neutral-variant20",
       "displayName": "Neutral Variant 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -3025,7 +3318,10 @@
       "tokenName": "md.ref.palette.neutral-variant0",
       "displayName": "Neutral Variant 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -3078,7 +3374,10 @@
       "tokenName": "md.ref.palette.neutral-variant50",
       "displayName": "Neutral Variant 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -3143,7 +3442,10 @@
       "tokenName": "md.ref.palette.neutral-variant80",
       "displayName": "Neutral Variant 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -3208,7 +3510,10 @@
       "tokenName": "md.ref.palette.neutral-variant30",
       "displayName": "Neutral Variant 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -3273,7 +3578,10 @@
       "tokenName": "md.ref.palette.error98",
       "displayName": "Error 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -3338,7 +3646,10 @@
       "tokenName": "md.ref.palette.error70",
       "displayName": "Error 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -3403,7 +3714,10 @@
       "tokenName": "md.ref.palette.error10",
       "displayName": "Error 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -3468,7 +3782,10 @@
       "tokenName": "md.ref.palette.error95",
       "displayName": "Error 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -3533,7 +3850,10 @@
       "tokenName": "md.ref.palette.error50",
       "displayName": "Error 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -3598,7 +3918,10 @@
       "tokenName": "md.ref.palette.error20",
       "displayName": "Error 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -3663,7 +3986,10 @@
       "tokenName": "md.ref.palette.tertiary98",
       "displayName": "Tertiary 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -3728,7 +4054,10 @@
       "tokenName": "md.ref.palette.tertiary60",
       "displayName": "Tertiary 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -3793,7 +4122,10 @@
       "tokenName": "md.ref.palette.tertiary50",
       "displayName": "Tertiary 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -3858,7 +4190,10 @@
       "tokenName": "md.ref.palette.tertiary70",
       "displayName": "Tertiary 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -3923,7 +4258,10 @@
       "tokenName": "md.ref.palette.tertiary99",
       "displayName": "Tertiary 99",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Tertiary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Tertiary"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -3988,7 +4326,10 @@
       "tokenName": "md.ref.palette.secondary60",
       "displayName": "Secondary 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -4053,7 +4394,10 @@
       "tokenName": "md.ref.palette.secondary95",
       "displayName": "Secondary 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -4118,7 +4462,10 @@
       "tokenName": "md.ref.palette.secondary50",
       "displayName": "Secondary 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -4183,7 +4530,10 @@
       "tokenName": "md.ref.palette.secondary70",
       "displayName": "Secondary 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -4248,7 +4598,10 @@
       "tokenName": "md.ref.palette.primary98",
       "displayName": "Primary 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -4313,7 +4666,10 @@
       "tokenName": "md.ref.palette.primary50",
       "displayName": "Primary 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -4378,7 +4734,10 @@
       "tokenName": "md.ref.palette.primary60",
       "displayName": "Primary 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -4443,7 +4802,10 @@
       "tokenName": "md.ref.palette.primary70",
       "displayName": "Primary 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -4508,7 +4870,10 @@
       "tokenName": "md.ref.palette.pink0",
       "displayName": "Pink 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -4535,7 +4900,10 @@
       "tokenName": "md.ref.palette.pink10",
       "displayName": "Pink 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -4566,7 +4934,10 @@
       "tokenName": "md.ref.palette.pink20",
       "displayName": "Pink 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -4599,7 +4970,10 @@
       "tokenName": "md.ref.palette.pink30",
       "displayName": "Pink 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -4630,7 +5004,10 @@
       "tokenName": "md.ref.palette.pink40",
       "displayName": "Pink 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -4663,7 +5040,10 @@
       "tokenName": "md.ref.palette.pink50",
       "displayName": "Pink 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -4696,7 +5076,10 @@
       "tokenName": "md.ref.palette.pink60",
       "displayName": "Pink 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -4729,7 +5112,10 @@
       "tokenName": "md.ref.palette.pink70",
       "displayName": "Pink 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -4762,7 +5148,10 @@
       "tokenName": "md.ref.palette.pink80",
       "displayName": "Pink 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -4795,7 +5184,10 @@
       "tokenName": "md.ref.palette.pink90",
       "displayName": "Pink 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -4828,7 +5220,10 @@
       "tokenName": "md.ref.palette.pink95",
       "displayName": "Pink 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -4861,7 +5256,10 @@
       "tokenName": "md.ref.palette.pink98",
       "displayName": "Pink 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -4894,7 +5292,10 @@
       "tokenName": "md.ref.palette.pink100",
       "displayName": "Pink 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Pink",
+      "displayGroup": [
+        "Static palette",
+        "Static – Pink"
+      ],
       "values": [
         {
           "color": {
@@ -4926,7 +5327,10 @@
       "tokenName": "md.ref.palette.orange0",
       "displayName": "Orange 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -4953,7 +5357,10 @@
       "tokenName": "md.ref.palette.orange10",
       "displayName": "Orange 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -4984,7 +5391,10 @@
       "tokenName": "md.ref.palette.orange20",
       "displayName": "Orange 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -5017,7 +5427,10 @@
       "tokenName": "md.ref.palette.orange30",
       "displayName": "Orange 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -5050,7 +5463,10 @@
       "tokenName": "md.ref.palette.orange40",
       "displayName": "Orange 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -5081,7 +5497,10 @@
       "tokenName": "md.ref.palette.orange50",
       "displayName": "Orange 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -5114,7 +5533,10 @@
       "tokenName": "md.ref.palette.orange60",
       "displayName": "Orange 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -5145,7 +5567,10 @@
       "tokenName": "md.ref.palette.orange70",
       "displayName": "Orange 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -5178,7 +5603,10 @@
       "tokenName": "md.ref.palette.orange80",
       "displayName": "Orange 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -5211,7 +5639,10 @@
       "tokenName": "md.ref.palette.orange90",
       "displayName": "Orange 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -5244,7 +5675,10 @@
       "tokenName": "md.ref.palette.orange95",
       "displayName": "Orange 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -5277,7 +5711,10 @@
       "tokenName": "md.ref.palette.orange98",
       "displayName": "Orange 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -5310,7 +5747,10 @@
       "tokenName": "md.ref.palette.orange100",
       "displayName": "Orange 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Orange",
+      "displayGroup": [
+        "Static palette",
+        "Static – Orange"
+      ],
       "values": [
         {
           "color": {
@@ -5342,7 +5782,10 @@
       "tokenName": "md.ref.palette.grey-variant0",
       "displayName": "Grey Variant 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -5369,7 +5812,10 @@
       "tokenName": "md.ref.palette.grey-variant10",
       "displayName": "Grey Variant 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -5402,7 +5848,10 @@
       "tokenName": "md.ref.palette.grey-variant20",
       "displayName": "Grey Variant 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -5435,7 +5884,10 @@
       "tokenName": "md.ref.palette.grey-variant30",
       "displayName": "Grey Variant 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -5468,7 +5920,10 @@
       "tokenName": "md.ref.palette.grey-variant40",
       "displayName": "Grey Variant 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -5501,7 +5956,10 @@
       "tokenName": "md.ref.palette.grey-variant50",
       "displayName": "Grey Variant 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -5534,7 +5992,10 @@
       "tokenName": "md.ref.palette.grey-variant60",
       "displayName": "Grey Variant 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -5567,7 +6028,10 @@
       "tokenName": "md.ref.palette.grey-variant70",
       "displayName": "Grey Variant 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -5600,7 +6064,10 @@
       "tokenName": "md.ref.palette.grey-variant80",
       "displayName": "Grey Variant 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -5633,7 +6100,10 @@
       "tokenName": "md.ref.palette.grey-variant90",
       "displayName": "Grey Variant 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -5666,7 +6136,10 @@
       "tokenName": "md.ref.palette.grey-variant95",
       "displayName": "Grey Variant 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -5699,7 +6172,10 @@
       "tokenName": "md.ref.palette.grey-variant98",
       "displayName": "Grey Variant 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -5732,7 +6208,10 @@
       "tokenName": "md.ref.palette.grey-variant100",
       "displayName": "Grey Variant 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey variant"
+      ],
       "values": [
         {
           "color": {
@@ -5764,7 +6243,10 @@
       "tokenName": "md.ref.palette.green0",
       "displayName": "Green 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -5791,7 +6273,10 @@
       "tokenName": "md.ref.palette.green10",
       "displayName": "Green 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -5822,7 +6307,10 @@
       "tokenName": "md.ref.palette.green20",
       "displayName": "Green 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -5853,7 +6341,10 @@
       "tokenName": "md.ref.palette.green30",
       "displayName": "Green 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -5884,7 +6375,10 @@
       "tokenName": "md.ref.palette.green40",
       "displayName": "Green 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -5915,7 +6409,10 @@
       "tokenName": "md.ref.palette.green50",
       "displayName": "Green 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -5948,7 +6445,10 @@
       "tokenName": "md.ref.palette.green60",
       "displayName": "Green 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -5981,7 +6481,10 @@
       "tokenName": "md.ref.palette.green70",
       "displayName": "Green 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -6014,7 +6517,10 @@
       "tokenName": "md.ref.palette.green80",
       "displayName": "Green 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -6047,7 +6553,10 @@
       "tokenName": "md.ref.palette.green90",
       "displayName": "Green 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -6080,7 +6589,10 @@
       "tokenName": "md.ref.palette.green95",
       "displayName": "Green 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -6113,7 +6625,10 @@
       "tokenName": "md.ref.palette.green98",
       "displayName": "Green 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -6146,7 +6661,10 @@
       "tokenName": "md.ref.palette.green100",
       "displayName": "Green 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Green",
+      "displayGroup": [
+        "Static palette",
+        "Static – Green"
+      ],
       "values": [
         {
           "color": {
@@ -6178,7 +6696,10 @@
       "tokenName": "md.ref.palette.grey0",
       "displayName": "Grey 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -6205,7 +6726,10 @@
       "tokenName": "md.ref.palette.grey10",
       "displayName": "Grey 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -6238,7 +6762,10 @@
       "tokenName": "md.ref.palette.grey20",
       "displayName": "Grey 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -6271,7 +6798,10 @@
       "tokenName": "md.ref.palette.grey30",
       "displayName": "Grey 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -6304,7 +6834,10 @@
       "tokenName": "md.ref.palette.grey40",
       "displayName": "Grey 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -6337,7 +6870,10 @@
       "tokenName": "md.ref.palette.grey50",
       "displayName": "Grey 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -6370,7 +6906,10 @@
       "tokenName": "md.ref.palette.grey60",
       "displayName": "Grey 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -6403,7 +6942,10 @@
       "tokenName": "md.ref.palette.grey70",
       "displayName": "Grey 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -6436,7 +6978,10 @@
       "tokenName": "md.ref.palette.grey80",
       "displayName": "Grey 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -6469,7 +7014,10 @@
       "tokenName": "md.ref.palette.grey90",
       "displayName": "Grey 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -6502,7 +7050,10 @@
       "tokenName": "md.ref.palette.grey95",
       "displayName": "Grey 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -6535,7 +7086,10 @@
       "tokenName": "md.ref.palette.grey98",
       "displayName": "Grey 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -6568,7 +7122,10 @@
       "tokenName": "md.ref.palette.grey100",
       "displayName": "Grey 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Grey",
+      "displayGroup": [
+        "Static palette",
+        "Static – Grey"
+      ],
       "values": [
         {
           "color": {
@@ -6600,7 +7157,10 @@
       "tokenName": "md.ref.palette.cyan0",
       "displayName": "Cyan 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -6627,7 +7187,10 @@
       "tokenName": "md.ref.palette.cyan10",
       "displayName": "Cyan 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -6658,7 +7221,10 @@
       "tokenName": "md.ref.palette.cyan20",
       "displayName": "Cyan 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -6689,7 +7255,10 @@
       "tokenName": "md.ref.palette.cyan30",
       "displayName": "Cyan 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -6720,7 +7289,10 @@
       "tokenName": "md.ref.palette.cyan40",
       "displayName": "Cyan 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -6751,7 +7323,10 @@
       "tokenName": "md.ref.palette.cyan50",
       "displayName": "Cyan 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -6782,7 +7357,10 @@
       "tokenName": "md.ref.palette.cyan60",
       "displayName": "Cyan 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -6813,7 +7391,10 @@
       "tokenName": "md.ref.palette.cyan70",
       "displayName": "Cyan 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -6844,7 +7425,10 @@
       "tokenName": "md.ref.palette.cyan80",
       "displayName": "Cyan 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -6877,7 +7461,10 @@
       "tokenName": "md.ref.palette.cyan90",
       "displayName": "Cyan 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -6910,7 +7497,10 @@
       "tokenName": "md.ref.palette.cyan95",
       "displayName": "Cyan 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -6943,7 +7533,10 @@
       "tokenName": "md.ref.palette.cyan98",
       "displayName": "Cyan 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -6976,7 +7569,10 @@
       "tokenName": "md.ref.palette.cyan100",
       "displayName": "Cyan 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Cyan",
+      "displayGroup": [
+        "Static palette",
+        "Static – Cyan"
+      ],
       "values": [
         {
           "color": {
@@ -7008,7 +7604,10 @@
       "tokenName": "md.ref.palette.blue-variant0",
       "displayName": "Blue Variant 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -7035,7 +7634,10 @@
       "tokenName": "md.ref.palette.blue-variant10",
       "displayName": "Blue Variant 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -7066,7 +7668,10 @@
       "tokenName": "md.ref.palette.blue-variant20",
       "displayName": "Blue Variant 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -7097,7 +7702,10 @@
       "tokenName": "md.ref.palette.blue-variant30",
       "displayName": "Blue Variant 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -7128,7 +7736,10 @@
       "tokenName": "md.ref.palette.blue-variant40",
       "displayName": "Blue Variant 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -7159,7 +7770,10 @@
       "tokenName": "md.ref.palette.blue-variant50",
       "displayName": "Blue Variant 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -7190,7 +7804,10 @@
       "tokenName": "md.ref.palette.blue-variant60",
       "displayName": "Blue Variant 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -7221,7 +7838,10 @@
       "tokenName": "md.ref.palette.blue-variant70",
       "displayName": "Blue Variant 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -7252,7 +7872,10 @@
       "tokenName": "md.ref.palette.blue-variant80",
       "displayName": "Blue Variant 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -7285,7 +7908,10 @@
       "tokenName": "md.ref.palette.blue-variant90",
       "displayName": "Blue Variant 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -7318,7 +7944,10 @@
       "tokenName": "md.ref.palette.blue-variant95",
       "displayName": "Blue Variant 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -7351,7 +7980,10 @@
       "tokenName": "md.ref.palette.blue-variant98",
       "displayName": "Blue Variant 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -7384,7 +8016,10 @@
       "tokenName": "md.ref.palette.blue-variant100",
       "displayName": "Blue Variant 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue variant",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue variant"
+      ],
       "values": [
         {
           "color": {
@@ -7416,7 +8051,10 @@
       "tokenName": "md.ref.palette.purple0",
       "displayName": "Purple 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -7443,7 +8081,10 @@
       "tokenName": "md.ref.palette.purple10",
       "displayName": "Purple 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -7476,7 +8117,10 @@
       "tokenName": "md.ref.palette.purple20",
       "displayName": "Purple 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -7509,7 +8153,10 @@
       "tokenName": "md.ref.palette.purple30",
       "displayName": "Purple 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -7542,7 +8189,10 @@
       "tokenName": "md.ref.palette.purple40",
       "displayName": "Purple 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -7575,7 +8225,10 @@
       "tokenName": "md.ref.palette.purple50",
       "displayName": "Purple 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -7608,7 +8261,10 @@
       "tokenName": "md.ref.palette.purple60",
       "displayName": "Purple 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -7641,7 +8297,10 @@
       "tokenName": "md.ref.palette.purple70",
       "displayName": "Purple 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -7674,7 +8333,10 @@
       "tokenName": "md.ref.palette.purple80",
       "displayName": "Purple 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -7707,7 +8369,10 @@
       "tokenName": "md.ref.palette.purple90",
       "displayName": "Purple 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -7740,7 +8405,10 @@
       "tokenName": "md.ref.palette.purple95",
       "displayName": "Purple 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -7773,7 +8441,10 @@
       "tokenName": "md.ref.palette.purple98",
       "displayName": "Purple 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -7806,7 +8477,10 @@
       "tokenName": "md.ref.palette.purple100",
       "displayName": "Purple 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Purple",
+      "displayGroup": [
+        "Static palette",
+        "Static – Purple"
+      ],
       "values": [
         {
           "color": {
@@ -7838,7 +8512,10 @@
       "tokenName": "md.ref.palette.yellow0",
       "displayName": "Yellow 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -7865,7 +8542,10 @@
       "tokenName": "md.ref.palette.yellow10",
       "displayName": "Yellow 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -7896,7 +8576,10 @@
       "tokenName": "md.ref.palette.yellow20",
       "displayName": "Yellow 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -7927,7 +8610,10 @@
       "tokenName": "md.ref.palette.yellow30",
       "displayName": "Yellow 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -7960,7 +8646,10 @@
       "tokenName": "md.ref.palette.yellow40",
       "displayName": "Yellow 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -7993,7 +8682,10 @@
       "tokenName": "md.ref.palette.yellow50",
       "displayName": "Yellow 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -8024,7 +8716,10 @@
       "tokenName": "md.ref.palette.yellow60",
       "displayName": "Yellow 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -8055,7 +8750,10 @@
       "tokenName": "md.ref.palette.yellow70",
       "displayName": "Yellow 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -8086,7 +8784,10 @@
       "tokenName": "md.ref.palette.yellow80",
       "displayName": "Yellow 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -8117,7 +8818,10 @@
       "tokenName": "md.ref.palette.yellow90",
       "displayName": "Yellow 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -8150,7 +8854,10 @@
       "tokenName": "md.ref.palette.yellow95",
       "displayName": "Yellow 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -8183,7 +8890,10 @@
       "tokenName": "md.ref.palette.yellow98",
       "displayName": "Yellow 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -8216,7 +8926,10 @@
       "tokenName": "md.ref.palette.yellow100",
       "displayName": "Yellow 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Yellow",
+      "displayGroup": [
+        "Static palette",
+        "Static – Yellow"
+      ],
       "values": [
         {
           "color": {
@@ -8248,7 +8961,10 @@
       "tokenName": "md.ref.palette.red0",
       "displayName": "Red 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -8275,7 +8991,10 @@
       "tokenName": "md.ref.palette.red10",
       "displayName": "Red 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -8308,7 +9027,10 @@
       "tokenName": "md.ref.palette.red20",
       "displayName": "Red 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -8341,7 +9063,10 @@
       "tokenName": "md.ref.palette.red30",
       "displayName": "Red 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -8374,7 +9099,10 @@
       "tokenName": "md.ref.palette.red40",
       "displayName": "Red 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -8407,7 +9135,10 @@
       "tokenName": "md.ref.palette.red50",
       "displayName": "Red 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -8440,7 +9171,10 @@
       "tokenName": "md.ref.palette.red60",
       "displayName": "Red 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -8473,7 +9207,10 @@
       "tokenName": "md.ref.palette.red70",
       "displayName": "Red 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -8506,7 +9243,10 @@
       "tokenName": "md.ref.palette.red80",
       "displayName": "Red 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -8539,7 +9279,10 @@
       "tokenName": "md.ref.palette.red90",
       "displayName": "Red 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -8572,7 +9315,10 @@
       "tokenName": "md.ref.palette.red95",
       "displayName": "Red 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -8605,7 +9351,10 @@
       "tokenName": "md.ref.palette.red98",
       "displayName": "Red 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -8638,7 +9387,10 @@
       "tokenName": "md.ref.palette.red100",
       "displayName": "Red 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Red",
+      "displayGroup": [
+        "Static palette",
+        "Static – Red"
+      ],
       "values": [
         {
           "color": {
@@ -8670,7 +9422,10 @@
       "tokenName": "md.ref.palette.blue0",
       "displayName": "Blue 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -8697,7 +9452,10 @@
       "tokenName": "md.ref.palette.blue10",
       "displayName": "Blue 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -8728,7 +9486,10 @@
       "tokenName": "md.ref.palette.blue20",
       "displayName": "Blue 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -8761,7 +9522,10 @@
       "tokenName": "md.ref.palette.blue30",
       "displayName": "Blue 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -8794,7 +9558,10 @@
       "tokenName": "md.ref.palette.blue40",
       "displayName": "Blue 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -8827,7 +9594,10 @@
       "tokenName": "md.ref.palette.blue60",
       "displayName": "Blue 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -8860,7 +9630,10 @@
       "tokenName": "md.ref.palette.blue50",
       "displayName": "Blue 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -8893,7 +9666,10 @@
       "tokenName": "md.ref.palette.blue70",
       "displayName": "Blue 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -8926,7 +9702,10 @@
       "tokenName": "md.ref.palette.blue80",
       "displayName": "Blue 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -8959,7 +9738,10 @@
       "tokenName": "md.ref.palette.blue90",
       "displayName": "Blue 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -8992,7 +9774,10 @@
       "tokenName": "md.ref.palette.blue95",
       "displayName": "Blue 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -9025,7 +9810,10 @@
       "tokenName": "md.ref.palette.blue98",
       "displayName": "Blue 98",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -9058,7 +9846,10 @@
       "tokenName": "md.ref.palette.blue100",
       "displayName": "Blue 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Blue",
+      "displayGroup": [
+        "Static palette",
+        "Static – Blue"
+      ],
       "values": [
         {
           "color": {
@@ -9090,7 +9881,10 @@
       "tokenName": "md.ref.palette.neutral0",
       "displayName": "Neutral 0",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 24,
       "values": [
         {
@@ -9143,7 +9937,10 @@
       "tokenName": "md.ref.palette.neutral90",
       "displayName": "Neutral 90",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -9208,7 +10005,10 @@
       "tokenName": "md.ref.palette.neutral10",
       "displayName": "Neutral 10",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 21,
       "values": [
         {
@@ -9273,7 +10073,10 @@
       "tokenName": "md.ref.palette.neutral20",
       "displayName": "Neutral 20",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 18,
       "values": [
         {
@@ -9338,7 +10141,10 @@
       "tokenName": "md.ref.palette.neutral95",
       "displayName": "Neutral 95",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -9403,7 +10209,10 @@
       "tokenName": "md.ref.palette.neutral12",
       "displayName": "Neutral 12",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 20,
       "values": [
         {
@@ -9472,7 +10281,10 @@
       "tokenName": "md.ref.palette.neutral94",
       "displayName": "Neutral 94",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -9541,7 +10353,10 @@
       "tokenName": "md.ref.palette.neutral96",
       "displayName": "Neutral 96",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -9610,7 +10425,10 @@
       "tokenName": "md.ref.palette.neutral4",
       "displayName": "Neutral 4",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 23,
       "values": [
         {
@@ -9679,7 +10497,10 @@
       "tokenName": "md.ref.palette.neutral17",
       "displayName": "Neutral 17",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 19,
       "values": [
         {
@@ -9748,7 +10569,10 @@
       "tokenName": "md.ref.palette.neutral92",
       "displayName": "Neutral 92",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -9817,7 +10641,10 @@
       "tokenName": "md.ref.palette.neutral22",
       "displayName": "Neutral 22",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 17,
       "values": [
         {
@@ -9886,7 +10713,10 @@
       "tokenName": "md.ref.palette.neutral50",
       "displayName": "Neutral 50",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 13,
       "values": [
         {
@@ -9951,7 +10781,10 @@
       "tokenName": "md.ref.palette.neutral70",
       "displayName": "Neutral 70",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -10016,7 +10849,10 @@
       "tokenName": "md.ref.palette.neutral80",
       "displayName": "Neutral 80",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -10081,7 +10917,10 @@
       "tokenName": "md.ref.palette.neutral40",
       "displayName": "Neutral 40",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 14,
       "values": [
         {
@@ -10146,7 +10985,10 @@
       "tokenName": "md.ref.palette.neutral60",
       "displayName": "Neutral 60",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 12,
       "values": [
         {
@@ -10211,7 +11053,10 @@
       "tokenName": "md.ref.palette.neutral30",
       "displayName": "Neutral 30",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 15,
       "values": [
         {
@@ -10276,7 +11121,10 @@
       "tokenName": "md.ref.palette.error99",
       "displayName": "Error 99",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Error",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Error"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -10341,7 +11189,10 @@
       "tokenName": "md.ref.palette.secondary99",
       "displayName": "Secondary 99",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Secondary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Secondary"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -10406,7 +11257,10 @@
       "tokenName": "md.ref.palette.primary99",
       "displayName": "Primary 99",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Primary",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Primary"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -10471,7 +11325,10 @@
       "tokenName": "md.ref.palette.neutral-variant99",
       "displayName": "Neutral Variant 99",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -10536,7 +11393,10 @@
       "tokenName": "md.ref.palette.neutral-variant100",
       "displayName": "Neutral Variant 100",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral variant",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral variant"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -10601,7 +11461,10 @@
       "tokenName": "md.ref.palette.neutral99",
       "displayName": "Neutral 99",
       "tokenValueType": "COLOR",
-      "displayGroup": "Baseline – Neutral",
+      "displayGroup": [
+        "Baseline palette",
+        "Baseline – Neutral"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -10666,7 +11529,10 @@
       "tokenName": "md.ref.palette.black",
       "displayName": "Black",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Black white",
+      "displayGroup": [
+        "Static palette",
+        "Static – Black white"
+      ],
       "orderInDisplayGroup": 2,
       "values": [
         {
@@ -10693,7 +11559,10 @@
       "tokenName": "md.ref.palette.white",
       "displayName": "White",
       "tokenValueType": "COLOR",
-      "displayGroup": "Static – Black white",
+      "displayGroup": [
+        "Static palette",
+        "Static – Black white"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {

@@ -54,25 +54,39 @@ export type TokenTypeVariationAxis = Readonly<{
   axisValueTokenName: string;
 }>;
 
-export type TokenTypeVariationAxes = Readonly<{
-  wght: TokenTypeVariationAxis;
-  GRAD: TokenTypeVariationAxis;
-  wdth: TokenTypeVariationAxis;
-  ROND: TokenTypeVariationAxis;
-  opsz: TokenTypeVariationAxis;
-  CRSV: TokenTypeVariationAxis;
-  slnt: TokenTypeVariationAxis;
-  FILL: TokenTypeVariationAxis;
-  HEXP: TokenTypeVariationAxis;
+/** A type's variation axes. Upstream gives `FILL` and `HEXP` on some only. */
+export type VariationAxes<Axis> = Readonly<{
+  wght: Axis;
+  GRAD: Axis;
+  wdth: Axis;
+  ROND: Axis;
+  opsz: Axis;
+  CRSV: Axis;
+  slnt: Axis;
+  FILL?: Axis;
+  HEXP?: Axis;
 }>;
 
+export type TokenTypeVariationAxes = VariationAxes<TokenTypeVariationAxis>;
+
+/** A `type` value: each part is a reference to another token. */
 export type TokenType = Readonly<{
   fontNameTokenName: string;
   fontWeightTokenName: string;
   fontSizeTokenName: string;
   fontTrackingTokenName: string;
   lineHeightTokenName: string;
-  variationAxes: TokenTypeVariationAxes;
+  variationAxes?: TokenTypeVariationAxes;
+}>;
+
+/** A resolved `type`: each part is the literal its reference resolves to. */
+export type ResolvedTokenType = Readonly<{
+  fontNames: TokenValues;
+  fontWeight: number;
+  fontSize: TokenLength;
+  fontTracking: TokenLength;
+  lineHeight: TokenLength;
+  variationAxes?: VariationAxes<Readonly<{ axisValue: number }>>;
 }>;
 
 export type CubicBezier = Readonly<{
@@ -86,8 +100,14 @@ export type MotionPath = Readonly<{
   standardPath: string;
 }>;
 
+/** A `customComposite` property: exactly one value field, as a value has. */
+export type CompositeProperty = Literal &
+  Readonly<{
+    tokenName?: string;
+  }>;
+
 export type CustomComposite = Readonly<{
-  properties: Readonly<Record<string, Readonly<{ tokenName: string }>>>;
+  properties: Readonly<Record<string, CompositeProperty>>;
 }>;
 
 /**
@@ -117,6 +137,15 @@ export type Literal = Readonly<{
   undefined?: boolean;
 }>;
 
+/**
+ * A resolved value's literal fields. They are a value's, except that a resolved
+ * `type` holds literals where a value's holds references.
+ */
+export type ResolvedLiteral = Omit<Literal, 'type'> &
+  Readonly<{
+    type?: ResolvedTokenType;
+  }>;
+
 /** A context tag group name mapped to one of its tag names. */
 export type ContextTags = Readonly<Record<string, string>>;
 
@@ -130,11 +159,20 @@ export type StoredValue = Literal &
 
 export type ReferenceTree = Readonly<{
   tokenName: string;
+  /**
+   * On a child node, the index in its token's `values` of the value the tree
+   * passes through. The root's is its entry's `value`.
+   */
+  value?: number;
+  /** The composite properties the node feeds, as upstream names them. */
+  fieldNames?: readonly string[];
   childNodes?: readonly ReferenceTree[];
 }>;
 
 export type ResolvedCustomCompositeValue = Readonly<{
-  properties: Readonly<Record<string, Readonly<{ resolvedValue: Literal }>>>;
+  properties: Readonly<
+    Record<string, Readonly<{ resolvedValue: ResolvedLiteral }>>
+  >;
 }>;
 
 export type ContextualEntry = Readonly<{
@@ -142,7 +180,7 @@ export type ContextualEntry = Readonly<{
   /** The index in the token's `values` of the value the tree starts from. */
   value: number;
   referenceTree: ReferenceTree;
-  resolvedValue?: Literal;
+  resolvedValue?: ResolvedLiteral;
   resolvedCustomCompositeValue?: ResolvedCustomCompositeValue;
 }>;
 
@@ -156,11 +194,26 @@ export type StoredToken = Readonly<{
   displayName: string;
   tokenValueType: string;
   description?: string;
-  displayGroup?: string;
+  displayGroup?: DisplayGroupPath;
   orderInDisplayGroup?: number;
   deprecationMessage?: DeprecationMessage;
   values: readonly StoredValue[];
   contextualReferenceTree?: readonly ContextualEntry[];
+}>;
+
+/**
+ * A display group's `displayName` and its ancestors', from the top. It
+ * identifies the group within its set, where a `displayName` may repeat.
+ */
+export type DisplayGroupPath = readonly string[];
+
+export type StoredDisplayGroup = Readonly<{
+  displayName: string;
+  /** The parent group's path. */
+  parentGroup?: DisplayGroupPath;
+  description?: string;
+  orderInParentTokenSet?: number;
+  orderInParentDisplayGroup?: number;
 }>;
 
 /**
@@ -174,6 +227,7 @@ export type StoredSet = Readonly<{
   tokenType?: string;
   custom?: Readonly<{ token_class?: string }>;
   order?: number;
+  displayGroups?: readonly StoredDisplayGroup[];
   tokens: readonly StoredToken[];
 }>;
 

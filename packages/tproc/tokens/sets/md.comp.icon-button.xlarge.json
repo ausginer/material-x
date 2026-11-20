@@ -249,7 +249,8 @@
             "tokenName": "md.comp.icon-button.xlarge.container.shape.round",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },
@@ -278,7 +279,8 @@
             "tokenName": "md.comp.icon-button.xlarge.container.shape.square",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.extra-large"
+                "tokenName": "md.sys.shape.corner.extra-large",
+                "value": 0
               }
             ]
           },
@@ -339,7 +341,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.large"
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
               }
             ]
           },
@@ -372,7 +375,8 @@
             "tokenName": "md.comp.icon-button.xlarge.selected.container.shape.square",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },
@@ -401,7 +405,8 @@
             "tokenName": "md.comp.icon-button.xlarge.selected.container.shape.round",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.extra-large"
+                "tokenName": "md.sys.shape.corner.extra-large",
+                "value": 0
               }
             ]
           },
@@ -438,7 +443,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 0
               }
             ]
           },
@@ -456,7 +462,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 1
               }
             ]
           },
@@ -474,7 +481,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -492,7 +500,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -510,7 +519,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -528,7 +538,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -546,7 +557,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -564,7 +576,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -595,7 +608,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 0
               }
             ]
           },
@@ -613,7 +627,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 1
               }
             ]
           },
@@ -631,7 +646,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -649,7 +665,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -667,7 +684,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -685,7 +703,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -703,7 +722,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -721,7 +741,8 @@
             "tokenName": "md.comp.icon-button.xlarge.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },

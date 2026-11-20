@@ -25,7 +25,8 @@
             "tokenName": "md.comp.button-group.connected.large.pressed.inner-corner.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.medium"
+                "tokenName": "md.sys.shape.corner-value.medium",
+                "value": 0
               }
             ]
           },
@@ -83,7 +84,8 @@
             "tokenName": "md.comp.button-group.connected.large.inner-corner.corner-size",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner-value.large"
+                "tokenName": "md.sys.shape.corner-value.large",
+                "value": 0
               }
             ]
           },
@@ -169,7 +171,8 @@
             "tokenName": "md.comp.button-group.connected.large.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },

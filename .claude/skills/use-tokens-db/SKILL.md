@@ -27,12 +27,15 @@ A missing store file, or one that doesn't match the manifest's SHA-256, fails th
 
 - **`manifest.json`:** `storeVersion`; the source (the site's base address, the release id, and each database version's `versionName`, version id and publish time); the fetch date; one row per converted table (`kind`, `componentId`, `componentName`); and each store file's SHA-256.
 - **`context.json`:** the context tag groups (`contextTagGroupName`, `displayName`, `specificity`, `defaultTag`) with their tags (`tagName`, `displayName`, `tagOrder`).
-- **`sets/<tokenSetName>.json`:** one token set and its tokens, in upstream order. A set that no table carries, named from its tokens, has only `tokenSetName`.
+- **`sets/<tokenSetName>.json`:** one token set, its display groups and its tokens, in upstream order. A set that no table carries, named from its tokens, has only `tokenSetName`.
 
-Each token has `tokenName`, `displayName` and `tokenValueType`. It has `description`, `displayGroup`, `orderInDisplayGroup` and `deprecationMessage` when upstream gives them. Then:
+A display group has `displayName`, and `parentGroup`, `description`, `orderInParentTokenSet` and `orderInParentDisplayGroup` when upstream gives them. A group is identified by its **path**: its ancestors' `displayName`s and its own, from the top, such as `["Focused", "Focus indicator"]` in `md.comp.checkbox`. A `displayName` alone may repeat within a set. `parentGroup` is the parent's path.
+
+Each token has `tokenName`, `displayName` and `tokenValueType`. It has `description`, `displayGroup` (its group's path), `orderInDisplayGroup` and `deprecationMessage` when upstream gives them. Then:
 
 - **`values`:** the token's value entries. Each has `contextTags` and `specificityScore` when upstream gives them. `contextTags` is a group-to-tag-name object, such as `{ "motion.scheme": "expressive", "platform": "web" }`. Each entry has exactly one value field: `tokenName` (the one-hop reference) or one literal, such as `color`, `length`, `shape`, `type`, `elevation`, `opacity`, `durationMs`, `cubicBezier` or `undefined`.
-- **`contextualReferenceTree`:** one entry per context. Each has its `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree` (`tokenName` and `childNodes`), and exactly one of `resolvedValue` and `resolvedCustomCompositeValue`.
+- **`contextualReferenceTree`:** one entry per context. Each has its `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree`, and exactly one of `resolvedValue` and `resolvedCustomCompositeValue`.
+  - A tree node has `tokenName`, `childNodes`, and `fieldNames` when upstream gives it: the composite property the node feeds. A child node's `value` is the index of the child token's `values` entry that the tree passes through.
 
 The types are in `packages/tproc/src/store/schema.ts`.
 
@@ -87,6 +90,7 @@ aube exec just update-tokens --current --report <file>
 
 - It fetches every table that the manifest lists from one dated release address, `_dsm/data/dsdb-m3/<release>/<KIND>.<componentId>.json`, and never from `latest`. `--current` first reads the release id from the site's bundle.
 - It converts the tables in memory. It refuses tables from different database versions, and a table that the converter can't read, and names the table, the token and the field. A raw table is never written.
+- **Every key is ruled.** `RECORD_KEYS` in `scripts/convert.ts` keeps or drops each key of each record, and the value-field specs beside it match `schema.ts` exactly. A key that upstream adds refuses the update and names its path, until it's ruled on in the record and added to one of the lists.
 - **Never commit a raw table.** The tables carry Google employees' personal data. `packages/tproc/.data/` is git-ignored, for a table that you keep by hand while debugging.
 - To add a component, add a row to `manifest.json`'s `tables` with its `kind` and `componentId`, then run an update. The site names a component's id in the page content it loads (`resourceName: components/<id>`).
 - `--legacy <directory>` converted the tables committed before the store, once. Those tables mixed two database versions. So this mode lists each token that two tables convert differently, and keeps the first table's copy.

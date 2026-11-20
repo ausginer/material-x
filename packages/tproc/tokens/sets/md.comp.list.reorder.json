@@ -7,12 +7,24 @@
     "token_class": "COMPONENT"
   },
   "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "Shape",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Color",
+      "orderInParentTokenSet": 1
+    }
+  ],
   "tokens": [
     {
       "tokenName": "md.comp.list.reorder.list-item.overline.color",
       "displayName": "List reorder list item overline color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 4,
       "values": [
         {
@@ -33,7 +45,8 @@
             "tokenName": "md.comp.list.reorder.list-item.overline.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -52,7 +65,8 @@
             "tokenName": "md.comp.list.reorder.list-item.overline.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -71,7 +85,8 @@
             "tokenName": "md.comp.list.reorder.list-item.overline.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -91,7 +106,8 @@
             "tokenName": "md.comp.list.reorder.list-item.overline.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -112,7 +128,8 @@
             "tokenName": "md.comp.list.reorder.list-item.overline.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -133,9 +150,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -160,9 +179,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -187,9 +208,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -214,9 +237,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -241,9 +266,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -268,9 +295,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -295,9 +324,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -322,9 +353,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -349,9 +382,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -376,9 +411,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -403,9 +440,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -430,9 +469,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -457,9 +498,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -484,9 +527,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -514,9 +559,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -544,9 +591,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -574,9 +623,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -604,9 +655,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -634,9 +687,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -664,9 +719,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -694,9 +751,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -724,9 +783,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -754,9 +815,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -784,9 +847,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -814,9 +879,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -844,9 +911,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -872,7 +941,8 @@
             "tokenName": "md.comp.list.reorder.list-item.overline.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -893,9 +963,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -923,9 +995,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -953,9 +1027,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -983,9 +1059,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -1013,9 +1091,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -1043,9 +1123,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -1073,9 +1155,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -1103,9 +1187,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -1133,9 +1219,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -1163,9 +1251,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -1193,9 +1283,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -1223,9 +1315,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -1253,9 +1347,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -1283,9 +1379,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -1306,7 +1404,9 @@
       "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
       "displayName": "List reorder list item drop zone color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 8,
       "values": [
         {
@@ -1327,7 +1427,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 0
               }
             ]
           },
@@ -1348,7 +1449,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 1
               }
             ]
           },
@@ -1374,7 +1476,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 1
               }
             ]
           },
@@ -1398,7 +1501,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 2
               }
             ]
           },
@@ -1417,7 +1521,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 3
               }
             ]
           },
@@ -1437,7 +1542,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 3
               }
             ]
           },
@@ -1458,7 +1564,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 3
               }
             ]
           },
@@ -1477,7 +1584,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 4
               }
             ]
           },
@@ -1496,7 +1604,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -1520,7 +1629,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -1544,7 +1654,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -1570,7 +1681,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -1596,7 +1708,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 5
               }
             ]
           },
@@ -1620,7 +1733,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -1644,7 +1758,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -1668,7 +1783,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -1693,7 +1809,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -1718,7 +1835,8 @@
             "tokenName": "md.comp.list.reorder.list-item.drop-zone.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.surface-container-low"
+                "tokenName": "md.sys.color.surface-container-low",
+                "value": 6
               }
             ]
           },
@@ -1743,9 +1861,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral10"
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
                   }
                 ]
               }
@@ -1772,9 +1892,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral10"
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
                   }
                 ]
               }
@@ -1801,9 +1923,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 7,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral10"
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
                   }
                 ]
               }
@@ -1830,9 +1954,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral96"
+                    "tokenName": "md.ref.palette.neutral96",
+                    "value": 0
                   }
                 ]
               }
@@ -1859,9 +1985,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral96"
+                    "tokenName": "md.ref.palette.neutral96",
+                    "value": 0
                   }
                 ]
               }
@@ -1888,9 +2016,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.surface-container-low",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral96"
+                    "tokenName": "md.ref.palette.neutral96",
+                    "value": 0
                   }
                 ]
               }
@@ -1911,7 +2041,9 @@
       "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
       "displayName": "List reorder list item trailing icon color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 7,
       "values": [
         {
@@ -1932,7 +2064,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -1951,7 +2084,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -1970,7 +2104,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -1990,7 +2125,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -2011,7 +2147,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -2032,9 +2169,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -2059,9 +2198,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -2086,9 +2227,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -2113,9 +2256,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2140,9 +2285,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2167,9 +2314,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2194,9 +2343,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -2221,9 +2372,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -2248,9 +2401,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -2275,9 +2430,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2302,9 +2459,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2329,9 +2488,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2356,9 +2517,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -2383,9 +2546,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -2413,9 +2578,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -2443,9 +2610,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -2473,9 +2642,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2503,9 +2674,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2533,9 +2706,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2563,9 +2738,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -2593,9 +2770,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -2623,9 +2802,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -2653,9 +2834,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2683,9 +2866,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2713,9 +2898,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2743,9 +2930,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -2771,7 +2960,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -2792,9 +2982,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -2822,9 +3014,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -2852,9 +3046,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -2882,9 +3078,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2912,9 +3110,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2942,9 +3142,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -2972,9 +3174,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -3002,9 +3206,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -3032,9 +3238,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -3062,9 +3270,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -3092,9 +3302,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3122,9 +3334,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3152,9 +3366,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3182,9 +3398,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -3205,7 +3423,9 @@
       "tokenName": "md.comp.list.reorder.list-item.state-layer.opacity",
       "displayName": "List reorder list item state layer opacity",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 10,
       "values": [
         {
@@ -3219,7 +3439,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.opacity",
             "childNodes": [
               {
-                "tokenName": "md.sys.state.pressed.state-layer-opacity"
+                "tokenName": "md.sys.state.pressed.state-layer-opacity",
+                "value": 0
               }
             ]
           },
@@ -3233,7 +3454,9 @@
       "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
       "displayName": "List reorder list item leading icon color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 5,
       "values": [
         {
@@ -3254,7 +3477,8 @@
             "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -3273,7 +3497,8 @@
             "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -3292,7 +3517,8 @@
             "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -3312,7 +3538,8 @@
             "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -3333,7 +3560,8 @@
             "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -3354,9 +3582,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -3381,9 +3611,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -3408,9 +3640,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -3435,9 +3669,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3462,9 +3698,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3489,9 +3727,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3516,9 +3756,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -3543,9 +3785,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -3570,9 +3814,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -3597,9 +3843,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3624,9 +3872,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3651,9 +3901,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3678,9 +3930,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -3705,9 +3959,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -3735,9 +3991,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -3765,9 +4023,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -3795,9 +4055,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -3825,9 +4087,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -3855,9 +4119,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -3885,9 +4151,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -3915,9 +4183,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -3945,9 +4215,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -3975,9 +4247,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -4005,9 +4279,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -4035,9 +4311,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -4065,9 +4343,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -4093,7 +4373,8 @@
             "tokenName": "md.comp.list.reorder.list-item.leading-icon.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -4114,9 +4395,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -4144,9 +4427,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -4174,9 +4459,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -4204,9 +4491,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4234,9 +4523,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4264,9 +4555,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4294,9 +4587,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -4324,9 +4619,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -4354,9 +4651,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -4384,9 +4683,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -4414,9 +4715,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -4444,9 +4747,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -4474,9 +4779,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -4504,9 +4811,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -4527,7 +4836,9 @@
       "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
       "displayName": "List reorder list item trailing supporting text color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 6,
       "values": [
         {
@@ -4548,7 +4859,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -4567,7 +4879,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -4586,7 +4899,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -4606,7 +4920,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -4627,7 +4942,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -4648,9 +4964,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -4675,9 +4993,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -4702,9 +5022,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -4729,9 +5051,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4756,9 +5080,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4783,9 +5109,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4810,9 +5138,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -4837,9 +5167,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -4864,9 +5196,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -4891,9 +5225,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4918,9 +5254,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4945,9 +5283,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4972,9 +5312,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -4999,9 +5341,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -5029,9 +5373,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -5059,9 +5405,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -5089,9 +5437,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5119,9 +5469,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5149,9 +5501,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5179,9 +5533,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -5209,9 +5565,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -5239,9 +5597,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -5269,9 +5629,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5299,9 +5661,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5329,9 +5693,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5359,9 +5725,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -5387,7 +5755,8 @@
             "tokenName": "md.comp.list.reorder.list-item.trailing-supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -5408,9 +5777,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -5438,9 +5809,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -5468,9 +5841,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -5498,9 +5873,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -5528,9 +5905,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -5558,9 +5937,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -5588,9 +5969,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -5618,9 +6001,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -5648,9 +6033,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -5678,9 +6065,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -5708,9 +6097,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5738,9 +6129,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5768,9 +6161,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5798,9 +6193,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -5821,7 +6218,9 @@
       "tokenName": "md.comp.list.reorder.list-item.shadow-color",
       "displayName": "List reorder list item shadow color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 11,
       "values": [
         {
@@ -5842,7 +6241,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 0
               }
             ]
           },
@@ -5861,7 +6261,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 1
               }
             ]
           },
@@ -5880,7 +6281,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 2
               }
             ]
           },
@@ -5900,7 +6302,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 2
               }
             ]
           },
@@ -5921,7 +6324,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 2
               }
             ]
           },
@@ -5940,7 +6344,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shadow-color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.shadow"
+                "tokenName": "md.sys.color.shadow",
+                "value": 3
               }
             ]
           },
@@ -5960,9 +6365,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -5986,9 +6393,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6012,9 +6421,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6038,9 +6449,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6064,9 +6477,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6090,9 +6505,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6117,9 +6534,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6144,9 +6563,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6170,9 +6591,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6196,9 +6619,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6222,9 +6647,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
                   }
                 ]
               }
@@ -6248,9 +6675,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6274,9 +6703,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6300,9 +6731,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6327,9 +6760,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6354,9 +6789,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.shadow",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.neutral0"
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
                   }
                 ]
               }
@@ -6374,7 +6811,9 @@
       "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
       "displayName": "List reorder list item state layer color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 9,
       "values": [
         {
@@ -6395,7 +6834,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -6414,7 +6854,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -6433,7 +6874,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -6453,7 +6895,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -6474,7 +6917,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -6495,9 +6939,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -6522,9 +6968,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -6549,9 +6997,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -6576,9 +7026,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6603,9 +7055,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6630,9 +7084,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6657,9 +7113,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -6684,9 +7142,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -6711,9 +7171,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -6738,9 +7200,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6765,9 +7229,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6792,9 +7258,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6819,9 +7287,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -6846,9 +7316,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -6876,9 +7348,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -6906,9 +7380,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -6936,9 +7412,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -6966,9 +7444,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -6996,9 +7476,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -7026,9 +7508,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -7056,9 +7540,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -7086,9 +7572,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -7116,9 +7604,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -7146,9 +7636,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -7176,9 +7668,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -7206,9 +7700,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -7234,7 +7730,8 @@
             "tokenName": "md.comp.list.reorder.list-item.state-layer.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -7255,9 +7752,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -7285,9 +7784,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -7315,9 +7816,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -7345,9 +7848,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -7375,9 +7880,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -7405,9 +7912,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -7435,9 +7944,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -7465,9 +7976,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -7495,9 +8008,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -7525,9 +8040,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -7555,9 +8072,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -7585,9 +8104,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -7615,9 +8136,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -7645,9 +8168,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -7668,7 +8193,9 @@
       "tokenName": "md.comp.list.reorder.list-item.shape",
       "displayName": "List reorder list item shape",
       "tokenValueType": "SHAPE",
-      "displayGroup": "Shape",
+      "displayGroup": [
+        "Shape"
+      ],
       "values": [
         {
           "tokenName": "md.sys.shape.corner.large"
@@ -7681,7 +8208,8 @@
             "tokenName": "md.comp.list.reorder.list-item.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.large"
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
               }
             ]
           },
@@ -7701,7 +8229,9 @@
       "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
       "displayName": "List reorder list item supporting text color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 3,
       "values": [
         {
@@ -7722,7 +8252,8 @@
             "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -7741,7 +8272,8 @@
             "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -7760,7 +8292,8 @@
             "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -7780,7 +8313,8 @@
             "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -7801,7 +8335,8 @@
             "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -7822,9 +8357,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -7849,9 +8386,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -7876,9 +8415,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -7903,9 +8444,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -7930,9 +8473,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -7957,9 +8502,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -7984,9 +8531,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -8011,9 +8560,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -8038,9 +8589,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -8065,9 +8618,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8092,9 +8647,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8119,9 +8676,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8146,9 +8705,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -8173,9 +8734,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -8203,9 +8766,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -8233,9 +8798,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -8263,9 +8830,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8293,9 +8862,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8323,9 +8894,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8353,9 +8926,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -8383,9 +8958,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -8413,9 +8990,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -8443,9 +9022,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8473,9 +9054,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8503,9 +9086,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8533,9 +9118,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -8561,7 +9148,8 @@
             "tokenName": "md.comp.list.reorder.list-item.supporting-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -8582,9 +9170,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -8612,9 +9202,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -8642,9 +9234,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -8672,9 +9266,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -8702,9 +9298,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -8732,9 +9330,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -8762,9 +9362,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -8792,9 +9394,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -8822,9 +9426,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -8852,9 +9458,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -8882,9 +9490,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -8912,9 +9522,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -8942,9 +9554,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -8972,9 +9586,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -8995,7 +9611,9 @@
       "tokenName": "md.comp.list.reorder.list-item.label-text.color",
       "displayName": "List reorder list item label text color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "orderInDisplayGroup": 1,
       "values": [
         {
@@ -9016,7 +9634,8 @@
             "tokenName": "md.comp.list.reorder.list-item.label-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -9035,7 +9654,8 @@
             "tokenName": "md.comp.list.reorder.list-item.label-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -9054,7 +9674,8 @@
             "tokenName": "md.comp.list.reorder.list-item.label-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -9074,7 +9695,8 @@
             "tokenName": "md.comp.list.reorder.list-item.label-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -9095,7 +9717,8 @@
             "tokenName": "md.comp.list.reorder.list-item.label-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -9116,9 +9739,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -9143,9 +9768,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -9170,9 +9797,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -9197,9 +9826,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9224,9 +9855,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9251,9 +9884,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9278,9 +9913,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -9305,9 +9942,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -9332,9 +9971,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 0
                   }
                 ]
               }
@@ -9359,9 +10000,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9386,9 +10029,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9413,9 +10058,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9440,9 +10087,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary0"
+                    "tokenName": "md.ref.palette.tertiary0",
+                    "value": 1
                   }
                 ]
               }
@@ -9467,9 +10116,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9497,9 +10148,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9527,9 +10180,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9557,9 +10212,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9587,9 +10244,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9617,9 +10276,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9647,9 +10308,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9677,9 +10340,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9707,9 +10372,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 0
                   }
                 ]
               }
@@ -9737,9 +10404,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9767,9 +10436,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9797,9 +10468,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9827,9 +10500,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary100"
+                    "tokenName": "md.ref.palette.tertiary100",
+                    "value": 1
                   }
                 ]
               }
@@ -9855,7 +10530,8 @@
             "tokenName": "md.comp.list.reorder.list-item.label-text.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.on-tertiary-container"
+                "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -9876,9 +10552,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -9906,9 +10584,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -9936,9 +10616,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -9966,9 +10648,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -9996,9 +10680,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -10026,9 +10712,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -10056,9 +10744,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -10086,9 +10776,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -10116,9 +10808,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -10146,9 +10840,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -10176,9 +10872,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10206,9 +10904,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10236,9 +10936,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10266,9 +10968,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.on-tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10289,7 +10993,9 @@
       "tokenName": "md.comp.list.reorder.list-item.container.color",
       "displayName": "List reorder list item container color",
       "tokenValueType": "COLOR",
-      "displayGroup": "Color",
+      "displayGroup": [
+        "Color"
+      ],
       "values": [
         {
           "tokenName": "md.sys.color.tertiary-container"
@@ -10309,7 +11015,8 @@
             "tokenName": "md.comp.list.reorder.list-item.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.tertiary-container"
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 0
               }
             ]
           },
@@ -10328,7 +11035,8 @@
             "tokenName": "md.comp.list.reorder.list-item.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.tertiary-container"
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 1
               }
             ]
           },
@@ -10347,7 +11055,8 @@
             "tokenName": "md.comp.list.reorder.list-item.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.tertiary-container"
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -10367,7 +11076,8 @@
             "tokenName": "md.comp.list.reorder.list-item.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.tertiary-container"
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -10388,7 +11098,8 @@
             "tokenName": "md.comp.list.reorder.list-item.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.tertiary-container"
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 2
               }
             ]
           },
@@ -10409,9 +11120,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary80"
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
                   }
                 ]
               }
@@ -10439,9 +11152,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary80"
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
                   }
                 ]
               }
@@ -10469,9 +11184,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary80"
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
                   }
                 ]
               }
@@ -10499,9 +11216,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary80"
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 1
                   }
                 ]
               }
@@ -10529,9 +11248,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary80"
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 1
                   }
                 ]
               }
@@ -10559,9 +11280,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary80"
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 1
                   }
                 ]
               }
@@ -10589,9 +11312,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 0
                   }
                 ]
               }
@@ -10619,9 +11344,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 0
                   }
                 ]
               }
@@ -10649,9 +11376,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 0
                   }
                 ]
               }
@@ -10679,9 +11408,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 1
                   }
                 ]
               }
@@ -10709,9 +11440,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 1
                   }
                 ]
               }
@@ -10739,9 +11472,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 1
                   }
                 ]
               }
@@ -10769,9 +11504,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary60"
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 1
                   }
                 ]
               }
@@ -10799,9 +11536,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -10829,9 +11568,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -10859,9 +11600,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -10889,9 +11632,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10919,9 +11664,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10949,9 +11696,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -10979,9 +11728,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
                   }
                 ]
               }
@@ -11009,9 +11760,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
                   }
                 ]
               }
@@ -11039,9 +11792,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
                   }
                 ]
               }
@@ -11069,9 +11824,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 1
                   }
                 ]
               }
@@ -11099,9 +11856,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 1
                   }
                 ]
               }
@@ -11129,9 +11888,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 1
                   }
                 ]
               }
@@ -11159,9 +11920,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary40"
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 1
                   }
                 ]
               }
@@ -11187,7 +11950,8 @@
             "tokenName": "md.comp.list.reorder.list-item.container.color",
             "childNodes": [
               {
-                "tokenName": "md.sys.color.tertiary-container"
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 7
               }
             ]
           },
@@ -11208,9 +11972,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -11238,9 +12004,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -11268,9 +12036,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
                   }
                 ]
               }
@@ -11298,9 +12068,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -11328,9 +12100,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -11358,9 +12132,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -11388,9 +12164,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary30"
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 1
                   }
                 ]
               }
@@ -11418,9 +12196,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -11448,9 +12228,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -11478,9 +12260,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
                   }
                 ]
               }
@@ -11508,9 +12292,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -11538,9 +12324,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -11568,9 +12356,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }
@@ -11598,9 +12388,11 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
                 "childNodes": [
                   {
-                    "tokenName": "md.ref.palette.tertiary90"
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 1
                   }
                 ]
               }

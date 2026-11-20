@@ -109,7 +109,8 @@
             "tokenName": "md.comp.fab.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.large"
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
               }
             ]
           },

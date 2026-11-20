@@ -7,6 +7,7 @@ import {
   TokenShapeFamily,
   type StoredToken,
   type StoredValue,
+  type TokenTypeVariationAxes,
 } from './store/schema.ts';
 import { rgbaToHex } from './utils.ts';
 
@@ -60,7 +61,8 @@ export function toCSSValue(value: StoredValue): ProcessedTokenValue | null {
 
   if (type != null) {
     return Object.fromEntries(
-      Object.entries(type).map(
+      // An absent variationAxes gives no entry, so no entry is undefined.
+      Object.entries<string | TokenTypeVariationAxes>(type).map(
         ([key, value]) =>
           [kebabCase(key.replace('TokenName', '')), value] as const,
       ),

@@ -115,58 +115,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -235,58 +294,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -355,58 +473,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -475,58 +652,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 0,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 0
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   }
                 ]
               }
@@ -595,58 +831,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -715,58 +1010,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -835,58 +1189,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -955,58 +1368,117 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 1,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 1
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wght"
+                    "tokenName": "md.sys.typescale.label-large.wght",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wght"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.grad"
+                    "tokenName": "md.sys.typescale.label-large.grad",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.GRAD"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.wdth"
+                    "tokenName": "md.sys.typescale.label-large.wdth",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.wdth"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.rond"
+                    "tokenName": "md.sys.typescale.label-large.rond",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.ROND"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.opsz"
+                    "tokenName": "md.sys.typescale.label-large.opsz",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.opsz"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.crsv"
+                    "tokenName": "md.sys.typescale.label-large.crsv",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.CRSV"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.slnt"
+                    "tokenName": "md.sys.typescale.label-large.slnt",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.slnt"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large-fill"
+                    "tokenName": "md.sys.typescale.label-large-fill",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.FILL"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.hexp"
+                    "tokenName": "md.sys.typescale.label-large.hexp",
+                    "value": 0,
+                    "fieldNames": [
+                      "variation_axis.HEXP"
+                    ]
                   }
                 ]
               }
@@ -1075,31 +1547,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1140,31 +1635,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1205,31 +1723,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1269,31 +1810,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.brand"
+                        "tokenName": "md.ref.typeface.brand",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1333,31 +1897,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1398,31 +1985,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1463,31 +2073,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1528,31 +2161,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1593,31 +2249,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1658,31 +2337,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 2
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 2,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1723,31 +2425,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1787,31 +2512,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1851,31 +2599,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-bold"
+                        "tokenName": "md.ref.typeface.weight-bold",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1915,31 +2686,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -1979,31 +2773,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -2043,31 +2860,54 @@
             "childNodes": [
               {
                 "tokenName": "md.sys.typescale.label-large",
+                "value": 2,
                 "childNodes": [
                   {
                     "tokenName": "md.sys.typescale.label-large.font",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_names"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.plain"
+                        "tokenName": "md.ref.typeface.plain",
+                        "value": 3
                       }
                     ]
                   },
                   {
                     "tokenName": "md.sys.typescale.label-large.weight",
+                    "value": 1,
+                    "fieldNames": [
+                      "font_weight"
+                    ],
                     "childNodes": [
                       {
-                        "tokenName": "md.ref.typeface.weight-medium"
+                        "tokenName": "md.ref.typeface.weight-medium",
+                        "value": 0
                       }
                     ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.size"
+                    "tokenName": "md.sys.typescale.label-large.size",
+                    "value": 0,
+                    "fieldNames": [
+                      "font_size"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.line-height"
+                    "tokenName": "md.sys.typescale.label-large.line-height",
+                    "value": 0,
+                    "fieldNames": [
+                      "line_height"
+                    ]
                   },
                   {
-                    "tokenName": "md.sys.typescale.label-large.tracking"
+                    "tokenName": "md.sys.typescale.label-large.tracking",
+                    "value": 3,
+                    "fieldNames": [
+                      "font_tracking"
+                    ]
                   }
                 ]
               }
@@ -2114,7 +2954,8 @@
             "tokenName": "md.comp.button.xsmall.container.shape.round",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },
@@ -2227,7 +3068,8 @@
             "tokenName": "md.comp.button.xsmall.container.shape.square",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.medium"
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
               }
             ]
           },
@@ -2260,7 +3102,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.shape",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.small"
+                "tokenName": "md.sys.shape.corner.small",
+                "value": 0
               }
             ]
           },
@@ -2297,7 +3140,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 0
               }
             ]
           },
@@ -2315,7 +3159,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 1
               }
             ]
           },
@@ -2333,7 +3178,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -2351,7 +3197,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -2369,7 +3216,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 2
               }
             ]
           },
@@ -2387,7 +3235,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -2405,7 +3254,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -2423,7 +3273,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.damping",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+                "value": 3
               }
             ]
           },
@@ -2450,7 +3301,8 @@
             "tokenName": "md.comp.button.xsmall.selected.container.shape.square",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.full"
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
               }
             ]
           },
@@ -2479,7 +3331,8 @@
             "tokenName": "md.comp.button.xsmall.selected.container.shape.round",
             "childNodes": [
               {
-                "tokenName": "md.sys.shape.corner.medium"
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
               }
             ]
           },
@@ -2516,7 +3369,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 0
               }
             ]
           },
@@ -2534,7 +3388,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 1
               }
             ]
           },
@@ -2552,7 +3407,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -2570,7 +3426,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -2588,7 +3445,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 2
               }
             ]
           },
@@ -2606,7 +3464,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -2624,7 +3483,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
@@ -2642,7 +3502,8 @@
             "tokenName": "md.comp.button.xsmall.pressed.container.corner-size.motion.spring.stiffness",
             "childNodes": [
               {
-                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+                "value": 3
               }
             ]
           },
