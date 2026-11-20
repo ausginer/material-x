@@ -1,0 +1,11 @@
+RF-55 task 3 for @ydinjs/vite-custom-element-assets, run by the implementer on 2026-11-20 on repo/rolldown-peer-1 at 769b5a427 with task 3's source change, after `aube exec just build`.
+
+Command: node .plan/rolldown-peer-1/checks/assets-host-copy.ts
+
+host rolldown VERSION: code is a magic string, no map, replaced: true
+host rolldown VERSION-other: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+The mutation: the built index.js with `this.meta.rolldownVersion === VERSION` replaced by `true`, then restored.
+
+host rolldown VERSION: code is a magic string, no map, replaced: true
+host rolldown VERSION-other: code is a magic string, no map, replaced: true

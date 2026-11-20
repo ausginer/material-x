@@ -2,8 +2,10 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
   RolldownMagicString,
+  VERSION,
   type Plugin as RolldownPlugin,
   type PluginContext,
+  type PluginContextMeta,
 } from 'rolldown';
 import type { Plugin } from 'vite';
 import { importsAttributes, lowerAttributes } from './attributes/lower.ts';
@@ -64,23 +66,25 @@ export type BuildKind = 'library' | 'application' | 'serve';
 type Emitted = Readonly<{ code: RolldownMagicString | string; map?: string }>;
 
 /**
- * A transform's result. The dev server's plugin container passes `code` on to
- * native transforms that read only a string, so it gets a string and a source
- * map; a build keeps rolldown's native magic string.
+ * A transform's result. A host that runs this module's copy of rolldown keeps
+ * the native magic string. Every other host gets a string and a source map:
+ * the dev server's plugin container passes `code` on to native transforms
+ * that read only a string, and a host on another copy of rolldown doesn't
+ * recognize this copy's magic string, so it would drop the edit.
  */
 function emit(
   magic: RolldownMagicString,
   id: string,
-  kind: BuildKind,
+  native: boolean,
 ): Emitted {
-  return kind === 'serve'
-    ? {
+  return native
+    ? { code: magic }
+    : {
         code: magic.toString(),
         map: magic
           .generateMap({ source: id, includeContent: true, hires: true })
           .toString(),
-      }
-    : { code: magic };
+      };
 }
 
 function isCandidate(id: string): boolean {
@@ -245,6 +249,10 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
   // Per module id, the classes whose `export` the `load` stage moved.
   const moved = new Map<string, ReadonlySet<string>>();
 
+  /** Whether the host takes this module's magic string as it is. */
+  const native = (meta: PluginContextMeta): boolean =>
+    kind !== 'serve' && meta.rolldownVersion === VERSION;
+
   /** A diagnostic's position in `code`, as it would be without the stage. */
   const position = (
     id: string,
@@ -326,7 +334,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
       try {
         const magic = lowerAttributes(code, parseModule(cleanId, code));
 
-        return magic ? emit(magic, cleanId, kind) : null;
+        return magic ? emit(magic, cleanId, native(this.meta)) : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }
@@ -367,7 +375,9 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           });
         }
 
-        return result.magic ? emit(result.magic, cleanId, kind) : null;
+        return result.magic
+          ? emit(result.magic, cleanId, native(this.meta))
+          : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }

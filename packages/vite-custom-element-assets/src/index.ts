@@ -1,5 +1,9 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { RolldownMagicString, type Plugin as RolldownPlugin } from 'rolldown';
+import {
+  RolldownMagicString,
+  VERSION,
+  type Plugin as RolldownPlugin,
+} from 'rolldown';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import {
@@ -238,16 +242,33 @@ export function constructCSSTokens(
                 exclude: /\.css\.ts/u,
               },
             },
-            handler(code) {
+            handler(code, id) {
               const s = new RolldownMagicString(code);
 
               for (const [pattern, short] of replaceList) {
                 s.replaceRegex(pattern, `'${short}'`);
               }
 
-              // Rolldown derives the sourcemap from the returned magic string
-              // over its native channel, so no explicit map is needed.
-              return s.hasChanged() ? { code: s } : null;
+              if (!s.hasChanged()) {
+                return null;
+              }
+
+              // A host that runs this module's copy of rolldown derives the
+              // source map from the magic string over its native channel. A
+              // host on another copy doesn't recognize it and would drop the
+              // edit, so it gets a string and a source map.
+              return this.meta.rolldownVersion === VERSION
+                ? { code: s }
+                : {
+                    code: s.toString(),
+                    map: s
+                      .generateMap({
+                        source: normalizePath(id),
+                        includeContent: true,
+                        hires: true,
+                      })
+                      .toString(),
+                  };
             },
           },
         }

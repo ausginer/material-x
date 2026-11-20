@@ -1,0 +1,14 @@
+RF-55 task 3, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0 and the npm registry of that day, on repo/rolldown-peer-1 at 769b5a427 with task 3's source change. @ydinjs/core and @ydinjs/vite-traits-plugin were built with `aube exec just build` and packed with `aube pack --ignore-scripts`.
+
+Command: .plan/rolldown-peer-1/checks/host-copy.sh <scratch> <plugin tarball> <core tarball>
+
+host checks in the packed index.js: 1
+D-vite8.3.8-tsdown0.23.7: vite 8.3.8, plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+mutant-D-vite8.3.8-tsdown0.23.7: vite 8.3.8, plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  vite build: exit 0, Link NOT flattened
+  dist/main.js: 2 compose(Base), 0 impl(this
+one-copy-vite8.3.8: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
