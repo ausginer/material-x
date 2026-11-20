@@ -619,21 +619,49 @@ describe('checkConsumer', () => {
           join(root, 'consumer'),
         ),
       ),
-      // rolldown keeps an import that doesn't resolve, so the bare import of
-      // the missing module isn't empty either.
     ).toEqual(['consumer', 'side-effects']);
   });
 
+  it('should report the bare import of a missing export as an import that does not resolve', async () => {
+    const manifest = {
+      ...BOX_QUAD_MANIFEST,
+      exports: {
+        ...BOX_QUAD_MANIFEST.exports,
+        './extra.js': { types: './extra.d.ts', default: './extra.js' },
+      },
+    };
+    const tarball = await packBoxQuad(manifest);
+
+    expect(
+      (
+        await checkConsumer(
+          tarball,
+          manifest as Manifest,
+          join(root, 'consumer'),
+        )
+      )
+        .filter(({ check }) => check === 'side-effects')
+        .map(({ message }) => message),
+    ).toEqual([
+      "@ydinjs/box-quad/extra.js doesn't resolve: publish the file that its export names",
+    ]);
+  });
+
   describe('side effects', () => {
-    /** A package of a pure module and three with an effect at import. */
-    async function packEffects(sideEffects?: unknown): Promise<string> {
-      const modules: Readonly<Record<string, string>> = {
-        pure: 'export const value = 1;\n',
-        global: 'globalThis.effect = 1;\nexport const value = 1;\n',
-        define:
-          'export class Element extends HTMLElement {}\ncustomElements.define("x-element", Element);\n',
-        style: 'import "./style.css";\nexport const value = 1;\n',
-      };
+    /** A pure module and three with an effect at import. */
+    const EFFECTS: Readonly<Record<string, string>> = {
+      pure: 'export const value = 1;\n',
+      global: 'globalThis.effect = 1;\nexport const value = 1;\n',
+      define:
+        'export class Element extends HTMLElement {}\ncustomElements.define("x-element", Element);\n',
+      style: 'import "./style.css";\nexport const value = 1;\n',
+    };
+
+    /** A package that exports each of `modules`. */
+    async function packEffects(
+      sideEffects: unknown,
+      modules: Readonly<Record<string, string>>,
+    ): Promise<string> {
       const manifest = {
         name: 'effects',
         version: '1.0.0',
@@ -665,8 +693,9 @@ describe('checkConsumer', () => {
 
     async function sideEffectsProblems(
       sideEffects?: unknown,
+      modules = EFFECTS,
     ): Promise<string[]> {
-      const tarball = await packEffects(sideEffects);
+      const tarball = await packEffects(sideEffects, modules);
       const { manifest } = await readPack(tarball);
 
       return (await checkConsumer(tarball, manifest, join(root, 'consumer')))
@@ -680,6 +709,18 @@ describe('checkConsumer', () => {
           (message) => /of (\S+) keeps/u.exec(message)?.[1],
         ),
       ).toEqual(['effects/global.js', 'effects/define.js', 'effects/style.js']);
+    });
+
+    it('should name an import that does not resolve instead of an effect', async () => {
+      expect(
+        await sideEffectsProblems(false, {
+          undeclared: 'import "undeclared-package";\nexport const value = 1;\n',
+          relative: 'import "./missing.js";\nexport const value = 1;\n',
+        }),
+      ).toEqual([
+        "a bare import of effects/undeclared.js reaches effects/undeclared.js, whose import of undeclared-package doesn't resolve: publish the module, or declare its package in dependencies",
+        "a bare import of effects/relative.js reaches effects/relative.js, whose import of ./missing.js doesn't resolve: publish the module, or declare its package in dependencies",
+      ]);
     });
 
     it('should not check a manifest without the field', async () => {
