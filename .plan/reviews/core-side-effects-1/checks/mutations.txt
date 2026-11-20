@@ -1,0 +1,48 @@
+# Proof 1 and its mutations, rerun by the feature proof at 42999d4a3 (rolldown 1.3.2)
+# Each mutation is applied to .scripts/release-check.ts, run with: aube exec vitest run .scripts/release-check.node.test.ts, and reverted with git checkout.
+
+## unmutated
+ Test Files  1 passed (1)
+      Tests  49 passed (49)
+
+## M1: moduleSideEffects: true in place of () => true
+-          treeshake: { moduleSideEffects: () => true },
++          treeshake: { moduleSideEffects: true },
+ FAIL  |repo| .scripts/release-check.node.test.ts:677 > checkConsumer > side effects > should name each export whose bare import keeps code or an asset
+AssertionError: expected [ 'effects/style.js' ] to deeply equal [ 'effects/global.js', …(2) ]
+- Expected
++ Received
+  [
+-   "effects/global.js",
+-   "effects/define.js",
+    "effects/style.js",
+  ]
+ ❯ .scripts/release-check.node.test.ts:682:9
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 48 passed (49)
+
+## M2: counting only chunks (an asset counts 0)
+-                : typeof file.source === 'string'
+-                  ? file.source.length
+-                  : file.source.byteLength),
++                : 0),
+ FAIL  |repo| .scripts/release-check.node.test.ts:677 > checkConsumer > side effects > should name each export whose bare import keeps code or an asset
+AssertionError: expected [ 'effects/global.js', …(1) ] to deeply equal [ 'effects/global.js', …(2) ]
+- Expected
++ Received
+  [
+    "effects/global.js",
+    "effects/define.js",
+-   "effects/style.js",
+  ]
+ ❯ .scripts/release-check.node.test.ts:682:9
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 48 passed (49)
+
+## M3: the CSS plugin's load returns null (rolldown loads the stylesheet itself)
+-              async load(id) {
++              async load(id) { return null;
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |repo| .scripts/release-check.node.test.ts:677 > checkConsumer > side effects > should name each export whose bare import keeps code or an asset
+[UNSUPPORTED_FEATURE] Bundling CSS is no longer supported (experimental support has been removed). See https://github.com/rolldown/rolldown/issues/4271 for details.
+      Tests  1 failed | 48 passed (49)
