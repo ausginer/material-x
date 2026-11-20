@@ -150,7 +150,7 @@ A scheduled workflow reads the site's current release and database version and c
 
   For the snapshot that step 1 converts, the source reads _committed before `RD-28`, release unknown_, with both database versions.
 
-- **`context.json`:** each context tag group's name (`contextTagGroupName`), `displayName`, `specificity` and default tag. For each tag of the group, its `tagName`, `displayName` and `tagOrder`.
+- **`context.json`:** each context tag group's name (`contextTagGroupName`), `displayName`, `description` when present, `specificity` and default tag. For each tag of the group, its `tagName`, `displayName`, `description` when present, and `tagOrder` ([step 2 rulings](#rulings-for-steps-2-and-3)). Until then, neither had a `description`.
 - **`sets/<tokenSetName>.json`,** one file per token set, such as `sets/md.comp.checkbox.json`:
   - the set's `tokenSetName`, `displayName`, `description`, `tokenType`, `custom.token_class` and `order`, when a table carries the set, and only its name when none does;
   - its display groups, in upstream order ([second rulings](#field-rulings-from-the-feature-proof)). Each keeps `displayName`, `parentGroup` as the parent's path when the group has one, and `description`, `orderInParentTokenSet` and `orderInParentDisplayGroup` when present. A group's path is its ancestors' `displayName`s and its own, from the top;
@@ -174,6 +174,8 @@ A scheduled workflow reads the site's current release and database version and c
   `tokenNameSuffix`, `tokenSetNameSuffix` and set membership aren't stored either, because they follow from the token's file and name.
 
   The component records aren't stored: their `definition`, `componentImage`, `connectedPage`, `alternativeNames`, `componentDisplayGroup` and `tokenSets`, and the component display groups. They describe Material's component catalogue, not tokens. The manifest keeps each converted table's component id and name.
+
+  `system.navigation` isn't stored either. It is the guideline site's page tree, not token data ([step 2 rulings](#rulings-for-steps-2-and-3)).
 
   The converter names each dropped key in one drop list, beside the allow list ([second rulings](#field-rulings-from-the-feature-proof)).
 
@@ -232,9 +234,9 @@ They replace point 5. A refusal names the table, the token and the field.
 - **Input:** each field the converter reads is present, with its type. Each tag id resolves to a tag and a group of the same table. Each tree's root is the token's own value.
   - A value has exactly one value field, a resolved value exactly one literal field, and an entry exactly one of `resolvedValue` and `resolvedCustomCompositeValue`. A value kind that upstream adds is then refused, and doesn't vanish through the allow list. Today's tables pass, with the fields ruled on above.
 - **References:** each `tokenName` in a value, `customComposite`'s properties included, and each node of a tree, names a token in the converted store.
-- **Duplicates:** a token that more than one table carries converts to identical content.
-  - In step 1, today's mixed snapshot breaks this for about 223 tokens: the component tables are `35.0.28` and the system tables `37.0.32`. There the converter keeps the table that `DB.load()` reads first, which is `DB`'s behaviour today. It lists each conflict in step 1's report.
-  - From step 2 on, a conflict refuses the update.
+- **Duplicates:** a token that more than one table carries has one copy that covers every other, and the store keeps that copy ([step 2 rulings](#rulings-for-steps-2-and-3)). A copy covers another when the two are identical, or when the other has no `contextualReferenceTree`, equals it in every field but `values`, and has only `values` entries that each equal a different entry of its `values`. Where no copy covers every other, the update is refused, naming both tables. Sets, context tag groups and display groups still convert to identical content.
+  - In step 1, the converter kept the table that `DB.load()` reads first and listed each conflict. Each of those 704 copies was covered by the kept copy.
+  - Until the step 2 rulings, this said: a token that more than one table carries _"converts to identical content"_. The 704 conflicts were put down to the mixed snapshot, _"the component tables are `35.0.28` and the system tables `37.0.32`"_, and _"from step 2 on, a conflict refuses the update"_. One release of one database has the same 704, so the mixed snapshot wasn't their cause.
 - **One release:** every table reports the same `versionName`. Step 1's legacy conversion is exempt and records both versions.
 - **Allow list and drop list:** at every depth, each key is kept by the allow list or named by the drop list, and a key in neither refuses the conversion. Inside a value field, keys and types match the schema exactly ([second rulings](#field-rulings-from-the-feature-proof)). A final scan refuses a store that holds an email address or a `gaiaId` key.
 - **Display groups:** no two groups of a set share a path, each `parentGroup` resolves to a group of the same set, and each token's group is a group of its set.
@@ -293,9 +295,9 @@ Proofs:
 
   The store is now 58.9 MB and 2,134,917 lines, and gzips to 1.42 MB. `storeVersion` stays 1. The exact match closed two gaps in `schema.ts`: a `type` value's `variationAxes`, and its `FILL` and `HEXP` axes, are optional, as upstream gives them; and a resolved `type` holds literals, so it has its own type, `ResolvedTokenType`.
 
-**Step 2 — the first update, to a dated release,** after step 1: P6–P8 as planned, and no duplicate conflict. It doesn't wait for the history rewrite, which the owner has deferred: the update writes only the store, and a rewrite run later rewrites any branch open then with the rest. Until the owner deferred the rewrite, this step read: _"after the history rewrite"_.
+**Step 2 — the first update, to a dated release,** after step 1: P6–P8 as planned, and no copy that another copy doesn't cover ([step 2 rulings](#rulings-for-steps-2-and-3)). Until those rulings, this said _"and no duplicate conflict"_. It doesn't wait for the history rewrite, which the owner has deferred: the update writes only the store, and a rewrite run later rewrites any branch open then with the rest. Until the owner deferred the rewrite, this step read: _"after the history rewrite"_.
 
-**Step 3 — change notification,** weekly, because the owner answered yes to `Q1`: P9 as planned, after step 1, whose manifest it compares. Until his answer, this step read: _"only if the owner answers yes to `Q1`"_.
+**Step 3 — change notification,** weekly, because the owner answered yes to `Q1`: P9 as planned, after step 1, whose manifest it compares. Its details are in the [step 3 rulings](#step-3). Until his answer, this step read: _"only if the owner answers yes to `Q1`"_.
 
 ### Owner questions, amended
 
@@ -315,3 +317,65 @@ Proofs:
   - **His concern is covered by step 1 under either option.** Today `resolve.ts`, `processToken.ts` and `processTokenSet.ts` import `DB/index.ts`, which reads the tables. Step 1 moves these modules onto the reader, deletes `DB` and the tables in the same change, and keeps the modules' exports, so the build never reads a deleted table ([the reader and the CSS layer](#the-reader-and-the-css-layer), `RD-28` property 8). P4 proves it with byte-identical CSS. `Q4` decided only whether step 1 also adds a new generation interface, option (b).
   - **Once the coordinator explained this,** he chose (a) (translated): _"🤔 А, ну если так, то окей. Я просто не подумал, что мы прям *совсем* новый API делать будем 🤔"_ ("Ah, if that's how it is, then okay. I just didn't think we'd be building an entirely new API").
 - **The history rewrite is deferred** (`RD-29`, [its plan](history-rewrite-plan.md#the-owners-answer-2026-11-20)). Step 1's precondition logic is unchanged: step 1 doesn't depend on the rewrite, and the rewrite still needs step 1 on `main` first.
+
+### Rulings for steps 2 and 3
+
+**Ruled 2026-11-20 by the architect,** on four questions and three proposals from the implementer of steps 2 and 3, relayed by the coordinator. The owner approved both steps. The release is `2026-11-19_06-20-01`, and all 14 tables report database `41.1.12` (version `4ae102170fee99b1`, published 2026-11-12). The architect fetched the 14 tables into a scratch directory and read them, and ran `main`'s converter on them in legacy mode.
+
+#### Step 2
+
+The rule for the three keys is the field rulings' rule. The store keeps every field that carries token data and drops system fields, under the owner's _"fields and data stay original"_.
+
+- **`system.navigation` is dropped,** whole, and the drop list names it.
+  - In each table it is an object with one key, `guidelinesNodes`, a list of 55 nodes. Each node holds a page with its `title`, `slug`, page id, visibility flags and children, or a group of such pages, and a node id and a `legacyNodeId`.
+  - It is the guideline site's page tree, `Home` and `GM3 Expressive` first. It names no token, set or value. It is not token data, as the component catalogue isn't.
+- **A context tag group's `description` is kept,** in `context.json`, on 140 group records, 10 per table.
+- **A tag's `description` is kept** there too, on 392 tag records, 28 per table.
+  - Both are upstream's text about a context, such as _"Sets motion scheme for all springs."_ That is data about the contexts that every value's `contextTags` names, as a set's and a token's `description` are.
+  - All 14 tables give each group and tag the same description, so the existing check that context records agree across tables holds with them. The final scan covers them as every other field.
+- **`storeVersion` becomes 2.** `context.json` gains a key, so the store's shape changes, and the store is on `main` at version 1. The second field rulings kept 1 only because the store wasn't yet on `main`.
+- **The duplicates.** What the converter keeps is a copy that covers every other copy. A conflict is a token for which no copy does.
+  - **What a copy covers.** Copy A covers copy B when the two are identical, or when B:
+    - has no `contextualReferenceTree`;
+    - equals A in every field but `values`;
+    - has only `values` entries that each equal a different entry of A's.
+  - **The store keeps the covering copy whole,** with its upstream order, whichever table it comes from. A child node's index is into that copy's `values`. Where several copies cover every other, they are identical, and the first in the manifest's order is kept.
+  - **Order doesn't count.** At this release, 27 partial copies of 5 tokens hold the same entries as the kept copy in another order. One is `md.sys.color.primary` in the Buttons table, which lists COLOR's ten entries in another order. The store keeps the kept copy's order, which is the one the reader's first-match rule reads.
+  - **What still refuses:** a token for which no copy covers every other, naming both tables. That includes two copies with different trees, a partial copy with a value the other copy lacks, and a partial copy whose other fields differ. Sets, context tag groups and display groups still must convert to identical content.
+  - **What the architect's probe shows at this release.** `main`'s converter in legacy mode, run on the 14 tables with the three new keys removed, lists 704 token conflicts for 217 tokens, and no conflict of any other kind.
+    - Each kept copy has a tree, and none of the 704 other copies has one.
+    - In each pair, the fields other than `values` and the tree are equal.
+    - 98 other copies have fewer `values`. In 677 copies, the entries come in the kept copy's order, and in 27 they don't. Each one's entries equal different entries of the kept copy's.
+    - The kept copy is always from a system table. In 7 pairs both are, COLOR and ELEVATION.
+
+    So at this release every one of the 704 is covered, and no token conflicts.
+
+  - **Why this is inside the owner's decision.** A covered copy holds nothing that the kept copy doesn't, apart from the order in which a component table lists another table's token. That order isn't the token's data: the token's own table gives it, and the reader reads that one. So the store loses no token data. A real disagreement between tables still stops the update.
+- **The proofs added to step 2:**
+  - **P5's new witnesses,** each refused with both tables and the token:
+    - a partial copy with a value entry that the covering copy lacks;
+    - a partial copy whose `description` differs;
+    - two copies with trees that differ.
+  - **The covering copy is kept wherever it comes from:** with the tables' order changed so that a component table comes before COLOR, the token's stored content is unchanged.
+  - **The conversion's summary** gives how many copies were covered, and of how many tokens. At this release, that is 704 copies of 217 tokens.
+  - **P3, unchanged:** the store holds no email address and no `gaiaId` key, the descriptions included.
+
+#### Step 3
+
+- **What counts as a change:** the database that the site's current release serves, by `versionName` or version id, isn't one that the manifest records. A new release id that serves the same database isn't a change.
+  - The manifest of step 1's legacy store records two databases, and neither is `41.1.12`, so a run against it notifies.
+  - The issue names the current release id and both databases, so the update can be run against that release.
+- **The workflow** runs weekly and on `workflow_dispatch`. It finds the open issue by a label, `tokens-release`, as `safari.yml` finds its own.
+  - **It opens the issue** when no issue with the label is open.
+  - **It comments on the open one** only when the current database isn't one that the issue already names. A weekly run that finds the same database adds nothing. **Corrected:** the proposal commented every week while the versions differed, which repeats one notice until the update merges.
+  - **Writing:** the issue is the workflow's only write, in its own job with `issues: write`. It doesn't fail a build, commit or open a pull request.
+- **`tokens-release` isn't a queue label.** [`work-queue.md`](../../.agents/docs/work-queue.md) _Labels_ names it beside `record-baselines` and `safari`, with what the workflow does with it. The issue is the workflow's signal, which the coordinator routes to an update unit. The update's pull request closes it with `Closes #N`.
+- **P9 before merge:** the issue step runs against a stub `gh`, in four cases:
+  - no open issue opens one;
+  - an open issue that names another database gets one comment;
+  - an open issue that names the current database gets nothing;
+  - an unchanged manifest gets nothing.
+
+  The comparison runs on a manifest whose database is edited, and on the real one.
+
+- **P9 after merge, owed:** a `workflow_dispatch` run is possible only once the workflow is on `main`. With the compared database edited, as on a scratch ref dispatched with `--ref`, a run opens exactly one issue, and a second run adds nothing. It runs on the owner's go, its result goes into `RD-28`, and the coordinator closes the issue it opens.
