@@ -34,7 +34,7 @@ export class Disableable extends AnyElement {
 
 - **The decorator stands alone above the class,** before `export`. `export @trait class` is also valid and the plugin accepts it, but `oxfmt` prints it across three lines (`export`, `@trait`, `class …`). The migration writes the form above.
 - **A layer (a) trait** such as FocusForwarding has no static block left, only `@trait` and its members.
-- **Layer (b) doesn't change.** `attributes(this, TABLE)` stays in a static block. Whether it becomes a decorator too is [open question 2](#open-questions).
+- **Layer (b) becomes `@attributes(TABLE)`** below `@trait`, in the same pull request ([open question 2](#open-questions), answered). Until that answer this bullet said that `attributes(this, TABLE)` stays in a static block.
 
 ## The decorator's type, and what TypeScript sees
 
@@ -213,7 +213,7 @@ The implementer greps for `trait(` and `trait(this` to confirm the list before s
 These need the owner:
 
 1. **ListItem (fix 2):** extend `ControlledElement` directly and delete `ListItemCoreTraits`, as recommended above? The implementer can start everything else first. If the owner keeps the composition instead, fix 1 alone gives the same output.
-2. **Layer (b)'s static block.** After this pass, a layer (b) trait reads `@trait` above the class and `static { attributes(this, TABLE); }` inside it, two styles in one class. A decorator form such as `@attributes(TABLE)` could follow, compiled by the plugin as `@trait` is. This pass doesn't decide that. It is a follow-up only if the owner wants it.
+2. **Layer (b)'s static block.** After this pass, a layer (b) trait reads `@trait` above the class and `static { attributes(this, TABLE); }` inside it, two styles in one class. A decorator form such as `@attributes(TABLE)` could follow, compiled by the plugin as `@trait` is. This pass doesn't decide that. It is a follow-up only if the owner wants it. **Answered 2026-11-20 by the owner:** `@attributes(TABLE)` ships with `@trait`. The [`@attributes` plan](../attributes-decorator-1/attributes-decorator-plan.md) holds its design, and the proofs and files it adds to this plan's.
 
 ## Evidence
 
