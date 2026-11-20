@@ -1,0 +1,168 @@
+{
+  "contextTagGroups": [
+    {
+      "contextTagGroupName": "ios.weight.setting",
+      "displayName": "iOS weight setting",
+      "specificity": 9,
+      "defaultTag": "default",
+      "tags": [
+        {
+          "tagName": "default",
+          "displayName": "Default",
+          "tagOrder": 1
+        },
+        {
+          "tagName": "bold",
+          "displayName": "Bold",
+          "tagOrder": 2
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "ios.dark.theme.elevation",
+      "displayName": "iOS dark theme elevation",
+      "specificity": 8,
+      "defaultTag": "none",
+      "tags": [
+        {
+          "tagName": "elevated",
+          "displayName": "Elevated",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "none",
+          "displayName": "None",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "contrast",
+      "displayName": "Contrast",
+      "specificity": 7,
+      "defaultTag": "default",
+      "tags": [
+        {
+          "tagName": "medium.contrast",
+          "displayName": "Medium contrast",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "default",
+          "displayName": "Default",
+          "tagOrder": 1
+        },
+        {
+          "tagName": "high.contrast",
+          "displayName": "High contrast",
+          "tagOrder": 3
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "motion.scheme",
+      "displayName": "Motion scheme",
+      "specificity": 5,
+      "defaultTag": "standard",
+      "tags": [
+        {
+          "tagName": "standard",
+          "displayName": "Standard",
+          "tagOrder": 1
+        },
+        {
+          "tagName": "expressive",
+          "displayName": "Expressive",
+          "tagOrder": 2
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "font",
+      "displayName": "Font",
+      "specificity": 6,
+      "defaultTag": "static",
+      "tags": [
+        {
+          "tagName": "ios.bold",
+          "displayName": "iOS bold",
+          "tagOrder": 3
+        },
+        {
+          "tagName": "variable",
+          "displayName": "Variable",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "static",
+          "displayName": "Static",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "audience",
+      "displayName": "Audience",
+      "specificity": 3,
+      "defaultTag": "1p.baseline",
+      "tags": [
+        {
+          "tagName": "1p.baseline",
+          "displayName": "1P Baseline",
+          "tagOrder": 1
+        },
+        {
+          "tagName": "3p",
+          "displayName": "3P",
+          "tagOrder": 2
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "platform",
+      "displayName": "Platform",
+      "specificity": 2,
+      "defaultTag": "android",
+      "tags": [
+        {
+          "tagName": "compose",
+          "displayName": "Compose",
+          "tagOrder": 4
+        },
+        {
+          "tagName": "web",
+          "displayName": "Web",
+          "tagOrder": 3
+        },
+        {
+          "tagName": "ios",
+          "displayName": "iOS",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "android",
+          "displayName": "Android",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "theme",
+      "displayName": "Theme",
+      "specificity": 1,
+      "defaultTag": "light",
+      "tags": [
+        {
+          "tagName": "dark",
+          "displayName": "Dark",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "light",
+          "displayName": "Light",
+          "tagOrder": 1
+        }
+      ]
+    }
+  ]
+}

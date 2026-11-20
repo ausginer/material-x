@@ -233,6 +233,16 @@ Proofs:
 - **P5.** Each input and reference check refuses a mutated table, and names the table, the token and the field. Recorded as mutation witnesses.
 - **P10.** Parity with `DB`, read once before `DB` is deleted. For every token and the default tags, `select` gives the same one-hop reference or literal, reference tree token names and resolved value as `DB.getValue` and `getReferenceTreeAndResolvedValue`. This covers the tokens material-x doesn't render, which P4 can't see.
 - **P11.** The duplicate conflicts are listed with their tables, and the kept table is the one `DB.load()` reads first.
+- **Done 2026-11-20** by the implementer ([transcript](checks/step-1.txt)). All seven proofs hold:
+  - **P1:** the store loads with `fetch` failing the test, and a missing or changed file fails the load with its path.
+  - **P2:** two conversions give the same 103 files.
+  - **P3:** `git grep` finds no `emailAddress` or `gaiaId` in the store, and a raw token's extra field is dropped.
+  - **P4:** material-x's 34 compiled stylesheets, its 213 build outputs and the Storybook theme are byte-identical. tproc passes 97 tests and material-x 427.
+  - **P5:** the input and reference checks refuse nine mutations of the committed tables, plus fixture cases. Each refusal names the table, the token and the field.
+  - **P10:** all 3,950 tokens give the same set, deprecation, one-hop reference or literal, tree and resolved value as `DB`.
+  - **P11:** 217 tokens conflict, in 704 table pairs, each kept from the first table ([list](checks/step-1-conflicts.md)). The estimate was about 223.
+
+  The store is 53.8 MB and 1,956,718 lines, against the estimate of 45.3 MB, and gzips to 1.27 MB. The update report's diff sections are step 2's (P7). `--release` and `--current` are implemented and haven't run yet.
 
 **Step 2 — the first update, to a dated release,** after step 1: P6–P8 as planned, and no duplicate conflict. It doesn't wait for the history rewrite, which the owner has deferred: the update writes only the store, and a rewrite run later rewrites any branch open then with the rest. Until the owner deferred the rewrite, this step read: _"after the history rewrite"_.
 

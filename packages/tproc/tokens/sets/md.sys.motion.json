@@ -1,0 +1,4225 @@
+{
+  "tokenSetName": "md.sys.motion",
+  "displayName": "Motion",
+  "description": "For all motion. Includes spring tokens (physics system), and legacy easing and duration tokens.",
+  "custom": {
+    "token_class": "SYSTEM"
+  },
+  "order": 1,
+  "tokens": [
+    {
+      "tokenName": "md.sys.motion.spring.slow.effects",
+      "displayName": "Motion spring slow effects ",
+      "tokenValueType": "CUSTOM_COMPOSITE",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "customComposite": {
+            "properties": {
+              "damping": {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              "stiffness": {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.slow.effects.damping",
+      "displayName": "Motion spring slow effects damping",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 15,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 1
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 1
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.slow.effects.stiffness",
+      "displayName": "Motion spring slow effects stiffness",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 16,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 800
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 800
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.slow.spatial",
+      "displayName": "Motion spring slow spatial",
+      "tokenValueType": "CUSTOM_COMPOSITE",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "customComposite": {
+            "properties": {
+              "damping": {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              "stiffness": {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.8
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 200
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.8
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 200
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.8
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 200
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 300
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 300
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 300
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.slow.spatial.damping",
+      "displayName": "Motion spring slow spatial damping",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 13,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 0.8
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 0.9
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.8
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.8
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.8
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.slow.spatial.stiffness",
+      "displayName": "Motion spring slow spatial stiffness",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 200
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 300
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 200
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 200
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 200
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 300
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 300
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.slow.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 300
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.default.effects",
+      "displayName": "Motion spring default effects ",
+      "tokenValueType": "CUSTOM_COMPOSITE",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "customComposite": {
+            "properties": {
+              "damping": {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              "stiffness": {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1600
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1600
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1600
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1600
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1600
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1600
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.default.effects.damping",
+      "displayName": "Motion spring default effects damping",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 1
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 1
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.default.effects.stiffness",
+      "displayName": "Motion spring default effects stiffness",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 1600
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 1600
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1600
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1600
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1600
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1600
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1600
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1600
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.default.spatial",
+      "displayName": "Motion spring default spatial",
+      "tokenValueType": "CUSTOM_COMPOSITE",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "customComposite": {
+            "properties": {
+              "damping": {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              "stiffness": {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.8
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 380
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.8
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 380
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.8
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 380
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 700
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 700
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 700
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.default.spatial.damping",
+      "displayName": "Motion spring default spatial damping",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 0.8
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 0.9
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.8
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.8
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.8
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.default.spatial.stiffness",
+      "displayName": "Motion spring default spatial stiffness",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 380
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 700
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 380
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 380
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 380
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 700
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 700
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.default.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 700
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.fast.spatial",
+      "displayName": "Motion spring fast spatial",
+      "tokenValueType": "CUSTOM_COMPOSITE",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "customComposite": {
+            "properties": {
+              "damping": {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              "stiffness": {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.6
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.6
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.6
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1400
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1400
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 0.9
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 1400
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.fast.spatial.damping",
+      "displayName": "Motion spring fast spatial damping",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 0.6
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 0.9
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.6
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.6
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.6
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.fast.spatial.stiffness",
+      "displayName": "Motion spring fast spatial stiffness",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 800
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 1400
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1400
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1400
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 1400
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.fast.effects",
+      "displayName": "Motion spring fast effects ",
+      "tokenValueType": "CUSTOM_COMPOSITE",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "customComposite": {
+            "properties": {
+              "damping": {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              "stiffness": {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "undefined": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 3800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 3800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 3800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 3800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 3800
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.damping"
+              },
+              {
+                "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+              }
+            ]
+          },
+          "resolvedCustomCompositeValue": {
+            "properties": {
+              "damping": {
+                "resolvedValue": {
+                  "numeric": 1
+                }
+              },
+              "stiffness": {
+                "resolvedValue": {
+                  "numeric": 3800
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.fast.effects.damping",
+      "displayName": "Motion spring fast effects damping",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 1
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 1
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.damping"
+          },
+          "resolvedValue": {
+            "numeric": 1
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.spring.fast.effects.stiffness",
+      "displayName": "Motion spring fast effects stiffness",
+      "tokenValueType": "NUMERIC",
+      "displayGroup": "Spring",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "undefined": true
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive"
+          },
+          "specificityScore": "8",
+          "numeric": 3800
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard"
+          },
+          "specificityScore": "8",
+          "numeric": 3800
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 3800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 3800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 3800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 3800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 3800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.spring.fast.effects.stiffness"
+          },
+          "resolvedValue": {
+            "numeric": 3800
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.linear",
+      "displayName": "Linear",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "cubicBezier": {
+            "x1": 1,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.linear"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x1": 1,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.legacy",
+      "displayName": "Legacy",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "cubicBezier": {
+            "x0": 0.4,
+            "x1": 0.2,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.legacy"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.4,
+              "x1": 0.2,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.medium2",
+      "displayName": "Medium 2",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "durationMs": 300
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.medium2"
+          },
+          "resolvedValue": {
+            "durationMs": 300
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.path",
+      "displayName": "Motion path",
+      "tokenValueType": "MOTION_PATH",
+      "displayGroup": "Style",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "motionPath": {
+            "standardPath": "LINEAR"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.path"
+          },
+          "resolvedValue": {
+            "motionPath": {
+              "standardPath": "LINEAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.emphasized.accelerate",
+      "displayName": "Emphasized accelerate",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "cubicBezier": {
+            "x0": 0.3,
+            "x1": 0.8,
+            "y1": 0.15
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized.accelerate"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.3,
+              "x1": 0.8,
+              "y1": 0.15
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.standard.decelerate",
+      "displayName": "Standard decelerate",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "cubicBezier": {
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.standard.decelerate"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.long3",
+      "displayName": "Long 3",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "durationMs": 550
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.long3"
+          },
+          "resolvedValue": {
+            "durationMs": 550
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.short4",
+      "displayName": "Short 4",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "durationMs": 200
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.short4"
+          },
+          "resolvedValue": {
+            "durationMs": 200
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.short1",
+      "displayName": "Short 1",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "durationMs": 50
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.short1"
+          },
+          "resolvedValue": {
+            "durationMs": 50
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.short2",
+      "displayName": "Short 2",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "durationMs": 100
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.short2"
+          },
+          "resolvedValue": {
+            "durationMs": 100
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.extra-long4",
+      "displayName": "Extra long 4",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 16,
+      "values": [
+        {
+          "durationMs": 1000
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.extra-long4"
+          },
+          "resolvedValue": {
+            "durationMs": 1000
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.extra-long1",
+      "displayName": "Extra long 1",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 13,
+      "values": [
+        {
+          "durationMs": 700
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.extra-long1"
+          },
+          "resolvedValue": {
+            "durationMs": 700
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.long4",
+      "displayName": "Long 4",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "durationMs": 600
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.long4"
+          },
+          "resolvedValue": {
+            "durationMs": 600
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.long1",
+      "displayName": "Long 1",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "durationMs": 450
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.long1"
+          },
+          "resolvedValue": {
+            "durationMs": 450
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.standard",
+      "displayName": "Standard",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "cubicBezier": {
+            "x0": 0.2,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.standard"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.2,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.legacy.accelerate",
+      "displayName": "Legacy accelerate",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "cubicBezier": {
+            "x0": 0.4,
+            "x1": 1,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.legacy.accelerate"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.4,
+              "x1": 1,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.legacy.decelerate",
+      "displayName": "Legacy decelerate",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "cubicBezier": {
+            "x1": 0.2,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.legacy.decelerate"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x1": 0.2,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.extra-long3",
+      "displayName": "Extra long 3",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 15,
+      "values": [
+        {
+          "durationMs": 900
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.extra-long3"
+          },
+          "resolvedValue": {
+            "durationMs": 900
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.standard.accelerate",
+      "displayName": "Standard accelerate",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "cubicBezier": {
+            "x0": 0.3,
+            "x1": 1,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.standard.accelerate"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.3,
+              "x1": 1,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.short3",
+      "displayName": "Short 3",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "durationMs": 150
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.short3"
+          },
+          "resolvedValue": {
+            "durationMs": 150
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.extra-long2",
+      "displayName": "Extra long 2",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "durationMs": 800
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.extra-long2"
+          },
+          "resolvedValue": {
+            "durationMs": 800
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.medium3",
+      "displayName": "Medium 3",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "durationMs": 350
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.medium3"
+          },
+          "resolvedValue": {
+            "durationMs": 350
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.long2",
+      "displayName": "Long 2",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "durationMs": 500
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.long2"
+          },
+          "resolvedValue": {
+            "durationMs": 500
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.emphasized",
+      "displayName": "Emphasized",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "tokenName": "md.sys.motion.easing.standard"
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "specificityScore": "10",
+          "tokenName": "md.sys.motion.easing.standard"
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "specificityScore": "2",
+          "cubicBezier": {
+            "x0": 0.2,
+            "y1": 1
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "specificityScore": "2",
+          "svgPath": "M 0,0 C 0.05, 0, 0.133333, 0.06, 0.166666, 0.4 C 0.208333, 0.82, 0.25, 1, 1, 1"
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "specificityScore": "2",
+          "tokenName": "md.sys.motion.easing.standard"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.easing.standard"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.2,
+              "y1": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.easing.standard"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.2,
+              "y1": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.2,
+              "y1": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized"
+          },
+          "resolvedValue": {
+            "svgPath": "M 0,0 C 0.05, 0, 0.133333, 0.06, 0.166666, 0.4 C 0.208333, 0.82, 0.25, 1, 1, 1"
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 4,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.easing.standard"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.2,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.easing.emphasized.decelerate",
+      "displayName": "Emphasized decelerate",
+      "tokenValueType": "CUBIC_BEZIER",
+      "displayGroup": "Easing",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "cubicBezier": {
+            "x0": 0.05,
+            "y0": 0.7,
+            "x1": 0.1,
+            "y1": 1
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.easing.emphasized.decelerate"
+          },
+          "resolvedValue": {
+            "cubicBezier": {
+              "x0": 0.05,
+              "y0": 0.7,
+              "x1": 0.1,
+              "y1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.medium1",
+      "displayName": "Medium 1",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "durationMs": 250
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.medium1"
+          },
+          "resolvedValue": {
+            "durationMs": 250
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.motion.duration.medium4",
+      "displayName": "Medium 4",
+      "tokenValueType": "DURATION",
+      "displayGroup": "Duration",
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "durationMs": 400
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.motion.duration.medium4"
+          },
+          "resolvedValue": {
+            "durationMs": 400
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1514 @@
+{
+  "tokenSetName": "md.sys.elevation",
+  "displayName": "Elevation",
+  "description": "Elevation level tokens",
+  "tokenType": "ELEVATION",
+  "custom": {
+    "token_class": "SYSTEM"
+  },
+  "order": 1,
+  "tokens": [
+    {
+      "tokenName": "md.sys.elevation.level0",
+      "displayName": "0",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "elevation": {
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.level0"
+          },
+          "resolvedValue": {
+            "elevation": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.elevation.level1",
+      "displayName": "+1",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "elevation": {
+            "value": 1,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.level1"
+          },
+          "resolvedValue": {
+            "elevation": {
+              "value": 1,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.elevation.level2",
+      "displayName": "+2",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "elevation": {
+            "value": 3,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.level2"
+          },
+          "resolvedValue": {
+            "elevation": {
+              "value": 3,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.elevation.level3",
+      "displayName": "+3",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "elevation": {
+            "value": 6,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.level3"
+          },
+          "resolvedValue": {
+            "elevation": {
+              "value": 6,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.elevation.level4",
+      "displayName": "+4",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "elevation": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.level4"
+          },
+          "resolvedValue": {
+            "elevation": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.elevation.level5",
+      "displayName": "+5",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "elevation": {
+            "value": 12,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.level5"
+          },
+          "resolvedValue": {
+            "elevation": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.elevation.surface-tint-color",
+      "displayName": "Surface tint color",
+      "tokenValueType": "COLOR",
+      "orderInDisplayGroup": 1,
+      "deprecationMessage": {
+        "message": "Moved to *.color.*",
+        "replacementTokenName": "md.sys.color.surface-tint-color"
+      },
+      "values": [
+        {
+          "tokenName": "md.sys.color.primary"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9254902,
+              "green": 0.9529412,
+              "blue": 0.99607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9254902,
+              "green": 0.9529412,
+              "blue": 0.99607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9254902,
+              "green": 0.9529412,
+              "blue": 0.99607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.023529412,
+              "green": 0.18039216,
+              "blue": 0.43529412,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.023529412,
+              "green": 0.18039216,
+              "blue": 0.43529412,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.023529412,
+              "green": 0.18039216,
+              "blue": 0.43529412,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.elevation.surface-tint-color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

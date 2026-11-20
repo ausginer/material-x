@@ -1,7 +1,12 @@
 // oxlint-disable no-console
 import { describe, it, expect, vi } from 'vitest';
 import { resolve, resolveSet, isLinkedToken } from '../src/resolve.ts';
-import { createToken, createValue, mockDB, state } from './helpers.ts';
+import {
+  createToken,
+  createTokenSet,
+  createValue,
+  useStore,
+} from './helpers.ts';
 
 describe('resolve', () => {
   it('should detect linked tokens', () => {
@@ -30,31 +35,34 @@ describe('resolve', () => {
   });
 
   it('should return null for unknown linked tokens', () => {
-    mockDB.getToken.mockReturnValue(undefined);
-
     expect(resolve('token', 'md.unknown.token')).toBeNull();
   });
 
   it('should return null when processToken returns null', () => {
-    const token = createToken({ tokenName: 'md.linked', name: 'md.linked' });
-    mockDB.getToken.mockReturnValue(token);
-    mockDB.getSet.mockReturnValue({ tokenSetName: 'md.comp.test' });
-    mockDB.getValue.mockReturnValue(undefined);
+    useStore(
+      createTokenSet({
+        tokens: [createToken({ tokenName: 'md.comp.test.linked' })],
+      }),
+    );
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(resolve('token', 'md.linked')).toBeNull();
-    console.log('Expected error above: missing value for md.linked');
+    expect(resolve('token', 'md.comp.test.linked')).toBeNull();
   });
 
   it('should detect reference cycles', () => {
-    const token = createToken({ tokenName: 'md.cycle', name: 'md.cycle' });
-    mockDB.getToken.mockReturnValue(token);
-    mockDB.getSet.mockReturnValue({ tokenSetName: 'md.comp.test' });
-    mockDB.getValue.mockReturnValue({
-      value: createValue({ tokenName: 'md.cycle' }),
-    });
+    useStore(
+      createTokenSet({
+        tokens: [
+          createToken({
+            tokenName: 'md.comp.test.cycle',
+            values: [createValue({ tokenName: 'md.comp.test.cycle' })],
+          }),
+        ],
+      }),
+    );
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(resolve('token', 'md.cycle')).toBeNull();
+    expect(resolve('token', 'md.comp.test.cycle')).toBeNull();
     expect(errorSpy).toHaveBeenCalled();
   });
 
@@ -72,36 +80,27 @@ describe('resolve', () => {
   });
 
   it('should resolve variation axes to a CSS font variation value', () => {
-    const weightToken = createToken({
-      name: 'md.ref.wght',
-      tokenName: 'md.ref.wght',
-      tokenNameSuffix: 'wght',
-    });
-    const gradeToken = createToken({
-      name: 'md.ref.GRAD',
-      tokenName: 'md.ref.GRAD',
-      tokenNameSuffix: 'GRAD',
-    });
-    const values = new Map([
-      [
-        weightToken.name,
-        { value: createValue({ name: weightToken.name, numeric: 400 }) },
-      ],
-      [
-        gradeToken.name,
-        { value: createValue({ name: gradeToken.name, numeric: 0 }) },
-      ],
-    ]);
-
-    state.tokens = [weightToken, gradeToken];
-    mockDB.getSet.mockReturnValue({ tokenSetName: 'md.ref.test' });
-    mockDB.getValue.mockImplementation((token) => values.get(token.name));
+    useStore(
+      createTokenSet({
+        tokenSetName: 'md.ref.test',
+        tokens: [
+          createToken({
+            tokenName: 'md.ref.test.wght',
+            values: [createValue({ numeric: 400 })],
+          }),
+          createToken({
+            tokenName: 'md.ref.test.GRAD',
+            values: [createValue({ numeric: 0 })],
+          }),
+        ],
+      }),
+    );
 
     const result = resolveSet({
       typography: {
         'variation-axes': {
-          wght: { axisValueTokenName: weightToken.tokenName },
-          GRAD: { axisValueTokenName: gradeToken.tokenName },
+          wght: { axisValueTokenName: 'md.ref.test.wght' },
+          GRAD: { axisValueTokenName: 'md.ref.test.GRAD' },
         },
       },
     });

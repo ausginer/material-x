@@ -1452,7 +1452,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 #### RD-28 — tproc keeps reading Material's own token database, converts one dated site release into a committed store of its own, and builds its CSS from that store
 
-**Proposed 2026-11-20 by the architect,** on the coordinator's task for issue #82, on `tproc/tokens-source-1`. `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), so this is the next free number. **Not implemented.** It answers `RF-67`.
+**Proposed 2026-11-20 by the architect,** on the coordinator's task for issue #82, on `tproc/tokens-source-1`. `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), so this is the next free number. **Step 1 implemented 2026-11-20** on `tproc/tokens-source-1` (#84, not yet merged); steps 2 and 3 are not. Until then this said _"Not implemented."_ It answers `RF-67`.
 
 **Amended 2026-11-20 by the architect,** on the owner's answers relayed by the coordinator. They are quoted in the plan's [amendment](tokens-source-1/tokens-source-plan.md#amendment-tprocs-own-token-store).
 
@@ -1470,6 +1470,14 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - He first chose otherwise, concerned that the CSS layer reads the tables, so deleting them breaks the build. Step 1 already covers that: it moves `resolve`, `processToken` and `processTokenSet` from `DB` onto the reader in the change that deletes the tables (property 8).
   - Told this, he chose (a): _"Я просто не подумал, что мы прям совсем новый API делать будем"_ ("I just didn't think we'd be building an entirely new API").
 - **`RD-29` is deferred by the owner.** Step 1 doesn't depend on it, and it still needs step 1 on `main` first. Step 2 no longer waits for the rewrite: it follows step 1. Until this, the order said that step 2 came _"after the rewrite"_.
+
+**Step 1 implemented 2026-11-20 by the implementer,** on the coordinator's task, at the plan's [field rulings](tokens-source-1/tokens-source-plan.md#field-rulings). The proofs are in [`step-1.txt`](tokens-source-1/checks/step-1.txt).
+
+- The store, `packages/tproc/tokens/`, is 103 files and 53.8 MB, converted once from the 14 committed tables in legacy mode. The tables are deleted, and `packages/tproc/.data/` is git-ignored.
+- The reader is `src/store/`. `processToken`, `processTokenSet` and `resolve` read it and keep their exports, `processToken.ts` exports `toCSSValue`, and `src/theme.ts` holds the theme that `DB` used to hold. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.
+- P4 and P10 hold: material-x's 34 compiled stylesheets and 213 build outputs are byte-identical, and all 3,950 tokens read the same from the store as from `DB`.
+- P11: 217 tokens conflict, in 704 table pairs, against the plan's estimate of about 223. Each conflicting copy is one that a later component table carries without its tree, and the copy kept is the first table's ([list](tokens-source-1/checks/step-1-conflicts.md)).
+- Not in step 1: the update report's diff sections, which P7 tests in step 2, and the first fetch.
 
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**

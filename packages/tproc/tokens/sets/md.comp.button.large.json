@@ -1,0 +1,1154 @@
+{
+  "tokenSetName": "md.comp.button.large",
+  "displayName": "Button - Size - Large",
+  "description": "For large buttons.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "tokens": [
+    {
+      "tokenName": "md.comp.button.large.container.height",
+      "displayName": "Button large container height",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "value": 96,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.container.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 96,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.outlined.outline.width",
+      "displayName": "Button large outline width",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "length": {
+            "value": 2,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.outlined.outline.width"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 2,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.label-text",
+      "displayName": "Button large label size",
+      "tokenValueType": "TYPOGRAPHY",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.headline-small"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.label-text",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.headline-small",
+                "childNodes": [
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.font",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.brand"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.weight",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.weight-regular"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.size"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.line-height"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.tracking"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.crsv"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.wdth"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.wght"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.slnt"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.opsz"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.grad"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.rond"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.hexp"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.fill"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "type": {
+              "fontNames": {
+                "values": [
+                  "Roboto Flex"
+                ]
+              },
+              "fontWeight": 400,
+              "fontSize": {
+                "value": 24,
+                "unit": "POINTS"
+              },
+              "fontTracking": {
+                "unit": "POINTS"
+              },
+              "lineHeight": {
+                "value": 32,
+                "unit": "POINTS"
+              },
+              "variationAxes": {
+                "CRSV": {
+                  "axisValue": 0
+                },
+                "wdth": {
+                  "axisValue": 100
+                },
+                "wght": {
+                  "axisValue": 400
+                },
+                "slnt": {
+                  "axisValue": 0
+                },
+                "opsz": {
+                  "axisValue": 24
+                },
+                "GRAD": {
+                  "axisValue": 0
+                },
+                "ROND": {
+                  "axisValue": 0
+                },
+                "HEXP": {
+                  "axisValue": 0
+                },
+                "FILL": {
+                  "axisValue": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.label-text",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.headline-small",
+                "childNodes": [
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.font",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.brand"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.weight",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.weight-regular"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.size"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.line-height"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.tracking"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.wght"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.grad"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.wdth"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.rond"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.opsz"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.crsv"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.slnt"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.fill"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.hexp"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "type": {
+              "fontNames": {
+                "values": [
+                  "Google Sans Flex"
+                ]
+              },
+              "fontWeight": 400,
+              "fontSize": {
+                "value": 24,
+                "unit": "POINTS"
+              },
+              "fontTracking": {
+                "unit": "POINTS"
+              },
+              "lineHeight": {
+                "value": 32,
+                "unit": "POINTS"
+              },
+              "variationAxes": {
+                "wght": {
+                  "axisValue": 400
+                },
+                "GRAD": {
+                  "axisValue": 0
+                },
+                "wdth": {
+                  "axisValue": 100
+                },
+                "ROND": {
+                  "axisValue": 0
+                },
+                "opsz": {
+                  "axisValue": 24
+                },
+                "CRSV": {
+                  "axisValue": 0
+                },
+                "slnt": {
+                  "axisValue": 0
+                },
+                "FILL": {
+                  "axisValue": 0
+                },
+                "HEXP": {
+                  "axisValue": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.label-text",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.headline-small",
+                "childNodes": [
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.font",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.brand"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.weight",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.weight-medium"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.size"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.line-height"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.tracking"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "type": {
+              "fontNames": {
+                "values": [
+                  "Roboto"
+                ]
+              },
+              "fontWeight": 500,
+              "fontSize": {
+                "value": 24,
+                "unit": "POINTS"
+              },
+              "fontTracking": {
+                "unit": "POINTS"
+              },
+              "lineHeight": {
+                "value": 32,
+                "unit": "POINTS"
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.label-text",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.headline-small",
+                "childNodes": [
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.font",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.brand"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.weight",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.weight-regular"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.size"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.line-height"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.tracking"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "type": {
+              "fontNames": {
+                "values": [
+                  "Roboto"
+                ]
+              },
+              "fontWeight": 400,
+              "fontSize": {
+                "value": 24,
+                "unit": "POINTS"
+              },
+              "fontTracking": {
+                "unit": "POINTS"
+              },
+              "lineHeight": {
+                "value": 32,
+                "unit": "POINTS"
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.label-text",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.headline-small",
+                "childNodes": [
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.font",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.brand"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.weight",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.weight-medium"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.size"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.line-height"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.tracking"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "type": {
+              "fontNames": {
+                "values": [
+                  "Google Sans"
+                ]
+              },
+              "fontWeight": 500,
+              "fontSize": {
+                "value": 24,
+                "unit": "POINTS"
+              },
+              "fontTracking": {
+                "unit": "POINTS"
+              },
+              "lineHeight": {
+                "value": 32,
+                "unit": "POINTS"
+              }
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.label-text",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.headline-small",
+                "childNodes": [
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.font",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.brand"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.weight",
+                    "childNodes": [
+                      {
+                        "tokenName": "md.ref.typeface.weight-regular"
+                      }
+                    ]
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.size"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.line-height"
+                  },
+                  {
+                    "tokenName": "md.sys.typescale.headline-small.tracking"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "type": {
+              "fontNames": {
+                "values": [
+                  "Google Sans"
+                ]
+              },
+              "fontWeight": 400,
+              "fontSize": {
+                "value": 24,
+                "unit": "POINTS"
+              },
+              "fontTracking": {
+                "unit": "POINTS"
+              },
+              "lineHeight": {
+                "value": 32,
+                "unit": "POINTS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.icon.size",
+      "displayName": "Button large icon size",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "length": {
+            "value": 32,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.icon.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 32,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.container.shape.round",
+      "displayName": "Button large shape round",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.container.shape.round",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.leading-space",
+      "displayName": "Button large leading space",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "length": {
+            "value": 48,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.leading-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 48,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.icon-label-space",
+      "displayName": "Button large between icon label space",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "length": {
+            "value": 12,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.icon-label-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.trailing-space",
+      "displayName": "Button large trailing space",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "length": {
+            "value": 48,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.trailing-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 48,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.container.shape.square",
+      "displayName": "Button large shape square",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.extra-large"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.container.shape.square",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.extra-large"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 28,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.pressed.container.shape",
+      "displayName": "Button large shape pressed morph",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.large"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.large"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 16,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+      "displayName": "Button large shape spring animation damping",
+      "tokenValueType": "DURATION",
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 0.6
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 0.6
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 0.6
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.damping",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.damping"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+      "displayName": "Button large shape spring animation stiffness",
+      "tokenValueType": "DURATION",
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "expressive",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 800
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 1400
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 1400
+          }
+        },
+        {
+          "contextTags": {
+            "motion.scheme": "standard",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.pressed.container.corner-size.motion.spring.stiffness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.motion.spring.fast.spatial.stiffness"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "numeric": 1400
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.selected.container.shape.round",
+      "displayName": "Button large selected container shape round",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 13,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.extra-large"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.selected.container.shape.round",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.extra-large"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 28,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.button.large.selected.container.shape.square",
+      "displayName": "Button large selected container shape square",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.button.large.selected.container.shape.square",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full"
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

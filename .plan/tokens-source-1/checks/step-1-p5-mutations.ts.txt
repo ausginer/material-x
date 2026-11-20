@@ -1,0 +1,28 @@
+// Run from packages/tproc against the 14 tables committed before the store, kept
+// in a scratch directory, as `node .p5-mutations.ts <directory>`. Each mutation
+// is applied to a fresh copy of the tables.
+import { readFile } from 'node:fs/promises';
+import { convert, type SourceTable } from './scripts/convert.ts';
+const dir = process.argv[2]!;
+const ORDER = ['COLOR.20543ce18892f7d9','ELEVATION.20543ce18892f7d9','TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9','TYPOGRAPHY.20543ce18892f7d9','TOKEN_TABLE.1c4257f8804f9478','TOKEN_TABLE.41587918e51cca98','TOKEN_TABLE.60990dd98dea0998','TOKEN_TABLE.36500f77b86d20a5','TOKEN_TABLE.0fe2282006ae098b','TOKEN_TABLE.082d7fd6e058b011','TOKEN_TABLE.624e8f2da4007fc8','TOKEN_TABLE.31f16b44fe03b0c0','TOKEN_TABLE.6acb269a58d5f93f','TOKEN_TABLE.6c818a16475113bd'];
+const load = async (): Promise<SourceTable[]> => Promise.all(ORDER.map(async (f) => { const [kind, componentId] = f.split('.') as [string, string]; return { kind, componentId, table: JSON.parse(await readFile(`${dir}/${f}.json`, 'utf8')) }; }));
+type Sys = { system: any };
+const checkbox = (t: SourceTable[]) => (t[11]!.table as Sys).system;
+const first = (sys: any) => sys.tokens[0];
+const mutations: Record<string, (t: SourceTable[]) => void> = {
+  'removed contextualReferenceTree': (t) => { const s = checkbox(t); s.contextualReferenceTrees[first(s).name] = {}; },
+  'renamed resolvedValue': (t) => { const s = checkbox(t); const e = s.contextualReferenceTrees[first(s).name].contextualReferenceTree[0]; e.resolved = e.resolvedValue; delete e.resolvedValue; },
+  'one-hop reference to a missing token': (t) => { const s = checkbox(t); const v = s.values.find((v: any) => v.tokenName != null); v.tokenName = 'md.comp.checkbox.missing'; },
+  'tree node naming a missing token': (t) => { const s = checkbox(t); const e = s.contextualReferenceTrees[first(s).name].contextualReferenceTree[0]; e.referenceTree.tokenName = 'md.comp.checkbox.missing'; },
+  'value with an unknown value kind': (t) => { const s = checkbox(t); const v = s.values.find((v: any) => v.tokenName != null); v.upstreamKind = v.tokenName; delete v.tokenName; },
+  'tag id naming no tag': (t) => { const s = checkbox(t); const v = s.values.find((v: any) => v.contextTags?.length); v.contextTags = ['designSystems/x/contextTagGroups/y/tags/missing']; },
+  "tree not starting at the token's own value": (t) => { const s = checkbox(t); const e = s.contextualReferenceTrees[first(s).name].contextualReferenceTree[0]; e.referenceTree.value.name = 'designSystems/x/tokens/y/values/z'; },
+  'missing token field': (t) => { delete first(checkbox(t)).tokenValueType; },
+};
+for (const [name, mutate] of Object.entries(mutations)) {
+  const tables = await load(); mutate(tables);
+  try { convert(tables, { release: null, fetchDate: null, legacy: true }); console.log(`${name}: NOT REFUSED`); } catch (e) { console.log(`${name}: refused: ${(e as Error).message}`); }
+}
+try { convert(await load(), { release: 'r', fetchDate: null }); console.log('two versions: NOT REFUSED'); } catch (e) { console.log(`two versions, outside legacy mode: refused: ${(e as Error).message}`); }
+const ok = convert(await load(), { release: null, fetchDate: null, legacy: true });
+console.log(`unmutated, legacy mode: converts, ${ok.files.size} files, ${ok.conflicts.length} conflicts`);

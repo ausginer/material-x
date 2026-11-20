@@ -1,10 +1,10 @@
 import { writeFile } from 'node:fs/promises';
 import kebabCase from 'just-kebab-case';
 // eslint-disable-next-line import-x/no-relative-packages
-import db from '../packages/tproc/src/DB/index.ts';
+import theme from '../packages/tproc/src/theme.ts';
 import { root } from './utils.ts';
 
-const { light, dark } = db.theme.schemes;
+const { light, dark } = theme.schemes;
 
 const [lightCSS, darkCSS] = [light, dark].map((scheme) =>
   Object.entries(scheme).map(

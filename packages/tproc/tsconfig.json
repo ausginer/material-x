@@ -3,6 +3,7 @@
   "include": [
     "./src/**/*",
     "./tests/**/*",
+    "./scripts/**/*",
     "../../types.d.ts",
     "./files.json",
     "./tsdown.config.ts",

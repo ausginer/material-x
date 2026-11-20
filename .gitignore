@@ -26,6 +26,11 @@
 /packages/**/*.d.ts
 /packages/*/.vitest-attachments
 
+# Raw design-system tables, kept only for debugging the token update script.
+# They carry personal data, and the store under packages/tproc/tokens/ is what
+# is committed.
+/packages/tproc/.data/
+
 # **Hand-written ambient declarations, not build output.** Every package builds
 # with `outDir: '.'`, so generated `.d.ts` land beside the entrypoints and never
 # under `src/` — but the blanket rule above swallowed the authored ones too, and

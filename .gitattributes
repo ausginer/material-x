@@ -1,3 +1,6 @@
 # Saved transcripts under a record's checks/ keep their output byte for byte,
 # so `git diff --check` doesn't report their trailing whitespace.
 **/.plan/**/checks/** -whitespace
+
+# tproc's token store is written by its update script, and only by it.
+packages/tproc/tokens/** linguist-generated
