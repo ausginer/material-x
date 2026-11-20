@@ -1,0 +1,19 @@
+## the stage at 84ca8cd26, the tests at fc5986185
+     × should report trait-decorator in default-block.ts at the position it has without the stage
+     × should report trait-decorator in default-line.ts at the position it has without the stage
+     × should build with a block comment between export and default, changed only by the kept doc
+     × should build with a line comment between export and default, changed only by the kept doc
+ FAIL  |node| tests/declarations.node.test.ts [ tests/declarations.node.test.ts ]
+TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/diagnostics.node.test.ts:685 > diagnostics through the load stage > should report trait-decorator in default-block.ts at the position it has without the stage
+ FAIL  |node| tests/diagnostics.node.test.ts:685 > diagnostics through the load stage > should report trait-decorator in default-line.ts at the position it has without the stage
+ FAIL  |node| tests/diagnostics.node.test.ts:741 > the load stage on a class that is not a trait > should build with a block comment between export and default, changed only by the kept doc
+ FAIL  |node| tests/diagnostics.node.test.ts:741 > the load stage on a class that is not a trait > should build with a line comment between export and default, changed only by the kept doc
+TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+ Test Files  2 failed (2)
+      Tests  4 failed | 76 passed | 12 skipped (92)
+## the stage at fc5986185
+ Test Files  2 passed (2)
+      Tests  92 passed (92)

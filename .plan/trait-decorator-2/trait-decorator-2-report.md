@@ -93,3 +93,30 @@ At `801b94e23`, from the root, one after another:
 - **`RD-26`'s fourth amendment** still says _Unimplemented_. That is the architect's to date, as with the third.
 - **Out of scope, as the plan says:** `reviewer-4`'s mechanism (ii), five bare imports; `reviewer-5`; core's `sideEffects`, which the owner answered yes and which is its own unit, `RD-30`; and bare imports in the published `.d.ts` files.
 - **One commit message is wrong:** `768552f00`, which adds this report's checks and draft, says _"wip"_. History isn't rewritten without the owner's word, so it stays, and the squash message needs that line dropped.
+
+## Remediation of `reviewer-1`
+
+The [feature proof](../reviews/trait-decorator-2/feature-proof-claude.md) at `84ca8cd26` found that the stage throws on a comment between `export` and `default`, `/** Doc. */ @sealed export /* c */ default class Y {}`. `/^export\s*default\s*/u` didn't match, and the `!` that followed raised a TypeError, which failed the build. Fixed at `fc5986185`:
+
+- **The span comes from the declaration.** With the decorators before `export`, the class declaration starts at `class` or `abstract`. So the stage moves the statement's own span, from its start to the class's start: `export`, or `export default`, with every space and comment in it. No regex reads the keywords, and a comment between them moves with them and stays in place.
+- **The stage never throws.** A module that oxc doesn't parse is left as written, for the host to report. `positionWithoutStage` skips spaces and comments after the last decorator with a pattern that always matches, read with `?.` and a default, where it read `\s*` with `!`. The stage's remaining `!`s index a comment inside the loop bound.
+
+**New rows:**
+
+| Proof | Row | File |
+| --- | --- | --- |
+| 1 | `@trait export /* A note. */ default class` keeps its doc | `declarations.node.test.ts` |
+| 1 | `@trait export // A note.` then `default class` keeps its doc | `declarations.node.test.ts` |
+| 2 | `trait-decorator` in each of those two forms, at the position it has without the stage | `diagnostics.node.test.ts` |
+| — | a non-trait class, `@sealed export /* A note. */ default class Sealed {}`, builds with rolldown, and its output differs from the build without the plugin only by the kept doc | `diagnostics.node.test.ts` |
+| — | the same with a line comment | `diagnostics.node.test.ts` |
+
+- **Before the fix** ([`reviewer-1-before.sh`](checks/reviewer-1-before.sh), [transcript](checks/reviewer-1-before.txt)), with the stage at `84ca8cd26` and the tests at `fc5986185`, every new row fails. The four rows in `diagnostics.node.test.ts` fail one by one. `declarations.node.test.ts` fails as a suite: its tsdown build throws the TypeError, so none of its rows run.
+- **"Builds unchanged",** for the non-trait class, holds for the code. The stage moves `export default` for any documented decorated class, so the build keeps the doc that a build without the plugin drops. The rows assert that this is the only difference.
+- **The mutations** ([transcript](checks/mutations.txt)) still fail their own rows. Skipping `ExportDefaultDeclaration`, and leaving the default span out of the record, now each fail all three default rows.
+
+**Reruns at `fc5986185`:**
+
+- the plugin's suite: 178 of 178;
+- **the tree against `main`** at `e4b0e475d` ([transcript](checks/tree-main.txt)): the same 294 files, and only the three `.js` files and their maps differ, by the line `import "@ydinjs/core/traits/composition.js";`. Every `.d.ts` is byte-identical, and the bare imports go from 8 to 5;
+- `just build` prints no `trait-member-conflict`. `just typecheck`, `typecheck-declarations`, `lint`, `fmt-check`, `test` (2321 of 2321) and `docs-build` pass.

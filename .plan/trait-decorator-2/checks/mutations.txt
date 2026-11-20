@@ -1,18 +1,22 @@
 ## unmutated
-      Tests  86 passed (86)
+      Tests  92 passed (92)
 ## proof 1: only whitespace between the JSDoc and the first decorator
      × should keep the JSDoc that a line comment follows
      × should keep the JSDoc that a block comment follows
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
-      Tests  2 failed | 4 passed | 4 skipped (10)
+      Tests  2 failed | 6 passed | 4 skipped (12)
 ## proof 1: ExportDefaultDeclaration skipped
      × should keep the JSDoc of an export default class
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
-      Tests  1 failed | 5 passed | 4 skipped (10)
+     × should keep the JSDoc of an export default class with a block comment after export
+     × should keep the JSDoc of an export default class with a line comment after export
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 5 passed | 4 skipped (12)
 ## proof 2: the default span left out of the record
      × should report trait-decorator in defaulted.ts at the position it has without the stage
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
-      Tests  1 failed | 3 passed | 72 skipped (76)
+     × should report trait-decorator in default-block.ts at the position it has without the stage
+     × should report trait-decorator in default-line.ts at the position it has without the stage
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 3 passed | 74 skipped (80)
 ## proof 3: a declaration with an inline type left keeps it
      × should remove trait's import when only an inline type is left in it
        × should remove the import whole
