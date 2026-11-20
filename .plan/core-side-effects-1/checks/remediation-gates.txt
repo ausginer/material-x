@@ -1,0 +1,22 @@
+# Gates after the unresolved-import fix
+just typecheck: exit 0
+just lint: exit 0
+just fmt-check: exit 0
+
+## root just test, run 1, with the fix
+× should allocate per sample only the CSS string a lifted write needs 10275ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: {"sortable/operation.ts:updateInsertion":7440,"sortable/y.ts:resolve":7092,"kernel/session.ts:handleEvent":7168,"sortable/operation.ts:move":24544,"lift.ts:translate":19636}: expected 23.893333333333334 to be less than 16
+Test Files  1 failed | 145 passed (146)
+Tests  1 failed | 2308 passed (2309)
+
+## packages/drag/tests/hot-path.browser.test.ts alone, chromium, with the fix
+Tests  9 passed (9)
+
+## root just test, control: .scripts/release-check.ts and its test file at f2556af8a
+Test Files  146 passed (146)
+Tests  2307 passed (2307)
+
+## root just test, run 2, with the fix
+Test Files  146 passed (146)
+Tests  2309 passed (2309)

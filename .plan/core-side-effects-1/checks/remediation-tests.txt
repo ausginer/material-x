@@ -1,0 +1,13 @@
+# release-check.node.test.ts after the unresolved-import fix, rolldown 1.3.2
+ Test Files  1 passed (1)
+      Tests  51 passed (51)
+
+# mutation: onLog keeps no UNRESOLVED_IMPORT log, and generate's error is rethrown, which is the behaviour before the fix
+     × should report the bare import of a missing export as an import that does not resolve 266ms
+       × should name an import that does not resolve instead of an effect 260ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+-   "@ydinjs/box-quad/extra.js doesn't resolve: publish the file that its export names",
++   "a bare import of @ydinjs/box-quad/extra.js keeps 34 bytes: remove the effect, or list the module in sideEffects",
+Error: Build failed with 1 error:
+ Test Files  1 failed (1)
+      Tests  2 failed | 49 passed (51)

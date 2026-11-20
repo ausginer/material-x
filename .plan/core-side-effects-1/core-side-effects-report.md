@@ -18,12 +18,11 @@
   - So the check has a small plugin that loads an imported `.css` file the way a consumer's bundler does: it emits the stylesheet as an asset, and gives rolldown an empty module in its place.
   - Property 4 then holds as written: the bundle must emit no code and no asset, and an imported stylesheet is an asset.
 - **Proof 1's first mutation fails two rows, not three.** With `moduleSideEffects: true`, the rows for `globalThis` and `customElements.define` fail. The CSS row stays caught, because the plugin emits the asset when rolldown loads the module, which it does under either setting. The second mutation, counting only chunks, fails the CSS row, as the plan says.
-- **An export whose file is missing is now also a `side-effects` problem.** rolldown keeps an import it can't resolve, so the bare import isn't empty. `checkConsumer`'s row _"should refuse an export whose declarations are missing"_ now expects `['consumer', 'side-effects']`.
-- **rolldown is imported when the check runs, not at the module's top.**
-  - With a static import, the root `just test` failed `drag:DRI-17`'s hot-path row, _"should allocate per sample only the CSS string a lifted write needs"_. The kernel's per-move figure was 16.85 against the row's ceiling of 16. It failed in four of four full runs: two on the branch, one on the branch with the new rows skipped, and one on a clean `e4b0e475d` checkout with the diff applied.
-  - The same row passed three times when run alone, and the full run passed on `e4b0e475d` with or without core's field.
-  - With the import moved into `checkSideEffects`, the full run passes on that clean checkout and on the branch.
-  - Why loading rolldown in the root run moves that row wasn't read. It is an observation for drag's record, not a finding of this unit.
+- **An export whose file is missing is now also a `side-effects` problem.** `checkConsumer`'s row _"should refuse an export whose declarations are missing"_ now expects `['consumer', 'side-effects']`. The `side-effects` problem names the export that doesn't resolve (_Remediation_ below).
+- **rolldown is imported when step 7 runs, not at the module's top.**
+  - **The reason:** `release.yml`'s `prepare` job runs `release-check.ts release` before `aube ci`, so evaluating the module must need only Node's built-in modules. With rolldown imported at the top, that step fails with `ERR_MODULE_NOT_FOUND` before its first check ([probe](../reviews/core-side-effects-1/checks/without-dependencies.txt), from the feature proof's `reviewer-1`). The comment at the import states this.
+  - **An observation, not the reason:** with a static import, the root `just test` failed `drag:DRI-17`'s hot-path row, _"should allocate per sample only the CSS string a lifted write needs"_, in four of four full runs, at 16.85 per move against the row's ceiling of 16. The row passed three times when run alone. The lazy import changes when rolldown loads in the root run, not whether it loads. This belongs to #70, and this unit doesn't diagnose it.
+  - **Corrected 2026-11-20:** this item gave the DRI-17 failure as the only reason for the lazy import.
 - **Proof 2 ran on steps 6 and 7 directly.** With the scratch effect in `src/utils/runtime.ts`, `just release-check core` stops at core's `size` script before packing: the `emitter` row grows to 212 B, over its 210 B limit. So the run with the effect built core, packed it with `aube pack --ignore-scripts`, and ran `release-check.ts package` on the tarball, which is what `local` runs after the size script. The run without the effect gives the same problems through either path.
 
 ## Proofs
@@ -48,6 +47,25 @@
 5. **Size:** the root `just size-reading` before and after gives the same 33 rows, with no field of any row changed.
 6. **The consumer reading:** `consumer-drop.ts` and `consumer-entries.ts`, rerun on the branch with core's field present and absent, match the plan's transcripts ([rerun](checks/implementation-consumer-rerun.txt)). Every module row of `consumer-drop.ts` is the same, and the 19 rows of `consumer-entries.ts` give the same rolldown and esbuild bytes in both states.
 7. **Gates:** root `just typecheck`, `just lint` and `just fmt-check` exit 0. Root `just test`: 146 files, 2,307 tests passed, three more than on `e4b0e475d`.
+
+## Remediation of the feature proof
+
+The [feature proof](../reviews/core-side-effects-1/feature-proof-claude.md) at `f2556af8a` found two Tier C problems.
+
+- **`reviewer-1`:** the import's comment, the departure above and `RD-30`'s _Implemented_ line now give the release workflow's first step as the reason for the lazy import. DRI-17 stays only as an observation.
+- **`reviewer-2`:** an import that rolldown doesn't resolve is now reported as that import, with a repair that applies, instead of _"remove the effect, or list the module in sideEffects"_.
+  - rolldown keeps a bare specifier that doesn't resolve as an external import, with an `UNRESOLVED_IMPORT` warning. It fails `generate` on a relative one, which made the whole check throw. `checkSideEffects` collects the warning through `onLog` and the error from `generate`. An error of any other kind is still thrown.
+  - An export whose file is missing gives _"@ydinjs/box-quad/extra.js doesn't resolve: publish the file that its export names"_.
+  - A module's import that doesn't resolve gives _"a bare import of effects/undeclared.js reaches effects/undeclared.js, whose import of undeclared-package doesn't resolve: publish the module, or declare its package in dependencies"_. The module is named by its path after the last `node_modules/`, because aube installs the package under `node_modules/.aube/`.
+  - A bundle with an import that doesn't resolve isn't also reported for its bytes, because those bytes include the kept import.
+- **Rows:** `checkConsumer`'s _"should report the bare import of a missing export as an import that does not resolve"_, and _side effects_' _"should name an import that does not resolve instead of an effect"_, for an undeclared package and a missing relative module.
+- **Runs** ([tests](checks/remediation-tests.txt)):
+  - All 51 rows pass.
+  - With the `onLog` collection and the error handling mutated back to the behaviour before the fix, both new rows fail: the missing export gets _"keeps 34 bytes: remove the effect…"_, and the relative import fails the build.
+  - The feature proof's `without-dependencies.sh` gives the usage as committed, and `ERR_MODULE_NOT_FOUND` with the import at the top. The type-only import of `RolldownLog` is erased.
+  - `just release-check core` gives the same 152 problems with no `side-effects` and no `consumer` problem ([core](checks/remediation-release-check-core.txt)). `just release-check box-quad` exits 0 ([box-quad](checks/remediation-release-check-box-quad.txt)).
+  - Root `just typecheck`, `just lint` and `just fmt-check` exit 0 ([gates](checks/remediation-gates.txt)).
+  - Root `just test`, two runs with the fix: the first failed only `drag:DRI-17`'s hot-path row, at 23.89 per move against the ceiling of 16, and the second passed, 146 files and 2,309 tests. The row passes alone. A control run with the two scripts at `f2556af8a` passed, 2,307 tests. One failure in two runs doesn't show whether the new rows move the row. It is more data for #70, not a diagnosis.
 
 ## Not done
 
