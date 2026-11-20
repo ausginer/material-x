@@ -2411,6 +2411,12 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
     - `aube run publint` in `packages/material-x` passes after `just build`, and its output never says _"Packing files with `npm pack`"_;
     - with one file that the manifest's `exports` names deleted from the built output, the recipe fails and names that file;
     - the temp dir is gone after a pass and after a failure.
+- **Task R1 implemented 2026-11-20** by the implementer on `repo/rolldown-peer-1` (#83, not yet merged) ([script](rolldown-peer-1/checks/publint-recipe.sh), [reading](rolldown-peer-1/checks/publint-recipe.txt)).
+  - **The recipe** creates its temp dir with `mktemp -d`, removes it from an `EXIT` trap, writes the tarball there with `aube pack --ignore-scripts --pack-destination`, and runs `publint run` on that tarball.
+  - **A pass:** after `just build`, `aube run publint` exits 0 with _"All good!"_ and lints the `.tgz` in the temp dir. Its output doesn't mention `npm pack`.
+  - **A failure:** with `button/button.js` deleted from the built output, the recipe exits 1 and reports _"pkg.exports["./button/button.js"].default is ./button/button.js but the file does not exist."_ With the file restored, it passes again.
+  - **The temp dir:** each run gets an empty `TMPDIR` of its own, and that `TMPDIR` holds no entries after the pass, the failure or the rerun.
+  - **Not rerun:** the recipe's old form, which would run `npm pack` once more. The feature proof already read its output.
 - **Issue:** #48.
 
 #### RF-56 — In a connected button group, a selected button isn't a full pill, and a pressed button's inner corners grow instead of shrinking
