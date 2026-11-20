@@ -1,0 +1,27 @@
+just release-check box-quad, run by the implementer on 2026-11-20 in the devcontainer, on repo/release-workflow-1 at e76b9badc plus this unit's uncommitted changes.
+
+1. box-quad as it is on the branch (version 0.1.0, no files, no repository, no LICENSE, README or CHANGELOG). Problem counts by check, then the exit status:
+
+      1 - `access`
+     61 - `pack-excluded`
+     13 - `pack-files`
+      3 - `pack-required`
+      1 - `repository-directory`
+      1 - `repository-url`
+exit 1
+
+2. box-quad with its release plan's property 1 applied for the run and reverted after it: version 1.0.0, files, repository with directory, sideEffects false, publishConfig.access public, a copy of the root LICENSE, a one-line README.md and a CHANGELOG.md with a 1.0.0 heading. Output after the recipe line:
+
+### @ydinjs/box-quad@1.0.0
+
+- tarball: `ydinjs-box-quad-1.0.0.tgz`
+- sha256: `e35f0adfeee6ecb4c21a1dfb754bfcd4c3cf5ca06aa3c6a69dec2f67637d18df`
+
+- `CHANGELOG.md`
+- `LICENSE`
+- `README.md`
+- `index.d.ts`
+- `index.js`
+- `index.js.map`
+- `package.json`
+exit 0
