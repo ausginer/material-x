@@ -1,0 +1,46 @@
+# Where Material's tables, and the personal data they carry, are on GitHub and in this checkout. Read 2026-11-20 by the architect, read-only.
+# Markers searched: an address at google.com, a "gaiaId" key, and for text outside git also emailAddress, updateEmailSettings, revisionAuthor and designSystems/20543ce18892f7d9. Only counts and locations are recorded.
+
+## 1. Git objects in the local repository (all local refs, 270 refs)
+blobs scanned: 12487; blobs with the data: 63; distinct paths: 39
+  blobs under      11 .data/tokens
+  blobs under      38 packages/material-x/.data/tokens
+  blobs under      14 packages/tproc/.data/tokens
+Commits that add or change those paths (subject, date):
+  df844287 2026-07-13 repo: split code to separate modules
+  3ae3f64e 2026-07-10 tproc: update to the new schema
+  3632ccd7 2026-05-04 feat(material-x): initial implementation of list / list-item components
+  0e740f18 2026-04-10 chore: add tokens for checkbox & radio + cleanup
+  4f25be60 2026-03-25 refactor: extract core micro-framework to a separate package (#2)
+  27dce9f1 2026-03-24 refactor: move to monorepo
+  4ec0e37a 2025-12-22 refactor(button): finalize split-button
+  1400d536 2025-11-25 chore: store tokens in repo
+
+## 2. Git objects on GitHub: a mirror clone of https://github.com/ausginer/material-x, every ref GitHub serves
+refs: 72 (13 branches, 55 refs/pull/N/head, 4 refs/pull/N/merge, 0 tags)
+blobs with the data: 63, under the same three directories. Refs whose history reaches those paths: 72 of 72.
+branches: agents/shell-guards backup/curated-main-no-renames backup/pre-curation-main main repo/attributes-decorator-1 repo/box-quad-release-1 repo/dead-spread-1 repo/release-workflow-1 repo/rolldown-peer-1 repo/trait-decorator-1 repo/trait-decorators-1 repo/trait-jsdoc-probe-1 tproc/tokens-source-1 
+
+## 3. Text on GitHub, through gh api (bodies of issues, pull requests, issue and PR comments, review comments, reviews, commit comments)
+issues and pull requests: 84 (55 pull requests); issue and PR comments: 71; review comments: 0; reviews: 0; commit comments: 0. Matches: 0.
+wiki: off; discussions: off; releases: 0; tags: 0; forks: 0. Not read: earlier revisions of edited bodies and comments.
+
+## 4. Actions
+artifacts (unexpired): 56, every one downloaded and unpacked (17 github-pages, the deployed docs site among them; 6 size-reading; 6 baselines; 5 screenshots; 21 state-layer readings; 1 webkit-inventory). Files with a match: 0.
+run logs: 395 runs; 271 logs read, 124 expired or unavailable. Logs with a match: 0.
+caches: 38 (aube store, npm cache, system packages). They hold installed packages and system packages, not repository files, and weren't opened.
+
+## 5. Rulesets (gh api repos/ausginer/material-x/rulesets)
+20963220 Main protection, active, ~DEFAULT_BRANCH: deletion, non_fast_forward, required_linear_history, pull_request (squash only), required_status_checks (verify). No bypass actor.
+20963078 Backup preservation, active, refs/heads/backup/**/*: deletion, non_fast_forward, creation, update. No bypass actor.
+
+## 6. Dry run of the rewrite on a scratch copy of the mirror
+git-filter-repo v2.47.0 (release tarball sha256 4662cbe5918196a9f1b5b3e1211a32e61cff1812419c21df4f47c5439f09e902), git 2.47.3:
+  git-filter-repo --sensitive-data-removal --invert-paths --path .data/tokens/ --path packages/material-x/.data/tokens/ --path packages/tproc/.data/tokens/
+changed refs: 72 (13 branches, 55 refs/pull/N/head, 4 refs/pull/N/merge)
+commits: 1981 lines in commit-map (header included); first changed commit: e1e11870 "Initial commit" (2025-07-11), because the option removes every commit's signature, and the initial commit is signed
+after expire and gc: blobs with the data 0; commits touching the three paths 0; pack 49.57 MiB (mirror before: 57.35 MiB)
+
+## 7. Copies on this machine outside git, read with grep for an address at google.com, then matched against the committed tables' addresses (counts only)
+- /agents/claude/projects/-workspaces-material-x: 3 files hold an address at google.com. One holds 2 of the tables' addresses: the transcript of the architect's session that wrote this record (session 7f3eddea…), from a probe that printed a slice of system.settings on 2026-11-20. The other two hold none of them.
+- /tmp/claude-1000: two scratch worktrees of other sessions (session 643f9349… scratchpad/w4, and slot b's session 19800a2d… scratchpad/rw) have the 14 tables checked out. The main checkout and slots b–f have them checked out too.

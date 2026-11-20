@@ -1,6 +1,8 @@
 # Material Design token source — survey and plan
 
-**Status: proposed, and the owner accepts it or chooses otherwise.** Written by the architect on 2026-11-20, on the coordinator's task for issue #82, on `tproc/tokens-source-1` from `origin/main` at `d69e3ddbc`. It registers `repo:RF-67` and proposes `repo:RD-28` ([`00-index.md`](../00-index.md)). `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), and `RF-66` the highest finding number, so these are the next free numbers. No production code or test is changed.
+**Status: amended on 2026-11-20 with the owner's answers, and the owner accepts it or chooses otherwise.** He chose a store of tproc's own in place of the stored tables, and a history rewrite for `Q2`. `Q1` and `Q3` are still open. The [amendment](#amendment-tprocs-own-token-store) supersedes points 3 and 4 of the [recommendation](#recommendation), point 5's checks and the three steps of the [plan](#plan). The history rewrite is planned in [`history-rewrite-plan.md`](history-rewrite-plan.md) and proposed as `repo:RD-29`. Until the amendment, this line said: _"proposed, and the owner accepts it or chooses otherwise."_
+
+Written by the architect on 2026-11-20, on the coordinator's task for issue #82, on `tproc/tokens-source-1` from `origin/main` at `d69e3ddbc`. It registers `repo:RF-67` and proposes `repo:RD-28` ([`00-index.md`](../00-index.md)). `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), and `RF-66` the highest finding number, so these are the next free numbers. No production code or test is changed.
 
 Canonical entries: `RD-28` — tproc keeps reading Material's own token database, from a committed, pruned snapshot of one dated site release that only an update script writes; `RF-67` — tproc's token snapshot has no recorded provenance, mixes two database versions, carries personal data, and a missing file is fetched from `latest` while tests run.
 
@@ -50,6 +52,8 @@ Read on 2026-11-20 ([addresses](checks/site-addresses.txt), [snapshot against `l
 
 ## Recommendation
 
+_Points 3 and 4 and point 5's checks are superseded by the [amendment](#amendment-tprocs-own-token-store). The rest stands._
+
 **Keep the DSDB tables as the source, and make reading them safe** (`RD-28`). No other public source has the data tproc renders: every alternative loses the contextual values, and most lose references or deprecation. Material's database is the authority, and the site's export is the only public form of it with every property tproc uses. So a different source would trade correctness for an address that looks more official.
 
 What makes today's reading fragile isn't the address. tproc follows `latest`, keeps no record of what it took, fetches while tests run, and compares nothing when the data changes. Each of those can be fixed without leaving the source:
@@ -70,6 +74,8 @@ What makes today's reading fragile isn't the address. tproc follows `latest`, ke
 - **Following `latest` on a schedule and committing automatically.** A data change alters what material-x renders, so a person reviews it (point 6).
 
 ## Plan
+
+_Superseded by the amendment's [steps](#steps-revised). This section is kept as it was proposed._
 
 The steps are for the implementer, on a branch of their own, in this order. Each step lists its proofs.
 
@@ -117,3 +123,110 @@ A scheduled workflow reads the site's current release and database version and c
 
 - How long the site keeps an old release's address isn't known. The plan doesn't depend on it: the committed snapshot is the durable copy, and the dated address makes a release consistent and repeatable while it lasts.
 - `default-theme.json` comes from Material Theme Builder, whose repository is archived. Colour generation could move to `material-color-utilities`. That's outside #82.
+
+## Amendment: tproc's own token store
+
+**Amended on 2026-11-20 by the architect,** on the owner's answers relayed by the coordinator. On the personal data in the committed tables: _"ВАТАФАК 😱 Вот это жесть, конечно... Да, конечно, всё переписываем, не хватало мне ещё претензий от гугла, хотя они сами виноваты..."_ ("WTF 😱 That's really bad... Yes, of course, we rewrite everything; claims from Google are the last thing I need, though it's their own fault..."). That answers `Q2` with a history rewrite, which [`history-rewrite-plan.md`](history-rewrite-plan.md) plans. On the design: _"Кстати, можно tproc заставить не просто парсить таблицы тогда, а прям на лету их конвертировать в удобочитаемый json, и уже на его основе делать интерфейс для генерации. То есть: — Скрипт скачивания и конвертации - сохраняем уже наш родной, safe-json, а не таблицу с персональными данными гуглеров. Поля и данные остаются ещё оригинальными, не адаптированными под CSS. — Удобный API уже для конвертации JSON -> CSS."_ ("By the way, tproc could convert the tables on the fly into readable JSON instead of only parsing them, and build the generation interface on that. That is: a download and conversion script, which stores our own safe JSON rather than a table with Google employees' personal data, with fields and data still original, not adapted to CSS; and a convenient API for converting JSON to CSS.")
+
+`Q1` and `Q3` are still open. The source doesn't change: the update script still reads the database tables of one dated release.
+
+### Four layers
+
+1. **The update script downloads and converts.** It fetches the tables of one release, converts them in memory, and writes only the store. A raw table is never written into the repository. `packages/tproc/.data/` is git-ignored, so a table kept for debugging can't be committed by accident.
+2. **The store** is committed. It is tproc's own JSON, with upstream's field names and values for everything it keeps.
+3. **The reader** is a typed query API over the store. It replaces `DB`.
+4. **The CSS layer** turns stored values into CSS. It is today's `processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable` and `selector`, which read the reader instead of `DB`.
+
+### The store
+
+**Location: `packages/tproc/tokens/`.** It isn't under `.data/`, because the history rewrite removes every `.data/tokens/` path from every commit.
+
+- **`manifest.json`:**
+  - `storeVersion`, an integer that changes when the store's shape changes;
+  - the source: the site's base address, the release id, and the database's `versionName`, version id and publish time;
+  - the fetch date;
+  - each converted table's kind, component id and component name;
+  - each store file's SHA-256.
+
+  For the snapshot that step 1 converts, the source reads _committed before `RD-28`, release unknown_, with both database versions.
+
+- **`context.json`:** each context tag group's name (`contextTagGroupName`), `displayName`, `specificity` and default tag. For each tag of the group, its `tagName`, `displayName` and `tagOrder`.
+- **`sets/<tokenSetName>.json`,** one file per token set, such as `sets/md.comp.checkbox.json`:
+  - the set's `tokenSetName`, `displayName`, `description`, `tokenType`, `custom.token_class` and `order`, when a table carries the set, and only its name when none does;
+  - its tokens, in upstream order.
+- **Each token keeps:**
+  - `tokenName`, `displayName` and `tokenValueType`;
+  - `displayGroup`, as the display group's `displayName` instead of its id, and `orderInDisplayGroup`;
+  - `deprecationMessage`, with `message` and `replacementTokenName`, when present.
+  - **`values`:** the token's own value entries, in upstream order. Each has `contextTags`, `specificityScore`, and either `tokenName` (the one-hop reference) or upstream's literal fields: `color`, `length`, `shape`, `type`, `opacity`, `numeric`, `durationMs`, `cubicBezier`, `motionPath`, `customComposite`, `axisValue`, `textTransform`, `fontNames`, `fontWeight`, `fontSize`, `fontTracking` and `lineHeight`.
+  - **`contextualReferenceTree`:** upstream's entries, in upstream order. Each has `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree` and `resolvedValue`.
+    - `referenceTree` keeps the tree's shape: `tokenName` and `childNodes`. A composite has several children: 1,488 nodes in today's tables have more than one.
+    - Every root in today's tables is the token's own value, so an index identifies it once ids are gone.
+- **`contextTags` is an object** from tag group name to tag name, such as `{ "motion.scheme": "expressive", "platform": "web" }`, with keys sorted. It replaces lists of internal ids.
+- **What the store drops:**
+  - every internal id (`name`, a value's `version` and `revisionId` in trees, the tags' ids);
+  - revision ids and times, `createTime`, and `state`, which is `ACTIVE` on every token, set and value in today's tables;
+  - `revisionAuthor`, `author` and `settings`;
+  - every system field that isn't named above.
+
+  `tokenNameSuffix` and set membership aren't stored either, because both follow from the token's file and name.
+
+- **Determinism and reading.**
+  - Keys come in the order the schema lists them, arrays in upstream order, two-space indentation and a final newline. Converting the same tables twice gives byte-identical files.
+  - The store is generated, so the converter is its only writer. It goes into `.oxfmtrc.json`'s `ignorePatterns`, which today names the stale `packages/material-x/.data`. It is also marked `linguist-generated` in `.gitattributes`, so GitHub folds its diffs.
+  - Line diffs stay readable per set file, and the update report stays the review instrument.
+- **Size, estimated** from today's tables with a scratch conversion: 3,950 tokens and 73,666 contextual entries, 45.3 MB pretty-printed in about 1.9 million lines, and about 0.85 MB gzipped. Step 1 measures and reports the real figure, and no budget is set.
+
+### The converter's checks
+
+They replace point 5. A refusal names the table, the token and the field.
+
+- **Input:** each field the converter reads is present, with its type. Each tag id resolves to a tag and a group of the same table. Each tree's root is the token's own value.
+- **References:** each `tokenName` in a value, and each node of a tree, names a token in the converted store.
+- **Duplicates:** a token that more than one table carries converts to identical content.
+  - In step 1, today's mixed snapshot breaks this for about 223 tokens: the component tables are `35.0.28` and the system tables `37.0.32`. There the converter keeps the table that `DB.load()` reads first, which is `DB`'s behaviour today. It lists each conflict in step 1's report.
+  - From step 2 on, a conflict refuses the update.
+- **One release:** every table reports the same `versionName`. Step 1's legacy conversion is exempt and records both versions.
+- **Allow list:** the writer emits only the fields this section names, so a field upstream adds can't pass unseen. A final scan refuses a store that holds an email address or a `gaiaId` key.
+
+### The reader and the CSS layer
+
+- **The reader** is `@ydinjs/tproc/store/index.js`, a singleton loaded from the store as `DB/index.ts` is today, with no network path. It offers:
+  - the sets, the tokens of a set, a token by `tokenName`, a token's set;
+  - whether a token is deprecated: it has a `deprecationMessage`, or its set's `displayName` starts with `[Deprecated]`;
+  - the context tag groups;
+  - `select(token, tags)`: the chosen contextual entry, with its value entry, its reference tree and its resolved value.
+- **The selection rule in step 1 is today's:** the first entry whose `contextTags` include any of the given tag names, otherwise the first entry. The default tags are `expressive` and `web`. A stricter rule, such as requiring every group to match, is a separate decision. It would change rendering, and step 2's report can show which tokens it affects.
+- **`DB`, `DB/index.ts` and `TokenTable.ts` are deleted,** with their `package.json` exports. tproc is private, and material-x imports none of them. It imports `index.js`, `TokenPackage.js`, `TokenPackageProcessor.js`, `processTokenSet.js`, `resolve.js`, `selector.js`, `utils.js`, `variable.js` and `default/motion-effects.js`, and `visual-contracts.node.ts` uses `TokenPackage`'s type.
+- **The CSS layer keeps its surface,** so material-x and the visual-contract tests change nothing in step 1.
+  - Its value mapping becomes one exported pure function from a stored value to a CSS value, which is `processToken`'s mapping today. Each kind can then be tested without a store.
+  - A redesign of the generation interface beyond that is a later unit, if the owner wants one (`Q4`).
+- **The `use-tokens-db` skill** and tproc's tests move to the reader and the store's shape. The test fixture in `tests/helpers.ts` is built in the store's shape.
+
+### Steps, revised
+
+**Step 1 — the store, from today's tables.** It merges before the history rewrite (`RD-29`), because the rewrite removes the tables from every commit, the tip included.
+
+- The converter and the update script, with a legacy mode that converts the committed tables without fetching. The store is written once in that mode.
+- The reader, the CSS layer on the reader, and the deletions above. The 14 tables are deleted from the tree, and `packages/tproc/.data/` is git-ignored.
+- The skill and tproc's documentation describe the store, the manifest and the update script.
+
+Proofs:
+
+- **P1.** The reader has no network path. A test with `fetch` replaced by a function that fails the test loads the store. With one set file removed, loading fails and names the file.
+- **P2.** Converting the committed tables twice gives byte-identical stores.
+- **P3.** The store holds no email address and no `gaiaId` key. A raw token with an extra field converts without it.
+- **P4.** material-x's generated CSS is byte-identical before and after the step, and tproc's and material-x's suites pass as on `main`.
+- **P5.** Each input and reference check refuses a mutated table, and names the table, the token and the field. Recorded as mutation witnesses.
+- **P10.** Parity with `DB`, read once before `DB` is deleted. For every token and the default tags, `select` gives the same one-hop reference or literal, reference tree token names and resolved value as `DB.getValue` and `getReferenceTreeAndResolvedValue`. This covers the tokens material-x doesn't render, which P4 can't see.
+- **P11.** The duplicate conflicts are listed with their tables, and the kept table is the one `DB.load()` reads first.
+
+**Step 2 — the first update, to a dated release,** after the history rewrite: P6–P8 as planned, and no duplicate conflict.
+
+**Step 3 — change notification,** only if the owner answers yes to `Q1`: P9 as planned.
+
+### Owner questions, amended
+
+- **Q2 is answered:** rewrite the history. [`history-rewrite-plan.md`](history-rewrite-plan.md) has the procedure and its own questions.
+- **Q3 still applies to the store.** The store republishes Google's token data without the personal data, as material-web's Apache-2.0 tokens do.
+- **Q4 — the generation interface.** (a) Step 1 keeps the CSS layer's surface and adds the pure value-to-CSS function. (b) A new generation interface as well. **Recommended: (a) now.** P4's byte-identical proof needs an unchanged surface, and a redesign is easier to judge on the store, once it exists.

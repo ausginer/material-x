@@ -1450,22 +1450,88 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 `RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
 
-#### RD-28 — tproc keeps reading Material's own token database, from a committed, pruned snapshot of one dated site release that only an update script writes
+#### RD-28 — tproc keeps reading Material's own token database, converts one dated site release into a committed store of its own, and builds its CSS from that store
 
-**Proposed 2026-11-20 by the architect,** on the coordinator's task for issue #82, on `tproc/tokens-source-1`. **The owner accepts it or chooses otherwise,** and answers `Q1`–`Q3` of the [plan](tokens-source-1/tokens-source-plan.md#owner-questions). `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), so this is the next free number. **Not implemented.** It answers `RF-67`.
+**Proposed 2026-11-20 by the architect,** on the coordinator's task for issue #82, on `tproc/tokens-source-1`. `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), so this is the next free number. **Not implemented.** It answers `RF-67`.
+
+**Amended 2026-11-20 by the architect,** on the owner's answers relayed by the coordinator. They are quoted in the plan's [amendment](tokens-source-1/tokens-source-plan.md#amendment-tprocs-own-token-store).
+
+- **A store of tproc's own** replaces the stored tables: _"сохраняем уже наш родной, safe-json, а не таблицу с персональными данными гуглеров. Поля и данные остаются ещё оригинальными, не адаптированными под CSS"_ ("we store our own safe JSON, not a table with Google employees' personal data; fields and data stay original, not adapted to CSS").
+- **The history is rewritten** for `Q2` (`RD-29`).
+- **The owner accepts it or chooses otherwise.** `Q1` and `Q3` are open, and `Q4` is new.
+- The title, properties 1 to 5 and the order changed, and property 8 is new. What they said before is at the end of this entry.
 
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**
-  1. tproc reads only the committed snapshot, and `DB.load()` has no network path. A missing or invalid table fails the load and names the file.
-  2. One update script writes the snapshot. It fetches every table from one dated release address (`2026-11-19_06-20-01`), not from `latest`, and refuses a set whose tables report different `system.version.versionName`.
-  3. A committed manifest records the release id, the database's `versionName`, version id and publish time, the fetch date, each table's kind, component id and name, and each stored file's SHA-256.
-  4. Stored tables keep only the fields `TokenTable.ts` declares, in upstream array order, and no revision, author, time or settings field. Storing the same release twice gives byte-identical files. They are minified and marked `-diff`.
-  5. The update script refuses a table whose shape differs from what tproc reads, or whose references name something missing, and names the table, the token and the field.
+  1. **tproc reads only the committed store,** through a reader with no network path. A missing or invalid store file fails the load and names the file. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.
+  2. One update script writes the store. It fetches every table from one dated release address (`2026-11-19_06-20-01`), not from `latest`, and refuses a set whose tables report different `system.version.versionName`. It converts the tables in memory, and never writes a raw table into the repository. `packages/tproc/.data/` is git-ignored.
+  3. **The store is at `packages/tproc/tokens/`.**
+     - `manifest.json` records the store's shape version, and the release id with the database's `versionName`, version id and publish time. It also records the fetch date, each converted table's kind, component id and name, and each store file's SHA-256.
+     - `context.json` holds the context tag groups and their tags.
+     - `sets/<tokenSetName>.json` holds one token set and its tokens.
+  4. **The store keeps upstream's field names and values,** not CSS.
+     - Each token's `values` and `contextualReferenceTree` keep upstream's order, with context tags as a group-to-tag-name object and each tree as `tokenName` and `childNodes`.
+     - It drops every internal id, revision, time, state, author and settings field, so no personal data can pass, and a final scan refuses a store that holds an email address or a `gaiaId` key.
+     - Converting the same tables twice gives byte-identical files.
+     - The converter is the store's only writer. The store is in oxfmt's `ignorePatterns` and is marked `linguist-generated`.
+     - The plan's [store section](tokens-source-1/tokens-source-plan.md#the-store) is the schema.
+  5. **The converter refuses** a table whose fields the converter reads are missing or of another type. It also refuses a tag id that resolves to no tag, a tree that doesn't start at the token's own value, a reference to a token that isn't in the store, and a token that two tables convert differently. It names the table, the token and the field.
+     - A token that two tables convert differently is allowed only in step 1's legacy conversion of today's mixed snapshot. There the table `DB.load()` reads first wins, and each conflict is listed.
   6. An update is a pull request carrying a report: tokens added and removed, deprecations added, and each changed one-hop reference and literal for `expressive` and `web`, by token set, with the difference in material-x's generated CSS. The report is saved in that pull request's record.
   7. The component list is explicit, one manifest row per component id.
-- **Order:** the mechanism lands first with today's data, normalized without fetching, and must leave material-x's generated CSS byte-identical. The first update to a dated release is a separate pull request. The plan's [steps](tokens-source-1/tokens-source-plan.md#plan) carry proofs P1–P9.
+  8. **The CSS layer** (`processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable`, `selector`) reads the reader and keeps its surface. Its value mapping is one exported pure function from a stored value to a CSS value. The reader's selection rule is today's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry.
+- **Order:**
+  - **Step 1** converts today's committed tables in a legacy mode without fetching, deletes them, and switches tproc to the store. It must leave material-x's generated CSS byte-identical, and the reader must give the same value, reference tree and resolved value as `DB` for every token. It merges before `RD-29`'s rewrite.
+  - **Step 2,** after the rewrite, updates to a dated release in its own pull request.
+  - The plan's [revised steps](tokens-source-1/tokens-source-plan.md#steps-revised) carry proofs P1–P11.
 
-**Why.** The database is Material's authority, and its export is the only public form of it with every property tproc renders: contextual values, one-hop references, reference trees, token sets and deprecation. What made the reading fragile was that tproc followed `latest`, kept no record of what it took, fetched during test runs and compared nothing on change. Each of these is fixed without leaving the source. A dated address makes a release consistent and repeatable while the site keeps it, and the committed snapshot doesn't depend on how long that is.
+**Why.** The database is Material's authority, and its export is the only public form of it with every property tproc renders: contextual values, one-hop references, reference trees, token sets and deprecation. What made the reading fragile was that tproc followed `latest`, kept no record of what it took, fetched during test runs and compared nothing on change. Each of these is fixed without leaving the source. A dated address makes a release consistent and repeatable while the site keeps it, and the committed store doesn't depend on how long that is.
+
+- **Why a converted store and not pruned tables.** An allow list of fields keeps out personal data, and any field upstream adds, by construction, where pruning removes only the fields someone thought of. A store named by token set, with tag names in place of ids, can be read and diffed by a person, which the tables' internal ids prevent. The CSS layer is unchanged, so step 1's byte-identical CSS remains a complete safety net for what material-x renders. Parity with `DB` covers the rest.
+
+**What it said before the amendment.**
+
+- The title was _"tproc keeps reading Material's own token database, from a committed, pruned snapshot of one dated site release that only an update script writes"_.
+- Property 1: _"tproc reads only the committed snapshot, and `DB.load()` has no network path. A missing or invalid table fails the load and names the file."_
+- Property 2: _"One update script writes the snapshot. It fetches every table from one dated release address (`2026-11-19_06-20-01`), not from `latest`, and refuses a set whose tables report different `system.version.versionName`."_
+- Property 3: _"A committed manifest records the release id, the database's `versionName`, version id and publish time, the fetch date, each table's kind, component id and name, and each stored file's SHA-256."_
+- Property 4: _"Stored tables keep only the fields `TokenTable.ts` declares, in upstream array order, and no revision, author, time or settings field. Storing the same release twice gives byte-identical files. They are minified and marked `-diff`."_
+- Property 5: _"The update script refuses a table whose shape differs from what tproc reads, or whose references name something missing, and names the table, the token and the field."_
+- The order: _"the mechanism lands first with today's data, normalized without fetching, and must leave material-x's generated CSS byte-identical. The first update to a dated release is a separate pull request. The plan's [steps](tokens-source-1/tokens-source-plan.md#plan) carry proofs P1–P9."_
+- The status asked the owner to answer `Q1`–`Q3` of the [plan](tokens-source-1/tokens-source-plan.md#owner-questions).
+
+#### RD-29 — Material's tables are removed from every commit, once, by a rewrite that the owner runs, and the record keeps a map from old commit hashes to new ones
+
+**Proposed 2026-11-20 by the architect,** on the owner's answer to `RD-28`'s `Q2`, relayed by the coordinator: _"Да, конечно, всё переписываем, не хватало мне ещё претензий от гугла"_ ("Yes, of course, we rewrite everything; claims from Google are the last thing I need"). He then added (translated): _"The old pull requests need checking too: the data may have survived there."_
+
+- **Number.** `RD-28` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number.
+- **Status.** **Not executed.** The owner runs it, after answering `QH1`–`QH4` of the [plan](tokens-source-1/history-rewrite-plan.md#owner-questions). It removes what `RF-67` found.
+- **Who.** Agents don't force-push or change a ruleset, and the plan names who does each step.
+
+- **Required properties:**
+  1. **Precondition:** `RD-28` step 1 is on `main`, so the rewrite can remove the tables from every commit, the tip included.
+  2. **The rewrite** is `git filter-repo` 2.47.0 or later, `--sensitive-data-removal --invert-paths`, with the paths `.data/tokens/`, `packages/material-x/.data/tokens/` and `packages/tproc/.data/tokens/`. It runs on a fresh mirror clone in the devcontainer. Before anything is pushed:
+     - no blob holds an address at google.com or a `"gaiaId"` key;
+     - no commit touches the three paths;
+     - `main` builds.
+  3. **Every branch is pushed rewritten, and nothing else changes.**
+     - The freeze puts every unit's work on `origin` first.
+     - The push is `git push --force origin 'refs/heads/*:refs/heads/*'`, which deletes nothing.
+     - The rulesets `Main protection` (20963220) and `Backup preservation` (20963078) are turned off only for the push, then restored and compared with their saved JSON.
+  4. **GitHub Support** is asked to dereference the affected pull requests, run a garbage collection and remove cached views. The request names the affected pull request count and the first changed commit.
+  5. **The record keeps a map.**
+     - The first commit after the rewrite adds filter-repo's `commit-map` under `.plan/history-rewrite-1/`.
+     - It re-points the resolver's retired-scope commit in `.scripts/entry.ts`.
+     - Hashes that record text cites stay as written, and they are read through the map.
+  6. **A guard in `verify`** fails a pull request whose head has the old initial commit `e1e11870` as an ancestor, or whose commits add a path under `.data/tokens/` at any depth.
+  7. **Local copies** of the old history are removed: the main checkout, slots b–f, the scratch worktrees, the one transcript that holds two of the addresses, and any other clone the owner has. The plan's step 10 lists them.
+
+**Why.**
+
+- **Why the three paths are removed.** The owner asked for the personal data to leave the history. Removing the three paths does that completely, and the check is simple: no blob under them, and no blob with a marker. Redacting the addresses inside the tables would keep Google's tables in the history, and would trust a pattern to find every personal field.
+- **Why the rewrite changes so much.** It changes every commit hash, because `--sensitive-data-removal` also removes every commit's signature. The map keeps the record's citations readable without rewriting the record.
+- **Why Support is needed.** Without it, GitHub keeps the old commits reachable through the 55 `refs/pull/N/head` refs and by hash. Only Support can remove those.
+- **Why nothing else on GitHub needs removing.** The scan of the pull requests' and issues' text, the artifacts, the deployed site and the run logs found no copy ([reading](tokens-source-1/checks/history-scan.txt)).
 
 ## Findings
 
@@ -2738,6 +2804,18 @@ Tier B, **open**. Registered on 2026-11-20 by the architect, on `tproc/tokens-so
   - the snapshot is 147 MB, pretty-printed.
 - **Tier B:** no rendering changes while the files are present. The visual-contract tests take their token oracle from this snapshot, so an instrument the repository relies on has no recorded provenance and can change silently.
 - **Not a defect:** the addresses don't name content hashes. `20543ce18892f7d9` is the design system's id and `TOKEN_TABLE.<id>` the component's id. The site also serves each release under a dated address, so a release can be pinned.
+- **Read again on 2026-11-20 by the architect: where the personal data is** ([reading](tokens-source-1/checks/history-scan.txt)). Only counts and locations are recorded.
+  - **In git:** 63 blobs, under 39 paths in three directories. `.data/tokens/` dates from 2025-11-25, `packages/material-x/.data/tokens/` from 2026-03-24, and `packages/tproc/.data/tokens/` from 2026-07-13. Every one of the 72 refs GitHub serves reaches them: 13 branches, 55 `refs/pull/N/head` and 4 `refs/pull/N/merge`.
+  - **Not outside git on GitHub:** the 84 issues and pull requests, their 71 comments, the 56 unexpired artifacts (the deployed docs site among them) and the 271 run logs that still exist hold no copy. 124 logs have expired. There are no review comments, reviews, commit comments, releases, tags or forks, and the wiki and discussions are off.
+  - **On this machine:** the main checkout, slots b–f and two scratch worktrees have the tables checked out. One transcript of the architect's session holds two of the addresses, which a probe printed on 2026-11-20.
+  - **The data isn't only in `system.settings`.** Across the 14 committed tables, addresses occur 630 times:
+    - 546 in `settings`' `emailAddress` values;
+    - 14 in `system.author.email`;
+    - 70 in `system.componentDisplayGroups[].revisionAuthor.email`.
+
+    `revisionAuthor` also carries the account ids. The store keeps none of these fields, and the final scan of `RD-28` property 4 refuses any address that a kept field might carry.
+
+  - `RD-28` stops the data entering the tree, and `RD-29` removes it from the history.
 
 ## Questions
 
