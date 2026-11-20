@@ -41,26 +41,40 @@ export class BlockNoted extends AnyElement {}
 export abstract class Abstracted extends AnyElement {}
 `;
 
-/** A trait that its module exports as the default. */
-const DEFAULT_TRAIT = `import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+/**
+ * A module that exports a trait as the default, with `keywords` between
+ * `@trait` and `class`.
+ */
+const defaultTrait = (keywords: string): string =>
+  `import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
 import { trait } from '@ydinjs/core/traits/composition.js';
 
 /** A default trait. */
 @trait
-export default class Defaulted extends AnyElement {}
+${keywords} class Defaulted extends AnyElement {}
 `;
+
+/** Each default trait's module, by file name. */
+const DEFAULT_TRAITS: Readonly<Record<string, string>> = {
+  'defaulted.ts': defaultTrait('export default'),
+  'default-block.ts': defaultTrait('export /* A note. */ default'),
+  'default-line.ts': defaultTrait('export // A note.\ndefault'),
+};
 
 let dir: string;
 let declarations: string;
-let defaultDeclarations: string;
+const defaultDeclarations = new Map<string, string>();
 
 beforeAll(async () => {
   dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-dts-'));
   await writeFile(join(dir, 'opened.ts'), TRAIT);
-  await writeFile(join(dir, 'defaulted.ts'), DEFAULT_TRAIT);
+  const defaults = Object.keys(DEFAULT_TRAITS);
+  await Promise.all(
+    defaults.map((file) => writeFile(join(dir, file), DEFAULT_TRAITS[file]!)),
+  );
   await build({
     config: false,
-    entry: [join(dir, 'opened.ts'), join(dir, 'defaulted.ts')],
+    entry: [join(dir, 'opened.ts'), ...defaults.map((file) => join(dir, file))],
     outDir: join(dir, 'out'),
     format: 'esm',
     platform: 'neutral',
@@ -73,10 +87,13 @@ beforeAll(async () => {
     logLevel: 'silent',
   });
   declarations = await readFile(join(dir, 'out', 'opened.d.ts'), 'utf8');
-  defaultDeclarations = await readFile(
-    join(dir, 'out', 'defaulted.d.ts'),
-    'utf8',
-  );
+  for (const file of defaults) {
+    defaultDeclarations.set(
+      file,
+      // oxlint-disable-next-line no-await-in-loop
+      await readFile(join(dir, 'out', file.replace(/\.ts$/u, '.d.ts')), 'utf8'),
+    );
+  }
 }, 60_000);
 
 afterAll(async () => {
@@ -108,8 +125,18 @@ describe("a trait's declarations through tsdown", () => {
     );
   });
 
-  it('should keep the JSDoc of an export default class', () => {
-    expect(defaultDeclarations).toContain(
+  it.each([
+    ['an export default class', 'defaulted.ts'],
+    [
+      'an export default class with a block comment after export',
+      'default-block.ts',
+    ],
+    [
+      'an export default class with a line comment after export',
+      'default-line.ts',
+    ],
+  ])('should keep the JSDoc of %s', (_, file) => {
+    expect(defaultDeclarations.get(file)).toContain(
       '/** A default trait. */\nexport default class Defaulted',
     );
   });

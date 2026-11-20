@@ -66,7 +66,11 @@ export function moveExportBeforeDecorators(
   }
   // The stage's own parse: the parse cache holds the text the transforms
   // read under this id.
-  const { program, comments } = parseSync(id, code);
+  const { program, comments, errors } = parseSync(id, code);
+  // A module that doesn't parse is left as written, for the host to report.
+  if (errors.length > 0) {
+    return null;
+  }
   let magic: RolldownMagicString | null = null;
   const exports = new Set<string>();
   // The end of the previous statement, and the first comment not yet read:
@@ -93,25 +97,29 @@ export function moveExportBeforeDecorators(
     if (!documented) {
       continue;
     }
-    const [keywords] = (
-      statement.type === 'ExportDefaultDeclaration'
-        ? /^export\s*default\s*/u
-        : /^export\s*/u
-    ).exec(code.slice(statement.start))!;
+    // With the decorators before `export`, the class starts at `class` or
+    // `abstract`. So the statement's own span up to the class holds `export`,
+    // or `export default`, with every space and comment after each keyword.
+    if (exported.node.start <= statement.start) {
+      continue;
+    }
     magic ??= new RolldownMagicString(code);
-    magic.move(statement.start, statement.start + keywords.length, first.start);
+    magic.move(statement.start, exported.node.start, first.start);
     exports.add(exported.exportName);
   }
 
   return magic ? { magic, exports } : null;
 }
 
+/** Spaces and comments at the start of a text. */
+const TRIVIA = /^(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n\r\u2028\u2029]*)*/u;
+
 /**
  * The position `pos` in a later hook's input `code` would have had without
  * the stage. In that text, a moved class reads `export @… class X` or `export
- * default @… class X`: the keywords and their spaces, then the decorators,
- * then `class`. Without the stage, the decorators came first, and the
- * keywords and their spaces stood just before `class`. Text outside those
+ * default @… class X`: the keywords with the spaces and comments after
+ * them, then the decorators, then `class`. Without the stage, the decorators
+ * came first, and the keywords stood just before `class`. Text outside those
  * spans is where it was.
  *
  * @param exports - The names that the classes the stage moved in this module
@@ -135,8 +143,9 @@ export function positionWithoutStage(
       continue;
     }
     const moved = first.start - statement.start;
-    const [space] = /^\s*/u.exec(code.slice(last.end))!;
-    const keyword = last.end + space.length;
+    // Only spaces and comments stand between the last decorator and `class`.
+    const keyword =
+      last.end + (TRIVIA.exec(code.slice(last.end))?.[0].length ?? 0);
     if (pos >= statement.start && pos < first.start) {
       return keyword - moved + (pos - statement.start);
     }
