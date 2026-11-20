@@ -17,11 +17,11 @@ clean-build:
 
 # Build TypeDoc API into the cache consumed by the Storybook dev server
 docs-api-prepare:
-    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/drag
+    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/box-quad
 
 # Build TypeDoc API into the output directory
 docs-api-build:
-    typedoc --options typedoc.json --out ../../.docs/api/drag
+    typedoc --options typedoc.json --out ../../.docs/api/box-quad
 
 # Run tests
 test *ARGS:

@@ -2,28 +2,30 @@
 
 ## 1. Failure boundary
 
-`readBoxQuad` returns `false` only for an explicitly recognized unsupported or unrepresentable geometry condition in this document.
+A function returns `false` only for a condition that this document explicitly recognizes as unsupported or unrepresentable.
 
-Before returning `false`, the implementation must leave all eight caller-owned output values unchanged. Every read is fresh, so repaired geometry is observable on the next call.
+Before returning `false`, the function leaves every slot of its own `out` unchanged. In the read of [artifact 1](01-public-api.md) §2, a failing measurement ends the read before `projection` writes, so the caller's quad is unchanged too. Every read is fresh, so repaired geometry is observable at the next measurement.
 
-The table does not authorize blanket exception handling. Contract violations, unexpected platform exceptions and implementation defects escape normally and are not rewritten as geometry failures.
+The table doesn't authorize broad exception handling. Contract violations, unexpected platform exceptions and implementation defects escape normally and are not rewritten as geometry failures.
 
 ## 2. Recognized failures
 
-| ID | Condition | Detection boundary | Result |
+| ID | Condition | Recognized by | Result |
 | --- | --- | --- | --- |
-| `FAIL-NO-SOURCE-BOX` | Source is disconnected or does not generate a principal border box, including `display:none` or source `display:contents` | Before composing source space | `false`, unchanged output |
-| `FAIL-SOURCE-FRAGMENTED` | Source produces more than one CSS box/fragment | Before accepting source dimensions | `false`, unchanged output |
-| `FAIL-NO-TARGET-BOX` | Target is disconnected or does not generate a principal border box | Before target inversion | `false`, unchanged output |
-| `FAIL-TARGET-FRAGMENTED` | Target produces more than one CSS box/fragment | Before target inversion | `false`, unchanged output |
-| `FAIL-CROSS-DOCUMENT` | Source and target have different `ownerDocument` identities, including parent/child iframe documents | Before composing the target conversion | `false`, unchanged output |
-| `FAIL-3D` | Source, target or a relevant rendered ancestry contribution has a genuinely non-2D computed transform | During space construction, before output commit | `false`, unchanged output |
-| `FAIL-PERSPECTIVE` | A relevant rendered ancestry contribution has non-`none` perspective | During space construction, before output commit | `false`, unchanged output |
-| `FAIL-PRESERVE-3D` | A relevant rendered ancestry contribution uses `transform-style: preserve-3d` | During space construction, before output commit | `false`, unchanged output |
-| `FAIL-TARGET-NONINVERTIBLE` | Target local-to-viewport matrix cannot be inverted to finite 2D values | Before applying the target inverse | `false`, unchanged output |
-| `FAIL-NONFINITE` | An otherwise recognized geometry calculation produces a non-finite corner coordinate | Before output commit | `false`, unchanged output |
+| `FAIL-NO-SOURCE-BOX` | The source is disconnected or generates no principal border box, including `display:none` or the source's own `display:contents` | `coordinates`, before it composes the source's space. `ancestry` doesn't fail for it | `false`, unchanged output |
+| `FAIL-SOURCE-FRAGMENTED` | The source produces more than one CSS box or fragment | `coordinates`, before it accepts the source's dimensions. `ancestry` doesn't fail for it | `false`, unchanged output |
+| `FAIL-NO-TARGET-BOX` | The target is disconnected or generates no principal border box | `coordinates` on the target, so the read ends before `projection` | `false`, unchanged output |
+| `FAIL-TARGET-FRAGMENTED` | The target produces more than one CSS box or fragment | `coordinates` on the target, so the read ends before `projection` | `false`, unchanged output |
+| `FAIL-3D` | The measured element, or a node above it in the rendered ancestry, has a computed transform that isn't 2D, including an individual `rotate` about another axis that isn't a whole turn, and a `scale` or `translate` with a z component | `ancestry` for a node above the element; `coordinates` for the element or a node above it | `false`, unchanged output |
+| `FAIL-PERSPECTIVE` | A node in the rendered ancestry, or the measured element, has a `perspective` other than `none` | As `FAIL-3D` | `false`, unchanged output |
+| `FAIL-PRESERVE-3D` | A node in the rendered ancestry, or the measured element, uses `transform-style: preserve-3d` | As `FAIL-3D` | `false`, unchanged output |
+| `FAIL-TARGET-NONINVERTIBLE` | The target's local-to-viewport matrix can't be inverted to finite 2D values | `projection`, before it applies the target's inverse | `false`, unchanged output |
+| `FAIL-BASIS-NONINVERTIBLE` | The basis passed to `localDelta` is singular | `localDelta` | `false`, unchanged output |
+| `FAIL-NONFINITE` | A recognized geometry calculation produces a non-finite value: a matrix entry or size in `coordinates`, a corner in `projection`, or a delta in `localDelta` | The function that computes it, before its output commit | `false`, unchanged output |
 
-“Relevant rendered ancestry” means the geometry path needed to construct the requested source and target spaces. It includes flat-tree host/slot relationships, fixed containing blocks and applicable scrolling ancestors. It does not mean scanning unrelated document elements.
+**`FAIL-CROSS-DOCUMENT` is withdrawn** (2026-11-20). It made a source and a target with different `ownerDocument` identities a recognized `false`. No function can recognize it, because a `Box` carries no document. It is a precondition of `projection` (§4 below, and artifact 1 §4.3). The ID isn't reused.
+
+The _rendered ancestry_ is the flat-tree path above an element: assigned slots, parent elements and shadow hosts. Fixed containing blocks and scrolling ancestors contribute through the element's client rect. It doesn't mean scanning unrelated document elements.
 
 ## 3. Boundary cases that succeed
 
@@ -31,21 +33,23 @@ These cases must not be confused with recognized failures:
 
 | Case | Required result |
 | --- | --- |
-| Otherwise supported connected source with a principal box whose width or height is zero | Succeeds with coincident corners |
-| Otherwise supported source transformed by a singular 2D matrix, such as `scale(0)` | Succeeds for viewport output with a degenerate quad |
-| Otherwise supported source transformed by a negative 2D scale | Succeeds and preserves corner identity |
-| `display:contents` in ancestry while an otherwise supported source has its own usable principal box | Succeeds; absence of an ancestor box is not itself a source failure |
-| 2D-equivalent computed transform represented as a 2D matrix | Succeeds regardless of authored syntax |
-| Fixed, sticky, vertical-writing or slotted source within the supported model | Succeeds |
-| Source and target wholly inside the same iframe document | Succeeds in that document's realm and layout viewport |
+| An otherwise supported connected source with a principal box whose width or height is zero | Succeeds with coincident corners |
+| An otherwise supported source transformed by a singular 2D matrix, such as `scale(0)` | Its measurement and its viewport projection succeed with a degenerate quad |
+| An otherwise supported source transformed by a negative 2D scale | Succeeds and keeps corner identity |
+| `display:contents` in the ancestry of an otherwise supported source that has its own principal box | Succeeds. An ancestor without a box isn't a source failure |
+| A `display:contents`, fragmented or disconnected element passed to `ancestry` | `ancestry` succeeds. It never reads the element's own box |
+| A 2D-equivalent computed transform represented as a 2D matrix | Succeeds whatever the authored syntax |
+| A fixed, sticky, vertical-writing or slotted source within the supported model | Succeeds |
+| A source and target wholly inside the same iframe document | Succeeds in that document's realm and layout viewport |
 
-If the singular source in the second row is also used as `relativeTo`, it becomes `FAIL-TARGET-NONINVERTIBLE`. This includes the self-relative request:
+If the singular source in the second row is also the target, the projection fails with `FAIL-TARGET-NONINVERTIBLE`. This includes projecting a box against itself:
 
 ```ts
-readBoxQuad(element, out, element);
+coordinates(element, box);
+projection(box, out, box); // false
 ```
 
-Identity of the source and target does not bypass the target-invertibility rule.
+The source and the target being the same `Box` doesn't bypass the target-invertibility rule.
 
 ## 4. Contract violations and escaping errors
 
@@ -53,24 +57,33 @@ The following are outside the boolean failure contract:
 
 | Situation | Contract |
 | --- | --- |
-| `element` or `relativeTo` is not an `HTMLElement` after TypeScript is bypassed | No validation or particular error type is required |
-| `out` is too short, the wrong typed-array kind, detached or non-writable | No hot-path validation or particular error type is required |
+| `element` isn't an `HTMLElement`, after TypeScript is bypassed | No validation or particular error type is required |
+| An output is too short, the wrong typed-array kind, detached or not writable | No validation or particular error type is required |
+| A `Box` or `Space` passed as input wasn't written by a successful call | No validation; the result has no meaning |
+| `source` and `relativeTo` were measured in different documents | Not detected, and the result has no meaning (artifact 1 §4.3) |
+| `above` isn't the element's own `ancestry` | Not detected, and the result has no meaning (artifact 1 §4.2) |
 | A platform property getter or `DOMMatrix` method unexpectedly throws | The exception escapes |
-| The owner document lacks a usable `defaultView` or required matrix primitive | An environment error escapes; it is not `false` geometry |
+| The owner document lacks a usable `defaultView` or matrix primitive | An environment error escapes. It isn't a `false` result |
 | Internal implementation code throws | The exception escapes |
 
-The implementation may naturally throw while using malformed values. It must not add validation only to manufacture an exception, and it must not catch an unexpected exception merely to return `false`.
+The implementation may throw naturally while using malformed values. It must not add validation only to produce an exception, and it must not catch an unexpected exception only to return `false`.
 
-The unchanged-output guarantee is binding for rows in §2. It is not promised for an escaping exception.
+The unchanged-output guarantee is binding for the rows in §2. It isn't promised for an escaping exception.
 
 ## 5. Detection and commit rule
 
-A conforming read has two observable stages:
+Each function has two observable stages:
 
 ```text
 recognize + calculate into private state
                     ↓
-          commit all eight values
+       commit every slot of its out
 ```
 
-Any §2 failure ends before the commit stage. The contract does not prescribe whether private state is eight scalars, a temporary array or another representation; later performance work decides that shape.
+Every §2 failure ends before the commit stage. The contract doesn't prescribe the private state's shape. Later performance work decides it.
+
+## Change record
+
+| Date | Section | Change |
+| --- | --- | --- |
+| 2026-11-20 | All | **Rewritten for the exported API** (`F-1`). The table named one single-call read function as the place every failure was recognized. Each failure now names the function that recognizes it, and §5 applies to each function's own output. **`FAIL-CROSS-DOCUMENT` is withdrawn** and becomes a §4 precondition, because a `Box` carries no document. It had been unimplemented since `162f300fa` split measurement from projection, and the `REL-10` test asserts that it isn't detected. **`FAIL-BASIS-NONINVERTIBLE` is added** for `localDelta`, which the table didn't cover. Two §4 rows are added for the preconditions of `coordinates` and `projection`, and §3 gains the `ancestry` row |

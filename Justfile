@@ -14,15 +14,17 @@ build:
 
 # Delete build artefacts for all packages
 clean-build:
-    nx run-many -t clean:build --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t clean:build --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Docs
 # ---------------------------------------------------------------------------
 
-# Start the Storybook dev server (full stack: core API + material-x Storybook)
+# Start the Storybook dev server (full stack: the core and box-quad API sections
+# and material-x Storybook). The API sections are named, not every project with
+# the target: a package's section joins the site with its release.
 docs-dev:
-    nx run @ydinjs/core:docs:api:prepare --skipNxCache --tui=false
+    nx run-many -t docs:api:prepare --projects=core,box-quad --skipNxCache --tui=false
     node .scripts/docs-api.ts --out node_modules/.cache/docs/api
     MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api nx run @ydinjs/material-x:docs:dev --skipNxCache --tui=false
 
@@ -31,12 +33,12 @@ docs-dev:
 # builds them first, as it does for the tests.
 docs-build: _package-builds
     nx run @ydinjs/material-x:docs:build --skipNxCache --tui=false
-    nx run @ydinjs/core:docs:api:build --skipNxCache --tui=false
+    nx run-many -t docs:api:build --projects=core,box-quad --skipNxCache --tui=false
     node .scripts/docs-api.ts --out .docs/api
 
-# Load the built docs site in Chromium: every Storybook entry, the manager and
-# the API page. Fails on any page error (`repo:RD-14`). Reads `.docs` and builds
-# nothing: run `docs-build` first.
+# Load the built docs site in Chromium: every Storybook entry, the manager, the
+# API index and every section it links. Fails on any page error (`repo:RD-14`).
+# Reads `.docs` and builds nothing: run `docs-build` first.
 docs-smoke:
     node .scripts/docs-smoke.ts
 
