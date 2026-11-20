@@ -26,7 +26,7 @@ A missing store file, or one that doesn't match the manifest's SHA-256, fails th
 ## The store
 
 - **`manifest.json`:** `storeVersion`; the source (the site's base address, the release id, and each database version's `versionName`, version id and publish time); the fetch date; one row per converted table (`kind`, `componentId`, `componentName`); and each store file's SHA-256.
-- **`context.json`:** the context tag groups (`contextTagGroupName`, `displayName`, `specificity`, `defaultTag`) with their tags (`tagName`, `displayName`, `tagOrder`).
+- **`context.json`:** the context tag groups (`contextTagGroupName`, `displayName`, `description` when present, `specificity`, `defaultTag`) with their tags (`tagName`, `displayName`, `description` when present, `tagOrder`).
 - **`sets/<tokenSetName>.json`:** one token set, its display groups and its tokens, in upstream order. A set that no table carries, named from its tokens, has only `tokenSetName`.
 
 A display group has `displayName`, and `parentGroup`, `description`, `orderInParentTokenSet` and `orderInParentDisplayGroup` when upstream gives them. A group is identified by its **path**: its ancestors' `displayName`s and its own, from the top, such as `["Focused", "Focus indicator"]` in `md.comp.checkbox`. A `displayName` alone may repeat within a set. `parentGroup` is the parent's path.
@@ -93,8 +93,10 @@ aube exec just update-tokens --current --report <file>
 - **Every key is ruled.** `RECORD_KEYS` in `scripts/convert.ts` keeps or drops each key of each record, and the value-field specs beside it match `schema.ts` exactly. A key that upstream adds refuses the update and names its path, until it's ruled on in the record and added to one of the lists.
 - **Never commit a raw table.** The tables carry Google employees' personal data. `packages/tproc/.data/` is git-ignored, for a table that you keep by hand while debugging.
 - To add a component, add a row to `manifest.json`'s `tables` with its `kind` and `componentId`, then run an update. The site names a component's id in the page content it loads (`resourceName: components/<id>`).
-- `--legacy <directory>` converted the tables committed before the store, once. Those tables mixed two database versions. So this mode lists each token that two tables convert differently, and keeps the first table's copy.
-- An update is a pull request that carries the report and the difference in material-x's generated CSS.
+- **A token that several tables carry** is stored from the copy that covers every other: identical to it, or with no reference tree, equal in every other field but `values`, and with only `values` entries that each equal a different one of its own. A component table carries the system tokens it references as such partial copies. A token that no copy covers refuses the update and names both tables. The report counts the copies covered.
+- `--legacy <directory>` converted the tables committed before the store, once. Those tables mixed two database versions. So this mode lists each record that two tables convert differently, and each token that no copy covers, instead of refusing it, and keeps the first table's copy.
+- An update is a pull request that carries the report and the difference in material-x's generated CSS. `--report <file>` compares the conversion with the store it replaces: tokens added and removed, deprecations added, and each token whose selected value for `expressive` and `web` changed, with its old and new one-hop reference or literal, by token set.
+- **A weekly check** (`.github/workflows/tokens.yml`) runs `scripts/check-release.ts`, which compares the database of the site's current release with the manifest's. A database the manifest doesn't record opens an issue labelled `tokens-release`, or comments on the open one. It never updates the store.
 
 ## Gotchas
 

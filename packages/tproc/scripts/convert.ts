@@ -38,15 +38,17 @@ export type ConvertOptions = Readonly<{
   fetchDate: string | null;
   /**
    * The conversion of the snapshot committed before the store: its tables come
-   * from two database versions, so a token two tables convert differently is
-   * listed instead of refused, and the first table's copy is kept.
+   * from two database versions, so a record that two tables convert
+   * differently, and a token that no copy covers, is listed instead of refused,
+   * and the first table's copy is kept.
    */
   legacy?: boolean;
 }>;
 
 /**
- * A record that two tables convert differently, or a child node whose value
- * isn't one of its token's kept values. For a `value` conflict, `name` is the
+ * A record that two tables convert differently, a token that no copy covers,
+ * or a child node whose value isn't one of its token's kept values. For a
+ * `value` conflict, `name` is the
  * tree's token and the child's, `keptTable` the table the child's token is
  * kept from, and `otherTable` the tree's.
  */
@@ -62,6 +64,11 @@ export type Conversion = Readonly<{
   files: ReadonlyMap<string, string>;
   manifest: Manifest;
   conflicts: readonly Conflict[];
+  /**
+   * The copies of a token that another table's copy covers and that differ
+   * from it, and how many tokens they are copies of.
+   */
+  covered: Readonly<{ copies: number; tokens: number }>;
 }>;
 
 /**
@@ -219,6 +226,8 @@ const RECORD_KEYS = {
       'description',
       'dsdbVersion',
       'name',
+      // The guideline site's page tree, not token data.
+      'navigation',
       'parentVersions',
       'parentVersionsMapping',
       'revisionAuthor',
@@ -309,13 +318,14 @@ const RECORD_KEYS = {
       'name',
       'contextTagGroupName',
       'displayName',
+      'description',
       'specificity',
       'defaultTag',
     ],
     dropped: REVISION,
   },
   tag: {
-    kept: ['name', 'tagName', 'displayName', 'tagOrder'],
+    kept: ['name', 'tagName', 'displayName', 'description', 'tagOrder'],
     dropped: REVISION,
   },
   tree: { kept: ['contextualReferenceTree'], dropped: [] },
@@ -984,9 +994,11 @@ class TableReader {
       if (typeof tagOrder !== 'number') {
         refuse(this.name, id, 'tagOrder', 'is not a number');
       }
+      const description = this.optionalString(id, tag, 'description');
       list.push({
         tagName,
         displayName: this.string(id, tag, 'displayName'),
+        ...(description != null && { description }),
         tagOrder,
       });
     }
@@ -1003,9 +1015,11 @@ class TableReader {
       if (typeof specificity !== 'number') {
         refuse(this.name, id, 'specificity', 'is not a number');
       }
+      const description = this.optionalString(id, group, 'description');
       return {
         contextTagGroupName,
         displayName: this.string(id, group, 'displayName'),
+        ...(description != null && { description }),
         specificity,
         defaultTag: defaultTag.tag,
         tags: tagsByGroup.get(contextTagGroupName) ?? [],
@@ -1034,6 +1048,33 @@ class TableReader {
     }
     return this.string('-', this.system, 'displayName');
   }
+}
+
+/**
+ * Whether copy `a` of a token covers copy `b`: the two are identical, or `b`
+ * has no tree, equals `a` in every field but `values`, and has only values
+ * that each equal a different one of `a`'s, in any order.
+ */
+function covers(a: StoredToken, b: StoredToken): boolean {
+  if (isDeepStrictEqual(a, b)) {
+    return true;
+  }
+  if (b.contextualReferenceTree) {
+    return false;
+  }
+  const { values: aValues, contextualReferenceTree: _tree, ...aFields } = a;
+  const { values: bValues, ...bFields } = b;
+  if (!isDeepStrictEqual(aFields, bFields)) {
+    return false;
+  }
+  const matched = new Set<number>();
+  return bValues.every((value) => {
+    const index = aValues.findIndex(
+      (candidate, i) => !matched.has(i) && isDeepStrictEqual(candidate, value),
+    );
+    matched.add(index);
+    return index >= 0;
+  });
 }
 
 function orphanSetName(raw: RawObject, token: StoredToken): string {
@@ -1087,8 +1128,9 @@ function checkReferences(
 
 /**
  * Converts database tables into tproc's store, in memory. The tables are read
- * in the given order, and a record that several tables carry is taken from the
- * first. Nothing the store's schema doesn't name is written.
+ * in the given order. A token that several tables carry is taken from the copy
+ * that covers every other, and any other record from the first table. Nothing
+ * the store's schema doesn't name is written.
  */
 export function convert(
   sources: readonly SourceTable[],
@@ -1123,7 +1165,14 @@ export function convert(
     otherTable: string,
   ): void => {
     if (!legacy) {
-      refuse(otherTable, name, kind, `converts differently in ${keptTable}`);
+      refuse(
+        otherTable,
+        name,
+        kind,
+        kind === 'token'
+          ? `no copy covers both this one and the one in ${keptTable}`
+          : `converts differently in ${keptTable}`,
+      );
     }
     conflicts.push({ kind, name, keptTable, otherTable });
   };
@@ -1188,34 +1237,82 @@ export function convert(
     group(id, new Set());
   }
 
-  // A child node's value is an index into its token's kept values, which are
-  // those of the first table that carries the token.
-  const keptValues = new Map<
+  // Each token's copies, by id, in the tables' order.
+  const copies = new Map<
     string,
-    { table: string; ids: readonly string[] }
+    Array<{ reader: TableReader; raw: RawObject }>
   >();
-  const keptIds = new Set<string>();
   for (const reader of readers) {
     for (const raw of reader.array('tokens')) {
       const id = reader.string('-', raw, 'name');
-      const tokenName = reader.string(id, raw, 'tokenName');
-      if (!keptIds.has(id)) {
-        keptIds.add(id);
-        if (!keptValues.has(tokenName)) {
-          keptValues.set(tokenName, {
-            table: reader.name,
-            ids: reader.valueIds(id),
-          });
-        }
+      let list = copies.get(id);
+      if (!list) {
+        list = [];
+        copies.set(id, list);
       }
+      list.push({ reader, raw });
     }
   }
+
+  // A child node's value is an index into its token's kept values. The kept
+  // copy is chosen first, with each token's first copy standing in for those
+  // indexes: the choice compares a copy with no tree, or two identical
+  // copies, so the indexes don't change it. Then the kept copies convert again
+  // with their own values.
+  const valuesOf = (
+    chosen: (
+      list: ReadonlyArray<{ reader: TableReader; raw: RawObject }>,
+      id: string,
+    ) => TableReader,
+  ): Map<string, { table: string; ids: readonly string[] }> => {
+    const values = new Map<string, { table: string; ids: readonly string[] }>();
+    for (const [id, list] of copies) {
+      const tokenName = list[0]!.reader.string(id, list[0]!.raw, 'tokenName');
+      if (!values.has(tokenName)) {
+        const reader = chosen(list, id);
+        values.set(tokenName, { table: reader.name, ids: reader.valueIds(id) });
+      }
+    }
+    return values;
+  };
+  const provisional: Lookups = {
+    groups,
+    values: valuesOf(([first]) => first!.reader),
+  };
+
+  const keptCopies = new Map<string, TableReader>();
+  let coveredCopies = 0;
+  let coveredTokens = 0;
+  for (const [id, list] of copies) {
+    const converted = list.map(({ reader, raw }) => ({
+      table: reader.name,
+      reader,
+      token: reader.token(raw, provisional)[1],
+    }));
+    let kept = converted.find((a) =>
+      converted.every((b) => covers(a.token, b.token)),
+    );
+    if (!kept) {
+      const [first] = converted as [(typeof converted)[0]];
+      const candidate =
+        converted.find((c) => c.token.contextualReferenceTree) ?? first;
+      const other = converted.find((c) => !covers(candidate.token, c.token))!;
+      conflict('token', first.token.tokenName, candidate.table, other.table);
+      kept = first;
+    }
+    const covered = converted.filter(
+      (c) => !isDeepStrictEqual(c.token, kept.token),
+    ).length;
+    if (covered > 0) {
+      coveredCopies += covered;
+      coveredTokens += 1;
+    }
+    keptCopies.set(id, kept.reader);
+  }
+
+  const keptValues = valuesOf((_list, id) => keptCopies.get(id)!);
   const lookups: Lookups = { groups, values: keptValues };
 
-  const sets = new Map<
-    string,
-    { table: string; set: Omit<StoredSet, 'tokens'> }
-  >();
   const tokens = new Map<
     string,
     { table: string; token: StoredToken; raw: RawObject }
@@ -1225,6 +1322,20 @@ export function convert(
     token: StoredToken;
     child: string;
   }> = [];
+  for (const [id, list] of copies) {
+    const reader = keptCopies.get(id)!;
+    const { raw } = list.find((copy) => copy.reader === reader)!;
+    const [, token, unresolved] = reader.token(raw, lookups);
+    tokens.set(id, { table: reader.name, token, raw });
+    for (const child of unresolved) {
+      unresolvedChildren.push({ table: reader.name, token, child });
+    }
+  }
+
+  const sets = new Map<
+    string,
+    { table: string; set: Omit<StoredSet, 'tokens'> }
+  >();
   const tagGroups = new Map<
     string,
     { table: string; group: StoredTagGroup; tags: StoredTag[] }
@@ -1238,19 +1349,6 @@ export function convert(
         sets.set(id, { table: reader.name, set });
       } else if (!isDeepStrictEqual(kept.set, set)) {
         conflict('set', set.tokenSetName, kept.table, reader.name);
-      }
-    }
-
-    for (const raw of reader.array('tokens')) {
-      const [id, token, unresolved] = reader.token(raw, lookups);
-      const kept = tokens.get(id);
-      if (!kept) {
-        tokens.set(id, { table: reader.name, token, raw });
-        for (const child of unresolved) {
-          unresolvedChildren.push({ table: reader.name, token, child });
-        }
-      } else if (!isDeepStrictEqual(kept.token, token)) {
-        conflict('token', token.tokenName, kept.table, reader.name);
       }
     }
 
@@ -1418,5 +1516,6 @@ export function convert(
     files: new Map([['manifest.json', serialize(manifest)], ...files]),
     manifest,
     conflicts,
+    covered: { copies: coveredCopies, tokens: coveredTokens },
   };
 }

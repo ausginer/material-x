@@ -133,17 +133,20 @@
       "orderInDisplayGroup": 2,
       "values": [
         {
-          "length": {
-            "value": 2,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space25"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.button-group.connected.xsmall.between-space"
+            "tokenName": "md.comp.button-group.connected.xsmall.between-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space25",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {

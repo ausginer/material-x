@@ -15,17 +15,20 @@
       "orderInDisplayGroup": 6,
       "values": [
         {
-          "length": {
-            "value": 48,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space600"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.icon-button.xlarge.default.trailing-space"
+            "tokenName": "md.comp.icon-button.xlarge.default.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space600",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -43,17 +46,20 @@
       "orderInDisplayGroup": 5,
       "values": [
         {
-          "length": {
-            "value": 48,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space600"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.icon-button.xlarge.default.leading-space"
+            "tokenName": "md.comp.icon-button.xlarge.default.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space600",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -127,17 +133,20 @@
       "orderInDisplayGroup": 3,
       "values": [
         {
-          "length": {
-            "value": 32,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space400"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.icon-button.xlarge.narrow.leading-space"
+            "tokenName": "md.comp.icon-button.xlarge.narrow.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space400",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -155,17 +164,20 @@
       "orderInDisplayGroup": 4,
       "values": [
         {
-          "length": {
-            "value": 32,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space400"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.icon-button.xlarge.narrow.trailing-space"
+            "tokenName": "md.comp.icon-button.xlarge.narrow.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space400",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -183,17 +195,20 @@
       "orderInDisplayGroup": 7,
       "values": [
         {
-          "length": {
-            "value": 72,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space900"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.icon-button.xlarge.wide.leading-space"
+            "tokenName": "md.comp.icon-button.xlarge.wide.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space900",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -211,17 +226,20 @@
       "orderInDisplayGroup": 8,
       "values": [
         {
-          "length": {
-            "value": 72,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space900"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.icon-button.xlarge.wide.trailing-space"
+            "tokenName": "md.comp.icon-button.xlarge.wide.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space900",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -493,7 +511,7 @@
         {
           "contextTags": {
             "motion.scheme": "expressive",
-            "platform": "web"
+            "platform": "android"
           },
           "value": 0,
           "referenceTree": {
@@ -512,7 +530,7 @@
         {
           "contextTags": {
             "motion.scheme": "expressive",
-            "platform": "android"
+            "platform": "web"
           },
           "value": 0,
           "referenceTree": {
@@ -550,7 +568,7 @@
         {
           "contextTags": {
             "motion.scheme": "standard",
-            "platform": "web"
+            "platform": "android"
           },
           "value": 0,
           "referenceTree": {
@@ -569,7 +587,7 @@
         {
           "contextTags": {
             "motion.scheme": "standard",
-            "platform": "android"
+            "platform": "web"
           },
           "value": 0,
           "referenceTree": {
@@ -658,7 +676,7 @@
         {
           "contextTags": {
             "motion.scheme": "expressive",
-            "platform": "web"
+            "platform": "android"
           },
           "value": 0,
           "referenceTree": {
@@ -677,7 +695,7 @@
         {
           "contextTags": {
             "motion.scheme": "expressive",
-            "platform": "android"
+            "platform": "web"
           },
           "value": 0,
           "referenceTree": {
@@ -715,7 +733,7 @@
         {
           "contextTags": {
             "motion.scheme": "standard",
-            "platform": "web"
+            "platform": "android"
           },
           "value": 0,
           "referenceTree": {
@@ -734,7 +752,7 @@
         {
           "contextTags": {
             "motion.scheme": "standard",
-            "platform": "android"
+            "platform": "web"
           },
           "value": 0,
           "referenceTree": {

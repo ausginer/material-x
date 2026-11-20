@@ -1,0 +1,124 @@
+RD-28 steps 2 and 3, by the implementer, 2026-11-20, on tproc/tokens-update-1
+from origin/main 645410c12, with the rulings merged from a5c9be8a3.
+The tables were read in memory, and for P5 and P12 from the git-ignored
+packages/tproc/.data/, which was emptied afterwards. Only refusals, counts and
+token names are printed.
+
+== Release
+The site's current carbonVersion: 2026-11-19_06-20-01. All 14 tables report
+database 41.1.12, version 4ae102170fee99b1, published 2026-11-12T16:31:36.692418Z.
+
+== Before the rulings
+main's converter refused the release: system.navigation (14 tables),
+contextTagGroups[].description (140 records) and tags[].description (392
+records) were unruled. With them removed in memory, it refused
+md.sys.color.primary in ELEVATION against COLOR. In legacy mode: 704 token
+conflicts of 217 tokens, the same as step 1's. Each other copy had no tree, and
+98 had fewer values. Reported, and ruled in the plan's rulings for steps 2 and 3.
+
+== The update
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+Wrote 104 files, with 0 conflicts. Covered copies: 704, of 217 tokens.
+Report: step-2-report.md. 30 tokens added (15 md.ref.typeface, 15
+md.sys.measurement), 0 removed, 0 deprecations added, 104 selected values
+changed for expressive and web, in button, button-group, extended-fab,
+icon-button, list, split-button and md.sys.typescale sets.
+storeVersion 2. The store is 104 files, 63,305,978 bytes, 2,283,092 lines,
+and 1,266,160 bytes as a gzip -9 tar.
+
+== P6. The manifest names one release, and every table reports its versionName
+manifest.json: source.release 2026-11-19_06-20-01, one database 41.1.12
+(4ae102170fee99b1), fetchDate 2026-11-20. The converter's one-release check
+passed outside legacy mode, so all 14 tables report 41.1.12.
+
+== P7. The report lists a known token's old and new value
+md.comp.button-group.connected.xsmall.between-space:
+{"length":{"value":2,"unit":"DIPS"}} → {"tokenName":"md.sys.measurement.space25"}
+scripts/report.ts: 9 tests in tests/scripts/report.node.test.ts.
+
+== P8. The suites, and each failure read against the report
+material-x CSS, the 34 tracked css.ts through aube exec just debug, against
+origin/main: 33 identical. button/styles/size/main.css.ts gains
+--_icon-label-space: 4px on :host(:state(xsmall)), from
+md.comp.button.xsmall.icon-label-space 8dp → md.sys.measurement.space50. No
+token material-x uses was removed or renamed.
+material-x: aube exec just test: 20 files, 427 passed.
+material-x: MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test:
+58 files, 1270 passed, 1 expected fail.
+The visual project's baselines compare on GitHub's runner only, so it runs in
+the pull request's gate. Its result is recorded in the plan.
+tproc: aube exec just test: 13 files, 129 passed. aube exec just typecheck in
+tproc and material-x: exit 0.
+
+== P1. The reader has no network path
+tproc's Store tests, with fetch failing the test, load the updated store:
+passed in the 129.
+
+== P2. Converting twice gives byte-identical stores
+Two runs of the update: sha256sum -c of all 104 files: identical. The second
+run's report lists 0 added, 0 removed, 0 deprecations and 0 changed.
+
+== P3. No email address and no gaiaId key
+git grep -c -e emailAddress -e gaiaId -- packages/tproc/tokens: nothing
+(exit 1). grep for an email address pattern: 0 files. The converter's final
+scan passed. A raw token with an extra key is refused (P5).
+
+== P5. Each check refuses a mutated table, outside legacy mode
+step-2-p5-mutations.ts.txt, on the 14 tables of the release:
+removed contextualReferenceTree: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree: is not an array of objects
+renamed resolvedValue: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.resolved: is neither kept nor dropped
+one-hop reference to a missing token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values.tokenName: names md.comp.checkbox.missing, not in the store
+tree node naming a missing token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree: names md.comp.checkbox.missing, not in the store
+value with an unknown value kind: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values.upstreamKind: is neither kept nor dropped
+tag id naming no tag: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.sys.color.error: contextTags: designSystems/x/contextTagGroups/y/tags/missing names no tag
+tree not starting at the token's own value: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree.value: doesn't start at the token's own value
+missing token field: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokenValueType: is not a string
+extra key in a color literal: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.ref.palette.error95: values.color.hue: is not in the schema
+extra key in a resolvedCustomCompositeValue: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.extra: is not in the schema
+composite resolvedValue with two literal fields: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue: has 2 value fields (opacity, numeric), not one
+composite resolvedValue with no literal field: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue: has 0 value fields (), not one
+composite resolvedValue as a non-object: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue: is not an object
+unknown key on a token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokens.upstreamAddedField: is neither kept nor dropped
+unknown key on a display group: refused: TOKEN_TABLE.31f16b44fe03b0c0: designSystems/20543ce18892f7d9/tokenSets/5fad3c4a777672ac/displayGroups/1fe288bdd008aafd: displayGroups.upstreamAddedField: is neither kept nor dropped
+unknown key on a table system: refused: TOKEN_TABLE.31f16b44fe03b0c0: -: system.upstreamAddedField: is neither kept nor dropped
+child value not its token's: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree.childNodes.value: names no value of md.sys.color.error in the store
+partial copy with a value the covering copy lacks: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+partial copy whose description differs: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+two copies whose trees differ: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+two tables of different versions: refused: TOKEN_TABLE.31f16b44fe03b0c0: -: system.version.versionName: is 0.0.1, and COLOR.20543ce18892f7d9 is 41.1.12
+unmutated: converts, 104 files, 0 conflicts, covered 704 copies of 217 tokens
+COLOR read last: 3980 tokens, 3980 of 3980 identical to the manifest order; md.sys.color.primary identical; covered 704 copies of 217 tokens
+
+== P12. Read back through the tables
+step-2-p12-readback.ts.txt, on the 14 tables of the release, no DIFF row:
+tokens 3980 groups 983 child nodes 143717
+211608 same:child count
+143717 same:child index gives the value id
+102 same:group count per set
+983 same:group description
+983 same:group orderInParentDisplayGroup
+983 same:group orderInParentTokenSet
+983 same:group path gives its id, in upstream order
+211608 same:node fieldNames
+211608 same:node tokenName
+983 same:parentGroup path gives the parentGroup id
+67891 same:root index gives the value id
+3980 same:token displayGroup path gives its id
+3980 same:tree entry count
+
+== P10, P11 and P4
+P10 compared the reader with DB, which step 1 deleted, so it doesn't apply.
+P11 is replaced by the covered count above. P4's byte-identical CSS was step
+1's; step 2's CSS difference is P8's.
+
+== P9. The weekly check, before merge
+node scripts/check-release.ts against the site:
+  the committed manifest: changed=false
+  the manifest with its database edited to 41.1.11 (0000000000000000): changed=true
+The issue job's script from tokens.yml, against a stub gh, with those outputs:
+  no open issue: changed=true, 1 write: issue create
+  an open issue naming another database: changed=true, 1 write: issue comment
+  an open issue naming the current database: changed=true, 0 writes
+  the unchanged manifest: changed=false, the job doesn't run, 0 writes
+Owed after merge, on the owner's go: a workflow_dispatch run with the compared
+database edited opens exactly one issue, and a second run adds nothing.

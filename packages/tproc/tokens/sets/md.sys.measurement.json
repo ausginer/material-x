@@ -1,0 +1,229 @@
+{
+  "tokenSetName": "md.sys.measurement",
+  "tokens": [
+    {
+      "tokenName": "md.sys.measurement.space300",
+      "displayName": "Space 300",
+      "tokenValueType": "LENGTH",
+      "description": "3 x base measurement",
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "length": {
+            "value": 24,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space100",
+      "displayName": "Space 100",
+      "tokenValueType": "LENGTH",
+      "description": "Base measurement",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space800",
+      "displayName": "Space 800",
+      "tokenValueType": "LENGTH",
+      "description": "8 x base measurement",
+      "orderInDisplayGroup": 17,
+      "values": [
+        {
+          "length": {
+            "value": 64,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space200",
+      "displayName": "Space 200",
+      "tokenValueType": "LENGTH",
+      "description": "2 x base measurement",
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "length": {
+            "value": 16,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space600",
+      "displayName": "Space 600",
+      "tokenValueType": "LENGTH",
+      "description": "6 x base measurement",
+      "orderInDisplayGroup": 15,
+      "values": [
+        {
+          "length": {
+            "value": 48,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space150",
+      "displayName": "Space 150",
+      "tokenValueType": "LENGTH",
+      "description": "1.5 x base measurement",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "length": {
+            "value": 12,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space50",
+      "displayName": "Space 50",
+      "tokenValueType": "LENGTH",
+      "description": ".5 x base measurement",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space250",
+      "displayName": "Space 250",
+      "tokenValueType": "LENGTH",
+      "description": "2.5 x base measurement",
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "length": {
+            "value": 20,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space75",
+      "displayName": "Space 75",
+      "tokenValueType": "LENGTH",
+      "description": ".75 x base measurement",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "length": {
+            "value": 6,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space400",
+      "displayName": "Space 400",
+      "tokenValueType": "LENGTH",
+      "description": "4 x base measurement",
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "length": {
+            "value": 32,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space175",
+      "displayName": "Space 175",
+      "tokenValueType": "LENGTH",
+      "description": "1.75 x base measurement",
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "length": {
+            "value": 14,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space900",
+      "displayName": "Space 900",
+      "tokenValueType": "LENGTH",
+      "description": "9 x base measurement",
+      "orderInDisplayGroup": 18,
+      "values": [
+        {
+          "length": {
+            "value": 72,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space125",
+      "displayName": "Space 125",
+      "tokenValueType": "LENGTH",
+      "description": "1.25 x base measurement",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "length": {
+            "value": 10,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space25",
+      "displayName": "Space 25",
+      "tokenValueType": "LENGTH",
+      "description": ".25 x base measurement",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "length": {
+            "value": 2,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space0",
+      "displayName": "Space 0",
+      "tokenValueType": "LENGTH",
+      "description": "0 x base measurement",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "unit": "DIPS"
+          }
+        }
+      ]
+    }
+  ]
+}

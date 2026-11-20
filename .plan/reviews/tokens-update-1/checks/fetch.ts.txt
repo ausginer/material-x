@@ -1,0 +1,13 @@
+// Fetches the 14 tables of one release into a directory. Prints only sizes.
+import { readFile, writeFile } from 'node:fs/promises';
+const [, , store, release, out] = process.argv as [string, string, string, string, string];
+const { SITE_BASE_URL } = await import(`${store}/../scripts/convert.ts`);
+const manifest = JSON.parse(await readFile(`${store}/manifest.json`, 'utf8'));
+for (const { kind, componentId } of manifest.tables) {
+  const url = `${SITE_BASE_URL}${release}/${kind}.${componentId}.json`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${kind}.${componentId}: ${r.status}`);
+  const text = await r.text();
+  await writeFile(`${out}/${kind}.${componentId}.json`, text);
+  console.log(`${kind}.${componentId}`, text.length);
+}

@@ -1673,6 +1673,31 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **The second rulings implemented 2026-11-20 by the implementer,** in PR #84. P1–P5, P10, P11 and P12 hold ([transcript](tokens-source-1/checks/step-1.txt), its last section). The store is 58.9 MB, and `storeVersion` stays 1. No child value is unresolved, and the 704 conflicts are unchanged.
 
+**Steps 2 and 3 approved by the owner,** relayed by the coordinator on 2026-11-20.
+
+**Ruled 2026-11-20 by the architect,** on the implementer's questions for steps 2 and 3, relayed by the coordinator. The plan's [rulings for steps 2 and 3](tokens-source-1/tokens-source-plan.md#rulings-for-steps-2-and-3) have the readings and the proofs. The release is `2026-11-19_06-20-01`, database `41.1.12` in all 14 tables. The architect read the 14 tables and ran `main`'s converter on them.
+
+- **Three keys upstream added,** under property 4's rule:
+  - `system.navigation` is dropped. It is the guideline site's page tree of 55 nodes, with page titles, slugs and ids, and no token data.
+  - A context tag group's `description` (140 records) and a tag's (392) are kept in `context.json`. They are upstream's text about the contexts, and all 14 tables agree on them.
+  - `storeVersion` becomes 2, because `context.json` gains a key after the store reached `main`.
+- **Duplicates, property 5:** the converter keeps a copy that covers every other copy. A copy covers another when the two are identical, or when the other has no reference tree, equals it in every other field but `values`, and has only `values` entries that each equal a different one of its own. A token for which no copy covers every other refuses the update.
+  - At this release, all 704 conflicting copies of 217 tokens are covered. Each lacks a tree, and 98 have fewer values. 27 copies of 5 tokens list the same entries in another order. The kept copy is always a system table's and has a tree.
+  - So the conflicts weren't caused by step 1's mixed snapshot, as the plan had said: component tables carry the system tokens they reference as partial copies.
+  - It stays inside the owner's _"fields and data stay original"_. A covered copy holds no token data that the kept copy lacks.
+- **Step 3,** the implementer's proposals with one correction:
+  - **What counts as a change:** the site's current database, by `versionName` or version id, isn't one that the manifest records. A new release id that serves the same database isn't a change. Confirmed.
+  - **The issue:** a weekly workflow opens one issue labelled `tokens-release`, as `safari.yml` does, and `work-queue.md` names that label as a non-queue label. Confirmed.
+  - **Corrected:** a run comments on the open issue only when the current database isn't one that the issue already names. Under the proposal, every weekly run commented while the versions differed.
+  - **P9:** before merge, against a stub `gh`. A real `workflow_dispatch` run is owed after merge, on the owner's go. Confirmed.
+
+**Steps 2 and 3 implemented 2026-11-20 by the implementer,** on `tproc/tokens-update-1`, at the rulings above. The plan has the [result](tokens-source-1/tokens-source-plan.md#steps-revised) and the proofs are in [`step-2.txt`](tokens-source-1/checks/step-2.txt).
+
+- The store is converted from release `2026-11-19_06-20-01`, database `41.1.12`, at `storeVersion` 2. 704 copies of 217 tokens are covered, and there is no conflict.
+- The [update report](tokens-source-1/checks/step-2-report.md) lists 30 tokens added, none removed, no deprecation added and 104 selected values changed.
+- material-x's CSS changes in one place: `xsmall` buttons get a 4px icon-label space, from `md.comp.button.xsmall.icon-label-space`. P1–P3, P5–P8 and P12 hold.
+- The weekly check is `.github/workflows/tokens.yml`. P9 holds before merge, and a `workflow_dispatch` run is owed after merge, on the owner's go.
+
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**
   1. **tproc reads only the committed store,** through a reader with no network path. A missing or invalid store file fails the load and names the file. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.
@@ -1690,8 +1715,9 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
      - **It keeps every field that carries a token's data,** whether tproc reads it or not: `elevation`, `svgPath` and `undefined: true` among the literal fields, `resolvedCustomCompositeValue` where an entry has no `resolvedValue`, and a token's `description`. Ruled on 2026-11-20 ([field rulings](tokens-source-1/tokens-source-plan.md#field-rulings)). Until then, the plan's lists left them out.
      - **It also keeps a tree node's `fieldNames`, each child node's value as an index into its token's `values`, and each set's display groups,** with `parentGroup`, `orderInParentTokenSet`, `orderInParentDisplayGroup` and `description`. A group is identified by its path of `displayName`s, in `parentGroup` and in a token's `displayGroup`. The component catalogue stays out. Ruled on 2026-11-20 ([second rulings](tokens-source-1/tokens-source-plan.md#field-rulings-from-the-feature-proof)). Until then, a token's group was its `displayName`, and a tree kept only `tokenName` and `childNodes`.
      - **Every key is ruled, at every depth:** the allow list keeps it or the drop list names it, and a key in neither refuses the conversion. Inside a value field, keys and types match the schema exactly. Until then, the allow list stopped at a value field's name.
-  5. **The converter refuses** a table whose fields the converter reads are missing or of another type. It also refuses a tag id that resolves to no tag, a tree that doesn't start at the token's own value, a reference to a token that isn't in the store, and a token that two tables convert differently. It names the table, the token and the field.
-     - A token that two tables convert differently is allowed only in step 1's legacy conversion of today's mixed snapshot. There the table `DB.load()` reads first wins, and each conflict is listed.
+     - **`context.json` keeps a context tag group's and a tag's `description`, and the drop list names `system.navigation`.** `storeVersion` is 2. Ruled on 2026-11-20 ([step 2 rulings](tokens-source-1/tokens-source-plan.md#step-2)). Until then, neither record kept a `description`, and the store was at version 1.
+  5. **The converter refuses** a table whose fields the converter reads are missing or of another type. It also refuses a tag id that resolves to no tag, a tree that doesn't start at the token's own value, a reference to a token that isn't in the store, and a token for which no table's copy covers every other. It names the table, the token and the field.
+     - **A token that more than one table carries is stored from the copy that covers every other,** and a token for which no copy does is refused. A copy covers another when the two are identical, or when the other has no `contextualReferenceTree`, equals it in every other field but `values`, and has only `values` entries that each equal a different one of its own. Ruled on 2026-11-20 ([step 2 rulings](tokens-source-1/tokens-source-plan.md#step-2)). Until then, this said: _"A token that two tables convert differently is allowed only in step 1's legacy conversion of today's mixed snapshot. There the table `DB.load()` reads first wins, and each conflict is listed."_
   6. An update is a pull request carrying a report: tokens added and removed, deprecations added, and each changed one-hop reference and literal for `expressive` and `web`, by token set, with the difference in material-x's generated CSS. The report is saved in that pull request's record.
   7. The component list is explicit, one manifest row per component id.
   8. **The CSS layer** (`processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable`, `selector`) reads the reader and keeps its surface. Its value mapping is one exported pure function from a stored value to a CSS value. The reader's selection rule is today's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry.

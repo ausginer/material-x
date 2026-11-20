@@ -1,0 +1,56 @@
+// Raw-level, converter-free reading of the duplicate copies. Counts only.
+import { readFile } from 'node:fs/promises';
+import { isDeepStrictEqual } from 'node:util';
+const [, , store, raw] = process.argv as [string, string, string, string];
+const manifest = JSON.parse(await readFile(`${store}/manifest.json`, 'utf8'));
+const REV = new Set(['revisionId', 'revisionCreateTime', 'revisionAuthor', 'createTime', 'updateTime', 'author', 'state', 'version']);
+const strip = (o: any): any => Object.fromEntries(Object.entries(o).filter(([k]) => !REV.has(k)));
+type Copy = { table: string; token: any; values: any[]; tree: any };
+const copies = new Map<string, Copy[]>();
+for (const { kind, componentId } of manifest.tables) {
+  const table = `${kind}.${componentId}`;
+  const { system } = JSON.parse(await readFile(`${raw}/${table}.json`, 'utf8'));
+  const vals = new Map<string, any[]>();
+  for (const v of system.values) { const p = v.name.slice(0, v.name.lastIndexOf('/values/')); (vals.get(p) ?? vals.set(p, []).get(p)!).push(v); }
+  for (const t of system.tokens) {
+    const tree = system.contextualReferenceTrees?.[t.name]?.contextualReferenceTree;
+    (copies.get(t.name) ?? copies.set(t.name, []).get(t.name)!).push({ table, token: t, values: vals.get(t.name) ?? [], tree: tree?.length ? tree : undefined });
+  }
+}
+const c: Record<string, number> = {};
+const inc = (k: string, n = 1) => { c[k] = (c[k] ?? 0) + n; };
+const sub = (b: any[], a: any[], eq: (x: any, y: any) => boolean) => { const used = new Set<number>(); return b.every((v) => { const i = a.findIndex((w, j) => !used.has(j) && eq(w, v)); used.add(i); return i >= 0; }); };
+for (const [, list] of copies) {
+  if (list.length < 2) continue;
+  inc('multi-copy tokens');
+  const withTree = list.filter((x) => x.tree);
+  inc(`tokens with ${withTree.length} tree copies`);
+  const keptTable = withTree[0]?.table ?? list[0]!.table;
+  if (withTree.length === 0) {
+    // Order sensitivity: all copies tree-less, do any differ in value order?
+    const orders = new Set(list.map((x) => JSON.stringify(x.values.map((v) => v.name))));
+    if (orders.size > 1) inc('tree-less tokens whose copies order values differently');
+  }
+  if (keptTable !== list[0]!.table) inc('tokens whose tree copy is not the first in manifest order');
+  if (manifest.tables.slice(0, 4).every(({ kind, componentId }: any) => `${kind}.${componentId}` !== keptTable)) inc('tokens kept from a component table');
+  const A = withTree[0] ?? list[0]!;
+  for (const B of list) {
+    if (B === A) continue;
+    const identical = isDeepStrictEqual(strip(A.token), strip(B.token)) && isDeepStrictEqual(A.values.map(strip), B.values.map(strip)) && isDeepStrictEqual(A.tree, B.tree);
+    if (identical) { inc('other copies identical'); continue; }
+    inc('other copies not identical');
+    if (B.tree) inc('  of them with a tree');
+    if (!isDeepStrictEqual(strip(A.token), strip(B.token))) inc('  of them with other token fields');
+    const strictSub = sub(B.values, A.values, isDeepStrictEqual);
+    const looseSub = sub(B.values.map(strip), A.values.map(strip), isDeepStrictEqual);
+    inc(strictSub ? '  values a sub-multiset, raw objects as-is' : '  values NOT a sub-multiset as-is');
+    inc(looseSub ? '  values a sub-multiset, revision keys stripped' : '  values NOT a sub-multiset stripped');
+    if (B.values.length < A.values.length) inc('  with fewer values');
+    const ids = (x: Copy) => x.values.map((v) => v.name);
+    const aIds = ids(A).filter((n) => ids(B).includes(n));
+    if (!isDeepStrictEqual(aIds, ids(B))) inc('  in another order');
+    const bothSystem = [A.table, B.table].every((t) => t.endsWith('.20543ce18892f7d9'));
+    if (bothSystem) inc('  pairs of two system tables');
+  }
+}
+for (const [k, n] of Object.entries(c)) console.log(n, k);

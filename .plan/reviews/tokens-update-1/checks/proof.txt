@@ -1,0 +1,99 @@
+Feature proof of RD-28 steps 2 and 3, by the reviewer, 2026-11-20, at
+7d632a931 (tproc/tokens-update-1, PR #87), in a scratch worktree outside the
+repository. The 14 tables were fetched into a separate scratch directory, read
+by count, key and token name only, and deleted. Only counts, file names, token
+names and refusal messages are printed. The scripts are beside this file, as
+.ts.txt, and take the store directory and the tables directory as arguments.
+
+== Fetch, release 2026-11-19_06-20-01 (fetch.ts.txt)
+14 tables from https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/,
+the manifest's rows, 105,536,156 characters in all.
+
+== Reconversion against the committed store (compare.ts.txt)
+convert() with the manifest's release and fetchDate, in three table orders:
+manifest order:     files 104 identical 104 different 0, committed-only 0, conflicts 0, covered {"copies":704,"tokens":217}
+system tables last: files 104 identical 95 different 9 (manifest.json and 8 sets), conflicts 0, covered 704/217
+reversed:           files 104 identical 93 different 11 (manifest.json and 10 sets), conflicts 0, covered 704/217
+
+== What the reordered conversions change (reorder.ts.txt)
+system last: tokens same 3980, differing 0 | sets with another token order 8 | set fields differ 0 | groups differ 0 | context.json byte-identical
+reversed:    tokens same 3980, differing 0 | sets with another token order 10 | set fields differ 0 | groups differ 0 | context.json byte-identical
+
+== The duplicate copies, read from the raw tables without the converter (cover.ts.txt)
+433 multi-copy tokens
+217 tokens with 1 tree copy, 205 with 2 tree copies, 11 with none
+237 other copies identical to the copy with the tree (revision keys aside)
+704 other copies not identical, of which:
+  0 with a tree
+  0 with other token fields
+  704 values a sub-multiset of the tree copy's, raw objects as they are
+  98 with fewer values
+  27 in another order
+  7 pairs of two system tables
+0 tokens whose tree copy isn't the first in manifest order
+0 tree-less tokens whose copies order their values differently
+
+== Covering-rule witnesses on the real tables (refuse.ts.txt, accept.ts.txt)
+partial copy repeats one entry in place of another: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+same, with the partial copy read first: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+partial copy with a displayGroup of another id: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+partial copy given a tree that differs: refused: TOKEN_TABLE.1c4257f8804f9478: md.sys.color.primary: token: no copy covers both this one and the one in COLOR.20543ce18892f7d9
+partial copy given COLOR's tree, with its values in another order: refused, the same message
+in-order partial copy given the covering copy's tree: accepted: 104 files, 104 identical to the store, covered {"copies":703,"tokens":217}
+
+== P12, the implementer's step-2-p12-readback.ts.txt with its two imports pointed at the worktree
+tokens 3980 groups 983 child nodes 143717, every row "same", no DIFF row:
+211608 child count, 143717 child index gives the value id, 102 group count per set,
+983 group description / orderInParentDisplayGroup / orderInParentTokenSet / path gives its id / parentGroup,
+211608 node fieldNames, 211608 node tokenName, 67891 root index gives the value id,
+3980 token displayGroup path gives its id, 3980 tree entry count
+
+== context.json and the dropped key (ctx.ts.txt)
+group records 140, with description 140, same as context.json 140
+tag records 392, with description 392, same as context.json 392
+tables with system.navigation 14; the store has no navigation or guidelinesNodes key
+
+== P3
+git grep -c -e emailAddress -e gaiaId -e navigation -e guidelinesNodes -- packages/tproc/tokens:
+one hit, sets/md.comp.text-button.json, the word "navigation" in a token's description text.
+Email address pattern over the store: 0 files.
+
+== material-x's CSS, before (645410c12) and after (7d632a931)
+aube install --frozen-lockfile; tproc built at each revision; the 34 tracked
+src/**/*.css.ts compiled with .scripts/css/debug.ts.
+diff -r: only button_styles_size_main.css.ts differs:
+  8a9
+  >   --_icon-label-space: 4px;
+inside :host(:state(xsmall)).
+.scripts/storybook-theme.ts at each revision: .storybook/theme.css, 103 lines, identical.
+
+== Token and set names, 645410c12 against 7d632a931
+4051 names before, 4082 after: 0 removed, 31 added (30 tokens and the set md.sys.measurement).
+27 md.* literals in packages/material-x, .storybook and .scripts: 23 name a token or a set in the
+new store. The other 4 are prefixes or a documented absence, and were absent before too
+(md.comp.button-group.connected, md.comp.button-group.standard, md.comp.split-button,
+md.comp.radio-button.container.size, the last named MISSING in radio/spec-consistency.md).
+
+== Step 3
+node scripts/check-release.ts against the site: release 2026-11-19_06-20-01,
+database 41.1.12 (version 4ae102170fee99b1): "The store has this database."
+tokens.yml: actions/checkout 3d3c42e5... # v7.0.1 and actions/setup-node 949feb24... # v7.1.0,
+the SHAs safari.yml, baselines.yml and release.yml pin. Top level contents: read;
+check job contents: read; issue job issues: write only, with no checkout. Only
+github.token, and every value reaches the shell through env. No concurrency key;
+safari.yml, baselines.yml, release.yml and verify.yml each have one.
+
+== The gate, run 44731705050
+event pull_request, headSha 7d632a9314accf04b2d5feb450dc3a41fdbef236, conclusion success.
+Jobs: scope, static, system-deps x3, docs, measurements, chromium, firefox, webkit, verify: success;
+records, deploy: skipped.
+chromium's log: visual/material-x (chromium) ran button-group (4 tests), button (7),
+checkbox (4) and radio (4) .visual.browser.test.ts, all passed; 151 test files passed.
+No baseline image changed in 645410c12..7d632a931.
+button.visual.browser.test.ts renders xsmall only without an icon, and an icon only at the
+default size. button.spec.browser.test.ts "should render the tokenized icon-to-label gap"
+compares columnGap with icon-label-space for each size, xsmall included, and passed.
+
+== Cleanup
+The tables directory was deleted after the last probe that read it. No .data/ copy exists in
+the main checkout or in slot f.

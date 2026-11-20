@@ -11,17 +11,21 @@
  * release, such as `2026-11-19_06-20-01`. `--current` reads that id from the
  * site first. `--legacy` converts the tables committed before the store, from
  * a directory, without fetching. The tables are converted in memory and never
- * written. `--report` writes the conversion's conflicts as Markdown.
+ * written. `--report` writes the update report as Markdown: the conversion's
+ * conflicts, and its differences from the store it replaces.
  */
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import type { Manifest, ManifestTable } from '../src/store/schema.ts';
+import { loadStore } from '../src/store/Store.ts';
 import {
   convert,
   SITE_BASE_URL,
   type Conversion,
   type SourceTable,
 } from './convert.ts';
+import { report } from './report.ts';
+import { fetchText, readCurrentRelease } from './site.ts';
 
 const STORE = new URL('../tokens/', import.meta.url);
 
@@ -42,30 +46,6 @@ const LEGACY_TABLES: ReadonlyArray<Omit<ManifestTable, 'componentName'>> = [
   { kind: 'TOKEN_TABLE', componentId: '6acb269a58d5f93f' },
   { kind: 'TOKEN_TABLE', componentId: '6c818a16475113bd' },
 ];
-
-async function fetchText(url: string): Promise<string> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`${url}: ${response.status} ${response.statusText}`);
-  }
-  return await response.text();
-}
-
-/** The release the site shows now: `environment.carbonVersion` in its bundle. */
-async function readCurrentRelease(): Promise<string> {
-  const site = 'https://m3.material.io/';
-  const page = await fetchText(site);
-  const bundle = /static\/angular\/main\.[\da-f]+\.js/u.exec(page)?.[0];
-  if (bundle == null) {
-    throw new Error(`${site}: names no main bundle`);
-  }
-  const url = new URL(bundle, site).href;
-  const release = /carbonVersion:"([^"]+)"/u.exec(await fetchText(url))?.[1];
-  if (release == null) {
-    throw new Error(`${url}: names no carbonVersion`);
-  }
-  return release;
-}
 
 async function readManifest(): Promise<Manifest> {
   return JSON.parse(
@@ -96,32 +76,6 @@ async function readLegacyTables(directory: URL): Promise<SourceTable[]> {
       ),
     })),
   );
-}
-
-function report({ manifest, conflicts }: Conversion): string {
-  const lines = [
-    '# Token store conversion',
-    '',
-    `- release: ${manifest.source.release ?? 'unknown'}`,
-    ...manifest.source.databases.map(
-      ({ versionName, versionId, publishTime }) =>
-        `- database ${versionName} (version ${versionId}, published ${publishTime})`,
-    ),
-    `- sets: ${manifest.files.length - 1}`,
-    `- conflicts: ${conflicts.length}. A token, set, context or group conflict keeps the table read first. A value conflict is a child node stored without its value's index.`,
-    '',
-  ];
-  if (conflicts.length > 0) {
-    lines.push(
-      '| Kind | Name | Kept from | Differs in |',
-      '| --- | --- | --- | --- |',
-    );
-    for (const { kind, name, keptTable, otherTable } of conflicts) {
-      lines.push(`| ${kind} | \`${name}\` | ${keptTable} | ${otherTable} |`);
-    }
-    lines.push('');
-  }
-  return lines.join('\n');
 }
 
 const { values } = parseArgs({
@@ -155,6 +109,12 @@ if (values.legacy != null) {
   });
 }
 
+// Read before the store is overwritten, so the report compares against it.
+const previous =
+  values.report == null
+    ? undefined
+    : { manifest: await readManifest(), store: await loadStore(STORE) };
+
 // The store is written whole, so a set that no longer exists leaves no file.
 await rm(new URL('sets/', STORE), { recursive: true, force: true });
 await mkdir(new URL('sets/', STORE), { recursive: true });
@@ -168,7 +128,7 @@ await Promise.all(
 );
 
 if (values.report != null) {
-  await writeFile(values.report, report(conversion), 'utf8');
+  await writeFile(values.report, report(conversion, previous), 'utf8');
 }
 
 console.log(

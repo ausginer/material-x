@@ -164,17 +164,20 @@
       "orderInDisplayGroup": 2,
       "values": [
         {
-          "length": {
-            "value": 2,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space25"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.split-button.xlarge.between-space"
+            "tokenName": "md.comp.split-button.xlarge.between-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space25",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -222,17 +225,20 @@
       "orderInDisplayGroup": 5,
       "values": [
         {
-          "length": {
-            "value": 64,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space800"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.split-button.xlarge.leading-button.leading-space"
+            "tokenName": "md.comp.split-button.xlarge.leading-button.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space800",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
@@ -250,17 +256,20 @@
       "orderInDisplayGroup": 6,
       "values": [
         {
-          "length": {
-            "value": 64,
-            "unit": "DIPS"
-          }
+          "tokenName": "md.sys.measurement.space800"
         }
       ],
       "contextualReferenceTree": [
         {
           "value": 0,
           "referenceTree": {
-            "tokenName": "md.comp.split-button.xlarge.leading-button.trailing-space"
+            "tokenName": "md.comp.split-button.xlarge.leading-button.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space800",
+                "value": 0
+              }
+            ]
           },
           "resolvedValue": {
             "length": {
