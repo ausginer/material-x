@@ -1,0 +1,122 @@
+# Mutation: the trait-attributes plugin's load hook removed (renamed, so no host calls it).
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/vite-traits-plugin
+
+ ❯ |node| tests/declarations.node.test.ts (6 tests | 6 failed) 60ms
+   ❯ a trait's declarations through tsdown (2)
+     × should keep the JSDoc in front of @trait and @attributes 4ms
+     × should keep the JSDoc in front of @trait alone 2ms
+   ❯ the plugin's load stage (4)
+     × should move export before the decorators in a build 0ms
+     × should ask the host to watch the file it loaded 0ms
+     × should load nothing on the dev server 0ms
+     × should give each load of one id the text it read 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:58 > a trait's declarations through tsdown > should keep the JSDoc in front of @trait and @attributes
+AssertionError: expected 'import { AnyElement } from "@ydinjs/c…' to contain '/** An element with an `open` attribu…'
+
+- Expected
++ Received
+
+- /** An element with an `open` attribute. */
+- export declare class Opened
++ import { AnyElement } from "@ydinjs/core/traits/attribute-traits.js";
++ export declare class Opened extends AnyElement {
++   accessor open: boolean;
++ }
++ export declare class Plain extends AnyElement {}
+
+ ❯ tests/declarations.node.test.ts:59:26
+     57| describe("a trait's declarations through tsdown", () => {
+     58|   it('should keep the JSDoc in front of @trait and @attributes', () =>…
+     59|     expect(declarations).toContain(
+       |                          ^
+     60|       '/** An element with an `open` attribute. */\nexport declare cla…
+     61|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:64 > a trait's declarations through tsdown > should keep the JSDoc in front of @trait alone
+AssertionError: expected 'import { AnyElement } from "@ydinjs/c…' to contain '/** An element that is only a trait. …'
+
+- Expected
++ Received
+
+- /** An element that is only a trait. */
++ import { AnyElement } from "@ydinjs/core/traits/attribute-traits.js";
++ export declare class Opened extends AnyElement {
++   accessor open: boolean;
++ }
+- export declare class Plain
++ export declare class Plain extends AnyElement {}
+
+ ❯ tests/declarations.node.test.ts:65:26
+     63|
+     64|   it('should keep the JSDoc in front of @trait alone', () => {
+     65|     expect(declarations).toContain(
+       |                          ^
+     66|       '/** An element that is only a trait. */\nexport declare class P…
+     67|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:92 > the plugin's load stage > should move export before the decorators in a build
+TypeError: Cannot read properties of undefined (reading 'call')
+ ❯ tests/declarations.node.test.ts:89:40
+     87|     const context = { addWatchFile: (id: string) => watched.push(id) };
+     88|
+     89|     return (id: string) => plugin.load.call(context, id);
+       |                                        ^
+     90|   };
+     91|
+ ❯ tests/declarations.node.test.ts:93:43
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:100 > the plugin's load stage > should ask the host to watch the file it loaded
+TypeError: Cannot read properties of undefined (reading 'call')
+ ❯ tests/declarations.node.test.ts:89:40
+     87|     const context = { addWatchFile: (id: string) => watched.push(id) };
+     88|
+     89|     return (id: string) => plugin.load.call(context, id);
+       |                                        ^
+     90|   };
+     91|
+ ❯ tests/declarations.node.test.ts:102:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:107 > the plugin's load stage > should load nothing on the dev server
+TypeError: Cannot read properties of undefined (reading 'call')
+ ❯ tests/declarations.node.test.ts:89:40
+     87|     const context = { addWatchFile: (id: string) => watched.push(id) };
+     88|
+     89|     return (id: string) => plugin.load.call(context, id);
+       |                                        ^
+     90|   };
+     91|
+ ❯ tests/declarations.node.test.ts:108:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:111 > the plugin's load stage > should give each load of one id the text it read
+TypeError: Cannot read properties of undefined (reading 'call')
+ ❯ tests/declarations.node.test.ts:89:40
+     87|     const context = { addWatchFile: (id: string) => watched.push(id) };
+     88|
+     89|     return (id: string) => plugin.load.call(context, id);
+       |                                        ^
+     90|   };
+     91|
+ ❯ tests/declarations.node.test.ts:115:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  09:14:37
+   Duration  249ms (import 39%, tests 38%, transform 22%, worker 2%)
+

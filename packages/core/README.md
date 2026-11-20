@@ -82,12 +82,9 @@ import {
   type Composed,
 } from '@ydinjs/core/traits/composition.js';
 
+@trait
+@attributes({ disabled: Bool, label: Str })
 export class Labelled extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { disabled: Bool, label: Str });
-  }
-
   accessor disabled!: boolean;
   accessor label!: string | null;
 }
@@ -104,7 +101,7 @@ class MyElement extends MyCore {
 }
 ```
 
-`@ydinjs/vite-traits-plugin` is a required build step. In a trait's own build it turns each `accessor` line into a getter and a setter that read and write the attribute through the table's converter. In a component's build it copies each trait's members into the class, in list order, merges `observedAttributes` with the base's, and brands the class, so `element instanceof Labelled` is `true`. Without the plugin, `compose()` throws.
+`@ydinjs/vite-traits-plugin` is a required build step. In a trait's own build it compiles `@trait`, and turns each `accessor` line that `@attributes(TABLE)` declares into a getter and a setter that read and write the attribute through the table's converter. In a component's build it copies each trait's members into the class, in list order, merges `observedAttributes` with the base's, and brands the class, so `element instanceof Labelled` is `true`. Without the plugin, a trait's or a component's module fails when it is evaluated: `@trait`, `@attributes()` and `compose()` throw.
 
 Pre-built traits:
 
@@ -180,12 +177,9 @@ import {
 import { Str } from '@ydinjs/core/attribute.js';
 import { $ } from '@ydinjs/core/utils/DOM.js';
 
+@trait
+@attributes({ color: Str })
 class Colored extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { color: Str });
-  }
-
   accessor color!: string | null;
 }
 

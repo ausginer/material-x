@@ -11,12 +11,10 @@ import {
 
 const AnyElement: Bound<HTMLElement> = bound();
 const Controlled: Bound<ControlledElement> = bound();
+const AnyObject: Bound<object> = bound();
 
+@trait
 class ButtonLike extends AnyElement {
-  static {
-    trait(this);
-  }
-
   static readonly observedAttributes: ReadonlyArray<'color' | 'size'> = [
     'color',
     'size',
@@ -46,11 +44,8 @@ class ButtonLike extends AnyElement {
   }
 }
 
+@trait
 class FABLike extends AnyElement {
-  static {
-    trait(this);
-  }
-
   static readonly observedAttributes: ReadonlyArray<'size' | 'extended'> = [
     'size',
     'extended',
@@ -71,11 +66,8 @@ class FABLike extends AnyElement {
   }
 }
 
+@trait
 class Disableable extends AnyElement {
-  static {
-    trait(this);
-  }
-
   get disabled(): boolean {
     return false;
   }
@@ -83,11 +75,8 @@ class Disableable extends AnyElement {
   set disabled(_value: boolean) {}
 }
 
-class Counted {
-  static {
-    trait(this);
-  }
-
+@trait
+class Counted extends AnyObject {
   declare count: number;
 
   static zero(): number {
@@ -95,11 +84,8 @@ class Counted {
   }
 }
 
+@trait
 class Focusing extends Controlled {
-  static {
-    trait(this);
-  }
-
   // The field exists for its type: it makes the trait nominal.
   // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
   readonly #brand!: true;
@@ -216,6 +202,44 @@ describe('Composed', () => {
 });
 
 describe('trait', () => {
+  it("should leave a decorated trait's type its class's", () => {
+    class Undecorated extends AnyElement {
+      get disabled(): boolean {
+        return false;
+      }
+
+      set disabled(_value: boolean) {}
+    }
+
+    expectTypeOf<Disableable>().toEqualTypeOf<Undecorated>();
+  });
+
+  it('should reject a class that does not extend a bound', () => {
+    // @ts-expect-error: TS1238, the class has no bound's heritage
+    @trait
+    class Unbound {}
+
+    expectTypeOf<Unbound>().toBeObject();
+  });
+
+  it('should reject a call of the decorator', () => {
+    // @ts-expect-error: TS2554 and TS1238, `trait` takes the class itself
+    @trait()
+    class Called extends AnyElement {}
+
+    expectTypeOf<Called>().toExtend<HTMLElement>();
+  });
+
+  it('should reject the decorator on a method', () => {
+    class Host {
+      // @ts-expect-error: TS1241, `trait` decorates a class
+      @trait
+      method(): void {}
+    }
+
+    expectTypeOf<Host>().toBeObject();
+  });
+
   it('should narrow by instanceof to the trait class', () => {
     const value = null as unknown as HTMLElement;
 
@@ -235,11 +259,8 @@ describe('trait', () => {
   });
 
   it('should require an abstract member of a trait', () => {
+    @trait
     abstract class Labelled extends AnyElement {
-      static {
-        trait(this);
-      }
-
       abstract label(): string;
     }
     const LabelledBase: Composed<typeof ControlledElement, [typeof Labelled]> =
@@ -251,11 +272,8 @@ describe('trait', () => {
   });
 });
 
+@trait
 class Wide extends AnyElement {
-  static {
-    trait(this);
-  }
-
   get width(): 'wide' | 'narrow' | null {
     return null;
   }
@@ -272,22 +290,16 @@ const SharedBase: Composed<
 > = compose(ControlledElement);
 class Shared extends SharedBase {}
 
+@trait
 class Sized extends AnyElement {
-  static {
-    trait(this);
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
   readonly #brand!: true;
 
   declare size: 'small' | null;
 }
 
+@trait
 class Large extends AnyElement {
-  static {
-    trait(this);
-  }
-
   declare size: 'large' | null;
 }
 
@@ -332,19 +344,13 @@ class Host extends HTMLElement {
 
 const AnyHost: Bound<Host> = bound();
 
+@trait
 class First extends AnyHost {
-  static {
-    trait(this);
-  }
-
   shared(): void {}
 }
 
+@trait
 class Second extends AnyHost {
-  static {
-    trait(this);
-  }
-
   shared(): string {
     return '';
   }

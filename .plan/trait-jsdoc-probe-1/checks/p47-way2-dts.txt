@@ -1,0 +1,67 @@
+===== packages/core/src/traits/checkable.ts
+import { type ConverterOf } from "../attribute.ts";
+import type { ControlledElement } from "../element.ts";
+import { AnyElement, type Props } from "./attribute-traits.ts";
+export declare const CHECKABLE_ATTRS: Readonly<{
+	checked: ConverterOf<boolean>;
+}>;
+/**
+* Element trait that exposes a presence-based `checked` boolean field.
+*/
+export declare const $checkable: unknown;
+declare const __mxflat_Checkable_observedAttributes_cad06aa5: unknown;
+export declare class Checkable extends AnyElement {
+	static observedAttributes;
+	static [Symbol.hasInstance](o);
+	get checked();
+	set checked(value);
+}
+/**
+* Framework-facing props derived from {@link Checkable}.
+*/
+export type CheckableProps = Props<typeof Checkable>;
+/**
+* Wires the `checked` attribute of `host` to the corresponding attribute on
+* `target` via a transfer callback.
+*
+* @remarks Does not wire form internals or custom states — use a dedicated
+* setup for those.
+*/
+export declare function useCheckable(host: Checkable & ControlledElement, target: HTMLElement): void;
+export { __mxflat_Checkable_observedAttributes_cad06aa5 };
+
+error: TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+error: TS9012: Property must have an explicit type annotation with --isolatedDeclarations.
+error: TS9011: Parameter must have an explicit type annotation with --isolatedDeclarations.
+error: TS9008: Method must have an explicit return type annotation with --isolatedDeclarations.
+error: TS9009: At least one accessor must have an explicit return type annotation with --isolatedDeclarations.
+error: TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+===== packages/material-x/src/core/traits/focus-forwarding.ts
+import type { ControlledElement } from "@ydinjs/core/element.js";
+import { Controlled } from "@ydinjs/core/traits/attribute-traits.js";
+declare const controls: unknown;
+/**
+* Makes `host.focus()` focus the control that {@link useFocusForwarding}
+* registered, the element that delegating focus picks. Firefox doesn't delegate
+* focus from a host whose box is `display: contents`, which every adopter's host
+* is, so the shadow root's `delegatesFocus` alone leaves focus where it was
+* there (`repo:RF-33`). The shadow root still delegates focus, and this trait
+* goes once Firefox delegates through such a host.
+*
+* `focus()` is a method of the prototype, so a subclass overrides it and
+* reaches the control through `super.focus()`.
+*/
+export declare const $focusForwarding: unknown;
+export declare class FocusForwarding extends Controlled {
+	#private;
+	static [Symbol.hasInstance](o);
+	override focus(options?: FocusOptions): void;
+}
+/** Registers `control` as the element that `host.focus()` focuses. */
+export declare function useFocusForwarding(host: FocusForwarding & ControlledElement, control: HTMLElement): void;
+export { controls as __mxflat_controls_7b84b960, controls };
+
+error: TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+error: TS9011: Parameter must have an explicit type annotation with --isolatedDeclarations.
+error: TS9008: Method must have an explicit return type annotation with --isolatedDeclarations.
+error: TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.

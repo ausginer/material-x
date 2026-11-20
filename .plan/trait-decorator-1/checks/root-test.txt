@@ -1,0 +1,54 @@
+nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+
+ NX   6 tasks: 6 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      1.9s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1.9s (2 tasks)
+  Recoverable time:  13ms (1% of the run)
+nx run @ydinjs/material-x:build:prepare --skipNxCache
+
+ NX   1 task: 1 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      2.1s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     2.1s (1 task)
+  Recoverable time:  <1ms
+vitest run 
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/e
+
+ ❯ |shipped/drag (chromium)| tests/hot-path.browser.test.ts (9 tests | 1 failed) 17882ms
+   ❯ drag:DRI-17 hot path (9)
+     × should allocate per sample only the CSS string a lifted write needs 10295ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped/drag (chromium)| tests/hot-path.browser.test.ts:261 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"sortable/operation.ts:updateInsertion":5616,"sortable/y.ts:resolve":6036,"kernel/session.ts:handleEvent":10760,"sortable/operation.ts:move":24748,"lift.ts:translate":19020}: expected 35.86666666666667 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:310:52
+    308|       // Warm, the kernel reads 0 to about 1 B per move. An allocation…
+    309|       // escapes, such as an object per sample, shows as tens of bytes.
+    310|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    311|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    312|         'lift.ts:translate',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 143 passed (144)
+      Tests  1 failed | 2210 passed (2211)
+Type Errors  no errors
+   Start at  09:08:28
+   Duration  259.26s (tests 95%, worker 2%, import 2%, transform 1%, setup 1%)
+
+error: recipe `test` failed on line 64 with exit code 1

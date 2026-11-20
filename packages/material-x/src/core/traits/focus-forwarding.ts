@@ -15,11 +15,8 @@ const controls = new WeakMap<HTMLElement, HTMLElement>();
  * `focus()` is a method of the prototype, so a subclass overrides it and
  * reaches the control through `super.focus()`.
  */
+@trait
 export class FocusForwarding extends Controlled {
-  static {
-    trait(this);
-  }
-
   // The field exists for its type: it makes the trait nominal, because its
   // members are its bound's.
   // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
