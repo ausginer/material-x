@@ -120,7 +120,7 @@ export function diffStores(before: Store, after: Store): string[] {
  * given the store it replaces, the differences from that store.
  */
 export function report(
-  { manifest, conflicts, files }: Conversion,
+  { manifest, conflicts, covered, files }: Conversion,
   previous?: Readonly<{ manifest: Manifest; store: Store }>,
 ): string {
   const lines = [
@@ -132,6 +132,7 @@ export function report(
         `- database ${versionName} (version ${versionId}, published ${publishTime})`,
     ),
     `- sets: ${manifest.files.length - 1}`,
+    `- covered copies: ${covered.copies}, of ${covered.tokens} tokens. Each is a table's copy of another table's token, kept from the copy that covers it.`,
     `- conflicts: ${conflicts.length}. A token, set, context or group conflict keeps the table read first. A value conflict is a child node stored without its value's index.`,
     '',
   ];

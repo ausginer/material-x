@@ -168,6 +168,7 @@ describe('report', () => {
     ]),
     manifest: MANIFEST,
     conflicts: [],
+    covered: { copies: 0, tokens: 0 },
   };
 
   it('should compare against the store it replaces', () => {

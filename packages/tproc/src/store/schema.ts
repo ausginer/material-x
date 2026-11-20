@@ -234,12 +234,14 @@ export type StoredSet = Readonly<{
 export type StoredTag = Readonly<{
   tagName: string;
   displayName: string;
+  description?: string;
   tagOrder: number;
 }>;
 
 export type StoredTagGroup = Readonly<{
   contextTagGroupName: string;
   displayName: string;
+  description?: string;
   specificity: number;
   defaultTag: string;
   tags: readonly StoredTag[];
@@ -283,4 +285,4 @@ export type Manifest = Readonly<{
   files: readonly ManifestFile[];
 }>;
 
-export const STORE_VERSION = 1;
+export const STORE_VERSION = 2;
