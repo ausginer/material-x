@@ -2242,6 +2242,22 @@ Tier C, **closed 2026-11-20** on `repo/oxlint-migrate-1` (see _Closure_ below). 
 - **Not changed, and outside this entry.** A package's `.oxlintrc.json` doesn't set `plugins` or `categories`. So from a package's directory, oxlint runs with its default plugins, `oxc` included, and the `correctness` category on, where the root config turns `correctness` off. That held at `d69e3ddbc` and is unchanged here. It is a reading, not a finding registered by this unit.
 - **How a rule changes now:** in `eslint.base.config.ts` and then `just oxlint-migrate`, or as an override with its reason in `.oxlintrc.json`. `.oxlintrc.migrated.json` is never edited by hand.
 
+**Corrected and amended 2026-11-20** by the implementer on `repo/oxlint-migrate-1`, after `e2a33205d`. This follows the feature proof ([`reviews/oxlint-migrate-1/feature-proof-claude.md`](reviews/oxlint-migrate-1/feature-proof-claude.md)) and the owner's ruling, relayed by the coordinator. The bullets above stay as they were written.
+
+- **`typescript/unbound-method`: the reason was wrong** (`reviewer-1`). The closure said that ESLint's form _"stays the instrument and reports none"_, and that oxlint's port _"also reports a method passed with its receiver"_. `.oxlintrc.json` said the same. The reviewer measured otherwise:
+  - with the root configuration, ESLint reports 30 lines in `drag`, including methods passed with their receiver, such as `src/sortable.ts:59`. That is why `drag:DRD-37` turns ESLint's form off in `drag`;
+  - oxlint's port reports those 30 lines and 18 more, and every extra line is a private `#method` read without a receiver, which ESLint doesn't report;
+  - outside `drag`, the port reports nothing in the tree.
+
+  The rule's state, off, is unchanged, and it matches `d69e3ddbc`: in `drag`, neither linter ran it. `.oxlintrc.json`'s reason now states the measured difference.
+
+- **An option change that the list above leaves out** (`reviewer-2`). `no-shadow-restricted-names` gained `reportGlobalThis: true`, so it now also reports a binding that shadows `globalThis`. ESLint's form already had the option, and it is off. There is no finding in the tree. Kept.
+- **The owner's ruling on the two rules kept on above:** _"`import/no-duplicates` оставляем (включаем), а `no-use-before-define` предлагаю выключить."_ ("We keep `import/no-duplicates` (turn it on), and I suggest turning `no-use-before-define` off.")
+  - `import/no-duplicates` stays on in `.oxlintrc.json`'s custom override, with `prefer-inline`.
+  - `no-use-before-define` is `off` there, with the quotation as its reason. That turns it off for TypeScript files (`.ts` and `.test.ts` resolve from on to off), and no other rule's effective state changes. JavaScript files keep the state that `eslint.base.config.ts`'s JavaScript block gives them. That is unchanged, and the owner's question was about the TypeScript override.
+- **`retargetJsOnlyOverrides` is removed from `.scripts/oxlint-migrate.ts`** (`reviewer-3`). It retargeted 0 overrides with both the old recipe and the new one, because the tool now writes the first override with a JavaScript and a TypeScript glob. The recipe's script now only runs the tool and removes its `.bak` copy. Property 2's post-processing is the `oxfmt` step of the `just oxlint-migrate` recipe. Two runs of the recipe still leave `.oxlintrc.json` and `.oxlintrc.migrated.json` byte-identical, and no `.bak` file remains.
+- **Lint results after these changes:** `just lint` exits 0. oxlint reports 0 diagnostics at the root and in each of the 8 packages. Turning `no-use-before-define` off can only remove findings, and there were none.
+
 #### RF-50 — `mx-checkbox`, `mx-radio` and the text fields change their own state on user interaction, against the controlled principle
 
 Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, on the owner's principle that every material-x component is controlled ([`architecture.md`](../.agents/docs/architecture.md) §Components), relayed by the coordinator with the answers to `RF-43`. **No row is disabled.**

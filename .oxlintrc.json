@@ -87,9 +87,13 @@
     "typescript/no-unsafe-type-assertion": "off",
     "typescript/promise-function-async": "off",
     // ESLint's `@typescript-eslint/unbound-method`, last in
-    // `eslint.config.ts`, is the instrument for a method read without a
-    // receiver. Oxlint's port also reports a method passed together with its
-    // receiver, as in `drag.use(this.#release, this)`, which ESLint accepts.
+    // `eslint.config.ts`, runs everywhere but in `drag`, which turns it off
+    // because it reports every method passed together with its receiver, as
+    // in `kernel.use(displacement.retire, displacement)`. Oxlint's port
+    // reports what ESLint reports on those methods, and also reports a
+    // private `#method` read without a receiver, which ESLint doesn't. Outside
+    // `drag` it reports nothing in the tree. In `drag` neither linter runs the
+    // rule, and this keeps it so.
     "typescript/unbound-method": "off"
   },
   "overrides": [
@@ -111,17 +115,13 @@
         "import/unambiguous": "allow",
         // Broken. Many false positives
         "typescript/no-unnecessary-condition": "allow",
-        // `eslint.base.config.ts` turns off ESLint's forms of these two, so
-        // oxlint is the only linter that runs them, and the tree meets both.
-        "no-use-before-define": [
-          "error",
-          {
-            "classes": true,
-            "functions": true,
-            "variables": true,
-            "typedefs": true
-          }
-        ],
+        // The owner's decision on these two: "`import/no-duplicates`
+        // оставляем (включаем), а `no-use-before-define` предлагаю
+        // выключить." ("We keep `import/no-duplicates` (turn it on), and I
+        // suggest turning `no-use-before-define` off.")
+        // `eslint.base.config.ts` turns off ESLint's forms of both, so oxlint
+        // is the only linter that would run them.
+        "no-use-before-define": "off",
         "import/no-duplicates": [
           "error",
           {
