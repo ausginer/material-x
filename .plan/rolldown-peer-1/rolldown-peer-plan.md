@@ -121,9 +121,33 @@ Both plugins return a string and a source map, as the traits plugin already does
 
 **Proof:** consumer D of the probe, with the real plugin, writes the flattened class. A node test with a stubbed `rolldownVersion` covers both branches, as its mutation.
 
+**Amended 2026-11-20 by the architect,** on `reviewer-1` of task 3's [feature proof](../reviews/rolldown-peer-1/feature-proof-task3-claude.md). The property stands as written. The version comparison doesn't deliver it, and task 4 replaces it. Until this, the paragraph above was the whole task.
+
+### Task 4. The host's binding, not its version
+
+The plugins keep the native magic string only when the host's magic-string class is the plugin's own. That is the class the host's `instanceof` checks: the `BindingMagicString` of the native binding that the host's `rolldown` loaded. The version comparison stands in for that identity, and fails where two copies of one version each load their own binding. The feature proof shows that tree dropping the edit with exit 0 ([probe](../reviews/rolldown-peer-1/checks/same-version-copies.txt), `own-binding`). Whether a package manager produces it isn't established. A check of the identity itself makes the question moot, and costs no more than the comparison.
+
+**How the host shows its class.** rolldown 1.3.2's transform bridge gives each `transform` handler a `meta.magicString`, a lazy `RolldownMagicString` of the module's code built from the host's own binding (`bindingify-input-options-*.mjs`, `bindingifyTransform`). It isn't behind `experimental.nativeMagicString`, which only gates `renderChunk`'s.
+
+**Required properties:**
+
+1. **Native means `meta.magicString instanceof RolldownMagicString`,** on the `transform` handler's own `meta` argument, with `RolldownMagicString` the plugin's import. `kind !== 'serve'` stays, as task 3 proved it load-bearing. The version comparison goes, and so does the `VERSION` import if nothing else uses it.
+2. **Anything else gets a string and a source map:** no `meta.magicString`, as in a host whose bridge doesn't offer one, or one of another class. That fallback is correct in every host, and only slower.
+3. **The native path costs no more than today:** a changed module gets at most the one native magic string it gets now. One way is for the plugin to edit the host's instance when it is of the plugin's class. A module the plugin doesn't change constructs nothing new.
+4. **Both plugins:** the traits plugin's two transforms and `constructCSSTokens`'s production `transform` in `@ydinjs/vite-custom-element-assets`.
+
+**Proofs:**
+
+- **The node test** calls both transforms with a `meta.magicString` of the plugin's class, one of another class, and none. Only the first gives a `RolldownMagicString` and no map. The other two give a string and a map that names the module. Each branch fails under its mutation.
+- **The feature proof's probe** (`same-version-copies.sh`), rerun with the real check in place of the stand-in. `shared-binding` takes the native path and keeps the edit. `own-binding` takes the string path and keeps it too.
+- **Consumer D,** rerun with its mutant. The build is flattened, and with the check replaced by `true` it isn't.
+- **Task 2's consumers,** at Vite 8.1.4, 8.3.8 hoisted and isolated, and 8.4.0-beta.1. Each build is flattened, and the record says which path each took. A host on the floor's rolldown that offers no `meta.magicString` takes the string path, which is correct.
+- **material-x, on the native path:** its 213 build files are byte-identical to `main`'s, and docs-build and docs-smoke pass. A witness shows that the tsdown and Vite build hosts took the native path, not only produced the same bytes.
+- **The private plugin's probe,** rerun with the three `meta` cases.
+
 ### Closing
 
-- **`RF-55` closes** when tasks 1 and 2 are in, and task 3 too if the owner answers yes.
+- **`RF-55` closes** when tasks 1, 2, 3 and 4 are in and proven. The architect closes it on the branch, before the pull request merges, as `RF-23` and `RF-31` were closed. Until task 4, this said: _"when tasks 1 and 2 are in, and task 3 too if the owner answers yes"_.
 - **The pull request says `Closes #48`** when it closes `RF-55`, and `Refs #48` otherwise.
 - **Out of scope:** the proposals for `RD-27` above, which the release workflow's architect takes up.
 
