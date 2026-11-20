@@ -1,0 +1,78 @@
+Feature proof of box-quad's release tasks 1 to 4, run by the reviewer on 2026-11-20 with aube 2.10.0 and node v26.13.1,
+in a scratch worktree of repo/box-quad-release-1 at faa2637cf.
+
+== Task 1
+aube ci: exit 0. node_modules/@ydinjs/box-quad -> packages/box-quad. From packages/drag, @ydinjs/box-quad/package.json resolves to packages/box-quad/package.json, version 1.0.0
+aube exec just build in packages/box-quad: exit 0. cmp of package.json with its copy before the build: identical. git diff --exit-code: clean
+cmp LICENSE packages/box-quad/LICENSE: identical
+aube pack --dry-run in packages/box-quad:
+  package: @ydinjs/box-quad@1.0.0
+  CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json
+aube pack --ignore-scripts: the same 7 files; sha256 908f90669250565366dedc241d7357f0b2a89dc502faa80a4b761365316d406f (equal to the implementer's)
+Built index.js, top level, parsed with oxc-parser: {"VariableDeclaration:const":23,"FunctionDeclaration":9,"ExportNamedDeclaration":1}
+  every const initializer is a numeric literal; the export is { ancestry, coordinates, localDelta, projection } with no declaration
+  the 23 consts: BOX_A..BOX_F, BOX_WIDTH, BOX_HEIGHT (8), SPACE_A..SPACE_D, SPACE_ANCESTOR_ZOOM (5), QUAD_X1..QUAD_Y4 (8), DELTA_X, DELTA_Y (2)
+Lockfile: the committed diff is 2 lines, packages/box-quad's version and packages/drag's @ydinjs/box-quad, 0.1.0 -> 1.0.0
+aube exec just typecheck-declarations: exit 0
+
+== Task 2
+docs-build 0
+  box-quad
+  core
+  index.html
+  material-x
+  docs-smoke 0
+  API sections linked from api/index.html: api/core/index.html, api/box-quad/index.html, api/material-x/index.html
+  105 of 105 pages passed at http://mx-docs.test:38981/material-x/ in 15.8 s
+  .docs/api/box-quad/index.html title: @ydinjs/box-quad
+== Mutation 2: the box-quad link removed from api/index.html in docs-api.ts
+   1 file changed, 1 deletion(-)
+  index names box-quad: 0 lines
+  docs-smoke 0
+  API sections linked from api/index.html: api/core/index.html, api/material-x/index.html
+  104 of 104 pages passed at http://mx-docs.test:39027/material-x/ in 13.6 s
+== Mutation 1: box-quad removed from docs-build's docs:api:build project list
+   1 file changed, 1 insertion(+), 1 deletion(-)
+  docs-build 0
+  core
+  index.html
+  material-x
+  docs-smoke 1
+  API sections linked from api/index.html: api/core/index.html, api/box-quad/index.html, api/material-x/index.html
+  FAIL api/box-quad/index.html
+    HTTP 404: http://mx-docs.test:40689/material-x/api/box-quad/index.html
+  104 of 105 pages passed at http://mx-docs.test:40689/material-x/ in 18.1 s
+aube exec just docs-dev (the reviewer's server, port 6006):
+  /api/box-quad/index.html 200, title @ydinjs/box-quad; /api/drag/index.html 404
+  api-link.mjs (Chromium through the worktree's Playwright), Reference/API docs page:
+    href /api/box-quad/index.html target _top
+    status 200 title @ydinjs/box-quad
+verify on PR #79, run 44707181355 at faa2637cf: docs pass (2m0s); measurements pass, and its comment's row: | box-quad | index | 1182 | — |  | 1182 | — |
+
+== Task 3
+The README's 2 ts blocks, each with declared HTMLElement constants (cardElement, boardElement; dragged), in an empty project
+with the tarball and npm:@typescript/typescript6@6.0.2 installed by aube: tsc (strict, skipLibCheck false, types [], nodenext, DOM lib): exit 0
+grep -E 'BQ-|F-[0-9]|RF-|RD-|\.plan|\b[0-9a-f]{7,}\b' README.md CHANGELOG.md: no match
+oxfmt --check README.md CHANGELOG.md: exit 0
+https://ausginer.github.io/material-x/api/box-quad/: 404 (not yet deployed); .../api/core/: 200
+
+== Task 4
+packages/box-quad, aube exec just size at "limit": "1182 B": exit 0 (Size limit 1.18 kB, Size 1.18 kB brotlied)
+the same at "1181 B": exit 1 (Package size limit has exceeded by 1 B; Size limit: 1181 B; Size: 1182 B brotlied)
+after the build, aube exec just clean-build at the root: exit 0; packages/box-quad/index.js and index.d.ts don't exist
+
+== The release check of PR #81
+origin/repo/release-workflow-1 at 644bbf1ed: its .scripts/release-check.ts and .scripts/ci-scope.ts copied into the worktree for the run, then removed
+node .scripts/release-check.ts package --directory packages/box-quad --tarball <copy of the aube tarball>: exit 0
+  ### @ydinjs/box-quad@1.0.0
+  
+  - tarball: `rc.tgz`
+  - sha256: `908f90669250565366dedc241d7357f0b2a89dc502faa80a4b761365316d406f`
+  
+  - `CHANGELOG.md`
+  - `LICENSE`
+  - `README.md`
+  - `index.d.ts`
+  - `index.js`
+  - `index.js.map`
+  - `package.json`
