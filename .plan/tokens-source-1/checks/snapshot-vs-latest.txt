@@ -1,0 +1,369 @@
+# Committed snapshot vs the site's `latest`, read 2026-11-20 at ~08:36 UTC
+# Committed: packages/tproc/.data/tokens at origin/main d69e3ddbc. Live: https://m3.material.io/_dsm/data/dsdb-m3/latest/<same file name>.
+# Probe source (run with: node diff.ts <committed dir> <live dir>):
+#   import { readFileSync, readdirSync } from 'node:fs';
+#   const [a, b] = process.argv.slice(2);
+#   const isPretty = (s: string) => s.slice(0, 200).includes('\n');
+#   for (const f of readdirSync(a).filter((f) => f.endsWith('.json'))) {
+#     const ra = readFileSync(`${a}/${f}`, 'utf8'), rb = readFileSync(`${b}/${f}`, 'utf8');
+#     const A = JSON.parse(ra).system, B = JSON.parse(rb).system;
+#     const sameCanon = JSON.stringify(A) === JSON.stringify(B);
+#     const maxRev = (s: any) => [...s.tokens, ...s.values, ...s.tokenSets].map((x: any) => x.revisionCreateTime).sort().at(-1);
+#     const tn = (s: any) => new Set(s.tokens.map((t: any) => t.tokenName));
+#     const ta = tn(A), tb = tn(B);
+#     const added = [...tb].filter((x) => !ta.has(x)), removed = [...ta].filter((x) => !tb.has(x));
+#     // resolved value comparisons by tokenName for first contextual entry
+#     const rv = (s: any) => { const m = new Map(); for (const t of s.tokens) { const tr = s.contextualReferenceTrees[t.name]; m.set(t.tokenName, JSON.stringify(tr?.contextualReferenceTree?.map((c: any) => [c.contextTags?.length ?? 0, c.resolvedValue, c.referenceTree?.childNodes?.map((n: any) => n.tokenName)]))); } return m; };
+#     const va = rv(A), vb = rv(B);
+#     let changed = 0; const ex: string[] = [];
+#     for (const [k, v] of vb) if (va.has(k) && va.get(k) !== v) { changed++; if (ex.length < 3) ex.push(k); }
+#     const depA = A.tokens.filter((t: any) => t.deprecationMessage).length, depB = B.tokens.filter((t: any) => t.deprecationMessage).length;
+#     console.log(f, { prettyA: isPretty(ra), prettyB: isPretty(rb), sameCanon, version: [A.version?.name ?? A.version, B.version?.name ?? B.version].map((x: any) => JSON.stringify(x).slice(0, 80)), dsdb: [A.dsdbVersion, B.dsdbVersion], rev: [A.revisionId, B.revisionId], maxRev: [maxRev(A), maxRev(B)], tokens: [ta.size, tb.size], added: added.length, removed: removed.length, changedTrees: changed, dep: [depA, depB], ex, addedEx: added.slice(0, 4), removedEx: removed.slice(0, 4) });
+#   }
+
+COLOR.20543ce18892f7d9.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/662b2f1143d92bac"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '37.0.32', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-03T15:16:36.103933Z', '2025-12-03T15:16:36.103933Z' ],
+  tokens: [ 289, 289 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 0,
+  dep: [ 2, 2 ],
+  ex: [],
+  addedEx: [],
+  removedEx: []
+}
+ELEVATION.20543ce18892f7d9.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/662b2f1143d92bac"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '37.0.32', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-03T15:18:47.721585Z', '2025-12-03T15:18:47.721585Z' ],
+  tokens: [ 14, 14 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 0,
+  dep: [ 1, 1 ],
+  ex: [],
+  addedEx: [],
+  removedEx: []
+}
+TOKEN_TABLE.082d7fd6e058b011.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2026-02-10T14:41:08.695811Z', '2026-05-08T22:02:06.651629Z' ],
+  tokens: [ 63, 66 ],
+  added: 3,
+  removed: 0,
+  changedTrees: 9,
+  dep: [ 0, 0 ],
+  ex: [
+    'md.comp.button-group.connected.xsmall.between-space',
+    'md.comp.button-group.connected.small.between-space',
+    'md.comp.button-group.connected.medium.between-space'
+  ],
+  addedEx: [
+    'md.sys.measurement.space25',
+    'md.sys.measurement.space150',
+    'md.sys.measurement.space100'
+  ],
+  removedEx: []
+}
+TOKEN_TABLE.0fe2282006ae098b.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2026-02-10T14:41:08.695811Z', '2026-05-08T22:53:27.353385Z' ],
+  tokens: [ 446, 457 ],
+  added: 11,
+  removed: 0,
+  changedTrees: 36,
+  dep: [ 132, 132 ],
+  ex: [
+    'md.comp.icon-button.default.trailing-space',
+    'md.comp.icon-button.default.leading-space',
+    'md.comp.icon-button.xsmall.default.leading-space'
+  ],
+  addedEx: [
+    'md.sys.measurement.space100',
+    'md.sys.measurement.space75',
+    'md.sys.measurement.space200',
+    'md.sys.measurement.space400'
+  ],
+  removedEx: []
+}
+TOKEN_TABLE.1c4257f8804f9478.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2026-02-10T14:41:08.695811Z', '2026-09-11T18:19:45.419828Z' ],
+  tokens: [ 690, 697 ],
+  added: 7,
+  removed: 0,
+  changedTrees: 32,
+  dep: [ 197, 197 ],
+  ex: [
+    'md.comp.text-button.label-text.type',
+    'md.comp.text-button.label-text.weight',
+    'md.comp.elevated-button.label-text.type'
+  ],
+  addedEx: [
+    'md.sys.measurement.space300',
+    'md.sys.measurement.space100',
+    'md.sys.measurement.space800',
+    'md.sys.measurement.space200'
+  ],
+  removedEx: []
+}
+TOKEN_TABLE.31f16b44fe03b0c0.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-16T17:23:08.746218Z', '2025-12-16T17:23:08.746218Z' ],
+  tokens: [ 131, 131 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 0,
+  dep: [ 16, 16 ],
+  ex: [],
+  addedEx: [],
+  removedEx: []
+}
+TOKEN_TABLE.36500f77b86d20a5.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-03T17:05:16.604993Z', '2026-09-11T18:19:45.419828Z' ],
+  tokens: [ 429, 433 ],
+  added: 4,
+  removed: 0,
+  changedTrees: 22,
+  dep: [ 81, 81 ],
+  ex: [
+    'md.comp.extended-fab.primary.label-text.type',
+    'md.comp.extended-fab.primary.label-text.weight',
+    'md.comp.extended-fab.secondary.label-text.weight'
+  ],
+  addedEx: [
+    'md.sys.measurement.space200',
+    'md.sys.measurement.space150',
+    'md.sys.measurement.space100',
+    'md.sys.measurement.space250'
+  ],
+  removedEx: []
+}
+TOKEN_TABLE.41587918e51cca98.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2026-01-08T18:57:57.283244Z', '2026-06-22T15:16:07.439095Z' ],
+  tokens: [ 533, 533 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 0,
+  dep: [ 306, 306 ],
+  ex: [],
+  addedEx: [],
+  removedEx: []
+}
+TOKEN_TABLE.60990dd98dea0998.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-16T17:32:09.509602Z', '2026-09-11T18:19:45.419828Z' ],
+  tokens: [ 663, 663 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 44,
+  dep: [ 40, 40 ],
+  ex: [
+    'md.comp.outlined-autocomplete.menu.list-item.label-text.type',
+    'md.comp.outlined-autocomplete.menu.list-item.label-text.weight',
+    'md.comp.filled-autocomplete.menu.list-item.label-text.type'
+  ],
+  addedEx: [],
+  removedEx: []
+}
+TOKEN_TABLE.624e8f2da4007fc8.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-16T17:09:24.236469Z', '2026-05-11T18:21:56.345814Z' ],
+  tokens: [ 327, 334 ],
+  added: 7,
+  removed: 0,
+  changedTrees: 15,
+  dep: [ 3, 3 ],
+  ex: [
+    'md.comp.split-button.xsmall.leading-button.leading-space',
+    'md.comp.split-button.xsmall.leading-button.trailing-space',
+    'md.comp.split-button.xlarge.between-space'
+  ],
+  addedEx: [
+    'md.sys.measurement.space150',
+    'md.sys.measurement.space125',
+    'md.sys.measurement.space25',
+    'md.sys.measurement.space800'
+  ],
+  removedEx: []
+}
+TOKEN_TABLE.6acb269a58d5f93f.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-16T17:28:20.589046Z', '2025-12-16T17:28:20.589046Z' ],
+  tokens: [ 48, 48 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 0,
+  dep: [ 0, 0 ],
+  ex: [],
+  addedEx: [],
+  removedEx: []
+}
+TOKEN_TABLE.6c818a16475113bd.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/66cbb2486db961f8"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '35.0.28', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2025-12-03T15:25:49.492214Z', '2026-09-11T18:19:45.419828Z' ],
+  tokens: [ 306, 311 ],
+  added: 5,
+  removed: 0,
+  changedTrees: 20,
+  dep: [ 6, 6 ],
+  ex: [
+    'md.comp.list.list-item.leading-avatar-label.type',
+    'md.comp.list.list-item.leading-avatar-label.weight',
+    'md.comp.list.list-item.label-text.weight'
+  ],
+  addedEx: [
+    'md.sys.measurement.space25',
+    'md.sys.measurement.space0',
+    'md.sys.measurement.space150',
+    'md.sys.measurement.space200'
+  ],
+  removedEx: []
+}
+TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/662b2f1143d92bac"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '37.0.32', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2026-02-10T14:41:08.695811Z', '2026-02-10T14:41:08.695811Z' ],
+  tokens: [ 74, 74 ],
+  added: 0,
+  removed: 0,
+  changedTrees: 0,
+  dep: [ 0, 0 ],
+  ex: [],
+  addedEx: [],
+  removedEx: []
+}
+TYPOGRAPHY.20543ce18892f7d9.json {
+  prettyA: true,
+  prettyB: false,
+  sameCanon: false,
+  version: [
+    '"designSystems/20543ce18892f7d9/versions/662b2f1143d92bac"',
+    '"designSystems/20543ce18892f7d9/versions/4ae102170fee99b1"'
+  ],
+  dsdb: [ '37.0.32', '41.1.12' ],
+  rev: [ 'af25', '7989' ],
+  maxRev: [ '2026-05-08T18:47:16.676675Z', '2026-09-11T21:30:11.933261Z' ],
+  tokens: [ 856, 871 ],
+  added: 15,
+  removed: 0,
+  changedTrees: 155,
+  dep: [ 3, 3 ],
+  ex: [
+    'md.sys.typescale.variable.display-large.wght',
+    'md.ref.typeface.variable.wght-medium',
+    'md.ref.typeface.variable.wght-regular'
+  ],
+  addedEx: [
+    'md.ref.typeface.body-small.line-height',
+    'md.ref.typeface.body-medium.line-height',
+    'md.ref.typeface.body-large.line-height',
+    'md.ref.typeface.label-small.line-height'
+  ],
+  removedEx: []
+}

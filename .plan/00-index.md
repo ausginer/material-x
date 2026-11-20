@@ -1450,6 +1450,23 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 `RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
 
+#### RD-28 — tproc keeps reading Material's own token database, from a committed, pruned snapshot of one dated site release that only an update script writes
+
+**Proposed 2026-11-20 by the architect,** on the coordinator's task for issue #82, on `tproc/tokens-source-1`. **The owner accepts it or chooses otherwise,** and answers `Q1`–`Q3` of the [plan](tokens-source-1/tokens-source-plan.md#owner-questions). `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), so this is the next free number. **Not implemented.** It answers `RF-67`.
+
+- **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
+- **Required properties:**
+  1. tproc reads only the committed snapshot, and `DB.load()` has no network path. A missing or invalid table fails the load and names the file.
+  2. One update script writes the snapshot. It fetches every table from one dated release address (`2026-11-19_06-20-01`), not from `latest`, and refuses a set whose tables report different `system.version.versionName`.
+  3. A committed manifest records the release id, the database's `versionName`, version id and publish time, the fetch date, each table's kind, component id and name, and each stored file's SHA-256.
+  4. Stored tables keep only the fields `TokenTable.ts` declares, in upstream array order, and no revision, author, time or settings field. Storing the same release twice gives byte-identical files. They are minified and marked `-diff`.
+  5. The update script refuses a table whose shape differs from what tproc reads, or whose references name something missing, and names the table, the token and the field.
+  6. An update is a pull request carrying a report: tokens added and removed, deprecations added, and each changed one-hop reference and literal for `expressive` and `web`, by token set, with the difference in material-x's generated CSS. The report is saved in that pull request's record.
+  7. The component list is explicit, one manifest row per component id.
+- **Order:** the mechanism lands first with today's data, normalized without fetching, and must leave material-x's generated CSS byte-identical. The first update to a dated release is a separate pull request. The plan's [steps](tokens-source-1/tokens-source-plan.md#plan) carry proofs P1–P9.
+
+**Why.** The database is Material's authority, and its export is the only public form of it with every property tproc renders: contextual values, one-hop references, reference trees, token sets and deprecation. What made the reading fragile was that tproc followed `latest`, kept no record of what it took, fetched during test runs and compared nothing on change. Each of these is fixed without leaving the source. A dated address makes a release consistent and repeatable while the site keeps it, and the committed snapshot doesn't depend on how long that is.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -2670,6 +2687,19 @@ Tier B, **open**. Registered on 2026-11-19 by the architect, from `verifier-3` o
 - **Required property:** a trait or a base reference resolves through named and star re-exports, including a renaming one, by following the module graph through the loader. This holds for each class in a base's chain too. An ambiguous star export, or a cycle, is `trait-unresolved`.
 - **Until then:** under the ruling, the plugin document states the limit before PR #76 merges. A trait or a component's base must be imported from the module that declares it, or the build is refused (`trait-unresolved`, or `static-kind` for a base).
 - **It must close before `@ydinjs/vite-traits-plugin` is first published.** It doesn't block PR #76.
+
+#### RF-67 — tproc's token snapshot has no recorded provenance, mixes two database versions, carries personal data, and a missing file is fetched from `latest` while tests run
+
+Tier B, **open**. Registered on 2026-11-20 by the architect, on `tproc/tokens-source-1`, from the reading for issue #82 ([plan](tokens-source-1/tokens-source-plan.md#what-the-sites-data-does)). `RF-66` is the highest number on any branch on `origin`, so this is the next free number. `RD-28` proposes the repair. **No row is disabled.**
+
+- **Observed** ([addresses](tokens-source-1/checks/site-addresses.txt), [snapshot against `latest`](tokens-source-1/checks/snapshot-vs-latest.txt)):
+  - the committed component tables report database version `35.0.28` and the system tables `37.0.32`, and nothing in the repository records which release they came from;
+  - the same addresses serve `41.1.12` today. In 8 of the 14 tables, 52 tokens were added and 333 tokens' values or reference trees changed. The responses send `no-store` and no `ETag` or `Last-Modified`;
+  - `DB.ts`'s `download` fetches the table from `latest` when its cache file can't be imported (`DB.ts:54`). So a missing or unreadable file makes a test or build run read whatever the site serves that day, and write it into the snapshot;
+  - the committed `COLOR` table lists 38 distinct Google employee email addresses under `system.settings`, and the tables carry account ids under `revisionAuthor`. tproc reads neither;
+  - the snapshot is 147 MB, pretty-printed.
+- **Tier B:** no rendering changes while the files are present. The visual-contract tests take their token oracle from this snapshot, so an instrument the repository relies on has no recorded provenance and can change silently.
+- **Not a defect:** the addresses don't name content hashes. `20543ce18892f7d9` is the design system's id and `TOKEN_TABLE.<id>` the component's id. The site also serves each release under a dated address, so a release can be pinned.
 
 ## Questions
 
