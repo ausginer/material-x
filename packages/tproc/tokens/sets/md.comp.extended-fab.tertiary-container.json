@@ -180,7 +180,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -212,7 +212,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -276,7 +276,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -308,7 +308,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -372,7 +372,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -404,7 +404,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -468,7 +468,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -500,7 +500,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -596,7 +596,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -628,7 +628,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -692,7 +692,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -724,7 +724,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -788,7 +788,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -820,7 +820,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -884,7 +884,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -916,7 +916,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -1032,7 +1032,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -1064,7 +1064,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -1128,7 +1128,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -1160,7 +1160,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -1256,7 +1256,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -1288,7 +1288,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -1352,7 +1352,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -1384,7 +1384,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -1650,7 +1650,7 @@
         {
           "contextTags": {
             "audience": "3p",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -1678,7 +1678,7 @@
         {
           "contextTags": {
             "audience": "3p",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -1734,7 +1734,7 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -1762,7 +1762,7 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -1876,7 +1876,7 @@
         {
           "contextTags": {
             "audience": "3p",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -1904,7 +1904,7 @@
         {
           "contextTags": {
             "audience": "3p",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -1960,7 +1960,7 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -1988,7 +1988,7 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -2225,7 +2225,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -2254,7 +2254,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -2312,7 +2312,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -2341,7 +2341,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -2399,7 +2399,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -2428,7 +2428,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -2486,7 +2486,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -2515,7 +2515,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -2605,7 +2605,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -2637,7 +2637,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -2701,7 +2701,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -2733,7 +2733,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -2797,7 +2797,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -2829,7 +2829,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -2893,7 +2893,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -2925,7 +2925,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -3041,7 +3041,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -3073,7 +3073,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -3137,7 +3137,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -3169,7 +3169,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -3265,7 +3265,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -3297,7 +3297,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -3361,7 +3361,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -3393,7 +3393,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -3607,7 +3607,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -3636,7 +3636,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -3694,7 +3694,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -3723,7 +3723,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -3781,7 +3781,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -3810,7 +3810,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -3868,7 +3868,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -3897,7 +3897,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -3987,7 +3987,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -4019,7 +4019,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -4083,7 +4083,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -4115,7 +4115,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -4179,7 +4179,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -4211,7 +4211,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -4275,7 +4275,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -4307,7 +4307,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -4423,7 +4423,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -4455,7 +4455,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -4519,7 +4519,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -4551,7 +4551,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -4647,7 +4647,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -4679,7 +4679,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -4743,7 +4743,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -4775,7 +4775,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -5022,7 +5022,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -5051,7 +5051,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -5109,7 +5109,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -5138,7 +5138,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -5196,7 +5196,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -5225,7 +5225,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -5283,7 +5283,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -5312,7 +5312,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -5402,7 +5402,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -5434,7 +5434,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -5498,7 +5498,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -5530,7 +5530,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -5594,7 +5594,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -5626,7 +5626,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -5690,7 +5690,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -5722,7 +5722,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -5838,7 +5838,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -5870,7 +5870,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -5934,7 +5934,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -5966,7 +5966,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -6062,7 +6062,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -6094,7 +6094,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -6158,7 +6158,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -6190,7 +6190,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -6435,7 +6435,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -6464,7 +6464,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -6522,7 +6522,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -6551,7 +6551,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -6609,7 +6609,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -6638,7 +6638,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -6696,7 +6696,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -6725,7 +6725,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -6815,7 +6815,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -6847,7 +6847,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -6911,7 +6911,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -6943,7 +6943,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -7007,7 +7007,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -7039,7 +7039,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -7103,7 +7103,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -7135,7 +7135,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -7251,7 +7251,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -7283,7 +7283,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -7347,7 +7347,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -7379,7 +7379,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -7475,7 +7475,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -7507,7 +7507,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -7571,7 +7571,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -7603,7 +7603,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -7817,7 +7817,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -7846,7 +7846,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -7904,7 +7904,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -7933,7 +7933,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -7991,7 +7991,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -8020,7 +8020,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -8078,7 +8078,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -8107,7 +8107,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -8197,7 +8197,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -8229,7 +8229,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -8293,7 +8293,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -8325,7 +8325,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -8389,7 +8389,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -8421,7 +8421,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -8485,7 +8485,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -8517,7 +8517,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -8633,7 +8633,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -8665,7 +8665,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -8729,7 +8729,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -8761,7 +8761,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -8857,7 +8857,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -8889,7 +8889,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -8953,7 +8953,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -8985,7 +8985,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -9232,7 +9232,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -9261,7 +9261,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -9319,7 +9319,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -9348,7 +9348,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -9406,7 +9406,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -9435,7 +9435,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -9493,7 +9493,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -9522,7 +9522,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -9612,7 +9612,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -9644,7 +9644,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -9708,7 +9708,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -9740,7 +9740,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -9804,7 +9804,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -9836,7 +9836,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -9900,7 +9900,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -9932,7 +9932,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -10048,7 +10048,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -10080,7 +10080,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -10144,7 +10144,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -10176,7 +10176,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -10272,7 +10272,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -10304,7 +10304,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -10368,7 +10368,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -10400,7 +10400,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -10645,7 +10645,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -10674,7 +10674,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -10732,7 +10732,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -10761,7 +10761,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -10819,7 +10819,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -10848,7 +10848,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -10906,7 +10906,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -10935,7 +10935,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -11025,7 +11025,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -11057,7 +11057,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -11121,7 +11121,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -11153,7 +11153,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -11217,7 +11217,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -11249,7 +11249,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -11313,7 +11313,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -11345,7 +11345,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -11461,7 +11461,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -11493,7 +11493,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -11557,7 +11557,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -11589,7 +11589,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -11685,7 +11685,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -11717,7 +11717,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -11781,7 +11781,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -11813,7 +11813,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -12027,7 +12027,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -12056,7 +12056,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -12114,7 +12114,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -12143,7 +12143,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -12201,7 +12201,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -12230,7 +12230,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -12288,7 +12288,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -12317,7 +12317,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -12407,7 +12407,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -12439,7 +12439,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -12503,7 +12503,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -12535,7 +12535,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -12599,7 +12599,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -12631,7 +12631,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -12695,7 +12695,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -12727,7 +12727,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -12843,7 +12843,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -12875,7 +12875,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -12939,7 +12939,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -12971,7 +12971,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -13067,7 +13067,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -13099,7 +13099,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -13163,7 +13163,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -13195,7 +13195,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -13442,7 +13442,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -13471,7 +13471,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -13529,7 +13529,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -13558,7 +13558,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -13616,7 +13616,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -13645,7 +13645,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -13703,7 +13703,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -13732,7 +13732,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -13822,7 +13822,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -13854,7 +13854,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -13918,7 +13918,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -13950,7 +13950,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -14014,7 +14014,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -14046,7 +14046,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -14110,7 +14110,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -14142,7 +14142,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -14258,7 +14258,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -14290,7 +14290,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -14354,7 +14354,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -14386,7 +14386,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -14482,7 +14482,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -14514,7 +14514,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -14578,7 +14578,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -14610,7 +14610,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -14855,7 +14855,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -14884,7 +14884,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -14942,7 +14942,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -14971,7 +14971,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -15029,7 +15029,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -15058,7 +15058,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -15116,7 +15116,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -15145,7 +15145,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -15235,7 +15235,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -15267,7 +15267,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -15331,7 +15331,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -15363,7 +15363,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -15427,7 +15427,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -15459,7 +15459,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -15523,7 +15523,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -15555,7 +15555,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -15671,7 +15671,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -15703,7 +15703,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -15767,7 +15767,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -15799,7 +15799,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -15895,7 +15895,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -15927,7 +15927,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -15991,7 +15991,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -16023,7 +16023,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -16237,7 +16237,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -16266,7 +16266,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -16324,7 +16324,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -16353,7 +16353,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -16411,7 +16411,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -16440,7 +16440,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -16498,7 +16498,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -16527,7 +16527,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -16617,7 +16617,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -16649,7 +16649,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -16713,7 +16713,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -16745,7 +16745,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "high.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -16809,7 +16809,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -16841,7 +16841,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -16905,7 +16905,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -16937,7 +16937,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "medium.contrast",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -17053,7 +17053,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -17085,7 +17085,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -17149,7 +17149,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "dark"
           },
           "value": 0,
@@ -17181,7 +17181,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "dark"
           },
           "value": 0,
@@ -17277,7 +17277,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -17309,7 +17309,7 @@
           "contextTags": {
             "audience": "3p",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,
@@ -17373,7 +17373,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "web",
+            "platform": "android",
             "theme": "light"
           },
           "value": 0,
@@ -17405,7 +17405,7 @@
           "contextTags": {
             "audience": "1p.baseline",
             "contrast": "default",
-            "platform": "android",
+            "platform": "web",
             "theme": "light"
           },
           "value": 0,

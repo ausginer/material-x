@@ -179,7 +179,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -206,7 +206,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -227,7 +227,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -304,12 +304,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 600
+            "fontWeight": 700
           }
         },
         {
@@ -332,7 +332,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -350,7 +350,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -661,14 +661,14 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 600
+              "value": 700
             }
           }
         },
@@ -682,28 +682,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
-              }
-            ]
-          },
-          "resolvedValue": {
-            "axisValue": {
-              "tag": "wght",
-              "value": 500
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "platform": "web"
-          },
-          "value": 1,
-          "referenceTree": {
-            "tokenName": "md.sys.typescale.variable.label-small.wght",
-            "childNodes": [
-              {
-                "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -724,7 +703,28 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.typescale.variable.label-small.wght",
+            "childNodes": [
+              {
+                "tokenName": "md.ref.typeface.variable.wght-medium",
+                "value": 1
               }
             ]
           },
@@ -746,7 +746,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -793,12 +793,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 600
+            "fontWeight": 700
           }
         },
         {
@@ -821,7 +821,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -839,7 +839,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -970,14 +970,14 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 600
+              "value": 700
             }
           }
         },
@@ -991,28 +991,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
-              }
-            ]
-          },
-          "resolvedValue": {
-            "axisValue": {
-              "tag": "wght",
-              "value": 500
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "platform": "web"
-          },
-          "value": 1,
-          "referenceTree": {
-            "tokenName": "md.sys.typescale.variable.label-medium.wght",
-            "childNodes": [
-              {
-                "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -1033,7 +1012,28 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.typescale.variable.label-medium.wght",
+            "childNodes": [
+              {
+                "tokenName": "md.ref.typeface.variable.wght-medium",
+                "value": 1
               }
             ]
           },
@@ -1055,7 +1055,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -1282,12 +1282,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 600
+            "fontWeight": 700
           }
         },
         {
@@ -1310,7 +1310,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -1328,7 +1328,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -1521,14 +1521,14 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 600
+              "value": 700
             }
           }
         },
@@ -1542,28 +1542,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
-              }
-            ]
-          },
-          "resolvedValue": {
-            "axisValue": {
-              "tag": "wght",
-              "value": 500
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "platform": "web"
-          },
-          "value": 1,
-          "referenceTree": {
-            "tokenName": "md.sys.typescale.variable.label-large.wght",
-            "childNodes": [
-              {
-                "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -1584,7 +1563,28 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.typescale.variable.label-large.wght",
+            "childNodes": [
+              {
+                "tokenName": "md.ref.typeface.variable.wght-medium",
+                "value": 1
               }
             ]
           },
@@ -1606,7 +1606,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -1771,12 +1771,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -1799,7 +1799,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -1817,7 +1817,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -2075,7 +2075,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -2102,7 +2102,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -2123,7 +2123,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -2260,12 +2260,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -2288,7 +2288,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -2306,7 +2306,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -2624,7 +2624,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -2651,7 +2651,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -2672,7 +2672,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -2749,12 +2749,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -2777,7 +2777,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -2795,7 +2795,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -3021,7 +3021,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -3048,7 +3048,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -3069,7 +3069,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -3238,12 +3238,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 600
+            "fontWeight": 700
           }
         },
         {
@@ -3266,7 +3266,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -3284,7 +3284,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -3563,14 +3563,14 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 600
+              "value": 700
             }
           }
         },
@@ -3584,28 +3584,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
-              }
-            ]
-          },
-          "resolvedValue": {
-            "axisValue": {
-              "tag": "wght",
-              "value": 500
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "platform": "web"
-          },
-          "value": 1,
-          "referenceTree": {
-            "tokenName": "md.sys.typescale.variable.title-small.wght",
-            "childNodes": [
-              {
-                "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -3626,7 +3605,28 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.typescale.variable.title-small.wght",
+            "childNodes": [
+              {
+                "tokenName": "md.ref.typeface.variable.wght-medium",
+                "value": 1
               }
             ]
           },
@@ -3648,7 +3648,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -3727,12 +3727,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 600
+            "fontWeight": 700
           }
         },
         {
@@ -3755,7 +3755,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -3773,7 +3773,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -4084,14 +4084,14 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-semibold",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 600
+              "value": 700
             }
           }
         },
@@ -4105,28 +4105,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
-              }
-            ]
-          },
-          "resolvedValue": {
-            "axisValue": {
-              "tag": "wght",
-              "value": 500
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "platform": "web"
-          },
-          "value": 1,
-          "referenceTree": {
-            "tokenName": "md.sys.typescale.variable.title-medium.wght",
-            "childNodes": [
-              {
-                "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -4147,7 +4126,28 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.sys.typescale.variable.title-medium.wght",
+            "childNodes": [
+              {
+                "tokenName": "md.ref.typeface.variable.wght-medium",
+                "value": 1
               }
             ]
           },
@@ -4169,7 +4169,7 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.variable.wght-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
@@ -4216,12 +4216,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -4244,7 +4244,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -4262,7 +4262,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -4340,7 +4340,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -4367,7 +4367,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -4388,7 +4388,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -4705,12 +4705,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -4733,7 +4733,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -4751,7 +4751,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -4859,7 +4859,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -4886,7 +4886,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -4907,7 +4907,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -5194,12 +5194,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -5222,7 +5222,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -5240,7 +5240,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -5318,7 +5318,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -5345,7 +5345,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -5366,7 +5366,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -5683,12 +5683,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -5711,7 +5711,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -5729,7 +5729,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -5955,7 +5955,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -5982,7 +5982,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -6003,7 +6003,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -6172,12 +6172,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -6200,7 +6200,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -6218,7 +6218,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -6386,7 +6386,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -6413,7 +6413,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -6434,7 +6434,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -6661,12 +6661,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -6689,7 +6689,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -6707,7 +6707,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -6815,7 +6815,7 @@
           "resolvedValue": {
             "axisValue": {
               "tag": "wght",
-              "value": 500
+              "value": 600
             }
           }
         },
@@ -6842,7 +6842,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -6863,7 +6863,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -7150,12 +7150,12 @@
             "childNodes": [
               {
                 "tokenName": "md.ref.typeface.weight-medium",
-                "value": 0
+                "value": 1
               }
             ]
           },
           "resolvedValue": {
-            "fontWeight": 500
+            "fontWeight": 700
           }
         },
         {
@@ -7178,7 +7178,7 @@
         },
         {
           "contextTags": {
-            "platform": "web"
+            "platform": "android"
           },
           "value": 1,
           "referenceTree": {
@@ -7196,7 +7196,7 @@
         },
         {
           "contextTags": {
-            "platform": "android"
+            "platform": "web"
           },
           "value": 1,
           "referenceTree": {
@@ -7432,7 +7432,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -7521,7 +7521,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 28,
                 "unit": "POINTS"
@@ -7541,7 +7541,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "ROND": {
                   "axisValue": 0
@@ -8224,7 +8224,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -8313,7 +8313,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 28,
                 "unit": "POINTS"
@@ -8333,7 +8333,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "ROND": {
                   "axisValue": 0
@@ -9894,7 +9894,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -9983,7 +9983,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 14,
                 "unit": "POINTS"
@@ -9997,7 +9997,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -10686,7 +10686,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -10775,7 +10775,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 14,
                 "unit": "POINTS"
@@ -10789,7 +10789,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -11801,7 +11801,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -11890,7 +11890,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 22,
                 "unit": "POINTS"
@@ -11904,7 +11904,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -12593,7 +12593,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -12682,7 +12682,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 22,
                 "unit": "POINTS"
@@ -12696,7 +12696,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -13525,7 +13525,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -13614,7 +13614,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 24,
                 "unit": "POINTS"
@@ -13628,7 +13628,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -14317,7 +14317,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -14406,7 +14406,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 24,
                 "unit": "POINTS"
@@ -14420,7 +14420,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -15280,7 +15280,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -15314,7 +15314,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -15369,7 +15369,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 16,
                 "unit": "POINTS"
@@ -15383,7 +15383,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -15472,7 +15472,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -15631,7 +15631,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -15789,7 +15789,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -15947,7 +15947,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -16072,7 +16072,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -16106,7 +16106,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -16161,7 +16161,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 16,
                 "unit": "POINTS"
@@ -16175,7 +16175,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -16264,7 +16264,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -16423,7 +16423,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -16581,7 +16581,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -16739,7 +16739,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17129,7 +17129,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17163,7 +17163,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17218,7 +17218,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 11,
                 "unit": "POINTS"
@@ -17232,7 +17232,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -17321,7 +17321,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17480,7 +17480,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17638,7 +17638,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17796,7 +17796,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17921,7 +17921,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -17955,7 +17955,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -18010,7 +18010,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 11,
                 "unit": "POINTS"
@@ -18024,7 +18024,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -18113,7 +18113,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -18272,7 +18272,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -18430,7 +18430,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -18588,7 +18588,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -18759,7 +18759,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -18848,7 +18848,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 57,
                 "unit": "POINTS"
@@ -18877,7 +18877,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "CRSV": {
                   "axisValue": 0
@@ -19551,7 +19551,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -19640,7 +19640,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 57,
                 "unit": "POINTS"
@@ -19669,7 +19669,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "CRSV": {
                   "axisValue": 0
@@ -20850,7 +20850,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -20939,7 +20939,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 36,
                 "unit": "POINTS"
@@ -20968,7 +20968,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "CRSV": {
                   "axisValue": 0
@@ -21642,7 +21642,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -21731,7 +21731,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 36,
                 "unit": "POINTS"
@@ -21760,7 +21760,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "CRSV": {
                   "axisValue": 0
@@ -22574,7 +22574,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -22663,7 +22663,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 45,
                 "unit": "POINTS"
@@ -22692,7 +22692,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "CRSV": {
                   "axisValue": 0
@@ -23366,7 +23366,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -23455,7 +23455,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 45,
                 "unit": "POINTS"
@@ -23484,7 +23484,7 @@
                   "axisValue": 0
                 },
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "CRSV": {
                   "axisValue": 0
@@ -24234,7 +24234,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -24323,7 +24323,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 16,
                 "unit": "POINTS"
@@ -24337,7 +24337,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -25026,7 +25026,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -25115,7 +25115,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 16,
                 "unit": "POINTS"
@@ -25129,7 +25129,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -25989,7 +25989,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26023,7 +26023,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26078,7 +26078,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 14,
                 "unit": "POINTS"
@@ -26092,7 +26092,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -26181,7 +26181,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26340,7 +26340,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26498,7 +26498,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26656,7 +26656,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26781,7 +26781,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26815,7 +26815,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -26870,7 +26870,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 14,
                 "unit": "POINTS"
@@ -26884,7 +26884,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -26973,7 +26973,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -27132,7 +27132,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -27290,7 +27290,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -27448,7 +27448,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -27649,7 +27649,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -27683,7 +27683,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -27738,7 +27738,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 14,
                 "unit": "POINTS"
@@ -27752,7 +27752,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -27841,7 +27841,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28000,7 +28000,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28158,7 +28158,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28316,7 +28316,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28441,7 +28441,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28475,7 +28475,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28530,7 +28530,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 14,
                 "unit": "POINTS"
@@ -28544,7 +28544,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -28633,7 +28633,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28792,7 +28792,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -28950,7 +28950,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -29108,7 +29108,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -29311,7 +29311,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -29400,7 +29400,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 32,
                 "unit": "POINTS"
@@ -29414,7 +29414,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -30103,7 +30103,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -30192,7 +30192,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 32,
                 "unit": "POINTS"
@@ -30206,7 +30206,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -30941,7 +30941,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -31030,7 +31030,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 12,
                 "unit": "POINTS"
@@ -31044,7 +31044,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -31733,7 +31733,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -31822,7 +31822,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 500,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 12,
                 "unit": "POINTS"
@@ -31836,7 +31836,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 500
+                  "axisValue": 600
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -32662,7 +32662,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -32696,7 +32696,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -32751,7 +32751,7 @@
                   "Roboto Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 12,
                 "unit": "POINTS"
@@ -32765,7 +32765,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -32854,7 +32854,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33013,7 +33013,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33171,7 +33171,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33329,7 +33329,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33454,7 +33454,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.weight-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33488,7 +33488,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-semibold",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33543,7 +33543,7 @@
                   "Google Sans Flex"
                 ]
               },
-              "fontWeight": 600,
+              "fontWeight": 700,
               "fontSize": {
                 "value": 12,
                 "unit": "POINTS"
@@ -33557,7 +33557,7 @@
               },
               "variationAxes": {
                 "wght": {
-                  "axisValue": 600
+                  "axisValue": 700
                 },
                 "GRAD": {
                   "axisValue": 0
@@ -33646,7 +33646,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33805,7 +33805,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -33963,7 +33963,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },
@@ -34121,7 +34121,7 @@
                 "childNodes": [
                   {
                     "tokenName": "md.ref.typeface.variable.wght-medium",
-                    "value": 0
+                    "value": 1
                   }
                 ]
               },

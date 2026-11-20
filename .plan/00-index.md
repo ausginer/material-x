@@ -1691,6 +1691,13 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **Corrected:** a run comments on the open issue only when the current database isn't one that the issue already names. Under the proposal, every weekly run commented while the versions differed.
   - **P9:** before merge, against a stub `gh`. A real `workflow_dispatch` run is owed after merge, on the owner's go. Confirmed.
 
+**Steps 2 and 3 implemented 2026-11-20 by the implementer,** on `tproc/tokens-update-1`, at the rulings above. The plan has the [result](tokens-source-1/tokens-source-plan.md#steps-revised) and the proofs are in [`step-2.txt`](tokens-source-1/checks/step-2.txt).
+
+- The store is converted from release `2026-11-19_06-20-01`, database `41.1.12`, at `storeVersion` 2. 704 copies of 217 tokens are covered, and there is no conflict.
+- The [update report](tokens-source-1/checks/step-2-report.md) lists 30 tokens added, none removed, no deprecation added and 104 selected values changed.
+- material-x's CSS changes in one place: `xsmall` buttons get a 4px icon-label space, from `md.comp.button.xsmall.icon-label-space`. P1–P3, P5–P8 and P12 hold.
+- The weekly check is `.github/workflows/tokens.yml`. P9 holds before merge, and a `workflow_dispatch` run is owed after merge, on the owner's go.
+
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**
   1. **tproc reads only the committed store,** through a reader with no network path. A missing or invalid store file fails the load and names the file. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.

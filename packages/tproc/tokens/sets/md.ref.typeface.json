@@ -9,6 +9,11 @@
   "order": 2,
   "displayGroups": [
     {
+      "displayName": "Line height",
+      "description": "Adapts line height based on language script height.\n\nSmall – Latin, Greek, Cyrillic, Hebrew\nMedium – Arabic, Hindi, Bangla, Malayalam, Tamil, Kannada, Gujarati, Punjabi, Odia, Sinhala, Japanese, Chinese, Korean, Thai, Lao, Khmer, Armenian, Amharic, etc.\nLarge – Burmese, Telugu\nExtra Large – Nastaliq",
+      "orderInParentTokenSet": 7
+    },
+    {
       "displayName": "Roundness",
       "orderInParentTokenSet": 6
     },
@@ -35,6 +40,1640 @@
   ],
   "tokens": [
     {
+      "tokenName": "md.ref.typeface.body-small.line-height",
+      "displayName": "Body small line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 30,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 21,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 18,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 16,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 30,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 21,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 18,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 16,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.body-medium.line-height",
+      "displayName": "Body medium line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 13,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 35,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 26,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 23,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 20,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 35,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 26,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 23,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 20,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.body-large.line-height",
+      "displayName": "Body large line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 41,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 31,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 27,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 24,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 41,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 31,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 27,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.body-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 24,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.label-small.line-height",
+      "displayName": "Label small line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 29,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 21,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 18,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 16,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 29,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 21,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 18,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 16,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.label-medium.line-height",
+      "displayName": "Label medium line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 30,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 21,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 18,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 16,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 30,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 21,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 18,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 16,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.label-large.line-height",
+      "displayName": "Label large line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 36,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 26,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 23,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 20,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 36,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 26,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 23,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.label-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 20,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.title-small.line-height",
+      "displayName": "Title small line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 36,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 26,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 23,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 20,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 36,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 26,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 23,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 20,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.title-medium.line-height",
+      "displayName": "Title medium line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 42,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 31,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 27,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 24,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 42,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 31,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 27,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 24,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.title-large.line-height",
+      "displayName": "Title large line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 53,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 36,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 31,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 28,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 53,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 36,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 31,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.title-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 28,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.headline-small.line-height",
+      "displayName": "Headline small line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 59,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 41,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 35,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 32,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 59,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 41,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 35,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 32,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.headline-medium.line-height",
+      "displayName": "Headline medium line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 66,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 45,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 38,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 36,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 66,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 45,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 38,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 36,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.headline-large.line-height",
+      "displayName": "Headline large line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 75,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 50,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 42,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 40,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 75,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 50,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 42,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.headline-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 40,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.display-small.line-height",
+      "displayName": "Display small line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 80,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 57,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 47,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 44,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 80,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 57,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 47,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-small.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 44,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.display-medium.line-height",
+      "displayName": "Display medium line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 99,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 71,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 56,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 52,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 99,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 71,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 56,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-medium.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 52,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.display-large.line-height",
+      "displayName": "Display large line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Line height"
+      ],
+      "values": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 120,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 89,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "specificityScore": "256",
+          "lineHeight": {
+            "value": 73,
+            "unit": "POINTS"
+          }
+        },
+        {
+          "lineHeight": {
+            "value": 64,
+            "unit": "POINTS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "language.height": "extra.large"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 120,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "large"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 89,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "medium"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 73,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "language.height": "small"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.display-large.line-height"
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 64,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
       "tokenName": "md.ref.typeface.variable.wght-medium",
       "displayName": "Variable medium wght",
       "tokenValueType": "AXIS_VALUE",
@@ -44,6 +1683,17 @@
       "orderInDisplayGroup": 1,
       "values": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "axisValue": {
+            "tag": "wght",
+            "value": 600
+          }
+        },
+        {
           "axisValue": {
             "tag": "wght",
             "value": 500
@@ -52,7 +1702,72 @@
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
           "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-medium"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 600
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-medium"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-medium"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-medium"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 1,
           "referenceTree": {
             "tokenName": "md.ref.typeface.variable.wght-medium"
           },
@@ -78,10 +1793,86 @@
             "tag": "wght",
             "value": 400
           }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "axisValue": {
+            "tag": "wght",
+            "value": 500
+          }
         }
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-regular"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-regular"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 400
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-regular"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 400
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-regular"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 400
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
           "value": 0,
           "referenceTree": {
             "tokenName": "md.ref.typeface.variable.wght-regular"
@@ -161,12 +1952,73 @@
       "orderInDisplayGroup": 4,
       "values": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "fontWeight": 700
+        },
+        {
           "fontWeight": 700
         }
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
           "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-bold"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-bold"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-bold"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-bold"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 1,
           "referenceTree": {
             "tokenName": "md.ref.typeface.weight-bold"
           },
@@ -187,10 +2039,71 @@
       "values": [
         {
           "fontWeight": 600
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "fontWeight": 700
         }
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-semibold"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-semibold"
+          },
+          "resolvedValue": {
+            "fontWeight": 600
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-semibold"
+          },
+          "resolvedValue": {
+            "fontWeight": 600
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-semibold"
+          },
+          "resolvedValue": {
+            "fontWeight": 600
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
           "value": 0,
           "referenceTree": {
             "tokenName": "md.ref.typeface.weight-semibold"
@@ -211,6 +2124,17 @@
       "orderInDisplayGroup": 3,
       "values": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "axisValue": {
+            "tag": "wght",
+            "value": 800
+          }
+        },
+        {
           "axisValue": {
             "tag": "wght",
             "value": 700
@@ -219,7 +2143,72 @@
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
           "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-bold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 800
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-bold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 700
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-bold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 700
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-bold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 700
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 1,
           "referenceTree": {
             "tokenName": "md.ref.typeface.variable.wght-bold"
           },
@@ -246,10 +2235,86 @@
             "tag": "wght",
             "value": 600
           }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "axisValue": {
+            "tag": "wght",
+            "value": 700
+          }
         }
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-semibold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 700
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-semibold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 600
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-semibold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 600
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-semibold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 600
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
           "value": 0,
           "referenceTree": {
             "tokenName": "md.ref.typeface.variable.wght-semibold"
@@ -274,10 +2339,71 @@
       "values": [
         {
           "fontWeight": 500
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "fontWeight": 700
         }
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-medium"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-medium"
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-medium"
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-medium"
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
           "value": 0,
           "referenceTree": {
             "tokenName": "md.ref.typeface.weight-medium"
@@ -299,10 +2425,71 @@
       "values": [
         {
           "fontWeight": 400
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "specificityScore": "130",
+          "fontWeight": 500
         }
       ],
       "contextualReferenceTree": [
         {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-regular"
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-regular"
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-regular"
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-regular"
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
           "value": 0,
           "referenceTree": {
             "tokenName": "md.ref.typeface.weight-regular"
@@ -528,7 +2715,7 @@
         {
           "contextTags": {
             "audience": "3p",
-            "font": "ios.bold"
+            "font": "static"
           },
           "value": 2,
           "referenceTree": {
@@ -545,7 +2732,7 @@
         {
           "contextTags": {
             "audience": "3p",
-            "font": "static"
+            "font": "ios.bold"
           },
           "value": 2,
           "referenceTree": {
@@ -562,7 +2749,7 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "font": "ios.bold"
+            "font": "static"
           },
           "value": 3,
           "referenceTree": {
@@ -579,7 +2766,7 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "font": "static"
+            "font": "ios.bold"
           },
           "value": 3,
           "referenceTree": {
@@ -696,23 +2883,6 @@
         {
           "contextTags": {
             "audience": "3p",
-            "font": "ios.bold"
-          },
-          "value": 2,
-          "referenceTree": {
-            "tokenName": "md.ref.typeface.plain"
-          },
-          "resolvedValue": {
-            "fontNames": {
-              "values": [
-                "Roboto"
-              ]
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "audience": "3p",
             "font": "static"
           },
           "value": 2,
@@ -729,18 +2899,17 @@
         },
         {
           "contextTags": {
-            "audience": "1p.baseline",
-            "font": "ios.bold",
-            "platform": "ios"
+            "audience": "3p",
+            "font": "ios.bold"
           },
-          "value": 4,
+          "value": 2,
           "referenceTree": {
             "tokenName": "md.ref.typeface.plain"
           },
           "resolvedValue": {
             "fontNames": {
               "values": [
-                "System"
+                "Roboto"
               ]
             }
           }
@@ -767,6 +2936,24 @@
           "contextTags": {
             "audience": "1p.baseline",
             "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 4,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "System"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
             "platform": "compose"
           },
           "value": 3,
@@ -784,44 +2971,8 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "font": "ios.bold",
-            "platform": "web"
-          },
-          "value": 3,
-          "referenceTree": {
-            "tokenName": "md.ref.typeface.plain"
-          },
-          "resolvedValue": {
-            "fontNames": {
-              "values": [
-                "Google Sans Text"
-              ]
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "audience": "1p.baseline",
-            "font": "ios.bold",
+            "font": "static",
             "platform": "android"
-          },
-          "value": 3,
-          "referenceTree": {
-            "tokenName": "md.ref.typeface.plain"
-          },
-          "resolvedValue": {
-            "fontNames": {
-              "values": [
-                "Google Sans Text"
-              ]
-            }
-          }
-        },
-        {
-          "contextTags": {
-            "audience": "1p.baseline",
-            "font": "static",
-            "platform": "compose"
           },
           "value": 3,
           "referenceTree": {
@@ -856,8 +3007,44 @@
         {
           "contextTags": {
             "audience": "1p.baseline",
-            "font": "static",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
             "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "web"
           },
           "value": 3,
           "referenceTree": {

@@ -299,6 +299,26 @@ Proofs:
 
 **Step 3 — change notification,** weekly, because the owner answered yes to `Q1`: P9 as planned, after step 1, whose manifest it compares. Its details are in the [step 3 rulings](#step-3). Until his answer, this step read: _"only if the owner answers yes to `Q1`"_.
 
+**Steps 2 and 3 done 2026-11-20** by the implementer, on `tproc/tokens-update-1`, at the [rulings for steps 2 and 3](#rulings-for-steps-2-and-3) ([transcript](checks/step-2.txt), [update report](checks/step-2-report.md)).
+
+- **The update:** the store is converted from release `2026-11-19_06-20-01`, database `41.1.12`, with no conflict. 704 copies of 217 tokens are covered.
+  - 30 tokens are added, 15 in `md.ref.typeface` and 15 in `md.sys.measurement`. None is removed and no deprecation is added.
+  - 104 selected values change for `expressive` and `web`, most from a length literal to an `md.sys.measurement.space*` reference.
+  - `storeVersion` is 2. The store is 104 files and 63.3 MB, and gzips to 1.27 MB.
+- **material-x's CSS:** one stylesheet of 34 changes. `button/styles/size/main.css.ts` gains `--_icon-label-space: 4px` for `xsmall`, because `md.comp.button.xsmall.icon-label-space` changed from `8dp` to `md.sys.measurement.space50`. It's a spec change, not a break: no token material-x uses was removed or renamed, and every behaviour and spec-contract test passes in the three engines.
+- **The proofs:**
+  - **P6:** the manifest names one release and one database, which all 14 tables report.
+  - **P7:** the report lists `md.comp.button-group.connected.xsmall.between-space`, from a `2dp` length to `md.sys.measurement.space25`.
+  - **P8:** material-x passes 427 tests in Chromium, and 1,270 with 1 expected fail in Chromium, Firefox and WebKit. The visual project compares on GitHub's runner only, so the pull request's gate runs it.
+  - **P1, P2, P3 and P12** hold as in step 1. P12 covers 3,980 tokens, 983 groups and 143,717 child nodes.
+  - **P5:** 21 mutations of the release's tables are refused outside legacy mode, each naming the table, the token and the field. Among them are the rulings' three witnesses, each naming both tables.
+  - **The reordered-tables check:** with COLOR read after every component table, all 3,980 tokens are stored the same.
+  - **P10** compared the reader with the deleted `DB`, so it doesn't apply. The covered count replaces P11.
+- **Step 3:** `.github/workflows/tokens.yml` and `scripts/check-release.ts`.
+  - **P9 before merge:** the check gives `changed=false` on the committed manifest, and `changed=true` with its database edited.
+  - Against a stub `gh`, the issue step opens one issue when none is open, comments once on an open issue that names another database, and writes nothing to one that names the current database, or when the manifest is unchanged.
+  - **Owed after merge,** on the owner's go: the `workflow_dispatch` run of the [step 3 rulings](#step-3).
+
 ### Owner questions, amended
 
 - **Q2 is answered:** rewrite the history. [`history-rewrite-plan.md`](history-rewrite-plan.md) has the procedure and its own questions.
