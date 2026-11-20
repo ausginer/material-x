@@ -68,15 +68,15 @@ Expected values come from different authorities depending on the contract.
 | Composed appearance | Reviewed screenshot baseline | A regression oracle, not a Material source. |
 | Accessibility support | Platform assertions plus targeted manual/browser-AT evidence | Automated rule engines are supplementary. |
 
-**tproc is the tokenized visual source of truth.** The pipeline reads tproc's token store of Material's tokens, selects contextual values, normalizes them for CSS, groups them into component states, applies component-specific filtering and inheritance, and renders the token packages used by production CSS. The active profile is **Material Expressive + Web** (`DB.load()` uses tags `expressive` and `web`). The exported `t` API does not accept a tag profile, so tests cannot claim coverage of alternative profiles until profile selection becomes an explicit, unit-covered tproc API. Tag selection currently uses intersection semantics with first-match-in-source-order fallback; tproc node tests pin this until it changes intentionally.
+**tproc is the tokenized visual source of truth.** The pipeline reads tproc's token store of Material's tokens, selects contextual values, normalizes them for CSS, groups them into component states, applies component-specific filtering and inheritance, and renders the token packages used by production CSS. The active profile is **Material Expressive + Web** (`store.select()` defaults to the tags `expressive` and `web`). The exported `t` API does not accept a tag profile, so tests cannot claim coverage of alternative profiles until profile selection becomes an explicit, unit-covered tproc API. Tag selection currently uses intersection semantics with first-match-in-source-order fallback; tproc node tests pin this until it changes intentionally.
 
 **Upstream Material and Figma remain validation sources** — for importing/refreshing tokens, reviewing whether active tags select the intended variant, validating a non-token requirement, establishing a screenshot baseline, or investigating a suspected discrepancy. The token store can be inspected directly with the **use-tokens-db** skill (resolved values, reference trees, deprecation) — for validation and debugging only, never as a contract oracle, since tproc reads the same store. Any non-token literal in a fixture carries provenance, a review date where appropriate, and why it cannot come from tproc.
 
 ## Data flow and verification boundaries
 
 ```text
-Material DSM token tables
-  -> tproc DB tag selection (expressive + web)
+tproc token store (packages/tproc/tokens), converted from Material's DSM tables
+  -> tproc store tag selection (expressive + web)
   -> processToken / processTokenSet normalization
   -> TokenPackageProcessor grouping, filtering, adjustment, and inheritance
   -> TokenPackage rendering
@@ -85,7 +85,7 @@ Material DSM token tables
   -> computed layout and pixels in Chromium
 ```
 
-Testing places an assertion at each meaningful boundary: DB/processor node tests verify source selection and transformation; package contract node tests verify grouping, inheritance, adjustments, state paths, and selector rendering; browser visual-contract tests compare independently resolved package values with actual geometry and computed styles; visual regression tests detect composed raster changes not economically described by individual properties.
+Testing places an assertion at each meaningful boundary: store/processor node tests verify source selection and transformation; package contract node tests verify grouping, inheritance, adjustments, state paths, and selector rendering; browser visual-contract tests compare independently resolved package values with actual geometry and computed styles; visual regression tests detect composed raster changes not economically described by individual properties.
 
 If only the final screenshot exists, failures are hard to diagnose. If only tproc tests exist, a component can select the wrong runtime state while the pipeline stays correct.
 
