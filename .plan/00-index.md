@@ -1316,7 +1316,7 @@ No register entry held that design. It lived in the code, in that document and i
    - It replaces the constant with the base.
    - It copies each trait's members in list order, before the component's own.
    - It merges statics by property 3.
-   - It generates `static { impl(this, …brands) }` when the list has a trait, and neither the block nor the import for an empty list. _(Amended 2026-11-20, below.)_
+   - It generates `static { impl(this, …brands) }` when the list has a trait, and neither the block nor the import for an empty list. _(Amended 2026-11-20, twice, below.)_
    - Every case the copy can't carry is a build error. Layer (a) has no runtime composition to fall back on.
 3. **A static merges by the kind its declaration states,** read syntactically.
    - An array concatenates, and an object spreads shallowly. The types say the same through `MergeStatics`.
@@ -1516,7 +1516,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **The defect** (P47). rolldown's declaration emitter, oxc's, drops a JSDoc in front of a class's decorators. tsdown's declaration plugin records each module's code before any transform of ours runs. So the 10 published trait `.d.ts` files lose their class docs.
 - **The written form stays** `/** doc */`, then `@trait` and `@attributes(TABLE)`, each on its own line, then `export class`. The owner also asked whether a tool option like Babel's old `decoratorsBeforeExport` exists. None does: `oxfmt` 0.78 has no decorator option, and oxc and TypeScript attach comments by fixed rules.
 - **The stage,** a `load` hook of the `trait-attributes` plugin:
-  - **What it does.** For an exported class declaration whose decorators come before `export`, with a JSDoc directly in front of them, it moves `export` to the first decorator's start. JavaScript and TypeScript read the result, `/** doc */ export @trait @attributes(T) class X`, the same way. The emitter, TypeScript 6 and tsc 7 all keep its doc.
+  - **What it does.** For an exported class declaration whose decorators come before `export`, with a JSDoc directly in front of them, it moves `export` to the first decorator's start. _(Amended 2026-11-20 a fourth time, below: `export default` too, and other comments may follow the JSDoc.)_ JavaScript and TypeScript read the result, `/** doc */ export @trait @attributes(T) class X`, the same way. The emitter, TypeScript 6 and tsc 7 all keep its doc.
   - **Why it comes first.** rolldown runs `load` before every `transform`, so the declaration plugin records the rewritten code.
   - **What it reads:** candidate modules with an absolute file id and no query, in every build and not on the dev server, which emits no declarations. It parses only a file with a line that starts with `@`, and returns `null` when it has nothing to move.
   - **What it returns:** the code and a hires map whose `sourcesContent` is the file.
@@ -1537,6 +1537,28 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **P47's ways 2, 3a and 3b,** for the reasons in [its record](trait-jsdoc-probe-1/trait-jsdoc-probe.md#results).
   - **The probed internal form,** `static { trait(this); … }`. It is the source form that `trait-decorator` rejects, it needs a second compile stage in the analysis loader too, and it moves an inline table's positions into the class body.
   - **`export` on the doc's last line,** which keeps every line and column: 30 built files changed (P48).
+
+**Dated 2026-11-20 by the architect: the three amendments of 2026-11-20 are implemented,** by PR #85, merged at `3457e3463`. The [feature proof](reviews/trait-decorator-1/feature-proof-claude.md)'s verdict at `f8acb005b` is that nothing blocks. Their _Unimplemented_ lines are answered.
+
+- **`reviewer-1` is accepted as resolved.** `.storybook/main.ts` sets `typescript: { reactDocgen: false }`, because react-docgen's parser rejects decorators before `export`. The re-review read every docs page and every story's `argTypes` with docgen on and off and found them identical. Nothing the site shows reads docgen's output.
+- **`reviewer-3` and `reviewer-4`** are decided in the amendment below. **`reviewer-5`** is deferred by the owner.
+
+**Amended 2026-11-20 a fourth time, by the architect: no trait form loses its doc, and the plugin leaves no import it emptied** (the third amendment's stage, and property 2's fourth bullet). **Asked by the owner,** relayed by the coordinator: _"The owner wants both done"_, for the feature proof's `reviewer-3` and `reviewer-4`. Registered on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. An amendment, because both findings are about how this decision's properties hold. The [plan](trait-decorator-2/trait-decorator-2-plan.md) holds the diagnosis, the tasks, the proofs and the probes. **Unimplemented.**
+
+- **The doc forms** (`reviewer-3`, [transcript](trait-decorator-2/checks/doc-forms.txt)).
+  - **`@trait export abstract class` keeps its doc.** The finding came from the probe's test, `(export )?declare class`, which can't match `export declare abstract class`.
+  - **Two forms lose it, both because of the stage:** a comment between the JSDoc and the first decorator, because the stage requires only whitespace there; and `@trait export default class X`, because the stage reads only `export class`.
+  - **Both keep it from now on, and neither is refused.** The stage reads `export default class` too, and moves `export default`. A statement counts as documented when a JSDoc lies between the previous statement and the first decorator, whatever comments follow the JSDoc. The emitter keeps the doc of each form the stage produces, and the compile already accepts each one. Refusing a form would make the compiler a lint rule about comment placement, or remove `export default`, which the resolver supports.
+  - **An anonymous `export default` trait** is refused already, by `trait-decorator`.
+- **The bare import** (`reviewer-4`, [transcripts](trait-decorator-2/checks/bare-imports.txt)). material-x's built JavaScript has eight bare imports of core modules, from two mechanisms.
+  - **The plugin's, three of them:** `list-item.js`, `ButtonCore.js` and `ButtonGroupCore.js` import `composition.js` bare. The lowerer keeps `import { compose, type Composed }` after removing the composition, and the trait transform keeps `import { type Composed }` after removing `trait`. Under `verbatimModuleSyntax`, both are emitted as an import that rolldown keeps for an external module.
+  - **Decided:** when the plugin removes an import specifier and no value specifier remains in that declaration, it removes the declaration. An inline `type` specifier isn't a value specifier. The lowerer removes `compose` once nothing in the module references it. A declaration the plugin didn't touch stays as written. Property 2's _"nor the import"_ then holds for the module: an empty composition leaves no import of `composition.js`.
+  - **rolldown's, five of them:** a material-x trait class that the package's runtime doesn't read is tree-shaken away, and rolldown keeps its external imports as bare imports. No hook of the plugin sees those uses go. This unit leaves them.
+- **Not adopted:**
+  - **`treeshake.moduleSideEffects: 'no-external'` in material-x's build:** it would drop a deliberate bare import of any package without a warning. In the probe it also changed `fab.d.ts`.
+  - **core's `sideEffects` as the fix for `reviewer-4`:** it lets only a consumer's bundler drop the import, and material-x's published file would keep it.
+  - **Moving `export` for every decorated class, with no doc test:** that widens the stage's rewrites, the scope that `reviewer-5` questions.
+- **For the owner:** whether `@ydinjs/core` declares `"sideEffects": false`, which is core's published contract. It is true of all 27 built modules today. Recommended before core's first release, as its own unit with a size reading. This amendment doesn't need it.
 
 #### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
 

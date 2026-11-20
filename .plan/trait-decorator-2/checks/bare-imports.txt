@@ -1,0 +1,37 @@
+# material-x built at 645410c12 with probes/material-x-build.config.ts
+## bare imports of @ydinjs packages, as built
+button-group/ButtonGroupCore.js:4:import "@ydinjs/core/traits/composition.js";
+button-group/ButtonGroupCore.js:7:import "@ydinjs/core/traits/attribute-traits.js";
+button/ButtonCore.js:13:import "@ydinjs/core/traits/composition.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+list/list-item.js:3:import "@ydinjs/core/traits/composition.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";
+## the same with NO_EXTERNAL=1
+## files that differ between the two builds
+Files mx-control/button/ButtonCore.d.ts and mx-noext/button/ButtonCore.d.ts differ
+Files mx-control/button/ButtonCore.js and mx-noext/button/ButtonCore.js differ
+Files mx-control/button/IconButtonCore.d.ts and mx-noext/button/IconButtonCore.d.ts differ
+Files mx-control/button/IconButtonCore.js and mx-noext/button/IconButtonCore.js differ
+Files mx-control/button/SwitchCore.d.ts and mx-noext/button/SwitchCore.d.ts differ
+Files mx-control/button-group/ButtonGroupCore.d.ts and mx-noext/button-group/ButtonGroupCore.d.ts differ
+Files mx-control/button-group/ButtonGroupCore.js and mx-noext/button-group/ButtonGroupCore.js differ
+Files mx-control/core/elements/CheckableCore.d.ts and mx-noext/core/elements/CheckableCore.d.ts differ
+Only in mx-noext/core/styles/elevation: elevation.runtime.d.ts
+Files mx-control/core/traits/focus-forwarding.d.ts and mx-noext/core/traits/focus-forwarding.d.ts differ
+Files mx-control/core/traits/focus-forwarding.js and mx-noext/core/traits/focus-forwarding.js differ
+Files mx-control/fab/fab.d.ts and mx-noext/fab/fab.d.ts differ
+Files mx-control/list/ListInteractiveItemCore.d.ts and mx-noext/list/ListInteractiveItemCore.d.ts differ
+Files mx-control/list/ListItemCore.d.ts and mx-noext/list/ListItemCore.d.ts differ
+Files mx-control/list/list-item.js and mx-noext/list/list-item.js differ
+Files mx-control/text-field/TextFieldCore.js and mx-noext/text-field/TextFieldCore.js differ
+## fab.d.ts
+0a1
+> import "../core/styles/elevation/elevation.runtime.js";
+
+# core-effects.ts (Symbol brands omitted)
+./controllers/useRovingTabindex.js: impure init notifySelection = createEventNotifier({ input: { cancelable
+./traits/attribute-traits.js: impure init AnyElement = bound(); /** The bound of a trait whose members
+./traits/attribute-traits.js: impure init Controlled = bound(); /** * Declares a trait's attributes, w
+modules read: 27
