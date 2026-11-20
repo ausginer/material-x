@@ -1,0 +1,105 @@
+# proof 6 at the implementation of RD-30: the reruns of consumer-drop.ts and consumer-entries.ts
+## consumer-drop.ts, field present
+sideEffects: false
+module rolldown-ignoring rolldown esbuild
+attribute.js 0 0 0
+controllers/useARIA.js 0 0 0
+controllers/useAttributes.js 0 0 0
+controllers/useConnected.js 0 0 0
+controllers/useContext.js 0 0 0
+controllers/useCSSProps.js 0 0 0
+controllers/useEvents.js 0 0 0
+controllers/useKeyboard.js 0 0 0
+controllers/useMutationObserver.js 0 0 0
+controllers/useResizeObserver.js 0 0 0
+controllers/useRovingTabindex.js 0 0 0
+controllers/useShadowDOM.js 0 0 0
+controllers/useSlot.js 0 0 0
+element.js 0 0 0
+emitter.js 0 0 0
+traits/attribute-traits.js 0 0 0
+traits/checkable.js 0 0 0
+traits/composition.js 0 0 0
+traits/disableable.js 0 0 0
+traits/linkable.js 0 0 0
+traits/nameable.js 0 0 0
+traits/reorderable.js 0 0 0
+traits/selectable.js 0 0 0
+traits/typeable.js 0 0 0
+traits/valuable.js 0 0 0
+utils/DOM.js 0 0 0
+utils/runtime.js 0 0 0
+## consumer-drop.ts, field absent
+sideEffects: undefined
+module rolldown-ignoring rolldown esbuild
+attribute.js 0 0 0
+controllers/useARIA.js 0 0 712
+controllers/useAttributes.js 0 0 712
+controllers/useConnected.js 0 0 712
+controllers/useContext.js 0 0 712
+controllers/useCSSProps.js 0 0 712
+controllers/useEvents.js 0 0 712
+controllers/useKeyboard.js 0 0 712
+controllers/useMutationObserver.js 0 0 712
+controllers/useResizeObserver.js 0 0 712
+controllers/useRovingTabindex.js 0 0 959
+controllers/useShadowDOM.js 0 0 0
+controllers/useSlot.js 0 0 712
+element.js 0 0 712
+emitter.js 0 0 0
+traits/attribute-traits.js 0 0 41
+traits/checkable.js 0 0 753
+traits/composition.js 0 0 0
+traits/disableable.js 0 0 753
+traits/linkable.js 0 0 753
+traits/nameable.js 0 0 753
+traits/reorderable.js 0 0 753
+traits/selectable.js 0 0 753
+traits/typeable.js 0 0 753
+traits/valuable.js 0 0 753
+utils/DOM.js 0 0 0
+utils/runtime.js 0 0 0
+## consumer-entries.ts, field present
+sideEffects: false
+entry rolldown esbuild
+button/button 17036 17405
+button/icon-button 20050 20416
+button/link-button 17060 17177
+button/switch-button 20227 20337
+button/switch-icon-button 25763 25869
+button/split-button 30218 30379
+button-group/button-group 10434 10740
+button-group/connected-button-group 13296 13653
+checkbox/checkbox 11423 11581
+fab/fab 15756 15882
+icon/icon 1584 1611
+list/list 9917 9915
+list/list-item 9078 9065
+list/list-button-item 14655 14786
+list/list-link-item 15384 15513
+radio/radio 9986 10138
+text-field/multiline-text-field 16287 16315
+text-field/text-field 34043 34199
+complete 88327 88517
+## consumer-entries.ts, field absent
+sideEffects: undefined
+entry rolldown esbuild
+button/button 17036 17454
+button/icon-button 20050 20466
+button/link-button 17060 17226
+button/switch-button 20227 20388
+button/switch-icon-button 25763 25920
+button/split-button 30218 30379
+button-group/button-group 10434 10740
+button-group/connected-button-group 13296 13653
+checkbox/checkbox 11423 11628
+fab/fab 15756 15928
+icon/icon 1584 1611
+list/list 9917 9960
+list/list-item 9078 9107
+list/list-button-item 14655 14832
+list/list-link-item 15384 15560
+radio/radio 9986 10185
+text-field/multiline-text-field 16287 16361
+text-field/text-field 34043 34249
+complete 88327 88519

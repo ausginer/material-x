@@ -1,0 +1,26 @@
+# release-check core with a scratch top-level effect, at the implementation of RD-30
+# src/utils/runtime.ts gained (globalThis as Record<string, unknown>)["ydinProbe"] = 1; core built and packed, then:
+# node .scripts/release-check.ts package --directory packages/core --tarball <tarball>
+# side-effects problems only; the other 152 problems are identical to the run without the probe
+a bare import of @ydinjs/core/controllers/useARIA.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useAttributes.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useConnected.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useContext.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useCSSProps.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useEvents.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useKeyboard.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useMutationObserver.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useResizeObserver.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useRovingTabindex.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useSlot.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/element.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/emitter.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/checkable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/disableable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/linkable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/nameable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/reorderable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/selectable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/typeable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/valuable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/utils/runtime.js keeps 23 bytes: remove the effect, or list the module in sideEffects
