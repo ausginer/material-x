@@ -1,6 +1,6 @@
 # box-quad's first release — plan
 
-**Status: planned, with five owner questions open ([Questions for the owner](#questions-for-the-owner)).** Written by Architect B on 2026-11-20 at `d69e3ddbc` (`origin/main`), on `repo/box-quad-release-1` in slot `f`, on the coordinator's task for issue #56. The owner asked for the work to start, and for box-quad to appear in the shared TypeDoc output. **Publishing is the owner's checkpoint:** this unit and the implementation units it plans stop before any `publish`. No identifier is minted here. The owner's answers are registered as one repository decision by the main slot's architect, as `repo:RD-24` was.
+**Status: the owner answered all five questions on 2026-11-20, as relayed by the coordinator ([Owner's answers](#owners-answers)). Task A is done.** The main slot's architect registers the answers as a repository decision, and that entry governs where it and this plan differ. Written by Architect B on 2026-11-20 at `d69e3ddbc` (`origin/main`), on `repo/box-quad-release-1` in slot `f`, on the coordinator's task for issue #56. The owner asked for the work to start, and for box-quad to appear in the shared TypeDoc output. **Publishing is the owner's checkpoint:** this unit and the implementation units it plans stop before any `publish`. No identifier is minted here. The owner's answers are registered as one repository decision by the main slot's architect, as `repo:RD-24` was. **Revised the same day** for the answers: the version is `1.0.0`, and a release workflow publishes instead of the owner by hand. Until then the plan recommended `0.1.0` and described a hand publish, which the [Release procedure](#release-procedure)'s last paragraph keeps.
 
 The plan is repository-level because the first release of any `@ydinjs` package sets the release procedure, the changelog form and the docs index that the next releases reuse. drag is next in the owner's release order.
 
@@ -35,17 +35,17 @@ Read by the architect at `d69e3ddbc` in slot `f`. The transcript is [`checks/rea
 | --- | --- | --- | --- |
 | Published files | Everything in the package directory | The three built files, `README.md`, `CHANGELOG.md`, `LICENSE` and `package.json` | [Property 1](#1-the-manifest-and-the-published-files) |
 | Manifest metadata | `name`, `version`, `license`, `type`, `exports` | Also `description`, `author`, `homepage`, `bugs`, `repository`, `sideEffects` and `publishConfig` | [Property 1](#1-the-manifest-and-the-published-files) |
-| `version` | `0.1.0` | The owner's choice | [Q1](#questions-for-the-owner) |
+| `version` | `0.1.0` | `1.0.0`, and drag's dependency on it follows | [Q1](#owners-answers), [property 1](#1-the-manifest-and-the-published-files) |
 | `engines` | None | None | [Property 1](#1-the-manifest-and-the-published-files) |
 | `LICENSE` | Missing | A copy of the root's | [Property 1](#1-the-manifest-and-the-published-files) |
 | README | Missing | Consumer documentation | [Property 2](#2-the-readme) |
 | Changelog | Missing | `CHANGELOG.md`, one entry for this version | [Property 3](#3-the-changelog) |
-| Size limit | Measured, no ceiling | The owner's choice | [Q2](#questions-for-the-owner) |
-| Browser support | Not stated anywhere | The owner's choice | [Q3](#questions-for-the-owner) |
+| Size limit | Measured, no ceiling | The reading after the release's last change, no slack | [Q2](#owners-answers), [task 4](#implementation) |
+| Browser support | Not stated anywhere | The current stable release of Chromium, Firefox and Safari | [Q3](#owners-answers), [property 2](#2-the-readme) |
 | TypeDoc | Recipes write into drag's directory, and nothing runs them | Its own section in the dev cache and in `.docs/api`, linked from the API index and from Storybook | [Property 4](#4-the-api-docs) |
-| Contract | Describes `readBoxQuad` | Describes the exported API | [Property 5](#5-the-contract-describes-the-published-api) |
-| Release workflow | None | The owner's choice | [Q4](#questions-for-the-owner) |
-| Registry scope | Not readable from here | The owner confirms it | [Q5](#questions-for-the-owner) |
+| Contract | Described a function the source doesn't export | Describes the exported API. **Done** | [Property 5](#5-the-contract-describes-the-published-api) |
+| Release workflow | None | A workflow that publishes with provenance, a repository-wide unit of its own | [Q4](#owners-answers), [Release procedure](#release-procedure) |
+| Registry scope | Not readable from here | Confirmed by the owner | [Q5](#owners-answers) |
 | Root `clean-build` | Omits box-quad | Includes it | [Property 6](#6-the-root-clean-build-includes-box-quad) |
 
 ## Decided here
@@ -60,9 +60,10 @@ These are the architect's, within the owner's authorization to prepare the packa
 - **`author`, `homepage`, `bugs` and `repository`** follow material-x's manifest. `author` is the same string. `homepage` is `https://github.com/ausginer/material-x/tree/main/packages/box-quad#readme`. `repository` adds `"directory": "packages/box-quad"`, which tells the registry where the package lives in the repository.
 - **`sideEffects: false`.** The built module's top level holds only `const` and function declarations and one `export` (§8's `index.d.ts` and the built `index.js`). The field lets a bundler that trusts it drop an import whose bindings are unused. If the module ever gains a top-level effect, the field becomes false, so the implementer's reading of the top level is the proof, and the reviewer repeats it.
 - **`publishConfig: { "access": "public" }`,** as `core`, `material-x` and `vite-traits-plugin` declare. Without it a scoped package is published as restricted.
-- **No `engines`.** box-quad runs in a browser and uses no Node API, so `engines.node` would state a requirement that the package doesn't have. Browser support is stated in the README ([Q3](#questions-for-the-owner)).
+- **No `engines`.** box-quad runs in a browser and uses no Node API, so `engines.node` would state a requirement that the package doesn't have. Browser support is stated in the README ([Q3](#owners-answers)).
+- **`version` is `1.0.0`** ([Q1](#owners-answers)). drag's manifest names `@ydinjs/box-quad` `0.1.0` exactly, so it changes to `1.0.0` in the same commit, and the lockfile with it. A workspace dependency whose version no workspace package has would otherwise be looked up on the registry.
 - **`exports`, `type` and `license` don't change.** `exports` already has `.` and `./package.json`, and tsdown writes the same map at each build.
-- **No `private`.** The pack listing and the owner's publish step are what keep the wrong tarball off the registry.
+- **No `private`.** The pack listing and the release workflow's own check are what keep the wrong tarball off the registry.
 
 ### 2. The README
 
@@ -74,7 +75,7 @@ These are the architect's, within the owner's authorization to prepare the packa
 - the storage model: each function writes into storage the caller owns and returns `true`, or returns `false` and leaves the storage untouched. `[]`, a plain object and a `Float64Array` of the stated length all work, and the slots are listed;
 - the two preconditions that the types can't state: a `Space` passed to `coordinates` must be that element's own, and the two boxes passed to `projection` must come from the same viewport;
 - what is supported and what returns `false`, from `contract/04-support-matrix.md` §§2–3 in plain words;
-- browser support, as the owner answers [Q3](#questions-for-the-owner);
+- browser support: the current stable release of Chromium, Firefox and Safari ([Q3](#owners-answers)), in the words of the decision that registers it;
 - a link to the API reference on the docs site, `https://ausginer.github.io/material-x/api/box-quad/`, which exists once property 4 is on `main` and deployed;
 - the license.
 
@@ -94,9 +95,11 @@ The required properties:
 
 ### 5. The contract describes the published API
 
-**`F-1`'s API half closes before the publish.** That means `contract/00-index.md` binding decision 1, `contract/01-public-api.md`, and the `readBoxQuad` mentions in `02-behavior-scenarios.md` and `03-failure-table.md`. They are rewritten to describe what the source exports. The behavioral expectations and the scenario IDs don't change.
+**`F-1`'s API half closes before the publish.** That means `contract/00-index.md` binding decision 1, `contract/01-public-api.md`, and the mentions of the old single-call function in `02-behavior-scenarios.md` and `03-failure-table.md`. They are rewritten to describe what the source exports. The behavioral expectations and the scenario IDs don't change, with one exception found during the rewrite: below.
 
-- **Why it blocks:** after the first publish, [`CONTRIBUTING.md` §8](../../CONTRIBUTING.md#8-do-not-preserve-compatibility-for-an-unreleased-api) no longer applies, and removing or renaming an export costs consumers. The contract is what a later change to the API is reviewed against. A contract that names a function nobody can import can't serve that purpose. The README's support statements also come from the contract.
+**Done 2026-11-20 on this branch,** and `F-1` is closed ([box-quad's record](../../packages/box-quad/.plan/plan.md), 2026-11-20). **One expectation did change on paper:** `REL-10` expected a `false` result for a source and a target from different documents, and `FAIL-CROSS-DOCUMENT` recognized it. A `Box` carries no document, so `projection` can't compare documents. The source stopped detecting it when measurement and projection were split, and the `REL-10` test asserts that it isn't detected. The contract now states it as a precondition of `projection`, as the source's JSDoc does, and withdraws the failure ID. No code changes.
+
+- **Why it blocks:** after the first publish, [`CONTRIBUTING.md` §8](../../CONTRIBUTING.md#8-do-not-preserve-compatibility-for-an-unreleased-api) no longer applies, and at `1.0.0` removing or renaming an export takes a major version. The contract is what a later change to the API is reviewed against. A contract that names a function nobody can import can't serve that purpose. The README's support statements also come from the contract.
 - **Who does it:** box-quad's architect, as a record unit before the README is written. It mints no `BQ-*` unless the rewrite finds an export that the source and the decisions disagree on. In that case the question goes to the owner before the publish, because after it the answer costs a breaking version.
 - **What it isn't:** a redesign. The surface is the one that `BQ-9`, `BQ-12` and the 2026-11-13 entries decided. drag uses `ancestry`, `coordinates`, `localDelta` and the types `Box`, `Space` and `Delta`. `projection` and `Quad` are the package's quad output, the reason it exists.
 
@@ -105,6 +108,8 @@ The required properties:
 The root `clean-build` gains `box-quad` in its project list, like the other root recipes. This is a small fix that this release unit carries, because the release procedure starts from a clean build.
 
 ## Questions for the owner
+
+**Answered on 2026-11-20** ([Owner's answers](#owners-answers)). The questions are kept as they were asked.
 
 **Q1. The first version.**
 
@@ -128,9 +133,28 @@ The root `clean-build` gains `box-quad` in its project list, like the other root
 
 **Q5. A precondition, not a choice:** confirm that you hold the `@ydinjs` scope on npm, as an organization or a user named `ydinjs`, and that the account that publishes uses two-factor authentication. Nothing in the repository records it, and an anonymous read of the organization's page was refused.
 
+## Owner's answers
+
+Given on 2026-11-20 and relayed by the coordinator. The registered repository decision governs. This section says only what the plan does with each answer.
+
+- **Q1: (b), `1.0.0`.** [Property 1](#1-the-manifest-and-the-published-files) sets it, and drag's dependency follows.
+- **Q2: (a), the reading after the release's last change, with no slack.** The owner added a rule for later changes: lowering the ceiling needs no question, and raising it needs his approval. [Task 4](#implementation) sets the ceiling.
+- **Q3: (a), the current stable release of each engine, for now.** The owner said minimum versions are to be derived later for every package. [Property 2](#2-the-readme) states it in the README, and the registering decision says where else it is stated.
+- **Q4: (b), a release workflow with provenance first.** It is a repository-wide unit of its own, which the main slot's architect designs. This plan doesn't design it. The [Release procedure](#release-procedure) lists only what this release requires of it.
+- **Q5: confirmed.** The owner holds the `@ydinjs` scope on npm and uses two-factor authentication with an authenticator app and security keys.
+
 ## Release procedure
 
-This is the owner's checkpoint, after the implementation units below have merged. With Q4 (a):
+**The release workflow publishes, and the owner starts it.** Its design, trigger, credentials and permissions belong to its own unit ([Q4](#owners-answers)). For box-quad's first release, it must meet these properties:
+
+- it publishes from a `main` commit on which `verify` passed;
+- it builds the package from that commit and publishes the tarball it built, after checking that the tarball lists exactly `CHANGELOG.md`, `LICENSE`, `README.md`, `index.d.ts`, `index.js`, `index.js.map` and `package.json`, with `version` `1.0.0`;
+- it publishes with public access and a provenance attestation;
+- after the publish, an agent reads the registry, installs the package into an empty scratch project, imports it, and type-checks the import with `skipLibCheck` off. The reading goes in the release record, and #56 closes on it.
+
+Whether the tarball check is a step of the workflow or a standing test is the workflow unit's decision ([Not adopted](#not-adopted)).
+
+**Superseded by Q4 (b), kept for the record:** the plan first proposed that the owner publish by hand, as follows.
 
 1. `verify` passes on `main` at the merge commit _M_.
 2. In a clean checkout of _M_: `aube ci`, then `aube exec just build` in `packages/box-quad`.
@@ -141,20 +165,22 @@ This is the owner's checkpoint, after the implementation units below have merged
 
 ## Implementation
 
-**The order:** the owner answers, then the main slot's architect registers the answers, then task A, then tasks 1 to 4, then the review, then the publish. Tasks 1, 2 and 4 don't depend on A or on each other. Task 3 needs A and the answer to Q3. Each task's proof is recorded in this unit's handoff or in the implementer's report, under `checks/`.
+**The order:** the owner answered, and the main slot's architect registers the answers. Task A is done. Then tasks 1 to 4, the review, the release-workflow unit, and the publish. Tasks 1, 2 and 4 don't depend on each other. Task 3 needed A and Q3, and both are settled. Each task's proof is recorded in this unit's handoff or in the implementer's report, under `checks/`.
 
 **A. The contract (box-quad's architect, record only).** [Property 5](#5-the-contract-describes-the-published-api).
 
 - _Proof:_ `grep -c readBoxQuad packages/box-quad/.plan/contract/*.md` prints 0 for every file. Each export in the built `index.d.ts` is named and described in `01-public-api.md`. `F-1`'s status records that its API half is closed, at the commit.
+- **Done 2026-11-20.** The grep prints 0 for all five files. `01-public-api.md` §§3–4 describe the four functions and four types of the built `index.d.ts`. `F-1` is closed in box-quad's record, which quotes what the contract said before.
 
-**1. The manifest and files (implementer).** [Property 1](#1-the-manifest-and-the-published-files), and the version from Q1.
+**1. The manifest and files (implementer).** [Property 1](#1-the-manifest-and-the-published-files), with `version` `1.0.0` and drag's dependency on it.
 
 - _Proof:_
-  - `aube pack --dry-run` in `packages/box-quad` lists exactly the seven files of the release procedure's step 3. The reading before the change is [§1](checks/readings.txt).
+  - `aube pack --dry-run` in `packages/box-quad` lists exactly the seven files that the [Release procedure](#release-procedure) names. The reading before the change is [§1](checks/readings.txt).
   - `aube exec just build` leaves `package.json` unchanged (`git diff --exit-code`).
   - `aube exec just typecheck-declarations` passes.
   - The implementer reads the top level of the built `index.js` and records that it holds only declarations and the export.
   - `cmp LICENSE packages/box-quad/LICENSE` succeeds.
+  - `aube ci` passes after `aube install` updates the lockfile, and `packages/drag` still resolves `@ydinjs/box-quad` to the workspace package.
 
 **2. The API docs (implementer).** [Property 4](#4-the-api-docs). This touches `packages/box-quad/Justfile` and `package.json`, the root `Justfile`, `.scripts/docs-api.ts`, `.scripts/docs-smoke.ts` and `packages/material-x/src/reference/api.mdx`.
 
@@ -165,7 +191,7 @@ This is the owner's checkpoint, after the implementation units below have merged
   - During `aube exec just docs-dev`, `/api/box-quad/index.html` answers 200, and the `Reference/API` page's box-quad link opens it.
   - `verify`'s `docs` job passes on the pull request.
 
-**3. README and changelog (implementer, after A and Q3).** [Properties 2](#2-the-readme) and [3](#3-the-changelog).
+**3. README and changelog (implementer).** [Properties 2](#2-the-readme) and [3](#3-the-changelog).
 
 - _Proof:_
   - The README's examples, copied into a scratch module that imports `@ydinjs/box-quad`, type-check against the built package with `skipLibCheck` off, and the transcript is recorded.
@@ -173,20 +199,20 @@ This is the owner's checkpoint, after the implementation units below have merged
   - `aube exec oxfmt` leaves both files unchanged, and `git diff --check` is clean.
   - A search of both files for `BQ-`, `F-`, `RF-`, `RD-`, `.plan` and seven-or-more-character hex strings finds nothing.
 
-**4. Root `clean-build`, and the size ceiling if Q2 is (a) (implementer).** [Property 6](#6-the-root-clean-build-includes-box-quad).
+**4. Root `clean-build`, and the size ceiling (implementer).** [Property 6](#6-the-root-clean-build-includes-box-quad).
 
 - _Proof:_ after `aube exec just build` and `aube exec just clean-build`, `packages/box-quad/index.js` doesn't exist.
-- _The ceiling:_ `.size-limit.json`'s `index` row gets `"limit"`, set to the reading after the last change that the release carries, with no slack. The ceiling is the last change of the release, after tasks 1 to 3, which change no runtime byte, so today's reading stands unless `src/` changes. `aube exec just size` passes at that limit, and the measurements comment on the pull request shows the row with its limit.
+- _The ceiling:_ `.size-limit.json`'s `index` row gets `"limit"`, set to the reading after the last change that the release carries, with no slack. The ceiling is the last change of the release, after tasks 1 to 3, which change no runtime byte, so today's reading stands unless `src/` changes. `aube exec just size` passes at that limit, and the measurements comment on the pull request shows the row with its limit. A later change may lower the ceiling without asking, and raising it needs the owner's approval ([Q2](#owners-answers)).
 
-**Review.** A feature proof of tasks 1 to 4 against this plan, by a reviewer who didn't implement them, before the owner's checkpoint. It repeats the pack listing and the docs mutation.
+**Review.** A feature proof of tasks 1 to 4 against this plan, by a reviewer who didn't implement them, before the publish. It repeats the pack listing and the docs mutation.
 
-**One pull request or several.** Tasks 1 to 4 can be one implementation pull request, with `Closes #56` left to the record change after the publish (step 6). This plan's own pull request says `Refs #56`.
+**One pull request or several.** Tasks 1 to 4 can be one implementation pull request, with `Closes #56` left to the record change after the publish (the [Release procedure](#release-procedure)'s last property). This plan's own pull request says `Refs #56`.
 
 ## Not adopted
 
-- **A standing test that packs every package and compares the listing.** It would guard every later release against `.plan/` leaking into a tarball, but the release procedure's step 3 is that check for this release, at the moment it matters. The release-workflow unit, if Q4 is (b), is the place for a standing one.
-- **A `prepack` script that builds the package.** The procedure builds explicitly and publishes the tarball it inspected. A script hidden in `pack` would make the build depend on whether the publisher's tools run lifecycle scripts.
+- **A standing test that packs every package and compares the listing.** It would guard every later release against `.plan/` leaking into a tarball, and the release workflow's tarball check is that check at the moment it matters. The release-workflow unit decides whether a standing one is also worth having.
+- **A `prepack` script that builds the package.** The workflow builds explicitly and publishes the tarball it checked. A script hidden in `pack` would make the build depend on whether the publisher's tools run lifecycle scripts.
 - **Discovering API sections from the packages that have a `typedoc.json`.** drag has one and isn't released. The docs list what is released, and that is a decision each release unit makes. The smoke check reads the index, so a link without a section can't pass.
 - **A `CHANGELOG.md` generated by a tool such as Changesets.** It's a dependency and a workflow for one package with one entry.
 - **Top-level `types` or `module` fields.** `exports` resolves under every resolver that the declarations check models, and material-x publishes the same way.
-- **A git tag pushed by an agent, or a GitHub release.** The tag marks the owner's publish, so the owner pushes it, and the changelog is the release note.
+- **A git tag pushed by an agent, or a GitHub release, decided here.** Whether the workflow tags a release or starts from a tag is the workflow unit's decision, and the changelog is the release note.

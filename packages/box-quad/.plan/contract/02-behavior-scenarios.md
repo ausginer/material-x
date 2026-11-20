@@ -4,6 +4,8 @@
 
 These scenarios are the behavioral source for iteration B. Each row has one primary observable expectation. Iteration B may parameterize rows, but it must retain the scenario IDs in test names or adjacent comments so failures remain traceable.
 
+A row's subject is _the read_ of [artifact 1](01-public-api.md) §2 unless it names a function: `coordinates` measures the source, and the target when there is one, and `projection` writes the quad. _The request fails atomically_ means the read returns `false` and the caller's quad is unchanged. _`relativeTo === source`_ means the target element is the source element.
+
 Unless a row says otherwise:
 
 - source and target are connected `HTMLElement`s in one document;
@@ -41,7 +43,7 @@ Iteration B must derive complex nested expectations independently of production 
 
 | ID | Given / when | Then |
 | --- | --- | --- |
-| `API-01` | `readBoxQuad(source, out)` succeeds | It returns `true` and writes all eight values into the supplied object. |
+| `API-01` | The read of a source with no target succeeds | It returns `true` and writes all eight values into the supplied object. |
 | `API-02` | The same `out` is used for repeated successful reads | Each call reuses the object identity and replaces all eight values. |
 | `API-03` | A recognized failure occurs and `out` contains eight distinct sentinels | It returns `false` and every sentinel remains unchanged. |
 | `API-07` | A platform operation unexpectedly throws | The error escapes; it is not converted to `false`. |
@@ -155,7 +157,7 @@ Fixed and sticky support is limited to geometry already inside the 2D, single-bo
 | `REL-07` | Source and target are the same object and target space is invertible | Output is the untransformed local border-box quad. |
 | `REL-08` | Target local-to-viewport space is non-invertible | The request fails atomically. |
 | `REL-09` | `relativeTo === source` and that space is non-invertible | The request fails atomically rather than special-casing identity. |
-| `REL-10` | Source and target have different `ownerDocument` values | The request fails atomically. |
+| `REL-10` | Source and target have different `ownerDocument` values | Nothing detects it, and the read returns `true`. The boxes break `projection`'s precondition, so the quad has no meaning (artifact 1 §4.3). |
 | `REL-11` | An otherwise supported target has asymmetric border/padding, an effective content-box transform reference and percentage `transform-origin` | Its inverse accounts for the content-box dimensions and border-local content-box offset, producing independently derived target-local border-box coordinates. |
 
 ## 11. Shadow trees and slots
@@ -192,3 +194,9 @@ These scenarios require rendered flat-tree correctness; they do not expose or st
 | `UNSUPPORTED-06` | The requested node is not an `HTMLElement`, despite bypassing TypeScript | Behavior is outside the boolean contract; no runtime validation is required. |
 
 SVG, MathML, text nodes and pseudo-elements cannot be validly supplied by the typed API and receive no runtime compatibility layer.
+
+## Change record
+
+| Date | Section | Change |
+| --- | --- | --- |
+| 2026-11-20 | §1, `API-01`, `REL-10` | **Aligned with the exported API** (`F-1`). §1 defines _the read_ as the composition of `coordinates` and `projection`, which is what the tests' `readQuad` fixture performs. `API-01`'s subject was the single-call read of a source succeeding. `REL-10`'s expectation was _"The request fails atomically"_. That detection went with the split of measurement from projection at `162f300fa`, and the test asserts that it isn't detected. No other expectation and no scenario ID changed |
