@@ -1,6 +1,6 @@
 # `@trait` follow-ups: no silent doc loss, no emptied import
 
-**Planned 2026-11-20 by the architect** on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. PR #85 merged at `3457e3463`. `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../00-index.md) records the decisions.
+**Planned 2026-11-20 by the architect** on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. PR #85 merged at `3457e3463`. `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../00-index.md) records the decisions. **Approved by the owner on 2026-11-20,** with question 1 answered yes.
 
 **Inputs:**
 
@@ -158,3 +158,5 @@ Each proof names what it witnesses. A test fails without its change, and the imp
 ## Questions for the owner
 
 1. **Should `@ydinjs/core` declare `"sideEffects": false`?** It is core's published contract. Recommended: yes, before core's first release, as a separate unit with its own size reading. It reaches mechanism (ii) in consumers' bundles, and nothing else in this plan needs it.
+
+   **Answered 2026-11-20 by the owner,** relayed by the coordinator: _"Да, давай по обоим пунктам"_ ("Yes, go on both"): yes, as recommended, and tasks 1 to 4 go ahead. The unit is `RD-30`, planned on `core/side-effects-1`.
