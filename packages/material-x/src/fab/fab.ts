@@ -44,17 +44,14 @@ export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 export type FABExtended = 'open' | 'closed';
 
+@trait
+@attributes({
+  size: Str as ConverterOf<FABSize>,
+  color: Str as ConverterOf<FABColor>,
+  extended: Str as ConverterOf<FABExtended>,
+  tonal: Bool,
+})
 export class FABLike extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, {
-      size: Str as ConverterOf<FABSize>,
-      color: Str as ConverterOf<FABColor>,
-      extended: Str as ConverterOf<FABExtended>,
-      tonal: Bool,
-    });
-  }
-
   accessor size!: FABSize | null;
   accessor color!: FABColor | null;
   accessor extended!: FABExtended | null;

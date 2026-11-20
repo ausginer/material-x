@@ -1,0 +1,85 @@
+Feature proof of PR #85 at b1579efd6, run by the reviewer on 2026-11-20 with aube 2.10.0 and node v26.13.1.
+
+== CI, verify run 44709255268 at b1579efd6 (pull_request)
+static: fail. fmt-check, oxfmt --check . '!packages/**':
+oxfmt --check . '!packages/**'
+Checking formatting...
+
+.plan/trait-decorator-1/checks/size-reading.md (0ms)
+.plan/trait-decorator-1/probes/jsdoc-placement.ts (0ms)
+.plan/trait-decorator-1/trait-decorator-report.md (0ms)
+
+Format issues found in above 3 files. Run without `--check` to fix.
+Finished in 112ms on 350 files using 4 threads.
+error: recipe `fmt-check` failed on line 151 with exit code 1
+docs: fail. docs-build:
+■  Build failed with 7 errors:
+│  [plugin storybook:react-docgen-plugin]
+│  ./src/button/split-button.ts:42:0
+│  SyntaxError: ./src/button/split-button.ts: Decorators must be placed
+│  *after* the 'export' keyword. Remove the 'decoratorsBeforeExport:
+│  false' option to use the '@decorator export class {}' syntax. (42:0)
+│  40 | @trait
+│  41 | @attributes({ open: Bool })
+│  > 42 | export class SplitButtonLike extends AnyElement {
+│  | ^
+│  43 |   accessor open!: boolean;
+│  44 | }
+      5 │  SyntaxError
+
+== Local, the same two
+aube exec just fmt-check: exit 1
+.plan/trait-decorator-1/checks/size-reading.md (0ms)
+.plan/trait-decorator-1/probes/jsdoc-placement.ts (0ms)
+.plan/trait-decorator-1/trait-decorator-report.md (0ms)
+Format issues found in above 3 files. Run without `--check` to fix.
+aube exec just docs-build: exit 1, Build failed with 7 errors, each [plugin storybook:react-docgen-plugin] SyntaxError ... Decorators must be placed *after* the 'export' keyword
+react-docgen's parser: node_modules/react-docgen/dist/babelParser.js:12: ['decorators', { decoratorsBeforeExport: false }]
+aube exec just docs-dev, story-errors.mjs:
+  button-split--playground: NOT rendered; HTTP 404 /packages/material-x/src/button/split-button.ts
+  checkbox--playground: NOT rendered; HTTP 404 /packages/material-x/src/checkbox/checkbox.ts
+  icon--playground: rendered
+  curl /packages/material-x/src/button/IconButtonCore.ts: 404; /src/icon/icon.ts: 200; /src/button/split-button.ts?t=1 (a query the docgen filter skips): 200, flattened
+
+== Proof 1 and 11, built .js/.d.ts/map of core and material-x, 293 files at each commit
+build d69e3ddbc 0
+d69e3ddbc 293 files
+build 6211e435f 0
+6211e435f 293 files
+build eda3b1bfc 0
+eda3b1bfc 293 files
+build b1579efd6 0
+b1579efd6 293 files
+b1579efd6 against eda3b1bfc: only the 10 trait .d.ts differ, each by added comment lines only (3 3 3 3 4 3 3 3 5 11), and each equals 6211e435f's
+b1579efd6 against d69e3ddbc: .js (without sourceMappingURL) differ: list/list-item.js, traits/composition.js, traits/attribute-traits.js; .d.ts differ: traits/composition.d.ts, traits/attribute-traits.d.ts; maps differ for the changed sources
+3c3
+< import { impl } from "@ydinjs/core/traits/composition.js";
+---
+> import "@ydinjs/core/traits/composition.js";
+21,23d20
+< 	static {
+< 		impl(this);
+< 	}
+
+== Gates in the reviewer's worktree
+just build: exit 0, 0 trait-member-conflict
+typecheck 0
+typecheck-declarations 0
+root test 0
+      Tests  2211 passed (2211)
+plugin:       Tests  153 passed (153)
+core:       Tests  307 passed (307)
+just lint: exit 0
+
+== Mutations of src/plugin.ts, plugin tests
+addWatchFile removed: declarations.node 1 failed (should ask the host to watch the file it loaded)
+translation removed: diagnostics.node 3 failed (the three 'through the load stage' rows)
+load returns null: declarations.node 5 failed
+
+== Edge cases, edge-cases.ts (tsdown with declarations)
+e1_local_then_export: doc in .d.ts kept; brand in .js installed; decorator left in .js no
+e2_line_comment_between: doc in .d.ts LOST; brand in .js installed; decorator left in .js no
+e3_export_default: doc in .d.ts LOST; brand in .js installed; decorator left in .js no
+e4_parenthesized: BUILD ERROR [plugin trait-flattener] <scratch>/td/packages/vite-traits-plugin/tests/fixtures/gen-review-xPaeQV/e4_parenthesized.ts | RolldownError: trait-flattener (trait-decorator): trait is used only as @trait above a class
+e5_export_before: doc in .d.ts kept; brand in .js installed; decorator left in .js no
+e6_abstract: doc in .d.ts LOST; brand in .js installed; decorator left in .js no

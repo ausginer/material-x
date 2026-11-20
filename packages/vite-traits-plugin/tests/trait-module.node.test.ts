@@ -6,11 +6,8 @@ const SOURCE = `import { trait } from '@ydinjs/core/traits/composition.js';
 
 const targets = new WeakMap<object, number>();
 
+@trait
 export class Counted {
-  static {
-    trait(this);
-  }
-
   static readonly tags: readonly string[] = ['counted'];
 
   get count(): number {
@@ -26,7 +23,7 @@ describe('transformTraitModule', () => {
     );
   });
 
-  it('should replace trait(this) with a static Symbol.hasInstance method', () => {
+  it('should replace @trait with a static Symbol.hasInstance method', () => {
     expect(transformTrait('counted.ts', SOURCE)).toContain(
       'static [Symbol.hasInstance](o) {\n    return o != null && o[$counted] === true;\n  }',
     );
@@ -84,6 +81,88 @@ describe('transformTraitModule', () => {
   it("should delete a trait's instance members in an application build", () => {
     expect(transformTrait('counted.ts', SOURCE, true)).not.toContain(
       'get count()',
+    );
+  });
+});
+
+describe('transformTraitModule on each form of @trait', () => {
+  const IMPORT =
+    "import { trait } from '@ydinjs/core/traits/composition.js';\n";
+  const BODY = " {\n  get name(): string {\n    return 'named';\n  }\n}\n";
+  const METHOD =
+    '  static [Symbol.hasInstance](o) {\n    return o != null && o[$named] === true;\n  }\n';
+  const BRAND = 'export const $named = Symbol("Named");\n';
+  /** The transformed class `Named`, after its `declaration` keywords. */
+  const named = (declaration: string): string =>
+    `${BRAND}${declaration} Named {\n${METHOD}\n  get name(): string {\n    return 'named';\n  }\n}\n`;
+
+  it('should transform @trait above an exported class', () => {
+    expect(
+      transformTrait(
+        'above.ts',
+        `${IMPORT}\n@trait\nexport class Named${BODY}`,
+      ),
+    ).toBe(`\n\n${named('export class')}`);
+  });
+
+  it('should transform @trait after export', () => {
+    expect(
+      transformTrait('after.ts', `${IMPORT}\nexport @trait class Named${BODY}`),
+    ).toBe(`\n\n${named('export class')}`);
+  });
+
+  it('should transform @trait above a class that is not exported', () => {
+    expect(
+      transformTrait('local.ts', `${IMPORT}\n@trait\nclass Named${BODY}`),
+    ).toBe(`\n\n${named('class')}`);
+  });
+
+  it("should put the method after a layer (b) trait's observedAttributes", () => {
+    const source = `${IMPORT}import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';\nimport { Bool } from '@ydinjs/core/attribute.js';\n\n@trait\n@attributes({ open: Bool })\nexport class Open extends AnyElement {\n  accessor open!: boolean;\n}\n`;
+    const hoisted = staticValueName('Open', 'observedAttributes');
+
+    expect(transformTrait('open.ts', source)).toBe(
+      [
+        'import __mxflat_attr from "@ydinjs/core/attribute.js";',
+        '',
+        "import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';",
+        "import { Bool } from '@ydinjs/core/attribute.js';",
+        '',
+        'export const $open = Symbol("Open");',
+        `const ${hoisted} = ["open"];`,
+        'export class Open extends AnyElement {',
+        `  static observedAttributes = ${hoisted};`,
+        '  static [Symbol.hasInstance](o) {',
+        '    return o != null && o[$open] === true;',
+        '  }',
+        '',
+        '  get open() { return __mxflat_attr.get(this, "open", Bool); }',
+        '  set open(value) { __mxflat_attr.set(this, "open", value, Bool); }',
+        '}',
+        '',
+        `export { ${hoisted} };`,
+        '',
+      ].join('\n'),
+    );
+  });
+
+  it('should transform @trait imported under an alias', () => {
+    expect(
+      transformTrait(
+        'alias.ts',
+        `import { trait as brand } from '@ydinjs/core/traits/composition.js';\n\n@brand\nexport class Named${BODY}`,
+      ),
+    ).toBe(`\n\n${named('export class')}`);
+  });
+
+  it("should keep the import of another name from trait's module", () => {
+    expect(
+      transformTrait(
+        'kept.ts',
+        `import { bound, trait } from '@ydinjs/core/traits/composition.js';\n\nconst AnyObject = bound();\n\n@trait\nexport class Named extends AnyObject${BODY}`,
+      ),
+    ).toBe(
+      `import { bound } from '@ydinjs/core/traits/composition.js';\n\nconst AnyObject = bound();\n\n${named('export class').replace('class Named', 'class Named extends AnyObject')}`,
     );
   });
 });

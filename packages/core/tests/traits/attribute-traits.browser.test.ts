@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { Bool, Num, Str } from '../../src/attribute.ts';
 import { ControlledElement } from '../../src/element.ts';
+import * as attributeTraits from '../../src/traits/attribute-traits.ts';
 import { AnyElement, attributes } from '../../src/traits/attribute-traits.ts';
 import { compose, trait, type Composed } from '../../src/traits/composition.ts';
 import { defineCE, nameCE } from '../browser.ts';
@@ -10,30 +11,21 @@ class BaseElement extends ControlledElement {
   static observedAttributes: readonly string[] = ['base'];
 }
 
+@trait
+@attributes({ checked: Bool })
 class Checked extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { checked: Bool });
-  }
-
   accessor checked!: boolean;
 }
 
+@trait
+@attributes({ value: Str })
 class Valued extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { value: Str });
-  }
-
   accessor value!: string | null;
 }
 
+@trait
+@attributes({ count: Num })
 class Counted extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { count: Num });
-  }
-
   accessor count!: number | null;
 }
 
@@ -68,6 +60,14 @@ function createElement<T extends CustomElementConstructor>(
 }
 
 describe('attributes', () => {
+  // Called through the namespace: the build rejects any use of `attributes`
+  // but `@attributes(TABLE)`, and this case calls it unbuilt.
+  it('should throw when the decorator is created unbuilt', () => {
+    expect(() => attributeTraits.attributes({ checked: Bool })).toThrow(
+      '@attributes is compiled by @ydinjs/vite-traits-plugin',
+    );
+  });
+
   it('should read a missing boolean-backed member as false', () => {
     expect(createElement(CheckedElement).checked).toBe(false);
   });

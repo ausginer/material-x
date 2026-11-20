@@ -1309,14 +1309,14 @@ No register entry held that design. It lived in the code, in that document and i
 
 1. **Layer (a), `@ydinjs/core/traits/composition.js`, knows nothing of elements.**
    - A trait is a plain class. It extends a bound, `bound()`, which is `null` at runtime and types what the trait requires of its base.
-   - A trait brands itself with `trait(this)` in its static block.
+   - A trait brands itself with the decorator `@trait`, which the plugin compiles. `trait` keeps its name in `composition.js`, as a decorator whose type accepts only a class with a bound's heritage, and whose body throws, as `compose` does. _(Amended 2026-11-20, below. It was `trait(this)` in the trait's static block.)_
    - A component names its base and its traits once, in a constant's annotation: `const X: Composed<Base, [Traits…]> = compose(Base)`. Exactly one class in the module extends `X`.
    - `compose` throws unless its argument is `null`, so a component that isn't flattened fails when its module is evaluated.
 2. **The flattener lowers each composition.**
    - It replaces the constant with the base.
    - It copies each trait's members in list order, before the component's own.
    - It merges statics by property 3.
-   - It generates `static { impl(this, …brands) }`.
+   - It generates `static { impl(this, …brands) }` when the list has a trait, and neither the block nor the import for an empty list. _(Amended 2026-11-20, below.)_
    - Every case the copy can't carry is a build error. Layer (a) has no runtime composition to fall back on.
 3. **A static merges by the kind its declaration states,** read syntactically.
    - An array concatenates, and an object spreads shallowly. The types say the same through `MergeStatics`.
@@ -1331,21 +1331,21 @@ No register entry held that design. It lived in the code, in that document and i
 5. **A member is copied across languages only when its text parses to the same tree in both,** apart from positions. The same file extension always copies.
    - A `.js` module's static and member kinds come from the `.d.ts` that its package's `types` condition names.
 6. **Layer (b), `@ydinjs/core/traits/attribute-traits.js`, is optional sugar over layer (a).**
-   - `accessor name!: T`, with `attributes(this, { name: Converter })`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`.
+   - `accessor name!: T`, with `@attributes({ name: Converter })` below `@trait`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`. _(Amended 2026-11-20, below, a second time. It was `attributes(this, { name: Converter })` in the trait's static block.)_
    - The plugin's layer (b) code is a part of its own, and nothing in layer (a)'s code imports it.
 7. **The brand install names symbols, not classes.**
    - The generated block reads `impl(this, $a, $b)`.
-   - In the trait's own build, `trait(this)` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class. One that uses it keeps the class, without its members where property 8 applies. _(Amended 2026-11-19, below.)_
-   - The author still writes `trait(this)`. `trait`'s second parameter is optional, so an unbuilt trait module still runs.
+   - In the trait's own build, `@trait` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class. One that uses it keeps the class, without its members where property 8 applies. _(Amended 2026-11-19, below.)_
+   - The author writes `@trait` above the class. A trait module evaluated without the plugin fails, as an unbuilt component does: trait sources always go through the plugin. _(Amended 2026-11-20, below. It said the author writes `trait(this)`, whose optional second parameter let an unbuilt trait module run.)_
 8. **An application build deletes each trait class's copied instance members** from the trait module. An application build is Vite's `build` without `build.lib`. A library build keeps them, because another package copies from its `.js`.
 9. **The flattener is a required build step** for every module that composes traits.
 
 **The owner's earlier answers stay:**
 
 - the bound is `null`;
-- a trait brands itself with `trait(this)` in a static block;
+- a trait brands itself with `trait(this)` in a static block, which became `@trait` on 2026-11-20 (below);
 - `compose` throws unless `base === null`;
-- `impl` is always generated;
+- `impl` is always generated, for a list with a trait since 2026-11-20 (below);
 - `super.traitMember` in a component is a build error;
 - `#brand!: true` goes where a trait's members already exist on its bound.
 
@@ -1367,7 +1367,7 @@ That is the size the owner's _"where `instanceof` is needed"_ asks for. It also 
   - **The pure call:** `instanceof` is `false` for every object in both bundlers, and the library build drops the install.
   - **The unmarked call:** every trait class stays, with its members.
   - **A static field of the same value:** holds all four of the plan's properties too. It is rejected because a toolchain that lowers class fields to assignment, such as `useDefineForClassFields: false`, makes it throw. `Function.prototype[Symbol.hasInstance]` isn't writable, so the assignment raises a `TypeError`.
-- **The owner's intended follow-up, not decided here:** after this pull request, an `@trait` decorator that the plugin compiles replaces `static { trait(this); }` in source. Trait sources are always built and tested through the plugin, as material-x's CSS is. That pass needs its own decision.
+- **The owner's intended follow-up, not decided here:** after this pull request, an `@trait` decorator that the plugin compiles replaces `static { trait(this); }` in source. _(Decided 2026-11-20, below.)_ Trait sources are always built and tested through the plugin, as material-x's CSS is. That pass needs its own decision.
 
 **One branch and one pull request,** on the owner's decision 5:
 
@@ -1453,6 +1453,90 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 `RF-54`, `RF-57` and `RF-63` are closed on this date.
 
 `RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
+
+**Amended 2026-11-20 by the architect: a trait declares itself with `@trait`, and an empty composition emits no `impl`** (property 1's second bullet, property 2's fourth, property 7's second and third, and the owner's earlier answers). **Decided by the owner,** relayed by the coordinator: _"Тогда давай сделаем `@trait` и все починки сразу"_ ("Then let's do `@trait` and all the fixes at once"). This is the follow-up the amendment of 2026-11-19 named, with two fixes folded in. The [plan](trait-decorator-1/trait-decorator-plan.md) holds the design, the proofs, the files and the open questions.
+
+- **The owner had already decided three things.**
+  - Trait sources always go through the plugin, tests included: _"we ship the same code we test"_. A trait imported without the plugin is a case to avoid, not one to support.
+  - The plugin compiles `@trait` itself, not through oxc-transform's decorator lowering.
+  - The output stays property 7's, and a built trait stays recognizable by the exact generated method.
+- **The source form** is `@trait` above `export class T extends Bound`.
+  - The plugin recognizes it by the name the module imports `trait` under from `…/composition`.
+  - It replaces it with property 7's install: the exported brand, the static method first in the class body, and the import removed. An empty static block that layer (b) leaves is removed.
+  - The built JavaScript is the same as before, so a built package's consumers and property 8 don't change.
+- **The decorator changes no type,** which P1 says it can't anyway. Its type accepts only a class that carries a bound's static `[$bound]`, which `trait(this)` never checked. Declarations drop it.
+- **The evidence is [P45](trait-decorator-1/trait-decorator-plan.md#evidence)** ([transcript](trait-decorator-1/checks/p45-decorator.txt)), with TypeScript 7.0.2 and 6.0.3, which agree on every line.
+  - `@trait` above or after `export` checks clean, and the declarations carry no decorator and keep `#private`.
+  - A class with no bound is TS1238, `@trait()` is TS2554, the old `trait(this)` is TS2554, and `@trait` on a method is TS1241.
+- **A new error, `trait-decorator`,** covers what TypeScript doesn't, because a build doesn't typecheck:
+  - a called `@trait`;
+  - `@trait` on a class expression, a nested class or a member;
+  - `@trait` beside another decorator;
+  - any other use of the imported `trait`.
+- **An empty composition** (property 2) gets neither `static { impl(this); }` nor the `impl` import.
+  - ListItem is the case today. It costs `list/list-item` about 44 B Brotli ([PR #78's measurement](trait-mixin-measure-1/README.md#size)).
+  - This narrows the owner's earlier _"`impl` is always generated"_ to a list with a trait, under his authorization of the fixes.
+- **Recommended, and open for the owner:** ListItem extends `ControlledElement` directly, and `ListItemCoreTraits = readonly []` goes. The [plan](trait-decorator-1/trait-decorator-plan.md#fix-2-listitem-extends-controlledelement) gives the reason.
+- **`RF-66` doesn't block it.** Recognition is syntactic in the trait's own module, and resolution doesn't change.
+- **Not adopted:**
+  - **`trait` as a `declare function`:** a decorator is a value reference, and a throwing function gives the failure a name, as `compose` does. No built module imports it, so it costs nothing.
+  - **`export @trait class` as the written form:** the plugin accepts it, but `oxfmt` prints it across three lines.
+  - **Keeping `trait(this)` beside `@trait`:** `CONTRIBUTING.md` Part II §8 says not to keep a legacy form before release.
+- **Unimplemented** until the plan's proofs hold.
+
+**Amended 2026-11-20 a second time, by Architect B: layer (b) declares a trait's attributes with `@attributes(TABLE)`** (property 6's first bullet). **Decided by the owner,** relayed by the coordinator: _"`@attributes(TABLE)` давай сделаем вместе с `@trait`, чтобы задача была в целом 'move to decorators'"_ ("let's do `@attributes(TABLE)` together with `@trait`, so the task as a whole is 'move to decorators'"). It answers the `@trait` plan's open question 2 and ships in the same pull request. The [plan](attributes-decorator-1/attributes-decorator-plan.md) holds the design, the proofs and the files it adds to the `@trait` plan's.
+
+- **The owner's decisions for `@trait` carry over:** trait sources always go through the plugin, the plugin compiles the decorator itself, and the built JavaScript stays what it is.
+- **The source form** is `@trait`, then `@attributes(TABLE)`, each on its own line above `export class T extends Bound`, with the `accessor name!: T` lines in the body. A trait has no static block left.
+  - `@attributes` decorates only a class that `@trait` decorates, because layer (b) is a trait's sugar.
+  - The plugin accepts this one order.
+  - TABLE is what it was: an object literal, or a module-scope `const` bound to one.
+- **The plugin** recognizes `@attributes` by the name the module imports `attributes` under from `…/attribute-traits`. It lowers the class as before, removes the decorator and the unused import, and leaves `@trait` to the trait module's transform. That transform places the method after the `static observedAttributes` that layer (b) inserts, so a built trait's class body keeps today's order.
+- **The type checks the table against the decorated class.** `attributes(TABLE)` returns a generic class decorator. TypeScript infers the class from the decorator context and rejects a table that doesn't fit with TS1238 on the `@attributes` line. The decorator changes no type, and declarations drop it.
+  - Every case that core's declaration tests check still fails.
+  - A shared constant with a key that names no member is now a type error too. Before, only the plugin reported it.
+  - The body throws with a message that names the plugin, as `trait` and `compose` do.
+- **The evidence is [P46](attributes-decorator-1/attributes-decorator-plan.md#evidence)** ([transcript](attributes-decorator-1/checks/p46-attributes.txt)), with TypeScript 7.0.2 and 6.0.3, which agree on every line. The valid forms check clean, and their declarations carry no decorator. The eight cases of the declaration tests, and the extra key, are TS1238. An uncalled `@attributes` is TS1270, the old call TS2554, and a decorator on a member TS1240. The reversed order has no TypeScript error, which is why the plugin refuses it.
+- **A new error, `attributes-decorator`,** covers misuse:
+  - `@attributes` not called with one table;
+  - `@attributes` on a class without `@trait`, above it, or twice;
+  - `@attributes` on a class expression, a nested class or a member;
+  - any other use of the imported `attributes`.
+
+  `trait-decorator` allows `@attributes(TABLE)` as the one other decorator after `@trait`.
+
+- **Not adopted:**
+  - **`@attributes` on any class:** layer (b) is a trait's sugar.
+  - **Either order:** one form is one thing to learn and to diagnose.
+  - **`@trait(TABLE)`:** layer (a)'s `trait` would know layer (b)'s table, which property 6 forbids.
+- **Unimplemented** until the plan's proofs hold, with the `@trait` plan's.
+
+**Amended 2026-11-20 a third time, by the architect: a `load` stage keeps a trait's class doc in the published declarations** (the decorator passes' source form, unchanged). **Decided by the owner,** relayed by the coordinator, choosing [P47](trait-jsdoc-probe-1/trait-jsdoc-probe.md)'s way 1 over its recommended `export @trait class`: _"Давай короч тогда `load`. Да, больше мороки, но код выглядит как надо"_ ("Let's go with `load` then. Yes, more hassle, but the code looks right"). The [`@trait` plan](trait-decorator-1/trait-decorator-plan.md#the-doc-in-the-declarations-a-load-stage) holds the design, proofs 11 and 12, and P48. **Unimplemented:** the implementer adds the stage on `repo/trait-decorator-1`, which merges this branch.
+
+- **The defect** (P47). rolldown's declaration emitter, oxc's, drops a JSDoc in front of a class's decorators. tsdown's declaration plugin records each module's code before any transform of ours runs. So the 10 published trait `.d.ts` files lose their class docs.
+- **The written form stays** `/** doc */`, then `@trait` and `@attributes(TABLE)`, each on its own line, then `export class`. The owner also asked whether a tool option like Babel's old `decoratorsBeforeExport` exists. None does: `oxfmt` 0.78 has no decorator option, and oxc and TypeScript attach comments by fixed rules.
+- **The stage,** a `load` hook of the `trait-attributes` plugin:
+  - **What it does.** For an exported class declaration whose decorators come before `export`, with a JSDoc directly in front of them, it moves `export` to the first decorator's start. JavaScript and TypeScript read the result, `/** doc */ export @trait @attributes(T) class X`, the same way. The emitter, TypeScript 6 and tsc 7 all keep its doc.
+  - **Why it comes first.** rolldown runs `load` before every `transform`, so the declaration plugin records the rewritten code.
+  - **What it reads:** candidate modules with an absolute file id and no query, in every build and not on the dev server, which emits no declarations. It parses only a file with a line that starts with `@`, and returns `null` when it has nothing to move.
+  - **What it returns:** the code and a hires map whose `sourcesContent` is the file.
+- **It hands the existing compile a form that compile already accepts,** `export @trait class` (P45 case (h)).
+  - The trait module's transform, layer (b)'s lowering, both decorator checks and the analysis loader don't change.
+  - No internal form that source can't write is needed, and no second compile stage either. Of P47's three costs for way 1, only the second read of each candidate module remains, and only in a build.
+- **The diagnostics see the written text:** the same decorators, in the same order, with the same arguments. **Their positions:**
+  - Every diagnostic that the plugin reports carries the `pos` it would carry without the stage.
+  - The stage records the spans it moved per module id, and the reporter moves a `pos` inside one back by the moved length.
+  - rolldown shows no position from `pos` today, with or without the stage. Vite's dev path, which shows one, doesn't run the stage.
+- **The evidence is P48** ([`p48/`](trait-jsdoc-probe-1/probes/p48/), [transcript](trait-jsdoc-probe-1/checks/p48-run.txt)), by the architect at `eda3b1bfc`, with tsdown 0.23.7 and rolldown 1.3.2. The stage was added to the implementer's compile, and `@ydinjs/core` and `@ydinjs/material-x` were built with and without it:
+  - all 293 built files are byte-identical, except the 10 trait `.d.ts` files;
+  - each of those differs only by added comment lines, and has its source doc directly before `export declare class`: 10/10;
+  - a diagnostic's `pos` is 7 later with the stage, and neither build reports a `loc`.
+- **What retires it:** when the emitter keeps a doc in front of decorators, the plan's proof 11 mutation stops failing, and the stage is deleted.
+- **Not adopted:**
+  - **`export @trait class` as the written form** (P47's recommendation): the owner prefers the decorators above `export`.
+  - **P47's ways 2, 3a and 3b,** for the reasons in [its record](trait-jsdoc-probe-1/trait-jsdoc-probe.md#results).
+  - **The probed internal form,** `static { trait(this); … }`. It is the source form that `trait-decorator` rejects, it needs a second compile stage in the analysis loader too, and it moves an inline table's positions into the class body.
+  - **`export` on the doc's last line,** which keeps every line and column: 30 built files changed (P48).
 
 #### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
 

@@ -1,6 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { rolldown } from 'rolldown';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { CODE } from '../src/diagnostics.ts';
-import { fixtureId, transform } from './helpers.ts';
+import { lowerForAnalysis, viteTraitsPlugin } from '../src/plugin.ts';
+import { FIXTURES, fixtureId, transform } from './helpers.ts';
 
 const HEADER = `import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
 import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
@@ -32,7 +37,7 @@ function run(
 
 /** A trait class in the module, `class Name extends AnyElement`. */
 function traitClass(name: string, body: string): string {
-  return `export class ${name} extends AnyElement {\n  static {\n    trait(this);\n  }\n${body}\n}\n`;
+  return `@trait\nexport class ${name} extends AnyElement {\n${body}\n}\n`;
 }
 
 /** A component of `traits`, named `Foo`, with `body`. */
@@ -88,9 +93,14 @@ describe('build errors', () => {
       `${traitClass('Private', '  #secret!: number;\n  run(): number { return this.#secret; }')}${component('typeof Private')}`,
     ],
     [
-      'a trait static block that does more than call trait()',
+      'an empty trait static block',
       CODE.TRAIT_MEMBER,
-      `export class Busy extends AnyElement {\n  static {\n    trait(this);\n    console.log(1);\n  }\n}\n${component('typeof Busy')}`,
+      `@trait\nexport class Empty extends AnyElement {\n  static {}\n}\n${component('typeof Empty')}`,
+    ],
+    [
+      'a trait static block with a statement',
+      CODE.TRAIT_MEMBER,
+      `@trait\nexport class Busy extends AnyElement {\n  static {\n    console.log(1);\n  }\n}\n${component('typeof Busy')}`,
     ],
     [
       'a trait instance field',
@@ -144,27 +154,204 @@ describe('build errors', () => {
     [
       'an attribute table key with no accessor',
       CODE.ATTRIBUTE_TABLE,
-      'export class Extra extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: Bool, label: Str });\n  }\n\n  accessor open!: boolean;\n}\n',
+      '@trait\n@attributes({ open: Bool, label: Str })\nexport class Extra extends AnyElement {\n  accessor open!: boolean;\n}\n',
     ],
     [
       'an accessor with no table entry',
       CODE.ATTRIBUTE_TABLE,
-      'export class Missing extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: Bool });\n  }\n\n  accessor open!: boolean;\n  accessor label!: string | null;\n}\n',
+      '@trait\n@attributes({ open: Bool })\nexport class Missing extends AnyElement {\n  accessor open!: boolean;\n  accessor label!: string | null;\n}\n',
     ],
     [
       'a converter that is a call',
       CODE.ATTRIBUTE_TABLE,
-      'export class Called extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: make() });\n  }\n\n  accessor open!: boolean;\n}\n',
+      '@trait\n@attributes({ open: make() })\nexport class Called extends AnyElement {\n  accessor open!: boolean;\n}\n',
     ],
     [
       'an accessor with an initializer',
       CODE.ATTRIBUTE_ACCESSOR,
-      'export class Initialized extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: Bool });\n  }\n\n  accessor open = false;\n}\n',
+      '@trait\n@attributes({ open: Bool })\nexport class Initialized extends AnyElement {\n  accessor open = false;\n}\n',
     ],
   ];
 
   it.each(cases)('should fail the build for %s', async (_, code, body) => {
     await expect(run(body)).rejects.toMatchObject({ code });
+  });
+
+  describe('trait-decorator', () => {
+    const misuses: ReadonlyArray<readonly [string, string, string]> = [
+      [
+        'a call of the decorator',
+        '@trait()\nexport class Called extends AnyElement {}\n',
+        '@trait()',
+      ],
+      [
+        'a call of the decorator with an argument',
+        "@trait('Named')\nexport class Named extends AnyElement {}\n",
+        '@trait(',
+      ],
+      [
+        'the decorator on a class expression',
+        'export const Expressed = @trait class extends AnyElement {};\n',
+        '@trait',
+      ],
+      [
+        'the decorator on a nested class',
+        'export function make(): unknown {\n  @trait\n  class Inner extends AnyElement {}\n  return Inner;\n}\n',
+        '@trait',
+      ],
+      [
+        'the decorator on a member',
+        'export class Host {\n  @trait\n  run(): void {}\n}\n',
+        '@trait',
+      ],
+      [
+        'the decorator beside another decorator',
+        'const sealed = (_value: unknown, _context: unknown): void => {};\n@sealed\n@trait\nexport class Sealed extends AnyElement {}\n',
+        '@trait',
+      ],
+      [
+        'the decorator twice',
+        '@trait\n@trait\nexport class Twice extends AnyElement {}\n',
+        '@trait',
+      ],
+      [
+        'a call of trait in a static block',
+        'export class Old extends AnyElement {\n  static {\n    trait(this);\n  }\n}\n',
+        'trait(this)',
+      ],
+      ['a re-export of trait', 'export { trait };\n', 'trait }'],
+      ['trait passed as a value', 'export const decorate = trait;\n', 'trait;'],
+    ];
+
+    it.each(misuses)(
+      'should fail the build at the decorator for %s',
+      async (_, body, marker) => {
+        await expect(run(body)).rejects.toMatchObject({
+          code: CODE.TRAIT_DECORATOR,
+          pos: HEADER.length + body.indexOf(marker),
+        });
+      },
+    );
+  });
+
+  describe('attributes-decorator', () => {
+    const TABLE = '({ open: Bool })';
+    const ACCESSOR = ' extends AnyElement {\n  accessor open!: boolean;\n}\n';
+    const misuses: ReadonlyArray<readonly [string, string, string]> = [
+      [
+        'the decorator not called',
+        `@trait\n@attributes\nexport class Bare${ACCESSOR}`,
+        '@attributes',
+      ],
+      [
+        'the decorator called with no table',
+        `@trait\n@attributes()\nexport class Empty${ACCESSOR}`,
+        '@attributes',
+      ],
+      [
+        'the decorator called with two arguments',
+        `@trait\n@attributes({ open: Bool }, {})\nexport class Two${ACCESSOR}`,
+        '@attributes',
+      ],
+      [
+        'the decorator called with a spread',
+        `const TABLES = [{ open: Bool }];\n@trait\n@attributes(...TABLES)\nexport class Spread${ACCESSOR}`,
+        '@attributes',
+      ],
+      [
+        'the decorator on a class that @trait does not decorate',
+        `@attributes${TABLE}\nexport class Plain${ACCESSOR}`,
+        '@attributes',
+      ],
+      [
+        'the decorator above @trait',
+        `@attributes${TABLE}\n@trait\nexport class Reversed${ACCESSOR}`,
+        '@attributes',
+      ],
+      [
+        'the decorator twice',
+        `@trait\n@attributes${TABLE}\n@attributes${TABLE}\nexport class Twice${ACCESSOR}`,
+        `@attributes${TABLE}\nexport`,
+      ],
+      [
+        'the decorator on a class expression',
+        `export const Expressed = @trait @attributes${TABLE} class extends AnyElement {};\n`,
+        '@attributes',
+      ],
+      [
+        'the decorator on a nested class',
+        `export function make(): unknown {\n  @trait\n  @attributes${TABLE}\n  class Inner${ACCESSOR}  return Inner;\n}\n`,
+        '@attributes',
+      ],
+      [
+        'the decorator on a member',
+        `export class Host {\n  @attributes${TABLE}\n  run(): void {}\n}\n`,
+        '@attributes',
+      ],
+      [
+        'a call of attributes in a static block',
+        `@trait\nexport class Old extends AnyElement {\n  static {\n    attributes(this, { open: Bool });\n  }\n\n  accessor open!: boolean;\n}\n`,
+        'attributes(this',
+      ],
+      ['a re-export of attributes', 'export { attributes };\n', 'attributes }'],
+      [
+        'attributes passed as a value',
+        'export const declare = attributes;\n',
+        'attributes;',
+      ],
+    ];
+
+    it.each(misuses)(
+      'should fail the build at the decorator for %s',
+      async (_, body, marker) => {
+        await expect(run(body)).rejects.toMatchObject({
+          code: CODE.ATTRIBUTES_DECORATOR,
+          pos: HEADER.length + body.indexOf(marker),
+        });
+      },
+    );
+
+    it('should fail the build for a third decorator beside @trait and @attributes', async () => {
+      const body = `const sealed = (_value: unknown, _context: unknown): void => {};\n@trait\n@attributes${TABLE}\n@sealed\nexport class Third${ACCESSOR}`;
+
+      // The trait module's transform reads layer (b)'s output, so the
+      // position is an offset in that text.
+      await expect(run(body)).rejects.toMatchObject({
+        code: CODE.TRAIT_DECORATOR,
+      });
+    });
+
+    it("should reach a bare @attributes through the flattener's loader", () => {
+      expect(() =>
+        lowerForAnalysis(
+          fixtureId('virtual-bare.ts'),
+          `${HEADER}@trait\n@attributes\nexport class Bare${ACCESSOR}`,
+        ),
+      ).toThrow(expect.objectContaining({ code: CODE.ATTRIBUTES_DECORATOR }));
+    });
+
+    it("should reach a bare @attributes through layer (b)'s transform", () => {
+      const [attributesPlugin] = viteTraitsPlugin();
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      const hook = attributesPlugin!.transform as (
+        this: unknown,
+        code: string,
+        id: string,
+      ) => unknown;
+      const context = {
+        error: (error: Readonly<{ message: string }>): never => {
+          throw new Error(error.message);
+        },
+      };
+
+      expect(() =>
+        hook.call(
+          context,
+          `${HEADER}@trait\n@attributes\nexport class Bare${ACCESSOR}`,
+          fixtureId('virtual-bare.ts'),
+        ),
+      ).toThrow(CODE.ATTRIBUTES_DECORATOR);
+    });
   });
 
   it('should fail the build for a trait member that parses to another tree in TypeScript', async () => {
@@ -406,4 +593,89 @@ describe('composition-shape and value references', () => {
       code: CODE.COMPOSITION_SHAPE,
     });
   });
+});
+
+describe('diagnostics through the load stage', () => {
+  const IMPORTS = `import { Bool, Str } from '@ydinjs/core/attribute.js';
+import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+`;
+  // Each module is a documented class with its decorators above `export`,
+  // which the stage rewrites.
+  const modules: ReadonlyArray<readonly [string, string, string]> = [
+    [
+      'trait-decorator',
+      'sealed.ts',
+      `const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@trait\n@sealed\nexport class Sealed extends AnyElement {}\n`,
+    ],
+    [
+      'attributes-decorator',
+      'reversed.ts',
+      '/** Doc. */\n@attributes({ open: Bool })\n@trait\nexport class Reversed extends AnyElement {\n  accessor open!: boolean;\n}\n',
+    ],
+    [
+      'attribute-table',
+      'extra.ts',
+      '/** Doc. */\n@trait\n@attributes({ open: Bool, label: Str })\nexport class Extra extends AnyElement {\n  accessor open!: boolean;\n}\n',
+    ],
+  ];
+  let dir: string;
+
+  beforeAll(async () => {
+    dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-pos-'));
+    await Promise.all(
+      modules.map(([, file, body]) =>
+        writeFile(join(dir, file), `${IMPORTS}${body}`),
+      ),
+    );
+  });
+
+  afterAll(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  /** The code and `pos` of a rolldown build's error, with or without the stage. */
+  const failure = async (
+    file: string,
+    stage: boolean,
+  ): Promise<Readonly<{ code: unknown; pos: unknown }>> => {
+    const plugins = viteTraitsPlugin();
+    if (!stage) {
+      // oxlint-disable-next-line typescript/no-dynamic-delete
+      delete (plugins[0] as { load?: unknown }).load;
+    }
+    try {
+      const bundle = await rolldown({
+        input: join(dir, file),
+        plugins,
+        external: (id) => !id.startsWith('/') && !id.startsWith('.'),
+        logLevel: 'silent',
+      });
+      await bundle.generate({});
+    } catch (error) {
+      const [first] = (error as { errors?: Array<Record<string, unknown>> })
+        .errors ?? [error as Record<string, unknown>];
+
+      return {
+        code: /\((?<code>[a-z-]+)\)/u.exec(String(first!['message']))?.groups?.[
+          'code'
+        ],
+        pos: first!['pos'],
+      };
+    }
+
+    return { code: undefined, pos: undefined };
+  };
+
+  it.each(modules)(
+    'should report %s at the position it has without the stage',
+    async (code, file) => {
+      const without = await failure(file, false);
+
+      expect([without.code, await failure(file, true)]).toEqual([
+        code,
+        without,
+      ]);
+    },
+  );
 });

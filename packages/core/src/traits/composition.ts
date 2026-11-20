@@ -124,28 +124,33 @@ export type Composed<
   AbstractConstructor<InstanceType<B> & Instances<T, keyof InstanceType<B>>> &
   Statics<T>;
 
+/** What `@trait` decorates: a class whose heritage is a bound. */
+type TraitClass = AbstractConstructor<object> & {
+  readonly [$bound]: (instance: never, statics: never) => void;
+};
+
 /**
- * Makes `ctr` a trait: an object is an instance of it when its `brand` is
- * `true`. Called from the trait class's static block, `static { trait(this); }`.
- * The build passes the brand that the component's prototype receives.
+ * Makes the decorated class a trait, written `@trait` above a module-scope
+ * class declaration that extends a {@link bound} or a composition of one. The
+ * build replaces the decorator with the trait's brand install: an object is
+ * an instance of the trait when the trait's brand on it is `true`, which
+ * {@link impl} sets on each component that composes the trait.
  *
- * @param ctr - The trait class.
- * @param brand - The trait's brand.
+ * @throws {Error} Always: a trait module runs only once the build has
+ *   replaced the decorator.
  */
-export function trait(
-  ctr: AbstractConstructor<unknown>,
-  brand: symbol = Symbol(ctr.name),
+export function trait<C extends TraitClass>(
+  _value: C,
+  _context: ClassDecoratorContext<C>,
 ): void {
-  Object.defineProperty(ctr, Symbol.hasInstance, {
-    configurable: true,
-    value: (o: unknown): boolean =>
-      o != null && (o as Record<symbol, unknown>)[brand] === true,
-  });
+  throw new Error(
+    '@trait is compiled by @ydinjs/vite-traits-plugin; build the trait module',
+  );
 }
 
 /**
  * Brands `target`'s prototype with each trait brand. Only the build writes this
- * call, in each component's static block.
+ * call, in the static block of each component that composes a trait.
  *
  * @param target - The component class.
  * @param brands - The brands of the component's traits.

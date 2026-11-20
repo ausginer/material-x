@@ -1,0 +1,112 @@
+# P46, run by Architect B on 2026-11-20 at 6211e435f (repo/trait-decorator-1), from the repository root:
+# .plan/attributes-decorator-1/probes/run-p46.sh
+=== valid.ts — Version 7.0.2
+exit 0
+--- valid.d.ts
+import { AnyElement } from '../../trait-decorator-1/probes/composition.ts';
+export declare class Disableable extends AnyElement {
+    accessor disabled: boolean;
+}
+export declare class Linkable extends AnyElement {
+    accessor href: string | null;
+    follow(): void;
+}
+type Width = 'narrow' | 'wide';
+export declare class Counted extends AnyElement {
+    accessor count: number | null;
+    accessor width: Width | null;
+}
+export declare class Openable extends AnyElement {
+    #private;
+    accessor open: boolean;
+}
+export declare const checkOpen: boolean;
+export {};
+=== valid.ts — Version 6.0.3
+exit 0
+--- valid.d.ts
+import { AnyElement } from '../../trait-decorator-1/probes/composition.ts';
+export declare class Disableable extends AnyElement {
+    accessor disabled: boolean;
+}
+export declare class Linkable extends AnyElement {
+    accessor href: string | null;
+    follow(): void;
+}
+type Width = 'narrow' | 'wide';
+export declare class Counted extends AnyElement {
+    accessor count: number | null;
+    accessor width: Width | null;
+}
+export declare class Openable extends AnyElement {
+    #private;
+    accessor open: boolean;
+}
+export declare const checkOpen: boolean;
+export {};
+=== invalid.ts — Version 7.0.2
+invalid.ts(18,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof WrongConverter' but required in type 'TableDoesNotFit<{ readonly disabled: ConverterOf<string>; }>'.
+invalid.ts(25,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof WrongNullability' but required in type 'TableDoesNotFit<{ readonly label: ConverterOf<string>; }>'.
+invalid.ts(32,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof NarrowConverter' but required in type 'TableDoesNotFit<{ readonly href: ConverterOf<"a" | "b">; }>'.
+invalid.ts(39,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof UnknownKey' but required in type 'TableDoesNotFit<{ readonly disabld: ConverterOf<boolean>; }>'.
+invalid.ts(46,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof MethodKey' but required in type 'TableDoesNotFit<{ readonly disabled: ConverterOf<boolean>; readonly toggle: ConverterOf<boolean>; }>'.
+invalid.ts(54,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof ElementKey' but required in type 'TableDoesNotFit<{ readonly disabled: ConverterOf<boolean>; readonly hidden: ConverterOf<boolean>; }>'.
+invalid.ts(61,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof NoAttributes' but required in type 'TableDoesNotFit<{ readonly hidden: ConverterOf<boolean>; }>'.
+invalid.ts(68,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof SharedWrong' but required in type 'TableDoesNotFit<Readonly<{ href: ConverterOf<boolean>; }>>'.
+invalid.ts(76,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'typeof SharedExtra' but required in type 'TableDoesNotFit<Readonly<{ href: ConverterOf<string>; hidden: ConverterOf<boolean>; }>>'.
+invalid.ts(83,2): error TS1270: Decorator function return type 'AttributesDecorator<typeof Bare>' is not assignable to type 'void | typeof Bare'.
+invalid.ts(92,22): error TS2554: Expected 1 arguments, but got 2.
+invalid.ts(100,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Property '[tableDoesNotFit]' is missing in type 'ClassAccessorDecoratorTarget<OnMember, boolean>' but required in type 'TableDoesNotFit<{ readonly open: ConverterOf<boolean>; }>'.
+exit 2
+=== invalid.ts — Version 6.0.3
+invalid.ts(18,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof WrongConverter' is not assignable to parameter of type 'TableDoesNotFit<{ readonly disabled: ConverterOf<string>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof WrongConverter' but required in type 'TableDoesNotFit<{ readonly disabled: ConverterOf<string>; }>'.
+invalid.ts(25,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof WrongNullability' is not assignable to parameter of type 'TableDoesNotFit<{ readonly label: ConverterOf<string>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof WrongNullability' but required in type 'TableDoesNotFit<{ readonly label: ConverterOf<string>; }>'.
+invalid.ts(32,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof NarrowConverter' is not assignable to parameter of type 'TableDoesNotFit<{ readonly href: ConverterOf<"a" | "b">; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof NarrowConverter' but required in type 'TableDoesNotFit<{ readonly href: ConverterOf<"a" | "b">; }>'.
+invalid.ts(39,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof UnknownKey' is not assignable to parameter of type 'TableDoesNotFit<{ readonly disabld: ConverterOf<boolean>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof UnknownKey' but required in type 'TableDoesNotFit<{ readonly disabld: ConverterOf<boolean>; }>'.
+invalid.ts(46,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof MethodKey' is not assignable to parameter of type 'TableDoesNotFit<{ readonly disabled: ConverterOf<boolean>; readonly toggle: ConverterOf<boolean>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof MethodKey' but required in type 'TableDoesNotFit<{ readonly disabled: ConverterOf<boolean>; readonly toggle: ConverterOf<boolean>; }>'.
+invalid.ts(54,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof ElementKey' is not assignable to parameter of type 'TableDoesNotFit<{ readonly disabled: ConverterOf<boolean>; readonly hidden: ConverterOf<boolean>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof ElementKey' but required in type 'TableDoesNotFit<{ readonly disabled: ConverterOf<boolean>; readonly hidden: ConverterOf<boolean>; }>'.
+invalid.ts(61,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof NoAttributes' is not assignable to parameter of type 'TableDoesNotFit<{ readonly hidden: ConverterOf<boolean>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof NoAttributes' but required in type 'TableDoesNotFit<{ readonly hidden: ConverterOf<boolean>; }>'.
+invalid.ts(68,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof SharedWrong' is not assignable to parameter of type 'TableDoesNotFit<Readonly<{ href: ConverterOf<boolean>; }>>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof SharedWrong' but required in type 'TableDoesNotFit<Readonly<{ href: ConverterOf<boolean>; }>>'.
+invalid.ts(76,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof SharedExtra' is not assignable to parameter of type 'TableDoesNotFit<Readonly<{ href: ConverterOf<string>; hidden: ConverterOf<boolean>; }>>'.
+    Property '[tableDoesNotFit]' is missing in type 'typeof SharedExtra' but required in type 'TableDoesNotFit<Readonly<{ href: ConverterOf<string>; hidden: ConverterOf<boolean>; }>>'.
+invalid.ts(83,2): error TS1270: Decorator function return type 'AttributesDecorator<typeof Bare>' is not assignable to type 'void | typeof Bare'.
+invalid.ts(92,22): error TS2554: Expected 1 arguments, but got 2.
+invalid.ts(100,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<OnMember, boolean>' is not assignable to parameter of type 'TableDoesNotFit<{ readonly open: ConverterOf<boolean>; }>'.
+    Property '[tableDoesNotFit]' is missing in type 'ClassAccessorDecoratorTarget<OnMember, boolean>' but required in type 'TableDoesNotFit<{ readonly open: ConverterOf<boolean>; }>'.
+exit 2
+=== oxfmt, both decorators above export class
+@trait
+@attributes({ open: Bool })
+export class A extends B {
+  accessor open!: boolean;
+}
+=== oxc-parser
+{"errors":0,"statement":["ExportNamedDeclaration",95,150],"decorators":[{"span":[69,75],"expression":"Identifier","text":"@trait"},{"span":[76,94],"expression":"CallExpression","text":"@attributes(TABLE)"}],"body":[120,150]}
