@@ -1,0 +1,877 @@
+{
+  "tokenSetName": "md.ref.typeface",
+  "displayName": "Fonts & weights",
+  "description": "Font and weight tokens",
+  "tokenType": "TYPOGRAPHY",
+  "custom": {
+    "token_class": "REFERENCE"
+  },
+  "order": 2,
+  "displayGroups": [
+    {
+      "displayName": "Roundness",
+      "orderInParentTokenSet": 6
+    },
+    {
+      "displayName": "Variable wght",
+      "orderInParentTokenSet": 5
+    },
+    {
+      "displayName": "Weight",
+      "orderInParentTokenSet": 4
+    },
+    {
+      "displayName": "Variable",
+      "orderInParentTokenSet": 3
+    },
+    {
+      "displayName": "Plain",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Brand",
+      "orderInParentTokenSet": 1
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.ref.typeface.variable.wght-medium",
+      "displayName": "Variable medium wght",
+      "tokenValueType": "AXIS_VALUE",
+      "displayGroup": [
+        "Variable wght"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "axisValue": {
+            "tag": "wght",
+            "value": 500
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-medium"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 500
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.variable.wght-regular",
+      "displayName": "Variable regular wght",
+      "tokenValueType": "AXIS_VALUE",
+      "displayGroup": [
+        "Variable wght"
+      ],
+      "values": [
+        {
+          "axisValue": {
+            "tag": "wght",
+            "value": 400
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-regular"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 400
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.emphasized.rond",
+      "displayName": "Emphasized rond",
+      "tokenValueType": "AXIS_VALUE",
+      "displayGroup": [
+        "Roundness"
+      ],
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "axisValue": {
+            "tag": "ROND"
+          }
+        },
+        {
+          "axisValue": {
+            "tag": "ROND",
+            "value": 100
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.emphasized.rond"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "ROND"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.emphasized.rond"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "ROND",
+              "value": 100
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.weight-bold",
+      "displayName": "Bold weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Weight"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "fontWeight": 700
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-bold"
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.weight-semibold",
+      "displayName": "Semi bold weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Weight"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "fontWeight": 600
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-semibold"
+          },
+          "resolvedValue": {
+            "fontWeight": 600
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.variable.wght-bold",
+      "displayName": "Variable bold wght",
+      "tokenValueType": "AXIS_VALUE",
+      "displayGroup": [
+        "Variable wght"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "axisValue": {
+            "tag": "wght",
+            "value": 700
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-bold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 700
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.variable.wght-semibold",
+      "displayName": "Variable semi bold wght",
+      "tokenValueType": "AXIS_VALUE",
+      "displayGroup": [
+        "Variable wght"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "axisValue": {
+            "tag": "wght",
+            "value": 600
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.wght-semibold"
+          },
+          "resolvedValue": {
+            "axisValue": {
+              "tag": "wght",
+              "value": 600
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.weight-medium",
+      "displayName": "Medium weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Weight"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "fontWeight": 500
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-medium"
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.weight-regular",
+      "displayName": "Regular weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Weight"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "fontWeight": 400
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.weight-regular"
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.variable.plain",
+      "displayName": "Variable plain typeface",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Variable"
+      ],
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "fontNames": {
+            "values": [
+              "Roboto Flex"
+            ]
+          }
+        },
+        {
+          "fontNames": {
+            "values": [
+              "Google Sans Flex"
+            ]
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.variable.brand",
+      "displayName": "Variable brand typeface",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Variable"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "fontNames": {
+            "values": [
+              "Roboto Flex"
+            ]
+          }
+        },
+        {
+          "fontNames": {
+            "values": [
+              "Google Sans Flex"
+            ]
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.variable.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.brand",
+      "displayName": "Brand typeface",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Brand"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "specificityScore": "20",
+          "fontNames": {
+            "values": [
+              "Roboto Flex"
+            ]
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "specificityScore": "20",
+          "fontNames": {
+            "values": [
+              "Google Sans Flex"
+            ]
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "fontNames": {
+            "values": [
+              "Roboto"
+            ]
+          }
+        },
+        {
+          "fontNames": {
+            "values": [
+              "Google Sans"
+            ]
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.brand"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.ref.typeface.plain",
+      "displayName": "Plain typeface",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Plain"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "specificityScore": "20",
+          "fontNames": {
+            "values": [
+              "Roboto Flex"
+            ]
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "specificityScore": "20",
+          "fontNames": {
+            "values": [
+              "Google Sans Flex"
+            ]
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "fontNames": {
+            "values": [
+              "Roboto"
+            ]
+          }
+        },
+        {
+          "fontNames": {
+            "values": [
+              "Google Sans Text"
+            ]
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "ios"
+          },
+          "specificityScore": "2",
+          "fontNames": {
+            "values": [
+              "System"
+            ]
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 2,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 4,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "System"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "ios"
+          },
+          "value": 4,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "System"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 3,
+          "referenceTree": {
+            "tokenName": "md.ref.typeface.plain"
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

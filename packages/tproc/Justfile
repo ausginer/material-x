@@ -13,6 +13,10 @@ build:
 clean-build:
     node ../../.scripts/package-files.ts clean --package .
 
+# Write the token store; see scripts/update-tokens.ts for the modes
+update-tokens *ARGS:
+    node scripts/update-tokens.ts {{ ARGS }}
+
 typecheck:
     tsc -p tsconfig.json --noEmit
 

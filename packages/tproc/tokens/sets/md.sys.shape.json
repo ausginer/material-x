@@ -1,0 +1,832 @@
+{
+  "tokenSetName": "md.sys.shape",
+  "displayName": "Shape",
+  "description": "Corner shape and directional modifier (like \"top\" or \"end\") tokens.",
+  "custom": {
+    "token_class": "SYSTEM"
+  },
+  "order": 2,
+  "tokens": [
+    {
+      "tokenName": "md.sys.shape.corner-value.extra-extra-large",
+      "displayName": "Extra extra large corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 24,
+      "values": [
+        {
+          "length": {
+            "value": 48,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.extra-extra-large"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 48,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.extra-large-increased",
+      "displayName": "Extra large increased corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 23,
+      "values": [
+        {
+          "length": {
+            "value": 32,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.extra-large-increased"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 32,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.extra-large",
+      "displayName": "Extra large corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 22,
+      "values": [
+        {
+          "length": {
+            "value": 28,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.extra-large"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 28,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.large-increased",
+      "displayName": "Large increased corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 21,
+      "values": [
+        {
+          "length": {
+            "value": 20,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.large-increased"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 20,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.large",
+      "displayName": "Large corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 20,
+      "values": [
+        {
+          "length": {
+            "value": 16,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.large"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.medium",
+      "displayName": "Medium corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 19,
+      "values": [
+        {
+          "length": {
+            "value": 12,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.medium"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.small",
+      "displayName": "Small corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 18,
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.small"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.none",
+      "displayName": "No corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 16,
+      "values": [
+        {
+          "length": {
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.none"
+          },
+          "resolvedValue": {
+            "length": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner-value.extra-small",
+      "displayName": "Extra small corner value",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 17,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner-value.extra-small"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.large-increased",
+      "displayName": "Large increased rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 13,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 20,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.large-increased"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 20,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.extra-large-increased",
+      "displayName": "Extra large increased rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 32,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.extra-large-increased"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 32,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.extra-extra-large",
+      "displayName": "Extra extra large rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 15,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 48,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.extra-extra-large"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 48,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.extra-small.top",
+      "displayName": "Extra small top rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "topLeft": {
+              "value": 4,
+              "unit": "DIPS"
+            },
+            "topRight": {
+              "value": 4,
+              "unit": "DIPS"
+            },
+            "defaultSize": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.extra-small.top"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "topLeft": {
+                "value": 4,
+                "unit": "DIPS"
+              },
+              "topRight": {
+                "value": 4,
+                "unit": "DIPS"
+              },
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.extra-small",
+      "displayName": "Extra small rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.extra-small"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 4,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.large",
+      "displayName": "Large rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.large"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 16,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.none",
+      "displayName": "No rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.none"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.large.start",
+      "displayName": "Large start rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "topLeft": {
+              "value": 16,
+              "unit": "DIPS"
+            },
+            "bottomLeft": {
+              "value": 16,
+              "unit": "DIPS"
+            },
+            "defaultSize": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.large.start"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "topLeft": {
+                "value": 16,
+                "unit": "DIPS"
+              },
+              "bottomLeft": {
+                "value": 16,
+                "unit": "DIPS"
+              },
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.medium",
+      "displayName": "Medium rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.medium"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.small",
+      "displayName": "Small rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.small"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 8,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.large.end",
+      "displayName": "Large end rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "topRight": {
+              "value": 16,
+              "unit": "DIPS"
+            },
+            "bottomRight": {
+              "value": 16,
+              "unit": "DIPS"
+            },
+            "defaultSize": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.large.end"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "topRight": {
+                "value": 16,
+                "unit": "DIPS"
+              },
+              "bottomRight": {
+                "value": 16,
+                "unit": "DIPS"
+              },
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.large.top",
+      "displayName": "Large top rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "topLeft": {
+              "value": 16,
+              "unit": "DIPS"
+            },
+            "topRight": {
+              "value": 16,
+              "unit": "DIPS"
+            },
+            "defaultSize": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.large.top"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "topLeft": {
+                "value": 16,
+                "unit": "DIPS"
+              },
+              "topRight": {
+                "value": 16,
+                "unit": "DIPS"
+              },
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.extra-large",
+      "displayName": "Extra large rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "defaultSize": {
+              "value": 28,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.extra-large"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 28,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.extra-large.top",
+      "displayName": "Extra large top rounding",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+            "topLeft": {
+              "value": 28,
+              "unit": "DIPS"
+            },
+            "topRight": {
+              "value": 28,
+              "unit": "DIPS"
+            },
+            "defaultSize": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.extra-large.top"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "topLeft": {
+                "value": 28,
+                "unit": "DIPS"
+              },
+              "topRight": {
+                "value": 28,
+                "unit": "DIPS"
+              },
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.shape.corner.full",
+      "displayName": "Fully rounded",
+      "tokenValueType": "SHAPE",
+      "description": "Use for: Badge, Buttons, Icon buttons, Sliders, Switches, Search bar",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "shape": {
+            "family": "SHAPE_FAMILY_CIRCULAR"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.sys.shape.corner.full"
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,503 @@
+{
+  "storeVersion": 1,
+  "source": {
+    "baseUrl": "https://m3.material.io/_dsm/data/dsdb-m3/",
+    "release": null,
+    "note": "Converted from the tables committed before RD-28. Their release is unknown.",
+    "databases": [
+      {
+        "versionName": "37.0.32",
+        "versionId": "662b2f1143d92bac",
+        "publishTime": "2026-05-26T21:01:01.205149Z"
+      },
+      {
+        "versionName": "35.0.28",
+        "versionId": "66cbb2486db961f8",
+        "publishTime": "2026-05-15T15:51:19.060862Z"
+      }
+    ]
+  },
+  "fetchDate": null,
+  "tables": [
+    {
+      "kind": "COLOR",
+      "componentId": "20543ce18892f7d9",
+      "componentName": "Google Material 3"
+    },
+    {
+      "kind": "ELEVATION",
+      "componentId": "20543ce18892f7d9",
+      "componentName": "Google Material 3"
+    },
+    {
+      "kind": "TOKEN_TYPE_UNSPECIFIED",
+      "componentId": "20543ce18892f7d9",
+      "componentName": "Google Material 3"
+    },
+    {
+      "kind": "TYPOGRAPHY",
+      "componentId": "20543ce18892f7d9",
+      "componentName": "Google Material 3"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "1c4257f8804f9478",
+      "componentName": "Buttons"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "41587918e51cca98",
+      "componentName": "Floating action buttons (FABs)"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "60990dd98dea0998",
+      "componentName": "Text fields"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "36500f77b86d20a5",
+      "componentName": "Extended FAB"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "0fe2282006ae098b",
+      "componentName": "Icon buttons"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "082d7fd6e058b011",
+      "componentName": "Button groups"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "624e8f2da4007fc8",
+      "componentName": "Split buttons"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "31f16b44fe03b0c0",
+      "componentName": "Checkbox"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "6acb269a58d5f93f",
+      "componentName": "Radio button"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "6c818a16475113bd",
+      "componentName": "Lists"
+    }
+  ],
+  "files": [
+    {
+      "path": "context.json",
+      "sha256": "355f08c6817171a2100b123eb11d69a60b253acc744128e8e26cce4e107534cc"
+    },
+    {
+      "path": "sets/md.ref.palette.json",
+      "sha256": "6869a06690042cd77ce8adea6576c3487efc498bb7368c102a9100ae582df8b5"
+    },
+    {
+      "path": "sets/md.sys.color.json",
+      "sha256": "1220f217970f61699f359b95b5a8a23ea6e785cad9b34231f8a88abe524f5ae7"
+    },
+    {
+      "path": "sets/md.sys.elevation.json",
+      "sha256": "ddda611306c5f66bf08dbd6ed8f908b3cd012cbecdaca43ee8fcd86370ded592"
+    },
+    {
+      "path": "sets/md.sys.state.json",
+      "sha256": "632526de2d04e291002c0137bee770496f955d79742cf6bdb8d553d491a07448"
+    },
+    {
+      "path": "sets/md.sys.shape.json",
+      "sha256": "955c2f46389f4e9e57b97ed2d392539949d7ebed1582072c1432a27d74b5b597"
+    },
+    {
+      "path": "sets/md.sys.motion.json",
+      "sha256": "720c057cbff58c59455a91d72ad518907951d75f536faaee1d2d8675900bcf26"
+    },
+    {
+      "path": "sets/md.sys.typescale.variable.json",
+      "sha256": "eed2b03ae7eacb472484cf8645a2013c9183f7f054da96afb80563faba7c377d"
+    },
+    {
+      "path": "sets/md.sys.typescale.variable.emphasized.json",
+      "sha256": "e3939358dd6c80e958a320540dcf29a1b6500757bf7653830ea0e9a903d6142b"
+    },
+    {
+      "path": "sets/md.ref.typeface.json",
+      "sha256": "a8e9a7bd8701e36a78cfab6c7f3d55c20a76d3581761a54c1464b33ed5b64b3a"
+    },
+    {
+      "path": "sets/md.sys.typescale.emphasized.json",
+      "sha256": "12cdeac40f11d34a58975dd6dfe49cb6224b4411f83d6338da4cc7ce7aeb5a04"
+    },
+    {
+      "path": "sets/md.sys.typescale.json",
+      "sha256": "d140db6c4c671efc7e33f0377425ce7fdfff2a0e1bcd6adf03b79cc5dc6e7c50"
+    },
+    {
+      "path": "sets/md.comp.button.json",
+      "sha256": "1c796d1acf964f9311aee667d48256e31fd9aebbcdfcd054218b8fa2e92c99e8"
+    },
+    {
+      "path": "sets/md.comp.button.filled.json",
+      "sha256": "1e8088323aa1fc3362d0b6fef0a2c1cfc25cbcf319f383e3903213aaf51df82c"
+    },
+    {
+      "path": "sets/md.comp.button.xsmall.json",
+      "sha256": "e2a480ee8f0d8dc02ac7d1976f42b819d2bca50aa94ab26e1e4f6d4e7456eaee"
+    },
+    {
+      "path": "sets/md.comp.button.small.json",
+      "sha256": "3c3b1b2765105aabcaa7f1d68430db94e08e39b89dd2737825cfcd496010012c"
+    },
+    {
+      "path": "sets/md.comp.button.medium.json",
+      "sha256": "b74f37eda7061821f96026586881eb4b5a9138f98486a65532aef1c41e1966b2"
+    },
+    {
+      "path": "sets/md.comp.button.large.json",
+      "sha256": "fb903e71e2b84c562a0d7f00e9dc4b26975f7e9e4d5cb3dfc6096a745769de41"
+    },
+    {
+      "path": "sets/md.comp.button.xlarge.json",
+      "sha256": "0b1aedb3731baeebf9fa63828baef6ea0813fef48bf7739604ca81df3cc06bac"
+    },
+    {
+      "path": "sets/md.comp.button.elevated.json",
+      "sha256": "d08bf4b14665506957af97e5d493cec09daf113dc2cbe09878452ffc92e0431f"
+    },
+    {
+      "path": "sets/md.comp.button.text.json",
+      "sha256": "3c53c30eeca42dd9eeb960b421893fb9e396dd0a434b65b7ba725749da7274b2"
+    },
+    {
+      "path": "sets/md.comp.button.outlined.json",
+      "sha256": "7b4fdc37186359c03eccae6c5bdd4a906e4c4a4af4c7bd3d29c3e3e51ecd5589"
+    },
+    {
+      "path": "sets/md.comp.button.tonal.json",
+      "sha256": "9516e046f7fa12b9ea843bb8324afdfed7605ad3c9e6068ab8739f9c21048f50"
+    },
+    {
+      "path": "sets/md.comp.text-button.json",
+      "sha256": "42ab8f4933ed08d3df595df1e5169359c3ec0a606c59533c0f4457518d197601"
+    },
+    {
+      "path": "sets/md.comp.filled-button.json",
+      "sha256": "78ff2550bf0fa0092c8295e5111df44678eae6a38282cb7ea39c5c0de05c9f81"
+    },
+    {
+      "path": "sets/md.comp.outlined-button.json",
+      "sha256": "151851c22555d6e5d7bef6cc42198ce210db763b0f59e13e12545471dcb2590a"
+    },
+    {
+      "path": "sets/md.comp.elevated-button.json",
+      "sha256": "003d821190aadc74fc8b99320e34d9c5ae52b3c3e77e613f06a710bd39205dff"
+    },
+    {
+      "path": "sets/md.comp.filled-tonal-button.json",
+      "sha256": "a537710ebfae32f0e0c909082bb70bd87616e49ac07fd2087abe568dd2f7d6c8"
+    },
+    {
+      "path": "sets/md.comp.fab.secondary.small.json",
+      "sha256": "4c7fb184a8e3ceb424cfc326c597e4b733d7b94c185a2b08cc4cb9e2a70d7a60"
+    },
+    {
+      "path": "sets/md.comp.fab.json",
+      "sha256": "b18ecd0eb87b5519bb217dc59f33cc462607ba9bd3c74b4d650157beb22c366c"
+    },
+    {
+      "path": "sets/md.comp.fab.small.json",
+      "sha256": "65b63a922a8925395da487ac1dcba92179f98a8a9271b92cb2c3bbc5c4109eae"
+    },
+    {
+      "path": "sets/md.comp.fab.surface.json",
+      "sha256": "7006e7063b140c0d7b7c1285c3686ffd1691946b854dfeb18c610c7c402a38ea"
+    },
+    {
+      "path": "sets/md.comp.fab.secondary.json",
+      "sha256": "985700f3b736ffad160b5ff4cc3534cc3a11f826d655aad33c4987a31872c437"
+    },
+    {
+      "path": "sets/md.comp.fab.branded.json",
+      "sha256": "8bf0f1b6df345c4c53e5759133a3294d0c5720abb98c18a70604beeff13a34a5"
+    },
+    {
+      "path": "sets/md.comp.fab.primary.json",
+      "sha256": "b043909b10a65e692a8e3d4ae0a5756789ec062fcaf5bbd7c7f1a9c7d634b89c"
+    },
+    {
+      "path": "sets/md.comp.fab.tertiary-container.json",
+      "sha256": "2cc863c5004c311b0d02a46383490f7e4704ec56d41d8d77194b6626718466c8"
+    },
+    {
+      "path": "sets/md.comp.fab.secondary-container.json",
+      "sha256": "6002ca2fcd66e5af04c6882faf950cb04de9f4dffabf6a45834b061929beb74f"
+    },
+    {
+      "path": "sets/md.comp.fab.primary-container.json",
+      "sha256": "a80d7140bbf2343f2e1891a3cd5109c57247e5338021d9e3821b021d9e9efc90"
+    },
+    {
+      "path": "sets/md.comp.fab.primary.small.json",
+      "sha256": "142e5ed114849613d940feedaaf8e8ae76518ae89edbc63fa30bc9a1c20b3cc4"
+    },
+    {
+      "path": "sets/md.fab.surface.small.json",
+      "sha256": "d7dcd7d5f8f5489677f59c334668f6002bcacabca879c1f7674b620fc08bdcd8"
+    },
+    {
+      "path": "sets/md.comp.fab.tertiary.small.json",
+      "sha256": "2a558c1a6b0d029eb32458fb2f610812c510dbab9679db2e8a5b1da9a0bf5c42"
+    },
+    {
+      "path": "sets/md.comp.fab.medium.json",
+      "sha256": "5c5c32b3bd3015c74b419b06b0a6caba720e3efc3e6b740eff2b9c9151969ec1"
+    },
+    {
+      "path": "sets/md.comp.fab.large.json",
+      "sha256": "b7c39365774182274a732601f7bffecc52ad7959eccbc04604d5694b4af91f24"
+    },
+    {
+      "path": "sets/md.comp.fab.tertiary.large.json",
+      "sha256": "1dc6ff56fdeccaf55d7f6a111c2dacf7028361eba1de989b9b2b423d4c2f36ad"
+    },
+    {
+      "path": "sets/md.comp.fab.tertiary.json",
+      "sha256": "696474f536838ffe46055c777f9f0ca2a892c65e8137e16c6c85b7547f9db6b8"
+    },
+    {
+      "path": "sets/md.comp.fab.surface.large.json",
+      "sha256": "077f0ff32bf91825d4921abae334b5655d762e66333be7b3acc9ea9ae516e492"
+    },
+    {
+      "path": "sets/md.comp.fab.primary.large.json",
+      "sha256": "78df5010658d9f6accc0de80e86e8910634ff57e00e8355701cf449a24c59a36"
+    },
+    {
+      "path": "sets/md.comp.fab.secondary.large.json",
+      "sha256": "d4d96d2581759e86141ce969a4b6f94428c2ccb3c7674ab5fdd4210cd05e57be"
+    },
+    {
+      "path": "sets/md.comp.fab.branded.large.json",
+      "sha256": "2279ed8a7946d0c41ed517b469688fdf08648098398d07f699b821d0b4cfc1ff"
+    },
+    {
+      "path": "sets/md.comp.outlined-text-field.json",
+      "sha256": "8241c127cf328294fc031334f9b8f83ee431975372ae5b3df716492d269def86"
+    },
+    {
+      "path": "sets/md.comp.filled-text-field.json",
+      "sha256": "fbd16f91f508d8ecef5fe1a73a39eec627ed65b18ea2207ba6ba0cfd6b5ca277"
+    },
+    {
+      "path": "sets/md.comp.outlined-select.json",
+      "sha256": "7ddce55f258765132865c54fa165e7c18f7ab622ab31edaeda04359a8d40d64b"
+    },
+    {
+      "path": "sets/md.comp.filled-select.json",
+      "sha256": "d802d984a0ee6ce8def2444b3ac442660901d558279812f326132508e656e76e"
+    },
+    {
+      "path": "sets/md.comp.filled-autocomplete.json",
+      "sha256": "3dfaeef36863d1774d6cbe54ec25385d95d1efcabf6716a018799ca29c6e4c78"
+    },
+    {
+      "path": "sets/md.comp.outlined-autocomplete.json",
+      "sha256": "001f2fec4ca32eb29a8fe71109e372acda6835ec28b60b5a5687f435226d4ed6"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.branded.json",
+      "sha256": "202a5cb74cb1021be6b87a84093786f5b5c66ae1b0df147916770fc4a1cc7f67"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.primary.json",
+      "sha256": "fe9e4cb87ccfe541e9858420296826168a9fe76388b0ce575e0e26babf624a3c"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.secondary.json",
+      "sha256": "5444b05b07bbbb81ebd5ff2b027688b8a0948d747abedece105ffe46024a5c2a"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.surface.json",
+      "sha256": "b68654ccb1a0e8eec8ef7a099f6fd38aa0fb4c7a35178100c7d14cda5b3aadac"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.tertiary.json",
+      "sha256": "61b57a516682c256839ef86ab8c02822128b899c3fe0529da7ed48e8e5dc2deb"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.tertiary-container.json",
+      "sha256": "6a0892eb8b287cf6536b7f30ec99c2739c64fbf59bb4aa941baced346ea6a08c"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.secondary-container.json",
+      "sha256": "cbc800352aa40af77c3c5d4b83251d6525975bb171970f8cf137b2cc63a8c522"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.primary-container.json",
+      "sha256": "68a703dff2135451d499f595da416004d8183e78df3c50d40fcd125fa6bac752"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.medium.json",
+      "sha256": "48aa649c65b604c0c194dc4a93620f6ae68115857e5ac0d269ba474c4ff51f7e"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.large.json",
+      "sha256": "c4651107749c3f396de2b5f609d9cb27f372669cf44c51e7aad8b3b7386bbc08"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.json",
+      "sha256": "b77c348d698fb3f69a05c7978eccc9018d7455176b2dc8ea55f10bd4560b3eba"
+    },
+    {
+      "path": "sets/md.comp.extended-fab.small.json",
+      "sha256": "fe42514b2ccbe0d8536d71fa5c7ab47cd8ae5c94e5e167888c037ec626ba100a"
+    },
+    {
+      "path": "sets/md.comp.icon-button.json",
+      "sha256": "f23e5981a4c0890419cb91641ca0d04e1a9c27e5d4bace0e39b17ef0acdcca1f"
+    },
+    {
+      "path": "sets/md.comp.icon-button.filled.json",
+      "sha256": "caea8683da05a6384e7516a0068453ea75ba425b5d9eb0b4e776578f5c3a0dc7"
+    },
+    {
+      "path": "sets/md.comp.icon-button.xsmall.json",
+      "sha256": "69b87851cd13a663e241d91885ae23ee42c1497b8cf26fdebaf853f5f25a4c30"
+    },
+    {
+      "path": "sets/md.comp.icon-button.small.json",
+      "sha256": "eaf6c99dab0983ccd942f9c5b12368fc0ade2d7462f622eb2a902604a725666a"
+    },
+    {
+      "path": "sets/md.comp.icon-button.medium.json",
+      "sha256": "163a23c29fd78b477976287abeefef8dacfd938657c9037aa273b7200dfca64d"
+    },
+    {
+      "path": "sets/md.comp.icon-button.large.json",
+      "sha256": "72b7da5c3b4ab772952288478fa09774a26d892a1c7fb612a4d46dde1a8f9f17"
+    },
+    {
+      "path": "sets/md.comp.icon-button.xlarge.json",
+      "sha256": "3e3eb5448f0f248fc622031eee8a9a9a2381d84bcffc329002e04f1d5e4ed311"
+    },
+    {
+      "path": "sets/md.comp.icon-button.outlined.json",
+      "sha256": "5e1b2ba8a85b474d6a7466154a503d996c28d0db228490d9fbab69bc5e1abcf4"
+    },
+    {
+      "path": "sets/md.comp.icon-button.standard.json",
+      "sha256": "af7ee02c80b882efa77afd285d194272bc773e38fd13ae945a7de2783e99cd96"
+    },
+    {
+      "path": "sets/md.comp.icon-button.tonal.json",
+      "sha256": "ac1e78b3f92a63fcc663d6fb3d7433223a32804a25d862771ea655977b15d0c9"
+    },
+    {
+      "path": "sets/md.comp.filled-icon-button.json",
+      "sha256": "b5b73cc15ce604778294f69152a703b13a9e355d1899fc4c4a70c9d704ea47f1"
+    },
+    {
+      "path": "sets/md.outlined-icon-button.json",
+      "sha256": "2f87102f7271e0f84367b0afcb6bc164c248c524252c5035b649f16c36544c62"
+    },
+    {
+      "path": "sets/md.comp.filled-tonal-icon-button.json",
+      "sha256": "384fc211bd516240d445a118195fe63294e27ba359d39ffae5550edf4a7495ef"
+    },
+    {
+      "path": "sets/md.comp.button-group.standard.xlarge.json",
+      "sha256": "186a55c45aa44714d846f201e3baba1965e79574e3cb97afd6452844b525b8cc"
+    },
+    {
+      "path": "sets/md.comp.button-group.standard.large.json",
+      "sha256": "1ee96092388c847c36e6dbad4d2b43be7eaaa1b81bb7eb805779fde046395b35"
+    },
+    {
+      "path": "sets/md.comp.button-group.standard.medium.json",
+      "sha256": "9e913e90b631326314bef8d00084fb26ceb0b0c942d36e0a4d432020278386c7"
+    },
+    {
+      "path": "sets/md.comp.button-group.standard.small.json",
+      "sha256": "92dc8314b552a18ef787cf004443a3339b34f92a5321be7dd8b7d53cedb82321"
+    },
+    {
+      "path": "sets/md.comp.button-group.standard.xsmall.json",
+      "sha256": "3ac1c174def3b2d0bc7f1cb223e82ba410d31bad3b21f87a097fc1610c28f22e"
+    },
+    {
+      "path": "sets/md.comp.button-group.connected.xlarge.json",
+      "sha256": "a258360f5986d016b178cbbd93c507069d7251ed3c7524a798b05b97b13cafd5"
+    },
+    {
+      "path": "sets/md.comp.button-group.connected.large.json",
+      "sha256": "e0ef3dd65bf083b6a30fdadc15a5ce72ba485bb2b73e7081ac50061ff0bcc827"
+    },
+    {
+      "path": "sets/md.comp.button-group.connected.medium.json",
+      "sha256": "a465a73c4bec78c24210249559274a7b1e5aa4c22bc9b88f9ac578d349f54b23"
+    },
+    {
+      "path": "sets/md.comp.button-group.connected.small.json",
+      "sha256": "e6f6cbbdea1d1c8c0c51b0c68049165c5524343c9c1ba88adf99fa5dc48e5885"
+    },
+    {
+      "path": "sets/md.comp.button-group.connected.xsmall.json",
+      "sha256": "4ea54bf4f5466d4231a10621b1c672a3951b30981877147d49326eeec9795011"
+    },
+    {
+      "path": "sets/md.comp.split-button.xsmall.json",
+      "sha256": "f77a1d5c987a88e8ee2a4e219830eaec6bc5206368bc9f40596f6085c0590c18"
+    },
+    {
+      "path": "sets/md.comp.split-button.small.json",
+      "sha256": "34d898e4fea2a845739028ed91365ba632219c18fa4635246ae5da342be936c6"
+    },
+    {
+      "path": "sets/md.comp.split-button.medium.json",
+      "sha256": "656b3c2f256449faeb14da8c902bb9add3270d4879ccb40fd0b37c803b5d896d"
+    },
+    {
+      "path": "sets/md.comp.split-button.large.json",
+      "sha256": "516618ae710a0ef7bf3ed8b18e85e11a0ad9cb18928355036350918257343dd5"
+    },
+    {
+      "path": "sets/md.comp.split-button.xlarge.json",
+      "sha256": "83d7eb89cf44c1a9794f2efcd17920e47cf0af6db9b022bf4a4faa46d137f1fe"
+    },
+    {
+      "path": "sets/md.comp.checkbox.json",
+      "sha256": "4bfdb42ce01d2f599c35d9e1476f41573c1a2795c8e1d70c6251a09ff325fb7f"
+    },
+    {
+      "path": "sets/md.comp.radio-button.json",
+      "sha256": "d34dede74282072e1d133c653b68e0fcca814005e7385c3827d0d852c1a431a0"
+    },
+    {
+      "path": "sets/md.comp.list.json",
+      "sha256": "0fda41c601fb80740ca53ebf6d9f70bd9cecd42e5f2699c651f56995b9c1eef9"
+    },
+    {
+      "path": "sets/md.comp.list.reveal.json",
+      "sha256": "270a71263d882759f50a01b2d0b93e4882103e6c67f56a4fac11171b3dd0df07"
+    },
+    {
+      "path": "sets/md.comp.list.reorder.json",
+      "sha256": "865b2db83bce4e7a5f6b2da67f872b277571462131e12388f783847edba9aa50"
+    },
+    {
+      "path": "sets/md.comp.list.expand.json",
+      "sha256": "e37f5aecedb1160890785f2b95ed2c85f0b4d691d519f1ef0ae87a74f3864fa5"
+    },
+    {
+      "path": "sets/md.sys.state.focus-indicator.json",
+      "sha256": "8dae1d3473adee6e87f0f5ba3ebb3292b215157b7a791158814cbbc02e94f751"
+    }
+  ]
+}

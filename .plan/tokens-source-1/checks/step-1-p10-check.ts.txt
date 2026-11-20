@@ -1,0 +1,31 @@
+// Run from packages/tproc after the store was written, as
+// `node .p10-check.ts <out.json>`, with the output of step-1-p10-dump.ts.txt.
+import { readFile } from 'node:fs/promises';
+import { isDeepStrictEqual } from 'node:util';
+import { loadStore } from './src/store/Store.ts';
+const store = await loadStore(new URL('./tokens/', import.meta.url));
+const before = JSON.parse(await readFile(process.argv[2]!, 'utf8'));
+const names = (n: any): unknown => [n.tokenName, (n.childNodes ?? []).map(names)];
+const META = new Set(['contextTags', 'specificityScore']);
+const literal = (v: object) => Object.fromEntries(Object.entries(v).filter(([k]) => !META.has(k)));
+const c: Record<string, number> = {};
+const inc = (k: string) => (c[k] = (c[k] ?? 0) + 1);
+const storeTokens = new Set<string>();
+for (const token of store.tokens) {
+  storeTokens.add(token.tokenName);
+  const b = before[token.tokenName];
+  if (!b) { inc('notInDB'); continue; }
+  const sel = store.select(token);
+  const after = {
+    set: store.getTokenSet(token).tokenSetName,
+    deprecated: store.isTokenDeprecated(token),
+    value: sel ? literal(sel.value) : null,
+    tree: sel?.entry ? names(sel.entry.referenceTree) : null,
+    resolved: sel?.entry ? (sel.entry.resolvedValue ?? null) : null,
+  };
+  for (const k of Object.keys(after) as (keyof typeof after)[]) {
+    if (isDeepStrictEqual(after[k], b[k])) inc(`same:${k}`); else { inc(`DIFF:${k}`); if ((c[`DIFF:${k}`] ?? 0) <= 2) console.log(k, token.tokenName, JSON.stringify(b[k]).slice(0, 200), '->', JSON.stringify(after[k]).slice(0, 200)); }
+  }
+}
+for (const name of Object.keys(before)) if (!storeTokens.has(name)) inc('missingFromStore');
+console.log('tokens', storeTokens.size, JSON.stringify(c));

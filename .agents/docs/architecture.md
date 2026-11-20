@@ -19,8 +19,9 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 │   │       ├── traits/               # composition, attribute traits, shared traits
 │   │       └── utils/
 │   ├── tproc/                        # @ydinjs/tproc token processor
-│   │   ├── src/                      # token pipeline and DB source
-│   │   └── .data/tokens/             # cached upstream M3 tables
+│   │   ├── src/                      # token pipeline and store reader
+│   │   ├── scripts/                  # token store update script
+│   │   └── tokens/                   # committed token store
 │   ├── material-x/                   # @ydinjs/material-x components
 │   │   ├── src/                      # component source and styles
 │   │   └── tests/                    # browser, spec, visual, and Node tests
@@ -59,9 +60,9 @@ Controllers from `@ydinjs/core/controllers/*.js` attach behavior without subclas
 
 `@ydinjs/tproc` owns the Material token pipeline and its upstream M3 database. Components consume it through package imports such as `@ydinjs/tproc/index.js` and `@ydinjs/tproc/selector.js`.
 
-The pipeline loads and caches upstream token tables, resolves aliases for the active theme and tags, constructs token packages, applies explicit state inheritance and adjustments, and emits CSS custom-property declarations. `TokenPackageProcessor` is the main DSL for grouping, extending, filtering, and packing component token sets.
+The pipeline reads tproc's committed token store, resolves aliases for the active theme and tags, constructs token packages, applies explicit state inheritance and adjustments, and emits CSS custom-property declarations. `TokenPackageProcessor` is the main DSL for grouping, extending, filtering, and packing component token sets.
 
-The source DB is `packages/tproc/src/DB/`; its cache is `packages/tproc/.data/tokens/`. Use the `use-tokens-db` skill for cache or raw-token work.
+The store is `packages/tproc/tokens/`, converted from Material's design-system database by `packages/tproc/scripts/update-tokens.ts`, which is its only writer. The reader is `packages/tproc/src/store/`. Use the `use-tokens-db` skill for any store or token-source work.
 
 ## Components: `@ydinjs/material-x`
 

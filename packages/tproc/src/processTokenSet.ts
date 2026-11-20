@@ -1,5 +1,5 @@
-import db from './DB/index.ts';
 import processToken from './processToken.ts';
+import store from './store/index.ts';
 
 export type ProcessedTokenValue =
   | string
@@ -9,20 +9,24 @@ export type ProcessedTokenValue =
 export type ProcessedTokenSet = Readonly<Record<string, ProcessedTokenValue>>;
 
 export default function processTokenSet(name: string): ProcessedTokenSet {
-  const set = db.tokenSets.find((s) => s.tokenSetName === name);
+  const set = store.getSet(name);
 
-  if (!set) {
+  // A set that no table carries has only its name, and isn't processed.
+  if (set?.displayName == null) {
     throw new Error(`Token set not found: ${name}`);
   }
 
+  const prefixLength = set.tokenSetName.length + 1;
+
   return Object.fromEntries(
-    db.tokens
-      .filter((token) => token.name.startsWith(set.name))
-      .map((token) => [token.tokenNameSuffix, processToken(token)] as const)
+    set.tokens
+      .map(
+        (token) =>
+          [token.tokenName.slice(prefixLength), processToken(token)] as const,
+      )
       .filter(
         (result): result is readonly [string, ProcessedTokenValue] =>
           result[1] != null,
-      )
-      .toArray(),
+      ),
   );
 }

@@ -1,0 +1,130 @@
+{
+  "tokenSetName": "md.comp.fab.medium",
+  "displayName": "FAB - Size - Medium",
+  "description": "For medium FABs.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "tokens": [
+    {
+      "tokenName": "md.comp.fab.medium.container.height",
+      "displayName": "FAB medium container height",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "value": 80,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.fab.medium.container.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 80,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.fab.medium.container.width",
+      "displayName": "FAB medium container width",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "length": {
+            "value": 80,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.fab.medium.container.width"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 80,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.fab.medium.container.shape",
+      "displayName": "FAB medium container shape",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.large-increased"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.fab.medium.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.large-increased",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 20,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.fab.medium.icon.size",
+      "displayName": "FAB medium icon size",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "length": {
+            "value": 28,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.fab.medium.icon.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 28,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

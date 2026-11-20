@@ -1,0 +1,47 @@
+{
+  "tokenSetName": "md.sys.state.focus-indicator",
+  "tokens": [
+    {
+      "tokenName": "md.sys.state.focus-indicator.outer-offset",
+      "displayName": "Focus indicator outer offset",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "length": {
+            "value": 2,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.state.focus-indicator.thickness",
+      "displayName": "Focus indicator thickness",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "value": 3,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.sys.state.focus-indicator.inner-offset",
+      "displayName": "Focus indicator inner offset",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "length": {
+            "value": -3,
+            "unit": "DIPS"
+          }
+        }
+      ]
+    }
+  ]
+}

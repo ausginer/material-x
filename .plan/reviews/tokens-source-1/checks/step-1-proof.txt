@@ -1,0 +1,61 @@
+Feature proof of RD-28 step 1, run by the reviewer on 2026-11-20 with aube 2.10.0 and node v26.13.1, on tproc/tokens-source-1 at e9f1f30ac (PR #84), in scratch worktrees of my own. The base is a182ba6aa, the branch's merge base with main.
+
+Personal data: the 14 tables were read from a182ba6aa into a scratch directory outside the repository, by field name and count only. No value of an author, revision or settings field was printed. The directory, the base worktree that held the tables, and every derived file were deleted afterwards.
+
+== The legacy conversion reproduces the committed store
+node scripts/update-tokens.ts --legacy <the 14 tables> --report <file>: "Wrote 103 files to packages/tproc/tokens/, with 704 conflicts"
+git status afterwards: clean (0 paths), so the conversion writes the committed store byte for byte.
+The report equals checks/step-1-conflicts.md, apart from the final newline that oxfmt removes.
+
+== P1, the reader
+src/store/ and the CSS layer import node:fs/promises, node:crypto and in-package modules only; git grep 'fetch(' and 'http' in packages/tproc/src: no hits.
+manifest.json: 102 file rows, each sha256 equal to its file; no file on disk unlisted, none listed missing.
+
+== P3, personal data
+pii-scan.cjs: the tables' personal values (38 distinct email addresses, 3 gaiaIds, 4 image URLs, 1 person's display name) against every tracked file at e9f1f30ac: 0 files contain any.
+grep -rlE '<email pattern>' packages/tproc/tokens: 0 files. grep -rlE 'gaiaId|emailAddress|revisionAuthor|googleusercontent': 0 files.
+The final scan reads each file's serialized text (convert.ts:786), so it covers every depth.
+git check-ignore packages/tproc/.data/x.json: .gitignore:32. linguist-generated: set on the store. .oxfmtrc.json ignores packages/tproc/tokens.
+
+== Field rulings, the committed store
+Distinct leaf keys at every depth: * alpha axisValue axisValueTokenName blue description displayGroup displayName durationMs family fontNameTokenName fontSizeTokenName fontTrackingTokenName fontWeight fontWeightTokenName green lineHeightTokenName message numeric opacity order orderInDisplayGroup red replacementTokenName specificityScore standardPath svgPath tag textTransform tokenName tokenSetName tokenType tokenValueType token_class undefined unit value values x0 x1 y0 y1
+  (* is a key of contextTags, of properties or of variationAxes.) No id, revision, time, state, author or settings key.
+Counts: tokens 3950; contextual entries 66153; entries with resolvedCustomCompositeValue and no resolvedValue 48, with both 0; values with elevation 6 (1 unit only), resolved 238 (26 unit only); undefined: true on 284 values and 8282 resolved values; svgPath 1 and 1; tokens with description 44; tree nodes with more than one child 1488; sets 101 (100 with metadata, 1 by name only).
+The rulings count across the 14 tables: 73666 entries across tables, 66153 in each token's first copy in DB.load() order, which is what the store keeps.
+
+== Raw fields the store doesn't keep (raw-paths.cjs, names and counts only)
+referenceTree child nodes' fieldNames: 10764 nodes, holding which property of a composite the child feeds: font_names, font_weight, font_size, line_height, font_tracking (1440 each), variation_axis.<axis> (152 to 452 each), damping and stiffness (48 each).
+displayGroups: 1002; parentGroup on 664, orderInParentDisplayGroup on 623, orderInParentTokenSet on 395, a non-empty description on 15.
+components: 178 rows, definition on 174, alternativeNames on 59; componentDisplayGroups 70, each with a description.
+
+== Converter mutations (mutate.ts, through convert() in legacy mode, in memory)
+unmutated: converted; the mutation is absent from the store
+a token without tokenValueType: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokenValueType
+a value with two value fields: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values
+an extra top-level field on a value: converted; the mutation is absent from the store
+an extra field inside a color literal: converted; the mutation REACHED the store
+an extra field in a resolvedCustomCompositeValue: converted; the mutation REACHED the store
+a composite property's resolvedValue with two literal fields: converted; the mutation REACHED the store
+a composite property's resolvedValue that isn't an object: converted; the mutation REACHED the store
+
+== P4 (p4.sh), a182ba6aa against e9f1f30ac
+Each: aube install, aube exec just build, node .scripts/storybook-theme.ts, then every git-ignored file under packages/material-x and .storybook.
+The same 214 paths (213 material-x build outputs and .storybook/theme.css); 0 of 214 differ.
+tproc: aube exec just test: 12 files, 97 tests passed. material-x: aube exec just test: 20 files, 427 tests passed.
+Root: just fmt-check, just lint, just typecheck, just typecheck-declarations: exit 0.
+
+== P10, rerun with the implementer's committed scripts
+step-1-p10-dump.ts.txt at a182ba6aa (DB present): tokens 3950 sets 100
+step-1-p10-check.ts.txt at e9f1f30ac: tokens 3950 {"same:set":3950,"same:deprecated":3950,"same:value":3950,"same:tree":3950,"same:resolved":3950}
+
+== Size
+packages/tproc/tokens: 103 files, 53822080 bytes, 1956718 lines; tar | gzip: 1268446 bytes (gzip -9: 1076718).
+
+== Q4 (a), the CSS layer's exports, a182ba6aa against e9f1f30ac
+index, processTokenSet, TokenPackage, TokenPackageProcessor, resolve, selector, variable, default/motion-effects: the same exports.
+processToken: adds toCSSValue. utils: loses getSetName and distinct, which nothing outside tproc imports.
+package.json exports: ./DB/DB.js, ./DB/index.js and ./TokenTable.js go; ./store/Store.js, ./store/index.js, ./store/schema.js and ./theme.js come.
+
+== Merge state
+gh pr view 84: mergeable CONFLICTING, mergeStateStatus DIRTY. git merge-tree origin/main (2c731045b) e9f1f30ac: conflicts in .plan/00-index.md and AGENTS.md.
+gh run list --branch tproc/tokens-source-1: the last runs are for cdf53b52c, c4810ce7e and 981870d39; none for e9f1f30ac.

@@ -1,0 +1,138 @@
+RD-28 step 1: tproc's token store, its reader, and the CSS layer on it. Read by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on tproc/tokens-source-1 at 4c7fcfef0 (origin/main a182ba6aa and the field rulings 82f88726f merged) plus this unit's changes.
+
+Personal data: the 14 tables were read by field name and count only. No value of an author, revision or settings field was printed. The tables were copied to a scratch directory for P2 and P5, and the copy was deleted afterwards.
+
+== Baselines, taken before DB was deleted
+material-x: aube exec just debug on each of the 34 tracked src/**/*.css.ts, stdout and stderr saved.
+material-x: aube exec just build, then sha256 of its 213 git-ignored build outputs. A second build gave the same 213 digests.
+.scripts/storybook-theme.ts: sha256 of .storybook/theme.css.
+tproc: aube exec just test: 12 files, 72 tests passed.
+DB: step-1-p10-dump.ts.txt recorded DB's reading of 3,950 tokens (100 sets) for the tags expressive and web.
+
+== The store
+packages/tproc/tokens/: 103 files (manifest.json, context.json, 101 sets/*.json), 53,822,080 bytes, 1,956,718 lines; 1,268,518 bytes as a gzipped tar of the directory.
+The plan's estimate was 45.3 MB, about 1.9 million lines and about 0.85 MB gzipped.
+Written by: node scripts/update-tokens.ts --legacy <the 14 committed tables> --report <file>, in 2.4 s.
+manifest.json: storeVersion 1; release null with the legacy note; databases 37.0.32 (version 662b2f1143d92bac, created 2026-05-26T21:01:01.205149Z) and 35.0.28 (version 66cbb2486db961f8, created 2026-05-15T15:51:19.060862Z); fetchDate null; 14 table rows in DB.load()'s order; 102 file digests.
+The publish time is system.version.createTime.
+
+== P1. The reader has no network path
+tests/store/Store.node.test.ts, "loadStore":
+  - "should load the committed store without a network request": fetch is stubbed with a function that fails the test; loadStore(packages/tproc/tokens/) loads and finds md.comp.checkbox.container.size. Passed.
+  - "should name a missing store file": a copy of the store without the first manifest file rejects with "Token store file is missing: <that path>". Passed.
+  - "should name a store file that the manifest does not match": a changed context.json rejects with "Token store file doesn't match the manifest: <that path>". Passed.
+src/store/ imports node:fs/promises and node:crypto only. git grep -n 'fetch(' -- packages/tproc/src: no hits.
+
+== P2. Converting the committed tables twice gives byte-identical stores
+Two legacy runs, then sha256 of every store file: the two lists of 103 digests are identical, and so are the two reports.
+tests/scripts/convert.node.test.ts "should give byte-identical files for the same tables": passed.
+
+== P3. No email address and no gaiaId key
+git grep -c -e emailAddress -e gaiaId -- packages/tproc/tokens (after git add): no output, exit 1.
+grep -r -l -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}' packages/tproc/tokens: 0 files.
+tests/scripts/convert.node.test.ts:
+  - "should drop a field the schema does not name": a raw token with an extra field converts without it. Passed.
+  - "should keep no email address or gaiaId key": a fixture with an author email, a gaiaId and settings converts without them. Passed.
+  - "should refuse a store that would hold an email address": refused with "sets/md.comp.test.json: -: -: holds an email address or a gaiaId key". Passed.
+
+== P4. material-x's generated CSS is byte-identical, and the suites pass
+tproc: aube exec just clean-build, then aube exec just build: exit 0.
+material-x, the 34 css.ts files through aube exec just debug: diff -r with the baseline: identical, stdout and stderr.
+material-x: aube exec just clean-build, then aube exec just build: exit 0. The same 213 output paths, and sha256 -c against the baseline: all 213 identical.
+.storybook/theme.css from .scripts/storybook-theme.ts, which now reads src/theme.ts: identical.
+tproc: aube exec just test: 12 files, 97 tests passed: 72 before, less DB's 8 tests and the 2 of getSetName and distinct, deleted with them, and 35 new (Store and loadStore 9, convert 22, toCSSValue 3, the set no table carries 1).
+material-x: aube exec just test: 20 files, 427 tests passed.
+aube exec just typecheck in tproc and material-x: exit 0. tsc -p tsconfig.json at the root: exit 0.
+
+== P5. Each input and reference check refuses a mutated table
+On the 14 committed tables, the checkbox table mutated (step-1-p5-mutations.ts.txt), legacy mode:
+removed contextualReferenceTree: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree: is not an array of objects
+renamed resolvedValue: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree: has 0 resolved forms, not one
+one-hop reference to a missing token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values.tokenName: names md.comp.checkbox.missing, not in the store
+tree node naming a missing token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree: names md.comp.checkbox.missing, not in the store
+value with an unknown value kind: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values: has 0 value fields (), not one
+tag id naming no tag: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.sys.color.error: contextTags: designSystems/x/contextTagGroups/y/tags/missing names no tag
+tree not starting at the token's own value: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree.value: doesn't start at the token's own value
+missing token field: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokenValueType: is not a string
+two versions, outside legacy mode: refused: TOKEN_TABLE.1c4257f8804f9478: -: system.version.versionName: is 35.0.28, and COLOR.20543ce18892f7d9 is 37.0.32
+unmutated, legacy mode: converts, 103 files, 704 conflicts
+tests/scripts/convert.node.test.ts, "convert refusals", 13 tests, passed: the same checks on a small fixture, plus a value with two value fields, a literal of another type, a customComposite property naming a missing token, and a token that two tables convert differently outside legacy mode ("TOKEN_TABLE.c2: md.comp.test.a: token: converts differently in TOKEN_TABLE.c1").
+
+== P10. Parity with DB, read once before DB was deleted
+step-1-p10-check.ts.txt against the baseline from step-1-p10-dump.ts.txt, for every token and the default tags:
+tokens 3950 {"same:set":3950,"same:deprecated":3950,"same:value":3950,"same:tree":3950,"same:resolved":3950}
+value is the selected value's one-hop reference or literal; tree is the reference tree's token names, nested; resolved is the resolved value, compared directly.
+No token is in DB and not in the store, or the other way round.
+
+== P11. The duplicate conflicts
+step-1-conflicts.md, the legacy run's report: 704 conflicts, all of kind token, for 217 distinct tokens. No set or context group conflicts.
+Kept from (the first table DB.load() read that carries the token): COLOR 441, TYPOGRAPHY 175, TOKEN_TYPE_UNSPECIFIED 70, ELEVATION 18. Each other copy is in a later table.
+Read from the tables by field name: 424 tokens are in more than one table. The copies that carry a tree never differ. Every conflicting copy is one a later table carries with no tree, no set in that table and its display group defined elsewhere. The first copy carries the tree whenever any copy does.
+The plan estimated about 223 tokens.
+
+== Lint and format
+tproc, every changed .ts: aube exec just fmt, lint-fix, fmt, lint: clean. Two lint rules are disabled at one site each, with the reason beside them: class-methods-use-this on Store.select, which is a query of the reader beside the ones that read its indexes, and no-console in the update script.
+.scripts/storybook-theme.ts: oxfmt, oxlint and eslint: clean.
+aube exec just fmt-check at the root: exit 0. tproc's fmt-check reads 42 files; with packages/tproc/tokens taken out of .oxfmtrc.json's ignorePatterns it reads 145 and reports 32 unformatted, so the pattern is what keeps the store out of the formatter.
+git check-attr linguist-generated on manifest.json and sets/md.comp.checkbox.json: set.
+Markdown: oxfmt on every changed file; links checked by hand; no Markdown linter is configured. git diff --check: clean.
+
+== Not done in step 1
+The update report's diff sections (tokens added and removed, deprecations added, changed one-hop references and literals by set, the CSS difference) are step 2's (P7). The script writes the conflict report only.
+--release and --current are implemented and were not run: step 2 is the first fetch.
+
+== Rerun at the second field rulings, 2026-11-20
+Read by the implementer on tproc/tokens-source-1 at 047295328 (the architect's rulings 41815ef11 merged) plus this unit's changes, on the coordinator's task. The spec is the plan's "Field rulings, from the feature proof" and RD-28 property 4's amendment of the same date.
+The 14 tables were read from a182ba6aa (git archive) into a scratch directory outside the repository, by key name, type, count and id resolution only, and deleted afterwards. No value of a table field was printed.
+
+The survey before the change, by key path and count:
+  - Every key the tables carry, at every depth, is in RECORD_KEYS's kept or dropped list, or inside a value field matching the specs. The legacy conversion of the unmutated tables is the witness: it refuses any other key, and it converts.
+  - All 143,838 child nodes have a value id, and each resolves to a value of the child's own token's kept copy. No child value is unresolved.
+  - 1,002 display group rows, 982 distinct; the 20 repeated rows are identical. Every parentGroup and every token's displayGroup resolves to a group of the same set; paths are at most three deep, and no two groups of a set share one.
+  - Two schema gaps that the exact match exposed, closed in src/store/schema.ts:
+    - A type value's variationAxes is on 106 of 181 type values, and its FILL and HEXP on 76 of those 106. Both are optional now. Until this, the schema made them required.
+    - A resolved type has fontNames, fontWeight, fontSize, fontTracking and lineHeight literals and axisValue numbers, where a value's type has token-name references. It is ResolvedTokenType, in ResolvedLiteral, the type of resolvedValue. Until this, resolvedValue was typed as Literal.
+  - A customComposite property is typed as a value field (CompositeProperty), with exactly one of tokenName or a literal. Today all 12 are tokenName.
+
+The store, rewritten by node scripts/update-tokens.ts --legacy <the 14 tables> --report <file>:
+  - 103 files, 58,902,825 bytes, 2,134,917 lines; 1,415,106 bytes as a gzipped tar of the directory (gzip's default level). Step 1's store, measured the same way today: 1,271,524 bytes. The step-1 figure above, 1,268,518, came from a tar with other metadata.
+  - 982 display groups in 69 sets, 664 with a parentGroup; 3,610 tokens with a displayGroup path; 129,895 child nodes, each with its value index; 10,764 nodes with fieldNames.
+  - storeVersion stays 1.
+
+P1: tests/store/Store.node.test.ts, unchanged, passed: the store loads with fetch failing the test, and a missing or changed file is named.
+P2: two legacy runs; the 103 sha256 digests are identical, and so are the two reports. tests/scripts/convert.node.test.ts "should give byte-identical files for the same tables": passed.
+P3: grep -r -l for an email address in packages/tproc/tokens: 0 files. grep for gaiaId or emailAddress: 0 files. git grep after git add: no output.
+  The witness changed, as the ruling says: "should refuse a raw token key that is neither kept nor dropped": a gaiaId key on a fixture token is refused with "TOKEN_TABLE.c1: md.comp.test.a: tokens.gaiaId: is neither kept nor dropped". Passed. On the real tables, an extra key on a token is refused (P5 below).
+P4: baselines taken at 047295328 before the change, compared after:
+  - material-x's 34 tracked src/**/*.css.ts through aube exec just debug: diff -r, stdout and stderr: identical.
+  - material-x clean-build and build: the same 213 output paths; sha256 -c against the baseline: all identical.
+  - .storybook/theme.css from .scripts/storybook-theme.ts: identical.
+  - tproc: 12 files, 111 tests passed (97 before; 14 new, all in convert.node.test.ts). material-x: 20 files, 427 tests passed.
+P5: step-1-rerun-p5-mutations.ts.txt on the 14 tables, legacy mode; each refusal names the table, the token (a group's id for a group) and the key's path:
+  child value not its token's, legacy mode: listed, 1 value conflict
+  removed contextualReferenceTree: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree: is not an array of objects
+  renamed resolvedValue: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.resolved: is neither kept nor dropped
+  one-hop reference to a missing token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values.tokenName: names md.comp.checkbox.missing, not in the store
+  tree node naming a missing token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree: names md.comp.checkbox.missing, not in the store
+  value with an unknown value kind: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values.upstreamKind: is neither kept nor dropped
+  tag id naming no tag: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.sys.color.error: contextTags: designSystems/x/contextTagGroups/y/tags/missing names no tag
+  tree not starting at the token's own value: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: contextualReferenceTree.referenceTree.value: doesn't start at the token's own value
+  missing token field: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokenValueType: is not a string
+  extra key in a color literal: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.ref.palette.error95: values.color.hue: is not in the schema
+  extra key in a resolvedCustomCompositeValue: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.extra: is not in the schema
+  composite resolvedValue with two literal fields: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue: has 2 value fields (opacity, numeric), not one
+  composite resolvedValue with no literal field: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue: has 0 value fields (), not one
+  composite resolvedValue as a non-object: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue: is not an object
+  unknown key on a token: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokens.upstreamAddedField: is neither kept nor dropped
+  unknown key on a display group: refused: TOKEN_TABLE.31f16b44fe03b0c0: designSystems/20543ce18892f7d9/tokenSets/5fad3c4a777672ac/displayGroups/1fe288bdd008aafd: displayGroups.upstreamAddedField: is neither kept nor dropped
+  two versions, outside legacy mode: refused: TOKEN_TABLE.1c4257f8804f9478: -: system.version.versionName: is 35.0.28, and COLOR.20543ce18892f7d9 is 37.0.32
+  unmutated, legacy mode: converts, 103 files, 704 conflicts
+  tests/scripts/convert.node.test.ts, "convert refusals", 26 tests, passed: the same checks on a fixture, plus a literal missing a required key, a customComposite property with two value fields, a parentGroup naming no group, two groups of a set with one path, a token's group of another set, and a child node whose value isn't its token's (refused outside legacy mode; listed and stored without its index in legacy mode).
+P10: step-1-p10-check.ts.txt, with its two-example DIFF printing removed so that only counts print, against DB's reading regenerated from a182ba6aa's src/ and the same tables with step-1-p10-dump.ts.txt (3,950 tokens, 100 sets, as before):
+  tokens 3950 {"same:set":3950,"same:deprecated":3950,"same:value":3950,"same:tree":3950,"same:resolved":3950}
+P11: the report's 704 rows are identical to step-1-conflicts.md's: 704 token conflicts for 217 tokens. Unresolved child values: 0, so no value conflict. Only the report's header line changed, to name the value kind.
+P12: step-1-rerun-p12-readback.ts.txt reads the store back through the tables, independently of the converter, for every kept token, group and node:
+  tokens 3950, groups 982, child nodes 129895
+  same: 101 sets' group counts; 982 group paths give their ids, in upstream order; 982 parentGroup paths give their parentGroup ids; 982 each of description, orderInParentTokenSet and orderInParentDisplayGroup; 3,950 token displayGroup paths give their ids; 3,950 tree entry counts; 66,153 root indexes and 129,895 child indexes give the tables' value ids; 196,048 nodes' tokenName, fieldNames and child counts. No difference.
+
+Lint and format: tproc's fmt, lint-fix, fmt, lint and typecheck: clean. Root fmt-check, lint, typecheck and typecheck-declarations: exit 0. git diff --check: clean.

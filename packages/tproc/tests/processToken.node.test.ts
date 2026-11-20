@@ -1,12 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
-import processToken from '../src/processToken.ts';
+import processToken, { toCSSValue } from '../src/processToken.ts';
 import {
   TextTransform,
   TokenShapeFamily,
+  type StoredToken,
+  type StoredValue,
   type TokenType,
   type TokenTypeVariationAxes,
-} from '../src/TokenTable.ts';
-import { createToken, createValue, mockDB } from './helpers.ts';
+} from '../src/store/schema.ts';
+import {
+  createToken,
+  createTokenSet,
+  createValue,
+  useStore,
+} from './helpers.ts';
 
 describe('processToken', () => {
   const variationAxes: TokenTypeVariationAxes = {
@@ -31,19 +38,24 @@ describe('processToken', () => {
   });
 
   const setupValue = (
-    value: ReturnType<typeof createValue>,
-    setName?: string,
-  ) => {
-    mockDB.getSet.mockReturnValue({
-      tokenSetName: setName ?? 'md.comp.test',
+    value: StoredValue,
+    setName = 'md.comp.test',
+    ...others: readonly StoredToken[]
+  ): StoredToken => {
+    const token = createToken({
+      tokenName: `${setName}.token`,
+      values: [value],
     });
-    mockDB.getValue.mockReturnValue({ value });
+    useStore(
+      createTokenSet({ tokenSetName: setName, tokens: [token] }),
+      createTokenSet({ tokenSetName: 'md.comp.other', tokens: others }),
+    );
+    return token;
   };
 
   it('should return null when no value is found', () => {
     const token = createToken();
-    mockDB.getSet.mockReturnValue({ tokenSetName: 'md.comp.test' });
-    mockDB.getValue.mockReturnValue(undefined);
+    useStore(createTokenSet({ tokens: [token] }));
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(processToken(token)).toBeNull();
@@ -53,57 +65,51 @@ describe('processToken', () => {
   });
 
   it('should return null for system color tokens', () => {
-    const token = createToken();
-    setupValue(createValue({ numeric: 1 }), 'md.sys.color');
+    const token = setupValue(createValue({ numeric: 1 }), 'md.sys.color');
 
     expect(processToken(token)).toBeNull();
   });
 
   it('should convert length tokens to px', () => {
-    const token = createToken();
-    setupValue(createValue({ length: { value: 4 } }));
+    const token = setupValue(createValue({ length: { value: 4 } }));
 
     expect(processToken(token)).toBe('4px');
   });
 
   it('should convert percent length tokens to a percentage', () => {
-    const token = createToken();
-    setupValue(createValue({ length: { value: 50, unit: 'PERCENT' } }));
+    const token = setupValue(
+      createValue({ length: { value: 50, unit: 'PERCENT' } }),
+    );
 
     expect(processToken(token)).toBe('50%');
   });
 
   it('should convert opacity tokens to string', () => {
-    const token = createToken();
-    setupValue(createValue({ opacity: 0.5 }));
+    const token = setupValue(createValue({ opacity: 0.5 }));
 
     expect(processToken(token)).toBe('0.5');
   });
 
   it('should convert elevation tokens to string', () => {
-    const token = createToken();
-    setupValue(createValue({ elevation: { value: 2 } }));
+    const token = setupValue(createValue({ elevation: { value: 2 } }));
 
     expect(processToken(token)).toBe('2');
   });
 
   it('should convert numeric tokens to string', () => {
-    const token = createToken();
-    setupValue(createValue({ numeric: 3 }));
+    const token = setupValue(createValue({ numeric: 3 }));
 
     expect(processToken(token)).toBe('3');
   });
 
   it('should convert duration tokens to ms', () => {
-    const token = createToken();
-    setupValue(createValue({ durationMs: 150 }));
+    const token = setupValue(createValue({ durationMs: 150 }));
 
     expect(processToken(token)).toBe('150ms');
   });
 
   it('should map type tokens to kebab keys', () => {
-    const token = createToken();
-    setupValue(createValue({ type: createType() }));
+    const token = setupValue(createValue({ type: createType() }));
 
     expect(processToken(token)).toEqual({
       'font-name': 'md.ref.typeface',
@@ -116,8 +122,7 @@ describe('processToken', () => {
   });
 
   it('should preserve type variation axes for resolution', () => {
-    const token = createToken();
-    setupValue(createValue({ type: createType() }));
+    const token = setupValue(createValue({ type: createType() }));
 
     expect(processToken(token)).toMatchObject({
       'variation-axes': variationAxes,
@@ -125,43 +130,39 @@ describe('processToken', () => {
   });
 
   it('should format font names', () => {
-    const token = createToken();
-    setupValue(createValue({ fontNames: { values: ['Roboto', 'Arial'] } }));
+    const token = setupValue(
+      createValue({ fontNames: { values: ['Roboto', 'Arial'] } }),
+    );
 
     expect(processToken(token)).toBe('"Roboto", "Arial"');
   });
 
   it('should convert font tracking to px', () => {
-    const token = createToken();
-    setupValue(createValue({ fontTracking: { value: 1 } }));
+    const token = setupValue(createValue({ fontTracking: { value: 1 } }));
 
     expect(processToken(token)).toBe('1px');
   });
 
   it('should convert font weight to string', () => {
-    const token = createToken();
-    setupValue(createValue({ fontWeight: 500 }));
+    const token = setupValue(createValue({ fontWeight: 500 }));
 
     expect(processToken(token)).toBe('500');
   });
 
   it('should convert font size to px', () => {
-    const token = createToken();
-    setupValue(createValue({ fontSize: { value: 14 } }));
+    const token = setupValue(createValue({ fontSize: { value: 14 } }));
 
     expect(processToken(token)).toBe('14px');
   });
 
   it('should convert line height to px', () => {
-    const token = createToken();
-    setupValue(createValue({ lineHeight: { value: 18 } }));
+    const token = setupValue(createValue({ lineHeight: { value: 18 } }));
 
     expect(processToken(token)).toBe('18px');
   });
 
   it('should convert colors to hex', () => {
-    const token = createToken();
-    setupValue(
+    const token = setupValue(
       createValue({
         color: { red: 1, green: 0, blue: 0, alpha: 0.5 },
       }),
@@ -171,8 +172,7 @@ describe('processToken', () => {
   });
 
   it('should return full for circular shapes', () => {
-    const token = createToken();
-    setupValue(
+    const token = setupValue(
       createValue({
         shape: { family: TokenShapeFamily.FULL },
       }),
@@ -182,8 +182,7 @@ describe('processToken', () => {
   });
 
   it('should return default shape size when present', () => {
-    const token = createToken();
-    setupValue(
+    const token = setupValue(
       createValue({
         shape: {
           family: TokenShapeFamily.ROUNDED,
@@ -196,8 +195,7 @@ describe('processToken', () => {
   });
 
   it('should map shape corners', () => {
-    const token = createToken();
-    setupValue(
+    const token = setupValue(
       createValue({
         shape: {
           family: TokenShapeFamily.ROUNDED,
@@ -218,8 +216,7 @@ describe('processToken', () => {
   });
 
   it('should format cubic bezier tokens', () => {
-    const token = createToken();
-    setupValue(
+    const token = setupValue(
       createValue({
         cubicBezier: { x0: 0.1, y0: 0.2, x1: 0.3, y1: 0.4 },
       }),
@@ -229,31 +226,33 @@ describe('processToken', () => {
   });
 
   it('should lowercase motion paths', () => {
-    const token = createToken();
-    setupValue(createValue({ motionPath: { standardPath: 'PATH' } }));
+    const token = setupValue(
+      createValue({ motionPath: { standardPath: 'PATH' } }),
+    );
 
     expect(processToken(token)).toBe('path');
   });
 
   it('should convert axis values to string', () => {
-    const token = createToken();
-    setupValue(createValue({ axisValue: { tag: 'wdth', value: 12 } }));
+    const token = setupValue(
+      createValue({ axisValue: { tag: 'wdth', value: 12 } }),
+    );
 
     expect(processToken(token)).toBe('12');
   });
 
   it('should map text transform none', () => {
-    const token = createToken();
-    setupValue(createValue({ textTransform: TextTransform.NONE }));
+    const token = setupValue(
+      createValue({ textTransform: TextTransform.NONE }),
+    );
 
     expect(processToken(token)).toBe('none');
   });
 
   it('should throw on unknown text transforms', () => {
-    const token = createToken();
     const value = createValue();
     Reflect.set(value, 'textTransform', 'TEXT_TRANSFORM_UPPER');
-    setupValue(value);
+    const token = setupValue(value);
 
     expect(() => processToken(token)).toThrow(
       'Unknown text transform: TEXT_TRANSFORM_UPPER',
@@ -261,8 +260,7 @@ describe('processToken', () => {
   });
 
   it('should skip custom composite values', () => {
-    const token = createToken();
-    setupValue(
+    const token = setupValue(
       createValue({
         customComposite: {
           properties: {
@@ -279,24 +277,42 @@ describe('processToken', () => {
   });
 
   it('should resolve linked token names', () => {
-    const token = createToken();
-    setupValue(createValue({ tokenName: 'md.linked.token' }));
-    mockDB.getToken.mockReturnValue(createToken());
-    mockDB.isTokenDeprecated.mockReturnValue(true);
+    const token = setupValue(
+      createValue({ tokenName: 'md.comp.other.linked' }),
+      'md.comp.test',
+      createToken({
+        tokenName: 'md.comp.other.linked',
+        deprecationMessage: { message: 'Deprecated' },
+      }),
+    );
 
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    expect(processToken(token)).toBe('md.linked.token');
+    expect(processToken(token)).toBe('md.comp.other.linked');
     expect(warnSpy).toHaveBeenCalled();
   });
 
   it('should throw when linked tokens are missing', () => {
-    const token = createToken();
-    setupValue(createValue({ tokenName: 'md.missing.token' }));
-    mockDB.getToken.mockReturnValue(undefined);
+    const token = setupValue(createValue({ tokenName: 'md.missing.token' }));
 
     expect(() => processToken(token)).toThrow(
       "Token wasn't found: md.missing.token",
     );
+  });
+});
+
+describe('toCSSValue', () => {
+  it('should map a literal without a store', () => {
+    expect(toCSSValue({ length: { value: 4 } })).toBe('4px');
+  });
+
+  it('should map a one-hop reference to the referenced name', () => {
+    expect(toCSSValue({ tokenName: 'md.sys.shape.corner.full' })).toBe(
+      'md.sys.shape.corner.full',
+    );
+  });
+
+  it('should map an undefined value to null', () => {
+    expect(toCSSValue({ undefined: true })).toBeNull();
   });
 });

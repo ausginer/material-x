@@ -1,0 +1,30 @@
+# Address probes, 2026-11-20. Each line: HTTP status, bytes, URL.
+200 2679440 https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.31f16b44fe03b0c0.json
+200 2679611 https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/TOKEN_TABLE.31f16b44fe03b0c0.json
+200 2636081 https://m3.material.io/_dsm/data/dsdb-m3/2026-10-13_06-10-19/TOKEN_TABLE.31f16b44fe03b0c0.json
+404 0 https://m3.material.io/_dsm/data/dsdb-m3/41.1.12/TOKEN_TABLE.31f16b44fe03b0c0.json
+404 0 https://m3.material.io/_dsm/data/dsdb-m3/4ae102170fee99b1/TOKEN_TABLE.31f16b44fe03b0c0.json
+404 0 https://m3.material.io/_dsm/data/dsdb-m3/latest/index.json
+200 104413 https://m3.material.io/_dsm/data/dsdb-m3/latest/MOTION.20543ce18892f7d9.json
+200 104413 https://m3.material.io/_dsm/data/dsdb-m3/latest/SHAPE.20543ce18892f7d9.json
+200 110536 https://m3.material.io/_dsm/data/dsdb-m3/latest/OPACITY.20543ce18892f7d9.json
+200 129190 https://m3.material.io/_dsm/data/dsdb-m3/latest/MEASUREMENT.20543ce18892f7d9.json
+
+# Response headers of a latest table (no ETag, no Last-Modified, no-store):
+HTTP/2 200 
+content-type: application/JSON
+cache-control: no-cache, no-store, must-revalidate
+
+# How the site chooses the path segment: main bundle https://m3.material.io/static/angular/main.2bcb6530e93abb29.js (fetched 2026-11-20)
+I=sessionStorage.getItem("carbonVersion")?sessionStorage.getItem("carbonVersion"):localStorage.getItem("carbonVersion")?localStorage.getItem("carbonVersion"):G.environment.carbonVersion;const V=`_dsm/data/dsdb-m3/${I}`
+case P.G3.TOKEN_TABLE:M=`${V}/TOKEN_TABLE.${null===(l=this.resourceName)||void 0===l?void 0:l.split("components/")[1]}`
+carbonVersion:"2026-11-19_06-20-01"
+# The 2026-10-13_06-10-19 value is the carbonVersion in the bundle Wayback archived on 2026-10-29 (main.de4ba8c67aed3c29.js).
+
+# latest vs 2026-11-19_06-20-01, checkbox table: the only differing top-level key is system.version (same versionName 41.1.12).
+
+# Personal data in the committed snapshot (COLOR table): distinct emailAddress values, and gaiaId occurrences
+38
+8
+# Size: committed tree 147M (pretty-printed). Live minified, pruned to TokenTable's fields:
+#   raw 105.5 MB; pruned to tokenSets, tokens, values, contextualReferenceTrees, contextTagGroups, tags, name, version and without revision/author/time fields 98.0 MB; of which contextualReferenceTrees 93.9 MB; pruned and gzipped 2.5 MB.

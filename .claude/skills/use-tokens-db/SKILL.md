@@ -1,18 +1,18 @@
 ---
 name: use-tokens-db
-description: Query Material Design upstream design tokens through @ydinjs/tproc (colors, typography, elevation, shapes, motion) for buttons, FABs, text fields, checkboxes, lists, etc. Use when you need a token's resolved value, its reference tree, its token set, deprecation status, or need to enumerate tokens/sets/tags from the cached M3 token tables in packages/tproc/.data/tokens.
+description: Query Material Design upstream design tokens through @ydinjs/tproc (colors, typography, elevation, shapes, motion) for buttons, FABs, text fields, checkboxes, lists, etc. Use when you need a token's resolved value, its reference tree, its token set, deprecation status, or need to enumerate tokens/sets/tags from tproc's committed token store in packages/tproc/tokens, or when you update that store.
 ---
 
-# Using the tokens DB
+# Using the token store
 
-`DB` is the `@ydinjs/tproc` in-memory query layer over Material Design's upstream M3 token tables. Its source lives in `packages/tproc/src/DB/`; on first load it downloads each table from `m3.material.io` and caches it under `packages/tproc/.data/tokens/`; later loads read the cache, so you can work offline after the first run.
+`@ydinjs/tproc` reads Material Design's tokens from its own committed store, `packages/tproc/tokens/`. The store is converted from the design-system database tables that m3.material.io serves. It keeps upstream's field names and values, and holds no internal ids, revisions, authors or settings. The reader, `packages/tproc/src/store/`, is a typed query API over it with no network path.
 
 ## Loading
 
-The singleton in `index.ts` is the entrypoint — it already calls `DB.load()`:
+The singleton in `store/index.ts` loads the store with top-level `await`, so importing it is enough:
 
 ```ts
-import db from '@ydinjs/tproc/DB/index.js';
+import store from '@ydinjs/tproc/store/index.js';
 ```
 
 Run any script with plain `node` (this repo runs `.ts` directly):
@@ -21,85 +21,84 @@ Run any script with plain `node` (this repo runs `.ts` directly):
 node my-scratch.ts
 ```
 
-Notes:
+A missing store file, or one that doesn't match the manifest's SHA-256, fails the load and names the file. Nothing is downloaded.
 
-- `index.ts` uses top-level `await DB.load()`, so importing it is enough — no extra `await`.
-- The first run prints `Caching tokens from <url>` lines while it populates `.data/tokens/`. This is expected.
-- To build a DB with a different theme/systems/tags, call `DB.load()` semantics manually via the `DB` constructor `(theme, systems, allowedTags)`. The default uses tags `['expressive', 'web']`.
+## The store
 
-## Mental model
+- **`manifest.json`:** `storeVersion`; the source (the site's base address, the release id, and each database version's `versionName`, version id and publish time); the fetch date; one row per converted table (`kind`, `componentId`, `componentName`); and each store file's SHA-256.
+- **`context.json`:** the context tag groups (`contextTagGroupName`, `displayName`, `specificity`, `defaultTag`) with their tags (`tagName`, `displayName`, `tagOrder`).
+- **`sets/<tokenSetName>.json`:** one token set, its display groups and its tokens, in upstream order. A set that no table carries, named from its tokens, has only `tokenSetName`.
 
-- **Token** — an entry like `md.comp.button.container.color`. Has `name` (the long internal id), `tokenName` (the dotted human name), `displayName`, `displayGroup`, optional `deprecationMessage`. Carries no value itself.
-- **Value** — a concrete value (`color`, `length`, `shape`, `type`, `elevation`, `opacity`, `durationMs`, `cubicBezier`, …) keyed by `name`.
-- **TokenSet** — a named group of tokens (a token's name starts with its set's name). `displayName` starting with `[Deprecated]` marks the set deprecated.
-- **ContextTag / ContextTagGroup** — variant selectors (e.g. `expressive`, `web`). Value resolution is filtered by the DB's `allowedTags`.
-- **ReferenceTree** — the alias chain a token resolves through; `ResolvedValue` is the final concrete value after resolving references for the active tags.
+A display group has `displayName`, and `parentGroup`, `description`, `orderInParentTokenSet` and `orderInParentDisplayGroup` when upstream gives them. A group is identified by its **path**: its ancestors' `displayName`s and its own, from the top, such as `["Focused", "Focus indicator"]` in `md.comp.checkbox`. A `displayName` alone may repeat within a set. `parentGroup` is the parent's path.
 
-Full type definitions live in `packages/tproc/src/TokenTable.ts`.
+Each token has `tokenName`, `displayName` and `tokenValueType`. It has `description`, `displayGroup` (its group's path), `orderInDisplayGroup` and `deprecationMessage` when upstream gives them. Then:
 
-## Collections (getters)
+- **`values`:** the token's value entries. Each has `contextTags` and `specificityScore` when upstream gives them. `contextTags` is a group-to-tag-name object, such as `{ "motion.scheme": "expressive", "platform": "web" }`. Each entry has exactly one value field: `tokenName` (the one-hop reference) or one literal, such as `color`, `length`, `shape`, `type`, `elevation`, `opacity`, `durationMs`, `cubicBezier` or `undefined`.
+- **`contextualReferenceTree`:** one entry per context. Each has its `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree`, and exactly one of `resolvedValue` and `resolvedCustomCompositeValue`.
+  - A tree node has `tokenName`, `childNodes`, and `fieldNames` when upstream gives it: the composite property the node feeds. A child node's `value` is the index of the child token's `values` entry that the tree passes through.
 
-Each returns an `IteratorObject` (lazy, de-duplicated across systems). Call `.toArray()` to materialize, or chain `.filter`/`.map`/`.find`.
+The types are in `packages/tproc/src/store/schema.ts`.
 
-| Getter         | Yields                  |
-| -------------- | ----------------------- |
-| `db.tokens`    | every `Token`           |
-| `db.values`    | every `Value`           |
-| `db.tokenSets` | every `TokenSet`        |
-| `db.tags`      | every `ContextTag`      |
-| `db.tagGroups` | every `ContextTagGroup` |
-| `db.theme`     | the `MaterialTheme`     |
+## The reader
 
-```ts
-// All button tokens
-const buttonTokens = db.tokens
-  .filter((t) => t.tokenName.startsWith('md.comp.button'))
-  .toArray();
-```
+| Member | Gives |
+| --- | --- |
+| `store.sets` | every `StoredSet`, in the store's order |
+| `store.tokens` | every `StoredToken`, set by set, as a new iterator on each read |
+| `store.tagGroups` | the context tag groups |
+| `store.getSet(tokenSetName)` | a `StoredSet`, or `undefined` |
+| `store.getToken(tokenName)` | a `StoredToken` by its dotted name, or `undefined` |
+| `store.getTokenSet(token)` | the set that holds the token |
+| `store.isTokenDeprecated(token)` | `true` if the token has a `deprecationMessage` or its set's `displayName` starts with `[Deprecated]` |
+| `store.select(token, tags?)` | `{ value, entry? }`: the first contextual entry whose tags include any of `tags`, otherwise the first entry, with the value it starts from. `tags` defaults to `expressive` and `web`. A token with no tree selects its first value |
 
-## Lookups (methods)
-
-- `db.getToken(name)` → `Token | undefined`. **`name` is the internal `token.name`, not the dotted `tokenName`.** To find by dotted name, filter `db.tokens` on `tokenName`.
-- `db.getValue(token)` → `{ value, resolvedValue? } | undefined`. Resolves the token's value for the active tags, memoized per token.
-- `db.getSet(token)` → `MaybeOrphanTokenSet`. Returns the owning `TokenSet`, or a synthetic `{ tokenSetName }` when none matches.
-- `db.getSetTokens(set)` → `readonly Token[]` belonging to that set.
-- `db.isTokenDeprecated(token)` → `boolean` (true if the token has a `deprecationMessage` or its set is `[Deprecated]`).
-- `db.getReferenceTreeAndResolvedValue(name, tags)` → `[ReferenceTree, ResolvedValue] | undefined`. Lower-level; `getValue` builds on it using `allowedTags`.
+The CSS layer (`processToken`, `processTokenSet`, `resolve`) reads the default selection. `toCSSValue(value)`, from `processToken.ts`, maps one stored value to its CSS value without a store.
 
 ## Recipes
 
-Resolve a token's value by its dotted name:
+Resolve a token by its dotted name:
 
 ```ts
-import db from '@ydinjs/tproc/DB/index.js';
+import store from '@ydinjs/tproc/store/index.js';
 
-const token = db.tokens.find(
-  (t) => t.tokenName === 'md.comp.button.container.color',
-);
-if (token) {
-  const resolved = db.getValue(token);
-  console.log(resolved?.resolvedValue?.color);
-}
+const token = store.getToken('md.comp.button.container.color');
+const selection = token && store.select(token);
+console.log(selection?.value, selection?.entry?.resolvedValue);
 ```
 
 List a set's non-deprecated tokens:
 
 ```ts
-const set = db.tokenSets.find((s) => s.displayName === 'Filled button');
-const tokens = set
-  ? db.getSetTokens(set).filter((t) => !db.isTokenDeprecated(t))
-  : [];
+const set = store.sets.find((s) => s.displayName === 'Filled button');
+const tokens = set?.tokens.filter((t) => !store.isTokenDeprecated(t)) ?? [];
 ```
 
-Inspect available variant tags:
+Read a token's value for other tags:
 
 ```ts
-console.log(db.tags.map((t) => t.tagName).toArray());
+const dark = store.select(token, ['dark']);
 ```
+
+## Updating the store
+
+Only `packages/tproc/scripts/update-tokens.ts` writes the store. Run it from `packages/tproc`:
+
+```sh
+aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+aube exec just update-tokens --current --report <file>
+```
+
+- It fetches every table that the manifest lists from one dated release address, `_dsm/data/dsdb-m3/<release>/<KIND>.<componentId>.json`, and never from `latest`. `--current` first reads the release id from the site's bundle.
+- It converts the tables in memory. It refuses tables from different database versions, and a table that the converter can't read, and names the table, the token and the field. A raw table is never written.
+- **Every key is ruled.** `RECORD_KEYS` in `scripts/convert.ts` keeps or drops each key of each record, and the value-field specs beside it match `schema.ts` exactly. A key that upstream adds refuses the update and names its path, until it's ruled on in the record and added to one of the lists.
+- **Never commit a raw table.** The tables carry Google employees' personal data. `packages/tproc/.data/` is git-ignored, for a table that you keep by hand while debugging.
+- To add a component, add a row to `manifest.json`'s `tables` with its `kind` and `componentId`, then run an update. The site names a component's id in the page content it loads (`resourceName: components/<id>`).
+- `--legacy <directory>` converted the tables committed before the store, once. Those tables mixed two database versions. So this mode lists each token that two tables convert differently, and keeps the first table's copy.
+- An update is a pull request that carries the report and the difference in material-x's generated CSS.
 
 ## Gotchas
 
-- Iterators are single-pass. Re-read the getter (e.g. `db.tokens`) for each traversal rather than reusing a consumed iterator.
-- `getValue` filters by the DB's `allowedTags` (`expressive`, `web`). A token may have other contextual values you won't see unless you call `getReferenceTreeAndResolvedValue` with different tags.
-- Adding a new component's tokens means adding its `TOKEN_TABLE.*.json` URL to the list in `DB.load()`.
-- The cache lives in `packages/tproc/.data/tokens/`. Delete a file there to force a fresh download of that table.
+- `store.tokens` is a single-pass iterator. Read the getter again for each traversal.
+- The CSS layer renders only the `expressive` and `web` selection. Other contextual values are in the token's `contextualReferenceTree`: pass other tags to `select`.
+- `md.sys.color.*` values come from `default-theme.json`, a Material Theme Builder export (`@ydinjs/tproc/theme.js`), and not from the store.
+- The store is generated: oxfmt ignores it, and GitHub folds its diffs. Don't edit it by hand, except to add a `tables` row before an update.

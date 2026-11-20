@@ -1,0 +1,5414 @@
+{
+  "tokenSetName": "md.comp.list.expand",
+  "displayName": "List - Expand",
+  "description": "For list items that can expand and collapse.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "Shape",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Color",
+      "orderInParentTokenSet": 1
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+      "displayName": "List expand expanded list item segmented container color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.segmented.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+      "displayName": "List expand collapsed list item trailing icon container color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+      "displayName": "List expand expanded list item trailing icon container color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface-container"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.15686275,
+              "green": 0.16470589,
+              "blue": 0.17254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.15686275,
+              "green": 0.16470589,
+              "blue": 0.17254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 4
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral12",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12941177,
+              "green": 0.12156863,
+              "blue": 0.14901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral12",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12941177,
+              "green": 0.12156863,
+              "blue": 0.14901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral12",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12941177,
+              "green": 0.12156863,
+              "blue": 0.14901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral94",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9529412,
+              "green": 0.92941177,
+              "blue": 0.96862745,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral94",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9529412,
+              "green": 0.92941177,
+              "blue": 0.96862745,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral94",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9529412,
+              "green": 0.92941177,
+              "blue": 0.96862745,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+      "displayName": "List expand expanded list item trailing icon icon color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "tokenName": "md.sys.color.on-surface"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11372549,
+              "green": 0.105882354,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11372549,
+              "green": 0.105882354,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11372549,
+              "green": 0.105882354,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+      "displayName": "List expand collapsed list item trailing icon icon color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.color.on-surface"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral0",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8901961,
+              "green": 0.8901961,
+              "blue": 0.8901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11372549,
+              "green": 0.105882354,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11372549,
+              "green": 0.105882354,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11372549,
+              "green": 0.105882354,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.on-surface",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral10",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12156863,
+              "green": 0.12156863,
+              "blue": 0.12156863,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.trailing-icon.shape",
+      "displayName": "List expand trailing icon shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.trailing-icon.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.container.shape",
+      "displayName": "List expand container shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.large"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 16,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+      "displayName": "List expand expanded list item container color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.list.expand.expanded.list-item.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

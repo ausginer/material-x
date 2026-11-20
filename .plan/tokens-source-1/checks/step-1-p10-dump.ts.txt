@@ -1,0 +1,24 @@
+// Run from packages/tproc at 4c7fcfef0, before DB was deleted, as
+// `node .p10-dump.ts <out.json>`. It records DB's reading of every token for
+// the default tags, which step-1-p10-check.ts.txt compares with the store.
+import { writeFile } from 'node:fs/promises';
+import { DB } from './src/DB/DB.ts';
+const db = await DB.load();
+const ID = new Set(['name', 'revisionId', 'revisionCreateTime', 'state', 'createTime', 'contextTags', 'specificityScore']);
+const literal = (v: object) => Object.fromEntries(Object.entries(v).filter(([k]) => !ID.has(k)));
+const names = (n: any): unknown => [n.tokenName, (n.childNodes ?? []).map(names)];
+const tags = db.tags.filter((t) => ['expressive', 'web'].includes(t.tagName)).map((t) => t.name).toArray();
+const out: Record<string, unknown> = {};
+for (const token of db.tokens) {
+  const ev = db.getValue(token);
+  const rt = db.getReferenceTreeAndResolvedValue(token.name, tags);
+  out[token.tokenName] = {
+    set: db.getSet(token).tokenSetName,
+    deprecated: db.isTokenDeprecated(token),
+    value: ev ? literal(ev.value) : null,
+    tree: rt ? names(rt[0]) : null,
+    resolved: rt ? rt[1] ?? null : null,
+  };
+}
+await writeFile(process.argv[2]!, JSON.stringify(out, null, 1));
+console.log('tokens', Object.keys(out).length, 'sets', db.tokenSets.toArray().length);

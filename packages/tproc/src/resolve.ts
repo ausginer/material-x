@@ -1,11 +1,12 @@
 import camelCase from 'just-camel-case';
-import db from './DB/index.ts';
 import processToken from './processToken.ts';
 import type {
   ProcessedTokenSet,
   ProcessedTokenValue,
 } from './processTokenSet.ts';
-import type { TokenTypeVariationAxes } from './TokenTable.ts';
+import store from './store/index.ts';
+import type { TokenTypeVariationAxes } from './store/schema.ts';
+import theme from './theme.ts';
 import * as CSSVariable from './variable.ts';
 
 const COLOR_SET = 'md.sys.color';
@@ -128,12 +129,12 @@ function resolveValue(
 
     if (v.includes(COLOR_SET)) {
       p.push(v);
-      v = db.theme.schemes.light[camelCase(v.replace(`${COLOR_SET}.`, ''))];
+      v = theme.schemes.light[camelCase(v.replace(`${COLOR_SET}.`, ''))];
       break;
     }
 
     // Since function is executed immediately, it's ok.
-    const token = db.getToken(v);
+    const token = store.getToken(v);
 
     if (!token) {
       return null;

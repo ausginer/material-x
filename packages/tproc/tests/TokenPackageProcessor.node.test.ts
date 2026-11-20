@@ -1,45 +1,28 @@
 import { describe, it, expect } from 'vitest';
 import { TokenPackageProcessor } from '../src/TokenPackageProcessor.ts';
-import type { Token } from '../src/TokenTable.ts';
 import { createAllowedTokensSelector } from '../src/utils.ts';
 import {
   createToken,
   createTokenSet,
   createValue,
-  mockDB,
-  state,
+  useStore,
 } from './helpers.ts';
 
 describe('TokenPackageProcessor', () => {
   it('should group tokens, append values, and select tokens', () => {
-    const tokenSet = createTokenSet();
-    const tokens: [Token, Token] = [
-      createToken({
-        name: 'md.comp.test.container.color',
-        tokenName: 'md.comp.test.container.color',
-        tokenNameSuffix: 'container.color',
+    useStore(
+      createTokenSet({
+        tokens: [
+          createToken({
+            tokenName: 'md.comp.test.container.color',
+            values: [createValue({ numeric: 1 })],
+          }),
+          createToken({
+            tokenName: 'md.comp.test.hovered.container.color',
+            values: [createValue({ numeric: 2 })],
+          }),
+        ],
       }),
-      createToken({
-        name: 'md.comp.test.hovered.container.color',
-        tokenName: 'md.comp.test.hovered.container.color',
-        tokenNameSuffix: 'hovered.container.color',
-      }),
-    ];
-
-    state.tokenSets = [tokenSet];
-    state.tokens = tokens;
-    mockDB.getSet.mockReturnValue({ tokenSetName: 'md.comp.test' });
-
-    const values = new Map<string, { value: ReturnType<typeof createValue> }>();
-    const [baseToken, hoveredToken] = tokens;
-    values.set(baseToken.name, {
-      value: createValue({ name: baseToken.name, numeric: 1 }),
-    });
-    values.set(hoveredToken.name, {
-      value: createValue({ name: hoveredToken.name, numeric: 2 }),
-    });
-    mockDB.getValue.mockImplementation((token: Token) =>
-      values.get(token.name),
     );
 
     const processor = new TokenPackageProcessor('md.comp.test')
@@ -73,10 +56,7 @@ describe('TokenPackageProcessor', () => {
   });
 
   it('should apply inheritance and render declarations', () => {
-    const tokenSet = createTokenSet();
-
-    state.tokenSets = [tokenSet];
-    state.tokens = [];
+    useStore(createTokenSet());
 
     const processor = new TokenPackageProcessor('md.comp.test')
       .append('default', { 'container.color': 'red' })

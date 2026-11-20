@@ -4,14 +4,6 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./DB/DB.js": {
-      "types": "./DB/DB.d.ts",
-      "default": "./DB/DB.js"
-    },
-    "./DB/index.js": {
-      "types": "./DB/index.d.ts",
-      "default": "./DB/index.js"
-    },
     "./ExtensionManager.js": {
       "types": "./ExtensionManager.d.ts",
       "default": "./ExtensionManager.js"
@@ -27,10 +19,6 @@
     "./TokenPackageProcessor.js": {
       "types": "./TokenPackageProcessor.d.ts",
       "default": "./TokenPackageProcessor.js"
-    },
-    "./TokenTable.js": {
-      "types": "./TokenTable.d.ts",
-      "default": "./TokenTable.js"
     },
     "./default/motion-effects.js": {
       "types": "./default/motion-effects.d.ts",
@@ -55,6 +43,22 @@
     "./selector.js": {
       "types": "./selector.d.ts",
       "default": "./selector.js"
+    },
+    "./store/Store.js": {
+      "types": "./store/Store.d.ts",
+      "default": "./store/Store.js"
+    },
+    "./store/index.js": {
+      "types": "./store/index.d.ts",
+      "default": "./store/index.js"
+    },
+    "./store/schema.js": {
+      "types": "./store/schema.d.ts",
+      "default": "./store/schema.js"
+    },
+    "./theme.js": {
+      "types": "./theme.d.ts",
+      "default": "./theme.js"
     },
     "./utils.js": {
       "types": "./utils.d.ts",

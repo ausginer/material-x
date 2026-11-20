@@ -1,5 +1,4 @@
 import type { TokenPackageProcessor } from './TokenPackageProcessor.ts';
-import type { Token } from './TokenTable.ts';
 
 export const root: URL = new URL(
   import.meta.url.includes('/src/') ? '../' : './',
@@ -68,31 +67,6 @@ export function composeGroupSelectors(
 export type JSONModule<T> = Readonly<{
   default: T;
 }>;
-
-export function getSetName(token: Token): string {
-  const suffix = `.${token.tokenNameSuffix}`;
-  return token.tokenName.endsWith(suffix)
-    ? token.tokenName.slice(0, -suffix.length)
-    : token.tokenName;
-}
-
-export function* distinct<T>(
-  iterator: IteratorObject<T>,
-  comparator: (element: T) => unknown = (element) => element,
-): IteratorObject<T> {
-  const set = new Set();
-
-  for (const element of iterator) {
-    const compared = comparator(element);
-
-    if (!set.has(compared)) {
-      set.add(compared);
-      yield element;
-    }
-  }
-
-  return undefined;
-}
 
 export function createAllowedTokensSelector(
   allowedTokens: readonly string[],

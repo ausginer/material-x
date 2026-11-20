@@ -1,25 +1,22 @@
 // oxlint-disable no-console
 import kebabCase from 'just-kebab-case';
-import db from './DB/index.ts';
 import type { ProcessedTokenValue } from './processTokenSet.ts';
-import { TextTransform, TokenShapeFamily, type Token } from './TokenTable.ts';
+import store from './store/index.ts';
+import {
+  TextTransform,
+  TokenShapeFamily,
+  type StoredToken,
+  type StoredValue,
+  type TokenTypeVariationAxes,
+} from './store/schema.ts';
 import { rgbaToHex } from './utils.ts';
 
-export default function processToken(token: Token): ProcessedTokenValue | null {
-  const set = db.getSet(token);
-  const extendedValue = db.getValue(token);
-
-  if (!extendedValue) {
-    console.error(`No value found for ${token.tokenName}`);
-    return null;
-  }
-
-  if (set.tokenSetName === 'md.sys.color') {
-    return null;
-  }
-
-  const { value } = extendedValue;
-
+/**
+ * Maps a stored value to its CSS value: a literal to CSS text, or a one-hop
+ * reference to the referenced token's name. A `customComposite` value, and a
+ * value with no field this maps, gives `null`.
+ */
+export function toCSSValue(value: StoredValue): ProcessedTokenValue | null {
   const {
     length,
     opacity,
@@ -64,7 +61,8 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
 
   if (type != null) {
     return Object.fromEntries(
-      Object.entries(type).map(
+      // An absent variationAxes gives no entry, so no entry is undefined.
+      Object.entries<string | TokenTypeVariationAxes>(type).map(
         ([key, value]) =>
           [kebabCase(key.replace('TokenName', '')), value] as const,
       ),
@@ -161,26 +159,51 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
   }
 
   if (customComposite != null) {
-    console.log(
-      `Skipping ${token.tokenName} because it provides customComposite property`,
-    );
+    return null;
+  }
+
+  return valueTokenName ?? null;
+}
+
+export default function processToken(
+  token: StoredToken,
+): ProcessedTokenValue | null {
+  const set = store.getTokenSet(token);
+  const selection = store.select(token);
+
+  if (!selection) {
+    console.error(`No value found for ${token.tokenName}`);
+    return null;
+  }
+
+  if (set.tokenSetName === 'md.sys.color') {
+    return null;
+  }
+
+  const { value } = selection;
+  const cssValue = toCSSValue(value);
+
+  if (cssValue == null) {
+    if (value.customComposite != null) {
+      console.log(
+        `Skipping ${token.tokenName} because it provides customComposite property`,
+      );
+    }
 
     return null;
   }
 
-  if (valueTokenName != null) {
-    const linkedToken = db.getToken(valueTokenName);
+  if (cssValue === value.tokenName) {
+    const linkedToken = store.getToken(value.tokenName);
 
     if (!linkedToken) {
-      throw new Error(`Token wasn't found: ${valueTokenName}`);
+      throw new Error(`Token wasn't found: ${value.tokenName}`);
     }
 
-    if (db.isTokenDeprecated(linkedToken)) {
-      console.warn('Token is deprecated: ', valueTokenName);
+    if (store.isTokenDeprecated(linkedToken)) {
+      console.warn('Token is deprecated: ', value.tokenName);
     }
-
-    return valueTokenName;
   }
 
-  return null;
+  return cssValue;
 }

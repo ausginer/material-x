@@ -36,5 +36,5 @@ Dependencies are installed and binaries run with aube (`aube install`, `aube add
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how code is written: source conventions, and the size and ownership policy. This is a library, not an application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
 - [`.agents/docs/`](.agents/docs/) — conventions and design references: `@ydinjs` architecture, CSS inheritance, attribute-vs-state styling, accessibility, the test layers, the trait flattener plugin, where documentation belongs, and how a review round is run.
 - [`.agents/docs/releasing.md`](.agents/docs/releasing.md) — how an `@ydinjs` package is released: the owner's steps, what the release workflow checks, check runs, and the first publish.
-- `.claude/skills/` — task-scoped procedures for `@ydinjs/material-x` component tests, `@ydinjs/tproc` visual contracts, and anything under `.data/tokens`. They apply even when a request does not name them.
+- `.claude/skills/` — task-scoped procedures for `@ydinjs/material-x` component tests, `@ydinjs/tproc` visual contracts, and anything under `packages/tproc/tokens`. They apply even when a request does not name them.
 - `packages/*/.plan/` — the record: decisions, reviews, measurements, and why anything is the way it is.
