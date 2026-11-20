@@ -182,7 +182,7 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
   - `cmp LICENSE packages/box-quad/LICENSE` succeeds.
   - `aube ci` passes after `aube install` updates the lockfile, and `packages/drag` still resolves `@ydinjs/box-quad` to the workspace package.
 
-- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). The pack lists exactly the seven files. The build leaves the manifest unchanged, and the declarations check passes. The built `index.js` holds 22 numeric `const` declarations, 9 function declarations and the export. The two `LICENSE` files are identical. `aube ci` passes, and drag resolves `@ydinjs/box-quad` 1.0.0 to the workspace package.
+- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). The pack lists exactly the seven files. The build leaves the manifest unchanged, and the declarations check passes. The built `index.js` holds 22 numeric `const` declarations, 9 function declarations and the export. The two `LICENSE` files are identical. `aube ci` passes, and drag resolves `@ydinjs/box-quad` 1.0.0 to the workspace package. **Corrected 2026-11-20:** the count is 23 numeric `const` declarations, not 22 — `BOX_*` 8, `SPACE_*` 5, `QUAD_*` 8 and `DELTA_*` 2, matching the 23 in `src/index.ts`. Only the count was wrong, and the reading still holds only declarations and the export ([`reviewer-2`](../reviews/box-quad-release-1/feature-proof-claude.md#reviewer-2), [transcript](checks/implementation.txt)).
 
 **2. The API docs (implementer).** [Property 4](#4-the-api-docs). This touches `packages/box-quad/Justfile` and `package.json`, the root `Justfile`, `.scripts/docs-api.ts`, `.scripts/docs-smoke.ts` and `packages/material-x/src/reference/api.mdx`.
 
@@ -203,7 +203,7 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
   - `aube exec oxfmt` leaves both files unchanged, and `git diff --check` is clean.
   - A search of both files for `BQ-`, `F-`, `RF-`, `RD-`, `.plan` and seven-or-more-character hex strings finds nothing.
 
-- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). Both README examples type-check against the packed package. Nothing turns up in the search for identifiers. The docs-site link answers 404 until this branch is on `main` and deployed.
+- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). Both README examples type-check against the packed package. Nothing turns up in the search for identifiers. The docs-site link answers 404 until this branch is on `main` and deployed. **Amended 2026-11-20:** the README's `false` cases said that every fragmented box returns `false`, where `04-support-matrix.md` §3 says `false` only where fragmentation is detected. The README now names the detected case, a box with more than one client rect, and says that other fragmented boxes are unsupported, kept out by the caller, and not guaranteed a `false` ([`reviewer-1`](../reviews/box-quad-release-1/feature-proof-claude.md#reviewer-1)). The examples still type-check against the packed tarball, the pack lists the same seven files, and the tarball's sha256 is now `4235cc62…` ([transcript](checks/implementation.txt)).
 
 **4. Root `clean-build`, and the size ceiling (implementer).** [Property 6](#6-the-root-clean-build-includes-box-quad).
 

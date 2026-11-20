@@ -90,11 +90,13 @@ Supported:
 
 The function returns `false` for:
 
-- an inline element split across lines, or another fragmented box;
+- an inline element split across lines, or another box with more than one client rect;
 - a 3D transform, `perspective`, or `transform-style: preserve-3d` that applies;
 - a `relativeTo` box whose matrix can't be inverted;
 - a disconnected element, or one without a principal box;
 - a result that isn't finite.
+
+Other fragmented boxes aren't supported either, and the caller keeps them out. The function finds fragmentation only by the client rect count, so a fragmented box with one client rect doesn't return `false`, and its result isn't guaranteed.
 
 There is no option for a box other than the border box, and no list of fragments.
 

@@ -52,3 +52,15 @@ node /workspaces/worktrees/d/.scripts/release-check.ts package --directory packa
   - `index.js`
   - `index.js.map`
   - `package.json`
+
+== Corrections after the feature proof, 2026-11-20, on repo/box-quad-release-1 at 7cdbdc220 plus this unit's changes
+
+reviewer-2, the const count. The Task 1 line above says 22; it is 23. oxc-parser on the built index.js, top level: 23 const declarations, each with one numeric literal (BOX_* 8, SPACE_* 5, QUAD_* 8, DELTA_* 2), 9 function declarations, and one ExportNamedDeclaration. src/index.ts has 23 top-level const lines.
+
+reviewer-1, the README's fragmentation case. Only packages/box-quad/README.md changes; the contract and the source don't.
+aube exec just build, then git diff --exit-code packages/box-quad/package.json: unchanged
+aube pack --dry-run in packages/box-quad: CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json (7 files), @ydinjs/box-quad@1.0.0
+aube pack: sha256 4235cc62833440f9d8ae3f99b6312be916ea7fb2096e37d4fcf60ffe2c14f725. A second pack gives the same digest, and a pack with the README at 7cdbdc220 gives 908f90669250565366dedc241d7357f0b2a89dc502faa80a4b761365316d406f, the digest above, so the pack is reproducible and the README is the only change.
+The README's 2 ts examples, each with declared HTMLElement constants, type-check with tsc (strict, skipLibCheck false, types [], nodenext, DOM lib) against the package installed with aube from the new tarball: exit 0. With coordinates('x', card) appended to the first: exit 1, TS2345.
+aube exec just fmt README.md, then git diff --check: clean.
+grep for BQ-, F-<digit>, RF-, RD-, .plan and 7+ character hex strings in the README: 0 hits
