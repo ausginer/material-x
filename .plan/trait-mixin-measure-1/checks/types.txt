@@ -1,0 +1,30 @@
+=== mixin-surface — Version 7.0.2
+mixin-surface.ts(56,12): error TS2610: 'disabled' is defined as an accessor in class 'Disableable.Disableable & Element0', but is overridden here in 'FieldOverAccessor' as an instance property.
+mixin-surface.ts(61,16): error TS2611: 'value' is defined as a property in class 'Valued.Valued & Element0', but is overridden here in 'AccessorOverField' as an accessor.
+mixin-surface.ts(78,1): error TS2322: Type '"b"' is not assignable to type '"a"'.
+exit 2
+=== mixin-surface — Version 6.0.3
+mixin-surface.ts(56,12): error TS2610: 'disabled' is defined as an accessor in class 'Disableable<typeof Element0>.Disableable & Element0', but is overridden here in 'FieldOverAccessor' as an instance property.
+mixin-surface.ts(61,16): error TS2611: 'value' is defined as a property in class 'Valued<typeof Element0>.Valued & Element0', but is overridden here in 'AccessorOverField' as an accessor.
+mixin-surface.ts(78,1): error TS2322: Type '"b"' is not assignable to type '"a"'.
+exit 2
+=== mixin-declarations — Version 7.0.2
+mixin-declarations.ts(16,10): error TS9039: Type containing private name 'Disableable' can't be used with --isolatedDeclarations.
+mixin-declarations.ts(20,14): error TS4094: Property '#seen' of exported anonymous class type may not be private or protected.
+mixin-declarations.ts(20,14): error TS4094: Property 'count' of exported anonymous class type may not be private or protected.
+mixin-declarations.ts(28,10): error TS9039: Type containing private name 'Counting' can't be used with --isolatedDeclarations.
+exit 1
+=== mixin-declarations — Version 6.0.3
+mixin-declarations.ts(9,28): error TS9007: Function must have an explicit return type annotation with --isolatedDeclarations.
+mixin-declarations.ts(20,14): error TS4094: Property '#seen' of exported anonymous class type may not be private or protected.
+mixin-declarations.ts(20,14): error TS4094: Property 'count' of exported anonymous class type may not be private or protected.
+mixin-declarations.ts(20,25): error TS9007: Function must have an explicit return type annotation with --isolatedDeclarations.
+exit 1
+=== mixin-declarations, isolatedDeclarations off — Version 7.0.2
+mixin-declarations.ts(20,14): error TS4094: Property '#seen' of exported anonymous class type may not be private or protected.
+mixin-declarations.ts(20,14): error TS4094: Property 'count' of exported anonymous class type may not be private or protected.
+exit 1
+=== mixin-declarations, isolatedDeclarations off — Version 6.0.3
+mixin-declarations.ts(20,14): error TS4094: Property '#seen' of exported anonymous class type may not be private or protected.
+mixin-declarations.ts(20,14): error TS4094: Property 'count' of exported anonymous class type may not be private or protected.
+exit 1

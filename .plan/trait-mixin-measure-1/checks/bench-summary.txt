@@ -1,0 +1,42 @@
+
+chromium, 5 runs
+
+| Workload | Flattened, ns | Mixin, inline | Range over runs | Mixin, helper | Range over runs |
+| --- | --: | --: | --: | --: | --: |
+| get, 1 class | 17.4 | +0.6 % | −2.3 % to +2.3 % | −0.9 % | −2.1 % to +4.0 % |
+| get, 15 classes, a site per class | 18.0 | +2.3 % | +0.6 % to +7.7 % | +1.1 % | −0.6 % to +2.3 % |
+| get, 15 classes, one site | 39.1 | +11.9 % | +5.5 % to +13.1 % | +8.3 % | +6.8 % to +17.5 % |
+| set, 1 class | 1260 | −3.9 % | −7.4 % to +0.7 % | −2.2 % | −8.6 % to +3.2 % |
+| set, 15 classes, a site per class | 1445 | −0.2 % | −7.7 % to +3.1 % | −0.9 % | −7.7 % to +15.6 % |
+| set, 15 classes, one site | 1673 | +5.0 % | −8.5 % to +5.6 % | +1.2 % | −1.0 % to +10.7 % |
+| create, 15 classes | 16562 | +15.7 % | −24.5 % to +45.8 % | +0.7 % | −24.8 % to +21.9 % |
+
+flattened: one map per class: true; distinct maps across the 15 classes: 15
+
+inline: one map per class: true; distinct maps across the 15 classes: 15
+
+helper: one map per class: true; distinct maps across the 15 classes: 15
+
+firefox, 5 runs
+
+| Workload | Flattened, ns | Mixin, inline | Range over runs | Mixin, helper | Range over runs |
+| --- | --: | --: | --: | --: | --: |
+| get, 1 class | 28.5 | +0.0 % | +0.0 % to +1.7 % | +0.0 % | −3.6 % to +0.0 % |
+| get, 15 classes, a site per class | 44.8 | +0.0 % | +0.0 % to +5.1 % | +0.0 % | −2.3 % to +5.1 % |
+| get, 15 classes, one site | 57.0 | +33.3 % | +28.6 % to +38.5 % | +29.6 % | +28.6 % to +38.5 % |
+| set, 1 class | 2669 | +0.0 % | −3.7 % to +5.0 % | +2.4 % | −13.0 % to +5.0 % |
+| set, 15 classes, a site per class | 2930 | +7.1 % | −11.9 % to +11.1 % | +0.0 % | −10.2 % to +7.1 % |
+| set, 15 classes, one site | 3385 | +0.0 % | −7.4 % to +5.9 % | +0.0 % | +0.0 % to +3.9 % |
+| create, 15 classes | 36458 | +4.3 % | −12.8 % to +25.0 % | −2.9 % | −12.8 % to +25.0 % |
+
+webkit, 5 runs
+
+| Workload | Flattened, ns | Mixin, inline | Range over runs | Mixin, helper | Range over runs |
+| --- | --: | --: | --: | --: | --: |
+| get, 1 class | 20.3 | −4.1 % | −12.5 % to +2.9 % | −2.7 % | −12.5 % to +2.9 % |
+| get, 15 classes, a site per class | 18.3 | +5.9 % | +0.0 % to +8.8 % | +5.9 % | +2.8 % to +8.8 % |
+| get, 15 classes, one site | 23.4 | +6.5 % | −18.4 % to +8.7 % | +8.7 % | −14.3 % to +20.8 % |
+| set, 1 class | 1563 | +2.0 % | −4.4 % to +4.4 % | +0.0 % | +0.0 % to +20.0 % |
+| set, 15 classes, a site per class | 1563 | −4.2 % | −11.5 % to +22.6 % | +0.0 % | −7.7 % to +19.4 % |
+| set, 15 classes, one site | 1953 | +0.0 % | −34.1 % to +7.4 % | +0.0 % | −34.1 % to +6.5 % |
+| create, 15 classes | 22917 | +2.4 % | −29.3 % to +31.6 % | +2.4 % | −27.6 % to +18.8 % |

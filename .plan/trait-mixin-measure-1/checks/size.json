@@ -1,0 +1,443 @@
+[
+  {
+    "row": "complete",
+    "variant": "flattened",
+    "raw": 88343,
+    "gzip": 19814,
+    "brotli": 16949
+  },
+  {
+    "row": "complete + instanceof Disableable",
+    "variant": "flattened",
+    "raw": 88399,
+    "gzip": 19838,
+    "brotli": 16989
+  },
+  {
+    "row": "complete + instanceof each core trait (8)",
+    "variant": "flattened",
+    "raw": 89802,
+    "gzip": 20020,
+    "brotli": 17136
+  },
+  {
+    "row": "button/button",
+    "variant": "flattened",
+    "raw": 17036,
+    "gzip": 5401,
+    "brotli": 4834
+  },
+  {
+    "row": "button/icon-button",
+    "variant": "flattened",
+    "raw": 20050,
+    "gzip": 5704,
+    "brotli": 5079
+  },
+  {
+    "row": "button/link-button",
+    "variant": "flattened",
+    "raw": 17060,
+    "gzip": 5379,
+    "brotli": 4798
+  },
+  {
+    "row": "button/switch-button",
+    "variant": "flattened",
+    "raw": 20227,
+    "gzip": 5800,
+    "brotli": 5184
+  },
+  {
+    "row": "button/switch-icon-button",
+    "variant": "flattened",
+    "raw": 25763,
+    "gzip": 6283,
+    "brotli": 5563
+  },
+  {
+    "row": "button/split-button",
+    "variant": "flattened",
+    "raw": 30218,
+    "gzip": 8202,
+    "brotli": 7331
+  },
+  {
+    "row": "button-group/button-group",
+    "variant": "flattened",
+    "raw": 10434,
+    "gzip": 3540,
+    "brotli": 3110
+  },
+  {
+    "row": "button-group/connected-button-group",
+    "variant": "flattened",
+    "raw": 13296,
+    "gzip": 4380,
+    "brotli": 3866
+  },
+  {
+    "row": "checkbox/checkbox",
+    "variant": "flattened",
+    "raw": 11423,
+    "gzip": 4392,
+    "brotli": 3914
+  },
+  {
+    "row": "fab/fab",
+    "variant": "flattened",
+    "raw": 15756,
+    "gzip": 4653,
+    "brotli": 4121
+  },
+  {
+    "row": "icon/icon",
+    "variant": "flattened",
+    "raw": 1584,
+    "gzip": 813,
+    "brotli": 642
+  },
+  {
+    "row": "list/list",
+    "variant": "flattened",
+    "raw": 9917,
+    "gzip": 4135,
+    "brotli": 3656
+  },
+  {
+    "row": "list/list-item",
+    "variant": "flattened",
+    "raw": 9175,
+    "gzip": 2989,
+    "brotli": 2594
+  },
+  {
+    "row": "list/list-button-item",
+    "variant": "flattened",
+    "raw": 14655,
+    "gzip": 5148,
+    "brotli": 4542
+  },
+  {
+    "row": "list/list-link-item",
+    "variant": "flattened",
+    "raw": 15384,
+    "gzip": 5371,
+    "brotli": 4754
+  },
+  {
+    "row": "radio/radio",
+    "variant": "flattened",
+    "raw": 9986,
+    "gzip": 4010,
+    "brotli": 3571
+  },
+  {
+    "row": "text-field/multiline-text-field",
+    "variant": "flattened",
+    "raw": 16287,
+    "gzip": 4988,
+    "brotli": 4421
+  },
+  {
+    "row": "text-field/text-field",
+    "variant": "flattened",
+    "raw": 34043,
+    "gzip": 9055,
+    "brotli": 8099
+  },
+  {
+    "row": "complete",
+    "variant": "inline",
+    "raw": 84503,
+    "gzip": 19686,
+    "brotli": 16918
+  },
+  {
+    "row": "complete + instanceof Disableable",
+    "variant": "inline",
+    "raw": 84558,
+    "gzip": 19710,
+    "brotli": 16943
+  },
+  {
+    "row": "complete + instanceof each core trait (8)",
+    "variant": "inline",
+    "raw": 84834,
+    "gzip": 19806,
+    "brotli": 17018
+  },
+  {
+    "row": "button/button",
+    "variant": "inline",
+    "raw": 17965,
+    "gzip": 5489,
+    "brotli": 4892
+  },
+  {
+    "row": "button/icon-button",
+    "variant": "inline",
+    "raw": 20979,
+    "gzip": 5785,
+    "brotli": 5133
+  },
+  {
+    "row": "button/link-button",
+    "variant": "inline",
+    "raw": 17761,
+    "gzip": 5449,
+    "brotli": 4865
+  },
+  {
+    "row": "button/switch-button",
+    "variant": "inline",
+    "raw": 21157,
+    "gzip": 5888,
+    "brotli": 5240
+  },
+  {
+    "row": "button/switch-icon-button",
+    "variant": "inline",
+    "raw": 26925,
+    "gzip": 6383,
+    "brotli": 5649
+  },
+  {
+    "row": "button/split-button",
+    "variant": "inline",
+    "raw": 30199,
+    "gzip": 8266,
+    "brotli": 7374
+  },
+  {
+    "row": "button-group/button-group",
+    "variant": "inline",
+    "raw": 10720,
+    "gzip": 3554,
+    "brotli": 3122
+  },
+  {
+    "row": "button-group/connected-button-group",
+    "variant": "inline",
+    "raw": 13656,
+    "gzip": 4381,
+    "brotli": 3851
+  },
+  {
+    "row": "checkbox/checkbox",
+    "variant": "inline",
+    "raw": 12408,
+    "gzip": 4501,
+    "brotli": 4012
+  },
+  {
+    "row": "fab/fab",
+    "variant": "inline",
+    "raw": 16229,
+    "gzip": 4719,
+    "brotli": 4182
+  },
+  {
+    "row": "icon/icon",
+    "variant": "inline",
+    "raw": 1584,
+    "gzip": 813,
+    "brotli": 642
+  },
+  {
+    "row": "list/list",
+    "variant": "inline",
+    "raw": 9990,
+    "gzip": 4159,
+    "brotli": 3683
+  },
+  {
+    "row": "list/list-item",
+    "variant": "inline",
+    "raw": 9078,
+    "gzip": 2948,
+    "brotli": 2550
+  },
+  {
+    "row": "list/list-button-item",
+    "variant": "inline",
+    "raw": 15128,
+    "gzip": 5220,
+    "brotli": 4593
+  },
+  {
+    "row": "list/list-link-item",
+    "variant": "inline",
+    "raw": 16085,
+    "gzip": 5454,
+    "brotli": 4818
+  },
+  {
+    "row": "radio/radio",
+    "variant": "inline",
+    "raw": 10743,
+    "gzip": 4099,
+    "brotli": 3638
+  },
+  {
+    "row": "text-field/multiline-text-field",
+    "variant": "inline",
+    "raw": 17042,
+    "gzip": 5080,
+    "brotli": 4529
+  },
+  {
+    "row": "text-field/text-field",
+    "variant": "inline",
+    "raw": 35479,
+    "gzip": 9198,
+    "brotli": 8215
+  },
+  {
+    "row": "complete",
+    "variant": "helper",
+    "raw": 82650,
+    "gzip": 19564,
+    "brotli": 16861
+  },
+  {
+    "row": "complete + instanceof Disableable",
+    "variant": "helper",
+    "raw": 82705,
+    "gzip": 19590,
+    "brotli": 16901
+  },
+  {
+    "row": "complete + instanceof each core trait (8)",
+    "variant": "helper",
+    "raw": 82979,
+    "gzip": 19672,
+    "brotli": 17013
+  },
+  {
+    "row": "button/button",
+    "variant": "helper",
+    "raw": 17506,
+    "gzip": 5478,
+    "brotli": 4895
+  },
+  {
+    "row": "button/icon-button",
+    "variant": "helper",
+    "raw": 20520,
+    "gzip": 5779,
+    "brotli": 5146
+  },
+  {
+    "row": "button/link-button",
+    "variant": "helper",
+    "raw": 17427,
+    "gzip": 5437,
+    "brotli": 4840
+  },
+  {
+    "row": "button/switch-button",
+    "variant": "helper",
+    "raw": 20697,
+    "gzip": 5875,
+    "brotli": 5244
+  },
+  {
+    "row": "button/switch-icon-button",
+    "variant": "helper",
+    "raw": 26336,
+    "gzip": 6365,
+    "brotli": 5651
+  },
+  {
+    "row": "button/split-button",
+    "variant": "helper",
+    "raw": 29100,
+    "gzip": 8218,
+    "brotli": 7317
+  },
+  {
+    "row": "button-group/button-group",
+    "variant": "helper",
+    "raw": 10386,
+    "gzip": 3548,
+    "brotli": 3116
+  },
+  {
+    "row": "button-group/connected-button-group",
+    "variant": "helper",
+    "raw": 13197,
+    "gzip": 4369,
+    "brotli": 3832
+  },
+  {
+    "row": "checkbox/checkbox",
+    "variant": "helper",
+    "raw": 11955,
+    "gzip": 4488,
+    "brotli": 4004
+  },
+  {
+    "row": "fab/fab",
+    "variant": "helper",
+    "raw": 16020,
+    "gzip": 4714,
+    "brotli": 4178
+  },
+  {
+    "row": "icon/icon",
+    "variant": "helper",
+    "raw": 1584,
+    "gzip": 813,
+    "brotli": 642
+  },
+  {
+    "row": "list/list",
+    "variant": "helper",
+    "raw": 10035,
+    "gzip": 4177,
+    "brotli": 3693
+  },
+  {
+    "row": "list/list-item",
+    "variant": "helper",
+    "raw": 9078,
+    "gzip": 2948,
+    "brotli": 2550
+  },
+  {
+    "row": "list/list-button-item",
+    "variant": "helper",
+    "raw": 14919,
+    "gzip": 5210,
+    "brotli": 4596
+  },
+  {
+    "row": "list/list-link-item",
+    "variant": "helper",
+    "raw": 15751,
+    "gzip": 5440,
+    "brotli": 4788
+  },
+  {
+    "row": "radio/radio",
+    "variant": "helper",
+    "raw": 10415,
+    "gzip": 4094,
+    "brotli": 3646
+  },
+  {
+    "row": "text-field/multiline-text-field",
+    "variant": "helper",
+    "raw": 16714,
+    "gzip": 5071,
+    "brotli": 4504
+  },
+  {
+    "row": "text-field/text-field",
+    "variant": "helper",
+    "raw": 34637,
+    "gzip": 9169,
+    "brotli": 8175
+  }
+]
