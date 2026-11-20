@@ -42,8 +42,8 @@ export type AttributeTable<T> = [AttributeKeys<T>] extends [never]
   : { readonly [K in AttributeKeys<T>]?: ConverterFor<T[K]> };
 
 /**
- * Declares a trait's attributes, from the trait class's static block:
- * `static { trait(this); attributes(this, { disabled: Bool }); }`, with each
+ * Declares a trait's attributes, from the static block of a `@trait` class:
+ * `static { attributes(this, { disabled: Bool }); }`, with each
  * attribute declared as `accessor disabled!: boolean`. The trait's build
  * turns each `accessor` line into a getter and a setter that read and write the
  * attribute through the table's converter, and adds the table's keys to a

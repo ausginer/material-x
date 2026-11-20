@@ -31,9 +31,9 @@ export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
  * writes `color`; the member is declared here with the values both colors
  * share, which is the type an icon button's `color` has.
  */
+@trait
 export class IconButtonLike extends AnyElement {
   static {
-    trait(this);
     attributes(this, { width: Str as ConverterOf<IconButtonWidth> });
   }
 

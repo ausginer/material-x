@@ -45,9 +45,9 @@ export const BUTTON_ATTRS = {
 } as const;
 export type BUTTON_ATTRS = typeof BUTTON_ATTRS;
 
+@trait
 export class ButtonLike extends AnyElement {
   static {
-    trait(this);
     attributes(this, BUTTON_ATTRS);
   }
 

@@ -44,9 +44,9 @@ export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 export type FABExtended = 'open' | 'closed';
 
+@trait
 export class FABLike extends AnyElement {
   static {
-    trait(this);
     attributes(this, {
       size: Str as ConverterOf<FABSize>,
       color: Str as ConverterOf<FABColor>,

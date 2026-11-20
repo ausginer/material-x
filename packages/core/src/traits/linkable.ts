@@ -16,9 +16,9 @@ export const LINKABLE_ATTRS: Readonly<{
 /**
  * Element trait that exposes `href` and `target` navigation fields.
  */
+@trait
 export class Linkable extends AnyElement {
   static {
-    trait(this);
     attributes(this, LINKABLE_ATTRS);
   }
 

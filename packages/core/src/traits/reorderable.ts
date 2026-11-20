@@ -42,9 +42,9 @@ export class ReorderEvent extends Event {
  * Element trait that exposes a presence-based `reorderable` boolean field,
  * indicating that the element's children can be dragged to reorder.
  */
+@trait
 export class Reorderable extends AnyElement {
   static {
-    trait(this);
     attributes(this, { reorderable: Bool });
   }
 

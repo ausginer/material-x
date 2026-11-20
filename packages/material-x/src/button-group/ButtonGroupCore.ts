@@ -24,11 +24,8 @@ import {
   useButtonGroupProvider,
 } from './button-group-context.ts';
 
+@trait
 export class ButtonGroupLike extends Controlled {
-  static {
-    trait(this);
-  }
-
   // The field exists for its type: it makes the trait nominal, because its
   // members are its bound's.
   // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members

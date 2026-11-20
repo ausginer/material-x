@@ -1,60 +1,44 @@
 // oxlint-disable typescript/no-extraneous-class
 import { describe, expect, it } from 'vitest';
 import * as composition from '../../src/traits/composition.ts';
-import {
-  bound,
-  impl,
-  trait,
-  type Bound,
-} from '../../src/traits/composition.ts';
+import { bound, impl, type Bound } from '../../src/traits/composition.ts';
+import * as named from './named.ts';
+import { Named } from './named.ts';
 
 // Called through the namespace: the build rejects a direct `compose()` call
-// outside a composition's constant, and these cases call it unbuilt.
+// outside a composition's constant, and any use of `trait` but `@trait`, and
+// these cases call them unbuilt.
 const { compose } = composition;
+
+// The trait's build exports its brand, `$` and the class name with a
+// lower-case first letter.
+// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+const { $named } = named as typeof named & Readonly<{ $named: symbol }>;
 
 const AnyObject: Bound<object> = bound();
 
 describe('trait', () => {
-  it('should make an object with the brand an instance', () => {
-    const $named = Symbol('Named');
-    class Named extends AnyObject {
-      static {
-        trait(this, $named);
-      }
-    }
+  it('should throw when the decorator is evaluated unbuilt', () => {
+    expect(() => {
+      composition.trait(Named, {} as ClassDecoratorContext<typeof Named>);
+    }).toThrow('@trait is compiled by @ydinjs/vite-traits-plugin');
+  });
 
+  it('should make an object with the brand an instance', () => {
     expect({ [$named]: true } instanceof Named).toBe(true);
   });
 
   it('should not make an object without the brand an instance', () => {
-    class Named extends AnyObject {
-      static {
-        trait(this);
-      }
-    }
-
     expect({} instanceof Named).toBe(false);
   });
 
   it('should not make null an instance', () => {
-    class Named extends AnyObject {
-      static {
-        trait(this);
-      }
-    }
-
     expect((null as unknown) instanceof Named).toBe(false);
   });
 });
 
 describe('impl', () => {
   it('should brand every instance of the target', () => {
-    const $named = Symbol('Named');
-    class Named extends AnyObject {
-      static {
-        trait(this, $named);
-      }
-    }
     class Component {
       static {
         impl(this, $named);
@@ -65,12 +49,6 @@ describe('impl', () => {
   });
 
   it('should brand a subclass of the target', () => {
-    const $named = Symbol('Named');
-    class Named extends AnyObject {
-      static {
-        trait(this, $named);
-      }
-    }
     class Component {
       static {
         impl(this, $named);
@@ -82,15 +60,15 @@ describe('impl', () => {
   });
 
   it('should install each brand as a non-enumerable, read-only value', () => {
-    const $named = Symbol('Named');
+    const $other = Symbol('Other');
     class Component {
       static {
-        impl(this, $named);
+        impl(this, $other);
       }
     }
 
     expect(
-      Object.getOwnPropertyDescriptor(Component.prototype, $named),
+      Object.getOwnPropertyDescriptor(Component.prototype, $other),
     ).toEqual({
       value: true,
       writable: false,
@@ -100,11 +78,6 @@ describe('impl', () => {
   });
 
   it('should leave the target out of a trait whose brand it lacks', () => {
-    class Named extends AnyObject {
-      static {
-        trait(this);
-      }
-    }
     class Component {
       static {
         impl(this, Symbol('Other'));

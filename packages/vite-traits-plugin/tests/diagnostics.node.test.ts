@@ -32,7 +32,7 @@ function run(
 
 /** A trait class in the module, `class Name extends AnyElement`. */
 function traitClass(name: string, body: string): string {
-  return `export class ${name} extends AnyElement {\n  static {\n    trait(this);\n  }\n${body}\n}\n`;
+  return `@trait\nexport class ${name} extends AnyElement {\n${body}\n}\n`;
 }
 
 /** A component of `traits`, named `Foo`, with `body`. */
@@ -88,9 +88,9 @@ describe('build errors', () => {
       `${traitClass('Private', '  #secret!: number;\n  run(): number { return this.#secret; }')}${component('typeof Private')}`,
     ],
     [
-      'a trait static block that does more than call trait()',
+      'a trait static block that does more than call attributes()',
       CODE.TRAIT_MEMBER,
-      `export class Busy extends AnyElement {\n  static {\n    trait(this);\n    console.log(1);\n  }\n}\n${component('typeof Busy')}`,
+      `@trait\nexport class Busy extends AnyElement {\n  static {\n    console.log(1);\n  }\n}\n${component('typeof Busy')}`,
     ],
     [
       'a trait instance field',
@@ -144,27 +144,84 @@ describe('build errors', () => {
     [
       'an attribute table key with no accessor',
       CODE.ATTRIBUTE_TABLE,
-      'export class Extra extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: Bool, label: Str });\n  }\n\n  accessor open!: boolean;\n}\n',
+      '@trait\nexport class Extra extends AnyElement {\n  static {\n    attributes(this, { open: Bool, label: Str });\n  }\n\n  accessor open!: boolean;\n}\n',
     ],
     [
       'an accessor with no table entry',
       CODE.ATTRIBUTE_TABLE,
-      'export class Missing extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: Bool });\n  }\n\n  accessor open!: boolean;\n  accessor label!: string | null;\n}\n',
+      '@trait\nexport class Missing extends AnyElement {\n  static {\n    attributes(this, { open: Bool });\n  }\n\n  accessor open!: boolean;\n  accessor label!: string | null;\n}\n',
     ],
     [
       'a converter that is a call',
       CODE.ATTRIBUTE_TABLE,
-      'export class Called extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: make() });\n  }\n\n  accessor open!: boolean;\n}\n',
+      '@trait\nexport class Called extends AnyElement {\n  static {\n    attributes(this, { open: make() });\n  }\n\n  accessor open!: boolean;\n}\n',
     ],
     [
       'an accessor with an initializer',
       CODE.ATTRIBUTE_ACCESSOR,
-      'export class Initialized extends AnyElement {\n  static {\n    trait(this);\n    attributes(this, { open: Bool });\n  }\n\n  accessor open = false;\n}\n',
+      '@trait\nexport class Initialized extends AnyElement {\n  static {\n    attributes(this, { open: Bool });\n  }\n\n  accessor open = false;\n}\n',
     ],
   ];
 
   it.each(cases)('should fail the build for %s', async (_, code, body) => {
     await expect(run(body)).rejects.toMatchObject({ code });
+  });
+
+  describe('trait-decorator', () => {
+    const misuses: ReadonlyArray<readonly [string, string, string]> = [
+      [
+        'a call of the decorator',
+        '@trait()\nexport class Called extends AnyElement {}\n',
+        '@trait()',
+      ],
+      [
+        'a call of the decorator with an argument',
+        "@trait('Named')\nexport class Named extends AnyElement {}\n",
+        '@trait(',
+      ],
+      [
+        'the decorator on a class expression',
+        'export const Expressed = @trait class extends AnyElement {};\n',
+        '@trait',
+      ],
+      [
+        'the decorator on a nested class',
+        'export function make(): unknown {\n  @trait\n  class Inner extends AnyElement {}\n  return Inner;\n}\n',
+        '@trait',
+      ],
+      [
+        'the decorator on a member',
+        'export class Host {\n  @trait\n  run(): void {}\n}\n',
+        '@trait',
+      ],
+      [
+        'the decorator beside another decorator',
+        'const sealed = (_value: unknown, _context: unknown): void => {};\n@sealed\n@trait\nexport class Sealed extends AnyElement {}\n',
+        '@trait',
+      ],
+      [
+        'the decorator twice',
+        '@trait\n@trait\nexport class Twice extends AnyElement {}\n',
+        '@trait',
+      ],
+      [
+        'a call of trait in a static block',
+        'export class Old extends AnyElement {\n  static {\n    trait(this);\n  }\n}\n',
+        'trait(this)',
+      ],
+      ['a re-export of trait', 'export { trait };\n', 'trait }'],
+      ['trait passed as a value', 'export const decorate = trait;\n', 'trait;'],
+    ];
+
+    it.each(misuses)(
+      'should fail the build at the decorator for %s',
+      async (_, body, marker) => {
+        await expect(run(body)).rejects.toMatchObject({
+          code: CODE.TRAIT_DECORATOR,
+          pos: HEADER.length + body.indexOf(marker),
+        });
+      },
+    );
   });
 
   it('should fail the build for a trait member that parses to another tree in TypeScript', async () => {

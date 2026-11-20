@@ -13,11 +13,8 @@ import { FIXTURES } from './helpers.ts';
  */
 const TRAIT = `import { trait } from '@ydinjs/core/traits/composition.js';
 
+@trait
 export class Linked {
-  static {
-    trait(this);
-  }
-
   get href(): string {
     return 'linked-member';
   }

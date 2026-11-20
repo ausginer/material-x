@@ -46,7 +46,6 @@ import {
   brandConstants,
   brandName,
   findTraitInstall,
-  isTraitBlock,
   staticValueName,
   traitLocalsOf,
   type TraitInstall,
@@ -385,10 +384,12 @@ export async function normalizeTraitClass(
   for (const element of cls.node.body.body) {
     switch (element.type) {
       case 'StaticBlock':
-        if (!isTraitBlock(element, ctx.traitLocals)) {
+        // Layer (b) leaves its block empty, and the trait's own build
+        // removes it.
+        if (element.body.length > 0) {
           fail(
             CODE.TRAIT_MEMBER,
-            `${name}: a static block does more than call trait(this)`,
+            `${name}: a trait's static block holds only attributes(this, …)`,
             element.start,
           );
         }
@@ -470,17 +471,19 @@ export async function normalizeTraitClass(
     }
   }
 
-  const brand =
-    ref.install.brand ?? brandName(cls.node.id?.name ?? name, ctx.topLevel);
+  let brand: BindingRef;
+  if (ref.install.kind === 'method') {
+    brand = link(ref.install.brand);
+  } else {
+    const exportName = brandName(cls.node.id?.name ?? name, ctx.topLevel);
+    brand = local
+      ? { specifier: '', exportName, local: true }
+      : { specifier: ref.specifier, exportName };
+  }
 
   return {
     name,
-    brand:
-      ref.install.brand === null
-        ? local
-          ? { specifier: '', exportName: brand, local: true }
-          : { specifier: ref.specifier, exportName: brand }
-        : link(brand),
+    brand,
     members,
     statics,
   };

@@ -8,9 +8,9 @@ import { trait } from '@ydinjs/core/traits/composition.js';
 
 const TABLE = { open: Bool, 'label': Str };
 
+@trait
 export class Opened extends AnyElement {
   static {
-    trait(this);
     attributes(this, TABLE);
   }
 
@@ -18,9 +18,9 @@ export class Opened extends AnyElement {
   accessor label!: string | null;
 }
 
+@trait
 export class Inline extends AnyElement {
   static {
-    trait(this);
     attributes(this, { checked: Bool });
   }
 

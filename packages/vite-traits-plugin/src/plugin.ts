@@ -45,6 +45,12 @@ import { invalidateModule, parseModule, type ModuleLoader } from './syntax.ts';
 const CANDIDATE = /\.[cm]?[jt]sx?$/u;
 
 /**
+ * A module that names `trait` can hold a trait class or misuse the decorator,
+ * which the trait module's transform reports.
+ */
+const TRAIT_WORD = /\btrait\b/u;
+
+/**
  * How the host builds. Only an application build deletes a trait's instance
  * members, because nothing copies from its output; a library's output is what
  * another package copies from, and the dev server serves source.
@@ -280,7 +286,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
       const cleanId = id.split('?', 1)[0]!;
       if (
         !isCandidate(cleanId) ||
-        (!code.includes('trait(') &&
+        (!TRAIT_WORD.test(code) &&
           !code.includes('compose(') &&
           !code.includes('Symbol.hasInstance'))
       ) {

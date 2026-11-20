@@ -12,11 +12,8 @@ const targets = new WeakMap<object, ForwardTarget>();
 
 // A layer (a) trait shaped like material-x's FocusForwarding: a method with an
 // overload signature, an accessor pair and a TypeScript-only expression.
+@trait
 export class Forwarding extends AnyBase {
-  static {
-    trait(this);
-  }
-
   focus(): string;
   focus(options?: unknown): string {
     const target = targets.get(this)!;

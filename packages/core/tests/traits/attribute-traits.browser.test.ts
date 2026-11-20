@@ -10,27 +10,27 @@ class BaseElement extends ControlledElement {
   static observedAttributes: readonly string[] = ['base'];
 }
 
+@trait
 class Checked extends AnyElement {
   static {
-    trait(this);
     attributes(this, { checked: Bool });
   }
 
   accessor checked!: boolean;
 }
 
+@trait
 class Valued extends AnyElement {
   static {
-    trait(this);
     attributes(this, { value: Str });
   }
 
   accessor value!: string | null;
 }
 
+@trait
 class Counted extends AnyElement {
   static {
-    trait(this);
     attributes(this, { count: Num });
   }
 

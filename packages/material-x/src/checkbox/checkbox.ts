@@ -33,9 +33,9 @@ import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 const CHECKED_ICON = 'check_small';
 const INDETERMINATE_ICON = 'check_indeterminate_small';
 
+@trait
 export class Indeterminable extends AnyElement {
   static {
-    trait(this);
     attributes(this, { indeterminate: Bool });
   }
 

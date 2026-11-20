@@ -12,29 +12,26 @@ import { trait } from '../../src/traits/composition.ts';
 // Vitest's typecheck collector can't walk an `accessor` member. The table's
 // type reads a member's type, which is the same in both forms.
 
+@trait
 class Disableable extends AnyElement {
   static {
-    trait(this);
     attributes(this, { disabled: Bool });
   }
 
   declare disabled: boolean;
 }
 
+@trait
 class Linkable extends AnyElement {
   static {
-    trait(this);
     attributes(this, { href: Str });
   }
 
   declare href: string | null;
 }
 
+@trait
 class Focusing extends AnyElement {
-  static {
-    trait(this);
-  }
-
   override focus(_options?: FocusOptions): void {}
 }
 

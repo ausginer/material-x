@@ -60,9 +60,9 @@ export type TextFieldInputMode =
 
 type InputElement = HTMLInputElement | HTMLTextAreaElement;
 
+@trait
 export class TextFieldLike extends AnyElement {
   static {
-    trait(this);
     attributes(this, {
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       type: Str as ConverterOf<TextFieldType>,

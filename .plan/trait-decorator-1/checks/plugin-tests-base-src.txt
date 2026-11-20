@@ -1,0 +1,1693 @@
+vitest run -c vitest.config.ts 
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/vite-traits-plugin
+
+ ❯ |node| tests/flatten.node.test.ts (15 tests | 5 failed | 8 skipped) 137ms
+   ❯ flattening over the base's declared static (2)
+     × should spread a base's array static before the traits' 2ms
+     × should flatten over a base that declares nothing above a global 2ms
+   ❯ flattening an empty trait list (2)
+     × should emit no static block and no impl import for an empty list 10ms
+     × should import impl once for one empty and one non-empty list 7ms
+   ❯ flattening a supertrait (1)
+     × should keep the constant of a @trait class that extends a composition 2ms
+ ❯ |node| tests/trait-module.node.test.ts (21 tests | 13 failed) 71ms
+   ❯ transformTraitModule (9)
+     × should hoist the brand into an exported symbol named after the class 15ms
+     × should replace @trait with a static Symbol.hasInstance method 4ms
+     × should remove trait's import once nothing else uses it 3ms
+     × should make an object with the brand, and only one, an instance 4ms
+     × should hoist a static's value into an exported constant 8ms
+     × should export a private binding a member reads under its build-only name 2ms
+     × should delete a trait's instance members in an application build 2ms
+   ❯ transformTraitModule on each form of @trait (6)
+     × should transform @trait above an exported class 7ms
+     × should transform @trait after export 4ms
+     × should transform @trait above a class that is not exported 2ms
+     × should replace a layer (b) trait's emptied static block with the method 5ms
+     × should transform @trait imported under an alias 3ms
+     × should keep the import of another name from trait's module 1ms
+ ❯ |node| tests/diagnostics.node.test.ts (55 tests | 37 failed) 174ms
+   ❯ build errors (34)
+     × should fail the build for a list element that is not typeof T 19ms
+     × should fail the build for a trait with a constructor 3ms
+     × should fail the build for a trait member that uses super 5ms
+     × should fail the build for a trait member that reads a private name 5ms
+     × should fail the build for a trait static block that does more than call attributes() 4ms
+     × should fail the build for a trait instance field 4ms
+     × should fail the build for a trait's lone getter over an earlier trait's pair 10ms
+     × should fail the build for a tuple static 3ms
+     × should fail the build for a class-instance static 7ms
+     × should fail the build for a static that two traits give different kinds 5ms
+     × should fail the build for the component's lone getter over a trait's pair 9ms
+     × should fail the build for super.key for a trait's key 7ms
+     × should fail the build for a computed super member 3ms
+     ❯ trait-decorator (10)
+       × should fail the build at the decorator for a call of the decorator 2ms
+       × should fail the build at the decorator for a call of the decorator with an argument 1ms
+       × should fail the build at the decorator for the decorator on a class expression 1ms
+       × should fail the build at the decorator for the decorator on a nested class 1ms
+       × should fail the build at the decorator for the decorator on a member 1ms
+       × should fail the build at the decorator for the decorator beside another decorator 1ms
+       × should fail the build at the decorator for the decorator twice 1ms
+       × should fail the build at the decorator for a call of trait in a static block 3ms
+       × should fail the build at the decorator for a re-export of trait 1ms
+       × should fail the build at the decorator for trait passed as a value 1ms
+     × should fail the build for a member that reads a global the component's module binds 2ms
+   ❯ the conflict warning (5)
+     × should warn for a method and a simple static that two traits supply 4ms
+     × should emit the later trait's method after the earlier one's 2ms
+     × should take the later trait's simple static 1ms
+     × should concatenate an array static, with no warning for it 1ms
+     × should not warn when the component declares the key 2ms
+   ❯ the base's declared static kind (4)
+     × should fail the build for a base static of a class-instance type 2ms
+     × should fail the build, naming the base, for a base static of another kind than a trait's 2ms
+     × should fail the build for a static of another kind on the base's parent in another module 2ms
+     × should fail the build for a base whose heritage can't be read 2ms
+   ❯ composition-shape and value references (12)
+     × should flatten with the name as a property key 8ms
+     × should flatten with the name in a type 2ms
+     × should flatten with the name in a declared namespace 2ms
+     × should flatten with the name as a JSX attribute name 3ms
+ ❯ |node| tests/bundles.node.test.ts (8 tests | 8 failed) 93ms
+   ❯ the brand install in bundles (8)
+     ❯ with rolldown (4)
+       × should drop the trait class from a bundle that never uses instanceof 15ms
+       × should keep the class and give instanceof its answers in a bundle that uses it 3ms
+       × should keep the class without its members after an application build's deletion 5ms
+       × should keep the brand install through a library build of the trait module 33ms
+     ❯ with esbuild (4)
+       × should drop the trait class from a bundle that never uses instanceof 4ms
+       × should keep the class and give instanceof its answers in a bundle that uses it 5ms
+       × should keep the class without its members after an application build's deletion 4ms
+       × should keep the brand install through a library build of the trait module 11ms
+ ❯ |node| tests/vite.node.test.ts (5 tests | 3 failed) 242ms
+   ❯ the plugin in Vite (5)
+     × should delete a built trait's members in an application build 37ms
+     × should keep a built trait's members in a library build 18ms
+     × should give a source trait the same result as a built one in an application build 22ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:41 > flattening
+FlattenerError: Checkable isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ expandList src/composition/annotation.ts:296:5
+ ❯ expandList src/composition/annotation.ts:337:3
+ ❯ expandList src/composition/annotation.ts:310:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/68]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:41 > flattening
+TypeError: Cannot read properties of undefined (reading 'dispose')
+ ❯ tests/flatten.node.test.ts:66:15
+     64|
+     65|   afterAll(async () => {
+     66|     await gen.dispose();
+       |               ^
+     67|   });
+     68|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/68]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 66 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/bundles.node.test.ts:105 > the brand install in bundles > with rolldown > should drop the trait class from a bundle that never uses instanceof
+ FAIL  |node| tests/bundles.node.test.ts:105 > the brand install in bundles > with esbuild > should drop the trait class from a bundle that never uses instanceof
+FlattenerError: Linked isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ write tests/bundles.node.test.ts:88:28
+ ❯ tests/bundles.node.test.ts:106:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/68]⎯
+
+ FAIL  |node| tests/bundles.node.test.ts:113 > the brand install in bundles > with rolldown > should keep the class and give instanceof its answers in a bundle that uses it
+ FAIL  |node| tests/bundles.node.test.ts:113 > the brand install in bundles > with esbuild > should keep the class and give instanceof its answers in a bundle that uses it
+FlattenerError: Linked isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ write tests/bundles.node.test.ts:88:28
+ ❯ tests/bundles.node.test.ts:114:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/68]⎯
+
+ FAIL  |node| tests/bundles.node.test.ts:123 > the brand install in bundles > with rolldown > should keep the class without its members after an application build's deletion
+ FAIL  |node| tests/bundles.node.test.ts:123 > the brand install in bundles > with esbuild > should keep the class without its members after an application build's deletion
+FlattenerError: Linked isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ write tests/bundles.node.test.ts:88:28
+ ❯ tests/bundles.node.test.ts:124:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/68]⎯
+
+ FAIL  |node| tests/bundles.node.test.ts:133 > the brand install in bundles > with rolldown > should keep the brand install through a library build of the trait module
+ FAIL  |node| tests/bundles.node.test.ts:133 > the brand install in bundles > with esbuild > should keep the brand install through a library build of the trait module
+FlattenerError: Linked isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ write tests/bundles.node.test.ts:88:28
+ ❯ tests/bundles.node.test.ts:143:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a list element that is not typeof T
+AssertionError: expected FlattenerError: Checkable isn't a class w… { …(2) } to match object { code: 'trait-list' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-list",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a trait with a constructor
+AssertionError: expected FlattenerError: Made isn't a class whose … { …(2) } to match object { code: 'trait-member' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-member",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a trait member that uses super
+AssertionError: expected FlattenerError: Calls isn't a class whose… { …(2) } to match object { code: 'trait-member' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-member",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a trait member that reads a private name
+AssertionError: expected FlattenerError: Private isn't a class who… { …(2) } to match object { code: 'trait-member' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-member",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a trait static block that does more than call attributes()
+AssertionError: expected FlattenerError: Busy isn't a class whose … { …(2) } to match object { code: 'trait-member' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-member",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a trait instance field
+AssertionError: expected FlattenerError: Counted isn't a class who… { …(2) } to match object { code: 'trait-field' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-field",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a trait's lone getter over an earlier trait's pair
+AssertionError: expected FlattenerError: Checkable isn't a class w… { …(2) } to match object { code: 'trait-accessor-half' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-accessor-half",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a tuple static
+AssertionError: expected FlattenerError: Tuple isn't a class whose… { …(2) } to match object { code: 'static-kind' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a class-instance static
+AssertionError: expected FlattenerError: Mapped isn't a class whos… { …(2) } to match object { code: 'static-kind' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a static that two traits give different kinds
+AssertionError: expected FlattenerError: Listed isn't a class whos… { …(2) } to match object { code: 'static-kind-mismatch' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind-mismatch",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for the component's lone getter over a trait's pair
+AssertionError: expected FlattenerError: Checkable isn't a class w… { …(2) } to match object { code: 'class-accessor-half' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "class-accessor-half",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for super.key for a trait's key
+AssertionError: expected FlattenerError: Checkable isn't a class w… { …(2) } to match object { code: 'class-super-trait-member' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "class-super-trait-member",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:166 > build errors > should fail the build for a computed super member
+AssertionError: expected FlattenerError: Checkable isn't a class w… { …(2) } to match object { code: 'class-computed-super' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "class-computed-super",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:167:28
+    165|
+    166|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    167|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    168|   });
+    169|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for a call of the decorator
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ @trait()
++ export class Called extends AnyElement {}
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for a call of the decorator with an argument
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ @trait('Named')
++ export class Named extends AnyElement {}
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for the decorator on a class expression
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export const Expressed = @trait class extends AnyElement {};
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for the decorator on a nested class
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export function make(): unknown {
++   @trait
++   class Inner extends AnyElement {}
++   return Inner;
++ }
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for the decorator on a member
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export class Host {
++   @trait
++   run(): void {}
++ }
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for the decorator beside another decorator
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ const sealed = (_value: unknown, _context: unknown): void => {};
++ @sealed
++ @trait
++ export class Sealed extends AnyElement {}
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for the decorator twice
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ @trait
++ @trait
++ export class Twice extends AnyElement {}
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for a call of trait in a static block
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export const $old = Symbol(\"Old\");
++ export class Old extends AnyElement {
++   static [Symbol.hasInstance](o) {
++     return o != null && o[$old] === true;
++   }
++ }
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for a re-export of trait
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export { trait };
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:220 > build errors > trait-decorator > should fail the build at the decorator for trait passed as a value
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export const decorate = trait;
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:223:32
+    221|       'should fail the build at the decorator for %s',
+    222|       async (_, body, marker) => {
+    223|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    224|           code: CODE.TRAIT_DECORATOR,
+    225|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:255 > build errors > should fail the build for a member that reads a global the component's module binds
+AssertionError: expected FlattenerError: Global isn't a class whos… { …(2) } to match object { code: 'trait-binding-shadowed' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-binding-shadowed",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:266:6
+    264|         },
+    265|       ),
+    266|     ).rejects.toMatchObject({ code: CODE.TRAIT_BINDING_SHADOWED });
+       |      ^
+    267|   });
+    268| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:279 > the conflict warning > should warn for a method and a simple static that two traits supply
+FlattenerError: First isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:280:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:290 > the conflict warning > should emit the later trait's method after the earlier one's
+FlattenerError: First isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:291:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:301 > the conflict warning > should take the later trait's simple static
+FlattenerError: First isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:302:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:309 > the conflict warning > should concatenate an array static, with no warning for it
+FlattenerError: First isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:310:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:319 > the conflict warning > should not warn when the component declares the key
+FlattenerError: First isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:320:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:338 > the base's declared static kind > should fail the build for a base static of a class-instance type
+AssertionError: expected FlattenerError: Styled isn't a class whos… { …(2) } to match object { code: 'static-kind' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:346:6
+    344|         ),
+    345|       ),
+    346|     ).rejects.toMatchObject({ code: CODE.STATIC_KIND });
+       |      ^
+    347|   });
+    348|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:349 > the base's declared static kind > should fail the build, naming the base, for a base static of another kind than a trait's
+AssertionError: expected FlattenerError: Styled isn't a class whos… { …(2) } to match object { code: 'static-kind-mismatch', …(1) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind-mismatch",
+-   "message": "styles is simple in the base Texted and array in Styled",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:357:6
+    355|         ),
+    356|       ),
+    357|     ).rejects.toMatchObject({
+       |      ^
+    358|       code: CODE.STATIC_KIND_MISMATCH,
+    359|       message: 'styles is simple in the base Texted and array in Style…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:363 > the base's declared static kind > should fail the build for a static of another kind on the base's parent in another module
+AssertionError: expected FlattenerError: Styled isn't a class whos… { …(2) } to match object { code: 'static-kind-mismatch' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind-mismatch",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:375:6
+    373|         },
+    374|       ),
+    375|     ).rejects.toMatchObject({ code: CODE.STATIC_KIND_MISMATCH });
+       |      ^
+    376|   });
+    377|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:378 > the base's declared static kind > should fail the build for a base whose heritage can't be read
+AssertionError: expected FlattenerError: Styled isn't a class whos… { …(2) } to match object { code: 'static-kind' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "static-kind",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:386:6
+    384|         ),
+    385|       ),
+    386|     ).rejects.toMatchObject({ code: CODE.STATIC_KIND });
+       |      ^
+    387|   });
+    388| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:394 > composition-shape and value references > should flatten with the name as a property key
+FlattenerError: Checkable isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:395:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:400 > composition-shape and value references > should flatten with the name in a type
+FlattenerError: Checkable isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:401:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:420 > composition-shape and value references > should flatten with the name in a declared namespace
+FlattenerError: Checkable isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:421:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/68]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:444 > composition-shape and value references > should flatten with the name as a JSX attribute name
+FlattenerError: Checkable isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:445:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/68]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:196 > flattening over the base's declared static > should spread a base's array static before the traits'
+FlattenerError: Styled isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ flatten tests/flatten.node.test.ts:188:7
+ ❯ tests/flatten.node.test.ts:198:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/68]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:207 > flattening over the base's declared static > should flatten over a base that declares nothing above a global
+FlattenerError: Styled isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ flatten tests/flatten.node.test.ts:188:7
+ ❯ tests/flatten.node.test.ts:209:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/68]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:225 > flattening an empty trait list > should emit no static block and no impl import for an empty list
+AssertionError: expected [ true, true ] to deeply equal [ false, false ]
+
+- Expected
++ Received
+
+  [
+-   false,
+-   false,
++   true,
++   true,
+  ]
+
+ ❯ tests/flatten.node.test.ts:229:64
+    227|       'const FooBase: Composed<typeof Base, []> = compose(Base);\nexpo…
+    228|     );
+    229|     expect([code.includes('static {'), code.includes('impl')]).toEqual…
+       |                                                                ^
+    230|       false,
+    231|       false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/68]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:235 > flattening an empty trait list > should import impl once for one empty and one non-empty list
+AssertionError: expected [ 1, 2 ] to deeply equal [ 1, 1 ]
+
+- Expected
++ Received
+
+  [
+    1,
+-   1,
++   2,
+  ]
+
+ ❯ tests/flatten.node.test.ts:242:8
+    240|       code.match(/import \{ impl as /gu)?.length,
+    241|       code.match(/static \{/gu)?.length,
+    242|     ]).toEqual([1, 1]);
+       |        ^
+    243|   });
+    244| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/68]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:267 > flattening a supertrait > should keep the constant of a @trait class that extends a composition
+FlattenerError: Inner isn't a class whose static block calls trait(this)
+ ❯ fail src/diagnostics.ts:66:9
+     64| /** Throws a {@link FlattenerError}. */
+     65| export function fail(code: Code, message: string, pos?: number): never…
+     66|   throw new FlattenerError(code, message, pos);
+       |         ^
+     67| }
+     68|
+ ❯ addTrait src/composition/annotation.ts:369:5
+ ❯ expandList src/composition/annotation.ts:307:9
+ ❯ resolveTraits src/composition/annotation.ts:423:3
+ ❯ analyzeSite src/plugin.ts:129:16
+ ❯ flattenModule src/plugin.ts:205:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/flatten.node.test.ts:269:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:20 > transformTraitModule > should hoist the brand into an exported symbol named after the class
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' to contain 'export const $counted = Symbol("Count…'
+
+- Expected
++ Received
+
+- export const $counted = Symbol("Counted");
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const targets = new WeakMap<object, number>();
++
++ @trait
++ export class Counted {
++   static readonly tags: readonly string[] = ['counted'];
++
++   get count(): number {
++     return targets.get(this) ?? 0;
++   }
++ }
++
+
+ ❯ tests/trait-module.node.test.ts:21:50
+     19| describe('transformTraitModule', () => {
+     20|   it('should hoist the brand into an exported symbol named after the c…
+     21|     expect(transformTrait('counted.ts', SOURCE)).toContain(
+       |                                                  ^
+     22|       'export const $counted = Symbol("Counted");',
+     23|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:26 > transformTraitModule > should replace @trait with a static Symbol.hasInstance method
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' to contain 'static [Symbol.hasInstance](o) {\n   …'
+
+- Expected
++ Received
+
+- static [Symbol.hasInstance](o) {
+-     return o != null && o[$counted] === true;
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const targets = new WeakMap<object, number>();
++
++ @trait
++ export class Counted {
++   static readonly tags: readonly string[] = ['counted'];
++
++   get count(): number {
++     return targets.get(this) ?? 0;
+    }
++ }
++
+
+ ❯ tests/trait-module.node.test.ts:27:50
+     25|
+     26|   it('should replace @trait with a static Symbol.hasInstance method', …
+     27|     expect(transformTrait('counted.ts', SOURCE)).toContain(
+       |                                                  ^
+     28|       'static [Symbol.hasInstance](o) {\n    return o != null && o[$co…
+     29|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:32 > transformTraitModule > should remove trait's import once nothing else uses it
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' not to contain 'import { trait }'
+
+- Expected
++ Received
+
+- import { trait }
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const targets = new WeakMap<object, number>();
++
++ @trait
++ export class Counted {
++   static readonly tags: readonly string[] = ['counted'];
++
++   get count(): number {
++     return targets.get(this) ?? 0;
++   }
++ }
++
+
+ ❯ tests/trait-module.node.test.ts:33:54
+     31|
+     32|   it("should remove trait's import once nothing else uses it", () => {
+     33|     expect(transformTrait('counted.ts', SOURCE)).not.toContain(
+       |                                                      ^
+     34|       'import { trait }',
+     35|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:38 > transformTraitModule > should make an object with the brand, and only one, an instance
+SyntaxError: Invalid or unexpected token
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:55 > transformTraitModule > should hoist a static's value into an exported constant
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+
+- Expected
++ Received
+
+  [
+-   true,
+-   true,
++   false,
++   false,
+  ]
+
+ ❯ tests/trait-module.node.test.ts:62:8
+     60|       code.includes(`const ${name} = ['counted'];`),
+     61|       code.includes(`static readonly tags: readonly string[] = ${name}…
+     62|     ]).toEqual([true, true]);
+       |        ^
+     63|   });
+     64|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:65 > transformTraitModule > should export a private binding a member reads under its build-only name
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' to match /export \{ [^}]*targets as __mxflat_t…/u
+
+- Expected:
+/export \{ [^}]*targets as __mxflat_targets_\w+, targets/u
+
++ Received:
+"import { trait } from '@ydinjs/core/traits/composition.js';
+
+const targets = new WeakMap<object, number>();
+
+@trait
+export class Counted {
+  static readonly tags: readonly string[] = ['counted'];
+
+  get count(): number {
+    return targets.get(this) ?? 0;
+  }
+}
+"
+
+ ❯ tests/trait-module.node.test.ts:66:50
+     64|
+     65|   it('should export a private binding a member reads under its build-o…
+     66|     expect(transformTrait('counted.ts', SOURCE)).toMatch(
+       |                                                  ^
+     67|       /export \{ [^}]*targets as __mxflat_targets_\w+, targets/u,
+     68|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:81 > transformTraitModule > should delete a trait's instance members in an application build
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' not to contain 'get count()'
+
+- Expected
++ Received
+
+- get count()
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const targets = new WeakMap<object, number>();
++
++ @trait
++ export class Counted {
++   static readonly tags: readonly string[] = ['counted'];
++
++   get count(): number {
++     return targets.get(this) ?? 0;
++   }
++ }
++
+
+ ❯ tests/trait-module.node.test.ts:82:60
+     80|
+     81|   it("should delete a trait's instance members in an application build…
+     82|     expect(transformTrait('counted.ts', SOURCE, true)).not.toContain(
+       |                                                            ^
+     83|       'get count()',
+     84|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:98 > transformTraitModule on each form of @trait > should transform @trait above an exported class
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' to be '\n\nexport const $named = Symbol("Nam…' // Object.is equality
+
+- Expected
++ Received
+
+-
+-
+- export const $named = Symbol("Named");
+- export class Named {
+-   static [Symbol.hasInstance](o) {
+-     return o != null && o[$named] === true;
+-   }
+-
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ @trait
++ export class Named {
+    get name(): string {
+      return 'named';
+    }
+  }
+
+
+ ❯ tests/trait-module.node.test.ts:101:7
+     99|     expect(
+    100|       transformTrait('above.ts', `${IMPORT}\n@trait\nexport class Name…
+    101|     ).toBe(`\n\n${named('export class')}`);
+       |       ^
+    102|   });
+    103|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:104 > transformTraitModule on each form of @trait > should transform @trait after export
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' to be '\n\nexport const $named = Symbol("Nam…' // Object.is equality
+
+- Expected
++ Received
+
+-
+-
+- export const $named = Symbol("Named");
+- export class Named {
+-   static [Symbol.hasInstance](o) {
+-     return o != null && o[$named] === true;
+-   }
+-
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ export @trait class Named {
+    get name(): string {
+      return 'named';
+    }
+  }
+
+
+ ❯ tests/trait-module.node.test.ts:107:7
+    105|     expect(
+    106|       transformTrait('after.ts', `${IMPORT}\nexport @trait class Named…
+    107|     ).toBe(`\n\n${named('export class')}`);
+       |       ^
+    108|   });
+    109|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:110 > transformTraitModule on each form of @trait > should transform @trait above a class that is not exported
+AssertionError: expected 'import { trait } from \'@ydinjs/core/…' to be '\n\nexport const $named = Symbol("Nam…' // Object.is equality
+
+- Expected
++ Received
+
+-
+-
+- export const $named = Symbol("Named");
+- class Named {
+-   static [Symbol.hasInstance](o) {
+-     return o != null && o[$named] === true;
+-   }
+-
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ @trait
++ class Named {
+    get name(): string {
+      return 'named';
+    }
+  }
+
+
+ ❯ tests/trait-module.node.test.ts:113:7
+    111|     expect(
+    112|       transformTrait('local.ts', `${IMPORT}\n@trait\nclass Named${BODY…
+    113|     ).toBe(`\n\n${named('class')}`);
+       |       ^
+    114|   });
+    115|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:116 > transformTraitModule on each form of @trait > should replace a layer (b) trait's emptied static block with the method
+AssertionError: expected 'import __mxflat_attr from "@ydinjs/co…' to be 'import __mxflat_attr from "@ydinjs/co…' // Object.is equality
+
+- Expected
++ Received
+
+  import __mxflat_attr from "@ydinjs/core/attribute.js";
+-
++ import { trait } from '@ydinjs/core/traits/composition.js';
+  import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
+  import { Bool } from '@ydinjs/core/attribute.js';
+
+- export const $open = Symbol("Open");
+- const __mxflat_Open_observedAttributes_9e4704a7 = ["open"];
+- export class Open extends AnyElement {
+-   static observedAttributes = __mxflat_Open_observedAttributes_9e4704a7;
+-   static [Symbol.hasInstance](o) {
+-     return o != null && o[$open] === true;
++ @trait
++ export class Open extends AnyElement {
++   static observedAttributes = ["open"];
++   static {
++     
+    }
+
+    get open() { return __mxflat_attr.get(this, "open", Bool); }
+    set open(value) { __mxflat_attr.set(this, "open", value, Bool); }
+  }
+
+- export { __mxflat_Open_observedAttributes_9e4704a7 };
+-
+
+ ❯ tests/trait-module.node.test.ts:120:47
+    118|     const hoisted = staticValueName('Open', 'observedAttributes');
+    119|
+    120|     expect(transformTrait('open.ts', source)).toBe(
+       |                                               ^
+    121|       [
+    122|         'import __mxflat_attr from "@ydinjs/core/attribute.js";',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:145 > transformTraitModule on each form of @trait > should transform @trait imported under an alias
+AssertionError: expected 'import { trait as brand } from \'@ydi…' to be '\n\nexport const $named = Symbol("Nam…' // Object.is equality
+
+- Expected
++ Received
+
+-
+-
+- export const $named = Symbol("Named");
+- export class Named {
+-   static [Symbol.hasInstance](o) {
+-     return o != null && o[$named] === true;
+-   }
+-
++ import { trait as brand } from '@ydinjs/core/traits/composition.js';
++
++ @brand
++ export class Named {
+    get name(): string {
+      return 'named';
+    }
+  }
+
+
+ ❯ tests/trait-module.node.test.ts:151:7
+    149|         `import { trait as brand } from '@ydinjs/core/traits/compositi…
+    150|       ),
+    151|     ).toBe(`\n\n${named('export class')}`);
+       |       ^
+    152|   });
+    153|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/68]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:154 > transformTraitModule on each form of @trait > should keep the import of another name from trait's module
+AssertionError: expected 'import { bound, trait } from \'@ydinj…' to be 'import { bound,  } from \'@ydinjs/cor…' // Object.is equality
+
+- Expected
++ Received
+
+- import { bound,  } from '@ydinjs/core/traits/composition.js';
++ import { bound, trait } from '@ydinjs/core/traits/composition.js';
+
+  const AnyObject = bound();
+
+- export const $named = Symbol("Named");
++ @trait
+  export class Named extends AnyObject {
+-   static [Symbol.hasInstance](o) {
+-     return o != null && o[$named] === true;
+-   }
+-
+    get name(): string {
+      return 'named';
+    }
+  }
+
+
+ ❯ tests/trait-module.node.test.ts:160:7
+    158|         `import { bound, trait } from '@ydinjs/core/traits/composition…
+    159|       ),
+    160|     ).toBe(
+       |       ^
+    161|       `import { bound,  } from '@ydinjs/core/traits/composition.js';\n…
+    162|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[61/68]⎯
+
+ FAIL  |node| tests/vite.node.test.ts:122 > the plugin in Vite > should delete a built trait's members in an application build
+Error: Build failed with 1 error:
+
+[MISSING_EXPORT] "$linked" is not exported by "tests/fixtures/gen-wgd3SY/built/linked.js".
+   ╭─[ tests/fixtures/gen-wgd3SY/app-built.js:2:10 ]
+   │
+ 2 │ import { $linked, Linked } from './built/linked.js';
+   │          ───┬───  
+   │             ╰───── Missing export
+───╯
+
+ ❯ aggregateBindingErrorsIntoJsError ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:110:18
+ ❯ unwrapBindingResult ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:78:128
+ ❯ #build ../../node_modules/rolldown/dist/shared/rolldown-D1DJCGXB.mjs:147:34
+ ❯ buildEnvironment ../../node_modules/vite/dist/node/chunks/node.js:35144:66
+ ❯ Object.build ../../node_modules/vite/dist/node/chunks/node.js:35580:19
+ ❯ bundle tests/vite.node.test.ts:81:19
+     79| /** The JavaScript of a build of `input`, all chunks joined. */
+     80| async function bundle(input: string, lib: boolean): Promise<string> {
+     81|   const result = (await build(config(input, lib))) as
+       |                   ^
+     82|     | Rolldown.RolldownOutput
+     83|     | Rolldown.RolldownOutput[];
+ ❯ tests/vite.node.test.ts:123:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/68]⎯
+
+ FAIL  |node| tests/vite.node.test.ts:131 > the plugin in Vite > should keep a built trait's members in a library build
+Error: Build failed with 1 error:
+
+[MISSING_EXPORT] "$linked" is not exported by "tests/fixtures/gen-wgd3SY/built/linked.js".
+   ╭─[ tests/fixtures/gen-wgd3SY/app-built.js:2:10 ]
+   │
+ 2 │ import { $linked, Linked } from './built/linked.js';
+   │          ───┬───  
+   │             ╰───── Missing export
+───╯
+
+ ❯ aggregateBindingErrorsIntoJsError ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:110:18
+ ❯ unwrapBindingResult ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:78:128
+ ❯ #build ../../node_modules/rolldown/dist/shared/rolldown-D1DJCGXB.mjs:147:34
+ ❯ buildEnvironment ../../node_modules/vite/dist/node/chunks/node.js:35144:66
+ ❯ Object.build ../../node_modules/vite/dist/node/chunks/node.js:35580:19
+ ❯ bundle tests/vite.node.test.ts:81:19
+     79| /** The JavaScript of a build of `input`, all chunks joined. */
+     80| async function bundle(input: string, lib: boolean): Promise<string> {
+     81|   const result = (await build(config(input, lib))) as
+       |                   ^
+     82|     | Rolldown.RolldownOutput
+     83|     | Rolldown.RolldownOutput[];
+ ❯ tests/vite.node.test.ts:132:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/68]⎯
+
+ FAIL  |node| tests/vite.node.test.ts:159 > the plugin in Vite > should give a source trait the same result as a built one in an application build
+Error: Build failed with 1 error:
+
+[MISSING_EXPORT] "$linked" is not exported by "tests/fixtures/gen-wgd3SY/linked.ts".
+   ╭─[ tests/fixtures/gen-wgd3SY/app-source.js:2:10 ]
+   │
+ 2 │ import { $linked, Linked } from './linked.ts';
+   │          ───┬───  
+   │             ╰───── Missing export
+───╯
+
+ ❯ aggregateBindingErrorsIntoJsError ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:110:18
+ ❯ unwrapBindingResult ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:78:128
+ ❯ #build ../../node_modules/rolldown/dist/shared/rolldown-D1DJCGXB.mjs:147:34
+ ❯ buildEnvironment ../../node_modules/vite/dist/node/chunks/node.js:35144:66
+ ❯ Object.build ../../node_modules/vite/dist/node/chunks/node.js:35580:19
+ ❯ bundle tests/vite.node.test.ts:81:19
+     79| /** The JavaScript of a build of `input`, all chunks joined. */
+     80| async function bundle(input: string, lib: boolean): Promise<string> {
+     81|   const result = (await build(config(input, lib))) as
+       |                   ^
+     82|     | Rolldown.RolldownOutput
+     83|     | Rolldown.RolldownOutput[];
+ ❯ tests/vite.node.test.ts:160:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/68]⎯
+
+
+ Test Files  5 failed | 3 passed (8)
+      Tests  66 failed | 45 passed | 8 skipped (119)
+   Start at  07:49:13
+   Duration  1.00s (import 45%, tests 30%, transform 23%, worker 2%)
+
+error: recipe `test` failed on line 16 with exit code 1

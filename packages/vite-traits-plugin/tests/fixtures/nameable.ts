@@ -6,9 +6,9 @@ import {
 import { trait } from '@ydinjs/core/traits/composition.js';
 
 // A layer (b) trait whose table is inline.
+@trait
 export class Nameable extends AnyElement {
   static {
-    trait(this);
     attributes(this, { name: Str });
   }
 

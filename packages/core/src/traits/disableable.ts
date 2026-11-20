@@ -11,9 +11,9 @@ export const DISABLEABLE_ATTRS: Readonly<{ disabled: ConverterOf<boolean> }> = {
 /**
  * Element trait that exposes a presence-based `disabled` boolean field.
  */
+@trait
 export class Disableable extends AnyElement {
   static {
-    trait(this);
     attributes(this, DISABLEABLE_ATTRS);
   }
 

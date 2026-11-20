@@ -37,9 +37,9 @@ import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.css.ts' with { type: 'css' };
 
+@trait
 export class SplitButtonLike extends AnyElement {
   static {
-    trait(this);
     attributes(this, { open: Bool });
   }
 
