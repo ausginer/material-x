@@ -24,6 +24,13 @@ concurrency:
 
 permissions: {}
 
+# `bash` runs each step with `-eo pipefail`, so a failed command in a pipeline,
+# such as `npm stage publish … | tee`, fails the step. The default shell has no
+# pipefail.
+defaults:
+  run:
+    shell: bash
+
 env:
   NODE_VERSION: 26
   # The aube that `package.json`'s `packageManager` names, installed with npm's

@@ -45,3 +45,14 @@ Each of these is a reading of the plan where it is silent. The reviewer may refu
 - **Witnessed at the first release:** the `stage` job ran under the environment `npm`; the summary's sha256 equals the approved tarball's `shasum`; and the registry carries the provenance attestation.
 - **The owner's settings O1 to O3,** in [`releasing.md`](../../.agents/docs/releasing.md#the-owners-settings).
 - **The feature proof** of tasks 1 to 3 by a reviewer who didn't implement them, before the first tag. It repeats the mutation dispatch.
+
+## Corrected after the feature proof
+
+**Corrected 2026-11-20** by the implementer, on Mx Reviewer B's feature proof of `e73411cf4`. The sections above stay as written. `reviewer-2` and `reviewer-3` are the architect's, and this correction doesn't touch them.
+
+- **`reviewer-1`: a failed producer in a pipeline left its step green.** Neither step set a `shell`, so each ran under `bash -e {0}`, without pipefail. `npm stage publish … | tee` then exited with `tee`'s status: a refused stage left the job green, with a summary that said _Staged_. `aube pack … | jq` failed only later, at `release-check.ts`'s usage error.
+  - **Fix:** `defaults.run.shell: bash` at the top of `release.yml`, so every step runs under `bash --noprofile --norc -eo pipefail {0}`. One setting covers every pipeline in the file, so no step can miss it.
+  - **Proof ([`checks/pipefail-probe.txt`](checks/pipefail-probe.txt)):** the pack and stage steps, read from the workflow file, ran with `false` in place of the producer. Before the fix, both exit 0: the pack step goes on to the check, and the stage step writes _Staged_ to the summary. After it, both exit 1 at the producer, and nothing is written to the summary.
+- **`reviewer-4`: the fourth mutation is not equivalent.** The claim above, _"a version equal to the registry's `latest` is in the registry's version index"_, is false for build metadata. `1.0.0+build.1` has the same precedence as `1.0.0`, and the version index doesn't hold it. So the head refuses it under `latest`, and the mutant passes it.
+  - **Fix:** a fixture for that input, which expects `latest`. With it there are 36 tests. All pass at the head, and the mutant fails exactly that one.
+- **`reviewer-5`: `RD-27`'s status** now says what is implemented, at which commits, and what remains.
