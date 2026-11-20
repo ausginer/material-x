@@ -15,10 +15,11 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/max-params': 'off',
       '@typescript-eslint/no-unnecessary-type-parameters': 'off',
-      // The type-aware form of `typescript/no-empty-object-type`, which
-      // `.oxlintrc.json` sets to `allow`: it reports a type that resolves to
-      // `{}` rather than one written as `{}`. Oxlint doesn't implement it, so
-      // the allow can't reach it through `buildFromOxlintConfigFile`.
+      // The type-aware form of `typescript/no-empty-object-type`: it reports a
+      // type that resolves to `{}` rather than one written as `{}`.
+      // `.oxlintrc.json` sets both to `allow`, and `buildFromOxlintConfigFile`
+      // turns an ESLint rule off only for an oxlint rule that is on, so the
+      // allow doesn't reach ESLint.
       '@typescript-eslint/no-generated-empty-object-type': 'off',
     },
   },

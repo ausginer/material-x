@@ -79,6 +79,19 @@
     "packages/ydin/**/*.d.ts",
     "packages/ydin/**/*.d.ts.map"
   ],
+  "rules": {
+    // The repository's source doesn't meet these two type-aware rules yet:
+    // each reports in most packages, and turning one on is a source change of
+    // its own. ESLint turns both off in `eslint.config.ts` as rules that oxlint
+    // runs, so this is the one place that decides them.
+    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/promise-function-async": "off",
+    // ESLint's `@typescript-eslint/unbound-method`, last in
+    // `eslint.config.ts`, is the instrument for a method read without a
+    // receiver. Oxlint's port also reports a method passed together with its
+    // receiver, as in `drag.use(this.#release, this)`, which ESLint accepts.
+    "typescript/unbound-method": "off"
+  },
   "overrides": [
     {
       // Custom rules
@@ -87,6 +100,9 @@
         "max-params": "allow",
         "import/no-unassigned-import": "allow",
         "typescript/no-empty-object-type": "allow",
+        // The type-aware form of `no-empty-object-type`: it reports a type
+        // that resolves to `{}` rather than one written as `{}`.
+        "typescript/no-generated-empty-object-type": "allow",
         "prefer-default-export": "allow",
         "preserve-caught-error": "allow",
         "no-void": "allow",
@@ -94,7 +110,24 @@
         // Broken. Cannot disable inline
         "import/unambiguous": "allow",
         // Broken. Many false positives
-        "typescript/no-unnecessary-condition": "allow"
+        "typescript/no-unnecessary-condition": "allow",
+        // `eslint.base.config.ts` turns off ESLint's forms of these two, so
+        // oxlint is the only linter that runs them, and the tree meets both.
+        "no-use-before-define": [
+          "error",
+          {
+            "classes": true,
+            "functions": true,
+            "variables": true,
+            "typedefs": true
+          }
+        ],
+        "import/no-duplicates": [
+          "error",
+          {
+            "prefer-inline": true
+          }
+        ]
       }
     }
   ]

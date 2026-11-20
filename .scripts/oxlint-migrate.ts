@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 type JSONRecord = Record<string, unknown>;
@@ -8,10 +8,11 @@ type JSONRecord = Record<string, unknown>;
 // ESLint configuration without the rules that `eslint.config.ts` derives from
 // the oxlint configuration, so the output never depends on its own last run.
 // `.oxlintrc.json` is written by hand and extends this file.
-const eslintConfigPath = fileURLToPath(
-  new URL('../eslint.base.config.ts', import.meta.url),
-);
-const configURL = new URL('../.oxlintrc.migrated.json', import.meta.url);
+//
+// `@oxlint/migrate` joins both of its paths to the working directory, so they
+// are relative to the repository root and the tool runs there.
+const rootURL = new URL('..', import.meta.url);
+const configURL = new URL('.oxlintrc.migrated.json', rootURL);
 const configPath = fileURLToPath(configURL);
 const JS_FILES = [
   '**/*.{js,jsx,mjs,cjs,mjsx,cjsx}',
@@ -67,14 +68,15 @@ async function runMigrate(): Promise<void> {
         'exec',
         '--',
         '@oxlint/migrate',
-        eslintConfigPath,
+        'eslint.base.config.ts',
         '--output-file',
-        configPath,
+        '.oxlintrc.migrated.json',
         '--type-aware',
         '--details',
         '--with-nursery',
       ],
       {
+        cwd: rootURL,
         stdio: 'inherit',
       },
     );
@@ -99,6 +101,9 @@ async function runMigrate(): Promise<void> {
 }
 
 await runMigrate();
+// The tool renames the file it replaces to `<output>.bak`; git holds the
+// previous version.
+await rm(`${configPath}.bak`, { force: true });
 
 const { default: config } = await import(configURL.href, {
   with: { type: 'json' },

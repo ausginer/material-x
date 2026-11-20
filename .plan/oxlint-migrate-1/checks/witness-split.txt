@@ -1,0 +1,120 @@
+# Split commit b02f4f635 against origin/main d69e3ddbc
+# capture.sh before/ (d69e3ddbc) and after1/ (b02f4f635)
+
+## ESLint --print-config, byte comparison of all 17 captures
+same eslint-pkg-packages_box-quad_src_index.ts.json
+same eslint-pkg-packages_core_src_attribute.ts.json
+same eslint-pkg-packages_drag_src_draggable.ts.json
+same eslint-pkg-packages_material-x_src_button-group_ButtonGroupCore.ts.json
+same eslint-pkg-packages_size-limit-preset-rolldown_src_index.ts.json
+same eslint-pkg-packages_tproc_src_DB_DB.ts.json
+same eslint-pkg-packages_vite-custom-element-assets_src_css_css-worker.ts.json
+same eslint-pkg-packages_vite-traits-plugin_src_attributes_lower.ts.json
+same eslint-root-.scripts_oxlint-migrate.ts.json
+same eslint-root-packages_box-quad_src_index.ts.json
+same eslint-root-packages_core_src_attribute.ts.json
+same eslint-root-packages_drag_src_draggable.ts.json
+same eslint-root-packages_material-x_src_button-group_ButtonGroupCore.ts.json
+same eslint-root-packages_size-limit-preset-rolldown_src_index.ts.json
+same eslint-root-packages_tproc_src_DB_DB.ts.json
+same eslint-root-packages_vite-custom-element-assets_src_css_css-worker.ts.json
+same eslint-root-packages_vite-traits-plugin_src_attributes_lower.ts.json
+
+## oxlint --print-config, cmp.py before after1, all differences
+### oxlint-pkg-packages_box-quad_src_index.ts.json
+### oxlint-pkg-packages_core_src_attribute.ts.json
+### oxlint-pkg-packages_drag_src_draggable.ts.json
+### oxlint-pkg-packages_material-x_src_button-group_ButtonGroupCore.ts.json
+### oxlint-pkg-packages_size-limit-preset-rolldown_src_index.ts.json
+### oxlint-pkg-packages_tproc_src_DB_DB.ts.json
+### oxlint-pkg-packages_vite-custom-element-assets_src_css_css-worker.ts.json
+### oxlint-pkg-packages_vite-traits-plugin_src_attributes_lower.ts.json
+### oxlint-root-.scripts_oxlint-migrate.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_box-quad_src_index.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_core_src_attribute.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_drag_src_draggable.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_material-x_src_button-group_ButtonGroupCore.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_size-limit-preset-rolldown_src_index.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_tproc_src_DB_DB.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_vite-custom-element-assets_src_css_css-worker.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+### oxlint-root-packages_vite-traits-plugin_src_attributes_lower.ts.json
+KEY extends null => ["./.oxlintrc.migrated.json"]
+rules typescript/consistent-type-exports ["deny", [{"fixMixedExportsWithInlineTypeSpecifier": true}]] => "deny"
+rules typescript/no-duplicate-type-constituents ["deny", [{"ignoreIntersections": true}]] => "deny"
+rules typescript/no-meaningless-void-operator ["deny", [{"checkNever": false}]] => "deny"
+rules typescript/no-misused-promises ["deny", [{"checksVoidReturn": true, "checksConditionals": true}]] => "deny"
+rules typescript/return-await ["deny", ["always"]] => "deny"
+
+## oxlint lint output (unix format), byte comparison
+same lint-oxlint-box-quad.txt (exit 0)
+same lint-oxlint-core.txt (exit 0)
+same lint-oxlint-drag.txt (exit 0)
+same lint-oxlint-material-x.txt (exit 1)
+same lint-oxlint-root.txt (exit 0)
+same lint-oxlint-size-limit-preset-rolldown.txt (exit 0)
+same lint-oxlint-tproc.txt (exit 0)
+same lint-oxlint-vite-custom-element-assets.txt (exit 0)
+same lint-oxlint-vite-traits-plugin.txt (exit 1)
+
+## ESLint lint results, norm.py before vs after1
+198c198
+< == lint-eslint-root.txt 43 files, 0 messages
+---
+> == lint-eslint-root.txt 44 files, 0 messages
+== lint-eslint-box-quad.txt 13 files, 0 messages
+== lint-eslint-core.txt 60 files, 0 messages
+== lint-eslint-drag.txt 105 files, 0 messages
+== lint-eslint-material-x.txt 160 files, 190 messages
+== lint-eslint-root.txt 44 files, 0 messages
+== lint-eslint-size-limit-preset-rolldown.txt 3 files, 0 messages
+== lint-eslint-tproc.txt 32 files, 0 messages
+== lint-eslint-vite-custom-element-assets.txt 13 files, 0 messages
+== lint-eslint-vite-traits-plugin.txt 27 files, 0 messages
