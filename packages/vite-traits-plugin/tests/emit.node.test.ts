@@ -13,8 +13,21 @@ type Result = Readonly<{ code: RolldownMagicString | string; map?: string }>;
 const ID = fixtureId('checkable.ts');
 const SOURCE = await readFile(ID, 'utf8');
 
-/** A magic string of a binding that isn't this module's rolldown's. */
-class ForeignMagicString {}
+/**
+ * A magic string of a binding that isn't this module's rolldown's: it holds
+ * the module's code, and its class isn't `RolldownMagicString`.
+ */
+class ForeignMagicString {
+  readonly #code: string;
+
+  constructor(code: string) {
+    this.#code = code;
+  }
+
+  toString(): string {
+    return this.#code;
+  }
+}
 
 /** Each hook, with the module text it transforms. */
 function hooks(): ReadonlyArray<readonly [string, Hook, string]> {
@@ -60,7 +73,7 @@ describe('a transform result', () => {
     "should give a string and a source map from %s when the host's magic string is of another class",
     async (_, hook, code) => {
       const result = await transform(hook, code, {
-        magicString: new ForeignMagicString(),
+        magicString: new ForeignMagicString(code),
       });
 
       expectStringAndMap(result, code);

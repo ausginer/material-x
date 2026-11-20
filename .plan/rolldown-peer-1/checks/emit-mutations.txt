@@ -1,4 +1,4 @@
-RF-55 task 4, the traits plugin's node test against four mutations, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at cc121c0de with task 4's source change.
+RF-55 task 4, the traits plugin's node test against four mutations, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at d79bf6f38 with the test's foreign magic string given its module's code and a toString.
 
 Command: .plan/rolldown-peer-1/checks/emit-mutations.sh <S>
 
