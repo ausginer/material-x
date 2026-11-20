@@ -120,6 +120,16 @@ size-report *ARGS:
     node .scripts/size-report.ts {{ ARGS }}
 
 # ---------------------------------------------------------------------------
+# Release
+# ---------------------------------------------------------------------------
+
+# Check a release of @ydinjs/NAME as the release workflow's `prepare` job does,
+# without the checks of the tag, the commit and the registry's versions: build,
+# size, pack, and the pack's and a consumer's checks (`repo:RD-27`)
+release-check NAME:
+    node .scripts/release-check.ts local {{ NAME }}
+
+# ---------------------------------------------------------------------------
 # Type checking
 # ---------------------------------------------------------------------------
 

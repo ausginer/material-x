@@ -1,0 +1,157 @@
+# Releases one `@ydinjs` package (`repo:RD-27`). A tag `@ydinjs/<name>@<version>`
+# on a `main` commit runs `prepare`, which checks the release and the commit,
+# builds, packs and checks the tarball, and `stage`, which stages that tarball
+# on npm with provenance. Nothing is public until the owner approves the staged
+# version on npm with his second factor. A dispatched run is a check: it runs
+# `prepare` for the named package at the dispatched commit, without the commit
+# checks, and stages nothing. The procedure is `.agents/docs/releasing.md`.
+name: release
+
+on:
+  push:
+    tags: ['@ydinjs/*@*']
+  workflow_dispatch:
+    inputs:
+      package:
+        description: The package to check, named without its @ydinjs/ scope
+        required: true
+        type: string
+
+# One run per tag or branch at a time. A release is never cancelled.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  NODE_VERSION: 26
+  # The aube that `package.json`'s `packageManager` names, installed with npm's
+  # one command outside the checkout (`repo:RD-16` property 9).
+  AUBE_VERSION: 2.10.0
+  # The npm that stages the tarball: `npm stage publish` needs 11.15.0 or later
+  # (`repo:RD-27` property 6).
+  NPM_VERSION: 11.21.2
+
+# No cache of any kind: a release reads nothing that another workflow wrote.
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      tarball: ${{ steps.package.outputs.tarball }}
+      sha256: ${{ steps.package.outputs.sha256 }}
+      dist-tag: ${{ steps.release.outputs.dist-tag }}
+    steps:
+      # The full history holds `origin/main`, which the commit check reads.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      # Steps 1 and 2: the release, the commit and the registry. The script
+      # needs only Node's built-in modules, `git` and `gh`, so it runs first.
+      - id: release
+        name: Check the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          if [ "$EVENT" = push ]; then
+            node .scripts/release-check.ts release --tag "$TAG" --commit "$COMMIT"
+          else
+            node .scripts/release-check.ts release --package "$PACKAGE"
+          fi
+      - name: Install aube
+        working-directory: ${{ runner.temp }}
+        run: npm install -g "@endevco/aube@$AUBE_VERSION"
+      # Step 3: the package and the packages it depends on, through nx.
+      - run: aube ci
+      - name: Build
+        env:
+          NAME: ${{ steps.release.outputs.name }}
+        run: aube exec -- nx run-many -t build --projects="$NAME" --skipNxCache
+      # Step 4: a size row over its ceiling fails the package's `size` script,
+      # and with it the release.
+      - name: Size
+        working-directory: ${{ steps.release.outputs.directory }}
+        run: |
+          if jq -e '.scripts.size' package.json > /dev/null; then
+            aube run size
+          else
+            echo "The package has no size rows"
+          fi
+      # Steps 5 to 7: the pack, its checks, and a consumer's install and
+      # type-check of it. The script writes the tarball's sha256 beside it.
+      - id: package
+        name: Pack and check the tarball
+        env:
+          DIRECTORY: ${{ steps.release.outputs.directory }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/release"
+          tarball="$(cd "$DIRECTORY" && aube pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP/release" | jq -r '.[0].filename')"
+          node .scripts/release-check.ts package --directory "$DIRECTORY" --tarball "$tarball"
+      # Step 8: the tarball and its sha256 for `stage`.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: ${{ runner.temp }}/release
+          if-no-files-found: error
+
+  # Only a tag push stages. The environment `npm` admits only the release tags,
+  # and holds the first publish's stage-only token while it exists. The job
+  # runs outside any checkout, so npm reads none of the repository's `.npmrc`.
+  stage:
+    needs: prepare
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: npm
+    permissions:
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://registry.npmjs.org
+      - name: Install npm
+        working-directory: ${{ runner.temp }}
+        run: npm install -g "npm@$NPM_VERSION"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: ${{ runner.temp }}/release
+      - name: Check the sha256 that prepare recorded
+        working-directory: ${{ runner.temp }}/release
+        env:
+          TARBALL: ${{ needs.prepare.outputs.tarball }}
+          SHA256: ${{ needs.prepare.outputs.sha256 }}
+        run: echo "$SHA256  $TARBALL" | sha256sum -c -
+      # npm exchanges the run's OIDC token through the package's trusted
+      # publisher first, and falls back to `NODE_AUTH_TOKEN`, which is set only
+      # for a package's first publish. `--provenance` attests the run with
+      # either.
+      - name: Stage
+        working-directory: ${{ runner.temp }}/release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_STAGE_TOKEN }}
+          TARBALL: ${{ needs.prepare.outputs.tarball }}
+          DIST_TAG: ${{ needs.prepare.outputs.dist-tag }}
+        run: |
+          npm stage publish "./$TARBALL" --access public --tag "$DIST_TAG" --provenance | tee "$RUNNER_TEMP/stage.txt"
+          stage_id="$(sed -n 's/.*(staged with id \(.*\))$/\1/p' "$RUNNER_TEMP/stage.txt")"
+          name="$(tar -xzOf "$TARBALL" package/package.json | jq -r .name)"
+          {
+            echo "**Staged** \`$TARBALL\` under \`$DIST_TAG\`, with the stage id \`${stage_id:-not reported}\`."
+            echo
+            echo "Review and approve it under Staged Packages at <https://www.npmjs.com/package/$name>."
+          } >> "$GITHUB_STEP_SUMMARY"
