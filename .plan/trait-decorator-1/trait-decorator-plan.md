@@ -140,6 +140,60 @@ Fix 1 stays even so: an empty list can still come from an alias, and the flatten
 
 `@trait` is recognized syntactically in the trait's own module. Resolving a trait from a component goes through the same imports as today, so the re-export limit is neither widened nor narrowed.
 
+## The doc in the declarations: a `load` stage
+
+**Added 2026-11-20 by the architect, on the owner's choice of [P47](../trait-jsdoc-probe-1/trait-jsdoc-probe.md)'s way 1.** `RD-26`'s amendment of that date records it. The written form doesn't change: `/** doc */`, then `@trait` and `@attributes(TABLE)` on their own lines, then `export class`.
+
+**The defect it repairs** (P47): rolldown's declaration emitter, oxc's, drops a JSDoc that stands in front of a class's decorators. tsdown's declaration plugin records each module's code in a `transform` hook that runs before any of ours. So the 10 published trait `.d.ts` files lose their class docs, and proof 1 fails on them.
+
+### What the stage does
+
+- **Where it runs.** The `trait-attributes` plugin gets a `load` hook. rolldown runs `load` before every `transform`, so the declaration plugin records the stage's output, whatever the plugins' order.
+- **When it runs:** in every build, and not on the dev server (`kind === 'serve'`). The dev server emits no declarations. So Vite's dev path and Vitest run exactly as before, diagnostics included.
+- **Which modules it reads:** a candidate module (`isCandidate`), with an absolute file id and no query. It reads the file, and parses it only when a line starts with `@`. When it has nothing to rewrite, it returns `null`, and the host reads the file as before.
+- **What it rewrites,** for each exported class declaration (`export class`, not `export default`) whose decorators come before `export`, with a JSDoc directly in front of the first decorator:
+  - `export`, with the whitespace after it, moves to the first decorator's start;
+  - `/** doc */ @trait @attributes(T) export class X` becomes `/** doc */ export @trait @attributes(T) class X`, each decorator still on its own line;
+  - JavaScript and TypeScript read the two forms the same way, so the rewrite doesn't depend on which decorators they are;
+  - the declaration emitter keeps the doc of this form, and so do TypeScript 6 and tsc 7 (P47's placement table).
+- **What it returns:** `{ code, map }`. The map is the magic string's, with `hires: true`, `source` the id and `includeContent: true`, so the composed map's `sourcesContent` is still the file on disk.
+
+### What it hands to the existing compile
+
+- **The internal form is a written form:** `export @trait class`, which the compile already accepts (proof 2's case _after `export`_, P45 case (h)). So:
+  - the trait module's transform, layer (b)'s lowering and both decorator checks don't change;
+  - the analysis loader (`hostLoader`, `lowerForAnalysis`) doesn't change either. It reads the written file, and the analysis accepts both positions;
+  - nothing needs a form that source can't write, nor state to tell the two forms apart.
+- **P48 compiles the whole tree this way** at `eda3b1bfc`. Every `.js` and every map is byte-identical to that commit's build. The 10 trait `.d.ts` files differ only by their class docs, added back.
+
+### Diagnostics
+
+- **The checks see the written text.** `trait-decorator`, `attributes-decorator`, `attribute-table` and `attribute-accessor` read the same decorators, in the same order, with the same arguments. Only `export` now stands before them, which every check already accepts.
+- **Positions.**
+  - The plugin passes `pos` inside the log object, so rolldown shows the plugin, the file and the message, and no position. That is the same with and without the stage (P48).
+  - The field itself, though, is an offset into the hook's input. Inside a moved span, the stage puts it `export `'s length later.
+  - **Required:** every diagnostic that the plugin reports carries the `pos` it would carry without the stage. The stage records, for each module id, the spans it moved, replacing the record at each load of that id and dropping it in `watchChange`. The reporter (`report` and the warning loop) moves a `pos` that falls inside a moved span back by the moved length.
+  - The implementer may use another mechanism, such as tracing through `this.getCombinedSourcemap()`, if it meets proof 12.
+
+### Watch
+
+- **The stage reads the file at every load,** and a rebuild loads a changed file again, so a changed doc or decorator reaches the declarations.
+- **Its parse is its own,** not `parseModule`'s cache, because the transform parses a different text for the same id.
+
+### What retires it
+
+When rolldown's declaration emitter keeps a JSDoc in front of decorators, proof 11's mutation stops failing. The stage is then deleted, with its record.
+
+### Not adopted
+
+- **The probed internal form,** `static { trait(this); attributes(this, T); }` (P47's stand-in).
+  - It needs a second compile stage, and the analysis loader would have to apply it too.
+  - It is the source form that `trait-decorator` rejects, so the transform would need state to accept it.
+  - It moves an inline table's text into the class body, so `attribute-table`'s positions would move to another line.
+- **`export` on the JSDoc's last line, with spaces in its place,** which keeps every line and column. The emitter and the bundler keep the comment and `export` on one line, so 30 files differed: each trait's `.d.ts`, `.js` and map (P48).
+- **Running the stage on the dev server:** nothing there emits declarations.
+- **Moving the checks into the stage:** the transform already sees the same text.
+
 ## The proofs the implementer delivers
 
 Each proof names the change it witnesses. A test fails without that change, and the implementer records each failing run beside its passing one, in the order the work happens.
@@ -182,6 +236,19 @@ Each proof names the change it witnesses. A test fails without that change, and 
     - `list/list-item` is expected about 44 B Brotli smaller: PR #78 measured the same output without the `impl` block at 2,550 B against 2,594 B;
     - `complete` is expected a few bytes smaller, since `impl` stays for the other components;
     - any other row that moves is a defect in proof 1.
+11. **The doc in the declarations** (the [`load` stage](#the-doc-in-the-declarations-a-load-stage)):
+    - **The tree.** Rerun [P48's `run.sh`](../trait-jsdoc-probe-1/probes/p48/run.sh) comparison, against `eda3b1bfc`'s build, with the real stage in place of the probe's:
+      - every `.js` and every map is byte-identical;
+      - only the 10 trait `.d.ts` files differ, each only by added comment lines;
+      - [`docs.ts`](../trait-jsdoc-probe-1/probes/p48/docs.ts) reads 10/10.
+    - **Proof 1** then holds as written, against `d69e3ddbc`.
+    - **A test that fails without the stage,** in the plugin's node tests. A tsdown build, with declarations, of a fixture trait module written `/** doc */`, `@trait`, `@attributes(TABLE)`, `export class`. Its `.d.ts` has the doc directly before `export declare class`, and a fixture without `@attributes` does too. The mutation, the stage's `load` removed, fails both, and the failing run is recorded.
+    - **The dev server:** after `configResolved` with `command: 'serve'`, the `load` hook returns `null` for that fixture.
+    - **Watch:** two loads of one id with different texts each give their own output. One reading of `tsdown --watch` in `packages/core` is recorded, in which an edited trait doc reaches the rebuilt `.d.ts`.
+    - **The cost:** `just build`'s time with and without the stage, recorded once.
+12. **Diagnostics through the stage** (`diagnostics.node.test.ts`, through a rolldown build of the fixture):
+    - for `trait-decorator` (`@trait` beside another decorator), `attributes-decorator` (`@attributes` above `@trait`) and `attribute-table` (an inline table with a key that names no accessor), the `pos` is the one the same build reports without the stage;
+    - the mutation, the reporter's translation removed, fails each, by the moved length.
 
 ## The files the migration touches
 
@@ -222,3 +289,10 @@ These need the owner:
   - [`composition.ts`](probes/composition.ts) copies core's `Bound`, `bound()` and `$bound` with the proposed `trait`.
   - Cases (a) to (g) are listed under [the decorator's type](#the-decorators-type-and-what-typescript-sees).
   - Case (h), [`ast.ts`](probes/ast.ts): oxc-parser puts `@trait`'s span before the `export` statement's start in `@trait export class`, and inside it in `export @trait class`. `oxfmt` prints `export @trait class` across three lines.
+- **P47, a decorated trait's JSDoc in the published declarations** ([record](../trait-jsdoc-probe-1/trait-jsdoc-probe.md)), by the architect on 2026-11-20 at `dfd49e683`.
+- **P48, the `load` stage on the implementer's compile** ([`p48/`](../trait-jsdoc-probe-1/probes/p48/), [transcript](../trait-jsdoc-probe-1/checks/p48-run.txt)), by the architect on 2026-11-20 at `eda3b1bfc`, with tsdown 0.23.7, rolldown 1.3.2 and aube 2.10.0.
+  - [`load.ts`](../trait-jsdoc-probe-1/probes/p48/load.ts) and [`plugin-load.diff`](../trait-jsdoc-probe-1/checks/p48-plugin-load.diff) add the stage behind `P48_LOAD=1`.
+  - [`run.sh`](../trait-jsdoc-probe-1/probes/p48/run.sh) builds `@ydinjs/core` and `@ydinjs/material-x` with and without it, and compares all 293 built `.js`, `.d.ts` and map files. Only the 10 trait `.d.ts` differ, each only by added comment lines.
+  - [`docs.ts`](../trait-jsdoc-probe-1/probes/p48/docs.ts) finds every source doc directly before its `export declare class`: 10/10.
+  - [`positions.ts`](../trait-jsdoc-probe-1/probes/p48/positions.ts) reads a diagnostic's `pos` through rolldown. It is 7 later with the stage, and neither run has a `loc` or a frame.
+  - The transcript also records the layout not adopted, and the 30 files it changed.
