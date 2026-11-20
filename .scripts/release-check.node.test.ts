@@ -619,6 +619,77 @@ describe('checkConsumer', () => {
           join(root, 'consumer'),
         ),
       ),
-    ).toEqual(['consumer']);
+      // rolldown keeps an import that doesn't resolve, so the bare import of
+      // the missing module isn't empty either.
+    ).toEqual(['consumer', 'side-effects']);
+  });
+
+  describe('side effects', () => {
+    /** A package of a pure module and three with an effect at import. */
+    async function packEffects(sideEffects?: unknown): Promise<string> {
+      const modules: Readonly<Record<string, string>> = {
+        pure: 'export const value = 1;\n',
+        global: 'globalThis.effect = 1;\nexport const value = 1;\n',
+        define:
+          'export class Element extends HTMLElement {}\ncustomElements.define("x-element", Element);\n',
+        style: 'import "./style.css";\nexport const value = 1;\n',
+      };
+      const manifest = {
+        name: 'effects',
+        version: '1.0.0',
+        type: 'module',
+        ...(sideEffects !== undefined && { sideEffects }),
+        exports: Object.fromEntries(
+          Object.keys(modules).map((name) => [
+            `./${name}.js`,
+            { types: `./${name}.d.ts`, default: `./${name}.js` },
+          ]),
+        ),
+      };
+      await writeFiles(join(root, 'pack'), {
+        'package/package.json': `${JSON.stringify(manifest)}\n`,
+        'package/style.css': 'body { color: red; }\n',
+        ...Object.fromEntries(
+          Object.entries(modules).flatMap(([name, code]) => [
+            [`package/${name}.js`, code],
+            [`package/${name}.d.ts`, 'export {};\n'],
+          ]),
+        ),
+      });
+
+      const tarball = join(root, 'effects-1.0.0.tgz');
+      await run('tar', ['-czf', tarball, '-C', join(root, 'pack'), 'package']);
+
+      return tarball;
+    }
+
+    async function sideEffectsProblems(
+      sideEffects?: unknown,
+    ): Promise<string[]> {
+      const tarball = await packEffects(sideEffects);
+      const { manifest } = await readPack(tarball);
+
+      return (await checkConsumer(tarball, manifest, join(root, 'consumer')))
+        .filter(({ check }) => check === 'side-effects')
+        .map(({ message }) => message);
+    }
+
+    it('should name each export whose bare import keeps code or an asset', async () => {
+      expect(
+        (await sideEffectsProblems(false)).map(
+          (message) => /of (\S+) keeps/u.exec(message)?.[1],
+        ),
+      ).toEqual(['effects/global.js', 'effects/define.js', 'effects/style.js']);
+    });
+
+    it('should not check a manifest without the field', async () => {
+      expect(await sideEffectsProblems()).toEqual([]);
+    });
+
+    it('should report a field that is an array', async () => {
+      expect(await sideEffectsProblems(['./global.js'])).toEqual([
+        'sideEffects is ["./global.js"], and the check reads only false',
+      ]);
+    });
   });
 });
