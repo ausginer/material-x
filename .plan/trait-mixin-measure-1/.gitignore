@@ -1,0 +1,3 @@
+# The mixin builds of probe/build-mixin.ts: output of the measurement, never
+# an input to the record.
+/.build/

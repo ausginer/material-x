@@ -1,0 +1,24 @@
+flattened get disabled, button:
+  get disabled (sfi = 0x3a6201276c51)
+flattened get disabled, checkbox:
+  get disabled (sfi = 0x3a620158542d)
+flattened set disabled, button:
+  set disabled (sfi = 0x3a6201276c99)
+flattened set disabled, checkbox:
+  set disabled (sfi = 0x3a6201585475)
+inline get disabled, button:
+  get disabled (sfi = 0x3a6201567ff5)
+inline get disabled, checkbox:
+  get disabled (sfi = 0x3a6201567ff5)
+inline set disabled, button:
+  set disabled (sfi = 0x3a620156803d)
+inline set disabled, checkbox:
+  set disabled (sfi = 0x3a620156803d)
+helper get disabled, button:
+  get disabled (sfi = 0x3a6201954a71)
+helper get disabled, checkbox:
+  get disabled (sfi = 0x3a6201954a71)
+helper set disabled, button:
+  set disabled (sfi = 0x3a6201954ab9)
+helper set disabled, checkbox:
+  set disabled (sfi = 0x3a6201954ab9)

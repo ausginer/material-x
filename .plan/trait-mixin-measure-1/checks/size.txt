@@ -1,0 +1,78 @@
+
+raw
+
+| Row | Flattened | Mixin, inline | Δ | Mixin, helper | Δ |
+| --- | --: | --: | --: | --: | --: |
+| complete | 88343 | 84503 | -3840 | 82650 | -5693 |
+| complete + instanceof Disableable | 88399 | 84558 | -3841 | 82705 | -5694 |
+| complete + instanceof each core trait (8) | 89802 | 84834 | -4968 | 82979 | -6823 |
+| button/button | 17036 | 17965 | +929 | 17506 | +470 |
+| button/icon-button | 20050 | 20979 | +929 | 20520 | +470 |
+| button/link-button | 17060 | 17761 | +701 | 17427 | +367 |
+| button/switch-button | 20227 | 21157 | +930 | 20697 | +470 |
+| button/switch-icon-button | 25763 | 26925 | +1162 | 26336 | +573 |
+| button/split-button | 30218 | 30199 | -19 | 29100 | -1118 |
+| button-group/button-group | 10434 | 10720 | +286 | 10386 | -48 |
+| button-group/connected-button-group | 13296 | 13656 | +360 | 13197 | -99 |
+| checkbox/checkbox | 11423 | 12408 | +985 | 11955 | +532 |
+| fab/fab | 15756 | 16229 | +473 | 16020 | +264 |
+| icon/icon | 1584 | 1584 | +0 | 1584 | +0 |
+| list/list | 9917 | 9990 | +73 | 10035 | +118 |
+| list/list-item | 9175 | 9078 | -97 | 9078 | -97 |
+| list/list-button-item | 14655 | 15128 | +473 | 14919 | +264 |
+| list/list-link-item | 15384 | 16085 | +701 | 15751 | +367 |
+| radio/radio | 9986 | 10743 | +757 | 10415 | +429 |
+| text-field/multiline-text-field | 16287 | 17042 | +755 | 16714 | +427 |
+| text-field/text-field | 34043 | 35479 | +1436 | 34637 | +594 |
+
+gzip
+
+| Row | Flattened | Mixin, inline | Δ | Mixin, helper | Δ |
+| --- | --: | --: | --: | --: | --: |
+| complete | 19814 | 19686 | -128 | 19564 | -250 |
+| complete + instanceof Disableable | 19838 | 19710 | -128 | 19590 | -248 |
+| complete + instanceof each core trait (8) | 20020 | 19806 | -214 | 19672 | -348 |
+| button/button | 5401 | 5489 | +88 | 5478 | +77 |
+| button/icon-button | 5704 | 5785 | +81 | 5779 | +75 |
+| button/link-button | 5379 | 5449 | +70 | 5437 | +58 |
+| button/switch-button | 5800 | 5888 | +88 | 5875 | +75 |
+| button/switch-icon-button | 6283 | 6383 | +100 | 6365 | +82 |
+| button/split-button | 8202 | 8266 | +64 | 8218 | +16 |
+| button-group/button-group | 3540 | 3554 | +14 | 3548 | +8 |
+| button-group/connected-button-group | 4380 | 4381 | +1 | 4369 | -11 |
+| checkbox/checkbox | 4392 | 4501 | +109 | 4488 | +96 |
+| fab/fab | 4653 | 4719 | +66 | 4714 | +61 |
+| icon/icon | 813 | 813 | +0 | 813 | +0 |
+| list/list | 4135 | 4159 | +24 | 4177 | +42 |
+| list/list-item | 2989 | 2948 | -41 | 2948 | -41 |
+| list/list-button-item | 5148 | 5220 | +72 | 5210 | +62 |
+| list/list-link-item | 5371 | 5454 | +83 | 5440 | +69 |
+| radio/radio | 4010 | 4099 | +89 | 4094 | +84 |
+| text-field/multiline-text-field | 4988 | 5080 | +92 | 5071 | +83 |
+| text-field/text-field | 9055 | 9198 | +143 | 9169 | +114 |
+
+brotli
+
+| Row | Flattened | Mixin, inline | Δ | Mixin, helper | Δ |
+| --- | --: | --: | --: | --: | --: |
+| complete | 16949 | 16918 | -31 | 16861 | -88 |
+| complete + instanceof Disableable | 16989 | 16943 | -46 | 16901 | -88 |
+| complete + instanceof each core trait (8) | 17136 | 17018 | -118 | 17013 | -123 |
+| button/button | 4834 | 4892 | +58 | 4895 | +61 |
+| button/icon-button | 5079 | 5133 | +54 | 5146 | +67 |
+| button/link-button | 4798 | 4865 | +67 | 4840 | +42 |
+| button/switch-button | 5184 | 5240 | +56 | 5244 | +60 |
+| button/switch-icon-button | 5563 | 5649 | +86 | 5651 | +88 |
+| button/split-button | 7331 | 7374 | +43 | 7317 | -14 |
+| button-group/button-group | 3110 | 3122 | +12 | 3116 | +6 |
+| button-group/connected-button-group | 3866 | 3851 | -15 | 3832 | -34 |
+| checkbox/checkbox | 3914 | 4012 | +98 | 4004 | +90 |
+| fab/fab | 4121 | 4182 | +61 | 4178 | +57 |
+| icon/icon | 642 | 642 | +0 | 642 | +0 |
+| list/list | 3656 | 3683 | +27 | 3693 | +37 |
+| list/list-item | 2594 | 2550 | -44 | 2550 | -44 |
+| list/list-button-item | 4542 | 4593 | +51 | 4596 | +54 |
+| list/list-link-item | 4754 | 4818 | +64 | 4788 | +34 |
+| radio/radio | 3571 | 3638 | +67 | 3646 | +75 |
+| text-field/multiline-text-field | 4421 | 4529 | +108 | 4504 | +83 |
+| text-field/text-field | 8099 | 8215 | +116 | 8175 | +76 |

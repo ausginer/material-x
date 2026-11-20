@@ -1,0 +1,269 @@
+| Site | IC | Key | Transitions | Last state | Maps seen |
+| --- | --- | --- | --- | --- | --: |
+| .build/helper/core/controllers/useAttributes.js @15:32 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| .build/helper/core/controllers/useAttributes.js @33:45 | LoadIC | removeAttribute | N→N | N | 3 |
+| .build/helper/core/controllers/useAttributes.js @33:6 | LoadIC | setAttribute | N→N | N | 4 |
+| .build/inline/core/controllers/useAttributes.js @15:32 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| attrChanged .build/helper/core/controllers/useAttributes.js @41:17 | KeyedLoadIC | disabled | 0→1 1→P P→N | N | 16 |
+| attrChanged .build/helper/core/controllers/useAttributes.js @41:60 | KeyedLoadIC | disabled | 0→1 1→P P→N | N | 5 |
+| attrChanged .build/inline/core/controllers/useAttributes.js @41:17 | KeyedLoadIC | disabled | 0→1 1→P P→N | N | 5 |
+| attrChanged .build/inline/core/controllers/useAttributes.js @41:60 | KeyedLoadIC | disabled | 0→1 1→P P→N | N | 5 |
+| attrChanged packages/core/controllers/useAttributes.js @41:17 | KeyedLoadIC | disabled | 0→1 1→P P→N | N | 16 |
+| attrChanged packages/core/controllers/useAttributes.js @41:60 | KeyedLoadIC | disabled | 0→1 1→P P→N | N | 5 |
+| disabled .build/helper/core/traits/linkable.js @26:2 | LoadIC | getAttribute | N→N | N | 2 |
+| disabled .build/helper/core/traits/linkable.js @32:23 | LoadIC | removeAttribute | N→N | N | 1 |
+| disabled .build/helper/core/traits/linkable.js @68:14 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| disabled .build/helper/core/traits/linkable.js @70:36 | LoadIC | getRaw | 0→1 | 1 | 1 |
+| disabled .build/helper/material-x/button/ButtonCore.js @83:68 | LoadIC | from | 0→1 | 1 | 1 |
+| disabled .build/inline/core/traits/linkable.js @30:20 | LoadIC | getAttribute | N→N | N | 2 |
+| disabled .build/inline/core/traits/linkable.js @70:14 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| disabled .build/inline/core/traits/linkable.js @72:36 | LoadIC | getRaw | 0→1 | 1 | 1 |
+| disabled .build/inline/material-x/button/ButtonCore.js @86:68 | LoadIC | from | 0→1 | 1 | 1 |
+| disabled packages/core/traits/linkable.js @37:2 | LoadIC | getAttribute | N→N | N | 2 |
+| disabled packages/core/traits/linkable.js @40:11 | LoadIC | removeAttribute | N→N | N | 1 |
+| disabled packages/core/traits/linkable.js @70:14 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| disabled packages/core/traits/linkable.js @72:36 | LoadIC | getRaw | 0→1 | 1 | 1 |
+| disabled packages/material-x/button/ButtonCore.js @86:68 | LoadIC | from | 0→1 | 1 | 1 |
+| get .build/helper/core/attribute.js @43:20 | LoadIC | from | 0→1 | 1 | 1 |
+| get .build/helper/core/attribute.js @44:24 | LoadIC | getRaw | 0→1 | 1 | 1 |
+| get .build/inline/core/attribute.js @43:20 | LoadIC | from | 0→1 | 1 | 1 |
+| get .build/inline/core/attribute.js @44:24 | LoadIC | getRaw | 0→1 | 1 | 1 |
+| get disabled .build/helper/core/traits/disableable.js @15:19 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled .build/helper/core/traits/disableable.js @15:59 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled .build/inline/core/traits/disableable.js @14:19 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled .build/inline/core/traits/disableable.js @14:59 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button-group/button-group.js @62:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button-group/button-group.js @62:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button-group/connected-button-group.js @62:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button-group/connected-button-group.js @62:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/button.js @76:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/button.js @76:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/icon-button.js @73:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/icon-button.js @73:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/link-button.js @73:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/link-button.js @73:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/split-button.js @95:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/split-button.js @95:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/switch-button.js @82:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/switch-button.js @82:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/switch-icon-button.js @87:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/button/switch-icon-button.js @87:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/checkbox/checkbox.js @95:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/checkbox/checkbox.js @95:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/fab/fab.js @119:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/fab/fab.js @119:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/list/list-button-item.js @36:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/list/list-button-item.js @36:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/list/list-link-item.js @41:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/list/list-link-item.js @41:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/radio/radio.js @71:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/radio/radio.js @71:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get disabled packages/material-x/text-field/TextFieldCore.js @73:20 | LoadIC | get | 0→1 | 1 | 1 |
+| get disabled packages/material-x/text-field/TextFieldCore.js @73:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| get packages/core/attribute.js @43:20 | LoadIC | from | 0→1 | 1 | 1 |
+| get packages/core/attribute.js @44:24 | LoadIC | getRaw | 0→1 | 1 | 1 |
+| getRaw .build/helper/core/attribute.js @50:15 | LoadIC | getAttribute | 0→1 1→P P→N | N | 15 |
+| getRaw .build/inline/core/attribute.js @50:15 | LoadIC | getAttribute | 0→1 1→P P→N | N | 15 |
+| getRaw packages/core/attribute.js @50:15 | LoadIC | getAttribute | 0→1 1→P ^→P P→N | N | 15 |
+| packages/core/controllers/useAttributes.js @15:32 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| packages/core/controllers/useAttributes.js @33:72 | LoadIC | setAttribute | N→N | N | 4 |
+| packages/core/controllers/useAttributes.js @34:33 | LoadIC | removeAttribute | N→N | N | 4 |
+| set .build/helper/core/attribute.js @46:27 | LoadIC | to | 0→1 | 1 | 1 |
+| set .build/helper/core/attribute.js @47:12 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| set .build/inline/core/attribute.js @46:27 | LoadIC | to | 0→1 | 1 | 1 |
+| set .build/inline/core/attribute.js @47:12 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| set disabled .build/helper/core/traits/disableable.js @18:12 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled .build/helper/core/traits/disableable.js @18:59 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled .build/helper/core/traits/disableable.js @28:3 | LoadIC | setAttribute | N→N | N | 15 |
+| set disabled .build/helper/core/traits/disableable.js @28:42 | LoadIC | removeAttribute | N→N | N | 15 |
+| set disabled .build/inline/core/traits/disableable.js @17:12 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled .build/inline/core/traits/disableable.js @17:59 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled .build/inline/core/traits/disableable.js @28:29 | LoadIC | setAttribute | N→N | N | 15 |
+| set disabled .build/inline/core/traits/disableable.js @29:2 | LoadIC | removeAttribute | N→N | N | 15 |
+| set disabled packages/material-x/button-group/button-group.js @13:14 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button-group/button-group.js @14:17 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button-group/button-group.js @65:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button-group/button-group.js @65:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button-group/connected-button-group.js @16:11 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button-group/connected-button-group.js @16:50 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button-group/connected-button-group.js @65:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button-group/connected-button-group.js @65:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/button.js @79:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/button.js @79:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/icon-button.js @12:84 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/icon-button.js @13:34 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/icon-button.js @76:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/icon-button.js @76:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/link-button.js @13:51 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/link-button.js @13:90 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/link-button.js @76:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/link-button.js @76:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/split-button.js @15:21 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/split-button.js @15:60 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/split-button.js @98:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/split-button.js @98:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/switch-button.js @13:34 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/switch-button.js @13:73 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/switch-button.js @85:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/switch-button.js @85:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/switch-icon-button.js @12:58 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/switch-icon-button.js @12:97 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/button/switch-icon-button.js @90:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/button/switch-icon-button.js @90:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/checkbox/checkbox.js @14:13 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/checkbox/checkbox.js @14:52 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/checkbox/checkbox.js @98:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/checkbox/checkbox.js @98:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/fab/fab.js @122:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/fab/fab.js @122:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/fab/fab.js @14:38 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/fab/fab.js @14:77 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/list/list-button-item.js @21:30 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/list/list-button-item.js @22:35 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/list/list-button-item.js @39:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/list/list-button-item.js @39:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/list/list-link-item.js @15:54 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/list/list-link-item.js @17:19 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/list/list-link-item.js @44:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/list/list-link-item.js @44:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/radio/radio.js @18:10 | LoadIC | setAttribute | N→N | N | 1 |
+| set disabled packages/material-x/radio/radio.js @19:34 | LoadIC | removeAttribute | N→N | N | 1 |
+| set disabled packages/material-x/radio/radio.js @74:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/radio/radio.js @74:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set disabled packages/material-x/text-field/TextFieldCore.js @14:102 | LoadIC | removeAttribute | N→N | N | 2 |
+| set disabled packages/material-x/text-field/TextFieldCore.js @14:63 | LoadIC | setAttribute | N→N | N | 2 |
+| set disabled packages/material-x/text-field/TextFieldCore.js @76:13 | LoadIC | set | 0→1 | 1 | 1 |
+| set disabled packages/material-x/text-field/TextFieldCore.js @76:60 | LoadIC | disabled | 0→1 | 1 | 1 |
+| set packages/core/attribute.js @46:27 | LoadIC | to | 0→1 | 1 | 1 |
+| set packages/core/attribute.js @47:12 | LoadIC | setRaw | 0→1 | 1 | 1 |
+| set packages/core/attribute.js @53:27 | LoadIC | setAttribute | N→N | N | 14 |
+| set packages/core/attribute.js @54:13 | LoadIC | removeAttribute | N→N | N | 14 |
+| setRaw .build/helper/core/attribute.js @53:27 | LoadIC | setAttribute | 0→1 1→P P→N | N | 17 |
+| setRaw .build/helper/core/attribute.js @54:13 | LoadIC | removeAttribute | 0→1 1→P P→N | N | 17 |
+| setRaw .build/inline/core/attribute.js @53:27 | LoadIC | setAttribute | 0→1 1→P P→N | N | 17 |
+| setRaw .build/inline/core/attribute.js @54:13 | LoadIC | removeAttribute | 0→1 1→P P→N | N | 16 |
+| setRaw packages/core/attribute.js @53:27 | LoadIC | setAttribute | 0→1 1→P P→N | N | 19 |
+| setRaw packages/core/attribute.js @54:13 | LoadIC | removeAttribute | 0→1 1→P P→N | N | 19 |
+| site-flattened-get-1-class @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-button-group @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-checkbox @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-connected-button-group @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-fab @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-icon-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-link-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-list-button-item @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-list-link-item @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-multiline-text-field @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-one-site @3:65 | LoadIC | disabled | 0→1 1→P P→N | N | 15 |
+| site-flattened-get-radio @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-split-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-switch-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-switch-icon-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-get-text-field @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-flattened-set-1-class @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-button-group @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-checkbox @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-connected-button-group @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-fab @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-icon-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-link-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-list-button-item @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-list-link-item @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-multiline-text-field @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-one-site @3:59 | StoreIC | disabled | 0→1 1→P P→N | N | 16 |
+| site-flattened-set-radio @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-split-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-switch-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-switch-icon-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-flattened-set-text-field @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-get-1-class @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-button-group @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-checkbox @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-connected-button-group @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-fab @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-icon-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-link-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-list-button-item @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-list-link-item @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-multiline-text-field @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-one-site @3:65 | LoadIC | disabled | 0→1 1→P P→N | N | 15 |
+| site-helper-get-radio @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-split-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-switch-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-switch-icon-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-get-text-field @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-helper-set-1-class @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-button-group @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-checkbox @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-connected-button-group @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-fab @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-icon-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-link-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-list-button-item @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-list-link-item @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-multiline-text-field @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-one-site @3:59 | StoreIC | disabled | 0→1 1→P P→N | N | 16 |
+| site-helper-set-radio @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-split-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-switch-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-switch-icon-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-helper-set-text-field @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-get-1-class @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-button-group @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-checkbox @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-connected-button-group @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-fab @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-icon-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-link-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-list-button-item @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-list-link-item @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-multiline-text-field @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-one-site @3:65 | LoadIC | disabled | 0→1 1→P P→N | N | 15 |
+| site-inline-get-radio @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-split-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-switch-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-switch-icon-button @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-get-text-field @3:65 | LoadIC | disabled | 0→1 | 1 | 1 |
+| site-inline-set-1-class @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-button-group @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-checkbox @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-connected-button-group @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-fab @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-icon-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-link-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-list-button-item @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-list-link-item @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-multiline-text-field @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-one-site @3:59 | StoreIC | disabled | 0→1 1→P P→N | N | 16 |
+| site-inline-set-radio @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-split-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-switch-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-switch-icon-button @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| site-inline-set-text-field @3:59 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useButtonCore .build/helper/material-x/button/ButtonCore.js @83:13 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useButtonCore .build/inline/material-x/button/ButtonCore.js @86:13 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useButtonCore packages/material-x/button/ButtonCore.js @86:13 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useDisableable .build/helper/core/traits/disableable.js @26:34 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useDisableable .build/inline/core/traits/disableable.js @28:34 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useDisableable packages/core/traits/disableable.js @28:34 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useDisableableLinkable .build/helper/core/traits/linkable.js @64:3 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useDisableableLinkable .build/inline/core/traits/linkable.js @66:3 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useDisableableLinkable packages/core/traits/linkable.js @66:3 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useFocusForwarding .build/helper/material-x/core/traits/focus-forwarding.js @24:11 | LoadIC | set | 0→1 | 1 | 1 |
+| useFocusForwarding .build/inline/material-x/core/traits/focus-forwarding.js @26:11 | LoadIC | set | 0→1 | 1 | 1 |
+| useFocusForwarding packages/material-x/core/traits/focus-forwarding.js @18:11 | LoadIC | set | 0→1 | 1 | 1 |
+| useInteractiveListItemCore .build/helper/material-x/list/ListInteractiveItemCore.js @22:13 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useInteractiveListItemCore .build/inline/material-x/list/ListInteractiveItemCore.js @22:13 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useInteractiveListItemCore packages/material-x/list/ListInteractiveItemCore.js @22:13 | StoreIC | disabled | 0→1 | 1 | 2 |
+| useReorderableItem .build/helper/core/traits/reorderable.js @712:14 | LoadIC | set | 0→1 | 1 | 1 |
+| useReorderableItem .build/inline/core/traits/reorderable.js @714:14 | LoadIC | set | 0→1 | 1 | 1 |
+| useReorderableItem packages/core/traits/reorderable.js @714:14 | LoadIC | set | 0→1 | 1 | 1 |
+| via .build/helper/core/controllers/useAttributes.js @26:16 | LoadIC | from | 0→1 | 1 | 1 |
+| via .build/inline/core/controllers/useAttributes.js @26:16 | LoadIC | from | 0→1 | 1 | 1 |
+| via packages/core/controllers/useAttributes.js @26:16 | LoadIC | from | 0→1 | 1 | 1 |
