@@ -72,9 +72,43 @@
 
 ### Reading for the architect, pre-existing
 
-**Tier B. ESLint's `@typescript-eslint/unbound-method` doesn't report a private method read without its receiver**, as the probe in [`reviewer-1`](#reviewer-1) shows. The `eslint.config.ts` comment calls it _"the only instrument in the pipeline for a method read without a receiver"_ (`D-170`). Inside a class, a private method passed as a callback without its receiver is outside what that instrument reports. Oxlint 1.93.0's port reports it. This was true before this unit, and the unit doesn't change it. It is not registered here.
+**Tier B. ESLint's `@typescript-eslint/unbound-method` doesn't report a private method read without its receiver**, as the probe in [`reviewer-1`](#reviewer-1--blocking) shows. The `eslint.config.ts` comment calls it _"the only instrument in the pipeline for a method read without a receiver"_ (`D-170`). Inside a class, a private method passed as a callback without its receiver is outside what that instrument reports. Oxlint 1.93.0's port reports it. This was true before this unit, and the unit doesn't change it. It is not registered here.
 
 ## Not findings
 
 - **`no-use-before-define` and `import/no-duplicates`** keep exactly what ran before. Whether they should stay on remains the owner's question, as the PR says.
 - **A package's oxlint configuration** runs with the `oxc` plugin and `correctness` on. My captures confirm the closure's reading, and it is unchanged from `d69e3ddbc`.
+
+## Re-review, 2026-11-20
+
+**Files were read at:** `cb0b2004c` (`repo/oxlint-migrate-1`, PR #80), in a scratch worktree of my own. **Diff reviewed:** `e2a33205d` to `cb0b2004c`, one commit. **Subject:** the fixes for `reviewer-1` to `reviewer-3`, and the owner's ruling as the coordinator relayed it: _"`import/no-duplicates` оставляем (включаем), а `no-use-before-define` предлагаю выключить."_
+
+**Verdict: nothing blocks. The three findings are resolved, the ruling is applied as stated, and nothing else changed.**
+
+### Scope
+
+**Covered.**
+
+- **What the commit touches.** Four files: `.oxlintrc.json`, `.scripts/oxlint-migrate.ts`, `.plan/00-index.md` (one appended block in `RF-49`, after the unchanged closure) and this record. Nothing else in the tree changed.
+- **Effective rule state, `e2a33205d` to `cb0b2004c`.** I captured both linters' `--print-config` again, with the same 17 captures as before, and both linters' results over the tree after I built the packages.
+  - ESLint's 17 captures are byte-identical.
+  - Each of the 17 oxlint captures differs in one entry only: `no-use-before-define` in the custom override goes from `["deny", [{classes, functions, variables, typedefs: true}]]` to `"allow"`.
+  - Resolved for `a.ts`, `a.test.ts`, `a.spec.ts`, `a.js`, `a.mjs` and `a.test.js`: in all 17 captures, the only change is `no-use-before-define` from on to off for the three TypeScript names. The JavaScript names don't change. `import/no-duplicates` keeps `prefer-inline`.
+  - `eslint.base.config.ts` still turns off `@typescript-eslint/no-use-before-define` and `import-x/no-duplicates` for TypeScript files, so no linter runs `no-use-before-define` on them now. This is what the ruling asks for.
+- **Lint results at `cb0b2004c`.** In the 8 packages and at the root, oxlint exits 0 with no diagnostic, and ESLint exits 0 with 0 messages. The results are byte-identical to `e2a33205d`'s. `aube exec just lint` at the root exits 0.
+- **`reviewer-1`.** The new reason in `.oxlintrc.json` matches my measurement and the captures: ESLint's form is `2` in every package except `drag`, where `drag`'s `eslint.config.ts` turns it off (`DRD-37`). The port reports what ESLint reports there, and also reports private `#method` reads. Outside `drag`, it reports nothing. The appended block in `RF-49` gives the same three measurements and leaves the closure's bullets as written. The record is append-only, so this meets the required property.
+- **`reviewer-2`.** The appended block lists `no-shadow-restricted-names` with `reportGlobalThis: true`, and that ESLint's form has the option and is off. That is my reading.
+- **`reviewer-3`.** `retargetJsOnlyOverrides`, its helpers, the re-read and the re-write of the migrated file are removed. The script runs the tool and removes the `.bak` copy. I ran `aube exec just oxlint-migrate` twice on `cb0b2004c`. Each run exits 0, no `.bak` file remains, and `git diff --exit-code .oxlintrc.json .oxlintrc.migrated.json` passes after each run. So the script's own `JSON.stringify` write wasn't needed for byte-identical output: the recipe's `oxfmt` step gives the same file.
+- **Formatting and handoff.** `oxfmt --check` passes on the four changed files. `git diff --check e2a33205d cb0b2004c` passes. The commit message has no session link and no closing keyword. The PR is open, with head `cb0b2004c`, no auto-merge, and `Closes #47` in its body.
+- **This record as committed at `cb0b2004c`.** Its text is my draft unchanged, except for the final newline. `oxfmt` **removes** a Markdown file's final newline; it doesn't add one, and my draft with a final newline fails `oxfmt --check`. Only the anchor to `reviewer-1` was broken, because that heading's GitHub slug is `reviewer-1--blocking`. I've corrected that link in this commit. The `reviewer-2` heading has no suffix, and its anchor resolves.
+
+**Not covered.** Any CI run. I didn't re-measure `unbound-method` per line, because the rule's state and the tree didn't change since my first pass. I didn't review the ruling itself, which is the owner's.
+
+### Findings
+
+None.
+
+### Not findings
+
+- **Property 2 names "the script's post-processing".** After `reviewer-3`, the script has no post-processing, and the appended block calls the recipe's `oxfmt` step property 2's post-processing. What the property protects still holds: nothing in the recipe writes `.oxlintrc.json`, and `.oxlintrc.migrated.json` is exactly what the recipe writes, as `just fmt` leaves it. If the property's wording should name the recipe instead of the script, that is the architect's call. It doesn't block.
+- **The new reason for `no-use-before-define` quotes the owner in Russian, with an English translation.** The quotation is the decision itself. The record already quotes the owner in Russian, and the comment gives an English translation beside it. I found no rule in `technical-english.md` or `AGENTS.md` that this breaks.
