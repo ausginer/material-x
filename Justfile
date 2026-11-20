@@ -174,9 +174,11 @@ lint-fix:
 # Misc
 # ---------------------------------------------------------------------------
 
-# Migrate oxlint config
+# Regenerate `.oxlintrc.migrated.json` from `eslint.base.config.ts`.
+# `.oxlintrc.json` is written by hand and extends it.
 oxlint-migrate:
     node .scripts/oxlint-migrate.ts
+    oxfmt .oxlintrc.migrated.json
 
 # Walk a cants call graph from a root callable — `just calls --help` for options
 calls *ARGS:

@@ -1,0 +1,9 @@
+## new recipe on the working tree of the regeneration commit (index = tree under test)
+run 1: exit 0
+git diff (worktree vs index) after run 1:
+(empty above = byte-identical)
+backup: ls: cannot access '.oxlintrc.migrated.json.bak': No such file or directory
+run 2: exit 0
+git diff (worktree vs index) after run 2:
+(empty above = byte-identical)
+backup: ls: cannot access '.oxlintrc.migrated.json.bak': No such file or directory
