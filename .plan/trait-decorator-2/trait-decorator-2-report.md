@@ -72,9 +72,18 @@ Against expected text:
 
 ### 6. Gates
 
-At `801b94e23`:
+At `801b94e23`, from the root, one after another:
 
-GATES
+| Gate | Result |
+| --- | --- |
+| `just typecheck` | passes |
+| `just typecheck-declarations` | passes |
+| `just lint` | passes |
+| `just fmt-check` | failed on `checks/size-compare.ts`, this report's own script, which wasn't formatted yet. It passes after `oxfmt` |
+| `just test` | 2314 of 2315 pass. The failure is `drag`'s `hot-path.browser.test.ts`, _"should allocate per sample only the CSS string a lifted write needs"_, in `shipped/drag (chromium)`: 24 allocations where it allows fewer than 16 |
+| `just docs-build` | passes |
+
+- **The `drag` failure is flaky, and not this change's.** Alone, with `just test-engines tests/hot-path.browser.test.ts` in `packages/drag`, it failed 1 of 3 runs at `801b94e23` and 1 of 4 at `645410c12`, the baseline. The size readings were running in the baseline tree during the root run. `drag` has no trait.
 
 - `just build` prints no `trait-member-conflict`, in either tree.
 - Formatting and lint ran on each changed file in the plugin's order (`fmt`, `lint-fix`, `fmt`, `lint`), and `just lint src tests` in the plugin passes.
@@ -82,4 +91,5 @@ GATES
 ## What is left
 
 - **`RD-26`'s fourth amendment** still says _Unimplemented_. That is the architect's to date, as with the third.
-- **Out of scope, as the plan says:** `reviewer-4`'s mechanism (ii), five bare imports; `reviewer-5`; core's `sideEffects`, which is question 1 for the owner; and bare imports in the published `.d.ts` files.
+- **Out of scope, as the plan says:** `reviewer-4`'s mechanism (ii), five bare imports; `reviewer-5`; core's `sideEffects`, which the owner answered yes and which is its own unit, `RD-30`; and bare imports in the published `.d.ts` files.
+- **One commit message is wrong:** `768552f00`, which adds this report's checks and draft, says _"wip"_. History isn't rewritten without the owner's word, so it stays, and the squash message needs that line dropped.
