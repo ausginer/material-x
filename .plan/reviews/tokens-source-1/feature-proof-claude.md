@@ -1,6 +1,6 @@
 # tproc's token store, step 1 — feature proof
 
-**Files were read at:** `e9f1f30ac` (`tproc/tokens-source-1`, PR #84), in scratch worktrees of my own. **Diff reviewed:** `a182ba6aa`, the branch's merge base with `main`, to `e9f1f30ac`.
+**Files were read at:** `e9f1f30ac`, then `4b8f62d5d` for the [re-review](#re-review-after-the-second-field-rulings), (`tproc/tokens-source-1`, PR #84), in scratch worktrees of my own. **Diff reviewed:** `a182ba6aa`, the branch's merge base with `main`, to `e9f1f30ac`.
 
 **Governing records:**
 
@@ -123,3 +123,57 @@ Per-component data (`definition` on 174 of 178 components, `alternativeNames`, t
 - `gh pr view 84`: `CONFLICTING` / `DIRTY`. `git merge-tree` against `origin/main` at `2c731045b` gives conflicts in `.plan/00-index.md` and `AGENTS.md`. `AGENTS.md`'s skills line is changed on both sides.
 - No `verify` run exists for `e9f1f30ac`, because GitHub runs no `pull_request` workflow for a pull request with a merge conflict. The branch's last runs are for `cdf53b52c` and earlier.
 - The implementer merges `main`, and `verify` runs on the merged head, before PR #84 can merge.
+
+## Re-review, after the second field rulings
+
+**Files were read at:** `4b8f62d5d` (`tproc/tokens-source-1`, PR #84), in scratch worktrees of my own. **Delta reviewed:** `0baec18f3` to `4b8f62d5d`. P4 and P10 compare against `3457e3463`, the branch's merge base with `main` now. **Governing records:** the plan's [_Field rulings, from the feature proof_](../../tokens-source-1/tokens-source-plan.md#field-rulings-from-the-feature-proof) and the sections they update (`41815ef11`, merged at `047295328`); `RD-28` property 4 with its dated amendment; and the architect's confirmation of three `schema.ts` changes (`4b8f62d5d`). The transcript is [`checks/rerun-second-rulings.txt`](checks/rerun-second-rulings.txt). The tables were read from `a182ba6aa` into a scratch directory outside the repository, by key name, count and id resolution only, and every scratch copy is deleted.
+
+**Verdict: nothing blocks, and no finding remains.** `reviewer-1`, `reviewer-2` and `reviewer-3` are resolved. `verify` passes on `4b8f62d5d`, and PR #84 is mergeable.
+
+### The delta
+
+- **`28f630922` merges `main` (`3457e3463`).**
+  - Every line of `main`'s `.plan/00-index.md` is in the head's.
+  - `AGENTS.md` keeps `main`'s `releasing.md` line and the branch's skills path.
+  - No conflict marker is left.
+- **`a1f81cf50`:** `test-architecture.md` names the store (`reviewer-3`).
+- **`41815ef11`:** the architect's second rulings.
+- **`96208a0c0`:** the implementation.
+- **`4b8f62d5d`:** the architect's confirmation, two lines in `00-index.md`.
+
+### Checked
+
+- **P2.** A legacy conversion leaves `git status` clean. Its report equals `step-1-conflicts.md`, except for the header line that now names the value kind, as `step-1.txt` records.
+- **Every key at every depth, `reviewer-1`** ([`unknown-keys.ts`](checks/unknown-keys.ts)). I injected an unknown key into the first object at each of the raw tables' 109 distinct object paths.
+  - **91 refuse,** each naming the key.
+  - **The 18 that convert** lie in subtrees that the drop list drops whole, which the converter never reads: authors, `settings`, `carbonProject`, `custom`, `parentVersionsMapping` and the component catalogue.
+  - **The one exception is `contextualReferenceTrees`,** a map that the converter reads by token id, so an extra entry is never read. The tables have no tree keyed by a token outside its table: 0 of 4,152.
+- **P5.** My earlier mutations ([`mutate.ts`](checks/mutate.ts), [`mutate-two.ts`](checks/mutate-two.ts)) now all refuse, and each names the table, the token and the key's path:
+  - an extra key on a value, inside a `color` literal, and in a `resolvedCustomCompositeValue`;
+  - a composite property's `resolvedValue` with two literal fields, with none, or as a non-object.
+- **`reviewer-2`.** P12 ran with the implementer's read-back script, which reads the tables directly. It finds no difference:
+  - 3,950 tokens, 66,153 roots and 129,895 child-node indexes give the tables' value ids;
+  - 982 groups in 101 sets give their ids and `parentGroup` ids by path, in upstream order, with their descriptions and orders;
+  - `fieldNames` and `tokenName` are equal on all 196,048 nodes.
+
+  `storeVersion` stays `1`, and the component catalogue stays out, as ruled.
+
+- **`schema.ts` (a), (b) and (c), against the tables.** All three are correct:
+  - **(a)** 75 of 181 `type` values and 988 of 1,440 resolved types have no `variationAxes`. `FILL` and `HEXP` are missing on 30 and on 300, and no other axis is ever missing or unknown.
+  - **(b)** Every resolved `type` holds literals: `fontNames`, `fontSize`, `fontTracking` and `lineHeight` as objects, and `fontWeight` as a number. On 452 of them, `variationAxes` entries are `{ axisValue: number }`. That differs from a value's `type`, which holds token names, so a separate `ResolvedTokenType` is what the data needs.
+  - **(c)** All 12 `customComposite` properties have exactly one value field, a `tokenName`.
+- **P4.** All 214 outputs are byte-identical: material-x's 213 build files and `.storybook/theme.css`.
+  - tproc passes 111 of 111 and material-x 427 of 427.
+  - Root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations` exit 0.
+- **P10.** With the implementer's scripts, `DB` at `3457e3463` against the store at `4b8f62d5d`: all 3,950 tokens are the same.
+- **P1 and P3.**
+  - The manifest's 102 digests match their files.
+  - No tracked file at `4b8f62d5d` contains any of the tables' personal values: 38 email addresses, 3 `gaiaId`s, 4 image URLs and 1 display name.
+- **Size:** 103 files, 58,902,825 bytes, 2,134,917 lines, and 1,417,011 bytes gzipped. As before, nothing bounds it.
+- **The CSS layer** keeps its exports, as at `0baec18f3`. `processToken.ts`'s change is a type annotation for the now optional `variationAxes`.
+- **CI:** `verify`, `static`, `docs`, `chromium`, `firefox`, `webkit` and `measurements` pass on `4b8f62d5d`. PR #84 is `MERGEABLE` and `CLEAN`.
+
+### Not findings
+
+- **An extra entry in `contextualReferenceTrees`** that names no token isn't read, so it isn't refused either. Its key is an id, not a field name, and the tables have none.
+- **`step-1-conflicts.md` is the first run's report.** The rerun changes only its header line, which `step-1.txt` states.

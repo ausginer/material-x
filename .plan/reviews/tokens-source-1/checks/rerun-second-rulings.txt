@@ -1,0 +1,81 @@
+Re-review of RD-28 step 1 after the second field rulings, run by the reviewer on 2026-11-20 with aube 2.10.0 and node v26.13.1, at 4b8f62d5d (tproc/tokens-source-1, PR #84), in scratch worktrees of my own. P4 and P10's base is 3457e3463, the branch's merge base with origin/main.
+
+Personal data: the 14 tables were read from a182ba6aa into a scratch directory outside the repository, by key name, count and id resolution only. No value of an author, revision or settings field was printed. The directory, the base worktree that held the tables, and every derived file were deleted afterwards.
+
+== The delta from 0baec18f3
+28f630922 merges origin/main (3457e3463). Every line of main's .plan/00-index.md is in the head's; AGENTS.md keeps main's releasing.md line and the branch's skills path; no conflict marker.
+a1f81cf50: test-architecture.md names the token store (reviewer-3). 41815ef11: the architect's second field rulings. 96208a0c0: the implementation. 4b8f62d5d: the architect's confirmation of three schema.ts changes, .plan/00-index.md only, +2 lines.
+
+== P2: a legacy conversion at 96208a0c0 leaves git status clean (0 paths). Its report equals step-1-conflicts.md but for the header line, as step-1.txt records.
+
+== Every key at every depth (unknown-keys.ts): an unknown key injected into the first object at each distinct object path of the raw tables
+object paths 109: refused 91, converted 18
+Every refusal names the key. The 18 that convert:
+  CONVERTED T.system.revisionAuthor
+  CONVERTED T.system.carbonProject
+  CONVERTED T.system.custom
+  CONVERTED T.system.custom.seen_updated_connections
+  CONVERTED T.system.author
+  CONVERTED T.system.version.revisionAuthor
+  CONVERTED T.system.components[].componentImage
+  CONVERTED T.system.componentDisplayGroups[]
+  CONVERTED T.system.componentDisplayGroups[].revisionAuthor
+  CONVERTED T.system.settings
+  CONVERTED T.system.settings.updateEmailSettings[]
+  CONVERTED T.system.settings.thumbnailUri
+  CONVERTED T.system.settings.googleAnalyticsSettings
+  CONVERTED T.system.settings.contactInfo
+  CONVERTED T.system.settings.archiveSettings
+  CONVERTED T.system.settings.archiveSettings.contactInfo
+  CONVERTED T.system.contextualReferenceTrees
+  CONVERTED T.system.parentVersionsMapping
+Each lies in a subtree the drop list drops whole, except contextualReferenceTrees, a map the converter reads by token id. Trees in the tables keyed by no token of their table: 0 of 4152.
+
+== P5, mutate.ts and mutate-two.ts at 96208a0c0 (convert() in legacy mode, in memory)
+unmutated: converted; the mutation is absent from the store
+a token without tokenValueType: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: tokenValueType
+a value with two value fields: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values
+an extra top-level field on a value: refused: TOKEN_TABLE.31f16b44fe03b0c0: md.comp.checkbox.unselected.error.focus.outline.color: values.zzExtra
+an extra field inside a color literal: refused: COLOR.20543ce18892f7d9: md.ref.palette.tertiary80: values.color.zzExtra
+an extra field in a resolvedCustomCompositeValue: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.zzExtra
+a composite property's resolvedValue with two literal fields: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue.zz
+a composite property's resolvedValue that isn't an object: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue
+a composite property's resolvedValue with two literal fields, no other key: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue
+a composite property's resolvedValue with no literal field: refused: TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9: md.sys.motion.spring.slow.effects: contextualReferenceTree.resolvedCustomCompositeValue.properties.damping.resolvedValue
+
+== schema.ts (a), (b), (c) against the raw tables
+(a) type values 181, 75 without variationAxes; resolved types 1440, 988 without; FILL and HEXP missing on 30 values and 300 resolved types; no other axis ever missing, and no unknown axis
+(b) every resolved type: fontNames object, fontSize object, fontTracking object, fontWeight number, lineHeight object, and on 452 variationAxes whose entries are {axisValue: number}
+(c) customComposite properties 12, each with exactly one value field: tokenName
+
+== P4 (p4.sh), 3457e3463 against 4b8f62d5d
+The same 214 paths (213 material-x build outputs and .storybook/theme.css); 0 of 214 differ
+tproc: 111 tests passed. material-x: 20 files, 427 tests passed. Root fmt-check, lint, typecheck, typecheck-declarations: exit 0
+
+== P12, the implementer's step-1-rerun-p12-readback.ts.txt, which reads the tables directly
+tokens 3950 groups 982 child nodes 129895
+196048 same:child count
+129895 same:child index gives the value id
+101 same:group count per set
+982 same:group description
+982 same:group orderInParentDisplayGroup
+982 same:group orderInParentTokenSet
+982 same:group path gives its id, in upstream order
+196048 same:node fieldNames
+196048 same:node tokenName
+982 same:parentGroup path gives the parentGroup id
+66153 same:root index gives the value id
+3950 same:token displayGroup path gives its id
+3950 same:tree entry count
+
+== P10: step-1-p10-dump.ts.txt at 3457e3463 (DB present): tokens 3950 sets 100
+step-1-p10-check.ts.txt at 4b8f62d5d: tokens 3950 {"same:set":3950,"same:deprecated":3950,"same:value":3950,"same:tree":3950,"same:resolved":3950}
+
+== P1 and P3: manifest storeVersion 1, 102 digests each equal to its file. pii-scan.cjs at 4b8f62d5d: 38 emails, 3 gaiaIds, 4 image URLs and 1 display name from the tables; tracked files containing any: 0
+
+== Size: 103 files, 58902825 bytes, 2134917 lines; tar | gzip: 1417011 bytes
+
+== The CSS layer, 3457e3463 against 4b8f62d5d
+index, processTokenSet, TokenPackage, TokenPackageProcessor, resolve, selector, variable, default/motion-effects: the same exports. processToken: adds toCSSValue. utils: loses getSetName (and distinct). Unchanged from 0baec18f3; processToken.ts's delta is a type annotation for the optional variationAxes.
+
+== CI and PR: gh pr checks 84 at 4b8f62d5d: verify, static, docs, chromium, firefox, webkit, measurements pass. PR #84 OPEN, MERGEABLE, CLEAN.
