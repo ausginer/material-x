@@ -295,10 +295,13 @@ function accessorName(element: AccessorProperty): string {
 /**
  * Lowers each attribute trait of a module. Returns `null` when the module
  * doesn't import `attributes` or decorates no class with it.
+ *
+ * @param createMagic - Gives the magic string of `code` that the edits go to.
  */
 export function lowerAttributes(
   code: string,
   program: Program,
+  createMagic: () => RolldownMagicString = () => new RolldownMagicString(code),
 ): RolldownMagicString | null {
   const imports = collectImports(program);
   const locals = importedLocals(imports, 'attributes', ATTRIBUTE_TRAITS_MODULE);
@@ -309,7 +312,7 @@ export function lowerAttributes(
   if (tables.size === 0) {
     return null;
   }
-  const magic = new RolldownMagicString(code);
+  const magic = createMagic();
 
   for (const [node, { decorator, table }] of tables) {
     const converters = readTable(code, program, table);

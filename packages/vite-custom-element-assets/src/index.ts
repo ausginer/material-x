@@ -1,9 +1,5 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-  RolldownMagicString,
-  VERSION,
-  type Plugin as RolldownPlugin,
-} from 'rolldown';
+import { RolldownMagicString, type Plugin as RolldownPlugin } from 'rolldown';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import {
@@ -242,8 +238,12 @@ export function constructCSSTokens(
                 exclude: /\.css\.ts/u,
               },
             },
-            handler(code, id) {
-              const s = new RolldownMagicString(code);
+            handler(code, id, meta) {
+              // The host's own magic string is edited when it is of this
+              // module's class, which is the class the host accepts back.
+              const host = meta?.magicString;
+              const native = host instanceof RolldownMagicString;
+              const s = native ? host : new RolldownMagicString(code);
 
               for (const [pattern, short] of replaceList) {
                 s.replaceRegex(pattern, `'${short}'`);
@@ -253,11 +253,11 @@ export function constructCSSTokens(
                 return null;
               }
 
-              // A host that runs this module's copy of rolldown derives the
-              // source map from the magic string over its native channel. A
-              // host on another copy doesn't recognize it and would drop the
-              // edit, so it gets a string and a source map.
-              return this.meta.rolldownVersion === VERSION
+              // The host derives the source map from its own magic string over
+              // its native channel. It doesn't recognize a magic string of
+              // another class and would drop the edit, so any other host gets
+              // a string and a source map.
+              return native
                 ? { code: s }
                 : {
                     code: s.toString(),

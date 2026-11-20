@@ -1,0 +1,42 @@
+RF-55 task 4 for @ydinjs/vite-custom-element-assets, run by the implementer on 2026-11-20 on repo/rolldown-peer-1 at cc121c0de with task 4's source change, after `aube exec just build`.
+
+Command: node .plan/rolldown-peer-1/checks/assets-host-binding.ts
+
+meta.magicString of the plugin's class: code is a magic string (the host's instance), no map, replaced: true
+meta.magicString of another class: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+meta.magicString of none: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+Each mutation edits the built index.js, runs the probe, and restores the file.
+
+The mutation: `native` is `host != null` in the built index.js.
+
+  meta.magicString of the plugin's class: code is a magic string (the host's instance), no map, replaced: true
+  file:///workspaces/worktrees/b/packages/vite-custom-element-assets/index.js:234
+  				for (const [pattern, short] of replaceList) s.replaceRegex(pattern, `'${short}'`);
+  				                                              ^
+  
+  TypeError: s.replaceRegex is not a function
+      at Object.handler (file:///workspaces/worktrees/b/packages/vite-custom-element-assets/index.js:234:51)
+      at file:///workspaces/worktrees/b/.plan/rolldown-peer-1/checks/assets-host-binding.ts:43:26
+  
+  Node.js v26.13.1
+
+The mutation: `native` is `false` in the built index.js.
+
+  meta.magicString of the plugin's class: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of another class: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of none: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+The mutation: `native` is `host === undefined || host instanceof RolldownMagicString` in the built index.js.
+
+  meta.magicString of the plugin's class: code is a magic string (the host's instance), no map, replaced: true
+  meta.magicString of another class: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  file:///workspaces/worktrees/b/packages/vite-custom-element-assets/index.js:234
+  				for (const [pattern, short] of replaceList) s.replaceRegex(pattern, `'${short}'`);
+  				                                              ^
+  
+  TypeError: Cannot read properties of undefined (reading 'replaceRegex')
+      at Object.handler (file:///workspaces/worktrees/b/packages/vite-custom-element-assets/index.js:234:51)
+      at file:///workspaces/worktrees/b/.plan/rolldown-peer-1/checks/assets-host-binding.ts:43:26
+  
+  Node.js v26.13.1

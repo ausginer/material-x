@@ -1,0 +1,35 @@
+RF-55 task 4, the packed plugin in task 2's consumers and in consumer D, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at cc121c0de with task 4's source change, and the npm registry of that day. @ydinjs/core and @ydinjs/vite-traits-plugin were built with `aube exec just build` and packed with `aube pack --ignore-scripts`.
+
+Command: .plan/rolldown-peer-1/checks/consumer-paths.sh <S> <plugin tarball> <core tarball>
+
+host checks in the packed index.js: 1
+a-vite8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: string and map ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+a-vite8.3.8-isolated: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: string and map ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+b-vite8.1.4-hoisted: vite 8.1.4, plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: string and map ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+c-vite8.4.0-beta.1-hoisted: vite 8.4.0-beta.1, plugin rolldown 1.3.3, vite rolldown 1.3.3, one copy
+  host: third argument {moduleType, rawId, attributes, ssr}, magicString offered
+  returned: trait-flattener: magic string ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+D-vite8.3.8-tsdown0.23.7: vite 8.3.8, plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: string and map ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+mutant-D-vite8.3.8-tsdown0.23.7: vite 8.3.8, plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: magic string ×1
+  vite build: exit 0, Link NOT flattened
+  dist/main.js: 2 compose(Base), 0 impl(this

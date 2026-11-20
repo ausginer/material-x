@@ -1,0 +1,23 @@
+RF-55 task 4, material-x's own build hosts, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at cc121c0de with task 4's source change.
+
+Byte identity. origin/main at 3457e3463 was built in a scratch worktree of the implementer's (aube install --frozen-lockfile, then
+aube exec just build). On the branch, packages/material-x was cleaned (just clean-build), then aube exec just build ran at the root.
+The git-ignored files under packages/material-x, outside node_modules and *.tsbuildinfo, were hashed with sha256sum in each tree:
+  main: 213 files; branch: 213 files; the two lists are identical, names and hashes.
+  Of main's 81 core and 43 tproc built files, all are identical on the branch. Of the files both trees hold, only
+  packages/vite-traits-plugin/index.js(.map) and packages/vite-custom-element-assets/index.js(.map) differ, as their source changed.
+
+Which path the hosts took. Command: .plan/rolldown-peer-1/checks/host-path-witness.sh <S>, which instruments both built plugins, runs material-x's
+just build (tsdown) and just docs-build (Storybook's Vite build), and restores the built files. Each line counts the returns of
+changed modules, by plugin, the traits plugin's build kind, and path.
+
+instrumented returns: traits 1, assets 1
+== material-x just build: exit 0
+  5 assets native
+  26 traits library native
+== material-x just docs-build: exit 0
+  5 assets native
+  34 traits application native
+
+After the witness, both built files were restored (no MX_PATH_LOG left in either). The root aube exec just docs-build exited 0,
+and aube exec just docs-smoke reported: 105 of 105 pages passed.

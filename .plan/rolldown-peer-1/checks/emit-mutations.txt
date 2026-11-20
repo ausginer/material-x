@@ -1,0 +1,28 @@
+RF-55 task 4, the traits plugin's node test against four mutations, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at cc121c0de with task 4's source change.
+
+Command: .plan/rolldown-peer-1/checks/emit-mutations.sh <S>
+
+== unmutated
+  Tests  6 passed (6)
+== emit: native outside the dev server, with no identity check
+  × should give a string and a source map from trait-attributes when the host's magic string is of another class
+  × should give a string and a source map from trait-flattener when the host's magic string is of another class
+  × should give a string and a source map from trait-attributes when the host offers no magic string
+  × should give a string and a source map from trait-flattener when the host offers no magic string
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  4 failed | 2 passed (6)
+== emit: never native
+  × should edit and return the host's magic string from trait-attributes when it is of this rolldown's class
+  × should edit and return the host's magic string from trait-flattener when it is of this rolldown's class
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 4 passed (6)
+== editable: any host magic string is edited
+  × should give a string and a source map from trait-attributes when the host's magic string is of another class
+  × should give a string and a source map from trait-flattener when the host's magic string is of another class
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 4 passed (6)
+== emit: no host magic string counts as native
+  × should give a string and a source map from trait-attributes when the host offers no magic string
+  × should give a string and a source map from trait-flattener when the host offers no magic string
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 4 passed (6)

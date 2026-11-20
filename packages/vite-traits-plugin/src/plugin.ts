@@ -2,10 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
   RolldownMagicString,
-  VERSION,
   type Plugin as RolldownPlugin,
   type PluginContext,
-  type PluginContextMeta,
 } from 'rolldown';
 import type { Plugin } from 'vite';
 import { importsAttributes, lowerAttributes } from './attributes/lower.ts';
@@ -65,19 +63,42 @@ export type BuildKind = 'library' | 'application' | 'serve';
 
 type Emitted = Readonly<{ code: RolldownMagicString | string; map?: string }>;
 
+/** What a transform's host passes as the handler's third argument. */
+type TransformMeta = Readonly<{ magicString?: RolldownMagicString }>;
+
 /**
- * A transform's result. A host that runs this module's copy of rolldown keeps
- * the native magic string. Every other host gets a string and a source map:
- * the dev server's plugin container passes `code` on to native transforms
- * that read only a string, and a host on another copy of rolldown doesn't
- * recognize this copy's magic string, so it would drop the edit.
+ * The magic string that a transform edits. It is the host's own instance when
+ * that is of this module's `RolldownMagicString` class, which is the class the
+ * host accepts back, and a new one otherwise.
+ */
+function editable(
+  code: string,
+  meta: TransformMeta | undefined,
+  kind: BuildKind,
+): () => RolldownMagicString {
+  return () => {
+    const host = kind === 'serve' ? undefined : meta?.magicString;
+
+    return host instanceof RolldownMagicString
+      ? host
+      : new RolldownMagicString(code);
+  };
+}
+
+/**
+ * A transform's result. The host's own magic string goes back as it is, and
+ * the host derives the map from it. Any other magic string becomes a string
+ * and a source map: the dev server's plugin container passes `code` on to
+ * native transforms that read only a string, and a host doesn't recognize a
+ * magic string of another class, so it would drop the edit.
  */
 function emit(
   magic: RolldownMagicString,
   id: string,
-  native: boolean,
+  meta: TransformMeta | undefined,
+  kind: BuildKind,
 ): Emitted {
-  return native
+  return kind !== 'serve' && magic === meta?.magicString
     ? { code: magic }
     : {
         code: magic.toString(),
@@ -185,12 +206,14 @@ export type FlattenResult = Readonly<{
  * {@link FlattenerError} for a build error.
  *
  * @param loader - Reads other modules, with layer (b) lowered.
+ * @param createMagic - Gives the magic string of `code` that the edits go to.
  */
 export async function flattenModule(
   code: string,
   id: string,
   kind: BuildKind,
   loader: ModuleLoader,
+  createMagic: () => RolldownMagicString = () => new RolldownMagicString(code),
 ): Promise<FlattenResult> {
   const program = parseModule(id, code);
   const ctx = moduleCtx(id, code, program);
@@ -198,13 +221,14 @@ export async function flattenModule(
     code,
     program,
     kind === 'application',
+    createMagic,
   );
   const sites = findSites(ctx);
   if (sites.length === 0) {
     return { magic: transformed, warnings: [], dependencies: [] };
   }
 
-  const magic = transformed ?? new RolldownMagicString(code);
+  const magic = transformed ?? createMagic();
   const r: Resolver = {
     consumerId: id,
     loader,
@@ -248,10 +272,6 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
 
   // Per module id, the classes whose `export` the `load` stage moved.
   const moved = new Map<string, ReadonlySet<string>>();
-
-  /** Whether the host takes this module's magic string as it is. */
-  const native = (meta: PluginContextMeta): boolean =>
-    kind !== 'serve' && meta.rolldownVersion === VERSION;
 
   /** A diagnostic's position in `code`, as it would be without the stage. */
   const position = (
@@ -326,15 +346,19 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
         kind = config.build.lib ? 'library' : 'application';
       }
     },
-    transform(code, id) {
+    transform(code, id, meta) {
       const cleanId = id.split('?', 1)[0]!;
       if (!isCandidate(cleanId) || !code.includes('attributes')) {
         return null;
       }
       try {
-        const magic = lowerAttributes(code, parseModule(cleanId, code));
+        const magic = lowerAttributes(
+          code,
+          parseModule(cleanId, code),
+          editable(code, meta, kind),
+        );
 
-        return magic ? emit(magic, cleanId, native(this.meta)) : null;
+        return magic ? emit(magic, cleanId, meta, kind) : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }
@@ -347,7 +371,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
       invalidateModule(id);
       moved.delete(id);
     },
-    async transform(code, id) {
+    async transform(code, id, meta) {
       const cleanId = id.split('?', 1)[0]!;
       if (
         !isCandidate(cleanId) ||
@@ -363,6 +387,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           cleanId,
           kind,
           hostLoader(this),
+          editable(code, meta, kind),
         );
         for (const dependency of result.dependencies) {
           this.addWatchFile(dependency);
@@ -375,9 +400,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           });
         }
 
-        return result.magic
-          ? emit(result.magic, cleanId, native(this.meta))
-          : null;
+        return result.magic ? emit(result.magic, cleanId, meta, kind) : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }
