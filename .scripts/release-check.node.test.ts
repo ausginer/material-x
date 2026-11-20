@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   afterAll,
   afterEach,
@@ -14,6 +15,7 @@ import {
 import {
   type Api,
   checkCommit,
+  checkInputs,
   checkConsumer,
   checkPack,
   checkRegistry,
@@ -26,6 +28,7 @@ import {
   type Release,
   readPack,
   readTagRelease,
+  tarballDigests,
   REPOSITORY_URL,
 } from './release-check.ts';
 
@@ -207,9 +210,31 @@ describe('readTagRelease', () => {
   });
 });
 
+describe('checkInputs', () => {
+  it('should accept a tag alone', () => {
+    expect(checkInputs('@ydinjs/box-quad@1.0.0', '')).toEqual([]);
+  });
+
+  it('should accept a package alone', () => {
+    expect(checkInputs(undefined, 'box-quad')).toEqual([]);
+  });
+
+  it('should refuse a run that names both a tag and a package', () => {
+    expect(checks(checkInputs('@ydinjs/box-quad@1.0.0', 'box-quad'))).toEqual([
+      'inputs',
+    ]);
+  });
+
+  it('should refuse a run that names neither', () => {
+    expect(checks(checkInputs('', undefined))).toEqual(['inputs']);
+  });
+});
+
 describe('checkCommit', () => {
-  let main: string;
-  let branch: string;
+  const TAG = '@ydinjs/box-quad@1.0.0';
+  const MAIN = 'refs/heads/main';
+  let released: string;
+  let head: string;
 
   /** An API whose `verify` push runs at `commit` concluded as given. */
   const api =
@@ -225,40 +250,98 @@ describe('checkCommit', () => {
     await run('git', ['init', '-q', '-b', 'main']);
     await run('git', ['config', 'user.email', 'test@example.test']);
     await run('git', ['config', 'user.name', 'test']);
-    await run('git', ['commit', '-q', '--allow-empty', '-m', 'main']);
-    main = await run('git', ['rev-parse', 'HEAD']);
-    await run('git', ['update-ref', 'refs/remotes/origin/main', main]);
-    await run('git', ['switch', '-q', '-c', 'branch']);
-    await run('git', ['commit', '-q', '--allow-empty', '-m', 'branch']);
-    branch = await run('git', ['rev-parse', 'HEAD']);
+    await run('git', ['commit', '-q', '--allow-empty', '-m', 'release']);
+    released = await run('git', ['rev-parse', 'HEAD']);
+    await run('git', ['commit', '-q', '--allow-empty', '-m', 'later']);
+    head = await run('git', ['rev-parse', 'HEAD']);
   });
 
-  const check = async (commit: string, runApi: Api): Promise<Problem[]> =>
+  const check = async (
+    options: Readonly<{ tag?: string; ref?: string; commit: string }>,
+    runApi: Api,
+  ): Promise<Problem[]> =>
     await checkCommit({
       cwd: root,
-      commit,
+      tag: options.tag ?? TAG,
+      ref: options.ref ?? MAIN,
+      commit: options.commit,
       repository: REPOSITORY,
       api: runApi,
     });
 
-  it('should accept a commit on main that verify passed', async () => {
-    expect(await check(main, api(main, ['success']))).toEqual([]);
+  it("should accept a tag at the run's commit on main that verify passed", async () => {
+    await run('git', ['tag', TAG, head]);
+    expect(await check({ commit: head }, api(head, ['success']))).toEqual([]);
   });
 
-  it('should refuse a commit not on main', async () => {
-    expect(checks(await check(branch, api(branch, ['success'])))).toEqual([
-      'main',
-    ]);
+  it("should accept an annotated tag at the run's commit", async () => {
+    await run('git', ['tag', '-a', '-m', 'release', TAG, head]);
+    expect(await check({ commit: head }, api(head, ['success']))).toEqual([]);
+  });
+
+  it("should refuse a run whose ref isn't refs/heads/main", async () => {
+    await run('git', ['tag', TAG, head]);
+    expect(
+      checks(
+        await check(
+          { ref: `refs/tags/${TAG}`, commit: head },
+          api(head, ['success']),
+        ),
+      ),
+    ).toEqual(['ref']);
+  });
+
+  it("should refuse a tag that points at a commit other than the run's", async () => {
+    await run('git', ['tag', TAG, released]);
+    expect(
+      checks(await check({ commit: head }, api(head, ['success']))),
+    ).toEqual(['tag-commit']);
+  });
+
+  it("should refuse a tag that doesn't exist", async () => {
+    expect(
+      checks(await check({ commit: head }, api(head, ['success']))),
+    ).toEqual(['tag-missing']);
   });
 
   it("should refuse a commit whose verify run didn't succeed", async () => {
-    expect(checks(await check(main, api(main, ['failure', null])))).toEqual([
-      'verify',
-    ]);
+    await run('git', ['tag', TAG, head]);
+    expect(
+      checks(await check({ commit: head }, api(head, ['failure', null]))),
+    ).toEqual(['verify']);
   });
 
   it('should refuse a commit that verify never ran on', async () => {
-    expect(checks(await check(main, api(main, [])))).toEqual(['verify']);
+    await run('git', ['tag', TAG, head]);
+    expect(checks(await check({ commit: head }, api(head, [])))).toEqual([
+      'verify',
+    ]);
+  });
+});
+
+describe('tarballDigests', () => {
+  // A fixture tarball with fixed bytes, and what `sha1sum`,
+  // `openssl dgst -sha512 -binary | base64` and `sha256sum` print for it.
+  const FIXTURE = fileURLToPath(
+    new URL('fixtures/release-check/fixture.tgz', import.meta.url),
+  );
+
+  it("should compute npm's shasum, the SHA-1 in hex", async () => {
+    expect((await tarballDigests(FIXTURE)).shasum).toBe(
+      '2866dac8edc6a4dfbbba3f2f03c60063fdc708ad',
+    );
+  });
+
+  it("should compute npm's integrity, sha512- and the SHA-512 in base64", async () => {
+    expect((await tarballDigests(FIXTURE)).integrity).toBe(
+      'sha512-i6d1VlgLGvrkAvaMU59//ouDOJ4Knd/sWmtZxOoLgLc7UykRkEcmZPhqHYu8R17xPqldXbt1GGdJTwZN19NKCw==',
+    );
+  });
+
+  it('should compute the sha256 in hex', async () => {
+    expect((await tarballDigests(FIXTURE)).sha256).toBe(
+      '375e9fd629870e9ce3a018d6f43c6135d8d214938400dce0bee6aa83a1100800',
+    );
   });
 });
 

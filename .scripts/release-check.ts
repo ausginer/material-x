@@ -5,12 +5,16 @@
  * Every failed check of a command is reported, each under its check's name,
  * and the command then exits non-zero.
  *
- * - `release --tag <tag> --commit <sha>`: steps 1 and 2 of the workflow's
- *   `prepare` job for a tag push. It reads a full-history checkout with
- *   `origin/main`, `GITHUB_REPOSITORY`, and a token that `gh` reads.
- * - `release --package <name>`: the same for a dispatched check, where `<name>`
+ * - `release --tag <tag> --ref <ref> --commit <sha>`: steps 1 and 2 of the
+ *   workflow's `prepare` job for a release run, which `release.yml` dispatches
+ *   on `main` with the tag. `<ref>` and `<sha>` are the run's `GITHUB_REF` and
+ *   `GITHUB_SHA`. It reads a checkout that holds the tag, `GITHUB_REPOSITORY`,
+ *   and a token that `gh` reads.
+ * - `release --package <name>`: the same for a check run, where `<name>`
  *   follows `@ydinjs/`. The version is the manifest's, and the commit isn't
  *   checked, because a check runs before the tag exists.
+ * - A `release` command given both a tag and a package, or neither, is refused.
+ *   Empty values count as not given, as a dispatch's unset inputs are.
  * - `package --directory <dir> --tarball <file>`: steps 6 and 7, on the tarball
  *   that `aube pack` wrote. It writes `<file>.sha256` in `sha256sum`'s format.
  * - `local <name>`: what `just release-check` runs. It builds the package, runs
@@ -19,7 +23,7 @@
  *
  * The registry is read over HTTPS from the endpoint that `npm view` reads, and
  * the Actions API through `gh`. It writes `name`, `directory`, `version`,
- * `dist-tag` and `sha256` to `GITHUB_OUTPUT`, and what it checked to
+ * `dist-tag`, `tarball`, `sha256`, `shasum` and `integrity` to `GITHUB_OUTPUT`, and what it checked to
  * `GITHUB_STEP_SUMMARY`, when those are set.
  */
 import { execFile } from 'node:child_process';
@@ -73,7 +77,10 @@ export type CheckName =
   | 'tag'
   | 'package'
   | 'version'
-  | 'main'
+  | 'inputs'
+  | 'ref'
+  | 'tag-missing'
+  | 'tag-commit'
   | 'verify'
   | 'registry-version'
   | 'latest'
@@ -361,46 +368,122 @@ type WorkflowRuns = Readonly<{
   workflow_runs: ReadonlyArray<Readonly<{ conclusion: string | null }>>;
 }>;
 
+type Output = Readonly<{ code: number; stdout: string; stderr: string }>;
+
+/** Runs a command, and resolves with its exit status whatever it is. */
+async function run(
+  command: string,
+  args: readonly string[],
+  cwd: string,
+): Promise<Output> {
+  return await new Promise((resolve) => {
+    execFile(
+      command,
+      [...args],
+      { cwd, maxBuffer: 64 * 1024 * 1024 },
+      (error, stdout, stderr) => {
+        resolve({
+          code: error ? (typeof error.code === 'number' ? error.code : -1) : 0,
+          stdout,
+          stderr,
+        });
+      },
+    );
+  });
+}
+
+/** Runs a command, and rejects with its output unless it exits 0. */
+async function runChecked(
+  command: string,
+  args: readonly string[],
+  cwd: string,
+): Promise<string> {
+  const { code, stdout, stderr } = await run(command, args, cwd);
+
+  if (code !== 0) {
+    throw new Error(
+      `${command} ${args.join(' ')} exited with ${code} in ${cwd}:\n${stdout}${stderr}`,
+    );
+  }
+
+  return stdout;
+}
+
+/**
+ * Whether the run names a release by its tag or a check by its package: one of
+ * the two, and not both. An empty value is an unset dispatch input.
+ */
+export function checkInputs(
+  tag: string | undefined,
+  packageName: string | undefined,
+): Problem[] {
+  return Boolean(tag) === Boolean(packageName)
+    ? [
+        {
+          check: 'inputs',
+          message: `a run names a tag for a release or a package for a check, and this one names ${tag && packageName ? 'both' : 'neither'}`,
+        },
+      ]
+    : [];
+}
+
 export type CommitOptions = Readonly<{
-  /** The full-history checkout that `git` reads. */
+  /** A checkout that holds the tag, which `git` reads. */
   cwd: string;
+  tag: string;
+  /** The run's `GITHUB_REF`. */
+  ref: string;
+  /** The run's `GITHUB_SHA`, the commit that the run checks out and builds. */
   commit: string;
   repository: string;
   api: Api;
 }>;
 
 /**
- * Step 2's commit checks: the commit is reachable from `origin/main`, and a
- * `verify` run for a push to `main` at that commit concluded `success`. A
- * reduced run counts (`repo:RD-15`).
+ * Step 2's commit checks for a release run: the run is on `refs/heads/main`,
+ * the tag points at the run's own commit, and a `verify` run for a push to
+ * `main` at that commit concluded `success`. A reduced run counts
+ * (`repo:RD-15`). Equality, not reachability from `main`: the provenance
+ * names the run's commit, so the run must build exactly the tagged one.
  */
 export async function checkCommit({
   cwd,
+  tag,
+  ref,
   commit,
   repository,
   api,
 }: CommitOptions): Promise<Problem[]> {
   const problems: Problem[] = [];
 
-  const code = await new Promise<number>((resolve) => {
-    execFile(
-      'git',
-      ['merge-base', '--is-ancestor', commit, 'origin/main'],
-      { cwd },
-      (error) => {
-        resolve(error ? (typeof error.code === 'number' ? error.code : -1) : 0);
-      },
-    );
-  });
-
-  // Exit status 1 is the answer _no_; any other failure is no answer.
-  if (code === 1) {
+  if (ref !== 'refs/heads/main') {
     problems.push({
-      check: 'main',
-      message: `${commit} is not reachable from origin/main`,
+      check: 'ref',
+      message: `the run's ref is ${ref}, not refs/heads/main`,
     });
-  } else if (code !== 0) {
-    throw new Error(`git merge-base --is-ancestor exited with ${code}`);
+  }
+
+  const tagged = await run(
+    'git',
+    ['rev-parse', '--verify', '--quiet', `refs/tags/${tag}^{commit}`],
+    cwd,
+  );
+
+  // `--verify --quiet` exits 1, printing nothing, when the tag doesn't exist.
+  if (tagged.code === 1) {
+    problems.push({
+      check: 'tag-missing',
+      message: `the checkout holds no tag ${tag}`,
+    });
+  } else if (tagged.code !== 0) {
+    throw new Error(
+      `git rev-parse refs/tags/${tag} exited with ${tagged.code}:\n${tagged.stderr}`,
+    );
+  } else if (tagged.stdout.trim() !== commit) {
+    problems.push({
+      check: 'tag-commit',
+      message: `${tag} points at ${tagged.stdout.trim()}, and the run is at ${commit}`,
+    });
   }
 
   const { workflow_runs: runs } = (await api(
@@ -608,47 +691,6 @@ export async function checkPack(
   ];
 }
 
-type Output = Readonly<{ code: number; stdout: string; stderr: string }>;
-
-/** Runs a command, and resolves with its exit status whatever it is. */
-async function run(
-  command: string,
-  args: readonly string[],
-  cwd: string,
-): Promise<Output> {
-  return await new Promise((resolve) => {
-    execFile(
-      command,
-      [...args],
-      { cwd, maxBuffer: 64 * 1024 * 1024 },
-      (error, stdout, stderr) => {
-        resolve({
-          code: error ? (typeof error.code === 'number' ? error.code : -1) : 0,
-          stdout,
-          stderr,
-        });
-      },
-    );
-  });
-}
-
-/** Runs a command, and rejects with its output unless it exits 0. */
-async function runChecked(
-  command: string,
-  args: readonly string[],
-  cwd: string,
-): Promise<string> {
-  const { code, stdout, stderr } = await run(command, args, cwd);
-
-  if (code !== 0) {
-    throw new Error(
-      `${command} ${args.join(' ')} exited with ${code} in ${cwd}:\n${stdout}${stderr}`,
-    );
-  }
-
-  return stdout;
-}
-
 /** Reads the listing, `package.json` and `CHANGELOG.md` of a tarball. */
 export async function readPack(tarball: string): Promise<Pack> {
   const files = (await runChecked('tar', ['-tzf', tarball], dirname(tarball)))
@@ -788,10 +830,24 @@ async function fetchPackument(name: string): Promise<Packument | null> {
   return (await response.json()) as Packument;
 }
 
-async function sha256(path: string): Promise<string> {
-  return createHash('sha256')
-    .update(await readFile(path))
-    .digest('hex');
+export type Digests = Readonly<{
+  /** The check between `prepare` and `stage`. */
+  sha256: string;
+  /** npm's `shasum`: the SHA-1, in hex, that npm shows for a staged version. */
+  shasum: string;
+  /** npm's `integrity`: `sha512-` and the SHA-512, in base64. */
+  integrity: string;
+}>;
+
+/** The tarball's digests, from its bytes. */
+export async function tarballDigests(path: string): Promise<Digests> {
+  const bytes = await readFile(path);
+
+  return {
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+    shasum: createHash('sha1').update(bytes).digest('hex'),
+    integrity: `sha512-${createHash('sha512').update(bytes).digest('base64')}`,
+  };
 }
 
 async function writeOutputs(
@@ -819,7 +875,7 @@ async function writeSummary(markdown: string): Promise<void> {
   }
 }
 
-/** Steps 6 and 7 on a packed tarball, and its sha256 once they pass. */
+/** Steps 6 and 7 on a packed tarball, and its digests once they pass. */
 async function checkTarball(
   directory: string,
   tarball: string,
@@ -849,15 +905,20 @@ async function checkTarball(
     await rm(workDirectory, { recursive: true, force: true });
   }
 
-  const hash = await sha256(tarball);
-  await writeFile(`${tarball}.sha256`, `${hash}  ${basename(tarball)}\n`);
-  await writeOutputs({ sha256: hash, tarball: basename(tarball) });
+  const digests = await tarballDigests(tarball);
+  await writeFile(
+    `${tarball}.sha256`,
+    `${digests.sha256}  ${basename(tarball)}\n`,
+  );
+  await writeOutputs({ ...digests, tarball: basename(tarball) });
   await writeSummary(
     [
       `### ${pack.manifest.name}@${pack.manifest.version}`,
       '',
       `- tarball: \`${basename(tarball)}\``,
-      `- sha256: \`${hash}\``,
+      `- shasum (SHA-1), as npm shows it: \`${digests.shasum}\``,
+      `- integrity: \`${digests.integrity}\``,
+      `- sha256: \`${digests.sha256}\``,
       '',
       ...pack.files.map((path) => `- \`${path}\``),
       '',
@@ -869,9 +930,16 @@ async function checkTarball(
 
 async function checkRelease(
   tag: string | undefined,
+  ref: string | undefined,
   commit: string | undefined,
   packageName: string | undefined,
 ): Promise<Problem[]> {
+  const inputs = checkInputs(tag, packageName);
+
+  if (inputs.length > 0) {
+    return inputs;
+  }
+
   const { release, problems } = tag
     ? await readTagRelease(ROOT, tag)
     : await readPackageRelease(ROOT, `${SCOPE}${packageName}`);
@@ -882,8 +950,8 @@ async function checkRelease(
 
   const { GITHUB_REPOSITORY } = process.env;
 
-  if (tag && (!commit || !GITHUB_REPOSITORY)) {
-    throw new Error('A tag needs --commit and GITHUB_REPOSITORY');
+  if (tag && (!ref || !commit || !GITHUB_REPOSITORY)) {
+    throw new Error('A tag needs --ref, --commit and GITHUB_REPOSITORY');
   }
 
   const all = [
@@ -891,6 +959,8 @@ async function checkRelease(
     ...(tag
       ? await checkCommit({
           cwd: ROOT,
+          tag,
+          ref: ref!,
           commit: commit!,
           repository: GITHUB_REPOSITORY!,
           api: ghApi,
@@ -976,6 +1046,7 @@ if (import.meta.main) {
     allowPositionals: true,
     options: {
       tag: { type: 'string' },
+      ref: { type: 'string' },
       commit: { type: 'string' },
       package: { type: 'string' },
       directory: { type: 'string' },
@@ -985,15 +1056,20 @@ if (import.meta.main) {
 
   let problems: readonly Problem[];
 
-  if (command === 'release' && (values.tag || values.package)) {
-    problems = await checkRelease(values.tag, values.commit, values.package);
+  if (command === 'release') {
+    problems = await checkRelease(
+      values.tag,
+      values.ref,
+      values.commit,
+      values.package,
+    );
   } else if (command === 'package' && values.directory && values.tarball) {
     problems = await checkTarball(values.directory, values.tarball, undefined);
   } else if (command === 'local' && name) {
     problems = await checkLocal(name);
   } else {
     throw new Error(
-      'usage: release-check.ts release (--tag <tag> --commit <sha> | --package <name>) | package --directory <dir> --tarball <file> | local <name>',
+      'usage: release-check.ts release (--tag <tag> --ref <ref> --commit <sha> | --package <name>) | package --directory <dir> --tarball <file> | local <name>',
     );
   }
 

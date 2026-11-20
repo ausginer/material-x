@@ -34,6 +34,7 @@ Each package is released by [`.github/workflows/release.yml`](../../.github/work
    2. **On npmjs.com,** under _Staged Packages_, or with `npm stage view <stage-id>`: the staged version's stage id and `shasum` equal the ones in that run's summary. The `shasum` is the tarball's SHA-1, which is the digest npm shows. npm shows no sha256.
 
    He then approves it with his security key. If either check fails, he rejects it.
+
 5. **On a first release,** step 4 of [the first publish](#the-first-publish-of-a-package).
 6. **An agent reads the result** and writes it into the package's release record:
    - the version on the registry;
@@ -48,10 +49,17 @@ If the owner rejects a staged version, nothing is deleted. The next attempt is a
 
 ## What the workflow checks
 
-**`prepare`** runs on a tag push and on a check run, with `contents: read` and `actions: read`. A failed check names itself in an error annotation and in the job summary.
+**`dispatch`** is the only job a tag push runs, with `actions: write` and no checkout. It dispatches `release.yml` on `main` with the tag as the `tag` input. So the release runs `main`'s workflow file, and the tagged commit's own file runs nothing.
 
-1. **The release.** The tag names a workspace package and a semver version, and the package's `package.json` has that version. A check run takes the package from its input and the version from the manifest.
-2. **The commit**, on a tag push only. The commit is reachable from `origin/main`, and `verify`'s push run on `main` for that commit concluded `success`.
+**`prepare`** runs on a dispatched run, a release or a check, with `contents: read` and `actions: read`. A failed check names itself in an error annotation and in the job summary.
+
+1. **The release.** The run names a `tag` or a `package`, not both and not neither. The tag names a workspace package and a semver version, and the package's `package.json` has that version. A check run takes the package from its input and the version from the manifest.
+2. **The commit**, on a release run only:
+   - the run is on `refs/heads/main`;
+   - the tag exists and points at the run's own commit, which was `main`'s head when the run started;
+   - `verify`'s push run on `main` for that commit concluded `success`.
+
+   The run builds that commit, and its provenance names it.
 
    **The registry**, on both. The version isn't on the registry, and a `latest` version is greater than the registry's `latest`. A staged version doesn't appear to this read; staging it again fails at the stage.
 
@@ -67,22 +75,22 @@ If the owner rejects a staged version, nothing is deleted. The next attempt is a
    - every `@ydinjs/*` dependency is an exact version that is on the registry;
    - `CHANGELOG.md` has a heading that names the version.
 7. **A consumer's use:** the tarball is installed with aube into an empty project outside the checkout, so its `@ydinjs` dependencies come from the registry. A module that imports every export type-checks with `skipLibCheck` off and the DOM library.
-8. **The artifact:** the tarball and its sha256, uploaded as `release`. The summary lists the files, the sha256 and the dist-tag.
+8. **The artifact:** the tarball and its sha256, uploaded as `release`. The summary lists the files, the dist-tag, and the tarball's `shasum` (SHA-1, hex) and `integrity` (`sha512-` and base64), which are the digests npm shows, with the sha256.
 
 Steps 1, 2, 6 and 7 are [`.scripts/release-check.ts`](../../.scripts/release-check.ts).
 
-**`stage`** runs on a tag push only, after `prepare`, in the environment `npm`, with `id-token: write` and `actions: read`. It has no checkout.
+**`stage`** runs only on a release run on `main`, after `prepare`, in the environment `npm`, with `id-token: write` and `actions: read`. It has no checkout.
 
 1. It installs the npm version that the workflow pins.
 2. It downloads the artifact and checks the sha256 that `prepare` recorded.
 3. It runs `npm stage publish` on the tarball, with `--access public`, the dist-tag and `--provenance`.
-4. Its summary gives the stage id and the package's npm page.
+4. Its summary gives the stage id, the `shasum`, the tag, the commit, the transparency log's link that npm prints, and the package's npm page.
 
 ## Check runs
 
 A check runs everything `prepare` does except the commit checks, and stages nothing. It is how a release pull request is read before the tag exists.
 
-- **On GitHub:** `gh workflow run release.yml --ref <branch> -f package=<name>`, where `<name>` is the package's name without `@ydinjs/`. The run uses the branch's workflow file.
+- **On GitHub:** `gh workflow run release.yml --ref <branch> -f package=<name>`, where `<name>` is the package's name without `@ydinjs/`. The run uses the branch's workflow file. A run given both `tag` and `package`, or neither, fails at its first check. A `tag` given on any branch but `main` fails the commit check, and `stage` doesn't run.
 - **Locally:** `aube exec just release-check <name>` builds the package, runs its `size` script, packs it, and runs steps 6 and 7 on the tarball. It doesn't check the tag, the commit or the registry's versions, and it uses the installed tree rather than `aube ci`.
 
 ## The first publish of a package

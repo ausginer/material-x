@@ -56,3 +56,43 @@ Each of these is a reading of the plan where it is silent. The reviewer may refu
 - **`reviewer-4`: the fourth mutation is not equivalent.** The claim above, _"a version equal to the registry's `latest` is in the registry's version index"_, is false for build metadata. `1.0.0+build.1` has the same precedence as `1.0.0`, and the version index doesn't hold it. So the head refuses it under `latest`, and the mutant passes it.
   - **Fix:** a fixture for that input, which expects `latest`. With it there are 36 tests. All pass at the head, and the mutant fails exactly that one.
 - **`reviewer-5`: `RD-27`'s status** now says what is implemented, at which commits, and what remains.
+
+## Task 4: a release runs on `main`
+
+**Implemented 2026-11-20** by the implementer, on the plan's [amendment](release-workflow-plan.md#amendment-a-release-runs-on-main) and its task 4, from `644bbf1ed`.
+
+- **`release.yml`:**
+  - A tag push runs only `dispatch`. It has `actions: write` and no checkout, and runs `gh workflow run release.yml --ref main -f tag=<tag>`, with the tag passed through `env`.
+  - `workflow_dispatch` takes `tag` or `package`. Neither input is required, and `release-check.ts` refuses both or neither.
+  - `prepare` runs only on a dispatched run. Its checkout fetches the tags.
+  - `stage` runs only if the run was dispatched, names a `tag` and is on `refs/heads/main`.
+  - **Concurrency:** the group is keyed by the tag or the package. A tag's own push run has a group of its own (`release-dispatch-<tag>`), so the run it dispatches doesn't wait behind it in the same group.
+  - **`stage`'s summary** gives the stage id, the `shasum`, the tag, the commit and the transparency log's link. npm prints that link as a notice on stderr, so the step captures both streams with `2>&1 | tee`. pipefail still fails the step when npm fails.
+  - The header comment states the flow.
+- **`release-check.ts`:**
+  - **The commit check is equality.** The run's ref is `refs/heads/main`. `git rev-parse --verify --quiet refs/tags/<tag>^{commit}` equals the run's `GITHUB_SHA`, and an annotated tag is read through to its commit. `verify` succeeded on that commit.
+  - **New check names:** `inputs`, `ref`, `tag-missing` and `tag-commit`. `main` (reachability) is gone.
+  - **`tarballDigests`** computes `sha256`, `shasum` and `integrity` from the tarball's bytes. All three go to the outputs, and the summary lists all three.
+- **`releasing.md`:** _What the workflow checks_ and _Check runs_ are rewritten. The architect's release steps and the owner's settings are unchanged.
+
+**Proofs:**
+
+- **The tests:** 46 cases pass in `release-check.node.test.ts`, and 66 with `ci-scope.node.test.ts`. Each case below fails with exactly its own check's name:
+  - `ref`: the run's ref is a tag ref;
+  - `tag-commit`: the tag is at the commit before the run's;
+  - `tag-missing`: there is no tag;
+  - `inputs`: a run names both a tag and a package, and a run names neither.
+  - An annotated tag and a lightweight tag at the run's commit both pass.
+- **The digests** of [`.scripts/fixtures/release-check/fixture.tgz`](../../.scripts/fixtures/release-check/fixture.tgz) equal the constants in the test, which come from `sha1sum`, `openssl dgst -sha512 -binary | base64 -w0` and `sha256sum`. The fixture is a deterministic tarball of two files, built with `tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner` and `gzip -n -9`.
+- **Mutations:** turning off the ref check, turning off the tag equality, and changing the inputs check from _exactly one_ to _not both_ each fail exactly the matching fixture.
+- **The workflow, by reading** ([`checks/task4-stage-probe.txt`](checks/task4-stage-probe.txt)): a probe parses the file and lists each job's condition, permissions, environment and checkout. It then runs the new `stage` step under the shell that `defaults.run.shell: bash` gives:
+  - with npm's two streams faked, the summary carries the stage id, the `shasum`, the tag, the commit and the log link;
+  - with npm failing, the step exits 1 and the summary stays empty.
+
+  `actionlint` still isn't run, for the reason given above.
+
+**Pending:**
+
+- O1, read by the reviewer through `gh api repos/ausginer/material-x/environments/npm` and its `deployment-branch-policies` before the first tag.
+- Task 2's dispatch proofs after the merge.
+- The amended first-release witnesses.

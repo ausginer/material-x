@@ -1,10 +1,16 @@
-# Releases one `@ydinjs` package (`repo:RD-27`). A tag `@ydinjs/<name>@<version>`
-# on a `main` commit runs `prepare`, which checks the release and the commit,
-# builds, packs and checks the tarball, and `stage`, which stages that tarball
-# on npm with provenance. Nothing is public until the owner approves the staged
-# version on npm with his second factor. A dispatched run is a check: it runs
-# `prepare` for the named package at the dispatched commit, without the commit
-# checks, and stages nothing. The procedure is `.agents/docs/releasing.md`.
+# Releases one `@ydinjs` package (`repo:RD-27`). The owner pushes a tag
+# `@ydinjs/<name>@<version>` at `main`'s head. That push runs only `dispatch`,
+# which dispatches this workflow on `main` with the tag, so the release runs
+# `main`'s own file and never the tagged commit's. The release run's `prepare`
+# checks that the run is on `main` and that the tag points at its commit, then
+# checks the release, builds, packs and checks the tarball. `stage` stages that
+# tarball on npm with provenance, and runs only for a tag on `main`, in the
+# environment `npm`, which admits only `main`. Nothing is public until the
+# owner approves the staged version on npm with his second factor.
+#
+# A run dispatched with `package` instead of `tag` is a check: `prepare` for
+# that package at the dispatched commit, without the commit checks, staging
+# nothing. The procedure is `.agents/docs/releasing.md`.
 name: release
 
 on:
@@ -12,14 +18,21 @@ on:
     tags: ['@ydinjs/*@*']
   workflow_dispatch:
     inputs:
+      tag:
+        description: A release, by its tag @ydinjs/<name>@<version>. The tag's push dispatches it on main.
+        required: false
+        type: string
       package:
-        description: The package to check, named without its @ydinjs/ scope
-        required: true
+        description: A check of a package, named without its @ydinjs/ scope. Not with a tag.
+        required: false
         type: string
 
-# One run per tag or branch at a time. A release is never cancelled.
+# One run at a time for each tag or package, and a release is never cancelled.
+# Every release run is on `main`, so the group names the release, not the ref.
+# A tag's own push run has a group of its own, so the run it dispatches doesn't
+# wait for it.
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.event_name == 'push' && 'dispatch-' || '' }}${{ inputs.tag || inputs.package || github.ref_name }}
   cancel-in-progress: false
 
 permissions: {}
@@ -42,7 +55,26 @@ env:
 
 # No cache of any kind: a release reads nothing that another workflow wrote.
 jobs:
+  # A tag push runs only this. It checks out nothing, so the tagged commit's
+  # code runs nothing, and the release run is `main`'s.
+  dispatch:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch the release on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh workflow run release.yml --ref main -f tag="$TAG"
+          echo "Dispatched \`release.yml\` on \`main\` for the tag \`$TAG\`." >> "$GITHUB_STEP_SUMMARY"
+
   prepare:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -51,32 +83,30 @@ jobs:
     outputs:
       tarball: ${{ steps.package.outputs.tarball }}
       sha256: ${{ steps.package.outputs.sha256 }}
+      shasum: ${{ steps.package.outputs.shasum }}
       dist-tag: ${{ steps.release.outputs.dist-tag }}
     steps:
-      # The full history holds `origin/main`, which the commit check reads.
+      # The checkout holds the tags, which the commit check reads.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          fetch-tags: true
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-      # Steps 1 and 2: the release, the commit and the registry. The script
-      # needs only Node's built-in modules, `git` and `gh`, so it runs first.
+      # Steps 1 and 2: the inputs, the release, the commit and the registry. The
+      # script needs only Node's built-in modules, `git` and `gh`, so it runs
+      # first. It refuses a run that names both a tag and a package, or neither.
       - id: release
         name: Check the release
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT: ${{ github.event_name }}
-          TAG: ${{ github.ref_name }}
-          COMMIT: ${{ github.sha }}
+          TAG: ${{ inputs.tag }}
           PACKAGE: ${{ inputs.package }}
-        run: |
-          if [ "$EVENT" = push ]; then
-            node .scripts/release-check.ts release --tag "$TAG" --commit "$COMMIT"
-          else
-            node .scripts/release-check.ts release --package "$PACKAGE"
-          fi
+          REF: ${{ github.ref }}
+          COMMIT: ${{ github.sha }}
+        run: node .scripts/release-check.ts release --tag "$TAG" --package "$PACKAGE" --ref "$REF" --commit "$COMMIT"
       - name: Install aube
         working-directory: ${{ runner.temp }}
         run: npm install -g "@endevco/aube@$AUBE_VERSION"
@@ -97,7 +127,8 @@ jobs:
             echo "The package has no size rows"
           fi
       # Steps 5 to 7: the pack, its checks, and a consumer's install and
-      # type-check of it. The script writes the tarball's sha256 beside it.
+      # type-check of it. The script writes the tarball's sha256 beside it, and
+      # its `shasum` and `integrity`, as npm shows them, to the summary.
       - id: package
         name: Pack and check the tarball
         env:
@@ -113,12 +144,13 @@ jobs:
           path: ${{ runner.temp }}/release
           if-no-files-found: error
 
-  # Only a tag push stages. The environment `npm` admits only the release tags,
-  # and holds the first publish's stage-only token while it exists. The job
-  # runs outside any checkout, so npm reads none of the repository's `.npmrc`.
+  # Only a release run on `main` stages. The environment `npm` admits only
+  # `main`, and holds the first publish's stage-only token while it exists. The
+  # job runs outside any checkout, so npm reads none of the repository's
+  # `.npmrc`.
   stage:
     needs: prepare
-    if: github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch' && inputs.tag != '' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: npm
@@ -153,12 +185,24 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_STAGE_TOKEN }}
           TARBALL: ${{ needs.prepare.outputs.tarball }}
           DIST_TAG: ${{ needs.prepare.outputs.dist-tag }}
+          SHASUM: ${{ needs.prepare.outputs.shasum }}
+          TAG: ${{ inputs.tag }}
+          COMMIT: ${{ github.sha }}
+        # npm prints the stage id on stdout and the transparency log's link as
+        # a notice on stderr, so both go to the file.
         run: |
-          npm stage publish "./$TARBALL" --access public --tag "$DIST_TAG" --provenance | tee "$RUNNER_TEMP/stage.txt"
+          npm stage publish "./$TARBALL" --access public --tag "$DIST_TAG" --provenance 2>&1 | tee "$RUNNER_TEMP/stage.txt"
           stage_id="$(sed -n 's/.*(staged with id \(.*\))$/\1/p' "$RUNNER_TEMP/stage.txt")"
+          log_url="$(sed -n 's/.*published to transparency log: \(https:[^ ]*\).*/\1/p' "$RUNNER_TEMP/stage.txt")"
           name="$(tar -xzOf "$TARBALL" package/package.json | jq -r .name)"
           {
-            echo "**Staged** \`$TARBALL\` under \`$DIST_TAG\`, with the stage id \`${stage_id:-not reported}\`."
+            echo "**Staged** \`$TARBALL\` under \`$DIST_TAG\`."
             echo
-            echo "Review and approve it under Staged Packages at <https://www.npmjs.com/package/$name>."
+            echo "- stage id: \`${stage_id:-not reported}\`"
+            echo "- shasum (SHA-1): \`$SHASUM\`"
+            echo "- tag: \`$TAG\`"
+            echo "- commit: \`$COMMIT\`"
+            echo "- transparency log: ${log_url:-not reported}"
+            echo
+            echo "Compare the stage id and the shasum under Staged Packages at <https://www.npmjs.com/package/$name> before approving."
           } >> "$GITHUB_STEP_SUMMARY"
