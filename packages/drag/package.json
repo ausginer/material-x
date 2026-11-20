@@ -95,7 +95,7 @@
     "size": "just size"
   },
   "dependencies": {
-    "@ydinjs/box-quad": "0.1.0"
+    "@ydinjs/box-quad": "1.0.0"
   },
   "devDependencies": {
     "@types/react": "19.3.0",

@@ -8,6 +8,7 @@
 | **Unsupported** | Outside v1 and, when valid typed inputs make it observable, must fail as defined in artifact 3. |
 | **Unguaranteed** | Not contracted. Do not add specialized implementation code or tests without approval. Incidental success is not an API promise. |
 | **Outside typed API** | Cannot be supplied through the declared TypeScript API; no runtime compatibility layer is required. |
+| **Precondition** | Can be supplied through the declared types, but [artifact 1](01-public-api.md) excludes it by a precondition that caller-owned storage can't let the library check. It is not detected, and the result has no meaning. |
 
 Support is based on the one-unfragmented-principal-2D-border-box model. It is not based on a runtime `display` whitelist. Having one such box is necessary, but is not by itself sufficient to promote an otherwise unnamed layout mode to supported v1 behavior.
 
@@ -83,7 +84,8 @@ Support is based on the one-unfragmented-principal-2D-border-box model. It is no
 | Non-invertible `relativeTo` space | **Unsupported** | `false` |
 | Disconnected source or target | **Unsupported** | `false` |
 | Source/target without a principal box | **Unsupported** | `false` |
-| Cross-document conversion | **Unsupported** | `false` |
+| Cross-document conversion: a source and a target measured in different documents | **Precondition** | Not detected (artifact 1 §4.3) |
+| A `Space` passed to `coordinates` that isn't the element's own | **Precondition** | Not detected (artifact 1 §4.2) |
 | Native `getBoxQuads()` delegation | **Unsupported** | Must never be invoked |
 | GeometryUtils polyfill/spec compatibility | **Unsupported** | No compatibility surface |
 | Requested output box modes other than border-box | **Unsupported** | No API option; distinct from a transform reference box |
@@ -125,3 +127,9 @@ HTMLElement
 ```
 
 Their inclusion does not authorize a general layout compatibility framework, fragment engine, composed-tree public API or custom matrix library.
+
+## Change record
+
+| Date | Section | Change |
+| --- | --- | --- |
+| 2026-11-20 | §1, §3 | **Aligned with the exported API** (`F-1`). §1 adds the class _Precondition_. Cross-document conversion moves from _Unsupported_, with a `false` result, to _Precondition_, because a `Box` carries no document and `projection` can't detect it. The detection went with the split of measurement from projection at `162f300fa`, and the `REL-10` test asserts that it isn't detected. A row is added for `coordinates`' precondition on `above` |
