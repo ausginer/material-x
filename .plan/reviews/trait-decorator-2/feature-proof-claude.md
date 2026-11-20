@@ -8,6 +8,8 @@
 
 **Verdict at `69b721a3e`: the plan's proofs hold, and one Tier A regression should be repaired before the merge.** Proofs 1, 3 and 4 reproduce against `main`, mutations included, and proof 2's position holds for every form I mapped. `reviewer-1`: the stage now throws on a documented class whose `export` and `default` a comment separates, and the build fails. At `main` the same module builds. The form is rare. But the stage reads every decorated class in every build that uses the plugin, not only traits.
 
+**Verdict at `9bbbc8c3f`, after the [re-review](#re-review-at-9bbbc8c3f): nothing blocks.** `reviewer-1` is resolved.
+
 ## Scope
 
 **Covered.**
@@ -53,3 +55,45 @@
 
 - **Commit `768552f00` is titled _"wip"_.** It adds the report's checks and its first draft. History isn't rewritten. The report says so too, and it asks that the squash message drop that line.
 - **`RD-26`'s fourth amendment still reads _Unimplemented_.** The report says that the architect dates it, as with the third amendment.
+
+## Re-review at `9bbbc8c3f`
+
+**Files were read at:** `9bbbc8c3f`, in the same worktree, fast-forwarded from `84ca8cd26`. **Delta reviewed:** `84ca8cd26` to `9bbbc8c3f`, which is the fix `fc5986185`, then the report. It changes `src/declaration-doc.ts`, `tests/declarations.node.test.ts`, `tests/diagnostics.node.test.ts`, `trait-flattener-plugin.md`, the report and its `checks/`. **Baseline:** `e4b0e475d` again, in a new scratch worktree with `aube ci` and `just build`. Each claim below is my own reading or my own run ([transcript](checks/re-review.txt)).
+
+**Verdict: `reviewer-1` is resolved, and nothing blocks.** I found no new finding.
+
+### The fix, as built
+
+- **The span.** In the decorators-first form, the class node starts at `class` or `abstract`. So the stage moves `[statement.start, class.start)`: `export`, or `export default`, with every comment and space in them. No pattern reads that text. A guard skips a statement whose class starts no later than the statement, which doesn't occur in that form.
+- **Positions.** `positionWithoutStage` skips the spaces and comments after the last decorator with `TRIVIA`, a pattern that can match nothing. `?.` and a default replace the `!`. Its comment alternative is non-greedy and ends at the first `*/`, as JavaScript does, and its line-comment alternative ends at `\n`, `\r`, U+2028 and U+2029.
+- **A module that doesn't parse.** The stage returns `null` when `parseSync` reports an error.
+- **Documents.** `trait-flattener-plugin.md` says what the code does: the span comes from the declaration, an unparseable file is left alone, and the stage never fails the build. The report's remediation section matches the code and the runs.
+
+### The coordinator's checks
+
+- **Trivia shapes** ([`trivia-shapes.ts`](checks/trivia-shapes.ts)). For each form, I took the stage's output, parsed it again, and mapped each of its non-space characters back through `positionWithoutStage`. I also ran oxc's `isolatedDeclarationSync` on it. These 14 forms all throw nothing and give an output with no parse error. Every character maps back to itself, and the `.d.ts` starts `/** D. */` then `export`:
+  - `export /* a /* b */ default`, which is one comment, because comments don't nest;
+  - `export /*/ x */ default`, and `export /**/ default`;
+  - `export /** Not the doc. */ default`. The stage still counts only the JSDoc before the decorators, and the `.d.ts` carries `/** D. */`;
+  - `export // c` then CRLF then `default`; a whole CRLF module with two decorators and a named class; and a line comment that U+2028 ends;
+  - `@trait /* c */ export /* d */ default /* e */ class`. The comment after the last decorator now maps back too, where it was mismapped at `84ca8cd26` and at `main`;
+  - `@trait // c` then `export default`; comments between two decorators; and `@tag("*/")`, whose `*/` is a string inside the decorator, ahead of `TRIVIA`'s text;
+  - `export /* c */ default abstract class`, `export /* c */ abstract class`, and an anonymous `export /* c */ default class {}`.
+- **A module that doesn't parse.** The stage returns `null` and throws nothing for an unclosed class body, for `/* a /* b */ c */` between the keywords, and for garbage between `default` and `class`. A rolldown build with the plugin of `@sealed export default class Y {` with no closing brace fails with the host's own error, _"[PARSE_ERROR] Expected `;` but found `Identifier`"_. It is the same error, word for word, as the build without the plugin. The module of `reviewer-1`, `/** Doc. */ @sealed export /* c */ default class Y {}`, now builds.
+- **The new rows.** `reviewer-1-before.sh` at `9bbbc8c3f` gives the committed transcript, apart from the SHA. With the stage at `84ca8cd26`, every new row fails: the four in `diagnostics.node.test.ts` one by one, and `declarations.node.test.ts` as a suite, on the `TypeError`. With the stage at the head, 92 of 92 pass.
+- **Reruns.**
+  - The plugin's suite passes 178 of 178.
+  - `mutations.sh` gives the committed transcript, apart from the order of one line that vitest prints for a nested `describe`.
+  - `tree.sh` against `e4b0e475d`, after `just clean-build` and `just build`, gives the committed `tree-main.txt`, apart from the SHA: 294 files, only the three `composition.js` lines, every `.d.ts` identical, and 8 bare imports to 5. No build prints `trait-member-conflict`.
+
+### The deviation: the non-trait rows assert "only the kept doc"
+
+**It is acceptable, and it is within the plan.** Property 1 reads every documented `export class` and `export default class` whose decorators come before `export`, and it doesn't ask that the class be a trait. The third amendment's stage did the same for `export class`. At `e4b0e475d`, a rolldown build with the plugin of `/** Doc. */ @sealed export class Z {}`, which isn't a trait, already gives `/** Doc. */` then `var Z = @sealed class {};`, and the build without the plugin gives no doc. So the same difference for `export default` is the plan's design carried to the form it adds. A row that asserted "unchanged" would contradict it. Whether the stage should rewrite a class that isn't a trait is `reviewer-5`'s question, which the owner deferred.
+
+### Note, not a finding
+
+- **No test witnesses the parse-error guard, and with oxc-parser 0.158 it changes no output I found.** I made the guard never return. All 178 tests still pass, and the stage still returns `null` for the three unparseable forms above and for a documented default trait followed by a syntax error later in the module ([`late-error.ts`](checks/late-error.ts)). So the stage doesn't throw on those inputs either way. That `null` comes from the parser's result, not from the guard. This leaves no consumer-observable effect, so it isn't a finding under this lens.
+
+### Not covered
+
+I didn't rerun root `just test`, `just typecheck`, `just typecheck-declarations`, `just lint`, `just fmt-check`, `just docs-build` or the size reading. The report's reruns stand as the implementer's.
