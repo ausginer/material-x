@@ -1,10 +1,20 @@
 # Removing Material's tables from the repository's history — plan
 
-**Status: proposed. The owner executes it, and he answers its questions first.** Written by the architect on 2026-11-20, on the coordinator's task, on `tproc/tokens-source-1`. It proposes `repo:RD-29` ([`00-index.md`](../00-index.md)). `RD-28` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number.
+**Status: proposed, and deferred by the owner on 2026-11-20** ([his answer](#the-owners-answer-2026-11-20)). He means to run it later, and he executes it, after answering its questions. Until his answer, this line began: _"proposed. The owner executes it, and he answers its questions first."_ Written by the architect on 2026-11-20, on the coordinator's task, on `tproc/tokens-source-1`. It proposes `repo:RD-29` ([`00-index.md`](../00-index.md)). `RD-28` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number.
 
 **Agents never force-push or change a ruleset** (`AGENTS.md`). Each step below names who does it.
 
 The owner's answer, relayed by the coordinator, is recorded in the [token-source plan's amendment](tokens-source-plan.md#amendment-tprocs-own-token-store): _"Да, конечно, всё переписываем"_ ("Yes, of course, we rewrite everything"). He then asked for the old pull requests to be checked as well (translated): _"The old pull requests need checking too: the data may have survived there."_
+
+## The owner's answer, 2026-11-20
+
+Relayed by the coordinator, after the plan was written (translated): _"По веткам: пока не делаем, но запоминаем - хочу сделать в какой-то момент. Хэши - не проблема, verify у меня после прошлого переписывания истории уже слетел 😅 Бэкап, возможно, можно вообще удалить, мы уже вполне норм живём на новой версии"_ ("Not doing it for now, but we keep it in mind: I want to do it at some point. The hashes aren't a problem: verification already broke after the previous history rewrite 😅 The backup could perhaps just be deleted, we're already living fine on the new version").
+
+- **The rewrite is deferred,** and kept as planned. Nothing in the procedure runs until the owner schedules it (`QH4`).
+- **He accepts the rewrite's cost to hashes:** every commit hash changes, and with it every _Verified_ badge ([what the rewrite does](#what-the-rewrite-does)).
+- **On the `backup/*` branches, his inclination is to delete them** rather than rewrite them, which is option (c) of `QH1` for the backups. It isn't a decision: `QH1` stays open, and so does its part on the five older branches.
+- **`QH2`–`QH4` stay open** until he schedules the rewrite.
+- **The preconditions don't change.** `RD-28` step 1 doesn't wait for the rewrite, and the rewrite still needs step 1 on `main` first (precondition 1).
 
 ## Where the data is
 
@@ -180,7 +190,7 @@ Until Support acts, the old commits stay reachable by hash and through `refs/pul
 
 ## Owner questions
 
-- **QH1 — The `backup/*` branches and the five older branches** (`agents/shell-guards`, `repo/attributes-decorator-1`, `repo/dead-spread-1`, `repo/trait-decorators-1` and `repo/trait-jsdoc-probe-1`). (a) Rewrite all of them with the rest. (b) Delete the older branches before the rewrite and rewrite the backups. (c) Delete the backups too. **Recommended: (b)**, for the owner to confirm branch by branch. The backups keep their purpose without the tables. A branch nobody needs is a ref less to rewrite and restore. Deleting a backup needs `Backup preservation` turned off, which step 5 does anyway.
+- **QH1 — The `backup/*` branches and the five older branches** (`agents/shell-guards`, `repo/attributes-decorator-1`, `repo/dead-spread-1`, `repo/trait-decorators-1` and `repo/trait-jsdoc-probe-1`). (a) Rewrite all of them with the rest. (b) Delete the older branches before the rewrite and rewrite the backups. (c) Delete the backups too. **Recommended: (b)**, for the owner to confirm branch by branch. _Open._ On 2026-11-20 the owner inclined to deleting the backups ([his answer](#the-owners-answer-2026-11-20)). The backups keep their purpose without the tables. A branch nobody needs is a ref less to rewrite and restore. Deleting a backup needs `Backup preservation` turned off, which step 5 does anyway.
 - **QH2 — What Support does with the 55 pull requests.** (a) Dereference: their conversations stay, and their diffs and commit links go. (b) Delete: the conversations go as well. **Recommended: (a).** The conversations hold no data, and the record cites pull requests by number.
 - **QH3 — Copies outside this devcontainer.** Does the owner have another clone, such as on the host, another machine or a backup? Each one is deleted and cloned again after step 7.
-- **QH4 — When.** The freeze stops every unit from step 0 until step 10. **Recommended:** right after `RD-28` step 1 merges, while #79, #81, #83 and #84 are still open. They don't need to merge first.
+- **QH4 — When.** The freeze stops every unit from step 0 until step 10. **Recommended:** right after `RD-28` step 1 merges, while #79, #81, #83 and #84 are still open. They don't need to merge first. _Deferred by the owner on 2026-11-20:_ not now, at a moment he chooses later. The recommendation then becomes: at a moment with few open pull requests, after `RD-28` step 1 is on `main`.

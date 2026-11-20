@@ -1,6 +1,6 @@
 # Material Design token source — survey and plan
 
-**Status: amended on 2026-11-20 with the owner's answers, and the owner accepts it or chooses otherwise.** He chose a store of tproc's own in place of the stored tables, and a history rewrite for `Q2`. `Q1` and `Q3` are still open. The [amendment](#amendment-tprocs-own-token-store) supersedes points 3 and 4 of the [recommendation](#recommendation), point 5's checks and the three steps of the [plan](#plan). The history rewrite is planned in [`history-rewrite-plan.md`](history-rewrite-plan.md) and proposed as `repo:RD-29`. Until the amendment, this line said: _"proposed, and the owner accepts it or chooses otherwise."_
+**Status: accepted by the owner on 2026-11-20.** He approved step 1, answered yes to `Q1` and `Q3`, and chose (a) for `Q4` ([his answers](#the-owners-answers-to-q1-q3-and-q4)). Earlier the same day he chose a store of tproc's own in place of the stored tables, and a history rewrite for `Q2`. He has since deferred the rewrite, and step 1 doesn't depend on it. The [amendment](#amendment-tprocs-own-token-store) supersedes points 3 and 4 of the [recommendation](#recommendation), point 5's checks and the three steps of the [plan](#plan). The history rewrite is planned in [`history-rewrite-plan.md`](history-rewrite-plan.md) and proposed as `repo:RD-29`. Until these answers, this line began _"amended on 2026-11-20 with the owner's answers, and the owner accepts it or chooses otherwise"_ and said that `Q1` and `Q3` were still open. Before the amendment it said: _"proposed, and the owner accepts it or chooses otherwise."_
 
 Written by the architect on 2026-11-20, on the coordinator's task for issue #82, on `tproc/tokens-source-1` from `origin/main` at `d69e3ddbc`. It registers `repo:RF-67` and proposes `repo:RD-28` ([`00-index.md`](../00-index.md)). `RD-27` is the highest decision number on any branch on `origin` and in any slot (`repo/release-workflow-1`), and `RF-66` the highest finding number, so these are the next free numbers. No production code or test is changed.
 
@@ -221,12 +221,25 @@ Proofs:
 - **P10.** Parity with `DB`, read once before `DB` is deleted. For every token and the default tags, `select` gives the same one-hop reference or literal, reference tree token names and resolved value as `DB.getValue` and `getReferenceTreeAndResolvedValue`. This covers the tokens material-x doesn't render, which P4 can't see.
 - **P11.** The duplicate conflicts are listed with their tables, and the kept table is the one `DB.load()` reads first.
 
-**Step 2 — the first update, to a dated release,** after the history rewrite: P6–P8 as planned, and no duplicate conflict.
+**Step 2 — the first update, to a dated release,** after step 1: P6–P8 as planned, and no duplicate conflict. It doesn't wait for the history rewrite, which the owner has deferred: the update writes only the store, and a rewrite run later rewrites any branch open then with the rest. Until the owner deferred the rewrite, this step read: _"after the history rewrite"_.
 
-**Step 3 — change notification,** only if the owner answers yes to `Q1`: P9 as planned.
+**Step 3 — change notification,** weekly, because the owner answered yes to `Q1`: P9 as planned, after step 1, whose manifest it compares. Until his answer, this step read: _"only if the owner answers yes to `Q1`"_.
 
 ### Owner questions, amended
 
 - **Q2 is answered:** rewrite the history. [`history-rewrite-plan.md`](history-rewrite-plan.md) has the procedure and its own questions.
 - **Q3 still applies to the store.** The store republishes Google's token data without the personal data, as material-web's Apache-2.0 tokens do.
 - **Q4 — the generation interface.** (a) Step 1 keeps the CSS layer's surface and adds the pure value-to-CSS function. (b) A new generation interface as well. **Recommended: (a) now.** P4's byte-identical proof needs an unchanged surface, and a redesign is easier to judge on the store, once it exists.
+
+### The owner's answers to Q1, Q3 and Q4
+
+**Recorded on 2026-11-20 by the architect,** on the owner's answers relayed by the coordinator.
+
+- **Step 1 is approved:** _"Шаг 1 - го."_ ("Step 1, go.")
+- **`Q1` — yes:** _"Q1 - да"_. Step 3 is a weekly scheduled check.
+- **`Q3` — yes:** _"Q3 - да"_. The converted store is committed, in the public repository.
+- **`Q4` — (a):** step 1 keeps the CSS layer's surface and adds the pure value-to-CSS function, with no new generation interface.
+  - **He first answered the other way** (translated): _"Q4: ой, сорри. Наоборот, лучше сделаем: там же CSS читается прям из таблиц, если не сделаем и удалим старые таблицы, билд сломается"_ ("Q4: oh, sorry. The other way round, let's do it: the CSS is read straight from the tables, so if we don't do it and delete the old tables, the build breaks").
+  - **His concern is covered by step 1 under either option.** Today `resolve.ts`, `processToken.ts` and `processTokenSet.ts` import `DB/index.ts`, which reads the tables. Step 1 moves these modules onto the reader, deletes `DB` and the tables in the same change, and keeps the modules' exports, so the build never reads a deleted table ([the reader and the CSS layer](#the-reader-and-the-css-layer), `RD-28` property 8). P4 proves it with byte-identical CSS. `Q4` decided only whether step 1 also adds a new generation interface, option (b).
+  - **Once the coordinator explained this,** he chose (a) (translated): _"🤔 А, ну если так, то окей. Я просто не подумал, что мы прям *совсем* новый API делать будем 🤔"_ ("Ah, if that's how it is, then okay. I just didn't think we'd be building an entirely new API").
+- **The history rewrite is deferred** (`RD-29`, [its plan](history-rewrite-plan.md#the-owners-answer-2026-11-20)). Step 1's precondition logic is unchanged: step 1 doesn't depend on the rewrite, and the rewrite still needs step 1 on `main` first.

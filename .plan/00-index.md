@@ -1461,6 +1461,16 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **The owner accepts it or chooses otherwise.** `Q1` and `Q3` are open, and `Q4` is new.
 - The title, properties 1 to 5 and the order changed, and property 8 is new. What they said before is at the end of this entry.
 
+**Accepted 2026-11-20 by the owner.** His answers, relayed by the coordinator, are quoted in the plan's [record of them](tokens-source-1/tokens-source-plan.md#the-owners-answers-to-q1-q3-and-q4).
+
+- **Step 1 is approved:** _"Шаг 1 - го."_ ("Step 1, go.")
+- **`Q1` — yes:** the weekly change notification is step 3.
+- **`Q3` — yes:** the store is committed in the public repository.
+- **`Q4` — (a):** step 1 keeps the CSS layer's surface and adds the pure value-to-CSS function, and no new generation interface.
+  - He first chose otherwise, concerned that the CSS layer reads the tables, so deleting them breaks the build. Step 1 already covers that: it moves `resolve`, `processToken` and `processTokenSet` from `DB` onto the reader in the change that deletes the tables (property 8).
+  - Told this, he chose (a): _"Я просто не подумал, что мы прям совсем новый API делать будем"_ ("I just didn't think we'd be building an entirely new API").
+- **`RD-29` is deferred by the owner.** Step 1 doesn't depend on it, and it still needs step 1 on `main` first. Step 2 no longer waits for the rewrite: it follows step 1. Until this, the order said that step 2 came _"after the rewrite"_.
+
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**
   1. **tproc reads only the committed store,** through a reader with no network path. A missing or invalid store file fails the load and names the file. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.
@@ -1482,7 +1492,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   8. **The CSS layer** (`processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable`, `selector`) reads the reader and keeps its surface. Its value mapping is one exported pure function from a stored value to a CSS value. The reader's selection rule is today's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry.
 - **Order:**
   - **Step 1** converts today's committed tables in a legacy mode without fetching, deletes them, and switches tproc to the store. It must leave material-x's generated CSS byte-identical, and the reader must give the same value, reference tree and resolved value as `DB` for every token. It merges before `RD-29`'s rewrite.
-  - **Step 2,** after the rewrite, updates to a dated release in its own pull request.
+  - **Step 2,** after step 1, updates to a dated release in its own pull request.
+  - **Step 3,** after step 1, is the weekly change notification.
   - The plan's [revised steps](tokens-source-1/tokens-source-plan.md#steps-revised) carry proofs P1–P11.
 
 **Why.** The database is Material's authority, and its export is the only public form of it with every property tproc renders: contextual values, one-hop references, reference trees, token sets and deprecation. What made the reading fragile was that tproc followed `latest`, kept no record of what it took, fetched during test runs and compared nothing on change. Each of these is fixed without leaving the source. A dated address makes a release consistent and repeatable while the site keeps it, and the committed store doesn't depend on how long that is.
@@ -1505,7 +1516,11 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 **Proposed 2026-11-20 by the architect,** on the owner's answer to `RD-28`'s `Q2`, relayed by the coordinator: _"Да, конечно, всё переписываем, не хватало мне ещё претензий от гугла"_ ("Yes, of course, we rewrite everything; claims from Google are the last thing I need"). He then added (translated): _"The old pull requests need checking too: the data may have survived there."_
 
 - **Number.** `RD-28` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number.
-- **Status.** **Not executed.** The owner runs it, after answering `QH1`–`QH4` of the [plan](tokens-source-1/history-rewrite-plan.md#owner-questions). It removes what `RF-67` found.
+- **Status.** **Proposed, and deferred by the owner on 2026-11-20. Not executed.** The owner runs it when he schedules it, after answering `QH1`–`QH4` of the [plan](tokens-source-1/history-rewrite-plan.md#owner-questions). It removes what `RF-67` found. Until his answer, this line began: _"**Not executed.** The owner runs it, after answering"_.
+- **The owner's answer** (translated; quoted in [the plan](tokens-source-1/history-rewrite-plan.md#the-owners-answer-2026-11-20)): _"Not doing it for now, but we keep it in mind: I want to do it at some point. The hashes aren't a problem … The backup could perhaps just be deleted, we're already living fine on the new version."_
+  - He accepts that every commit hash and every _Verified_ badge changes.
+  - Deleting the `backup/*` branches rather than rewriting them is his inclination, not a decision. `QH1`–`QH4` stay open.
+  - Property 1 is unchanged: `RD-28` step 1 doesn't wait for the rewrite, and the rewrite needs step 1 on `main` first.
 - **Who.** Agents don't force-push or change a ruleset, and the plan names who does each step.
 
 - **Required properties:**
