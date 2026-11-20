@@ -1,0 +1,165 @@
+# Readings for the box-quad release plan, taken 2026-11-20 at d69e3ddbc (origin/main) in slot f.
+# Each block is the command and its output. Paths are relative to the repository root.
+
+## 1. What a pack of packages/box-quad would publish today (no `files`)
+$ (cd packages/box-quad && aube pack --dry-run)
+package: @ydinjs/box-quad@0.1.0
+Tarball Contents
+  .oxlintrc.json
+  .plan/brief.md
+  .plan/composition-order-test-report.md
+  .plan/contract/00-index.md
+  .plan/contract/01-public-api.md
+  .plan/contract/02-behavior-scenarios.md
+  .plan/contract/03-failure-table.md
+  .plan/contract/04-support-matrix.md
+  .plan/coordinates-finiteness-assessment.md
+  .plan/coordinates-finiteness-handoff.md
+  .plan/coordinates-finiteness-report.md
+  .plan/coordinates-walk-proposal.md
+  .plan/fallback-storage-comparison.md
+  .plan/numeric-storage-assessment.md
+  .plan/numeric-storage-handoff.md
+  .plan/numeric-storage-report.md
+  .plan/plan.md
+  .plan/probes/coordinates-walk/README.md
+  .plan/probes/coordinates-walk/allocation.json
+  .plan/probes/coordinates-walk/arm-a.diff.txt
+  .plan/probes/coordinates-walk/arm-b.diff.txt
+  .plan/probes/coordinates-walk/arm-c.diff.txt
+  .plan/probes/coordinates-walk/arm-d.diff.txt
+  .plan/probes/coordinates-walk/arm-e.diff.txt
+  .plan/probes/coordinates-walk/compare.ts.txt
+  .plan/probes/coordinates-walk/walk.browser.test.ts.txt
+  .plan/probes/fallback-storage/README.md
+  .plan/probes/fallback-storage/allocation.json
+  .plan/probes/fallback-storage/backing.json
+  .plan/probes/fallback-storage/candidate.ts
+  .plan/probes/fallback-storage/compare.ts
+  .plan/probes/fallback-storage/timing.json
+  .plan/probes/fallback-storage/tsconfig.json
+  .plan/probes/numeric-storage/README.md
+  .plan/probes/numeric-storage/arm.diff.txt
+  .plan/probes/numeric-storage/storage.browser.test.ts.txt
+  .plan/probes/numeric-storage/tsconfig.json
+  .plan/probes/numeric-storage/types.ts
+  .plan/reviews/01-B-test-review.md
+  .plan/reviews/02-B-test-review.md
+  .plan/reviews/03-C-correctness-review.md
+  .plan/reviews/04-С-correctness-review.md
+  .plan/reviews/05-C-correctness-review.md
+  .plan/reviews/06-D-cache-ownership-and-ancestry-claude.md
+  .plan/reviews/07-D-ancestry-formulation-claude.md
+  .plan/reviews/08-D-cache-utility-claude.md
+  .plan/reviews/09-D-boundary-cardinality-claude.md
+  .plan/reviews/10-D-two-measurement-alternative-claude.md
+  .plan/reviews/11-D-first-class-space-claude.md
+  .plan/reviews/12-D-batch-ancestry-query-claude.md
+  .plan/reviews/13-numeric-storage/implementation-reviewer.md
+  .plan/reviews/composition-order/proof-reviewer.md
+  .size-limit.json
+  Justfile
+  eslint.config.ts
+  files.json
+  index.d.ts
+  index.js
+  index.js.map
+  package.json
+  project.json
+  src/index.ts
+  tests/advanced.browser.test.ts
+  tests/api.browser.test.ts
+  tests/api.declaration.test.ts
+  tests/coordinates.browser.test.ts
+  tests/layout-and-transform.browser.test.ts
+  tests/local-delta.browser.test.ts
+  tests/projection.browser.test.ts
+  tests/storage.browser.test.ts
+  tests/support/fixtures.ts
+  tsconfig.json
+  tsdown.config.ts
+  typedoc.json
+  vitest.config.ts
+Tarball Details
+  ydinjs-box-quad-0.1.0.tgz
+
+## 2. The built source map embeds its source
+$ node -e (read packages/box-quad/index.js.map: sources, sourcesContent present)
+["src/index.ts"] sourcesContent: true
+
+## 3. The docs recipes write to drag's directory
+$ grep -n "docs/api" packages/box-quad/Justfile packages/drag/Justfile packages/core/Justfile
+packages/core/Justfile:20:    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/core
+packages/core/Justfile:24:    typedoc --options typedoc.json --out ../../.docs/api/core
+packages/box-quad/Justfile:20:    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/drag
+packages/box-quad/Justfile:24:    typedoc --options typedoc.json --out ../../.docs/api/drag
+packages/drag/Justfile:21:    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/drag
+packages/drag/Justfile:25:    typedoc --options typedoc.json --out ../../.docs/api/drag
+$ grep -n "docs:api" packages/*/package.json
+packages/core/package.json:122:    "docs:api:prepare": "just docs-api-prepare",
+packages/core/package.json:123:    "docs:api:build": "just docs-api-build",
+packages/drag/package.json:87:    "docs:api:prepare": "just docs-api-prepare",
+packages/drag/package.json:88:    "docs:api:build": "just docs-api-build",
+$ grep -n "docs:api\|docs-api" Justfile
+25:    nx run @ydinjs/core:docs:api:prepare --skipNxCache --tui=false
+26:    node .scripts/docs-api.ts --out node_modules/.cache/docs/api
+34:    nx run @ydinjs/core:docs:api:build --skipNxCache --tui=false
+35:    node .scripts/docs-api.ts --out .docs/api
+$ grep -n "index.html" .scripts/docs-api.ts packages/material-x/src/reference/api.mdx
+.scripts/docs-api.ts:65:  new URL('index.html', outputRoot),
+.scripts/docs-api.ts:72:        <li><a href="./core/index.html">@ydinjs/core Typedoc</a></li>
+.scripts/docs-api.ts:73:        <li><a href="./material-x/index.html">material-x API landing page</a></li>
+.scripts/docs-api.ts:82:  new URL('index.html', materialXRoot),
+.scripts/docs-api.ts:94:        <li><a href="../core/index.html">@ydinjs/core Typedoc</a></li>
+packages/material-x/src/reference/api.mdx:4:export const coreApiHref = withDocsBase('api/core/index.html');
+packages/material-x/src/reference/api.mdx:5:export const materialXApiHref = withDocsBase('api/material-x/index.html');
+
+## 4. box-quad's TypeDoc builds with warnings as errors
+$ (cd packages/box-quad && aube exec -- typedoc --options typedoc.json --out <scratch> --treatWarningsAsErrors); echo exit $?
+[info] html generated at <scratch>/bq-api2
+exit 0
+
+## 5. Size, Brotli, as the measurements job reads it
+$ (cd packages/box-quad && aube exec -- size-limit --json)
+[
+  {
+    "name": "index",
+    "size": 1182
+  }
+]
+
+## 6. Nothing under @ydinjs is on the npm registry
+$ curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@ydinjs%2fbox-quad
+404
+$ curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@ydinjs%2fcore
+404
+$ curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@ydinjs%2fdrag
+404
+$ curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@ydinjs%2fmaterial-x
+404
+$ curl -s -o /dev/null -w '%{http_code}' https://registry.npmjs.org/@ydinjs%2fvite-traits-plugin
+404
+$ curl -s "https://registry.npmjs.org/-/v1/search?text=scope:ydinjs" | (total)
+total: 0
+
+## 7. Manifest fields of box-quad and three other packages
+box-quad             private=no description=no license=yes author=no homepage=no bugs=no repository=no files=no sideEffects=no publishConfig=no engines=no
+material-x           private=no description=yes license=yes author=yes homepage=yes bugs=yes repository=yes files=yes sideEffects=no publishConfig=yes engines=yes
+vite-traits-plugin   private=no description=yes license=yes author=no homepage=no bugs=no repository=no files=yes sideEffects=no publishConfig=yes engines=yes
+drag                 private=yes description=no license=yes author=no homepage=no bugs=no repository=no files=yes sideEffects=no publishConfig=no engines=no
+
+## 8. The contract still names a function the source doesn't export
+$ grep -c readBoxQuad packages/box-quad/.plan/contract/*.md; grep -n "^export" packages/box-quad/index.d.ts
+packages/box-quad/.plan/contract/03-failure-table.md:2
+packages/box-quad/.plan/contract/02-behavior-scenarios.md:1
+packages/box-quad/.plan/contract/04-support-matrix.md:0
+packages/box-quad/.plan/contract/00-index.md:2
+packages/box-quad/.plan/contract/01-public-api.md:5
+21:export type Box = Record<number, number>;
+45:export type Space = Record<number, number>;
+60:export type Quad = Record<number, number>;
+71:export type Delta = Record<number, number>;
+86:export declare function ancestry(element: HTMLElement, out: Space): boolean;
+114:export declare function coordinates(element: HTMLElement, out: Box, above?: Readonly<Space>): boolean;
+133:export declare function projection(source: Readonly<Box>, out: Quad, relativeTo?: Readonly<Box>): boolean;
+150:export declare function localDelta(basis: Readonly<Space> | Readonly<Box>, dx: number, dy: number, out: Delta): boolean;

@@ -1,0 +1,296 @@
+# Regeneration commit against origin/main d69e3ddbc
+# capture.sh before/ (d69e3ddbc) and after2/ (the regeneration commit's tree)
+
+## Effective oxlint rule state, eff.py before after2 (root config, then a package config)
+x.ts func-name-matching off => on
+x.ts import/newline-after-import off => on
+x.ts logical-assignment-operators off => on
+x.ts no-implicit-globals off => on
+x.ts no-unreachable-loop off => on
+x.ts no-useless-assignment off => on
+x.ts one-var off => on
+x.ts prefer-arrow-callback off => on
+x.ts prefer-regex-literals off => on
+x.ts require-unicode-regexp off => on
+x.ts typescript/consistent-return off => on
+x.ts typescript/dot-notation on => off
+x.ts typescript/explicit-member-accessibility off => on
+x.ts typescript/no-unsafe-enum-assignment off => on
+x.ts typescript/strict-void-return off => on
+x.test.ts func-name-matching off => on
+x.test.ts import/newline-after-import off => on
+x.test.ts logical-assignment-operators off => on
+x.test.ts no-implicit-globals off => on
+x.test.ts no-unreachable-loop off => on
+x.test.ts no-useless-assignment off => on
+x.test.ts one-var off => on
+x.test.ts prefer-arrow-callback off => on
+x.test.ts prefer-regex-literals off => on
+x.test.ts require-unicode-regexp off => on
+x.test.ts typescript/consistent-return off => on
+x.test.ts typescript/dot-notation on => off
+x.test.ts typescript/explicit-member-accessibility off => on
+x.test.ts typescript/no-unsafe-enum-assignment off => on
+x.test.ts typescript/strict-void-return off => on
+### packages/drag from its directory
+x.ts func-name-matching off => on
+x.ts import/newline-after-import off => on
+x.ts logical-assignment-operators off => on
+x.ts no-implicit-globals off => on
+x.ts no-unreachable-loop off => on
+x.ts no-useless-assignment off => on
+x.ts one-var off => on
+x.ts prefer-arrow-callback off => on
+x.ts prefer-regex-literals off => on
+x.ts require-unicode-regexp off => on
+x.ts typescript/consistent-return off => on
+x.ts typescript/dot-notation on => off
+x.ts typescript/explicit-member-accessibility off => on
+x.ts typescript/no-unsafe-enum-assignment off => on
+x.ts typescript/strict-void-return off => on
+x.test.ts func-name-matching off => on
+x.test.ts import/newline-after-import off => on
+x.test.ts logical-assignment-operators off => on
+x.test.ts no-implicit-globals off => on
+x.test.ts no-unreachable-loop off => on
+x.test.ts no-useless-assignment off => on
+x.test.ts one-var off => on
+x.test.ts prefer-arrow-callback off => on
+x.test.ts prefer-regex-literals off => on
+x.test.ts require-unicode-regexp off => on
+x.test.ts typescript/consistent-return off => on
+x.test.ts typescript/dot-notation on => off
+x.test.ts typescript/explicit-member-accessibility off => on
+x.test.ts typescript/no-unsafe-enum-assignment off => on
+x.test.ts typescript/strict-void-return off => on
+
+## ESLint effective rules, ecmp.py before after2
+### eslint-pkg-packages_box-quad_src_index.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_core_src_attribute.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_drag_src_draggable.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_material-x_src_button-group_ButtonGroupCore.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_size-limit-preset-rolldown_src_index.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_tproc_src_DB_DB.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_vite-custom-element-assets_src_css_css-worker.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-pkg-packages_vite-traits-plugin_src_attributes_lower.ts.json
+@typescript-eslint/explicit-member-accessibility 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-.scripts_oxlint-migrate.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_box-quad_src_index.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_core_src_attribute.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_drag_src_draggable.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_material-x_src_button-group_ButtonGroupCore.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_size-limit-preset-rolldown_src_index.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_tproc_src_DB_DB.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_vite-custom-element-assets_src_css_css-worker.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+### eslint-root-packages_vite-traits-plugin_src_attributes_lower.ts.json
+@typescript-eslint/dot-notation 0 => 2
+@typescript-eslint/explicit-member-accessibility 2 => 0
+@typescript-eslint/no-unsafe-enum-assignment 2 => 0
+@typescript-eslint/strict-void-return 2 => 0
+func-name-matching 2 => 0
+import/newline-after-import None => 0
+logical-assignment-operators 2 => 0
+no-implicit-globals 2 => 0
+one-var 2 => 0
+prefer-arrow-callback 2 => 0
+prefer-regex-literals 2 => 0
+require-unicode-regexp 2 => 0
+
+## oxlint lint output (unix format), byte comparison
+same lint-oxlint-box-quad.txt (exit 0)
+same lint-oxlint-core.txt (exit 0)
+same lint-oxlint-drag.txt (exit 0)
+same lint-oxlint-material-x.txt (exit 1)
+same lint-oxlint-root.txt (exit 0)
+same lint-oxlint-size-limit-preset-rolldown.txt (exit 0)
+same lint-oxlint-tproc.txt (exit 0)
+same lint-oxlint-vite-custom-element-assets.txt (exit 0)
+same lint-oxlint-vite-traits-plugin.txt (exit 1)
+
+## ESLint lint results, norm.py before vs after2
+198c198
+< == lint-eslint-root.txt 43 files, 0 messages
+---
+> == lint-eslint-root.txt 44 files, 0 messages
+== lint-eslint-box-quad.txt 13 files, 0 messages
+== lint-eslint-core.txt 60 files, 0 messages
+== lint-eslint-drag.txt 105 files, 0 messages
+== lint-eslint-material-x.txt 160 files, 190 messages
+== lint-eslint-root.txt 44 files, 0 messages
+== lint-eslint-size-limit-preset-rolldown.txt 3 files, 0 messages
+== lint-eslint-tproc.txt 32 files, 0 messages
+== lint-eslint-vite-custom-element-assets.txt 13 files, 0 messages
+== lint-eslint-vite-traits-plugin.txt 27 files, 0 messages
+
+## Fallout of the regeneration before the overrides in .oxlintrc.json, by rule (oxlint, all packages and root)
+    194 [Error/typescript(no-unsafe-type-assertion)]
+    103 [Error/typescript(promise-function-async)]
+     54 [Error/typescript(unbound-method)]
+      2 [Error/typescript(no-generated-empty-object-type)]

@@ -1,0 +1,9 @@
+## old recipe at d69e3ddbc
+     * `import-x/resolver-next`
+Native oxlint migration post-fix complete.
+JS-only overrides retargeted to TS: 0
+git diff --stat after run 1:
+ .oxlintrc.json | 290 ++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 164 insertions(+), 126 deletions(-)
+run 2 equals run 1:
+yes
