@@ -153,15 +153,16 @@ A scheduled workflow reads the site's current release and database version and c
 - **`context.json`:** each context tag group's name (`contextTagGroupName`), `displayName`, `specificity` and default tag. For each tag of the group, its `tagName`, `displayName` and `tagOrder`.
 - **`sets/<tokenSetName>.json`,** one file per token set, such as `sets/md.comp.checkbox.json`:
   - the set's `tokenSetName`, `displayName`, `description`, `tokenType`, `custom.token_class` and `order`, when a table carries the set, and only its name when none does;
+  - its display groups, in upstream order ([second rulings](#field-rulings-from-the-feature-proof)). Each keeps `displayName`, `parentGroup` as the parent's path when the group has one, and `description`, `orderInParentTokenSet` and `orderInParentDisplayGroup` when present. A group's path is its ancestors' `displayName`s and its own, from the top;
   - its tokens, in upstream order.
 - **Each token keeps:**
   - `tokenName`, `displayName` and `tokenValueType`, and `description` when present;
-  - `displayGroup`, as the display group's `displayName` instead of its id, and `orderInDisplayGroup`;
+  - `displayGroup`, as the display group's path instead of its id, and `orderInDisplayGroup`;
   - `deprecationMessage`, with `message` and `replacementTokenName`, when present.
   - **`values`:** the token's own value entries, in upstream order. Each has `contextTags` and `specificityScore` when upstream gives them, and exactly one value field: `tokenName` (the one-hop reference) or one of upstream's literal fields, `color`, `length`, `shape`, `type`, `opacity`, `numeric`, `durationMs`, `cubicBezier`, `motionPath`, `customComposite`, `axisValue`, `textTransform`, `fontNames`, `fontWeight`, `fontSize`, `fontTracking`, `lineHeight`, `elevation`, `svgPath` and `undefined`. Each is kept as upstream gives it ([field rulings](#field-rulings)).
   - **`contextualReferenceTree`:** upstream's entries, in upstream order. Each has `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree`, and exactly one of `resolvedValue` and `resolvedCustomCompositeValue`.
     - `resolvedValue` holds exactly one of the literal fields above. `resolvedCustomCompositeValue` holds, for each property of a `customComposite`, that property's `resolvedValue`.
-    - `referenceTree` keeps the tree's shape: `tokenName` and `childNodes`. A composite has several children: 1,488 nodes in today's tables have more than one.
+    - `referenceTree` keeps the tree's shape: `tokenName` and `childNodes`, with `fieldNames` when upstream gives it. A child node also records which of its token's `values` the tree passes through, as an index into them. A composite has several children: 1,488 nodes in today's tables have more than one.
     - Every root in today's tables is the token's own value, so an index identifies it once ids are gone.
 - **`contextTags` is an object** from tag group name to tag name, such as `{ "motion.scheme": "expressive", "platform": "web" }`, with keys sorted. It replaces lists of internal ids.
 - **What the store drops:**
@@ -170,7 +171,11 @@ A scheduled workflow reads the site's current release and database version and c
   - `revisionAuthor`, `author` and `settings`;
   - every system field that isn't named above.
 
-  `tokenNameSuffix` and set membership aren't stored either, because both follow from the token's file and name.
+  `tokenNameSuffix`, `tokenSetNameSuffix` and set membership aren't stored either, because they follow from the token's file and name.
+
+  The component records aren't stored: their `definition`, `componentImage`, `connectedPage`, `alternativeNames`, `componentDisplayGroup` and `tokenSets`, and the component display groups. They describe Material's component catalogue, not tokens. The manifest keeps each converted table's component id and name.
+
+  The converter names each dropped key in one drop list, beside the allow list ([second rulings](#field-rulings-from-the-feature-proof)).
 
 - **Determinism and reading.**
   - Keys come in the order the schema lists them, arrays in upstream order, two-space indentation and a final newline. Converting the same tables twice gives byte-identical files.
@@ -189,6 +194,37 @@ Ruled on 2026-11-20 by the architect, on four questions from the implementer of 
 - **A token's `description` is kept when present,** as a set's is. It is upstream's text about the token, not personal data, and the final scan covers it as every other field.
 - Until these rulings, the literal fields ended at `lineHeight`, every entry had a `resolvedValue`, and a token didn't keep `description`.
 
+#### Field rulings, from the feature proof
+
+Ruled on 2026-11-20 by the architect, on `reviewer-1` and `reviewer-2` of the [feature proof](../reviews/tokens-source-1/feature-proof-claude.md) at `e9f1f30ac`, relayed by the coordinator. Both apply the same rule as the field rulings above. Counts are from today's 14 tables, read by key name, count and id resolution only.
+
+- **`reviewer-2`: the store keeps the data fields it dropped without a ruling.**
+  - **`fieldNames` on a tree node** is kept as upstream gives it, on 10,764 nodes. It is always a one-element list, and it names the composite property that the child feeds.
+  - **A child node's value.** A tree node's `value` is an id. On the root, the store already turns it into the entry's `value` index. On each of the 143,838 child nodes, the id resolves to a value of that child's own token, so it records which of that token's contextual values the tree passes through. It is data, and it is kept as an index into the child token's `values`. In step 1's legacy conversion, a child whose value isn't among its token's kept values is listed with the conflicts and stored without the index. From step 2 on, it refuses the update.
+  - **The display groups** are kept per set, with their hierarchy and order: `parentGroup` on 664 of 1,002 group rows, `orderInParentDisplayGroup` on 623, `orderInParentTokenSet` on 395, and `description` on 15. A `displayName` doesn't identify a group, because 134 names repeat within their set. A group's path does: the 982 distinct groups are at most three deep, no two groups of a set share a path, and every `parentGroup` resolves to a group of the same set. So the path replaces the id, in `parentGroup` and in each token's `displayGroup`.
+  - **The component catalogue stays out,** as the [drop list](#the-store) names it. The owner asked for tokens' fields and data to stay original, and these records aren't token data. Adding them later is a ruling of its own.
+- **`reviewer-1`: every key is ruled, at every depth.**
+  - Each object the converter reads, from a table's `system` down to a literal's last key, has only keys that the allow list keeps or the drop list names. A key in neither refuses the conversion, naming the table, the token where there is one, and the key's path. A field upstream adds then stops the update until it is ruled on here. It is neither copied nor dropped unseen.
+  - Inside a value field there is no drop list, because nothing there is metadata. That covers a literal, a `customComposite`, a `resolvedCustomCompositeValue` and their contents: keys and types match `src/store/schema.ts` exactly.
+  - A `customComposite` property has exactly one value field, as a value does. A `resolvedCustomCompositeValue` property's `resolvedValue` is an object with exactly one literal field, as a resolved value is. Anything else refuses.
+  - The final scan for an email address or a `gaiaId` key stays. It is a second check, not the only one below the first level.
+- **When: now, in PR #84, before it merges.** The store is first committed to `main` with its complete shape, so `storeVersion` stays `1`. The 14 tables are read from `a182ba6aa` into a scratch directory outside the repository, as the feature proof read them. The drop list, run over today's tables, is the witness that no other key is dropped without a ruling.
+- **The proofs to rerun:**
+  - P1, the manifest's digests;
+  - P2, two legacy conversions byte-identical;
+  - P3, with its witness changed (see below);
+  - P4 and P10, unchanged in what they compare;
+  - P11, with the unresolved child values listed if there are any;
+  - P5, with new mutation witnesses: an extra key inside a `color` literal and inside a `resolvedCustomCompositeValue`, a composite property's `resolvedValue` with two literal fields, with none and as a non-object, and an unknown key on a token and on a display group. Each is refused with the table, the token and the key's path;
+  - **P12, new:** read back through the tables, the store's child-node indexes give the tables' value ids, its group paths the tables' group and `parentGroup` ids, and its `fieldNames` and group orders are the tables' own. This covers every kept token and group;
+  - the size, measured again.
+- **P3's witness changes.** A raw token with an extra key is refused, naming the key. Until this ruling, it converted without the key. P3's property, that no personal data reaches the store, is unchanged and holds more strictly.
+- **Until these rulings:**
+  - a token's `displayGroup` was the group's `displayName`;
+  - a tree kept only `tokenName` and `childNodes`;
+  - the allow list said _"the writer emits only the fields this section names, so a field upstream adds can't pass unseen"_;
+  - P3 said _"A raw token with an extra field converts without it."_
+
 ### The converter's checks
 
 They replace point 5. A refusal names the table, the token and the field.
@@ -200,7 +236,9 @@ They replace point 5. A refusal names the table, the token and the field.
   - In step 1, today's mixed snapshot breaks this for about 223 tokens: the component tables are `35.0.28` and the system tables `37.0.32`. There the converter keeps the table that `DB.load()` reads first, which is `DB`'s behaviour today. It lists each conflict in step 1's report.
   - From step 2 on, a conflict refuses the update.
 - **One release:** every table reports the same `versionName`. Step 1's legacy conversion is exempt and records both versions.
-- **Allow list:** the writer emits only the fields this section names, so a field upstream adds can't pass unseen. A final scan refuses a store that holds an email address or a `gaiaId` key.
+- **Allow list and drop list:** at every depth, each key is kept by the allow list or named by the drop list, and a key in neither refuses the conversion. Inside a value field, keys and types match the schema exactly ([second rulings](#field-rulings-from-the-feature-proof)). A final scan refuses a store that holds an email address or a `gaiaId` key.
+- **Display groups:** no two groups of a set share a path, each `parentGroup` resolves to a group of the same set, and each token's group is a group of its set.
+- **Child values:** each child node's value is a value of that child's token in the store. Step 1's legacy conversion lists the exceptions.
 
 ### The reader and the CSS layer
 
@@ -228,7 +266,8 @@ Proofs:
 
 - **P1.** The reader has no network path. A test with `fetch` replaced by a function that fails the test loads the store. With one set file removed, loading fails and names the file.
 - **P2.** Converting the committed tables twice gives byte-identical stores.
-- **P3.** The store holds no email address and no `gaiaId` key. A raw token with an extra field converts without it.
+- **P3.** The store holds no email address and no `gaiaId` key. A raw token with an extra key is refused, naming the key. Until the [second rulings](#field-rulings-from-the-feature-proof), this said: _"A raw token with an extra field converts without it."_
+- **P12.** Read back through the tables, the store's child-node indexes, group paths, `fieldNames` and group orders give the tables' own ids and values, for every kept token and group.
 - **P4.** material-x's generated CSS is byte-identical before and after the step, and tproc's and material-x's suites pass as on `main`.
 - **P5.** Each input and reference check refuses a mutated table, and names the table, the token and the field. Recorded as mutation witnesses.
 - **P10.** Parity with `DB`, read once before `DB` is deleted. For every token and the default tags, `select` gives the same one-hop reference or literal, reference tree token names and resolved value as `DB.getValue` and `getReferenceTreeAndResolvedValue`. This covers the tokens material-x doesn't render, which P4 can't see.
