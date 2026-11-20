@@ -1,5 +1,9 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { RolldownMagicString, type Plugin as RolldownPlugin } from 'rolldown';
+import {
+  RolldownMagicString,
+  VERSION,
+  type Plugin as RolldownPlugin,
+} from 'rolldown';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import {
@@ -239,11 +243,20 @@ export function constructCSSTokens(
               },
             },
             handler(code, id, meta) {
-              // The host's own magic string is edited when it is of this
-              // module's class, which is the class the host accepts back.
-              const host = meta?.magicString;
-              const native = host instanceof RolldownMagicString;
-              const s = native ? host : new RolldownMagicString(code);
+              // A host that offers `meta.magicString` accepts back its own
+              // instance, which is edited when it is of this module's class.
+              // A host that offers none, as Vite 8.1 to 8.3, is taken to
+              // accept this module's class when it runs the same rolldown
+              // version.
+              const offered = meta != null && 'magicString' in meta;
+              const host = offered ? meta.magicString : undefined;
+              const native = offered
+                ? host instanceof RolldownMagicString
+                : this.meta.rolldownVersion === VERSION;
+              const s =
+                host instanceof RolldownMagicString
+                  ? host
+                  : new RolldownMagicString(code);
 
               for (const [pattern, short] of replaceList) {
                 s.replaceRegex(pattern, `'${short}'`);
@@ -253,10 +266,10 @@ export function constructCSSTokens(
                 return null;
               }
 
-              // The host derives the source map from its own magic string over
-              // its native channel. It doesn't recognize a magic string of
-              // another class and would drop the edit, so any other host gets
-              // a string and a source map.
+              // The host derives the source map from a magic string it accepts
+              // over its native channel. It doesn't recognize a magic string of
+              // another binding's class and would drop the edit, so any other
+              // host gets a string and a source map.
               return native
                 ? { code: s }
                 : {

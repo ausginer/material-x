@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
   RolldownMagicString,
+  VERSION,
   type Plugin as RolldownPlugin,
   type PluginContext,
 } from 'rolldown';
@@ -86,19 +87,33 @@ function editable(
 }
 
 /**
- * A transform's result. The host's own magic string goes back as it is, and
- * the host derives the map from it. Any other magic string becomes a string
- * and a source map: the dev server's plugin container passes `code` on to
- * native transforms that read only a string, and a host doesn't recognize a
- * magic string of another class, so it would drop the edit.
+ * A transform's result. A magic string goes back as it is when the host
+ * accepts it, and the host derives the map from it. Any other magic string
+ * becomes a string and a source map: the dev server's plugin container passes
+ * `code` on to native transforms that read only a string, and a host doesn't
+ * recognize a magic string of another binding's class, so it would drop the
+ * edit.
+ *
+ * A host that offers `meta.magicString` accepts its own instance. A host that
+ * offers none, as Vite 8.1 to 8.3, is taken to accept this module's class when
+ * it runs the same rolldown version.
+ *
+ * @param rolldownVersion - The rolldown version that the host runs.
  */
 function emit(
   magic: RolldownMagicString,
   id: string,
   meta: TransformMeta | undefined,
   kind: BuildKind,
+  rolldownVersion: string,
 ): Emitted {
-  return kind !== 'serve' && magic === meta?.magicString
+  const native =
+    kind !== 'serve' &&
+    (meta && 'magicString' in meta
+      ? magic === meta.magicString
+      : rolldownVersion === VERSION);
+
+  return native
     ? { code: magic }
     : {
         code: magic.toString(),
@@ -358,7 +373,9 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           editable(code, meta, kind),
         );
 
-        return magic ? emit(magic, cleanId, meta, kind) : null;
+        return magic
+          ? emit(magic, cleanId, meta, kind, this.meta.rolldownVersion)
+          : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }
@@ -400,7 +417,9 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           });
         }
 
-        return result.magic ? emit(result.magic, cleanId, meta, kind) : null;
+        return result.magic
+          ? emit(result.magic, cleanId, meta, kind, this.meta.rolldownVersion)
+          : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# RF-55's task 4: the traits plugin's node test (tests/emit.node.test.ts)
-# against four mutations of `src/plugin.ts`, one per branch of the check. Each
-# mutation is applied to the source, the test runs, and the source is
-# restored from a copy.
+# RF-55's task 4, as amended: the traits plugin's node test
+# (tests/emit.node.test.ts) against five mutations of `src/plugin.ts`, one per
+# branch of the check. Each mutation is applied to the source, the test runs,
+# and the source is restored from a copy.
 #
 # Usage: emit-mutations.sh <empty scratch directory>, from the repository root.
 set -uo pipefail
@@ -23,15 +23,15 @@ mutate() {
   cp "${S:?}/plugin.ts" "${P:?}/src/plugin.ts"
 }
 
-EMIT="return kind !== 'serve' \&\& magic === meta?.magicString"
-
 echo '== unmutated'
 (cd "${P:?}" && aube exec just test tests/emit.node.test.ts 2>&1) \
   | grep -E 'Tests ' | sed 's/^ */  /'
-mutate 'emit: native outside the dev server, with no identity check' \
-  "$EMIT" "return kind !== 'serve'"
-mutate 'emit: never native' "$EMIT" 'return false'
-mutate "editable: any host magic string is edited" \
+mutate 'the version decides where the host offers a magic string' \
+  '? magic === meta.magicString' '? rolldownVersion === VERSION'
+mutate 'never native' "kind !== 'serve' \&\&$" 'false \&\&'
+mutate 'any host magic string is edited' \
   'return host instanceof RolldownMagicString' 'return host'
-mutate 'emit: no host magic string counts as native' \
-  "$EMIT" "return kind !== 'serve' \&\& (meta?.magicString === undefined || magic === meta.magicString)"
+mutate 'a host that offers none always gets a string' \
+  ': rolldownVersion === VERSION);' ': false);'
+mutate 'a host that offers none is always native' \
+  ': rolldownVersion === VERSION);' ': true);'

@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { RolldownMagicString } from 'rolldown';
+import { RolldownMagicString, VERSION } from 'rolldown';
 import { describe, expect, it } from 'vitest';
 import { lowerForAnalysis, viteTraitsPlugin } from '../src/plugin.ts';
 import { fixtureId } from './helpers.ts';
@@ -45,9 +45,23 @@ function hooks(): ReadonlyArray<readonly [string, Hook, string]> {
   ];
 }
 
-async function transform(hook: Hook, code: string, meta: Meta) {
+/** A rolldown version that isn't this module's. */
+const OTHER_VERSION = `${VERSION}-other`;
+
+/** Runs `hook` in a host on `rolldownVersion` that passes `meta`. */
+async function transform(
+  hook: Hook,
+  code: string,
+  meta: Meta,
+  rolldownVersion: string,
+) {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return (await hook.call({}, code, ID, meta)) as Result;
+  return (await hook.call(
+    { meta: { rolldownVersion } },
+    code,
+    ID,
+    meta,
+  )) as Result;
 }
 
 function expectStringAndMap(result: Result, code: string) {
@@ -58,10 +72,15 @@ function expectStringAndMap(result: Result, code: string) {
 
 describe('a transform result', () => {
   it.each(hooks())(
-    "should edit and return the host's magic string from %s when it is of this rolldown's class",
+    "should edit and return the host's magic string from %s when it is of this rolldown's class, whatever the version",
     async (_, hook, code) => {
       const magicString = new RolldownMagicString(code);
-      const result = await transform(hook, code, { magicString });
+      const result = await transform(
+        hook,
+        code,
+        { magicString },
+        OTHER_VERSION,
+      );
 
       expect(result.code).toBe(magicString);
       expect(magicString.hasChanged()).toBe(true);
@@ -70,20 +89,33 @@ describe('a transform result', () => {
   );
 
   it.each(hooks())(
-    "should give a string and a source map from %s when the host's magic string is of another class",
+    "should give a string and a source map from %s when the host's magic string is of another class, at the same version",
     async (_, hook, code) => {
-      const result = await transform(hook, code, {
-        magicString: new ForeignMagicString(code),
-      });
+      const result = await transform(
+        hook,
+        code,
+        { magicString: new ForeignMagicString(code) },
+        VERSION,
+      );
 
       expectStringAndMap(result, code);
     },
   );
 
   it.each(hooks())(
-    'should give a string and a source map from %s when the host offers no magic string',
+    "should return a magic string from %s to a host that offers none and runs this rolldown's version",
     async (_, hook, code) => {
-      expectStringAndMap(await transform(hook, code, {}), code);
+      const result = await transform(hook, code, {}, VERSION);
+
+      expect(result.code).toBeInstanceOf(RolldownMagicString);
+      expect(result.map).toBeUndefined();
+    },
+  );
+
+  it.each(hooks())(
+    'should give a string and a source map from %s to a host that offers no magic string and runs another version',
+    async (_, hook, code) => {
+      expectStringAndMap(await transform(hook, code, {}, OTHER_VERSION), code);
     },
   );
 });

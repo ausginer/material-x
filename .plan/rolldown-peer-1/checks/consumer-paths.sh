@@ -27,9 +27,9 @@ CORE="$(realpath "${3:?core tarball}")"
 
 mkdir -p "${S:?}/mutant"
 tar -xzf "$PLUGIN" -C "$S/mutant"
-grep -c 'magic === meta?.magicString' "$S/mutant/package/index.js" \
+grep -c '"magicString" in meta ? magic === meta.magicString : rolldownVersion === VERSION' "$S/mutant/package/index.js" \
   | sed 's/^/host checks in the packed index.js: /'
-sed -i 's/magic === meta?\.magicString/true/' "$S/mutant/package/index.js"
+sed -i 's/(meta \&\& "magicString" in meta ? magic === meta\.magicString : rolldownVersion === VERSION)/true/' "$S/mutant/package/index.js"
 tar -czf "$S/mutant.tgz" -C "$S/mutant" package
 
 # name, plugin tarball, linker, extra dependencies

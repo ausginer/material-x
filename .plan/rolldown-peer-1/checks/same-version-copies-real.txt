@@ -1,4 +1,4 @@
-RF-55 task 4, the feature proof's same-version-copies probe with the built plugin, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at cc121c0de with task 4's source change, after `aube exec just build`. The copied tree is the workspace's rolldown 1.3.2 and its linux-x64-gnu binding.
+RF-55 task 4, the feature proof's same-version-copies probe with the built plugin, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at c6c75027c with task 4's source change as the architect amended it (aa427f691), after `aube exec just build`. The copied tree is the workspace's rolldown 1.3.2 and its linux-x64-gnu binding. The host is rolldown 1.3.2 itself, which offers meta.magicString.
 
 Command: .plan/rolldown-peer-1/checks/same-version-copies-real.sh . <S>
 

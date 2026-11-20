@@ -44,9 +44,9 @@ done
 for plugin in own-binding own-binding-mutant; do
   copy @rolldown/binding-linux-x64-gnu "${NM:?}/${plugin:?}/node_modules/@rolldown/binding-linux-x64-gnu"
 done
-grep -c 'magic === meta?.magicString' "${NM:?}/own-binding-mutant/index.js" \
+grep -c '"magicString" in meta ? magic === meta.magicString : rolldownVersion === VERSION' "${NM:?}/own-binding-mutant/index.js" \
   | sed 's/^/host checks in the mutant'"'"'s index.js: /'
-sed -i 's/magic === meta?\.magicString/true/' "${NM:?}/own-binding-mutant/index.js"
+sed -i 's/(meta \&\& "magicString" in meta ? magic === meta\.magicString : rolldownVersion === VERSION)/true/' "${NM:?}/own-binding-mutant/index.js"
 
 cat > "${S:?}/linked.ts" <<'TS'
 import { trait } from '@ydinjs/core/traits/composition.js';
