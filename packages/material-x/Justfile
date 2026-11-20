@@ -34,9 +34,16 @@ clean-build:
 size *ARGS: build
     size-limit {{ ARGS }}
 
-# Run publint
+# Run publint on the tarball that `aube pack` writes, which holds the files a
+# release publishes. Given no tarball, publint packs with `npm pack`, which
+# `RD-16` property 1 doesn't allow (`repo:RF-55`). Build first.
 publint:
-    publint
+    #!/usr/bin/env bash
+    set -euo pipefail
+    pack_dir="$(mktemp -d)"
+    trap 'rm -rf "${pack_dir:?}"' EXIT
+    aube pack --ignore-scripts --pack-destination "${pack_dir:?}" > /dev/null
+    publint run "${pack_dir:?}"/*.tgz
 
 # Generate Storybook themes
 docs-themes:

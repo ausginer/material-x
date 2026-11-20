@@ -1,0 +1,34 @@
+RF-55 task R1, edge cases, run by the reviewer on 2026-11-20 in the devcontainer with aube 2.10.0, just 1.59.0 and publint 0.3.25, on repo/rolldown-peer-1 at 109472aab in a scratch worktree, after aube exec just build at its root.
+Command: .plan/reviews/rolldown-peer-1/checks/publint-recipe-edges.sh <worktree> <S>, where <S> is an empty scratch directory.
+
+real tarballs: 1 (ydinjs-material-x-0.1.0.tgz)
+== zero
+exit: 1
+  Unable to read package.json at <S>/zero-tmp/tmp.X2Tmdr3rOC/*.tgz
+  error: recipe `publint` failed with exit code 1
+mentions npm pack: no
+left in TMPDIR: 0 entries
+== two
+exit: 0
+  Running publint v0.3.25 for <S>/two-tmp/tmp.OLeMX6iu9x/a-0.1.0.tgz...
+  Unpacking tarball...
+  Linting...
+  All good!
+mentions npm pack: no
+left in TMPDIR: 0 entries
+== pack-fails
+exit: 3
+  shim: aube pack fails
+  error: recipe `publint` failed with exit code 3
+mentions npm pack: no
+left in TMPDIR: 0 entries
+== mktemp-fails
+exit: 1
+  shim: mktemp -d fails
+  error: recipe `publint` failed with exit code 1
+mentions npm pack: no
+left in TMPDIR: 0 entries
+== tmpdir-unusable
+exit: 1
+  error: recipe `publint` could not be run because of an IO error while trying to create a temporary directory or write a file to that directory: Not a directory (os error 20) at path "<S>/tmpdir-is-a-file/just-amFCUH"
+mentions npm pack: no

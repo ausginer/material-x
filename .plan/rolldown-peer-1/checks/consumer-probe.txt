@@ -1,0 +1,15 @@
+# consumer-probe.sh, run 2026-11-20 with aube 2.10.0, node v26.13.1
+A-peer-vite8.3.8-hoisted: plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  vite build: edit kept
+A-peer-vite8.3.8-isolated: plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  vite build: edit kept
+B-pinned-vite8.3.8-hoisted: plugin rolldown 1.3.2, vite rolldown 1.2.19, two copies
+  vite build: edit DROPPED, exit 0
+B-pinned-vite8.3.8-isolated: plugin rolldown 1.3.2, vite rolldown 1.2.19, two copies
+  vite build: edit DROPPED, exit 0
+C-peer-vite8.1.4-hoisted: plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  vite build: edit kept
+D-peer-vite8.3.8-tsdown0.23.7: plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  vite build: edit DROPPED, exit 0
+E-peer-vite8.4.0-beta.1-tsdown: plugin rolldown 1.3.3, vite rolldown 1.3.3, one copy
+  vite build: edit kept

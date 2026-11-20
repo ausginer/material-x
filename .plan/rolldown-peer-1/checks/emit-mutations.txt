@@ -1,0 +1,35 @@
+RF-55 task 4, the traits plugin's node test against five mutations, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at c6c75027c with task 4's source change as the architect amended it (aa427f691).
+
+Command: .plan/rolldown-peer-1/checks/emit-mutations.sh <S>
+
+== unmutated
+  Tests  8 passed (8)
+== the version decides where the host offers a magic string
+  × should edit and return the host's magic string from trait-attributes when it is of this rolldown's class, whatever the version
+  × should edit and return the host's magic string from trait-flattener when it is of this rolldown's class, whatever the version
+  × should give a string and a source map from trait-attributes when the host's magic string is of another class, at the same version
+  × should give a string and a source map from trait-flattener when the host's magic string is of another class, at the same version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  4 failed | 4 passed (8)
+== never native
+  × should edit and return the host's magic string from trait-attributes when it is of this rolldown's class, whatever the version
+  × should edit and return the host's magic string from trait-flattener when it is of this rolldown's class, whatever the version
+  × should return a magic string from trait-attributes to a host that offers none and runs this rolldown's version
+  × should return a magic string from trait-flattener to a host that offers none and runs this rolldown's version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  4 failed | 4 passed (8)
+== any host magic string is edited
+  × should give a string and a source map from trait-attributes when the host's magic string is of another class, at the same version
+  × should give a string and a source map from trait-flattener when the host's magic string is of another class, at the same version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 6 passed (8)
+== a host that offers none always gets a string
+  × should return a magic string from trait-attributes to a host that offers none and runs this rolldown's version
+  × should return a magic string from trait-flattener to a host that offers none and runs this rolldown's version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 6 passed (8)
+== a host that offers none is always native
+  × should give a string and a source map from trait-attributes to a host that offers no magic string and runs another version
+  × should give a string and a source map from trait-flattener to a host that offers no magic string and runs another version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 6 passed (8)

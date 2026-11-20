@@ -1,0 +1,148 @@
+RF-55 task 4, as amended, rerun by the reviewer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/rolldown-peer-1 at 129640d0b in a scratch worktree, and on main at 3457e3463 in a second one. Both trees: aube install --frozen-lockfile, then aube exec just build at the root and in packages/material-x. npm registry of 2026-11-20. No npm in any form.
+
+## 1. consumer-paths.sh, with @ydinjs/vite-traits-plugin and @ydinjs/core built at 129640d0b and packed with aube pack --ignore-scripts.
+Command: .plan/rolldown-peer-1/checks/consumer-paths.sh <S> <plugin tarball> <core tarball>
+Compared with .plan/rolldown-peer-1/checks/consumer-paths.txt from its 'host checks' line on: identical, line for line.
+
+host checks in the packed index.js: 1
+a-vite8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: magic string ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+a-vite8.3.8-isolated: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: magic string ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+b-vite8.1.4-hoisted: vite 8.1.4, plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: magic string ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+c-vite8.4.0-beta.1-hoisted: vite 8.4.0-beta.1, plugin rolldown 1.3.3, vite rolldown 1.3.3, one copy
+  host: third argument {moduleType, rawId, attributes, ssr}, magicString offered
+  returned: trait-flattener: magic string ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+D-vite8.3.8-tsdown0.23.7: vite 8.3.8, plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: string and map ×2
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+mutant-D-vite8.3.8-tsdown0.23.7: vite 8.3.8, plugin rolldown 1.3.3, vite rolldown 1.2.19, two copies
+  host: third argument {moduleType, ssr}, magicString not offered
+  returned: trait-flattener: magic string ×1
+  vite build: exit 0, Link NOT flattened
+  dist/main.js: 2 compose(Base), 0 impl(this
+
+## 2. Consumer c, the discriminator. In c-vite8.4.0-beta.1-hoisted's vite.config.js, the wrapper's path label was changed to tell the host's instance from the plugin's own: ret.code === meta.magicString ? 'host instance' : 'own instance'. vite build reran, and the config was restored.
+
+vite build: exit 0, dist/main.js: 1 impl(this
+paths.json: {"third argument {moduleType, rawId, attributes, ssr}, magicString offered":10,"trait-flattener: host instance":2}
+
+## 3. same-version-copies-real.sh, after the root build.
+Command: .plan/rolldown-peer-1/checks/same-version-copies-real.sh . <S>
+Compared with .plan/rolldown-peer-1/checks/same-version-copies-real.txt: identical.
+
+host checks in the mutant's index.js: 1
+host: rolldown 1.3.2, <S>/node_modules/rolldown/dist/index.mjs
+host binding: <S>/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+== shared-binding
+  plugin: rolldown 1.3.2, <S>/node_modules/shared-binding/node_modules/rolldown/dist/index.mjs
+  plugin binding: <S>/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+  returned: trait-flattener: a magic string
+  output: transformed (edit kept)
+== own-binding
+  plugin: rolldown 1.3.2, <S>/node_modules/own-binding/node_modules/rolldown/dist/index.mjs
+  plugin binding: <S>/node_modules/own-binding/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+  returned: trait-flattener: a string and a map
+  output: transformed (edit kept)
+== own-binding-mutant
+  plugin: rolldown 1.3.2, <S>/node_modules/own-binding-mutant/node_modules/rolldown/dist/index.mjs
+  plugin binding: <S>/node_modules/own-binding-mutant/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+  returned: trait-flattener: a magic string
+  output: not transformed (edit dropped)
+
+## 4. material-x's built files, against main.
+In each tree, the git-ignored files under packages/material-x, outside node_modules and *.tsbuildinfo, were hashed with sha256sum after a fresh build in a new worktree.
+  main: 213 files; branch: 213 files; diff of the two lists: none, names and hashes identical
+
+## 5. host-path-witness.sh.
+Command: .plan/rolldown-peer-1/checks/host-path-witness.sh <S>
+A first run's material-x docs-build failed to resolve @ydinjs/box-quad, which the root just build doesn't build (it builds core, tproc and material-x). The root aube exec just docs-build, whose _package-builds prerequisite builds it, then exited 0, and the witness was rerun:
+
+instrumented returns: traits 1, assets 1
+== material-x just build: exit 0
+  5 assets native by binding
+  26 traits library native by binding
+== material-x just docs-build: exit 0
+  5 assets native by binding
+  34 traits application native by binding
+
+Both built files restored: MX_PATH_LOG occurrences after the run, traits 0, assets 0.
+
+## 6. docs-build and docs-smoke, at the root, after the witness.
+aube exec just docs-build: exit 0
+API sections linked from api/index.html: api/core/index.html, api/box-quad/index.html, api/material-x/index.html
+105 of 105 pages passed at http://mx-docs.test:41871/material-x/ in 17.7 s
+
+## 7. emit-mutations.sh.
+Command: .plan/rolldown-peer-1/checks/emit-mutations.sh <S>
+Compared with .plan/rolldown-peer-1/checks/emit-mutations.txt from '== unmutated' on: identical. The source was restored (git status clean).
+
+== unmutated
+  Tests  8 passed (8)
+== the version decides where the host offers a magic string
+  × should edit and return the host's magic string from trait-attributes when it is of this rolldown's class, whatever the version
+  × should edit and return the host's magic string from trait-flattener when it is of this rolldown's class, whatever the version
+  × should give a string and a source map from trait-attributes when the host's magic string is of another class, at the same version
+  × should give a string and a source map from trait-flattener when the host's magic string is of another class, at the same version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  4 failed | 4 passed (8)
+== never native
+  × should edit and return the host's magic string from trait-attributes when it is of this rolldown's class, whatever the version
+  × should edit and return the host's magic string from trait-flattener when it is of this rolldown's class, whatever the version
+  × should return a magic string from trait-attributes to a host that offers none and runs this rolldown's version
+  × should return a magic string from trait-flattener to a host that offers none and runs this rolldown's version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  4 failed | 4 passed (8)
+== any host magic string is edited
+  × should give a string and a source map from trait-attributes when the host's magic string is of another class, at the same version
+  × should give a string and a source map from trait-flattener when the host's magic string is of another class, at the same version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 6 passed (8)
+== a host that offers none always gets a string
+  × should return a magic string from trait-attributes to a host that offers none and runs this rolldown's version
+  × should return a magic string from trait-flattener to a host that offers none and runs this rolldown's version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 6 passed (8)
+== a host that offers none is always native
+  × should give a string and a source map from trait-attributes to a host that offers no magic string and runs another version
+  × should give a string and a source map from trait-flattener to a host that offers no magic string and runs another version
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+  Tests  2 failed | 6 passed (8)
+
+## 8. assets-host-binding.ts, the four cases.
+Command: node .plan/rolldown-peer-1/checks/assets-host-binding.ts
+Compared with the reading's first four lines: identical. The reading's mutations aren't scripted, and weren't rerun.
+
+meta.magicString of the plugin's class, another version: code is a magic string (the host's instance), no map, replaced: true
+meta.magicString of another class, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+meta.magicString of none, the same version: code is a magic string, no map, replaced: true
+meta.magicString of none, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+## 9. meta-getter-reads.mjs: how often each transform reads the host's lazy meta.magicString, in a rolldown 1.3.2 host.
+Command: node <workspace>/meta-getter-reads.mjs <workspace> <empty dir>, with the probe copied to the workspace root so that it resolves the workspace's rolldown, and removed after.
+
+trait-attributes linked.ts: 0 reads of meta.magicString, returned null
+trait-attributes main.ts: 0 reads of meta.magicString, returned null
+trait-attributes plain.ts: 0 reads of meta.magicString, returned null
+trait-attributes runtime.js: 0 reads of meta.magicString, returned null
+trait-flattener linked.ts: 2 reads of meta.magicString, returned the host's instance
+trait-flattener main.ts: 0 reads of meta.magicString, returned null
+trait-flattener plain.ts: 0 reads of meta.magicString, returned null
+trait-flattener runtime.js: 0 reads of meta.magicString, returned null
+vite-construct-css-tokens linked.ts: 1 reads of meta.magicString, returned null
+vite-construct-css-tokens main.ts: 1 reads of meta.magicString, returned null
+vite-construct-css-tokens plain.ts: 1 reads of meta.magicString, returned null
