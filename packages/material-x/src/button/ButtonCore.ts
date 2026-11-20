@@ -46,11 +46,8 @@ export const BUTTON_ATTRS = {
 export type BUTTON_ATTRS = typeof BUTTON_ATTRS;
 
 @trait
+@attributes(BUTTON_ATTRS)
 export class ButtonLike extends AnyElement {
-  static {
-    attributes(this, BUTTON_ATTRS);
-  }
-
   accessor color!: ButtonColor | null;
   accessor size!: ButtonSize | null;
   accessor shape!: ButtonShape | null;

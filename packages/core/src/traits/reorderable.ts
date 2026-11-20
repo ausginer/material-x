@@ -43,11 +43,8 @@ export class ReorderEvent extends Event {
  * indicating that the element's children can be dragged to reorder.
  */
 @trait
+@attributes({ reorderable: Bool })
 export class Reorderable extends AnyElement {
-  static {
-    attributes(this, { reorderable: Bool });
-  }
-
   accessor reorderable!: boolean;
 }
 

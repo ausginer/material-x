@@ -85,7 +85,7 @@ function isCandidate(id: string): boolean {
 
 /** A module's text as the flattener reads it: with layer (b) lowered. */
 function lowered(id: string, code: string): string {
-  if (!code.includes('attributes(')) {
+  if (!code.includes('attributes')) {
     return code;
   }
   const program = parseModule(id, code);
@@ -264,7 +264,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
     },
     transform(code, id) {
       const cleanId = id.split('?', 1)[0]!;
-      if (!isCandidate(cleanId) || !code.includes('attributes(')) {
+      if (!isCandidate(cleanId) || !code.includes('attributes')) {
         return null;
       }
       try {

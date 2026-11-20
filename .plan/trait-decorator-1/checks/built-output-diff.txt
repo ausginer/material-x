@@ -1,0 +1,220 @@
+# Built output of @ydinjs/core and @ydinjs/material-x: 6211e435f (the code of d69e3ddbc) against the working tree after the @trait and @attributes passes.
+# Each .js without its sourceMappingURL comment, and each .d.ts. Files that differ:
+packages/core/traits/attribute-traits.d.ts
+packages/core/traits/attribute-traits.js
+packages/core/traits/checkable.d.ts
+packages/core/traits/composition.d.ts
+packages/core/traits/composition.js
+packages/core/traits/disableable.d.ts
+packages/core/traits/linkable.d.ts
+packages/core/traits/nameable.d.ts
+packages/core/traits/reorderable.d.ts
+packages/core/traits/selectable.d.ts
+packages/core/traits/typeable.d.ts
+packages/core/traits/valuable.d.ts
+packages/material-x/button/IconButtonCore.d.ts
+packages/material-x/core/traits/focus-forwarding.d.ts
+packages/material-x/list/list-item.js
+
+# The differences:
+diff -r before/packages/core/traits/attribute-traits.d.ts after2/packages/core/traits/attribute-traits.d.ts
+28,29c28,46
+<  * Declares a trait's attributes, from the trait class's static block:
+<  * `static { trait(this); attributes(this, { disabled: Bool }); }`, with each
+---
+>  * Whether `Table` fits instances `I`: every key names an attribute member, and
+>  * every converter reads exactly that member's type.
+>  */
+> type Fits<Table, I> = [Exclude<keyof Table, AttributeKeys<I>>] extends [never] ? [Table] extends [AttributeTable<I>] ? true : false : false;
+> declare const tableDoesNotFit: unique symbol;
+> /** The parameter type that a table that doesn't fit the class gives. */
+> type TableDoesNotFit<Table> = {
+>   readonly [tableDoesNotFit]: Table;
+> };
+> /**
+>  * The class decorator that `attributes(TABLE)` returns. It accepts the class
+>  * only when the table fits the class's instances.
+>  *
+>  * @typeParam Table - The attribute table.
+>  */
+> export type AttributesDecorator<Table> = <C extends AbstractConstructor<object>>(value: Fits<Table, InstanceType<C>> extends true ? C : TableDoesNotFit<Table>, context: ClassDecoratorContext<C>) => void;
+> /**
+>  * Declares a trait's attributes, written `@attributes(TABLE)` below `@trait`:
+>  * `@trait @attributes({ disabled: Bool }) class Disableable`, with each
+31,32c48,49
+<  * turns each `accessor` line into a getter and a setter that read and write the
+<  * attribute through the table's converter, and adds the table's keys to a
+---
+>  * turns each `accessor` line into a getter and a setter that read and write
+>  * the attribute through the table's converter, and adds the table's keys to a
+34c51
+<  * `const` bound to one.
+---
+>  * `const` bound to one, and every converter reads exactly its member's type.
+36d52
+<  * @param _trait - The trait class.
+37a54,55
+>  * @throws {Error} Always: a trait module runs only once the build has
+>  *   replaced the decorator.
+39c57
+< export declare function attributes<T extends object>(_trait: AbstractConstructor<T>, _table: NoInfer<AttributeTable<T>>): void;
+---
+> export declare function attributes<const Table extends object>(_table: Table): AttributesDecorator<Table>;
+diff -r before/packages/core/traits/attribute-traits.js after2/packages/core/traits/attribute-traits.js
+8,9c8,9
+< * Declares a trait's attributes, from the trait class's static block:
+< * `static { trait(this); attributes(this, { disabled: Bool }); }`, with each
+---
+> * Declares a trait's attributes, written `@attributes(TABLE)` below `@trait`:
+> * `@trait @attributes({ disabled: Bool }) class Disableable`, with each
+11,12c11,12
+< * turns each `accessor` line into a getter and a setter that read and write the
+< * attribute through the table's converter, and adds the table's keys to a
+---
+> * turns each `accessor` line into a getter and a setter that read and write
+> * the attribute through the table's converter, and adds the table's keys to a
+14c14
+< * `const` bound to one.
+---
+> * `const` bound to one, and every converter reads exactly its member's type.
+16d15
+< * @param _trait - The trait class.
+17a17,18
+> * @throws {Error} Always: a trait module runs only once the build has
+> *   replaced the decorator.
+19c20,22
+< function attributes(_trait, _table) {}
+---
+> function attributes(_table) {
+> 	throw new Error("@attributes is compiled by @ydinjs/vite-traits-plugin; build the trait module");
+> }
+diff -r before/packages/core/traits/checkable.d.ts after2/packages/core/traits/checkable.d.ts
+7,9d6
+< /**
+<  * Element trait that exposes a presence-based `checked` boolean field.
+<  */
+diff -r before/packages/core/traits/composition.d.ts after2/packages/core/traits/composition.d.ts
+69a70,73
+> /** What `@trait` decorates: a class whose heritage is a bound. */
+> type TraitClass = AbstractConstructor<object> & {
+>   readonly [$bound]: (instance: never, statics: never) => void;
+> };
+71,73c75,79
+<  * Makes `ctr` a trait: an object is an instance of it when its `brand` is
+<  * `true`. Called from the trait class's static block, `static { trait(this); }`.
+<  * The build passes the brand that the component's prototype receives.
+---
+>  * Makes the decorated class a trait, written `@trait` above a module-scope
+>  * class declaration that extends a {@link bound} or a composition of one. The
+>  * build replaces the decorator with the trait's brand install: an object is
+>  * an instance of the trait when the trait's brand on it is `true`, which
+>  * {@link impl} sets on each component that composes the trait.
+75,76c81,82
+<  * @param ctr - The trait class.
+<  * @param brand - The trait's brand.
+---
+>  * @throws {Error} Always: a trait module runs only once the build has
+>  *   replaced the decorator.
+78c84
+< export declare function trait(ctr: AbstractConstructor<unknown>, brand?: symbol): void;
+---
+> export declare function trait<C extends TraitClass>(_value: C, _context: ClassDecoratorContext<C>): void;
+81c87
+<  * call, in each component's static block.
+---
+>  * call, in the static block of each component that composes a trait.
+diff -r before/packages/core/traits/composition.js after2/packages/core/traits/composition.js
+3,5c3,7
+< * Makes `ctr` a trait: an object is an instance of it when its `brand` is
+< * `true`. Called from the trait class's static block, `static { trait(this); }`.
+< * The build passes the brand that the component's prototype receives.
+---
+> * Makes the decorated class a trait, written `@trait` above a module-scope
+> * class declaration that extends a {@link bound} or a composition of one. The
+> * build replaces the decorator with the trait's brand install: an object is
+> * an instance of the trait when the trait's brand on it is `true`, which
+> * {@link impl} sets on each component that composes the trait.
+7,8c9,10
+< * @param ctr - The trait class.
+< * @param brand - The trait's brand.
+---
+> * @throws {Error} Always: a trait module runs only once the build has
+> *   replaced the decorator.
+10,14c12,13
+< function trait(ctr, brand = Symbol(ctr.name)) {
+< 	Object.defineProperty(ctr, Symbol.hasInstance, {
+< 		configurable: true,
+< 		value: (o) => o != null && o[brand] === true
+< 	});
+---
+> function trait(_value, _context) {
+> 	throw new Error("@trait is compiled by @ydinjs/vite-traits-plugin; build the trait module");
+18c17
+< * call, in each component's static block.
+---
+> * call, in the static block of each component that composes a trait.
+diff -r before/packages/core/traits/disableable.d.ts after2/packages/core/traits/disableable.d.ts
+7,9d6
+< /**
+<  * Element trait that exposes a presence-based `disabled` boolean field.
+<  */
+diff -r before/packages/core/traits/linkable.d.ts after2/packages/core/traits/linkable.d.ts
+8,10d7
+< /**
+<  * Element trait that exposes `href` and `target` navigation fields.
+<  */
+diff -r before/packages/core/traits/nameable.d.ts after2/packages/core/traits/nameable.d.ts
+7,9d6
+< /**
+<  * Element trait that exposes a string-backed nullable `name` field.
+<  */
+diff -r before/packages/core/traits/reorderable.d.ts after2/packages/core/traits/reorderable.d.ts
+22,25d21
+< /**
+<  * Element trait that exposes a presence-based `reorderable` boolean field,
+<  * indicating that the element's children can be dragged to reorder.
+<  */
+diff -r before/packages/core/traits/selectable.d.ts after2/packages/core/traits/selectable.d.ts
+7,9d6
+< /**
+<  * Element trait that exposes a presence-based `selected` boolean field.
+<  */
+diff -r before/packages/core/traits/typeable.d.ts after2/packages/core/traits/typeable.d.ts
+7,9d6
+< /**
+<  * Element trait that exposes a string-backed nullable `type` field.
+<  */
+diff -r before/packages/core/traits/valuable.d.ts after2/packages/core/traits/valuable.d.ts
+7,9d6
+< /**
+<  * Element trait that exposes a string-backed nullable `value` field.
+<  */
+diff -r before/packages/material-x/button/IconButtonCore.d.ts after2/packages/material-x/button/IconButtonCore.d.ts
+10,14d9
+< /**
+<  * The icon button's own attribute, `width`. ButtonLike's accessor reads and
+<  * writes `color`; the member is declared here with the values both colors
+<  * share, which is the type an icon button's `color` has.
+<  */
+diff -r before/packages/material-x/core/traits/focus-forwarding.d.ts after2/packages/material-x/core/traits/focus-forwarding.d.ts
+3,13d2
+< /**
+<  * Makes `host.focus()` focus the control that {@link useFocusForwarding}
+<  * registered, the element that delegating focus picks. Firefox doesn't delegate
+<  * focus from a host whose box is `display: contents`, which every adopter's host
+<  * is, so the shadow root's `delegatesFocus` alone leaves focus where it was
+<  * there (`repo:RF-33`). The shadow root still delegates focus, and this trait
+<  * goes once Firefox delegates through such a host.
+<  *
+<  * `focus()` is a method of the prototype, so a subclass overrides it and
+<  * reaches the control through `super.focus()`.
+<  */
+diff -r before/packages/material-x/list/list-item.js after2/packages/material-x/list/list-item.js
+3c3
+< import { impl } from "@ydinjs/core/traits/composition.js";
+---
+> import "@ydinjs/core/traits/composition.js";
+21,23d20
+< 	static {
+< 		impl(this);
+< 	}

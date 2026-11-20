@@ -5,12 +5,14 @@
 import { createHash } from 'node:crypto';
 import type {
   Class,
+  ImportDeclaration,
   Node,
   Program,
   Statement,
   VariableDeclarator,
 } from '@oxc-project/types';
 import { parseSync } from 'oxc-parser';
+import type { RolldownMagicString } from 'rolldown';
 
 /** Range in a module's source, as `[start, end)` offsets. */
 export type Span = readonly [number, number];
@@ -77,6 +79,31 @@ export function walk(root: Node, visit: (node: Node) => void): void {
       stack.push((current as Record<string, unknown>)[key]);
     }
   }
+}
+
+/**
+ * Removes some of an import's specifiers, each with the comma after it, or,
+ * for the last one kept, the comma before it.
+ */
+export function removeSpecifiers(
+  magic: RolldownMagicString,
+  code: string,
+  node: ImportDeclaration,
+  unused: ReadonlySet<ImportDeclaration['specifiers'][number]>,
+): void {
+  const { specifiers } = node;
+  const lastKept = specifiers.findLastIndex((spec) => !unused.has(spec));
+  specifiers.forEach((spec, index) => {
+    if (!unused.has(spec)) {
+      return;
+    }
+    if (index > lastKept) {
+      magic.remove(specifiers[index - 1]!.end, spec.end);
+    } else {
+      const [after] = /^\s*,\s*/u.exec(code.slice(spec.end)) ?? [''];
+      magic.remove(spec.start, spec.end + after.length);
+    }
+  });
 }
 
 /** An identifier-like node that reads a binding. */

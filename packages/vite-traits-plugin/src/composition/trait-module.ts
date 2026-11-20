@@ -26,7 +26,6 @@ import type {
   ClassElement,
   Decorator,
   Expression,
-  ImportDeclaration,
   MethodDefinition,
   Program,
   VariableDeclarator,
@@ -42,6 +41,7 @@ import {
   collectTopLevelNames,
   forEachValueReference,
   importedLocals,
+  removeSpecifiers,
   syntheticExportName,
   unwrapTS,
   walk,
@@ -144,10 +144,11 @@ function checkTraitReferences(
         decorator.start,
       );
     }
+    // Layer (b) has already removed `@attributes(TABLE)`.
     if (node.decorators.length !== 1) {
       fail(
         CODE.TRAIT_DECORATOR,
-        `@${reference.name} is the only decorator of ${node.id?.name ?? 'the class'}`,
+        `@${reference.name} is the class's first decorator, and the only other is @attributes(TABLE)`,
         decorator.start,
       );
     }
@@ -486,18 +487,6 @@ function readsClass(value: Expression, className: string): boolean {
   return reads;
 }
 
-/** Removes some of an import's specifiers, with their commas. */
-function removeSpecifiers(
-  magic: RolldownMagicString,
-  code: string,
-  unused: ImportDeclaration['specifiers'],
-): void {
-  for (const spec of unused) {
-    const after = /^\s*,\s*/u.exec(code.slice(spec.end));
-    magic.remove(spec.start, spec.end + (after?.[0].length ?? 0));
-  }
-}
-
 /**
  * Removes the import of `trait` when the removed decorators were its only
  * uses: a built trait module doesn't need layer (a)'s runtime.
@@ -542,7 +531,7 @@ function removeUnusedImports(
       magic.remove(node.start, node.end);
       continue;
     }
-    removeSpecifiers(magic, code, unused);
+    removeSpecifiers(magic, code, node, new Set(unused));
   }
 }
 
@@ -630,24 +619,22 @@ export function transformTraitModule(
       insertAt = Math.min(insertAt, decorator.start);
       const [space] = /^\s*/u.exec(code.slice(decorator.end))!;
       magic.remove(decorator.start, decorator.end + space.length);
-      // The method takes the place of the first static block, which layer
-      // (b) left empty, or else opens the class body. A static block that
-      // isn't empty stays, and a component that copies the trait refuses it.
-      const empty = node.body.body.filter(
-        (element) =>
-          element.type === 'StaticBlock' && element.body.length === 0,
-      );
-      const [first, ...others] = empty;
-      if (first) {
-        magic.overwrite(first.start, first.end, hasInstanceMethod(brand));
+      // The method goes after the `static observedAttributes` that layer (b)
+      // puts first in the body, or else first.
+      const [first] = node.body.body;
+      const observed =
+        first?.type === 'PropertyDefinition' &&
+        first.static &&
+        isName(first.key, 'observedAttributes')
+          ? first
+          : null;
+      if (observed) {
+        magic.appendLeft(observed.end, `\n  ${hasInstanceMethod(brand)}\n`);
       } else {
         magic.appendLeft(
           node.body.start + 1,
           `\n  ${hasInstanceMethod(brand)}\n`,
         );
-      }
-      for (const block of others) {
-        magic.remove(block.start, block.end);
       }
       replaced.add(decorator);
       changed = true;

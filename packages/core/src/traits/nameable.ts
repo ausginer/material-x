@@ -12,11 +12,8 @@ export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
  * Element trait that exposes a string-backed nullable `name` field.
  */
 @trait
+@attributes(NAMEABLE_ATTRS)
 export class Nameable extends AnyElement {
-  static {
-    attributes(this, NAMEABLE_ATTRS);
-  }
-
   accessor name!: string | null;
 }
 

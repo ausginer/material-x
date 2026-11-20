@@ -42,21 +42,53 @@ export type AttributeTable<T> = [AttributeKeys<T>] extends [never]
   : { readonly [K in AttributeKeys<T>]?: ConverterFor<T[K]> };
 
 /**
- * Declares a trait's attributes, from the static block of a `@trait` class:
- * `static { attributes(this, { disabled: Bool }); }`, with each
- * attribute declared as `accessor disabled!: boolean`. The trait's build
- * turns each `accessor` line into a getter and a setter that read and write the
- * attribute through the table's converter, and adds the table's keys to a
- * static `observedAttributes`. The table is an object literal, or a module
- * `const` bound to one.
- *
- * @param _trait - The trait class.
- * @param _table - The converter of each attribute member.
+ * Whether `Table` fits instances `I`: every key names an attribute member, and
+ * every converter reads exactly that member's type.
  */
-export function attributes<T extends object>(
-  _trait: AbstractConstructor<T>,
-  _table: NoInfer<AttributeTable<T>>,
-): void {}
+type Fits<Table, I> = [Exclude<keyof Table, AttributeKeys<I>>] extends [never]
+  ? [Table] extends [AttributeTable<I>]
+    ? true
+    : false
+  : false;
+
+declare const tableDoesNotFit: unique symbol;
+
+/** The parameter type that a table that doesn't fit the class gives. */
+type TableDoesNotFit<Table> = { readonly [tableDoesNotFit]: Table };
+
+/**
+ * The class decorator that `attributes(TABLE)` returns. It accepts the class
+ * only when the table fits the class's instances.
+ *
+ * @typeParam Table - The attribute table.
+ */
+export type AttributesDecorator<Table> = <
+  C extends AbstractConstructor<object>,
+>(
+  value: Fits<Table, InstanceType<C>> extends true ? C : TableDoesNotFit<Table>,
+  context: ClassDecoratorContext<C>,
+) => void;
+
+/**
+ * Declares a trait's attributes, written `@attributes(TABLE)` below `@trait`:
+ * `@trait @attributes({ disabled: Bool }) class Disableable`, with each
+ * attribute declared as `accessor disabled!: boolean`. The trait's build
+ * turns each `accessor` line into a getter and a setter that read and write
+ * the attribute through the table's converter, and adds the table's keys to a
+ * static `observedAttributes`. The table is an object literal, or a module
+ * `const` bound to one, and every converter reads exactly its member's type.
+ *
+ * @param _table - The converter of each attribute member.
+ * @throws {Error} Always: a trait module runs only once the build has
+ *   replaced the decorator.
+ */
+export function attributes<const Table extends object>(
+  _table: Table,
+): AttributesDecorator<Table> {
+  throw new Error(
+    '@attributes is compiled by @ydinjs/vite-traits-plugin; build the trait module',
+  );
+}
 
 type PropsOfList<T extends readonly unknown[]> = T extends readonly [
   infer H,

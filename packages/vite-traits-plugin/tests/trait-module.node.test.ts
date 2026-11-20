@@ -117,15 +117,15 @@ describe('transformTraitModule on each form of @trait', () => {
     ).toBe(`\n\n${named('class')}`);
   });
 
-  it("should replace a layer (b) trait's emptied static block with the method", () => {
-    const source = `${IMPORT}import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';\nimport { Bool } from '@ydinjs/core/attribute.js';\n\n@trait\nexport class Open extends AnyElement {\n  static {\n    attributes(this, { open: Bool });\n  }\n\n  accessor open!: boolean;\n}\n`;
+  it("should put the method after a layer (b) trait's observedAttributes", () => {
+    const source = `${IMPORT}import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';\nimport { Bool } from '@ydinjs/core/attribute.js';\n\n@trait\n@attributes({ open: Bool })\nexport class Open extends AnyElement {\n  accessor open!: boolean;\n}\n`;
     const hoisted = staticValueName('Open', 'observedAttributes');
 
     expect(transformTrait('open.ts', source)).toBe(
       [
         'import __mxflat_attr from "@ydinjs/core/attribute.js";',
         '',
-        "import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';",
+        "import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';",
         "import { Bool } from '@ydinjs/core/attribute.js';",
         '',
         'export const $open = Symbol("Open");',
@@ -162,7 +162,7 @@ describe('transformTraitModule on each form of @trait', () => {
         `import { bound, trait } from '@ydinjs/core/traits/composition.js';\n\nconst AnyObject = bound();\n\n@trait\nexport class Named extends AnyObject${BODY}`,
       ),
     ).toBe(
-      `import { bound,  } from '@ydinjs/core/traits/composition.js';\n\nconst AnyObject = bound();\n\n${named('export class').replace('class Named', 'class Named extends AnyObject')}`,
+      `import { bound } from '@ydinjs/core/traits/composition.js';\n\nconst AnyObject = bound();\n\n${named('export class').replace('class Named', 'class Named extends AnyObject')}`,
     );
   });
 });

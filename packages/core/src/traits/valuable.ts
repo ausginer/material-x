@@ -12,11 +12,8 @@ export const VALUABLE_ATTRS: Readonly<{ value: ConverterOf<string> }> = {
  * Element trait that exposes a string-backed nullable `value` field.
  */
 @trait
+@attributes(VALUABLE_ATTRS)
 export class Valuable extends AnyElement {
-  static {
-    attributes(this, VALUABLE_ATTRS);
-  }
-
   accessor value!: string | null;
 }
 

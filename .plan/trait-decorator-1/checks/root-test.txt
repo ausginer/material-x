@@ -5,10 +5,10 @@ nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,v
 
 Re-run with --output-style=static to inline logs.
 
-  Run duration:      5.1s
+  Run duration:      1.7s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     5.1s (2 tasks)
-  Recoverable time:  40ms (1% of the run)
+  Critical path:     1.7s (2 tasks)
+  Recoverable time:  <1ms
 nx run @ydinjs/material-x:build:prepare --skipNxCache
 
  NX   1 task: 1 succeeded
@@ -16,9 +16,9 @@ nx run @ydinjs/material-x:build:prepare --skipNxCache
 
 Re-run with --output-style=static to inline logs.
 
-  Run duration:      6.2s
+  Run duration:      1.6s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     6.1s (1 task)
+  Critical path:     1.6s (1 task)
   Recoverable time:  <1ms
 vitest run 
 Testing types with tsc and vue-tsc is an experimental feature.
@@ -26,10 +26,29 @@ Breaking changes might not follow SemVer, please pin Vitest's version when using
 
  RUN  v5.1.0 /workspaces/worktrees/e
 
+ ❯ |shipped/drag (chromium)| tests/hot-path.browser.test.ts (9 tests | 1 failed) 17850ms
+   ❯ drag:DRI-17 hot path (9)
+     × should allocate per sample only the CSS string a lifted write needs 10277ms
 
- Test Files  143 passed (143)
-      Tests  2172 passed (2172)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped/drag (chromium)| tests/hot-path.browser.test.ts:261 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"shared/invalidation.ts:FrameTask.#fire":168,"sortable/operation.ts:updateInsertion":6888,"sortable/y.ts:resolve":8496,"kernel/session.ts:handleEvent":5476,"sortable/operation.ts:move":24652,"lift.ts:translate":20556}: expected 18.253333333333334 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:310:52
+    308|       // Warm, the kernel reads 0 to about 1 B per move. An allocation…
+    309|       // escapes, such as an object per sample, shows as tens of bytes.
+    310|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    311|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    312|         'lift.ts:translate',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 142 passed (143)
+      Tests  1 failed | 2201 passed (2202)
 Type Errors  no errors
-   Start at  07:53:06
-   Duration  364.63s (tests 89%, worker 4%, import 4%, transform 1%, setup 1%)
+   Start at  08:06:20
+   Duration  258.63s (tests 95%, worker 2%, import 2%, transform 1%)
 
+error: recipe `test` failed on line 64 with exit code 1

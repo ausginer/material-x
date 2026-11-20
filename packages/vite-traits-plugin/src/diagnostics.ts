@@ -41,15 +41,21 @@ export const CODE = {
   /** `super[k]` in the component. */
   CLASS_COMPUTED_SUPER: 'class-computed-super',
   /**
-   * `trait` is used other than as the one decorator of a module-scope class
-   * declaration: called, on another node, beside another decorator, or as a
-   * value.
+   * `trait` is used other than as the first decorator of a module-scope class
+   * declaration whose only other is `@attributes(TABLE)`: called, on another
+   * node, beside another decorator, or as a value.
    */
   TRAIT_DECORATOR: 'trait-decorator',
   /** Layer (b): the attribute table can't be read or doesn't match. */
   ATTRIBUTE_TABLE: 'attribute-table',
   /** Layer (b): an `accessor` line isn't `accessor name!: T`. */
   ATTRIBUTE_ACCESSOR: 'attribute-accessor',
+  /**
+   * Layer (b): `attributes` is used other than as `@attributes(TABLE)`, the
+   * second decorator of a module-scope class declaration whose first is
+   * `@trait`.
+   */
+  ATTRIBUTES_DECORATOR: 'attributes-decorator',
   /** Two traits supply one key that doesn't merge; the last trait wins. */
   TRAIT_MEMBER_CONFLICT: 'trait-member-conflict',
 } as const;

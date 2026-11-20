@@ -34,11 +34,8 @@ const CHECKED_ICON = 'check_small';
 const INDETERMINATE_ICON = 'check_indeterminate_small';
 
 @trait
+@attributes({ indeterminate: Bool })
 export class Indeterminable extends AnyElement {
-  static {
-    attributes(this, { indeterminate: Bool });
-  }
-
   accessor indeterminate!: boolean;
 }
 export type IndeterminatableProps = Props<typeof Indeterminable>;

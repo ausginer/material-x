@@ -2,29 +2,29 @@
 
 ## Purpose
 
-`@ydinjs/core` traits are plain classes, and a component names its base and its traits in a type: `const XBase: Composed<typeof Base, [typeof A, typeof B]> = compose(Base)`, extended by one class. Nothing composes them at runtime. The flattener is the **required compiler step** that turns that annotation into one class extending `Base`, with the traits' members copied in. Without it, `compose()` throws when the component's module is evaluated.
+`@ydinjs/core` traits are plain classes decorated `@trait`, and a component names its base and its traits in a type: `const XBase: Composed<typeof Base, [typeof A, typeof B]> = compose(Base)`, extended by one class. Nothing composes them at runtime. The flattener is the **required compiler step** that turns that annotation into one class extending `Base`, with the traits' members copied in, and compiles the decorators. Without it, `compose()` throws when the component's module is evaluated, and `@trait` and `@attributes()` throw where a toolchain lowers decorators. Trait sources always go through the plugin, tests included.
 
-The transform affects JavaScript emission only. Declarations are generated from the typed source, which keeps the `Composed` annotation and each trait's `accessor` lines.
+The transform affects JavaScript emission only. Declarations are generated from the typed source, which keeps the `Composed` annotation and each trait's `accessor` lines. TypeScript's and oxc's declaration emitters both leave out the decorators.
 
 ## The two layers
 
-- **Layer (a), `@ydinjs/core/traits/composition.js`,** knows nothing of elements or attributes. A trait extends a bound, `bound()`, which is `null` at runtime, and calls `trait(this)` in its static block. Its members are methods, getters and setters, instance or static, and its static fields.
-- **Layer (b), `@ydinjs/core/traits/attribute-traits.js`,** is sugar for element traits: `accessor name!: T` lines and `attributes(this, TABLE)` in the static block. It is lowered in the trait's own build, so a consumer only ever reads plain layer (a) traits. Nothing in the plugin's `composition/` imports its `attributes/`, and a node test checks that.
+- **Layer (a), `@ydinjs/core/traits/composition.js`,** knows nothing of elements or attributes. A trait is a module-scope class declaration that extends a bound, `bound()`, which is `null` at runtime, and is decorated `@trait`. Its members are methods, getters and setters, instance or static, and its static fields. It has no static block.
+- **Layer (b), `@ydinjs/core/traits/attribute-traits.js`,** is sugar for element traits: `accessor name!: T` lines and `@attributes(TABLE)`, the decorator after `@trait`. It is lowered in the trait's own build, so a consumer only ever reads plain layer (a) traits. Nothing in the plugin's `composition/` imports its `attributes/`, and a node test checks that.
 
 ## What the plugin does to each module
 
 `viteTraitsPlugin()` returns two `enforce: 'pre'` plugins, applied in this order:
 
-1. **`trait-attributes`, layer (b).** In each class whose static block calls `attributes(this, TABLE)`, each `accessor name!: T` line becomes a getter and a setter that call core's attribute operator with the table's converter, the call is removed, and a static `observedAttributes` lists the table's keys. TABLE is an object literal, whose converters are identifiers or member expressions, or a module-scope `const` bound to one, read as `TABLE.name`. The operator is imported beside the module `attributes` comes from: `…/traits/attribute-traits.js` gives `…/attribute.js`.
+1. **`trait-attributes`, layer (b).** In each module-scope class declaration decorated `@trait` and then `@attributes(TABLE)`, each `accessor name!: T` line becomes a getter and a setter that call core's attribute operator with the table's converter, `@attributes(TABLE)` and its import are removed, `@trait` stays, and a static `observedAttributes`, first in the class body, lists the table's keys. TABLE is an object literal, whose converters are identifiers or member expressions, or a module-scope `const` bound to one, read as `TABLE.name`. The operator is imported beside the module `attributes` comes from: `…/traits/attribute-traits.js` gives `…/attribute.js`.
 2. **`trait-flattener`.** The trait module's own transform, then the flattening of each composition in the module.
 
 The flattener reads every other module through a loader that applies step 1, so a trait from the same package is read already lowered.
 
 ### A trait module's own transform
 
-For each class whose static block calls `trait(this)`:
+It first checks that the module uses `trait` only as the first decorator of a module-scope class declaration (`trait-decorator`). Then, for each class decorated `@trait`, where `trait` is a name the module imports from `…/composition`, aliases included:
 
-- **The brand** is hoisted into an exported module-level `Symbol`, `$` and the class name with a lower-case first letter, and `trait(this)` is replaced by a static method: `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`. The static block goes when nothing else is left in it, and `trait`'s import when nothing else uses it. A bundle that never uses `instanceof` drops the class, and one that uses it keeps the class with a correct `instanceof`. A pure-marked `trait()` call would be removed even from a class the bundle keeps, and a static field would throw where class fields are lowered to assignment.
+- **The brand** is hoisted into an exported module-level `Symbol`, `$` and the class name with a lower-case first letter, `@trait` is removed, and the class gets a static method: `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`. The method goes after the `static observedAttributes` that layer (b) puts first, or else first in the body, and `trait`'s import goes when nothing else uses it. In `@trait export class`, the decorator lies before the `export` statement, so the brand goes before the decorator. A bundle that never uses `instanceof` drops the class, and one that uses it keeps the class with a correct `instanceof`. A pure-marked `trait()` call would be removed even from a class the bundle keeps, and a static field would throw where class fields are lowered to assignment.
 - **Each static field's value** is hoisted into an exported module-level constant, which the field then reads. A component links the constant, so it doesn't retain the trait class.
 - **Each private binding a member reads** is exported under a build-only name, `__mxflat_<name>_<hash>`, and under its own name, so a component in another module, or another package's build, can link the live binding.
 - **In an application build,** Vite's `build` without `build.lib`, each trait class's instance members are deleted, because nothing copies from that output. A library build keeps them, because another package copies from its `.js`. tsdown is always a library build, and the dev server is left alone.
@@ -37,7 +37,7 @@ A composition is a module-scope `const X: Composed<B, [...]> = compose(B)`, not 
 
 **The trait list** is read from the annotation's second type argument: a tuple of `typeof T` and of spreads, `...Alias`, of tuple aliases, local or imported, `readonly` or not. An imported alias is read from the other module's declarations. A supertrait's own list is expanded before the supertrait. A cycle is an error.
 
-**A trait** is a class with `trait(this)` in its static block, or, in built JavaScript, with the generated method. It is resolved through the module's imports, so a trait imported with `import type` works.
+**A trait** is a class decorated `@trait`, or, in built JavaScript, with the generated method. It is resolved through the module's imports, so a trait imported with `import type` works. `@trait` and `@attributes` are recognized by named imports, as `compose` is: a namespace import, `@c.trait`, isn't.
 
 **Import a trait or a base from the module that declares it.** The flattener doesn't follow `export … from`: a trait imported through a re-export is `trait-unresolved`, and a base whose static kind it must read is `static-kind`. A base's chain is read for nearly every composition, because every attribute trait contributes `observedAttributes`.
 
@@ -46,7 +46,7 @@ A composition is a module-scope `const X: Composed<B, [...]> = compose(B)`, not 
 - methods, getters and setters, instance and static, are copied as their source text;
 - static fields with a value are merged by kind (below);
 - `declare`, `abstract`, overload signatures, index signatures and a private field with no initializer, such as `#brand!: true`, are skipped. A `declare` member is a key in the types only: nothing is copied for it, and the conflict warning doesn't count it;
-- anything else is an error: a constructor, an instance field, a private name read by a member, a computed key, a static block that does more than call `trait(this)`, and a body the free-reference walker doesn't model.
+- anything else is an error: a constructor, an instance field, a private name read by a member, a computed key, a static block, and a body the free-reference walker doesn't model.
 
 ### The copy
 
@@ -90,7 +90,7 @@ The flattened class holds every trait's members in list order, before the compon
 
 ### The emitted component
 
-The composition's statement is removed and the class extends the base. At the start of its body go the merged statics, each trait's members, and one static block, `static { impl(this, $a, $b, …); }`, which defines each brand on the prototype as a non-enumerable, read-only `true`. `impl` is imported from the module `compose` was imported from, and each link once, under an alias unique to its specifier and export.
+The composition's statement is removed and the class extends the base. At the start of its body go the merged statics, each trait's members, and, when the list has a trait, one static block, `static { impl(this, $a, $b, …); }`, which defines each brand on the prototype as a non-enumerable, read-only `true`. An empty list brands nothing and gets neither the block nor the import. `impl` is imported from the module `compose` was imported from, once, when some composition in the module has a trait, and each link once, under an alias unique to its specifier and export.
 
 ## Trait IR
 
@@ -104,8 +104,9 @@ Every error fails the build, through the host's `error`, with the module and pos
 | --- | --- | --- |
 | `composition-shape` | error | The composition isn't a module-scope `const X: Composed<B, [...]> = compose(B)` extended by exactly one class, or `compose()` is called anywhere else. |
 | `trait-list` | error | A list element isn't `typeof T` or a spread of a tuple alias, or the expansion has a cycle. |
-| `trait-unresolved` | error | A trait can't be resolved to a class whose static block calls `trait(this)`, or, in built JavaScript, with the generated `static [Symbol.hasInstance]` method; or a name it reads is imported through a specifier no package reaches. |
-| `trait-member` | error | A member is outside the copy subset: a constructor, `super`, a computed or private key, a private name read by a member, `eval`, `import.meta`, a static block that does more than call `trait(this)`, an `accessor` field, or a body the walker doesn't model. |
+| `trait-unresolved` | error | A trait can't be resolved to a class decorated `@trait`, or, in built JavaScript, with the generated `static [Symbol.hasInstance]` method; or a name it reads is imported through a specifier no package reaches. |
+| `trait-decorator` | error | The trait module's transform: `trait` is used other than as the first decorator of a module-scope class declaration whose only other decorator is `@attributes(TABLE)`. That is `@trait(…)`, `@trait` on a class expression, a nested class or a member, beside another decorator or twice, and any other reference: a call such as `trait(this)`, a re-export, or passing it as a value. |
+| `trait-member` | error | A member is outside the copy subset: a constructor, `super`, a computed or private key, a private name read by a member, `eval`, `import.meta`, a static block, an `accessor` field, or a body the walker doesn't model. |
 | `trait-field` | error | An instance field that isn't `declare`, or a private field with an initializer. |
 | `trait-binding-shadowed` | error | The component's module or class binds a name that a copied member reads, or the class isn't module-scoped. |
 | `trait-source-language` | error | The copy rule refuses a member. The message names the member and the two languages. |
@@ -117,6 +118,7 @@ Every error fails the build, through the host's `error`, with the module and pos
 | `class-computed-super` | error | `super[k]` in the component. |
 | `attribute-table` | error | Layer (b): the table isn't an object literal or a module-scope `const` bound to one, a key has no `accessor`, an `accessor` has no key, or a converter isn't an identifier or a member expression. |
 | `attribute-accessor` | error | Layer (b): an `accessor` line has an initializer, or isn't `accessor name!: T`. |
+| `attributes-decorator` | error | Layer (b): `attributes` is used other than as `@attributes(TABLE)`, the second decorator of a module-scope class declaration whose first is `@trait`. That is `@attributes` not called or not with one table, on a class that `@trait` doesn't decorate, above `@trait` or twice, on a class expression, a nested class or a member, and any other reference: a call such as `attributes(this, TABLE)`, a re-export, or passing it as a value. |
 | `trait-member-conflict` | warning | Two traits supply one key that is a method, an accessor or a simple static. The later trait wins. Silent when the component declares the key. |
 
 ## Plugin architecture
@@ -141,11 +143,12 @@ Every error fails the build, through the host's `error`, with the module and pos
 
 The plugin's node tests cover:
 
-- each error code with a module that raises it, and the conflict warning with the later trait's member and simple static emitted, an array static concatenated, and no warning when the component declares the key;
-- layer (b)'s lowering and its operator specifier;
-- the trait module's transform: the brand hoist and method, the import removal, the static hoist, the build-only exports, an already transformed module left unchanged, and the deletion in an application build, with `instanceof` read at runtime;
+- each error code with a module that raises it, each misuse of `@trait` and `@attributes` with its position, and the conflict warning with the later trait's member and simple static emitted, an array static concatenated, and no warning when the component declares the key;
+- layer (b)'s lowering of an inline table and a module constant, under aliased imports, against expected text, and its operator specifier;
+- the trait module's transform of each form of `@trait`, against expected text: above `export class`, after `export`, a class that isn't exported, a layer (b) trait, an aliased import, and the import kept for another name; the brand hoist and method, the import removal, the static hoist, the build-only exports, an already transformed module left unchanged, and the deletion in an application build, with `instanceof` read at runtime;
 - the copy rule's cases;
 - runtime equivalence of a flattened component, built from a layer (b) trait with a constant table, one with an inline table and a layer (a) trait with a private binding, against a hand-written expected class: prototype keys, attributes, `observedAttributes`, the private binding, `super` from a subclass and `instanceof`; and a trait in another package's built JavaScript;
+- a supertrait, whose composition stays; an empty list, which emits no `impl`; and a layer (b) trait from source composed in a Vite build and on the dev server;
 - the brand install in bundles, with rolldown and esbuild: an unused trait class drops, a used one keeps a correct `instanceof`, the deletion leaves it without members, and a library build keeps the brand install;
 - the import boundary between `composition/` and `attributes/`.
 
@@ -163,3 +166,4 @@ A change to the plugin is also checked by building `@ydinjs/core` and `@ydinjs/m
 | 2026-11-19 | Transform, Composition, Statics, Diagnostics | **Corrected** on PR #76's feature proof (`reviewer-1` to `reviewer-3`). An application build deletes the instance members of a built trait module too, recognized only by the exact generated method; the base's declared kind is the first contributor to a static, where the table said _"Two traits"_; and `composition-shape` counts only value references, where it said _"nothing else references"_ |
 | 2026-11-19 | Composition, Transform | **Corrected** on PR #76's repair verification (`verifier-1` to `verifier-3`). The `composition-shape` count fails closed and walks every node that isn't type-only; a brand is never written again by any target; and the limit on re-exports is stated |
 | 2026-11-19 | Composition, Transform | **Corrected** on PR #76's final verification (`final-1`, `final-2`). A JSX element's name counts as a value reference, a direct `eval` is stated as out of reach, and a nested `var` counts as a second declaration of a brand |
+| 2026-11-20 | Purpose, Layers, Transform, Composition, Emitted component, Diagnostics, Verification | **Changed for `RD-26`'s amendments of 2026-11-20.** A trait declares itself with `@trait` and its attributes with `@attributes(TABLE)`, which the plugin compiles into the same JavaScript; they were `trait(this)` and `attributes(this, TABLE)` in a static block, and a trait has no static block now. The codes `trait-decorator` and `attributes-decorator` are added. An empty trait list emits no `impl` block or import, where `impl` was always generated |

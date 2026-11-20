@@ -4,7 +4,7 @@ vitest run -c vitest.config.ts
 
 
  Test Files  8 passed (8)
-      Tests  119 passed (119)
-   Start at  08:00:40
-   Duration  519ms (import 38%, tests 37%, transform 22%, worker 2%)
+      Tests  144 passed (144)
+   Start at  08:14:09
+   Duration  475ms (tests 43%, import 41%, transform 13%, worker 3%)
 

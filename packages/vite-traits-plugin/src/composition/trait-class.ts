@@ -384,16 +384,11 @@ export async function normalizeTraitClass(
   for (const element of cls.node.body.body) {
     switch (element.type) {
       case 'StaticBlock':
-        // Layer (b) leaves its block empty, and the trait's own build
-        // removes it.
-        if (element.body.length > 0) {
-          fail(
-            CODE.TRAIT_MEMBER,
-            `${name}: a trait's static block holds only attributes(this, …)`,
-            element.start,
-          );
-        }
-        break;
+        return fail(
+          CODE.TRAIT_MEMBER,
+          `${name}: a trait has no static block`,
+          element.start,
+        );
       case 'MethodDefinition':
         // The generated brand install is neither copied nor merged.
         if (
@@ -458,7 +453,7 @@ export async function normalizeTraitClass(
       case 'AccessorProperty':
         return fail(
           CODE.TRAIT_MEMBER,
-          `${name}: an accessor field; attributes(this, …) declares it`,
+          `${name}: an accessor field; @attributes(TABLE) declares it`,
           element.start,
         );
       case 'TSAbstractAccessorProperty':

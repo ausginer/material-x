@@ -12,11 +12,8 @@ export const TYPEABLE_ATTRS: Readonly<{ type: ConverterOf<string> }> = {
  * Element trait that exposes a string-backed nullable `type` field.
  */
 @trait
+@attributes(TYPEABLE_ATTRS)
 export class Typeable extends AnyElement {
-  static {
-    attributes(this, TYPEABLE_ATTRS);
-  }
-
   accessor type!: string | null;
 }
 
