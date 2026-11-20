@@ -159,6 +159,7 @@ A package's trusted publisher can't be configured until the package exists, and 
    2. **On npmjs.com,** in _Staged Packages_, or with `npm stage view <stage-id>`: the staged version's stage id and `shasum` equal the ones in that run's summary.
 
    He then approves with his security key. If either check fails, he rejects the version.
+
 5. **On a first release,** step 4 of the first publish.
 6. **An agent reads the result:**
    - the version on the registry;
@@ -214,6 +215,7 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
    - `verify`'s push run for that commit concluded `success`.
 
    The run builds that commit. Equality replaces _reachable from `origin/main`_. The provenance names `GITHUB_SHA`, so a run that built any other `main` commit would attest a commit it didn't build.
+
 3. **The environment `npm` admits only the branch `main`,** with no tag rule, and administrators can't bypass it (O1).
    - A run of any other ref gets neither the environment's OIDC claim, which the trusted publisher requires, nor `NPM_STAGE_TOKEN`.
    - The trusted publisher doesn't change: `ausginer/material-x`, `release.yml` and `npm`.
@@ -337,14 +339,16 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
 3. **The amendment to `RD-16` property 1:** the `stage` job runs `npm stage publish`, outside any checkout, because aube implements neither trusted publishing nor staging ([what runs where](#the-workflow-githubworkflowsreleaseyml)).
    - **Answered: approved.** _"Конечно да, пусть npm работает"_ ("Yes, of course, let npm do it").
 
-**Open, from [the amendment](#amendment-a-release-runs-on-main) of 2026-11-20:**
+**From [the amendment](#amendment-a-release-runs-on-main) of 2026-11-20, both answered by the owner the same day,** relayed by the coordinator: _"Q4-5 согласен."_ ("I agree with Q4–5."). He also approved task 4.
 
 4. **Do you accept that a release is tagged at `main`'s head, and that you merge nothing until its run has started?** **Recommended: yes.**
    - Why: the run is on `main`, so its provenance names `main`'s head, and the run must build exactly that commit.
    - The tag's own run dispatches the release within seconds, so in practice this means tagging after `verify` passes on the head, and merging after the run starts.
    - The cost: if `main` moves first, the run refuses, and that version needs a new tag. Tags can't move.
    - The alternative is the tag-push design, with you checking by hand before each approval that the run's commit is on `main`. The amendment explains why it isn't adopted.
+   - **Answered: yes.** A release is tagged at `main`'s head, and he merges nothing until its run has started.
 5. **O1 changes:** the environment `npm` admits only the branch `main`, with no tag rule, and _Allow administrators to bypass configured protection rules_ off. This is your setting to make. Is there a reason to keep the administrator bypass? **Recommended: off.** Agents act through your account, so the bypass would let them past the branch rule.
+   - **Answered: agreed, with the bypass off.** The environment `npm` admits only the branch `main`, with no tag rule and the administrator bypass off. It is his setting, O1, and he makes it before the first tag.
 
 ## Not adopted
 

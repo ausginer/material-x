@@ -1524,7 +1524,10 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - The token is stage-only and granular, lives for a day, and is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm`. It is revoked after the publish, and the first version keeps its provenance.
   - If npm refuses a stage-only token for a name that doesn't exist yet, the fallback is that he stages the `prepare` job's tarball himself.
 
-**Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of PR #81 at `e73411cf4`, relayed by the coordinator. Both block the first tag. The plan's [amendment](release-workflow-1/release-workflow-plan.md#amendment-a-release-runs-on-main) has the reading, the sources and task 4. **Unimplemented:** task 4, and O1 as amended. **Open for the owner:** the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner) 4 and 5.
+**Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of PR #81 at `e73411cf4`, relayed by the coordinator. Both block the first tag. The plan's [amendment](release-workflow-1/release-workflow-plan.md#amendment-a-release-runs-on-main) has the reading, the sources and task 4. **Unimplemented:** task 4, and O1 as amended. **Answered by the owner on 2026-11-20,** relayed by the coordinator: _"Q4-5 согласен."_ ("I agree with Q4–5."). That answers the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner) 4 and 5 as recommended, and he approved task 4.
+
+- **Q4:** a release is tagged at `main`'s head, and he merges nothing until its run has started.
+- **Q5:** O1 as amended. The environment `npm` admits only the branch `main`, with no tag rule and the administrator bypass off. That setting is his to make.
 
 - **`reviewer-3`: a release runs on `main`** (property 4).
   - **The finding.** A tag push runs the tagged commit's own `release.yml`, so whoever tags a commit off `main` can delete its commit checks. The environment admitted the tag, so such a run could stage and read `NPM_STAGE_TOKEN`.
