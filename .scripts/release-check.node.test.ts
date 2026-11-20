@@ -286,6 +286,14 @@ describe('checkRegistry', () => {
     ]);
   });
 
+  // Build metadata doesn't take part in precedence, so `1.0.0+build.1` is
+  // equal to `1.0.0`, and the registry's version index doesn't hold it.
+  it("should refuse a latest version equal to the registry's by precedence", async () => {
+    const known = registry({ '@ydinjs/box-quad': packument(['1.0.0']) });
+    const release: Release = { ...BOX_QUAD_RELEASE, version: '1.0.0+build.1' };
+    expect(checks(await checkRegistry(release, known))).toEqual(['latest']);
+  });
+
   it("should not compare a next version with the registry's latest", async () => {
     const known = registry({ '@ydinjs/box-quad': packument(['1.2.0']) });
     const release: Release = {
