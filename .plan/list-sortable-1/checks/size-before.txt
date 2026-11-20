@@ -1,0 +1,93 @@
+# Size readings, branch repo/list-sortable-1 at effe25460, whose source equals origin/main e4b0e475d (the branch adds records only). 2026-11-20T12:38:29Z. Brotli unless stated.
+
+## packages/box-quad: aube exec just size
+✔ Build complete in 56ms
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  Size limit: 1.18 kB
+  Size:       1.18 kB brotlied
+
+## packages/drag: aube exec just size
+✔ Build complete in 561ms
+node bench/size/measure.ts 
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20916 min   7232 gz   6533 br  20 modules
+sortable + xy                   20607 min   7191 gz   6484 br  19 modules
+complete                        22652 min   7900 gz   7143 br  22 modules
+
+## packages/core: aube exec just size
+✔ Build complete in 299ms
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  element
+  Package size is 28 B less than limit
+  Size limit: 340 B
+  Size:       312 B brotlied
+  emitter
+  Package size is 12 B less than limit
+  Size limit: 210 B
+  Size:       198 B brotlied
+  traits/reorderable
+  Size limit: 3.5 kB
+  Size:       3.11 kB brotlied
+
+## packages/material-x: aube exec just size
+Created CSS private properties list:  file://<worktree>/node_modules/.cache/css/css-private-props.json
+✔ Build complete in 1860ms
+✔ [publint] No issues found (20ms)
+custom-elements-manifest analyze --config cem.config.ts
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  button/button
+  Size: 4.84 kB brotlied
+  button/icon-button
+  Size: 5.11 kB brotlied
+  button/link-button
+  Size: 4.81 kB brotlied
+  button/switch-button
+  Size: 5.19 kB brotlied
+  button/switch-icon-button
+  Size: 5.6 kB brotlied
+  button/split-button
+  Size: 7.41 kB brotlied
+  button-group/button-group
+  Size: 3.12 kB brotlied
+  button-group/connected-button-group
+  Size: 3.88 kB brotlied
+  checkbox/checkbox
+  Size: 4.02 kB brotlied
+  fab/fab
+  Size: 4.23 kB brotlied
+  icon/icon
+  Size: 661 B brotlied
+  list/list
+  Size: 3.67 kB brotlied
+  list/list-item
+  Size: 2.57 kB brotlied
+  list/list-button-item
+  Size: 4.58 kB brotlied
+  list/list-link-item
+  Size: 4.75 kB brotlied
+  radio/radio
+  Size: 3.59 kB brotlied
+  text-field/multiline-text-field
+  Size: 4.44 kB brotlied
+  text-field/text-field
+  Size: 8.13 kB brotlied
+  complete
+  Size: 16.93 kB brotlied
+
+## The list's drag composition: node .plan/list-sortable-1/probes/list-compositions.ts packages/drag (run from packages/drag after its build)
+sortable + y (control, = drag row)    20916 min   7232 gz   6533 br  20 modules
+  modules: fault.js, kernel/callbacks.js, kernel/drag.js, shared/focus.js, kernel/session.js, kernel/gesture.js, draggable.js, ../box-quad/src/index.ts, lift.js, shared/invalidation.js, sortable/domain.js, sortable/collection.js, sortable/keyboard.js, sortable/placement.js, sortable/operation.js, sortable/behavior.js, sortable.js, sortable/linear-shift.js, sortable/rect-index.js, sortable/y.js
+sortable + y + landing (the list)     21725 min   7605 gz   6866 br  21 modules
+  modules: fault.js, kernel/callbacks.js, kernel/drag.js, shared/focus.js, kernel/session.js, kernel/gesture.js, draggable.js, ../box-quad/src/index.ts, lift.js, shared/invalidation.js, sortable/domain.js, sortable/collection.js, sortable/keyboard.js, sortable/placement.js, sortable/operation.js, sortable/behavior.js, sortable.js, sortable/linear-shift.js, sortable/rect-index.js, sortable/y.js, shared/landing.js
