@@ -1,0 +1,77 @@
+consumer-variants.sh, run 2026-11-20 by the reviewer with aube 2.10.0, node v26.13.1, and the npm registry of that day.
+Tarballs: aube pack --ignore-scripts of packages/core and packages/vite-traits-plugin, built at 0d0cb4875 in the reviewer's worktree.
+The packed plugin manifest: dependencies {@oxc-project/types 0.158.0, oxc-parser 0.158.0}, peerDependencies {rolldown ^1.1.4, vite ^8.1.4 || ^8.4.0-beta.1}.
+
+CASES, V1:
+  consumer v1-a-8.3.8-hoisted "$PLUGIN" 8.3.8 hoisted ""   (and isolated; 8.1.4 hoisted and isolated; 8.4.0-beta.1 hoisted; the mutant tarball at 8.3.8 hoisted)
+CASES, V2: NODE_TYPES= ; consumer v2-a-8.3.8-hoisted "$PLUGIN" 8.3.8 hoisted "~1.2.18"
+CASES, V3: FULL_TYPES=1 ; consumer v3-a-8.3.8-isolated "$PLUGIN" 8.3.8 isolated ""
+
+# V1: the consumer declares no rolldown; types.ts checks only defineConfig
+v1-a-8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+v1-a-8.3.8-isolated: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+v1-b-8.1.4-hoisted: vite 8.1.4, plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+v1-b-8.1.4-isolated: vite 8.1.4, plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+v1-c-8.4.0-beta.1-hoisted: vite 8.4.0-beta.1, plugin rolldown 1.3.3, vite rolldown 1.3.3, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+v1-mutant-8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.3.2, vite rolldown 1.2.19, two copies
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link NOT flattened
+  dist/main.js: 2 compose(Base), 0 impl(this
+# V2: no @types/node, rolldown declared as the committed script does
+v2-a-8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: FAILS
+    node_modules/vite/dist/node/index.d.ts(1,23): error TS2688: Cannot find type definition file for 'node'.
+    node_modules/vite/dist/node/index.d.ts(14,23): error TS2591: Cannot find name 'node:http'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(15,94): error TS2591: Cannot find name 'node:http'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(16,35): error TS2591: Cannot find name 'node:http2'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(17,30): error TS2591: Cannot find name 'node:events'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(18,21): error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(19,76): error TS2591: Cannot find name 'node:https'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(20,22): error TS2591: Cannot find name 'node:net'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(21,47): error TS2591: Cannot find name 'node:stream'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+    node_modules/vite/dist/node/index.d.ts(23,38): error TS2591: Cannot find name 'node:tls'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+# V3: isolated, no rolldown declared, types.ts imports RolldownOptions from rolldown
+v3-a-8.3.8-isolated: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: FAILS
+    types.ts(1,38): error TS2307: Cannot find module 'rolldown' or its corresponding type declarations.
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+
+The committed plugin-consumer.sh, rerun on the same tarballs, gives plugin-consumer.txt's 5 results line for line:
+a-vite8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+a-vite8.3.8-isolated: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+b-vite8.1.4-hoisted: vite 8.1.4, plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+c-vite8.4.0-beta.1-hoisted: vite 8.4.0-beta.1, plugin rolldown 1.3.3, vite rolldown 1.3.3, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+mutant-a-vite8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.3.2, vite rolldown 1.2.19, two copies
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link NOT flattened
+  dist/main.js: 2 compose(Base), 0 impl(this
