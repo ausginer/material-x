@@ -106,7 +106,7 @@ One organization project, `Work queue`, owned by `ausginer` and linked to `mater
 - **No milestones.** `Status` and the rank within it are the queue's only ordering. A release is an issue, ranked like any other item.
 - **Everything else on a card is the issue's own field,** shown and not copied: the title, labels, linked pull requests and _blocked by_. The project has no custom field other than `Status`: none for package, tier, release or priority.
 - **_Done_ follows the issue.** The project's built-in workflows set _Done_ when an item is closed and when a pull request is merged, and set _Queued_ when an item is reopened. Nobody sets _Done_ by hand. To finish an item, close its issue ([Closing](#closing)). The workflow that closes an issue when its card reaches _Done_ is off.
-- **Items are added by hand.** Auto-add is off. An issue from another account, or a `safari` issue, reaches the board only when the coordinator adds it after triage.
+- **Items are added by hand.** Auto-add is off. An issue from another account, a `safari` issue or a `tokens-release` issue reaches the board only when the coordinator adds it after triage.
 - **An open pull request is an item too.** A unit's pull request goes on the board in _In progress_. Its issue moves to _In progress_ with it, and a comment on the issue names the slot, branch and base. A unit starts from an issue.
 
 ## Labels
@@ -119,7 +119,7 @@ One organization project, `Work queue`, owned by `ausginer` and linked to `mater
 | `repo` | Repository-level: CI, the harness, the record tooling |
 
 - **No label states a tier.** The tier is the record's, and the record re-tiers entries. A tier that matters for the order reaches the queue as the owner's order.
-- **GitHub's default labels, `record-baselines` and `safari` aren't queue labels.** `record-baselines` starts `baselines.yml`. `safari.yml` comments its next failure on any open issue that has `safari`. So no queue issue has that label. A `safari` issue stays the workflow's signal: the coordinator attributes its failures to record entries in a comment, and then closes it.
+- **GitHub's default labels, `record-baselines`, `safari` and `tokens-release` aren't queue labels.** `record-baselines` starts `baselines.yml`. `safari.yml` comments its next failure on any open issue that has `safari`, and `tokens.yml` comments a new token database on any open issue that has `tokens-release`. So no queue issue has either label. A `safari` issue stays the workflow's signal: the coordinator attributes its failures to record entries in a comment, and then closes it. A `tokens-release` issue closes with the pull request that updates the store.
 
 ## Language and links
 

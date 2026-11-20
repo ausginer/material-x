@@ -94,7 +94,8 @@ aube exec just update-tokens --current --report <file>
 - **Never commit a raw table.** The tables carry Google employees' personal data. `packages/tproc/.data/` is git-ignored, for a table that you keep by hand while debugging.
 - To add a component, add a row to `manifest.json`'s `tables` with its `kind` and `componentId`, then run an update. The site names a component's id in the page content it loads (`resourceName: components/<id>`).
 - `--legacy <directory>` converted the tables committed before the store, once. Those tables mixed two database versions. So this mode lists each token that two tables convert differently, and keeps the first table's copy.
-- An update is a pull request that carries the report and the difference in material-x's generated CSS.
+- An update is a pull request that carries the report and the difference in material-x's generated CSS. `--report <file>` compares the conversion with the store it replaces: tokens added and removed, deprecations added, and each token whose selected value for `expressive` and `web` changed, with its old and new one-hop reference or literal, by token set.
+- **A weekly check** (`.github/workflows/tokens.yml`) runs `scripts/check-release.ts`, which compares the database of the site's current release with the manifest's. A database the manifest doesn't record opens an issue labelled `tokens-release`, or comments on the open one. It never updates the store.
 
 ## Gotchas
 
