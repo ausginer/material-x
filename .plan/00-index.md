@@ -1545,6 +1545,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **Amended 2026-11-20 a fourth time, by the architect: no trait form loses its doc, and the plugin leaves no import it emptied** (the third amendment's stage, and property 2's fourth bullet). **Asked by the owner,** relayed by the coordinator: _"The owner wants both done"_, for the feature proof's `reviewer-3` and `reviewer-4`. Registered on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. An amendment, because both findings are about how this decision's properties hold. The [plan](trait-decorator-2/trait-decorator-2-plan.md) holds the diagnosis, the tasks, the proofs and the probes. **Unimplemented.**
 
+**Approved by the owner on 2026-11-20,** relayed by the coordinator: _"Да, давай по обоим пунктам"_ ("Yes, go on both"). The two points were the plan's tasks 1 to 4, which the implementer takes on this branch, and the plan's [question 1](trait-decorator-2/trait-decorator-2-plan.md#questions-for-the-owner), answered yes as recommended: `@ydinjs/core` declares `"sideEffects": false`, as its own unit with a size reading, before core's first release. That unit is `RD-30`, planned on `core/side-effects-1`. Neither unit waits for the other.
+
 - **The doc forms** (`reviewer-3`, [transcript](trait-decorator-2/checks/doc-forms.txt)).
   - **`@trait export abstract class` keeps its doc.** The finding came from the probe's test, `(export )?declare class`, which can't match `export declare abstract class`.
   - **Two forms lose it, both because of the stage:** a comment between the JSDoc and the first decorator, because the stage requires only whitespace there; and `@trait export default class X`, because the stage reads only `export class`.
@@ -1558,7 +1560,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **`treeshake.moduleSideEffects: 'no-external'` in material-x's build:** it would drop a deliberate bare import of any package without a warning. In the probe it also changed `fab.d.ts`.
   - **core's `sideEffects` as the fix for `reviewer-4`:** it lets only a consumer's bundler drop the import, and material-x's published file would keep it.
   - **Moving `export` for every decorated class, with no doc test:** that widens the stage's rewrites, the scope that `reviewer-5` questions.
-- **For the owner:** whether `@ydinjs/core` declares `"sideEffects": false`, which is core's published contract. It is true of all 27 built modules today. Recommended before core's first release, as its own unit with a size reading. This amendment doesn't need it.
+- **Answered by the owner** (above): `@ydinjs/core` declares `"sideEffects": false`, which is core's published contract. It is true of all 27 built modules today. It goes in before core's first release, as its own unit with a size reading (`RD-30`). This amendment doesn't need it. Until the answer, this bullet began _"**For the owner:** whether"_ and said _"Recommended before core's first release"_.
 
 #### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
 
