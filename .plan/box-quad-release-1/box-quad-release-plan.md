@@ -182,6 +182,8 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
   - `cmp LICENSE packages/box-quad/LICENSE` succeeds.
   - `aube ci` passes after `aube install` updates the lockfile, and `packages/drag` still resolves `@ydinjs/box-quad` to the workspace package.
 
+- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). The pack lists exactly the seven files. The build leaves the manifest unchanged, and the declarations check passes. The built `index.js` holds 22 numeric `const` declarations, 9 function declarations and the export. The two `LICENSE` files are identical. `aube ci` passes, and drag resolves `@ydinjs/box-quad` 1.0.0 to the workspace package.
+
 **2. The API docs (implementer).** [Property 4](#4-the-api-docs). This touches `packages/box-quad/Justfile` and `package.json`, the root `Justfile`, `.scripts/docs-api.ts`, `.scripts/docs-smoke.ts` and `packages/material-x/src/reference/api.mdx`.
 
 - _Proof:_
@@ -191,6 +193,8 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
   - During `aube exec just docs-dev`, `/api/box-quad/index.html` answers 200, and the `Reference/API` page's box-quad link opens it.
   - `verify`'s `docs` job passes on the pull request.
 
+- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). `.docs/api` holds `box-quad/`, `core/` and `material-x/`. `docs-smoke` passes on 105 pages and names both sections. The first mutation fails on `api/box-quad/index.html` with HTTP 404. The second passes on 104 pages with an index that doesn't name box-quad. In `docs-dev`, `/api/box-quad/index.html` answers 200, and the `Reference/API` link opens it. `verify`'s `docs` job is read on the pull request.
+
 **3. README and changelog (implementer).** [Properties 2](#2-the-readme) and [3](#3-the-changelog).
 
 - _Proof:_
@@ -199,10 +203,14 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
   - `aube exec oxfmt` leaves both files unchanged, and `git diff --check` is clean.
   - A search of both files for `BQ-`, `F-`, `RF-`, `RD-`, `.plan` and seven-or-more-character hex strings finds nothing.
 
+- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). Both README examples type-check against the packed package. Nothing turns up in the search for identifiers. The docs-site link answers 404 until this branch is on `main` and deployed.
+
 **4. Root `clean-build`, and the size ceiling (implementer).** [Property 6](#6-the-root-clean-build-includes-box-quad).
 
 - _Proof:_ after `aube exec just build` and `aube exec just clean-build`, `packages/box-quad/index.js` doesn't exist.
 - _The ceiling:_ `.size-limit.json`'s `index` row gets `"limit"`, set to the reading after the last change that the release carries, with no slack. The ceiling is the last change of the release, after tasks 1 to 3, which change no runtime byte, so today's reading stands unless `src/` changes. `aube exec just size` passes at that limit, and the measurements comment on the pull request shows the row with its limit. A later change may lower the ceiling without asking, and raising it needs the owner's approval ([Q2](#owners-answers)).
+
+- **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). After a build, the root `clean-build` removes `packages/box-quad/index.js`. **The `index` row reads 1182 B (Brotli), and its ceiling is `"limit": "1182 B"`**: `just size` passes at 1182 and fails at 1181. PR #81's `release-check.ts package` passes on the packed tarball. It ran from that branch, which isn't merged here.
 
 **Review.** A feature proof of tasks 1 to 4 against this plan, by a reviewer who didn't implement them, before the publish. It repeats the pack listing and the docs mutation.
 

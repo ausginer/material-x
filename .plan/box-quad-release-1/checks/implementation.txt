@@ -1,0 +1,54 @@
+box-quad release tasks 1 to 4, read by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0, on repo/box-quad-release-1 at 928dacfe4 plus this unit's changes.
+
+== Task 1
+aube pack --dry-run in packages/box-quad: CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json (7 files), @ydinjs/box-quad@1.0.0
+aube exec just build, then cmp of packages/box-quad/package.json with its copy before the build: identical
+built index.js, top level: 22 numeric const declarations (BOX_*, SPACE_*, QUAD_*, DELTA_*), 9 function declarations, and export { ancestry, coordinates, localDelta, projection }. Nothing else runs at load.
+cmp LICENSE packages/box-quad/LICENSE: identical
+aube install: package-lock.json changes 2 lines, packages/box-quad's version 0.1.0 -> 1.0.0 and packages/drag's @ydinjs/box-quad 0.1.0 -> 1.0.0
+aube ci: exit 0. node_modules/@ydinjs/box-quad -> packages/box-quad. From packages/drag, @ydinjs/box-quad/package.json resolves to /workspaces/worktrees/f/packages/box-quad/package.json, version 1.0.0
+aube exec just typecheck-declarations: exit 0
+
+== Task 2
+rm -rf .docs; aube exec just docs-build: exit 0. .docs/api: box-quad core index.html material-x (no drag)
+aube exec just docs-smoke: exit 0
+API sections linked from api/index.html: api/core/index.html, api/box-quad/index.html, api/material-x/index.html
+105 of 105 pages passed at http://mx-docs.test:35019/material-x/ in 31.7 s
+
+Mutation 1, box-quad removed from docs-build's docs:api:build project list, rm -rf .docs, docs-build, docs-smoke: exit 1
+API sections linked from api/index.html: api/core/index.html, api/box-quad/index.html, api/material-x/index.html
+FAIL api/box-quad/index.html
+  HTTP 404: http://mx-docs.test:45641/material-x/api/box-quad/index.html
+104 of 105 pages passed at http://mx-docs.test:45641/material-x/ in 26.6 s
+
+Mutation 2, the box-quad link removed from api/index.html in docs-api.ts; the API sections rebuilt and the index rewritten over the same .docs; docs-smoke: exit 0. The index names box-quad 0 times.
+API sections linked from api/index.html: api/core/index.html, api/material-x/index.html
+104 of 104 pages passed at http://mx-docs.test:36761/material-x/ in 29.4 s
+
+aube exec just docs-dev: http://127.0.0.1:6006/api/box-quad/index.html answers 200. In Chromium, the Reference/API docs page's @ydinjs/box-quad link has href /api/box-quad/index.html, and clicking it opens a page titled @ydinjs/box-quad.
+
+== Task 3
+The README's 2 ts examples, each with declared HTMLElement constants, type-check with tsc (strict, skipLibCheck false, types [], nodenext, DOM lib) against the package installed with aube from the packed tarball: exit 0
+Links: the README's one link, https://ausginer.github.io/material-x/api/box-quad/, answers 404 until this branch is on main and deployed (api/core/ answers 200). CHANGELOG.md has no link.
+aube exec -- oxfmt --check on both: correct format. git diff --check: clean.
+grep for BQ-, F-<digit>, RF-, RD-, .plan and 7+ character hex strings in both: 0 hits
+
+== Task 4
+aube exec just build, then aube exec just clean-build: packages/box-quad/index.js doesn't exist afterwards
+size-limit --json in packages/box-quad, index row: 1182 (brotli bytes)
+limit "1182 B": aube exec just size exits 0. With "1181 B": size-limit exits 1 (Size limit: 1181 B, Size: 1182 B brotlied).
+
+== The release check of PR #81 (not merged into this branch)
+node /workspaces/worktrees/d/.scripts/release-check.ts package --directory packages/box-quad --tarball <the aube tarball>, with the script at a134e84fc: exit 0
+  ### @ydinjs/box-quad@1.0.0
+  
+  - tarball: `ydinjs-box-quad-1.0.0.tgz`
+  - sha256: `908f90669250565366dedc241d7357f0b2a89dc502faa80a4b761365316d406f`
+  
+  - `CHANGELOG.md`
+  - `LICENSE`
+  - `README.md`
+  - `index.d.ts`
+  - `index.js`
+  - `index.js.map`
+  - `package.json`

@@ -4,10 +4,11 @@
  * and builds nothing.
  *
  * It serves `.docs` at the base path the build was made for, then opens the
- * manager's `index.html`, `iframe.html` for every entry of `index.json`, and
- * `api/index.html`. An entry passes when Storybook's preview reports it
- * rendered, and the manager when the preview it embeds reports that;
- * `api/index.html` passes on its `load` event. Any uncaught exception, console
+ * manager's `index.html`, `iframe.html` for every entry of `index.json`,
+ * `api/index.html`, and every section under `api/` that `api/index.html`
+ * links. An entry passes when Storybook's preview reports it rendered, and the
+ * manager when the preview it embeds reports that; an API page passes on its
+ * `load` event. Any uncaught exception, console
  * error, failed or 4xx/5xx request under the server's origin, render error that
  * Storybook reports, or timeout fails the run.
  *
@@ -104,6 +105,18 @@ if (entries.length === 0) {
   throw new Error('.docs/index.json lists no entries');
 }
 
+// Every section that the API index links within `api/`. Reading them from the
+// built index, rather than from a list kept here, makes a package's section
+// that the index links and the build lacks fail the check, without anyone
+// adding a target for it.
+const apiIndex = await readFile(new URL('api/index.html', docs), 'utf8');
+const apiSections = [
+  ...apiIndex.matchAll(/<a href="\.\/([^"?#]+\/index\.html)"/gu),
+].map(([, path]) => `api/${path}`);
+process.stdout.write(
+  `API sections linked from api/index.html: ${apiSections.join(', ')}\n`,
+);
+
 const targets: readonly Target[] = [
   { name: 'index.html', path: '', preview: true },
   ...entries.map((entry) => ({
@@ -112,6 +125,7 @@ const targets: readonly Target[] = [
     preview: true,
   })),
   { name: 'api/index.html', path: 'api/index.html', preview: false },
+  ...apiSections.map((path) => ({ name: path, path, preview: false })),
 ];
 
 async function serve(

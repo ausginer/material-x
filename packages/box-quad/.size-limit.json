@@ -1,6 +1,7 @@
 [
   {
     "name": "index",
-    "path": "index.js"
+    "path": "index.js",
+    "limit": "1182 B"
   }
 ]

@@ -1,8 +1,26 @@
 {
   "name": "@ydinjs/box-quad",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Border-box quads of transformed, zoomed and scrolled HTML elements, read into storage the caller owns.",
+  "homepage": "https://github.com/ausginer/material-x/tree/main/packages/box-quad#readme",
+  "bugs": {
+    "url": "https://github.com/ausginer/material-x/issues"
+  },
   "license": "Apache-2.0",
+  "author": "Vlad Rindevich <github.aqwb5@mail.ausginer.com> (https://github.com/Lodin)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ausginer/material-x.git",
+    "directory": "packages/box-quad"
+  },
+  "files": [
+    "index.js",
+    "index.js.map",
+    "index.d.ts",
+    "CHANGELOG.md"
+  ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -10,9 +28,14 @@
     },
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "just build",
     "clean:build": "just clean-build",
+    "docs:api:prepare": "just docs-api-prepare",
+    "docs:api:build": "just docs-api-build",
     "fmt": "just fmt",
     "fmt:check": "just fmt-check",
     "lint": "just lint",
