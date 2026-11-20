@@ -1753,6 +1753,42 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **Why Support is needed.** Without it, GitHub keeps the old commits reachable through the 55 `refs/pull/N/head` refs and by hash. Only Support can remove those.
 - **Why nothing else on GitHub needs removing.** The scan of the pull requests' and issues' text, the artifacts, the deployed site and the run logs found no copy ([reading](tokens-source-1/checks/history-scan.txt)).
 
+#### RD-31 — The list's sortable items are a separate element on `@ydinjs/drag`, and core's `reorderable` trait is deleted
+
+**Decided 2026-11-20 by the architect,** on the owner's request relayed by the coordinator for issue #86: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. Registered on `repo/list-sortable-1`, from `origin/main` at `e4b0e475d`. `RD-30` (`core/side-effects-1`) is the highest decision number on any branch on `origin`, so this is the next free number. The [plan](list-sortable-1/list-sortable-plan.md) has the readings, the test map and the tasks.
+
+**Status: unimplemented, and waiting for the owner's answers to the plan's [Q1 to Q3](list-sortable-1/list-sortable-plan.md#questions-for-the-owner).** Properties 2, 4 and 5 state the recommended answers (a). If an answer is (b), the architect records the change before implementation.
+
+**Properties.**
+
+1. **Core's `reorderable` trait is deleted:** `src/traits/reorderable.ts`, the `./traits/reorderable.js` export, the `files.json` entry, the size row, the README section and `tests/traits/reorderable.browser.test.ts`. Nothing replaces it in core. Only material-x used it, and core is on no registry, so no alias is kept (`CONTRIBUTING.md` §8).
+2. **Sorting is a separate element (Q1).** `@ydinjs/material-x/list/sortable-list.js` defines `mx-sortable-list`, whose class `SortableList` is the default export. It renders and styles like `mx-list`, and it takes the same items. `mx-list` doesn't sort, and has no `reorderable` attribute and no `reorder` event.
+3. **No runtime entry other than `list/sortable-list` reaches `@ydinjs/drag`,** directly or through other modules, the list items included. A test over the built package checks this, and a temporary drag import in `list.ts` makes the test fail. The published declarations of `list/sortable-list` and `react` name no drag type.
+4. **The sortable list runs drag's `sortable` with `y()` and `landing()`:**
+   - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+   - **(Q3)** An item is dragged by its `[data-handle]`, by pointer and keyboard. An item with no handle isn't dragged. In a sortable list only, the handle is made focusable, named, described and `touch-action: none`, and values the consumer set are kept.
+   - **(Q2)** The keyboard model is drag's: one arrow key press on the focused handle moves the item one slot. Focus stays on the handle.
+   - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+   - Each accepted move is announced by position through a live region in the list's shadow root.
+   - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+   - A disconnect cancels the operation, and a reconnected list sorts again.
+5. **`@ydinjs/drag` is an optional peer of material-x,** and a dev dependency in the workspace. Its range is set at material-x's release.
+6. **The list's behavior rows move to material-x,** against the real element with real input. Rows for drag's mechanics stay drag's, and rows for behavior that is gone are deleted, as the plan's [test map](list-sortable-1/list-sortable-plan.md#test-map) lists.
+7. **The size reading proves the separation:** material-x's and core's rows before and after, with the modules of each list row. No plain list row contains a module of drag or box-quad, and none grows.
+8. **`RF-36` closes when property 1 is implemented,** with its cause unknown, because the code it is about is deleted. Its property doesn't carry over to the new rows.
+9. **Release order.** box-quad, then drag, unchanged: no drag source changes. material-x's release comes after drag's (`RD-27` property 1). This work uses drag's workspace build and doesn't wait for drag's release.
+
+**Why.**
+
+- **An element, not an import that switches `mx-list` on.** `list.js` upgrades the lists already in the page when it is evaluated, which is before any module that imports it could add sorting. An attribute that needs an import also fails silently without it. A function call isn't declarative for HTML or React.
+- **drag covers the list's needs** with the recommended answers. Announcements, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements.
+- **A peer, because the package must share the consumer's copy:** `drag:DRD-17`'s nesting rule holds within one copy, so a sortable list inside a consumer's own drag sortable needs one copy. Only an optional entry imports drag (`CONTRIBUTING.md` §Dependencies of a published package).
+- **No drag type in the declarations,** because `react.d.ts` imports every element's types, including for consumers without drag.
+- **The handle is required** because drag's `handle` gates pointer and keyboard together. Without a handle, arrow keys anywhere in an item, a text field included, would move the item.
+- **Pointer moves are announced too,** because drag's callbacks don't say what started the drag. Today only keyboard steps are announced.
+
+**Not adopted:** a side-effect import or a function, drag as a regular dependency, a `reorderable` attribute on `mx-sortable-list`, `layoutAnimation`, and copying core's synthetic-host rows. The plan's [Not adopted](list-sortable-1/list-sortable-plan.md#not-adopted) gives the reasons.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -2115,6 +2151,8 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - It covers only the wait after `ue.pointer` returns. If `ue.pointer` doesn't return, as under candidate B or a stalled driver, the row fails at the test's timeout with no trace, its `finally` doesn't run, and the trace's listeners, observer and wrapper stay installed for the file's later rows. That is outside the plan's _"when the row's wait gives up"_, and no change is required for it.
 - **Owed when a weekly run fails in the third row:** the trace exists only in the failing job's log, which the weekly issue links and GitHub keeps for a limited time. The unit that takes the failure first saves the trace into `.plan/reorderable-safari-1/checks/`, and the architect reads it against candidates A to E.
 - **What doesn't change:** both Safari skips stay, `src/` doesn't change, and the required property stands. **The finding stays open.**
+
+**Dated 2026-11-20 by the architect: `RD-31` deletes the code this finding is about.** Core's `reorderable` trait and both skipped rows are deleted when `RD-31` property 1 is implemented, and the finding then closes with its cause unknown. Its required property doesn't carry over to the list's new rows. A Safari stall in one of those rows is `drag:DRF-49` or a new finding. **Until then the finding stays open,** and the rows and their diagnostic stay as they are.
 
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 
