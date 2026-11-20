@@ -1,0 +1,42 @@
+The pack and stage steps of release.yml, run by the implementer on 2026-11-20 in the devcontainer with a failing producer substituted,
+under the shell GitHub gives a step: `bash -e {0}` with no `shell`, and `bash --noprofile --norc -eo pipefail {0}` with `shell: bash`.
+pack: `aube pack ...` is replaced by `false`, and the release-check line by an echo that shows whether the step reached it.
+stage: `npm stage publish ...` is replaced by `false`.
+
+Before, at e73411cf4 (no shell):
+pack: shell=(none) bash -e -> exit 0; stdout: "REACHED release-check"; summary: ""
+stage: shell=(none) bash -e -> exit 0; stdout: ""; summary: "**Staged** `x.tgz` under `latest`, with the stage id `not reported`.\n\nReview and approve it under Staged Packages at <https://www.npmjs.com/package/>."
+
+After, with defaults.run.shell: bash:
+pack: shell=bash bash --noprofile --norc -eo pipefail -> exit 1; stdout: ""; summary: ""
+stage: shell=bash bash --noprofile --norc -eo pipefail -> exit 1; stdout: ""; summary: ""
+
+The probe, run as: node probe.mjs .github/workflows/release.yml <scratch dir> (it imported the workspace's yaml package by its absolute path):
+
+// Runs the pack and stage steps of release.yml with a failing producer, under
+// the shell the workflow gives each step: `bash -e {0}` with no `shell`, and
+// `bash --noprofile --norc -eo pipefail {0}` with `shell: bash`.
+import { parse } from '/workspaces/worktrees/d/node_modules/yaml/dist/index.js';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+const [workflow, dir] = process.argv.slice(2);
+const wf = parse(await readFile(workflow, 'utf8'));
+const shell = wf.defaults?.run?.shell;
+const steps = {
+  pack: wf.jobs.prepare.steps.find((s) => s.id === 'package'),
+  stage: wf.jobs.stage.steps.find((s) => s.name === 'Stage'),
+};
+const subs = {
+  pack: [['aube pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP/release"', 'false'], ['node .scripts/release-check.ts package', 'echo "REACHED release-check" #']],
+  stage: [['npm stage publish "./$TARBALL" --access public --tag "$DIST_TAG" --provenance', 'false']],
+};
+const args = shell === 'bash' ? ['--noprofile', '--norc', '-eo', 'pipefail'] : ['-e'];
+for (const [name, step] of Object.entries(steps)) {
+  let script = step.run;
+  for (const [a, b] of subs[name]) { if (!script.includes(a)) throw new Error(`${name}: no ${a}`); script = script.replace(a, b); }
+  const temp = `${dir}/${name}`; await mkdir(`${temp}/release`, { recursive: true });
+  const summary = `${temp}/summary.md`; await writeFile(summary, '');
+  await writeFile(`${temp}/step.sh`, script);
+  const r = spawnSync('bash', [...args, `${temp}/step.sh`], { cwd: temp, encoding: 'utf8', env: { ...process.env, RUNNER_TEMP: temp, GITHUB_STEP_SUMMARY: summary, TARBALL: 'x.tgz', DIST_TAG: 'latest', DIRECTORY: '.' } });
+  console.log(`${name}: shell=${shell ?? '(none)'} bash ${args.join(' ')} -> exit ${r.status}; stdout: ${JSON.stringify(r.stdout.trim())}; summary: ${JSON.stringify((await readFile(summary, 'utf8')).trim())}`);
+}

@@ -789,7 +789,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Properties.**
 
-1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with two exceptions: npm's one bootstrap step in CI (property 9), and nx's script runner (amended 2026-11-17 at `c57722b67`).
+1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with three exceptions: npm's one bootstrap step in CI (property 9), nx's script runner (amended 2026-11-17 at `c57722b67`), and the release workflow's `npm stage publish` of a checked tarball, outside any checkout (amended 2026-11-20 by `RD-27` property 6, because aube implements neither trusted publishing nor staging).
    - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
    - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
    - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
@@ -1123,6 +1123,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **A reviewer needs a floor to judge a dependency on a recent feature.** `RF-43`'s feature proof found that a switch fires `click` and never `input` or `change` in an engine without invoker commands. With no floor stated, that couldn't be read as a defect or as accepted behaviour.
 - **A moving floor costs no user yet.** The package is unreleased (`RF-51`: a defect in its published surface _"blocks its first release, not a user"_). A list of minimum versions is a promise to consumers, so it is made with the release.
 
+**Dated 2026-11-20 by the architect: the floor of property 1 now covers every released `@ydinjs` package** (`RD-27` property 3, on the owner's answer: _"for now; minimum versions will be derived later for all packages"_). Property 3 doesn't change: material-x's browserslist is still owed before its first release, unless the unit that derives minimum versions for every package decides otherwise.
+
 #### RD-21 — One job fetches the engines' system packages before the test jobs start, and every job that launches a browser installs them offline from the cache
 
 **Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198`, which answers `RF-58`. The owner's earlier direction was that system dependencies are installed up front, before any test starts. The owner chose this cache over a custom image: _"the cache looks simpler, much simpler"_, because the cache goes cold only every few weeks. Recorded by the main slot's architect on `repo/ci-deps-1`. It was proposed as `RD-20`. That number went to the browser floor on `repo/traits-plugin-1`, so this entry is `RD-21`. **Implemented 2026-11-18** on `repo/ci-deps-1` (#38, not yet merged): the code at `10100984f`, and the report at `a4a90f683`. It applies to `main` when #38 merges. `RF-58`'s closure holds the reading. Before: unimplemented, and the handoff implemented it.
@@ -1278,6 +1280,8 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 
 **Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: the repository's instrument, not a new one. Every entry, because a row costs about a tenth of a second and an entry without a row is `RF-45`'s gap. No ceiling while almost every change moves rows on purpose. A boundary that the owner performs, not a schedule. Not adopted: ceilings re-based at each approved change, amending `RF-45`'s required property, slack, rows for only some entries, and hand measurement.
 
+**Dated 2026-11-20 by the architect: the rule after the release is stated** (property 6's _"The architect states the rule that governs the limits after the release"_). It is `RD-27` property 2, in the owner's words: a ceiling may be lowered without asking, and raising one needs his approval. The release workflow refuses a package with a row over its ceiling. `RF-45` closes when material-x's ceilings exist, as before.
+
 #### RD-25 — An agent may open a pull request without being asked, and the owner merges it
 
 **Decided 2026-11-19 by the owner,** relayed by the coordinator: _"Shall we let them open one without asking? I'll say 'yes' anyway, so why suffer. Merging stays with me for now."_ (translated). Registered by the architect on `repo/work-queue-1` at `cf8261417`. `RD-24` is the highest number on any branch on `origin` and in any slot, so this is the next free number. **Implemented** in `AGENTS.md` in the commit that registers it.
@@ -1305,14 +1309,14 @@ No register entry held that design. It lived in the code, in that document and i
 
 1. **Layer (a), `@ydinjs/core/traits/composition.js`, knows nothing of elements.**
    - A trait is a plain class. It extends a bound, `bound()`, which is `null` at runtime and types what the trait requires of its base.
-   - A trait brands itself with `trait(this)` in its static block.
+   - A trait brands itself with the decorator `@trait`, which the plugin compiles. `trait` keeps its name in `composition.js`, as a decorator whose type accepts only a class with a bound's heritage, and whose body throws, as `compose` does. _(Amended 2026-11-20, below. It was `trait(this)` in the trait's static block.)_
    - A component names its base and its traits once, in a constant's annotation: `const X: Composed<Base, [Traits…]> = compose(Base)`. Exactly one class in the module extends `X`.
    - `compose` throws unless its argument is `null`, so a component that isn't flattened fails when its module is evaluated.
 2. **The flattener lowers each composition.**
    - It replaces the constant with the base.
    - It copies each trait's members in list order, before the component's own.
    - It merges statics by property 3.
-   - It generates `static { impl(this, …brands) }`.
+   - It generates `static { impl(this, …brands) }` when the list has a trait, and neither the block nor the import for an empty list. _(Amended 2026-11-20, below.)_
    - Every case the copy can't carry is a build error. Layer (a) has no runtime composition to fall back on.
 3. **A static merges by the kind its declaration states,** read syntactically.
    - An array concatenates, and an object spreads shallowly. The types say the same through `MergeStatics`.
@@ -1327,21 +1331,21 @@ No register entry held that design. It lived in the code, in that document and i
 5. **A member is copied across languages only when its text parses to the same tree in both,** apart from positions. The same file extension always copies.
    - A `.js` module's static and member kinds come from the `.d.ts` that its package's `types` condition names.
 6. **Layer (b), `@ydinjs/core/traits/attribute-traits.js`, is optional sugar over layer (a).**
-   - `accessor name!: T`, with `attributes(this, { name: Converter })`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`.
+   - `accessor name!: T`, with `@attributes({ name: Converter })` below `@trait`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`. _(Amended 2026-11-20, below, a second time. It was `attributes(this, { name: Converter })` in the trait's static block.)_
    - The plugin's layer (b) code is a part of its own, and nothing in layer (a)'s code imports it.
 7. **The brand install names symbols, not classes.**
    - The generated block reads `impl(this, $a, $b)`.
-   - In the trait's own build, `trait(this)` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class. One that uses it keeps the class, without its members where property 8 applies. _(Amended 2026-11-19, below.)_
-   - The author still writes `trait(this)`. `trait`'s second parameter is optional, so an unbuilt trait module still runs.
+   - In the trait's own build, `@trait` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class. One that uses it keeps the class, without its members where property 8 applies. _(Amended 2026-11-19, below.)_
+   - The author writes `@trait` above the class. A trait module evaluated without the plugin fails, as an unbuilt component does: trait sources always go through the plugin. _(Amended 2026-11-20, below. It said the author writes `trait(this)`, whose optional second parameter let an unbuilt trait module run.)_
 8. **An application build deletes each trait class's copied instance members** from the trait module. An application build is Vite's `build` without `build.lib`. A library build keeps them, because another package copies from its `.js`.
 9. **The flattener is a required build step** for every module that composes traits.
 
 **The owner's earlier answers stay:**
 
 - the bound is `null`;
-- a trait brands itself with `trait(this)` in a static block;
+- a trait brands itself with `trait(this)` in a static block, which became `@trait` on 2026-11-20 (below);
 - `compose` throws unless `base === null`;
-- `impl` is always generated;
+- `impl` is always generated, for a list with a trait since 2026-11-20 (below);
 - `super.traitMember` in a component is a build error;
 - `#brand!: true` goes where a trait's members already exist on its bound.
 
@@ -1363,7 +1367,7 @@ That is the size the owner's _"where `instanceof` is needed"_ asks for. It also 
   - **The pure call:** `instanceof` is `false` for every object in both bundlers, and the library build drops the install.
   - **The unmarked call:** every trait class stays, with its members.
   - **A static field of the same value:** holds all four of the plan's properties too. It is rejected because a toolchain that lowers class fields to assignment, such as `useDefineForClassFields: false`, makes it throw. `Function.prototype[Symbol.hasInstance]` isn't writable, so the assignment raises a `TypeError`.
-- **The owner's intended follow-up, not decided here:** after this pull request, an `@trait` decorator that the plugin compiles replaces `static { trait(this); }` in source. Trait sources are always built and tested through the plugin, as material-x's CSS is. That pass needs its own decision.
+- **The owner's intended follow-up, not decided here:** after this pull request, an `@trait` decorator that the plugin compiles replaces `static { trait(this); }` in source. _(Decided 2026-11-20, below.)_ Trait sources are always built and tested through the plugin, as material-x's CSS is. That pass needs its own decision.
 
 **One branch and one pull request,** on the owner's decision 5:
 
@@ -1449,6 +1453,190 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 `RF-54`, `RF-57` and `RF-63` are closed on this date.
 
 `RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
+
+**Amended 2026-11-20 by the architect: a trait declares itself with `@trait`, and an empty composition emits no `impl`** (property 1's second bullet, property 2's fourth, property 7's second and third, and the owner's earlier answers). **Decided by the owner,** relayed by the coordinator: _"Тогда давай сделаем `@trait` и все починки сразу"_ ("Then let's do `@trait` and all the fixes at once"). This is the follow-up the amendment of 2026-11-19 named, with two fixes folded in. The [plan](trait-decorator-1/trait-decorator-plan.md) holds the design, the proofs, the files and the open questions.
+
+- **The owner had already decided three things.**
+  - Trait sources always go through the plugin, tests included: _"we ship the same code we test"_. A trait imported without the plugin is a case to avoid, not one to support.
+  - The plugin compiles `@trait` itself, not through oxc-transform's decorator lowering.
+  - The output stays property 7's, and a built trait stays recognizable by the exact generated method.
+- **The source form** is `@trait` above `export class T extends Bound`.
+  - The plugin recognizes it by the name the module imports `trait` under from `…/composition`.
+  - It replaces it with property 7's install: the exported brand, the static method first in the class body, and the import removed. An empty static block that layer (b) leaves is removed.
+  - The built JavaScript is the same as before, so a built package's consumers and property 8 don't change.
+- **The decorator changes no type,** which P1 says it can't anyway. Its type accepts only a class that carries a bound's static `[$bound]`, which `trait(this)` never checked. Declarations drop it.
+- **The evidence is [P45](trait-decorator-1/trait-decorator-plan.md#evidence)** ([transcript](trait-decorator-1/checks/p45-decorator.txt)), with TypeScript 7.0.2 and 6.0.3, which agree on every line.
+  - `@trait` above or after `export` checks clean, and the declarations carry no decorator and keep `#private`.
+  - A class with no bound is TS1238, `@trait()` is TS2554, the old `trait(this)` is TS2554, and `@trait` on a method is TS1241.
+- **A new error, `trait-decorator`,** covers what TypeScript doesn't, because a build doesn't typecheck:
+  - a called `@trait`;
+  - `@trait` on a class expression, a nested class or a member;
+  - `@trait` beside another decorator;
+  - any other use of the imported `trait`.
+- **An empty composition** (property 2) gets neither `static { impl(this); }` nor the `impl` import.
+  - ListItem is the case today. It costs `list/list-item` about 44 B Brotli ([PR #78's measurement](trait-mixin-measure-1/README.md#size)).
+  - This narrows the owner's earlier _"`impl` is always generated"_ to a list with a trait, under his authorization of the fixes.
+- **Recommended, and open for the owner:** ListItem extends `ControlledElement` directly, and `ListItemCoreTraits = readonly []` goes. The [plan](trait-decorator-1/trait-decorator-plan.md#fix-2-listitem-extends-controlledelement) gives the reason.
+- **`RF-66` doesn't block it.** Recognition is syntactic in the trait's own module, and resolution doesn't change.
+- **Not adopted:**
+  - **`trait` as a `declare function`:** a decorator is a value reference, and a throwing function gives the failure a name, as `compose` does. No built module imports it, so it costs nothing.
+  - **`export @trait class` as the written form:** the plugin accepts it, but `oxfmt` prints it across three lines.
+  - **Keeping `trait(this)` beside `@trait`:** `CONTRIBUTING.md` Part II §8 says not to keep a legacy form before release.
+- **Unimplemented** until the plan's proofs hold.
+
+**Amended 2026-11-20 a second time, by Architect B: layer (b) declares a trait's attributes with `@attributes(TABLE)`** (property 6's first bullet). **Decided by the owner,** relayed by the coordinator: _"`@attributes(TABLE)` давай сделаем вместе с `@trait`, чтобы задача была в целом 'move to decorators'"_ ("let's do `@attributes(TABLE)` together with `@trait`, so the task as a whole is 'move to decorators'"). It answers the `@trait` plan's open question 2 and ships in the same pull request. The [plan](attributes-decorator-1/attributes-decorator-plan.md) holds the design, the proofs and the files it adds to the `@trait` plan's.
+
+- **The owner's decisions for `@trait` carry over:** trait sources always go through the plugin, the plugin compiles the decorator itself, and the built JavaScript stays what it is.
+- **The source form** is `@trait`, then `@attributes(TABLE)`, each on its own line above `export class T extends Bound`, with the `accessor name!: T` lines in the body. A trait has no static block left.
+  - `@attributes` decorates only a class that `@trait` decorates, because layer (b) is a trait's sugar.
+  - The plugin accepts this one order.
+  - TABLE is what it was: an object literal, or a module-scope `const` bound to one.
+- **The plugin** recognizes `@attributes` by the name the module imports `attributes` under from `…/attribute-traits`. It lowers the class as before, removes the decorator and the unused import, and leaves `@trait` to the trait module's transform. That transform places the method after the `static observedAttributes` that layer (b) inserts, so a built trait's class body keeps today's order.
+- **The type checks the table against the decorated class.** `attributes(TABLE)` returns a generic class decorator. TypeScript infers the class from the decorator context and rejects a table that doesn't fit with TS1238 on the `@attributes` line. The decorator changes no type, and declarations drop it.
+  - Every case that core's declaration tests check still fails.
+  - A shared constant with a key that names no member is now a type error too. Before, only the plugin reported it.
+  - The body throws with a message that names the plugin, as `trait` and `compose` do.
+- **The evidence is [P46](attributes-decorator-1/attributes-decorator-plan.md#evidence)** ([transcript](attributes-decorator-1/checks/p46-attributes.txt)), with TypeScript 7.0.2 and 6.0.3, which agree on every line. The valid forms check clean, and their declarations carry no decorator. The eight cases of the declaration tests, and the extra key, are TS1238. An uncalled `@attributes` is TS1270, the old call TS2554, and a decorator on a member TS1240. The reversed order has no TypeScript error, which is why the plugin refuses it.
+- **A new error, `attributes-decorator`,** covers misuse:
+  - `@attributes` not called with one table;
+  - `@attributes` on a class without `@trait`, above it, or twice;
+  - `@attributes` on a class expression, a nested class or a member;
+  - any other use of the imported `attributes`.
+
+  `trait-decorator` allows `@attributes(TABLE)` as the one other decorator after `@trait`.
+
+- **Not adopted:**
+  - **`@attributes` on any class:** layer (b) is a trait's sugar.
+  - **Either order:** one form is one thing to learn and to diagnose.
+  - **`@trait(TABLE)`:** layer (a)'s `trait` would know layer (b)'s table, which property 6 forbids.
+- **Unimplemented** until the plan's proofs hold, with the `@trait` plan's.
+
+**Amended 2026-11-20 a third time, by the architect: a `load` stage keeps a trait's class doc in the published declarations** (the decorator passes' source form, unchanged). **Decided by the owner,** relayed by the coordinator, choosing [P47](trait-jsdoc-probe-1/trait-jsdoc-probe.md)'s way 1 over its recommended `export @trait class`: _"Давай короч тогда `load`. Да, больше мороки, но код выглядит как надо"_ ("Let's go with `load` then. Yes, more hassle, but the code looks right"). The [`@trait` plan](trait-decorator-1/trait-decorator-plan.md#the-doc-in-the-declarations-a-load-stage) holds the design, proofs 11 and 12, and P48. **Unimplemented:** the implementer adds the stage on `repo/trait-decorator-1`, which merges this branch.
+
+- **The defect** (P47). rolldown's declaration emitter, oxc's, drops a JSDoc in front of a class's decorators. tsdown's declaration plugin records each module's code before any transform of ours runs. So the 10 published trait `.d.ts` files lose their class docs.
+- **The written form stays** `/** doc */`, then `@trait` and `@attributes(TABLE)`, each on its own line, then `export class`. The owner also asked whether a tool option like Babel's old `decoratorsBeforeExport` exists. None does: `oxfmt` 0.78 has no decorator option, and oxc and TypeScript attach comments by fixed rules.
+- **The stage,** a `load` hook of the `trait-attributes` plugin:
+  - **What it does.** For an exported class declaration whose decorators come before `export`, with a JSDoc directly in front of them, it moves `export` to the first decorator's start. JavaScript and TypeScript read the result, `/** doc */ export @trait @attributes(T) class X`, the same way. The emitter, TypeScript 6 and tsc 7 all keep its doc.
+  - **Why it comes first.** rolldown runs `load` before every `transform`, so the declaration plugin records the rewritten code.
+  - **What it reads:** candidate modules with an absolute file id and no query, in every build and not on the dev server, which emits no declarations. It parses only a file with a line that starts with `@`, and returns `null` when it has nothing to move.
+  - **What it returns:** the code and a hires map whose `sourcesContent` is the file.
+- **It hands the existing compile a form that compile already accepts,** `export @trait class` (P45 case (h)).
+  - The trait module's transform, layer (b)'s lowering, both decorator checks and the analysis loader don't change.
+  - No internal form that source can't write is needed, and no second compile stage either. Of P47's three costs for way 1, only the second read of each candidate module remains, and only in a build.
+- **The diagnostics see the written text:** the same decorators, in the same order, with the same arguments. **Their positions:**
+  - Every diagnostic that the plugin reports carries the `pos` it would carry without the stage.
+  - The stage records the spans it moved per module id, and the reporter moves a `pos` inside one back by the moved length.
+  - rolldown shows no position from `pos` today, with or without the stage. Vite's dev path, which shows one, doesn't run the stage.
+- **The evidence is P48** ([`p48/`](trait-jsdoc-probe-1/probes/p48/), [transcript](trait-jsdoc-probe-1/checks/p48-run.txt)), by the architect at `eda3b1bfc`, with tsdown 0.23.7 and rolldown 1.3.2. The stage was added to the implementer's compile, and `@ydinjs/core` and `@ydinjs/material-x` were built with and without it:
+  - all 293 built files are byte-identical, except the 10 trait `.d.ts` files;
+  - each of those differs only by added comment lines, and has its source doc directly before `export declare class`: 10/10;
+  - a diagnostic's `pos` is 7 later with the stage, and neither build reports a `loc`.
+- **What retires it:** when the emitter keeps a doc in front of decorators, the plan's proof 11 mutation stops failing, and the stage is deleted.
+- **Not adopted:**
+  - **`export @trait class` as the written form** (P47's recommendation): the owner prefers the decorators above `export`.
+  - **P47's ways 2, 3a and 3b,** for the reasons in [its record](trait-jsdoc-probe-1/trait-jsdoc-probe.md#results).
+  - **The probed internal form,** `static { trait(this); … }`. It is the source form that `trait-decorator` rejects, it needs a second compile stage in the analysis loader too, and it moves an inline table's positions into the class body.
+  - **`export` on the doc's last line,** which keeps every line and column: 30 built files changed (P48).
+
+#### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
+
+**Decided 2026-11-20 by the owner,** relayed by the coordinator, in answer to Q1 to Q5 of Architect B's [box-quad release plan](https://github.com/ausginer/material-x/blob/repo/box-quad-release-1/.plan/box-quad-release-1/box-quad-release-plan.md#questions-for-the-owner) (PR #79, `0ef585e09`). The workflow's design is the architect's, in the [release workflow plan](release-workflow-1/release-workflow-plan.md), within the owner's Q4. Registered by the main slot's architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`. `RD-26` is the highest number on any branch on `origin`. **Implemented 2026-11-20** on `repo/release-workflow-1` (#81, not yet merged): the plan's tasks 1 to 3 at `e73411cf4`, corrected after the feature proof in the commit that follows it. The [report](release-workflow-1/release-workflow-report.md) holds the proofs. It applies to `main` when #81 merges. **Still pending:** the dispatched check runs after the merge, which need box-quad's own task 1 first; what the first release must show; and the owner's settings O1 to O3. Before: unimplemented. **Corrected 2026-11-20:** this line also listed the architect's decisions on the feature proof's `reviewer-2` and `reviewer-3` as pending, and the amendment below records them.
+
+**The owner's answers,** quoted where his words were relayed:
+
+- **Q1:** box-quad's first version is `1.0.0`.
+- **Q2:** a ceiling at the reading after the release's last change, with no slack. _"Вниз изменять можно без вопросов, вверх - с моего одобрения"_ ("It can go down without asking; up only with my approval").
+- **Q3:** the current stable Chromium, Firefox and Safari, as `RD-20` states, for now. Minimum versions will be derived later, for all packages.
+- **Q4:** a release workflow with provenance, not a hand publish: _"я заколебался руками публиковать"_ ("I'm sick of publishing by hand").
+- **Q5:** he holds the `@ydinjs` scope on npm.
+  - His account used 2FA _"for authorization only"_, with an authenticator app and three security keys.
+  - On 2026-11-20 he switched it to authorization and writes: _"2FA обновил: ✓ Enabled for authorization and publishing"_ ("Updated 2FA").
+
+**Properties.** Each applies to every `@ydinjs` package's releases, drag's next, except where it names box-quad.
+
+1. **Versions.**
+   - Each package versions independently, by semver, with its own `CHANGELOG.md`.
+   - box-quad's first release is `1.0.0`. Any other package's first version is the owner's answer at its release.
+   - A dependency on another `@ydinjs` package is an exact version that is on the registry when the dependent package is released.
+   - A release is one tag, `@ydinjs/<name>@<version>`, on one `main` commit. The owner pushes it, and agents push no tag.
+2. **Size ceilings.**
+   - **At a package's first release,** each of its size rows gets a ceiling equal to its reading after the release's last change, with no slack.
+   - **A ceiling may be lowered** without asking.
+   - **Raising one needs the owner's approval,** which the unit that raises it records with the reading.
+   - **The release workflow refuses** a package with a row over its ceiling. `verify` goes on only notifying (`RD-7`).
+   - This is the rule after the release that `RD-24` property 6 asked the architect to state. It governs material-x's ceilings when it is released.
+3. **Browser support.**
+   - A released package supports the current stable release of Chromium, Firefox and Safari, as `RD-20` property 1 states for material-x, and its README says so.
+   - No minimum version is promised until a later unit derives the minimum versions for every package. Until then, a version that leaves stable leaves support, and that isn't a breaking change.
+4. **Publishing.**
+   - **No package is published by hand.** `.github/workflows/release.yml`, started by the release tag, checks the commit and the package, builds, packs and checks the tarball.
+   - **It stages the tarball with `npm stage publish`,** under the package's trusted publisher, with provenance.
+   - **The owner approves** each staged version on npm with his second factor. That approval is the gate: npm lets no OIDC or granular token approve.
+   - **The first publish** of a package, before a trusted publisher can exist for it, stages with a stage-only granular token that lives for a day. That token is then revoked.
+   - The plan's [design](release-workflow-1/release-workflow-plan.md#the-design) specifies the triggers, the jobs, their checks and permissions, the environment and the tags.
+5. **2FA.**
+   - **The account** stays in authorization and writes.
+   - **Each package,** once its first version is approved, is set to _"Require two-factor authentication and disallow tokens"_. Trusted publishing is unaffected.
+   - **The trusted publisher** allows `npm stage publish` only. It is configured within the 2 days before the package's second release, because npm expires an unvalidated configuration after 2 days.
+6. **npm stages the release** (an exception to `RD-16` property 1, amended on this date).
+   - The workflow's `stage` job runs `npm stage publish` on the tarball that `prepare` checked, outside any checkout, with an npm pinned in the workflow.
+   - aube implements neither trusted publishing nor staging. aube still installs, builds and packs.
+7. **What agents don't do:**
+   - push a release tag;
+   - approve or reject a staged version;
+   - create a token;
+   - configure a trusted publisher;
+   - change the environment or a ruleset.
+
+   These are the owner's acts.
+
+**Why:**
+
+- **Staging gives the owner's approval a second factor at the registry,** independent of GitHub. So nothing an agent, a tag or a compromised workflow does can make a version public.
+- **Trusted publishing removes the long-lived token.** npm removes direct publishing with granular tokens in January 2027 anyway.
+- **One tag per package per version** keeps each package's history its own, and needs no release tool.
+- **The ceiling rule** is the owner's words.
+- **Support follows the suite,** which runs each engine's current stable release and nothing older.
+
+**Not adopted:** the plan's [section](release-workflow-1/release-workflow-plan.md#not-adopted). That covers a GitHub release, a release tool, a long-lived token, direct publish from CI, `aube publish`, several packages in one run, and a `prepack` script.
+
+**Answered by the owner on 2026-11-20,** relayed by the coordinator: the plan's three [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner). Nothing is left open for him, and the plan's tasks 1 to 3 can start.
+
+- **The `RD-16` amendment** (property 6) is approved: _"Конечно да, пусть npm работает"_ ("Yes, of course, let npm do it"). The release workflow's `npm stage publish` of the checked tarball, outside any checkout, is the one npm step of a release.
+- **The environment `npm` has no required reviewer:** _"Согласен с архитектором"_ ("I agree with the architect"). His approval on npm, with his second factor, is the gate.
+- **The first publish uses the token** (property 4): _"Давай (а) попробуем"_ ("Let's try (a)").
+  - The token is stage-only and granular, lives for a day, and is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm`. It is revoked after the publish, and the first version keeps its provenance.
+  - If npm refuses a stage-only token for a name that doesn't exist yet, the fallback is that he stages the `prepare` job's tarball himself.
+
+**Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of PR #81 at `e73411cf4`, relayed by the coordinator. Both block the first tag. The plan's [amendment](release-workflow-1/release-workflow-plan.md#amendment-a-release-runs-on-main) has the reading, the sources and task 4. **Task 4 implemented 2026-11-20** on `repo/release-workflow-1` (#81, not yet merged), in the commit after `644bbf1ed`. The [report](release-workflow-1/release-workflow-report.md) holds the proofs. **Unimplemented:** O1 as amended, which is the owner's setting. The reviewer reads it before the first tag. **Answered by the owner on 2026-11-20,** relayed by the coordinator: _"Q4-5 согласен."_ ("I agree with Q4–5."). That answers the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner) 4 and 5 as recommended, and he approved task 4.
+
+- **Q4:** a release is tagged at `main`'s head, and he merges nothing until its run has started.
+- **Q5:** O1 as amended. The environment `npm` admits only the branch `main`, with no tag rule and the administrator bypass off. That setting is his to make.
+
+- **`reviewer-3`: a release runs on `main`** (property 4).
+  - **The finding.** A tag push runs the tagged commit's own `release.yml`, so whoever tags a commit off `main` can delete its commit checks. The environment admitted the tag, so such a run could stage and read `NPM_STAGE_TOKEN`.
+  - **How the run starts.** The tag push's run only dispatches `release.yml` on `main`, with the tag as input. That run's `prepare` and `stage` are `main`'s own file, which only a reviewed pull request changes (`Main protection` has no bypass actors).
+  - **What it checks first:** its ref is `refs/heads/main`; the tag points at its own commit, which is `main`'s head when it starts; and `verify` passed on that commit. Equality replaces _reachable from `origin/main`_, because npm's provenance names the run's `GITHUB_SHA`.
+  - **O1:** the environment `npm` admits only the branch `main` (GitHub matches the rule against the run's `GITHUB_REF`), with no tag rule and no administrator bypass. So no other ref gets the OIDC environment claim that the trusted publisher requires, nor the token.
+- **Property 1 gains:** the release commit is `main`'s head when the release run starts. If `main` moves first, the run refuses, and the release takes a new version.
+- **`reviewer-2`: what the owner compares before approving** (property 4).
+  - **On GitHub,** the release run that his tag dispatched: its branch is `main`, it succeeded, and its summary names his tag and commit.
+  - **On npm,** in _Staged Packages_ or with `npm stage view`: the stage id and the `shasum` equal the summary's.
+  - **The digest is npm's `shasum`** (SHA-1). It is what npm's review page and `npm stage view` show, and npm computes no sha256.
+  - **The summary** carries `shasum` and `integrity` beside the sha256, which stays as the check between the jobs.
+  - **Not before approval:** the transparency-log entry, which exists at stage time. The summary links it. The provenance is still read after approval, at step 6.
+- **Why:** the boundary moves to where GitHub enforces it, a branch rule on the environment. A summary written by the tagged commit's own file and a hand check would not hold it. The stage id and the `shasum` tie the version the owner approves to the run he has checked.
+
+**Amended 2026-11-20 by the architect,** on `reviewer-7` of Mx Reviewer B's feature proof of PR #81 at `30175e027`, relayed by the coordinator. The plan's [section](release-workflow-1/release-workflow-plan.md#the-dispatch-names-main-by-its-short-name) has the reading and the sources. Nothing changes in `release.yml`. `releasing.md` gains the recovery and states O1's rule as a branch rule.
+
+- **`reviewer-7`: the dispatch keeps `--ref main`, because a run on a tag `main` fails closed** (property 4).
+  - **The finding.** A writer can create a tag named `main`, which `Release tags` doesn't cover. GitHub doesn't document which ref a dispatch takes for a short name that names both a branch and a tag.
+  - **Why it fails closed.** A run on a tag `main` runs that tag's own `release.yml`, so its ref check and `stage`'s `if` can't be relied on. The environment `npm`, whose one rule is the branch `main`, refuses `stage`, so the run gets neither the trusted publisher's OIDC claim nor `NPM_STAGE_TOKEN`. Nothing is staged, and the owner's step 4 requires a run on the branch `main`.
+  - **Recovery needs no new version:** the owner deletes the tag `main` and, while his release tag is still `main`'s head, dispatches the release himself.
+  - **O1's reading** before the first tag confirms one policy, of type `branch` and named `main`, with `custom_branch_policies` `true`, `protected_branches` `false` and `can_admins_bypass` `false`. The short name is safe only through that setting.
+- **Not adopted:**
+  - **A ruleset that restricts creating `refs/tags/main`** (_Restrict creations_, no bypass). It would prevent only a release that fails closed and recovers, and adds an owner setting with no security property. O2 doesn't change.
+  - **The full ref `refs/heads/main`.** The endpoint most likely accepts it, by `gh`'s and a widely used dispatch action's behaviour, but GitHub doesn't document it, and the line first runs at the first release's tag.
 
 #### RD-28 — tproc keeps reading Material's own token database, converts one dated site release into a committed store of its own, and builds its CSS from that store
 

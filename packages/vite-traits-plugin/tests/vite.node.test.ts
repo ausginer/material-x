@@ -13,11 +13,8 @@ import { FIXTURES } from './helpers.ts';
  */
 const TRAIT = `import { trait } from '@ydinjs/core/traits/composition.js';
 
+@trait
 export class Linked {
-  static {
-    trait(this);
-  }
-
   get href(): string {
     return 'linked-member';
   }
@@ -58,6 +55,35 @@ export class Tagged {
 const LOOKALIKE_ENTRY = `import { Tagged } from './lookalike.js';
 
 globalThis.result = [({ tag: true }) instanceof Tagged, new Tagged().describe()];
+`;
+
+/** A layer (b) trait from source. */
+const OPENED = `import { Bool } from '@ydinjs/core/attribute.js';
+import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+
+@trait
+@attributes({ open: Bool })
+export class Opened extends AnyElement {
+  accessor open!: boolean;
+}
+`;
+
+/** A component that composes the layer (b) trait. */
+const OPEN = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import { Opened } from './opened.ts';
+
+class Base {}
+
+const OpenBase: Composed<typeof Base, [typeof Opened]> = compose(Base);
+
+class Open extends OpenBase {}
+
+globalThis.result = [
+  Open.observedAttributes,
+  typeof Object.getOwnPropertyDescriptor(Open.prototype, 'open')?.get,
+  new Open() instanceof Opened,
+];
 `;
 
 let dir: string;
@@ -114,6 +140,8 @@ beforeAll(async () => {
     writeFile(join(dir, 'app-source.js'), entry('./linked.ts')),
     writeFile(join(dir, 'lookalike.js'), LOOKALIKE),
     writeFile(join(dir, 'app-lookalike.js'), LOOKALIKE_ENTRY),
+    writeFile(join(dir, 'opened.ts'), OPENED),
+    writeFile(join(dir, 'open.ts'), OPEN),
   ]);
 });
 
@@ -166,5 +194,28 @@ describe('the plugin in Vite', () => {
       false,
       [true, false, false],
     ]);
+  });
+
+  it('should flatten a component of a layer (b) trait from source in a build', async () => {
+    expect(await run(await bundle('open.ts', false))).toEqual([
+      ['open'],
+      'function',
+      true,
+    ]);
+  });
+
+  it('should flatten a component of a layer (b) trait from source on the dev server', async () => {
+    const server = await createServer({
+      ...config('open.ts', false),
+      server: { middlewareMode: true, ws: false },
+      appType: 'custom',
+    });
+    try {
+      const result = await server.transformRequest('/open.ts');
+
+      expect(result?.code).toMatch(/get open\(\) \{/u);
+    } finally {
+      await server.close();
+    }
   });
 });

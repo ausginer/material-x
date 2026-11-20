@@ -178,7 +178,7 @@ describe("flattening another package's built trait", () => {
 
 describe("flattening over the base's declared static", () => {
   const header = `import { compose, trait, type Composed } from '@ydinjs/core/traits/composition.js';\n`;
-  const styled = `export class Styled {\n  static {\n    trait(this);\n  }\n\n  static readonly observedAttributes: readonly string[] = ['styled'];\n}\n`;
+  const styled = `@trait\nexport class Styled {\n  static readonly observedAttributes: readonly string[] = ['styled'];\n}\n`;
 
   /** Flattens a component of `Styled` over the base `name`, after `classes`. */
   const flatten = async (name: string, classes: string): Promise<string> => {
@@ -208,5 +208,71 @@ describe("flattening over the base's declared static", () => {
     expect(
       await flatten('Plain', 'class Plain extends HTMLElement {}\n'),
     ).toContain('export class Foo extends Plain');
+  });
+});
+
+describe('flattening an empty trait list', () => {
+  const header = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';\nimport { Base } from './base.ts';\n`;
+
+  /** Flattens the module `body`, after the header. */
+  const flatten = async (body: string): Promise<string> => {
+    const id = fixtureId('virtual-empty.ts');
+
+    return (await transform(id, { files: { [id]: `${header}${body}` } })).code;
+  };
+
+  it('should emit no static block and no impl import for an empty list', async () => {
+    const code = await flatten(
+      'const FooBase: Composed<typeof Base, []> = compose(Base);\nexport class Foo extends FooBase {}\n',
+    );
+    expect([code.includes('static {'), code.includes('impl')]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('should import impl once for one empty and one non-empty list', async () => {
+    const code = await flatten(
+      `import type { Forwarding } from '@fixture/forwarding/forwarding.mjs';\nconst FooBase: Composed<typeof Base, []> = compose(Base);\nexport class Foo extends FooBase {}\nconst BarBase: Composed<typeof Base, [typeof Forwarding]> = compose(Base);\nexport class Bar extends BarBase {}\n`,
+    );
+    expect([
+      code.match(/import \{ impl as /gu)?.length,
+      code.match(/static \{/gu)?.length,
+    ]).toEqual([1, 1]);
+  });
+});
+
+describe('flattening a supertrait', () => {
+  const source = `import { compose, trait, type Composed } from '@ydinjs/core/traits/composition.js';
+import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+
+@trait
+export class Inner extends AnyElement {
+  get inner(): string {
+    return 'inner';
+  }
+}
+
+const OuterBase: Composed<typeof AnyElement, [typeof Inner]> = compose(AnyElement);
+
+@trait
+export class Outer extends OuterBase {
+  get outer(): string {
+    return 'outer';
+  }
+}
+`;
+
+  it('should keep the constant of a @trait class that extends a composition', async () => {
+    const id = fixtureId('virtual-supertrait.ts');
+    const { code } = await transform(id, { files: { [id]: source } });
+
+    expect([
+      code.includes(
+        'const OuterBase: Composed<typeof AnyElement, [typeof Inner]> = compose(AnyElement);',
+      ),
+      code.includes('export class Outer extends OuterBase {'),
+      code.includes('o[$outer] === true'),
+    ]).toEqual([true, true, true]);
   });
 });

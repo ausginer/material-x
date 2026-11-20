@@ -1,0 +1,54 @@
+RD-27 task 4: the new stage step of release.yml, read from the workflow file by a probe and run by the implementer on 2026-11-20 in the devcontainer
+under `bash --noprofile --norc -eo pipefail`, with `npm stage publish` replaced by a shell function. "staged" prints npm 11.21.2's two notices on stderr
+(libnpmpublish/lib/publish.js: "Provenance statement published to transparency log: <url>") and its stage line on stdout
+(lib/commands/publish.js: "+ <id> (staged with id <stage-id>)"). "refused" prints an error and returns 1.
+
+defaults.run.shell: bash
+concurrency: release-${{ github.event_name == 'push' && 'dispatch-' || '' }}${{ inputs.tag || inputs.package || github.ref_name }}
+job dispatch: if=github.event_name == 'push' permissions={"actions":"write"} environment=- checkout=false
+job prepare: if=github.event_name == 'workflow_dispatch' permissions={"contents":"read","actions":"read"} environment=- checkout=true
+job stage: if=github.event_name == 'workflow_dispatch' && inputs.tag != '' && github.ref == 'refs/heads/main' permissions={"id-token":"write","actions":"read"} environment=npm checkout=false
+
+staged: exit 0
+summary:
+**Staged** `x.tgz` under `latest`.
+
+- stage id: `stg_abc123`
+- shasum (SHA-1): `2866dac8edc6a4dfbbba3f2f03c60063fdc708ad`
+- tag: `@ydinjs/box-quad@1.0.0`
+- commit: `0123456789abcdef0123456789abcdef01234567`
+- transparency log: https://search.sigstore.dev/?logIndex=123456
+
+Compare the stage id and the shasum under Staged Packages at <https://www.npmjs.com/package/@ydinjs/box-quad> before approving.
+
+refused: exit 1
+summary:
+(empty)
+
+The probe:
+
+import { parse } from '/workspaces/worktrees/d/node_modules/yaml/dist/index.js';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+const [workflow, dir] = process.argv.slice(2);
+const wf = parse(await readFile(workflow, 'utf8'));
+console.log('defaults.run.shell:', wf.defaults?.run?.shell);
+console.log('concurrency:', wf.concurrency.group);
+for (const [id, job] of Object.entries(wf.jobs)) console.log(`job ${id}: if=${job.if} permissions=${JSON.stringify(job.permissions)} environment=${job.environment ?? '-'} checkout=${job.steps.some((s) => s.uses?.startsWith('actions/checkout'))}`);
+const step = wf.jobs.stage.steps.find((s) => s.name === 'Stage');
+const npmLine = 'npm stage publish "./$TARBALL" --access public --tag "$DIST_TAG" --provenance';
+if (!step.run.includes(npmLine)) throw new Error('npm line');
+const fakes = {
+  staged: `fake_npm() { echo 'npm notice Signed provenance statement with source and build information from GitHub Actions' >&2; echo 'npm notice Provenance statement published to transparency log: https://search.sigstore.dev/?logIndex=123456' >&2; echo '+ @ydinjs/box-quad@1.0.0 (staged with id stg_abc123)'; }; fake_npm`,
+  refused: `fake_npm() { echo 'npm error code E403' >&2; return 1; }; fake_npm`,
+};
+for (const [name, fake] of Object.entries(fakes)) {
+  const temp = `${dir}/${name}`; await mkdir(temp, { recursive: true });
+  const pkg = `${temp}/pkg/package`; await mkdir(pkg, { recursive: true });
+  await writeFile(`${pkg}/package.json`, '{"name":"@ydinjs/box-quad"}');
+  spawnSync('tar', ['-czf', `${temp}/x.tgz`, '-C', `${temp}/pkg`, 'package']);
+  const summary = `${temp}/summary.md`; await writeFile(summary, '');
+  await writeFile(`${temp}/step.sh`, step.run.replace(npmLine, fake));
+  const r = spawnSync('bash', ['--noprofile', '--norc', '-eo', 'pipefail', `${temp}/step.sh`], { cwd: temp, encoding: 'utf8', env: { ...process.env, RUNNER_TEMP: temp, GITHUB_STEP_SUMMARY: summary, TARBALL: 'x.tgz', DIST_TAG: 'latest', SHASUM: '2866dac8edc6a4dfbbba3f2f03c60063fdc708ad', TAG: '@ydinjs/box-quad@1.0.0', COMMIT: '0123456789abcdef0123456789abcdef01234567' } });
+  console.log(`\n${name}: exit ${r.status}\nsummary:\n${(await readFile(summary, 'utf8')).trim() || '(empty)'}`);
+}

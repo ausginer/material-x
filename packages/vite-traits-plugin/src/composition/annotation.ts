@@ -15,7 +15,12 @@ import type {
 } from '@oxc-project/types';
 import { CODE, fail } from '../diagnostics.ts';
 import type { StaticKind } from '../ir.ts';
-import { unwrapTS, walk, type TopClass } from '../syntax.ts';
+import {
+  forEachValueReference,
+  unwrapTS,
+  walk,
+  type TopClass,
+} from '../syntax.ts';
 import {
   declarationsOf,
   resolveAlias,
@@ -79,111 +84,6 @@ function composedAnnotation(
     composed.has(type.typeName.name)
     ? type
     : null;
-}
-
-/** The fields that hold only types, in any node. */
-const TYPE_FIELDS = new Set([
-  'typeAnnotation',
-  'typeArguments',
-  'typeParameters',
-  'returnType',
-  'superTypeArguments',
-  'implements',
-]);
-
-/** Type nodes and type-only declarations, besides every `TS…Type`. */
-const TYPE_NODES = new Set([
-  'TSTypeAnnotation',
-  'TSTypeReference',
-  'TSTypeQuery',
-  'TSTypeLiteral',
-  'TSTypeOperator',
-  'TSTypePredicate',
-  'TSTypeParameterDeclaration',
-  'TSTypeParameterInstantiation',
-  'TSTypeAliasDeclaration',
-  'TSInterfaceDeclaration',
-]);
-
-/** Whether a node is a type, or a declaration that emits nothing. */
-function isTypeOnly(
-  node: Readonly<Record<string, unknown>> & { type?: string },
-): boolean {
-  const { type } = node;
-
-  return (
-    type !== undefined &&
-    (TYPE_NODES.has(type) ||
-      /^TS\w*(?:Type|Keyword)$/u.test(type) ||
-      node['declare'] === true)
-  );
-}
-
-/**
- * Counts each name's value references under `node`. It fails closed: every
- * node is walked, TypeScript or not, so a shape this function doesn't know
- * counts its identifiers, which can only refuse a composition. Any
- * identifier-like node counts, `JSXIdentifier` included, so `<X />` and
- * `<X.Inner />` are references. Only these aren't counted: a type position,
- * a type-only declaration, a `declare` declaration, a non-computed property
- * key or member name, a JSX attribute name, the property of a JSX member name,
- * a private or namespaced JSX name, a label, and an import. A shorthand
- * property `{ X }` and an export specifier are counted. A direct
- * `eval('X')` can't be seen.
- */
-function countValueReferences(
-  node: unknown,
-  counts: Map<string, number>,
-): void {
-  if (Array.isArray(node)) {
-    for (const item of node) {
-      countValueReferences(item, counts);
-    }
-    return;
-  }
-  if (!node || typeof node !== 'object') {
-    return;
-  }
-  const value = node as Readonly<Record<string, unknown>> & { type?: string };
-  const { type } = value;
-  if (type === 'PrivateIdentifier' || type === 'JSXNamespacedName') {
-    // A private name and a namespaced JSX name never name a module binding.
-    return;
-  }
-  const { name } = value;
-  if (type?.endsWith('Identifier') && typeof name === 'string') {
-    // Any identifier-like node counts, `JSXIdentifier` included, unless its
-    // position is a known non-reference, which the parent skips.
-    counts.set(name, (counts.get(name) ?? 0) + 1);
-    return;
-  }
-  if (isTypeOnly(value) || type === 'ImportDeclaration') {
-    return;
-  }
-  if (type === 'ExportSpecifier') {
-    countValueReferences(value['local'], counts);
-    return;
-  }
-  const keyed =
-    type === 'Property' ||
-    type === 'MethodDefinition' ||
-    type === 'PropertyDefinition' ||
-    type === 'AccessorProperty';
-  for (const [field, child] of Object.entries(value)) {
-    if (
-      TYPE_FIELDS.has(field) ||
-      field === 'label' ||
-      (keyed && field === 'key' && value['computed'] !== true) ||
-      (type === 'MemberExpression' &&
-        field === 'property' &&
-        value['computed'] !== true) ||
-      (type === 'JSXMemberExpression' && field === 'property') ||
-      (type === 'JSXAttribute' && field === 'name')
-    ) {
-      continue;
-    }
-    countValueReferences(child, counts);
-  }
 }
 
 /**
@@ -250,7 +150,9 @@ export function findSites(ctx: ModuleCtx): readonly Site[] {
     }
   });
 
-  countValueReferences(ctx.program, references);
+  forEachValueReference(ctx.program, ({ name }) => {
+    references.set(name, (references.get(name) ?? 0) + 1);
+  });
 
   const sites: Site[] = [];
   for (const site of shaped.values()) {
@@ -368,7 +270,7 @@ async function addTrait(
   if (!found) {
     fail(
       CODE.TRAIT_UNRESOLVED,
-      `${name} isn't a class whose static block calls trait(this)`,
+      `${name} isn't a class decorated @trait`,
       x.pos,
     );
   }

@@ -1,0 +1,106 @@
+vitest run -c vitest.config.ts 
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/core
+
+ ❯ |browser (chromium)| tests/traits/attribute-traits.browser.test.ts (10 tests | 1 failed) 122ms
+   ❯ attributes (10)
+     × should throw when the decorator is created unbuilt 118ms
+ ❯ |declaration|  TS  tests/traits/attribute-traits.declaration.test.ts (18 tests | 3 failed)
+   ❯ attributes (14)
+     × should accept a converter that reads the member
+     × should accept a shared table constant whose converters fit
+     × should reject a call with the class and the table
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/traits/attribute-traits.declaration.test.ts:41 > attributes > should accept a converter that reads the member
+TypeCheckError: Expected 2 arguments, but got 1.
+ ❯ tests/traits/attribute-traits.declaration.test.ts:43:6
+     41|   it('should accept a converter that reads the member', () => {
+     42|     @trait
+     43|     @attributes({ checked: Bool })
+       |      ^
+     44|     class Checked extends AnyElement {
+     45|       declare checked: boolean;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |declaration| tests/traits/attribute-traits.declaration.test.ts:41 > attributes > should accept a converter that reads the member
+TypeCheckError: Unable to resolve signature of class decorator when called as an expression.
+  This expression is not callable. Type 'void' has no call signatures.
+ ❯ tests/traits/attribute-traits.declaration.test.ts:43:6
+     41|   it('should accept a converter that reads the member', () => {
+     42|     @trait
+     43|     @attributes({ checked: Bool })
+       |      ^
+     44|     class Checked extends AnyElement {
+     45|       declare checked: boolean;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |declaration| tests/traits/attribute-traits.declaration.test.ts:130 > attributes > should accept a shared table constant whose converters fit
+TypeCheckError: Expected 2 arguments, but got 1.
+ ❯ tests/traits/attribute-traits.declaration.test.ts:132:6
+    130|   it('should accept a shared table constant whose converters fit', () …
+    131|     @trait
+    132|     @attributes(SHARED_ATTRS)
+       |      ^
+    133|     class SharedTable extends AnyElement {
+    134|       declare href: string | null;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |declaration| tests/traits/attribute-traits.declaration.test.ts:130 > attributes > should accept a shared table constant whose converters fit
+TypeCheckError: Unable to resolve signature of class decorator when called as an expression.
+  This expression is not callable. Type 'void' has no call signatures.
+ ❯ tests/traits/attribute-traits.declaration.test.ts:132:6
+    130|   it('should accept a shared table constant whose converters fit', () …
+    131|     @trait
+    132|     @attributes(SHARED_ATTRS)
+       |      ^
+    133|     class SharedTable extends AnyElement {
+    134|       declare href: string | null;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |declaration| tests/traits/attribute-traits.declaration.test.ts:173 > attributes > should reject a call with the class and the table
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/traits/attribute-traits.declaration.test.ts:177:9
+    175|     class Called extends AnyElement {
+    176|       static {
+    177|         // @ts-expect-error: TS2554, `attributes` takes the table alone
+       |         ^
+    178|         attributes(this, { disabled: Bool });
+    179|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |browser (chromium)| tests/traits/attribute-traits.browser.test.ts:65 > attributes > should throw when the decorator is created unbuilt
+AssertionError: expected [Function] to throw an error
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+undefined
+
+ ❯ tests/traits/attribute-traits.browser.test.ts:66:65
+     64|   // but `@attributes(TABLE)`, and this case calls it unbuilt.
+     65|   it('should throw when the decorator is created unbuilt', () => {
+     66|     expect(() => attributeTraits.attributes({ checked: Bool })).toThro…
+       |                                                                 ^
+     67|       '@attributes is compiled by @ydinjs/vite-traits-plugin',
+     68|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed | 24 passed (26)
+      Tests  4 failed | 303 passed (307)
+Type Errors  no errors
+   Start at  08:05:46
+   Duration  4.57s (tests 50%, worker 28%, typecheck 9%, setup 9%, import 4%)
+
+error: recipe `test` failed on line 28 with exit code 1

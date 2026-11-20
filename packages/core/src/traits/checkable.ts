@@ -11,12 +11,9 @@ export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
 /**
  * Element trait that exposes a presence-based `checked` boolean field.
  */
+@trait
+@attributes(CHECKABLE_ATTRS)
 export class Checkable extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, CHECKABLE_ATTRS);
-  }
-
   accessor checked!: boolean;
 }
 

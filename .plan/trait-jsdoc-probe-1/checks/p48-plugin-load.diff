@@ -1,0 +1,29 @@
+diff --git a/packages/vite-traits-plugin/src/plugin.ts b/packages/vite-traits-plugin/src/plugin.ts
+index 870bac702..dd4ed3ec1 100644
+--- a/packages/vite-traits-plugin/src/plugin.ts
++++ b/packages/vite-traits-plugin/src/plugin.ts
+@@ -39,6 +39,7 @@ import {
+   type FlattenerWarning,
+ } from './diagnostics.ts';
+ import type { StaticKind, TraitIR } from './ir.ts';
++import { moveExportAboveDecorators } from './p48-load.ts';
+ import { invalidateModule, parseModule, type ModuleLoader } from './syntax.ts';
+ 
+ /** Only JavaScript and TypeScript modules are candidates. */
+@@ -255,6 +256,16 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
+ 
+   const attributes: Plugin & RolldownPlugin = {
+     name: 'trait-attributes',
++    async load(id) {
++      if (process.env.P48_LOAD !== '1' || id.includes('?') || !isCandidate(id) || !id.startsWith('/')) {
++        return null;
++      }
++      const code = await readFile(id, 'utf8');
++      const magic = moveExportAboveDecorators(id, code);
++      return magic
++        ? { code: magic.toString(), map: magic.generateMap({ source: id, includeContent: true, hires: true }).toString() }
++        : null;
++    },
+     configResolved(config) {
+       if (config.command === 'serve') {
+         kind = 'serve';

@@ -1,0 +1,68 @@
+=== valid.ts — Version 7.0.2
+exit 0
+--- valid.d.ts
+import { AnyElement } from './composition.ts';
+/** The decorator before `export`. */
+export declare class Disableable extends AnyElement {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+/** The decorator after `export`, with a nominal brand. */
+export declare class Forwarding extends AnyElement {
+    #private;
+    focus(): void;
+}
+=== valid.ts — Version 6.0.3
+exit 0
+--- valid.d.ts
+import { AnyElement } from './composition.ts';
+/** The decorator before `export`. */
+export declare class Disableable extends AnyElement {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+/** The decorator after `export`, with a nominal brand. */
+export declare class Forwarding extends AnyElement {
+    #private;
+    focus(): void;
+}
+=== invalid.ts — Version 7.0.2
+invalid.ts(5,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Plain' is not assignable to parameter of type 'TraitClass'.
+    Property '[$bound]' is missing in type 'typeof Plain' but required in type '{ readonly [$bound]: (instance: never, statics: never) => void; }'.
+invalid.ts(9,2): error TS2554: Expected 2 arguments, but got 0.
+invalid.ts(9,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  This expression is not callable.
+    Type 'void' has no call signatures.
+invalid.ts(15,5): error TS2554: Expected 2 arguments, but got 1.
+invalid.ts(21,4): error TS1241: Unable to resolve signature of method decorator when called as an expression.
+  Argument of type '() => void' is not assignable to parameter of type 'TraitClass'.
+    Type '() => void' is not assignable to type 'AbstractConstructor<object>'.
+      Type '() => void' provides no match for the signature 'new (...arguments_: any[]): object'.
+invalid.ts(27,14): error TS4023: Exported variable 'Expression' has or is using name '$bound' from external module "/workspaces/worktrees/e/.plan/trait-decorator-1/probes/composition" but cannot be named.
+invalid.ts(28,3): error TS9022: Inference from class expressions is not supported with --isolatedDeclarations.
+exit 1
+=== invalid.ts — Version 6.0.3
+invalid.ts(5,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Plain' is not assignable to parameter of type 'TraitClass'.
+    Property '[$bound]' is missing in type 'typeof Plain' but required in type '{ readonly [$bound]: (instance: never, statics: never) => void; }'.
+invalid.ts(9,2): error TS2554: Expected 2 arguments, but got 0.
+invalid.ts(9,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  This expression is not callable.
+    Type 'void' has no call signatures.
+invalid.ts(15,5): error TS2554: Expected 2 arguments, but got 1.
+invalid.ts(21,4): error TS1241: Unable to resolve signature of method decorator when called as an expression.
+  Argument of type '() => void' is not assignable to parameter of type 'TraitClass'.
+    Type '() => void' is not assignable to type 'AbstractConstructor<object>'.
+      Type '() => void' provides no match for the signature 'new (...arguments_: any[]): object'.
+invalid.ts(27,14): error TS4023: Exported variable 'Expression' has or is using name '$bound' from external module "/workspaces/worktrees/e/.plan/trait-decorator-1/probes/composition" but cannot be named.
+invalid.ts(28,3): error TS9022: Inference from class expressions is not supported with --isolatedDeclarations.
+exit 1
+=== (h) oxc-parser
+{"source":"@trait export class A extends B {}","errors":0,"statement":["ExportNamedDeclaration",49,76],"decorators":[[42,48]]}
+{"source":"export @trait class A extends B {}","errors":0,"statement":["ExportNamedDeclaration",42,76],"decorators":[[49,55]]}
+{"source":"@trait class A extends B {}","errors":0,"statement":["ClassDeclaration",42,69],"decorators":[[42,48]]}
+=== (h) oxfmt
+export
+@trait
+class A extends B {}

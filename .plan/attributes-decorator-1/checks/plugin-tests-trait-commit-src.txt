@@ -1,0 +1,1131 @@
+vitest run -c vitest.config.ts 
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/vite-traits-plugin
+
+ ❯ |node| tests/trait-module.node.test.ts (21 tests | 2 failed) 44ms
+   ❯ transformTraitModule on each form of @trait (6)
+     × should put the method after a layer (b) trait's observedAttributes 5ms
+     × should keep the import of another name from trait's module 4ms
+ ❯ |node| tests/flatten.node.test.ts (15 tests | 8 skipped) 85ms
+ ❯ |node| tests/diagnostics.node.test.ts (72 tests | 29 failed) 157ms
+   ❯ build errors (51)
+     × should fail the build for a list element that is not typeof T 11ms
+     × should fail the build for an empty trait static block 7ms
+     × should fail the build for a trait's lone getter over an earlier trait's pair 3ms
+     × should fail the build for the component's lone getter over a trait's pair 2ms
+     × should fail the build for super.key for a trait's key 3ms
+     × should fail the build for a computed super member 2ms
+     × should fail the build for an attribute table key with no accessor 1ms
+     × should fail the build for an accessor with no table entry 1ms
+     × should fail the build for a converter that is a call 1ms
+     × should fail the build for an accessor with an initializer 1ms
+     ❯ attributes-decorator (16)
+       × should fail the build at the decorator for the decorator not called 1ms
+       × should fail the build at the decorator for the decorator called with no table 1ms
+       × should fail the build at the decorator for the decorator called with two arguments 1ms
+       × should fail the build at the decorator for the decorator called with a spread 1ms
+       × should fail the build at the decorator for the decorator on a class that @trait does not decorate 1ms
+       × should fail the build at the decorator for the decorator above @trait 2ms
+       × should fail the build at the decorator for the decorator twice 1ms
+       × should fail the build at the decorator for the decorator on a class expression 1ms
+       × should fail the build at the decorator for the decorator on a nested class 1ms
+       × should fail the build at the decorator for the decorator on a member 1ms
+       × should fail the build at the decorator for a call of attributes in a static block 4ms
+       × should fail the build at the decorator for a re-export of attributes 2ms
+       × should fail the build at the decorator for attributes passed as a value 2ms
+       × should reach a bare @attributes through the flattener's loader 1ms
+       × should reach a bare @attributes through layer (b)'s transform 3ms
+   ❯ composition-shape and value references (12)
+     × should flatten with the name as a property key 3ms
+     × should flatten with the name in a type 3ms
+     × should flatten with the name in a declared namespace 2ms
+     × should flatten with the name as a JSX attribute name 2ms
+ ❯ |node| tests/vite.node.test.ts (7 tests | 2 failed) 206ms
+   ❯ the plugin in Vite (7)
+     × should flatten a component of a layer (b) trait from source in a build 14ms
+     × should flatten a component of a layer (b) trait from source on the dev server 18ms
+ ❯ |node| tests/attributes.node.test.ts (15 tests | 11 failed) 42ms
+   ❯ lowerAttributes (6)
+     × should turn an accessor line into a getter and a setter through the operator 13ms
+     × should read an inline table's converter as it is written 4ms
+     × should list the table's keys in a static observedAttributes 2ms
+     × should remove the @attributes decorator 1ms
+     × should import core's attribute operator 2ms
+   ❯ lowerAttributes on each form of @attributes (6)
+     ❯ an inline table (2)
+       × should remove @attributes, keep @trait, and keep the import of another name 4ms
+       × should put the method after observedAttributes in the trait module 5ms
+     ❯ a module constant (2)
+       × should read the constant and remove the unused import 3ms
+       × should put the method after observedAttributes in the trait module 1ms
+     ❯ aliased imports (2)
+       × should lower the aliased decorator and keep the aliased @trait 2ms
+       × should put the method after observedAttributes in the trait module 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:41 > flattening
+FlattenerError: @trait is the only decorator of Nameable
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ src/composition/trait-module.ts:148:7
+ ❯ forEachValueReference src/syntax.ts:163:5
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:146:7
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:146:7
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ checkTraitReferences src/composition/trait-module.ts:119:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/46]⎯
+
+ FAIL  |node| tests/flatten.node.test.ts:41 > flattening
+TypeError: Cannot read properties of undefined (reading 'dispose')
+ ❯ tests/flatten.node.test.ts:66:15
+     64|
+     65|   afterAll(async () => {
+     66|     await gen.dispose();
+       |               ^
+     67|   });
+     68|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/46]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 44 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:34 > lowerAttributes > should turn an accessor line into a getter and a setter through the operator
+AssertionError: expected 'import { Bool, Str } from \'@ydinjs/c…' to contain 'get open() { return __mxflat_attr.get…'
+
+- Expected
++ Received
+
+- get open() { return __mxflat_attr.get(this, "open", TABLE.open); }
+-   set open(value) { __mxflat_attr.set(this, "open", value, TABLE.open); }
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const TABLE = { open: Bool, 'label': Str };
++
++ @trait
++ @attributes(TABLE)
++ export class Opened extends AnyElement {
++   accessor open!: boolean;
++   accessor label!: string | null;
++ }
++
++ @trait
++ @attributes({ checked: Bool })
++ export class Inline extends AnyElement {
++   accessor checked!: boolean;
++ }
++
+
+ ❯ tests/attributes.node.test.ts:35:27
+     33| describe('lowerAttributes', () => {
+     34|   it('should turn an accessor line into a getter and a setter through …
+     35|     expect(lower(SOURCE)).toContain(
+       |                           ^
+     36|       'get open() { return __mxflat_attr.get(this, "open", TABLE.open)…
+     37|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:40 > lowerAttributes > should read an inline table's converter as it is written
+AssertionError: expected 'import { Bool, Str } from \'@ydinjs/c…' to contain '__mxflat_attr.get(this, "checked", Bo…'
+
+- Expected
++ Received
+
+- __mxflat_attr.get(this, "checked", Bool)
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const TABLE = { open: Bool, 'label': Str };
++
++ @trait
++ @attributes(TABLE)
++ export class Opened extends AnyElement {
++   accessor open!: boolean;
++   accessor label!: string | null;
++ }
++
++ @trait
++ @attributes({ checked: Bool })
++ export class Inline extends AnyElement {
++   accessor checked!: boolean;
++ }
++
+
+ ❯ tests/attributes.node.test.ts:41:27
+     39|
+     40|   it("should read an inline table's converter as it is written", () =>…
+     41|     expect(lower(SOURCE)).toContain('__mxflat_attr.get(this, "checked"…
+       |                           ^
+     42|   });
+     43|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:44 > lowerAttributes > should list the table's keys in a static observedAttributes
+AssertionError: expected 'import { Bool, Str } from \'@ydinjs/c…' to contain 'static observedAttributes = ["open","…'
+
+- Expected
++ Received
+
+- static observedAttributes = ["open","label"];
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const TABLE = { open: Bool, 'label': Str };
++
++ @trait
++ @attributes(TABLE)
++ export class Opened extends AnyElement {
++   accessor open!: boolean;
++   accessor label!: string | null;
++ }
++
++ @trait
++ @attributes({ checked: Bool })
++ export class Inline extends AnyElement {
++   accessor checked!: boolean;
++ }
++
+
+ ❯ tests/attributes.node.test.ts:45:27
+     43|
+     44|   it("should list the table's keys in a static observedAttributes", ()…
+     45|     expect(lower(SOURCE)).toContain(
+       |                           ^
+     46|       'static observedAttributes = ["open","label"];',
+     47|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:50 > lowerAttributes > should remove the @attributes decorator
+AssertionError: expected 'import { Bool, Str } from \'@ydinjs/c…' not to contain '@attributes'
+
+- Expected
++ Received
+
+- @attributes
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { trait } from '@ydinjs/core/traits/composition.js';
++
++ const TABLE = { open: Bool, 'label': Str };
++
++ @trait
++ @attributes(TABLE)
++ export class Opened extends AnyElement {
++   accessor open!: boolean;
++   accessor label!: string | null;
++ }
++
++ @trait
++ @attributes({ checked: Bool })
++ export class Inline extends AnyElement {
++   accessor checked!: boolean;
++ }
++
+
+ ❯ tests/attributes.node.test.ts:51:31
+     49|
+     50|   it('should remove the @attributes decorator', () => {
+     51|     expect(lower(SOURCE)).not.toContain('@attributes');
+       |                               ^
+     52|   });
+     53|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:54 > lowerAttributes > should import core's attribute operator
+AssertionError: expected 'import { Bool, Str } from \'@ydinjs/c…' to match /^import __mxflat_attr from "@ydi…/core\
+
+- Expected:
+/^import __mxflat_attr from "@ydinjs\/core\/attribute\.js";/u
+
++ Received:
+"import { Bool, Str } from '@ydinjs/core/attribute.js';
+import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+
+const TABLE = { open: Bool, 'label': Str };
+
+@trait
+@attributes(TABLE)
+export class Opened extends AnyElement {
+  accessor open!: boolean;
+  accessor label!: string | null;
+}
+
+@trait
+@attributes({ checked: Bool })
+export class Inline extends AnyElement {
+  accessor checked!: boolean;
+}
+"
+
+ ❯ tests/attributes.node.test.ts:55:27
+     53|
+     54|   it("should import core's attribute operator", () => {
+     55|     expect(lower(SOURCE)).toMatch(
+       |                           ^
+     56|       /^import __mxflat_attr from "@ydinjs\/core\/attribute\.js";/u,
+     57|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:87 > lowerAttributes on each form of @attributes > an inline table > should remove @attributes, keep @trait, and keep the import of another name
+AssertionError: expected 'import { Bool } from \'@ydinjs/core/a…' to be 'import __mxflat_attr from "@ydinjs/co…' // Object.is equality
+
+- Expected
++ Received
+
+- import __mxflat_attr from "@ydinjs/core/attribute.js";
+  import { Bool } from '@ydinjs/core/attribute.js';
+- import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
+  import { trait } from '@ydinjs/core/traits/composition.js';
+
+  @trait
++ @attributes({ open: Bool })
+  export class Open extends AnyElement {
+-   static observedAttributes = ["open"];
+-   get open() { return __mxflat_attr.get(this, "open", Bool); }
+-   set open(value) { __mxflat_attr.set(this, "open", value, Bool); }
++   accessor open!: boolean;
+  }
+
+
+ ❯ tests/attributes.node.test.ts:88:29
+     86|
+     87|     it('should remove @attributes, keep @trait, and keep the import of…
+     88|       expect(lower(source)).toBe(
+       |                             ^
+     89|         `${OPERATOR}${BOOL}import { AnyElement } from '@ydinjs/core/tr…
+     90|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:93 > lowerAttributes on each form of @attributes > an inline table > should put the method after observedAttributes in the trait module
+ FAIL  |node| tests/attributes.node.test.ts:109 > lowerAttributes on each form of @attributes > a module constant > should put the method after observedAttributes in the trait module
+ FAIL  |node| tests/trait-module.node.test.ts:120 > transformTraitModule on each form of @trait > should put the method after a layer (b) trait's observedAttributes
+FlattenerError: @trait is the only decorator of Open
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ src/composition/trait-module.ts:148:7
+ ❯ forEachValueReference src/syntax.ts:163:5
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:146:7
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:146:7
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ checkTraitReferences src/composition/trait-module.ts:119:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:103 > lowerAttributes on each form of @attributes > a module constant > should read the constant and remove the unused import
+AssertionError: expected 'import { Bool } from \'@ydinjs/core/a…' to be 'import __mxflat_attr from "@ydinjs/co…' // Object.is equality
+
+- Expected
++ Received
+
+- import __mxflat_attr from "@ydinjs/core/attribute.js";
++ import { Bool } from '@ydinjs/core/attribute.js';
+- import { Bool } from '@ydinjs/core/attribute.js';
++ import { attributes } from '@ydinjs/core/traits/attribute-traits.js';
+-
+  import { trait } from '@ydinjs/core/traits/composition.js';
+
+  const OPEN_ATTRS = { open: Bool };
+
+  @trait
+- export class Open {
+-   static observedAttributes = ["open"];
+-   get open() { return __mxflat_attr.get(this, "open", OPEN_ATTRS.open); }
+-   set open(value) { __mxflat_attr.set(this, "open", value, OPEN_ATTRS.open); }
++ @attributes(OPEN_ATTRS)
++ export class Open {
++   accessor open!: boolean;
+  }
+
+
+ ❯ tests/attributes.node.test.ts:104:29
+    102|
+    103|     it('should read the constant and remove the unused import', () => {
+    104|       expect(lower(source)).toBe(
+       |                             ^
+    105|         `${OPERATOR}${BOOL}\n${TRAIT}\nconst OPEN_ATTRS = { open: Bool…
+    106|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:119 > lowerAttributes on each form of @attributes > aliased imports > should lower the aliased decorator and keep the aliased @trait
+AssertionError: expected 'import { Bool } from \'@ydinjs/core/a…' to be 'import __mxflat_attr from "@ydinjs/co…' // Object.is equality
+
+- Expected
++ Received
+
+- import __mxflat_attr from "@ydinjs/core/attribute.js";
++ import { Bool } from '@ydinjs/core/attribute.js';
+- import { Bool } from '@ydinjs/core/attribute.js';
++ import { attributes as attrs } from '@ydinjs/core/traits/attribute-traits.js';
+-
+  import { trait as brand } from '@ydinjs/core/traits/composition.js';
+
+  @brand
+- export class Open {
+-   static observedAttributes = ["open"];
+-   get open() { return __mxflat_attr.get(this, "open", Bool); }
+-   set open(value) { __mxflat_attr.set(this, "open", value, Bool); }
++ @attrs({ open: Bool })
++ export class Open {
++   accessor open!: boolean;
+  }
+
+
+ ❯ tests/attributes.node.test.ts:120:29
+    118|
+    119|     it('should lower the aliased decorator and keep the aliased @trait…
+    120|       expect(lower(source)).toBe(
+       |                             ^
+    121|         `${OPERATOR}${BOOL}\nimport { trait as brand } from '@ydinjs/c…
+    122|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/46]⎯
+
+ FAIL  |node| tests/attributes.node.test.ts:125 > lowerAttributes on each form of @attributes > aliased imports > should put the method after observedAttributes in the trait module
+FlattenerError: @brand is the only decorator of Open
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ src/composition/trait-module.ts:148:7
+ ❯ forEachValueReference src/syntax.ts:163:5
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:146:7
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ forEachValueReference src/syntax.ts:146:7
+ ❯ forEachValueReference src/syntax.ts:191:5
+ ❯ checkTraitReferences src/composition/trait-module.ts:119:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for a list element that is not typeof T
+AssertionError: expected FlattenerError: Checkable isn't a class d… { …(2) } to match object { code: 'trait-list' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-list",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for an empty trait static block
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { impl as __mxflat_impl } from \"@ydinjs/core/traits/composition.js\";
++ import { compose, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export const $empty = Symbol(\"Empty\");
++ export class Empty extends AnyElement {
++   static [Symbol.hasInstance](o) {
++     return o != null && o[$empty] === true;
++   }
++ }
++
++ export class Foo extends Base {
++   static {
++     __mxflat_impl(this, $empty);
++   }
++
++
++ }
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for a trait's lone getter over an earlier trait's pair
+AssertionError: expected FlattenerError: Checkable isn't a class d… { …(2) } to match object { code: 'trait-accessor-half' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "trait-accessor-half",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for the component's lone getter over a trait's pair
+AssertionError: expected FlattenerError: Checkable isn't a class d… { …(2) } to match object { code: 'class-accessor-half' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "class-accessor-half",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for super.key for a trait's key
+AssertionError: expected FlattenerError: Checkable isn't a class d… { …(2) } to match object { code: 'class-super-trait-member' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "class-super-trait-member",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for a computed super member
+AssertionError: expected FlattenerError: Checkable isn't a class d… { …(2) } to match object { code: 'class-computed-super' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "class-computed-super",
++ FlattenerError {
++   "code": "trait-unresolved",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for an attribute table key with no accessor
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for an accessor with no table entry
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for a converter that is a call
+AssertionError: expected FlattenerError: @trait is the only decora… { …(2) } to match object { code: 'attribute-table' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "attribute-table",
++ FlattenerError {
++   "code": "trait-decorator",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:172 > build errors > should fail the build for an accessor with an initializer
+AssertionError: expected FlattenerError: @trait is the only decora… { …(2) } to match object { code: 'attribute-accessor' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "attribute-accessor",
++ FlattenerError {
++   "code": "trait-decorator",
+  }
+
+ ❯ tests/diagnostics.node.test.ts:173:28
+    171|
+    172|   it.each(cases)('should fail the build for %s', async (_, code, body)…
+    173|     await expect(run(body)).rejects.toMatchObject({ code });
+       |                            ^
+    174|   });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator not called
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator called with no table
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator called with two arguments
+AssertionError: expected FlattenerError: @trait is the only decora… { …(2) } to match object { code: undefined, pos: 325 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": undefined,
+-   "pos": 325,
++ FlattenerError {
++   "code": "trait-decorator",
++   "pos": 318,
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator called with a spread
+AssertionError: expected FlattenerError: @trait is the only decora… { …(2) } to match object { code: undefined, pos: 358 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": undefined,
+-   "pos": 358,
++ FlattenerError {
++   "code": "trait-decorator",
++   "pos": 351,
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator on a class that @trait does not decorate
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ @attributes({ open: Bool })
++ export class Plain extends AnyElement {
++   accessor open!: boolean;
++ }
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator above @trait
+AssertionError: expected FlattenerError: @trait is the only decora… { …(2) } to match object { code: undefined, pos: 318 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": undefined,
+-   "pos": 318,
++ FlattenerError {
++   "code": "trait-decorator",
++   "pos": 346,
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator twice
+AssertionError: expected FlattenerError: @trait is the only decora… { …(2) } to match object { code: undefined, pos: 353 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": undefined,
+-   "pos": 353,
++ FlattenerError {
++   "code": "trait-decorator",
++   "pos": 318,
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator on a class expression
+AssertionError: expected FlattenerError: @trait decorates a module… { …(2) } to match object { code: undefined, pos: 350 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": undefined,
+-   "pos": 350,
++ FlattenerError {
++   "code": "trait-decorator",
++   "pos": 343,
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator on a nested class
+AssertionError: expected FlattenerError: @trait decorates a module… { …(2) } to match object { code: undefined, pos: 363 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": undefined,
+-   "pos": 363,
++ FlattenerError {
++   "code": "trait-decorator",
++   "pos": 354,
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for the decorator on a member
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export class Host {
++   @attributes({ open: Bool })
++   run(): void {}
++ }
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for a call of attributes in a static block
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import __mxflat_attr from \"@ydinjs/core/attribute.js\";
++ import { compose, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export const $old = Symbol(\"Old\");
++ const __mxflat_Old_observedAttributes_e7fc31df = [\"open\"];
++ export class Old extends AnyElement {
++   static observedAttributes = __mxflat_Old_observedAttributes_e7fc31df;
++   static [Symbol.hasInstance](o) {
++     return o != null && o[$old] === true;
++   }
++
++   get open() { return __mxflat_attr.get(this, \"open\", Bool); }
++   set open(value) { __mxflat_attr.set(this, \"open\", value, Bool); }
++ }
++
++ export { __mxflat_Old_observedAttributes_e7fc31df };
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for a re-export of attributes
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export { attributes };
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:300 > build errors > attributes-decorator > should fail the build at the decorator for attributes passed as a value
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "code": "import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
++ import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
++ import { Bool, Str } from '@ydinjs/core/attribute.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ export const declare = attributes;
++ ",
++   "warnings": [],
+  }
+
+ ❯ tests/diagnostics.node.test.ts:303:32
+    301|       'should fail the build at the decorator for %s',
+    302|       async (_, body, marker) => {
+    303|         await expect(run(body)).rejects.toMatchObject({
+       |                                ^
+    304|           code: CODE.ATTRIBUTES_DECORATOR,
+    305|           pos: HEADER.length + body.indexOf(marker),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:320 > build errors > attributes-decorator > should reach a bare @attributes through the flattener's loader
+AssertionError: expected function to throw an error, but it didn't
+ ❯ tests/diagnostics.node.test.ts:326:9
+    324|           `${HEADER}@trait\n@attributes\nexport class Bare${ACCESSOR}`,
+    325|         ),
+    326|       ).toThrow(expect.objectContaining({ code: CODE.ATTRIBUTES_DECORA…
+       |         ^
+    327|     });
+    328|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:329 > build errors > attributes-decorator > should reach a bare @attributes through layer (b)'s transform
+AssertionError: expected [Function] to throw an error
+ ❯ tests/diagnostics.node.test.ts:349:9
+    347|           fixtureId('virtual-bare.ts'),
+    348|         ),
+    349|       ).toThrow(CODE.ATTRIBUTES_DECORATOR);
+       |         ^
+    350|     });
+    351|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:516 > composition-shape and value references > should flatten with the name as a property key
+FlattenerError: Checkable isn't a class decorated @trait
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ addTrait src/composition/annotation.ts:271:5
+ ❯ expandList src/composition/annotation.ts:209:9
+ ❯ resolveTraits src/composition/annotation.ts:325:3
+ ❯ analyzeSite src/plugin.ts:135:16
+ ❯ flattenModule src/plugin.ts:211:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:517:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:522 > composition-shape and value references > should flatten with the name in a type
+FlattenerError: Checkable isn't a class decorated @trait
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ addTrait src/composition/annotation.ts:271:5
+ ❯ expandList src/composition/annotation.ts:209:9
+ ❯ resolveTraits src/composition/annotation.ts:325:3
+ ❯ analyzeSite src/plugin.ts:135:16
+ ❯ flattenModule src/plugin.ts:211:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:523:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:542 > composition-shape and value references > should flatten with the name in a declared namespace
+FlattenerError: Checkable isn't a class decorated @trait
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ addTrait src/composition/annotation.ts:271:5
+ ❯ expandList src/composition/annotation.ts:209:9
+ ❯ resolveTraits src/composition/annotation.ts:325:3
+ ❯ analyzeSite src/plugin.ts:135:16
+ ❯ flattenModule src/plugin.ts:211:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:543:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/46]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:566 > composition-shape and value references > should flatten with the name as a JSX attribute name
+FlattenerError: Checkable isn't a class decorated @trait
+ ❯ fail src/diagnostics.ts:75:9
+     73| /** Throws a {@link FlattenerError}. */
+     74| export function fail(code: Code, message: string, pos?: number): never…
+     75|   throw new FlattenerError(code, message, pos);
+       |         ^
+     76| }
+     77|
+ ❯ addTrait src/composition/annotation.ts:271:5
+ ❯ expandList src/composition/annotation.ts:209:9
+ ❯ resolveTraits src/composition/annotation.ts:325:3
+ ❯ analyzeSite src/plugin.ts:135:16
+ ❯ flattenModule src/plugin.ts:211:23
+ ❯ transform tests/helpers.ts:84:18
+ ❯ tests/diagnostics.node.test.ts:567:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/46]⎯
+
+ FAIL  |node| tests/trait-module.node.test.ts:158 > transformTraitModule on each form of @trait > should keep the import of another name from trait's module
+AssertionError: expected 'import { bound,  } from \'@ydinjs/cor…' to be 'import { bound } from \'@ydinjs/core/…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,6 +1,6 @@
+- import { bound } from '@ydinjs/core/traits/composition.js';
++ import { bound,  } from '@ydinjs/core/traits/composition.js';
+
+  const AnyObject = bound();
+
+  export const $named = Symbol("Named");
+  export class Named extends AnyObject {
+
+ ❯ tests/trait-module.node.test.ts:164:7
+    162|         `import { bound, trait } from '@ydinjs/core/traits/composition…
+    163|       ),
+    164|     ).toBe(
+       |       ^
+    165|       `import { bound } from '@ydinjs/core/traits/composition.js';\n\n…
+    166|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/46]⎯
+
+ FAIL  |node| tests/vite.node.test.ts:199 > the plugin in Vite > should flatten a component of a layer (b) trait from source in a build
+Error: Build failed with 1 error:
+
+[plugin trait-flattener] /workspaces/worktrees/e/packages/vite-traits-plugin/tests/fixtures/gen-jSIcgF/open.ts
+RolldownError: trait-flattener (trait-unresolved): Opened isn't a class decorated @trait
+    at error (file:///workspaces/worktrees/e/node_modules/rolldown/dist/shared/logs-BphcrOCD.mjs:157:24)
+    at TransformPluginContextImpl.error (file:///workspaces/worktrees/e/node_modules/rolldown/dist/shared/bindingify-input-options-Fc_YrR7y.mjs:1587:10)
+    at report (/workspaces/worktrees/e/packages/vite-traits-plugin/src/plugin.ts:247:22)
+    at TransformPluginContextImpl.transform (/workspaces/worktrees/e/packages/vite-traits-plugin/src/plugin.ts:315:16)
+    at async plugin (file:///workspaces/worktrees/e/node_modules/rolldown/dist/shared/bindingify-input-options-Fc_YrR7y.mjs:1710:16)
+    at async plugin.<computed> (file:///workspaces/worktrees/e/node_modules/rolldown/dist/shared/bindingify-input-options-Fc_YrR7y.mjs:2294:12)
+ ❯ error ../../node_modules/rolldown/dist/shared/logs-BphcrOCD.mjs:157:24
+ ❯ TransformPluginContextImpl.error ../../node_modules/rolldown/dist/shared/bindingify-input-options-Fc_YrR7y.mjs:1587:10
+ ❯ report src/plugin.ts:247:22
+    245|   ): never => {
+    246|     if (error instanceof FlattenerError) {
+    247|       return context.error({
+       |                      ^
+    248|         message: diagnosticText(error.code, error.message),
+    249|         id,
+ ❯ TransformPluginContextImpl.transform src/plugin.ts:315:16
+ ❯ plugin ../../node_modules/rolldown/dist/shared/bindingify-input-options-Fc_YrR7y.mjs:1710:16
+ ❯ plugin.<computed> ../../node_modules/rolldown/dist/shared/bindingify-input-options-Fc_YrR7y.mjs:2294:12
+ ❯ aggregateBindingErrorsIntoJsError ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:110:18
+ ❯ unwrapBindingResult ../../node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:78:128
+ ❯ #build ../../node_modules/rolldown/dist/shared/rolldown-D1DJCGXB.mjs:147:34
+ ❯ buildEnvironment ../../node_modules/vite/dist/node/chunks/node.js:35144:66
+ ❯ Object.build ../../node_modules/vite/dist/node/chunks/node.js:35580:19
+ ❯ bundle tests/vite.node.test.ts:110:19
+ ❯ tests/vite.node.test.ts:200:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/46]⎯
+
+ FAIL  |node| tests/vite.node.test.ts:207 > the plugin in Vite > should flatten a component of a layer (b) trait from source on the dev server
+Unknown Error: trait-flattener (trait-unresolved): Opened isn't a class decorated @trait
+4  |  class Base {}
+5  |  
+6  |  const OpenBase: Composed<typeof Base, [typeof Opened]> = compose(Base);
+   |        ^
+7  |  
+8  |  class Open extends OpenBase {}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/46]⎯
+
+
+ Test Files  5 failed | 3 passed (8)
+      Tests  44 failed | 92 passed | 8 skipped (144)
+   Start at  08:05:33
+   Duration  618ms (import 44%, tests 39%, transform 15%, worker 2%)
+
+error: recipe `test` failed on line 16 with exit code 1

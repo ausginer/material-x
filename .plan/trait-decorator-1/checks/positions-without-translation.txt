@@ -1,0 +1,93 @@
+# Mutation: the reporter's translation removed (position() returns pos as given).
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/vite-traits-plugin
+
+ ❯ |node| tests/diagnostics.node.test.ts (75 tests | 3 failed | 72 skipped) 207ms
+   ❯ diagnostics through the load stage (3)
+     × should report trait-decorator at the position it has without the stage 109ms
+     × should report attributes-decorator at the position it has without the stage 23ms
+     × should report attribute-table at the position it has without the stage 40ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:670 > diagnostics through the load stage > should report trait-decorator at the position it has without the stage
+AssertionError: expected [ 'trait-decorator', …(1) ] to deeply equal [ 'trait-decorator', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "trait-decorator",
+    {
+      "code": "trait-decorator",
+-     "pos": 275,
++     "pos": 282,
+    },
+  ]
+
+ ❯ tests/diagnostics.node.test.ts:675:57
+    673|       const without = await failure(file, false);
+    674|
+    675|       expect([without.code, await failure(file, true)]).toEqual([
+       |                                                         ^
+    676|         code,
+    677|         without,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:670 > diagnostics through the load stage > should report attributes-decorator at the position it has without the stage
+AssertionError: expected [ 'attributes-decorator', { …(2) } ] to deeply equal [ 'attributes-decorator', { …(2) } ]
+
+- Expected
++ Received
+
+  [
+    "attributes-decorator",
+    {
+      "code": "attributes-decorator",
+-     "pos": 209,
++     "pos": 216,
+    },
+  ]
+
+ ❯ tests/diagnostics.node.test.ts:675:57
+    673|       const without = await failure(file, false);
+    674|
+    675|       expect([without.code, await failure(file, true)]).toEqual([
+       |                                                         ^
+    676|         code,
+    677|         without,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |node| tests/diagnostics.node.test.ts:670 > diagnostics through the load stage > should report attribute-table at the position it has without the stage
+AssertionError: expected [ 'attribute-table', …(1) ] to deeply equal [ 'attribute-table', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "attribute-table",
+    {
+      "code": "attribute-table",
+-     "pos": 228,
++     "pos": 235,
+    },
+  ]
+
+ ❯ tests/diagnostics.node.test.ts:675:57
+    673|       const without = await failure(file, false);
+    674|
+    675|       expect([without.code, await failure(file, true)]).toEqual([
+       |                                                         ^
+    676|         code,
+    677|         without,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 72 skipped (75)
+   Start at  08:58:27
+   Duration  1.21s (import 41%, tests 30%, transform 27%, worker 2%)
+

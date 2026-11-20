@@ -1,0 +1,8 @@
+# One tsdown --watch reading in packages/core, by probes/watch-reading.sh: checkable.ts's class doc is edited under watch, then reverted.
+# With the stage, before this.addWatchFile(id) was added to its load hook:
+edited doc in checkable.d.ts: no; in checkable.js: 0; rebuilds logged: 1 (the initial build only)
+# With the stage, the load hook calling this.addWatchFile(id):
+edited doc in checkable.d.ts: yes after 2s; in checkable.js: 1; rebuilds logged: 3
+after revert: 0 edited lines left; source diff: 
+# Without the stage (its load hook removed), for comparison: the build drops the doc, so only the .js shows the edit:
+edited doc in checkable.d.ts: no; in checkable.js: 1; rebuilds logged: 2
