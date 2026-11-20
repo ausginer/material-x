@@ -2374,6 +2374,23 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
 - **Why it matters:** the plugin's `Plugin` type comes from its own pinned `rolldown`, and the consumer's Vite types plugins with the `rolldown` it brings. When the two copies differ, the types can clash, which is `RF-31`'s cause, and the consumer installs a second `rolldown`. Under the rule's second question, the plugins share the consumer's copy, so `rolldown` is a peer.
 - **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
 - **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
+- **Read again on 2026-11-20 by the architect: two copies drop the plugins' output in a build, with no error** ([probe](rolldown-peer-1/checks/consumer-probe.txt)).
+  - A stand-in plugin, which returns a `RolldownMagicString` from `transform` as both plugins do, was installed with aube into an empty Vite 8.3.8 project.
+  - Declared as today, it gets `rolldown` 1.3.2, and Vite gets its own 1.2.19. `vite build` exits 0 without the plugin's edit. For the traits plugin, the build would ship unflattened compositions.
+  - As a peer, the plugin and Vite share one copy, in the hoisted and the isolated layout, and at Vite 8.1.4 and 8.4.0-beta.1. The edit is kept.
+  - **A limit the peer doesn't close:** a consumer whose own tree holds two copies. With tsdown 0.23.7 beside Vite 8.3.8, the plugin gets the root's 1.3.3, and the edit is dropped again.
+  - Neither plugin is on the registry, so no consumer has been affected.
+- **Decided 2026-11-20 by the architect,** on the owner's direction, relayed by the coordinator: _"О, ну тут peer напрашивается )"_ ("A peer is the obvious fit here"). The [plan](rolldown-peer-1/rolldown-peer-plan.md) on `repo/rolldown-peer-1` has the reading, the tasks and the proofs. **Unimplemented.**
+  1. **`rolldown` is a peer of both plugins,** `"rolldown": "^1.1.4"`, and leaves `dependencies`. It isn't optional, because each main entry imports it at runtime. The private `@ydinjs/vite-custom-element-assets` moves too.
+  2. **Its floor is the floor that the `vite` floor declares.** Vite 8.1.4 declares `~1.1.4`. The two floors move in one commit, which `CONTRIBUTING.md`'s _Peers_ rule now states. The caret covers rolldown's major 1, because the plugins use only rolldown's public API, which is the same at 1.1.4 as at 1.3.2.
+  3. **The `vite` peer becomes `^8.1.4 || ^8.4.0-beta.1`,** so that the workspace's own Vite is inside the range. It returns to one caret range when the workspace moves to a stable 8.4.
+  4. **Public types and runtime imports don't change:** both still name `rolldown`, which is now the consumer's copy.
+     - Naming the types through Vite's `Rolldown` namespace wouldn't remove the peer, because Vite doesn't export the `RolldownMagicString` constructor at runtime.
+     - The `RolldownPlugin` half of each return type is for a tsdown or rolldown host, which uses the consumer's `rolldown`, not Vite's.
+  5. **The workspace and its lockfile don't change.** The root's `catalog:` devDependency (1.3.2) is the workspace's peer. With the edited manifests, a frozen install passes and aube writes no lockfile change, so no version is resolved anew, and `RD-16`'s release-age gate needs no exception.
+  - **Open for the owner:** the consumer with two copies of its own. The plan's [question 1](rolldown-peer-1/rolldown-peer-plan.md#questions-for-the-owner) recommends returning a string and a map when the host's copy differs.
+  - **Proposed to `RD-27`'s release check:** peer checks for step 7, in the plan's [section](rolldown-peer-1/rolldown-peer-plan.md#what-rd-27s-release-check-needs-to-know-about-peers). They don't block box-quad, which has no peers.
+- **Issue:** #48.
 
 #### RF-56 — In a connected button group, a selected button isn't a full pill, and a pressed button's inner corners grow instead of shrinking
 
