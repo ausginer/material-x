@@ -155,11 +155,12 @@ A scheduled workflow reads the site's current release and database version and c
   - the set's `tokenSetName`, `displayName`, `description`, `tokenType`, `custom.token_class` and `order`, when a table carries the set, and only its name when none does;
   - its tokens, in upstream order.
 - **Each token keeps:**
-  - `tokenName`, `displayName` and `tokenValueType`;
+  - `tokenName`, `displayName` and `tokenValueType`, and `description` when present;
   - `displayGroup`, as the display group's `displayName` instead of its id, and `orderInDisplayGroup`;
   - `deprecationMessage`, with `message` and `replacementTokenName`, when present.
-  - **`values`:** the token's own value entries, in upstream order. Each has `contextTags`, `specificityScore`, and either `tokenName` (the one-hop reference) or upstream's literal fields: `color`, `length`, `shape`, `type`, `opacity`, `numeric`, `durationMs`, `cubicBezier`, `motionPath`, `customComposite`, `axisValue`, `textTransform`, `fontNames`, `fontWeight`, `fontSize`, `fontTracking` and `lineHeight`.
-  - **`contextualReferenceTree`:** upstream's entries, in upstream order. Each has `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree` and `resolvedValue`.
+  - **`values`:** the token's own value entries, in upstream order. Each has `contextTags` and `specificityScore` when upstream gives them, and exactly one value field: `tokenName` (the one-hop reference) or one of upstream's literal fields, `color`, `length`, `shape`, `type`, `opacity`, `numeric`, `durationMs`, `cubicBezier`, `motionPath`, `customComposite`, `axisValue`, `textTransform`, `fontNames`, `fontWeight`, `fontSize`, `fontTracking`, `lineHeight`, `elevation`, `svgPath` and `undefined`. Each is kept as upstream gives it ([field rulings](#field-rulings)).
+  - **`contextualReferenceTree`:** upstream's entries, in upstream order. Each has `contextTags`, `value` (the index of the `values` entry its tree starts from), `referenceTree`, and exactly one of `resolvedValue` and `resolvedCustomCompositeValue`.
+    - `resolvedValue` holds exactly one of the literal fields above. `resolvedCustomCompositeValue` holds, for each property of a `customComposite`, that property's `resolvedValue`.
     - `referenceTree` keeps the tree's shape: `tokenName` and `childNodes`. A composite has several children: 1,488 nodes in today's tables have more than one.
     - Every root in today's tables is the token's own value, so an index identifies it once ids are gone.
 - **`contextTags` is an object** from tag group name to tag name, such as `{ "motion.scheme": "expressive", "platform": "web" }`, with keys sorted. It replaces lists of internal ids.
@@ -177,12 +178,24 @@ A scheduled workflow reads the site's current release and database version and c
   - Line diffs stay readable per set file, and the update report stays the review instrument.
 - **Size, estimated** from today's tables with a scratch conversion: 3,950 tokens and 73,666 contextual entries, 45.3 MB pretty-printed in about 1.9 million lines, and about 0.85 MB gzipped. Step 1 measures and reports the real figure, and no budget is set.
 
+#### Field rulings
+
+Ruled on 2026-11-20 by the architect, on four questions from the implementer of step 1, relayed by the coordinator. The store keeps every field that carries a token's data, whether tproc reads it or not, because the owner asked for fields and data to stay original. It drops only what the list above names. Counts are from today's 14 tables, read by field name only.
+
+- **`elevation` is kept,** on 24 values and 253 resolved values. `processToken` maps it, and material-x renders elevation tokens. Four values and 35 resolved values carry only `unit`, and are kept so.
+- **`undefined: true` is kept,** on 764 values and 9,278 resolved values. It is upstream's marker for a value left undefined. It is data, not metadata, and keeping it lets P10 compare resolved values as they are.
+- **`svgPath` is kept,** on one value and one resolved value.
+- **`resolvedValue` is absent on 48 entries,** which carry `resolvedCustomCompositeValue` instead, a `damping` and a `stiffness` resolved value each. It is kept. Every one of the 73,666 entries has exactly one of the two.
+- **A token's `description` is kept when present,** as a set's is. It is upstream's text about the token, not personal data, and the final scan covers it as every other field.
+- Until these rulings, the literal fields ended at `lineHeight`, every entry had a `resolvedValue`, and a token didn't keep `description`.
+
 ### The converter's checks
 
 They replace point 5. A refusal names the table, the token and the field.
 
 - **Input:** each field the converter reads is present, with its type. Each tag id resolves to a tag and a group of the same table. Each tree's root is the token's own value.
-- **References:** each `tokenName` in a value, and each node of a tree, names a token in the converted store.
+  - A value has exactly one value field, a resolved value exactly one literal field, and an entry exactly one of `resolvedValue` and `resolvedCustomCompositeValue`. A value kind that upstream adds is then refused, and doesn't vanish through the allow list. Today's tables pass, with the fields ruled on above.
+- **References:** each `tokenName` in a value, `customComposite`'s properties included, and each node of a tree, names a token in the converted store.
 - **Duplicates:** a token that more than one table carries converts to identical content.
   - In step 1, today's mixed snapshot breaks this for about 223 tokens: the component tables are `35.0.28` and the system tables `37.0.32`. There the converter keeps the table that `DB.load()` reads first, which is `DB`'s behaviour today. It lists each conflict in step 1's report.
   - From step 2 on, a conflict refuses the update.
