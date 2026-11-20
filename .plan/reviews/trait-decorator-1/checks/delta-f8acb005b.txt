@@ -1,0 +1,33 @@
+Delta re-review of PR #85, b1579efd6 to f8acb005b, run by the reviewer on 2026-11-20 with aube 2.10.0 and node v26.13.1.
+
+== The delta
+8e795a6bd: .storybook/main.ts gains typescript: { reactDocgen: false } with a comment; oxfmt on the three .plan/trait-decorator-1 files.
+f8acb005b: merges origin/main at 2c731045b. git show --remerge-diff: only .plan/00-index.md, the conflict markers removed, RD-26's amendments then RD-27 kept. No marker remains.
+Of packages/core, packages/material-x and packages/vite-traits-plugin, the merge changes only packages/material-x/src/reference/api.mdx (+4, #79's box-quad link).
+
+== Gates at f8acb005b, the reviewer's worktree
+just fmt-check: exit 0
+just lint: exit 0
+just typecheck: exit 0
+just typecheck-declarations: exit 0
+branch docs-build 0
+branch docs-smoke 0
+API sections linked from api/index.html: api/core/index.html, api/box-quad/index.html, api/material-x/index.html
+105 of 105 pages passed at http://mx-docs.test:42337/material-x/ in 18.7 s
+
+== docs-dev at f8acb005b, story-errors.mjs over every story of index.json
+83 stories, 83 rendered, 0 page errors, console errors or 4xx responses
+split-button.ts, IconButtonCore.ts, checkbox.ts, fab.ts, TextFieldCore.ts: HTTP 200
+
+== Does turning react-docgen off lose anything? docs-read.mjs over three docs builds
+main at 2c731045b, docgen on (as main builds): docs-build exit 0
+main at 2c731045b with only typescript: { reactDocgen: false } added: docs-build exit 0
+the branch at f8acb005b: docs-build exit 0
+Each: 17 docs pages (rendered #storybook-docs text) and 83 stories (argTypes as the preview resolves them: 97 entries).
+main docgen on vs main docgen off: docs pages differing 0/17, stories' argTypes differing 0/83
+main docgen on vs the branch: docs pages differing 0/17, stories' argTypes differing 0/83, the same ids
+Asset files that contain __docgenInfo: 19 in main docgen on, 1 in main docgen off
+MDX blocks used, every .mdx: Canvas 48, Source 32, Meta 17. No ArgTypes, Controls, Primary, Stories or Description. No story sets component or autodocs.
+
+== CI on f8acb005b, run 44713276234 (read during the review)
+static pass, docs pass, chromium pass, webkit pass, measurements pass, firefox pending
