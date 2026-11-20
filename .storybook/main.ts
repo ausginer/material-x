@@ -34,6 +34,10 @@ const config: StorybookConfig = {
     ...(apiStaticDir ? [{ from: apiStaticDir, to: '/api' }] : []),
   ],
   addons: ['@storybook/addon-docs', '@storybook/addon-links'],
+  // No story names a React `component`, so nothing reads the prop tables
+  // react-docgen attaches. Its parser also rejects decorators placed before
+  // `export`, the form a documented trait is written in.
+  typescript: { reactDocgen: false },
   framework: {
     name: '@storybook/react-vite',
     options: {},
