@@ -1524,6 +1524,22 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - The token is stage-only and granular, lives for a day, and is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm`. It is revoked after the publish, and the first version keeps its provenance.
   - If npm refuses a stage-only token for a name that doesn't exist yet, the fallback is that he stages the `prepare` job's tarball himself.
 
+**Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of PR #81 at `e73411cf4`, relayed by the coordinator. Both block the first tag. The plan's [amendment](release-workflow-1/release-workflow-plan.md#amendment-a-release-runs-on-main) has the reading, the sources and task 4. **Unimplemented:** task 4, and O1 as amended. **Open for the owner:** the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner) 4 and 5.
+
+- **`reviewer-3`: a release runs on `main`** (property 4).
+  - **The finding.** A tag push runs the tagged commit's own `release.yml`, so whoever tags a commit off `main` can delete its commit checks. The environment admitted the tag, so such a run could stage and read `NPM_STAGE_TOKEN`.
+  - **How the run starts.** The tag push's run only dispatches `release.yml` on `main`, with the tag as input. That run's `prepare` and `stage` are `main`'s own file, which only a reviewed pull request changes (`Main protection` has no bypass actors).
+  - **What it checks first:** its ref is `refs/heads/main`; the tag points at its own commit, which is `main`'s head when it starts; and `verify` passed on that commit. Equality replaces _reachable from `origin/main`_, because npm's provenance names the run's `GITHUB_SHA`.
+  - **O1:** the environment `npm` admits only the branch `main` (GitHub matches the rule against the run's `GITHUB_REF`), with no tag rule and no administrator bypass. So no other ref gets the OIDC environment claim that the trusted publisher requires, nor the token.
+- **Property 1 gains:** the release commit is `main`'s head when the release run starts. If `main` moves first, the run refuses, and the release takes a new version.
+- **`reviewer-2`: what the owner compares before approving** (property 4).
+  - **On GitHub,** the release run that his tag dispatched: its branch is `main`, it succeeded, and its summary names his tag and commit.
+  - **On npm,** in _Staged Packages_ or with `npm stage view`: the stage id and the `shasum` equal the summary's.
+  - **The digest is npm's `shasum`** (SHA-1). It is what npm's review page and `npm stage view` show, and npm computes no sha256.
+  - **The summary** carries `shasum` and `integrity` beside the sha256, which stays as the check between the jobs.
+  - **Not before approval:** the transparency-log entry, which exists at stage time. The summary links it. The provenance is still read after approval, at step 6.
+- **Why:** the boundary moves to where GitHub enforces it, a branch rule on the environment. A summary written by the tagged commit's own file and a hand check would not hold it. The stage id and the `shasum` tie the version the owner approves to the run he has checked.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

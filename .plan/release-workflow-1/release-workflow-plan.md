@@ -52,9 +52,10 @@ So the design stages from CI with the npm CLI, under trusted publishing, and the
 
 ### The workflow, `.github/workflows/release.yml`
 
-**Triggers:**
+**Triggers,** as amended on 2026-11-20 ([the amendment](#amendment-a-release-runs-on-main)):
 
-- **`push` of a tag matching `@ydinjs/*@*`:** a release.
+- **`push` of a tag matching `@ydinjs/*@*`:** its one job dispatches the release run on `main`, with the tag as input. It checks out nothing and stages nothing.
+- **`workflow_dispatch` on `main` with a `tag` input:** the release. `prepare` and `stage` run in `main`'s own workflow file.
 - **`workflow_dispatch` with a `package` input:** a check. It runs only the `prepare` job at the dispatched commit and stages nothing. This is how a release pull request's state is read before the tag exists, and how the workflow itself is exercised.
 
 **Shared settings:**
@@ -69,7 +70,7 @@ So the design stages from CI with the npm CLI, under trusted publishing, and the
 
 1. **Reads the release.** The package name and version come from the tag. Its directory is the workspace package with that `name`. Its `package.json` `version` equals the tag's version.
 2. **Checks the commit.**
-   - The tagged commit is reachable from `origin/main`.
+   - The tagged commit is reachable from `origin/main`. **Amended on 2026-11-20:** the run is on `refs/heads/main`, and the tag points at the run's own commit, `main`'s head ([the amendment](#amendment-a-release-runs-on-main) item 2).
    - `verify`'s push run on `main` for that commit concluded `success`, read through the Actions API. A reduced run (`RD-15`) counts, because it reduces only when everything since the last full run is records or Markdown.
    - The version isn't on the registry. npm's version index also holds staged versions, which an anonymous read can't see; a staged duplicate fails at the stage itself.
    - A `latest` version is greater than the registry's `latest`.
@@ -119,9 +120,10 @@ So the design stages from CI with the npm CLI, under trusted publishing, and the
 **Around it:**
 
 - **The trusted publisher of each package** names `ausginer/material-x`, `release.yml` and the environment `npm`. It allows `npm stage publish` only, not `npm publish` and not `npm dist-tag`.
-- **The GitHub environment `npm`** allows deployments only from tags matching `@ydinjs/*@*`. So a branch, a pull request or a dispatched run can't obtain the job that holds `id-token: write`. It has no required reviewer, because the approval on npm is the gate ([question 1](#questions-for-the-owner)).
+- **The GitHub environment `npm`** allows deployments only from the branch `main`, and administrators can't bypass it (amended on 2026-11-20: it allowed tags matching `@ydinjs/*@*`). So only a run of `main`'s own workflow file can obtain the job that holds `id-token: write`. A tag, a branch or a pull request can't. It has no required reviewer, because the approval on npm is the gate ([question 1](#questions-for-the-owner)).
+- **No other workflow names the environment `npm`.** A run of a workflow on `main` that `pull_request_target` or `workflow_run` starts is also a run on `main`, so the reviewer of any workflow change checks this.
 - **A tag ruleset**, `Release tags`, makes the tags permanent: it blocks the update and deletion of `refs/tags/@ydinjs/**`, with no bypass. It leaves creation alone, because the agents act through the owner's own GitHub account, so no rule can tell his tag push from theirs. `AGENTS.md` and the npm approval are what keep them out. The owner creates the ruleset and the environment. Agents change no repository rule (`AGENTS.md`).
-- **The first publish's stage-only token** is an environment secret of `npm`. So only the `stage` job on a release tag can read it, and it is deleted after that publish.
+- **The first publish's stage-only token** is an environment secret of `npm`. So only the `stage` job of a release run on `main` can read it, and it is deleted after that publish.
 
 ### The first publish of a package
 
@@ -151,8 +153,12 @@ A package's trusted publisher can't be configured until the package exists, and 
    A dispatched `release` run in check mode passes on its head. The owner merges it, and `verify` passes on the merge commit _M_ on `main`.
 
 2. **On a first release,** steps 1 and 2 of [the first publish](#the-first-publish-of-a-package). **On the second,** step 5.
-3. **He pushes the tag at _M_:** `git tag @ydinjs/<name>@<version> <M> && git push origin @ydinjs/<name>@<version>`.
-4. **He reviews the staged version** on npmjs.com, in _Staged Packages_. He checks that the file list and the sha256 match the run's summary, then approves with his security key.
+3. **He pushes the tag at _M_,** which must still be `main`'s head: `git tag @ydinjs/<name>@<version> <M> && git push origin @ydinjs/<name>@<version>`. He merges nothing until the release run has started. The tag's run dispatches that release run on `main`.
+4. **Before approving, he checks two things,** as amended on 2026-11-20 ([the amendment](#amendment-a-release-runs-on-main)):
+   1. **On GitHub,** the `release` run that the tag dispatched: its branch is `main`, it succeeded, and its summary names his tag and _M_.
+   2. **On npmjs.com,** in _Staged Packages_, or with `npm stage view <stage-id>`: the staged version's stage id and `shasum` equal the ones in that run's summary.
+
+   He then approves with his security key. If either check fails, he rejects the version.
 5. **On a first release,** step 4 of the first publish.
 6. **An agent reads the result:**
    - the version on the registry;
@@ -178,13 +184,67 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
 - **What it leaves:** trusted publishing works unchanged.
 - **The direct `npm publish` it still allows** is only from his own machine, with his key. The release procedure doesn't use that path.
 
+## Amendment: a release runs on `main`
+
+**Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of PR #81 at `e73411cf4` (`.plan/reviews/release-workflow-1/feature-proof-claude.md`), relayed by the coordinator. `RD-27` records it.
+
+### What was read
+
+- **A tag push runs the tagged commit's own workflow file,** and anyone who can push a tag can choose that commit. So a commit check in that file can be deleted by whoever tags (`reviewer-3`). The trusted publisher names only the repository, `release.yml` and the environment, and the environment admitted any tag matching `@ydinjs/*@*`. So such a run could stage, and could read `NPM_STAGE_TOKEN`.
+- **`main` changes only through a reviewed pull request.** The ruleset `Main protection` requires a pull request, status checks and linear history, and has no bypass actors (read through the API on 2026-11-20).
+- **GitHub's docs** ([deployments and environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments), [events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows), [triggering a workflow](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow), read 2026-11-20):
+  - _"The deployment branch or tag rule is matched against the `GITHUB_REF` of the workflow run."_
+  - For `workflow_dispatch`, `GITHUB_REF` is the branch that received the dispatch, and `GITHUB_SHA` is its last commit.
+  - Events that the `GITHUB_TOKEN` creates start no run, except that _"`workflow_dispatch` and `repository_dispatch` events always create workflow runs."_
+  - _"By default, administrators can bypass the protection rules"_ of an environment.
+  - Environment secrets are available only to jobs that reference the environment.
+- **npm 11.21.2** (tag `v11.21.2`, read through the GitHub API):
+  - **Provenance** names the run's `GITHUB_SHA` as the source commit, and its `GITHUB_REF` and run. It is signed and written to the public transparency log by `npm stage publish` itself, at stage time, which prints the log's link (`workspaces/libnpmpublish/lib/provenance.js`, `lib/publish.js`).
+  - **Digests.** `npm stage view <stage-id>` and `npm stage list` print the staged version's `shasum` (`lib/utils/key-values.js`). npm's [staged publishing](https://docs.npmjs.com/staged-publishing) page tells the reviewer to check the _"SHASUMs"_ before approving. npm computes only SHA-1 (`shasum`) and SHA-512 (`integrity`) for a tarball, and no sha256 (`lib/utils/tar.js`, `reviewer-2`).
+  - **Inspection.** `npm stage download <stage-id>` returns the staged tarball's bytes. `view`, `list` and `download` need no second factor.
+- **npm's [trusted publishers](https://docs.npmjs.com/trusted-publishers) page** states no restriction on the triggering event. For `workflow_dispatch`, it validates the name of the dispatched workflow, which is `release.yml`.
+
+### The decision
+
+1. **A release runs on `main`.** The owner's tag push starts a run of the tagged commit's `release.yml`, whose one job dispatches `release.yml` on `main` with the tag as input. That job has `actions: write` and nothing else. The dispatched run does all of `prepare` and `stage` in `main`'s own workflow file.
+   - A run of a tag off `main` can do only what a branch push can already do. If it doesn't dispatch, nothing happens. If it dispatches with its tag, `main`'s run refuses that tag.
+2. **The release run's commit check**, run by `main`'s code before anything else:
+   - the run's `GITHUB_REF` is `refs/heads/main`;
+   - the tag exists and points at the run's own `GITHUB_SHA`, which is `main`'s head when the run starts;
+   - `verify`'s push run for that commit concluded `success`.
+
+   The run builds that commit. Equality replaces _reachable from `origin/main`_. The provenance names `GITHUB_SHA`, so a run that built any other `main` commit would attest a commit it didn't build.
+3. **The environment `npm` admits only the branch `main`,** with no tag rule, and administrators can't bypass it (O1).
+   - A run of any other ref gets neither the environment's OIDC claim, which the trusted publisher requires, nor `NPM_STAGE_TOKEN`.
+   - The trusted publisher doesn't change: `ausginer/material-x`, `release.yml` and `npm`.
+4. **Before approving, the owner checks the run and the staged version** (step 4 of [the owner's steps](#the-owners-steps-for-one-release)).
+   - **On GitHub:** the run's branch is `main` and it succeeded. GitHub shows the branch, and no workflow writes it. Given 3, the branch is what establishes that `main`'s code ran the checks and wrote the summary.
+   - **On npm:** the stage id and the `shasum` match the summary. The stage id ties the staged version to that run's stage. The `shasum` ties it to the bytes that run checked.
+   - **The digest is npm's `shasum`** (SHA-1), because the review page and `npm stage view` show it, and nothing on npm shows a sha256.
+   - **SHA-1 is enough here.** A collision needs an attacker who controls both tarballs, and this tarball is built from `main`'s reviewed commit, so a match would need a second preimage.
+   - **Not before approval:** reading the transparency-log entry. The summary links it, and step 6 reads the provenance after approval, as before. Given 3 and 4, the entry adds no fact the owner needs before he approves.
+5. **The run's summaries:**
+   - `prepare` gives `shasum` (SHA-1, hex) and `integrity` (`sha512-` and base64), which `release-check.ts` computes from the tarball's bytes, beside the sha256. The sha256 stays as the check between the two jobs.
+   - `stage` gives the stage id, the transparency log's link, the tag and the commit.
+6. **The release commit is `main`'s head when the run starts.** The owner merges nothing between his tag push and the run's start. If `main` moves first, the run refuses, the tag stays, and the release takes a new version ([question 4](#questions-for-the-owner)).
+7. **Concurrency** is keyed by the tag or the package, not by `github.ref`, because every release run is on `main`.
+
+### Not adopted
+
+- **The owner's review alone, on the tag-push design** (comparing the run's commit with `main` by hand, before approving). It rests on a summary that the tagged commit's own file writes, and on a check he would run under time pressure. The environment's rule puts the boundary where GitHub enforces it.
+- **A custom deployment protection rule** (a GitHub App that checks the tag's commit). It is in public preview and needs an app to own and run. The branch rule does the same with a setting.
+- **A required reviewer on `npm`:** the owner declined one ([question 1](#questions-for-the-owner)). This design doesn't need one.
+- **A `workflow_run` chain to a second workflow on `main`:** it runs `main`'s file as a dispatch does, but has a second file, and a trigger that matches by workflow name from any branch.
+- **Building a `main` commit other than the head:** the provenance would name the head.
+- **The owner dispatching the release by hand:** it adds a command to every release. The tag's own run dispatches it with the `GITHUB_TOKEN`, which `workflow_dispatch` allows.
+
 ## Implementation
 
 **The order:** the owner's settings (O1 to O3 below) can happen at any time before the first release. Task 1 needs the decision merged. Tasks 2 and 3 follow task 1.
 
 **The owner's settings, which agents don't make:**
 
-- **O1:** the environment `npm`, with its deployment rule for tags matching `@ydinjs/*@*`, and no required reviewer ([question 1](#questions-for-the-owner), answered).
+- **O1:** the environment `npm`, with deployment branches set to the branch `main` alone, no tag rule, _Allow administrators to bypass configured protection rules_ off, and no required reviewer ([question 1](#questions-for-the-owner), answered; the branch rule and the bypass amended on 2026-11-20).
 - **O2:** the ruleset `Release tags` on `refs/tags/@ydinjs/**`: block updates and deletions, with no bypass.
 - **O3:** for each package's first publish, the stage-only token and the secret; afterwards, the package setting and the trusted publisher.
 
@@ -212,7 +272,11 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
   - **Checked by reading:** `actionlint` passes, if the repository has it; otherwise the reviewer reads every `permissions` block and every `uses:` pin.
   - **Dispatched after merge:** a dispatched check run for `box-quad` at `main`'s head passes `prepare`, and its summary lists the expected files. The `stage` job is skipped.
   - **The mutation:** a dispatched check run on a branch that adds `src/index.ts` to box-quad's `files` fails `prepare` at the pack check. Dispatching runs the branch's workflow file, so the mutation needs no merge.
-  - **Witnessed at the first release, and recorded:** that the stage job ran under the environment `npm`; that the summary's sha256 equals the approved tarball's `shasum`; and the provenance attestation on the registry.
+  - **Witnessed at the first release, and recorded** (amended on 2026-11-20):
+    - the tag's run dispatched the release run, and that run's branch is `main`;
+    - the stage job ran under the environment `npm`;
+    - the summary's `shasum` and `integrity` equal the approved version's `dist.shasum` and `dist.integrity` on the registry;
+    - the provenance attestation names `refs/heads/main`, `release.yml`, the tagged commit and the run.
 
 **Task 3. `.agents/docs/releasing.md` (implementer, with the docs rules of [`documentation.md`](../../.agents/docs/documentation.md)).** The current-state procedure:
 
@@ -226,6 +290,29 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
 `AGENTS.md`'s _Where things are_ gains one line that points to it.
 
 - **Proof:** the links resolve, and `oxfmt` and `git diff --check` are clean.
+
+**Task 4. A release runs on `main` (implementer, after the fixes of `reviewer-1`, `reviewer-4` and `reviewer-5`).** As [the amendment](#amendment-a-release-runs-on-main) specifies, in `release.yml`, `release-check.ts` and `releasing.md`'s _What the workflow checks_ and _Check runs_. The architect has already amended `releasing.md`'s release steps and the owner's settings.
+
+- **`release.yml`:**
+  - **The triggers:**
+    - a tag push runs only a `dispatch` job, with `permissions: actions: write`, no checkout, and the tag passed through `env`;
+    - `workflow_dispatch` takes a `tag` for a release, or a `package` for a check, and not both;
+    - `stage` runs only for a `tag` on `refs/heads/main`.
+  - **The concurrency** is keyed by the tag or the package.
+  - **The summaries** are amendment item 5.
+  - **The header comment** states the new flow.
+- **`release-check.ts`:**
+  - **The commit check** is amendment item 2.
+  - **The digests:** it computes `shasum` and `integrity` from the tarball's bytes.
+- **Proof:**
+  - **Node fixtures for the commit check,** each refused with a message that names its check:
+    - a release run whose ref isn't `refs/heads/main`;
+    - a tag that points at a commit other than the run's;
+    - a tag that doesn't exist;
+    - a run with both `tag` and `package`, and one with neither.
+  - **The digests** of a fixture tarball equal the constants that `sha1sum` and `openssl dgst -sha512 -binary | base64` print for it, recorded in the test.
+  - **The reviewer reads O1** through the API before the first tag: `gh api repos/ausginer/material-x/environments/npm` shows `can_admins_bypass: false` and a branch policy of `main` alone, and `…/deployment-branch-policies` lists one policy, the branch `main`.
+  - **Task 2's dispatch proofs** still hold, and its first-release witnesses are as amended.
 
 **Review.** A feature proof of tasks 1 to 3 against this plan, by a reviewer who didn't implement them, before the first tag. It repeats the mutation dispatch.
 
@@ -249,6 +336,15 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
    - **Answered: the token.** _"Давай (а) попробуем"_ ("Let's try (a)"). The token is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm` and revoked after the publish, as [the first publish](#the-first-publish-of-a-package) states. Staging it himself stays the fallback.
 3. **The amendment to `RD-16` property 1:** the `stage` job runs `npm stage publish`, outside any checkout, because aube implements neither trusted publishing nor staging ([what runs where](#the-workflow-githubworkflowsreleaseyml)).
    - **Answered: approved.** _"Конечно да, пусть npm работает"_ ("Yes, of course, let npm do it").
+
+**Open, from [the amendment](#amendment-a-release-runs-on-main) of 2026-11-20:**
+
+4. **Do you accept that a release is tagged at `main`'s head, and that you merge nothing until its run has started?** **Recommended: yes.**
+   - Why: the run is on `main`, so its provenance names `main`'s head, and the run must build exactly that commit.
+   - The tag's own run dispatches the release within seconds, so in practice this means tagging after `verify` passes on the head, and merging after the run starts.
+   - The cost: if `main` moves first, the run refuses, and that version needs a new tag. Tags can't move.
+   - The alternative is the tag-push design, with you checking by hand before each approval that the run's commit is on `main`. The amendment explains why it isn't adopted.
+5. **O1 changes:** the environment `npm` admits only the branch `main`, with no tag rule, and _Allow administrators to bypass configured protection rules_ off. This is your setting to make. Is there a reason to keep the administrator bypass? **Recommended: off.** Agents act through your account, so the bypass would let them past the branch rule.
 
 ## Not adopted
 

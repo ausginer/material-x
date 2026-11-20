@@ -10,7 +10,8 @@ Each package is released by [`.github/workflows/release.yml`](../../.github/work
 
 - Each package has its own semver version in its `package.json`, and its own `CHANGELOG.md`, with one section per version, headed by the version.
 - A dependency on another `@ydinjs` package is an exact version, and that version must be on the registry when the dependent package is released.
-- A release is one tag, `@ydinjs/<name>@<version>`, on one `main` commit. Tags can't move or be deleted.
+- A release is one tag, `@ydinjs/<name>@<version>`, on `main`'s head. Tags can't move or be deleted.
+- The release runs on `main`. The tag's own run only dispatches `release.yml` on `main` with the tag. That run refuses unless the tag points at its own commit, so `main` must not move between the tag push and the run's start. Its provenance names `refs/heads/main`, that commit and the run.
 - A version with a prerelease part, such as `1.1.0-rc.1`, is staged under `next`. Any other version is staged under `latest`, and must be greater than the registry's `latest`.
 
 ## One release
@@ -19,14 +20,20 @@ Each package is released by [`.github/workflows/release.yml`](../../.github/work
    - `just release-check <name>` passes locally, and a [check run](#check-runs) passes on the pull request's head.
    - The owner merges it, and `verify` passes on the merge commit _M_ on `main`.
 2. **On a first release,** steps 1 and 2 of [the first publish](#the-first-publish-of-a-package). **On the second release,** [the trusted publisher](#the-trusted-publisher).
-3. **The owner pushes the tag at _M_:**
+3. **The owner pushes the tag at _M_,** while _M_ is still `main`'s head, and merges nothing until the release run has started:
 
    ```sh
    git tag @ydinjs/<name>@<version> <M>
    git push origin @ydinjs/<name>@<version>
    ```
 
-4. **He reviews the staged version** on npmjs.com, under _Staged Packages_. The file list and the sha256 must match the summary of the run's `prepare` job. He then approves it with his security key.
+   The tag's run dispatches the release run on `main` within seconds.
+
+4. **Before approving, he checks two things:**
+   1. **On GitHub,** in the `release` workflow's runs: the run that his tag dispatched is on the branch `main` and succeeded, and its summary names his tag and _M_. GitHub shows the branch. Only a run on `main` can stage, so the branch shows that `main`'s own workflow checked and staged the version.
+   2. **On npmjs.com,** under _Staged Packages_, or with `npm stage view <stage-id>`: the staged version's stage id and `shasum` equal the ones in that run's summary. The `shasum` is the tarball's SHA-1, which is the digest npm shows. npm shows no sha256.
+
+   He then approves it with his security key. If either check fails, he rejects it.
 5. **On a first release,** step 4 of [the first publish](#the-first-publish-of-a-package).
 6. **An agent reads the result** and writes it into the package's release record:
    - the version on the registry;
@@ -89,7 +96,7 @@ A trusted publisher can't be configured for a package that isn't on the registry
 
 Staging a new name also publishes the public placeholder version `0.0.0-stage`.
 
-**If npm refuses the stage-only token for a new name,** the owner stages the tarball of the run's `release` artifact from his own machine, after checking its sha256: `npm stage publish <tarball> --access public --tag <dist-tag>`. That version has no provenance.
+**If npm refuses the stage-only token for a new name,** the owner stages the tarball of the release run's `release` artifact from his own machine, after checking that its sha256 matches the run's summary: `npm stage publish <tarball> --access public --tag <dist-tag>`. That version has no provenance.
 
 ## The trusted publisher
 
@@ -103,6 +110,7 @@ or configures the same on the package's settings page. It allows `npm stage publ
 
 ## The owner's settings
 
-- **The environment `npm`:** deployments only from tags matching `@ydinjs/*@*`, and no required reviewer. His approval on npm is the gate.
+- **The environment `npm`:** deployments only from the branch `main`, with no tag rule; _Allow administrators to bypass configured protection rules_ off; and no required reviewer. His approval on npm is the gate. The branch rule is what keeps a run of any other ref, a tag off `main` included, from staging or reading `NPM_STAGE_TOKEN`.
+- **No other workflow names the environment `npm`.**
 - **The ruleset `Release tags`** on `refs/tags/@ydinjs/**`: updates and deletions are blocked, with no bypass.
 - **Per package,** after its first publish: _Require two-factor authentication and disallow tokens_, and the trusted publisher above.
