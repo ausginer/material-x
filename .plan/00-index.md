@@ -1327,7 +1327,7 @@ No register entry held that design. It lived in the code, in that document and i
 5. **A member is copied across languages only when its text parses to the same tree in both,** apart from positions. The same file extension always copies.
    - A `.js` module's static and member kinds come from the `.d.ts` that its package's `types` condition names.
 6. **Layer (b), `@ydinjs/core/traits/attribute-traits.js`, is optional sugar over layer (a).**
-   - `accessor name!: T`, with `attributes(this, { name: Converter })`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`.
+   - `accessor name!: T`, with `@attributes({ name: Converter })` below `@trait`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`. _(Amended 2026-11-20, below, a second time. It was `attributes(this, { name: Converter })` in the trait's static block.)_
    - The plugin's layer (b) code is a part of its own, and nothing in layer (a)'s code imports it.
 7. **The brand install names symbols, not classes.**
    - The generated block reads `impl(this, $a, $b)`.
@@ -1479,6 +1479,33 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **`export @trait class` as the written form:** the plugin accepts it, but `oxfmt` prints it across three lines.
   - **Keeping `trait(this)` beside `@trait`:** `CONTRIBUTING.md` Part II §8 says not to keep a legacy form before release.
 - **Unimplemented** until the plan's proofs hold.
+
+**Amended 2026-11-20 a second time, by Architect B: layer (b) declares a trait's attributes with `@attributes(TABLE)`** (property 6's first bullet). **Decided by the owner,** relayed by the coordinator: _"`@attributes(TABLE)` давай сделаем вместе с `@trait`, чтобы задача была в целом 'move to decorators'"_ ("let's do `@attributes(TABLE)` together with `@trait`, so the task as a whole is 'move to decorators'"). It answers the `@trait` plan's open question 2 and ships in the same pull request. The [plan](attributes-decorator-1/attributes-decorator-plan.md) holds the design, the proofs and the files it adds to the `@trait` plan's.
+
+- **The owner's decisions for `@trait` carry over:** trait sources always go through the plugin, the plugin compiles the decorator itself, and the built JavaScript stays what it is.
+- **The source form** is `@trait`, then `@attributes(TABLE)`, each on its own line above `export class T extends Bound`, with the `accessor name!: T` lines in the body. A trait has no static block left.
+  - `@attributes` decorates only a class that `@trait` decorates, because layer (b) is a trait's sugar.
+  - The plugin accepts this one order.
+  - TABLE is what it was: an object literal, or a module-scope `const` bound to one.
+- **The plugin** recognizes `@attributes` by the name the module imports `attributes` under from `…/attribute-traits`. It lowers the class as before, removes the decorator and the unused import, and leaves `@trait` to the trait module's transform. That transform places the method after the `static observedAttributes` that layer (b) inserts, so a built trait's class body keeps today's order.
+- **The type checks the table against the decorated class.** `attributes(TABLE)` returns a generic class decorator. TypeScript infers the class from the decorator context and rejects a table that doesn't fit with TS1238 on the `@attributes` line. The decorator changes no type, and declarations drop it.
+  - Every case that core's declaration tests check still fails.
+  - A shared constant with a key that names no member is now a type error too. Before, only the plugin reported it.
+  - The body throws with a message that names the plugin, as `trait` and `compose` do.
+- **The evidence is [P46](attributes-decorator-1/attributes-decorator-plan.md#evidence)** ([transcript](attributes-decorator-1/checks/p46-attributes.txt)), with TypeScript 7.0.2 and 6.0.3, which agree on every line. The valid forms check clean, and their declarations carry no decorator. The eight cases of the declaration tests, and the extra key, are TS1238. An uncalled `@attributes` is TS1270, the old call TS2554, and a decorator on a member TS1240. The reversed order has no TypeScript error, which is why the plugin refuses it.
+- **A new error, `attributes-decorator`,** covers misuse:
+  - `@attributes` not called with one table;
+  - `@attributes` on a class without `@trait`, above it, or twice;
+  - `@attributes` on a class expression, a nested class or a member;
+  - any other use of the imported `attributes`.
+
+  `trait-decorator` allows `@attributes(TABLE)` as the one other decorator after `@trait`.
+
+- **Not adopted:**
+  - **`@attributes` on any class:** layer (b) is a trait's sugar.
+  - **Either order:** one form is one thing to learn and to diagnose.
+  - **`@trait(TABLE)`:** layer (a)'s `trait` would know layer (b)'s table, which property 6 forbids.
+- **Unimplemented** until the plan's proofs hold, with the `@trait` plan's.
 
 ## Findings
 
