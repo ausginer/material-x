@@ -1543,6 +1543,17 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **Not before approval:** the transparency-log entry, which exists at stage time. The summary links it. The provenance is still read after approval, at step 6.
 - **Why:** the boundary moves to where GitHub enforces it, a branch rule on the environment. A summary written by the tagged commit's own file and a hand check would not hold it. The stage id and the `shasum` tie the version the owner approves to the run he has checked.
 
+**Amended 2026-11-20 by the architect,** on `reviewer-7` of Mx Reviewer B's feature proof of PR #81 at `30175e027`, relayed by the coordinator. The plan's [section](release-workflow-1/release-workflow-plan.md#the-dispatch-names-main-by-its-short-name) has the reading and the sources. Nothing changes in `release.yml`. `releasing.md` gains the recovery and states O1's rule as a branch rule.
+
+- **`reviewer-7`: the dispatch keeps `--ref main`, because a run on a tag `main` fails closed** (property 4).
+  - **The finding.** A writer can create a tag named `main`, which `Release tags` doesn't cover. GitHub doesn't document which ref a dispatch takes for a short name that names both a branch and a tag.
+  - **Why it fails closed.** A run on a tag `main` runs that tag's own `release.yml`, so its ref check and `stage`'s `if` can't be relied on. The environment `npm`, whose one rule is the branch `main`, refuses `stage`, so the run gets neither the trusted publisher's OIDC claim nor `NPM_STAGE_TOKEN`. Nothing is staged, and the owner's step 4 requires a run on the branch `main`.
+  - **Recovery needs no new version:** the owner deletes the tag `main` and, while his release tag is still `main`'s head, dispatches the release himself.
+  - **O1's reading** before the first tag confirms one policy, of type `branch` and named `main`, with `custom_branch_policies` `true`, `protected_branches` `false` and `can_admins_bypass` `false`. The short name is safe only through that setting.
+- **Not adopted:**
+  - **A ruleset that restricts creating `refs/tags/main`** (_Restrict creations_, no bypass). It would prevent only a release that fails closed and recovers, and adds an owner setting with no security property. O2 doesn't change.
+  - **The full ref `refs/heads/main`.** The endpoint most likely accepts it, by `gh`'s and a widely used dispatch action's behaviour, but GitHub doesn't document it, and the line first runs at the first release's tag.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

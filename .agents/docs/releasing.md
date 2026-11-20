@@ -47,6 +47,16 @@ Each package is released by [`.github/workflows/release.yml`](../../.github/work
 
 If the owner rejects a staged version, nothing is deleted. The next attempt is a new version and a new tag, through a new release pull request. A tag can't move, and npm's version index includes staged versions.
 
+### A release run that isn't on `main`
+
+The tag's run dispatches with the short name `main`. If a tag named `main` exists, GitHub may dispatch that tag instead of the branch. The release run's ref is then `refs/tags/main`, and it runs that tag's workflow file. It stages nothing, because the environment `npm` admits only the branch `main`.
+
+The owner deletes the tag `main`. While his release tag is still `main`'s head, he dispatches the release himself, and the version needs no new tag:
+
+```sh
+gh workflow run release.yml --ref main -f tag=@ydinjs/<name>@<version>
+```
+
 ## What the workflow checks
 
 **`dispatch`** is the only job a tag push runs, with `actions: write` and no checkout. It dispatches `release.yml` on `main` with the tag as the `tag` input. So the release runs `main`'s workflow file, and the tagged commit's own file runs nothing.
@@ -118,7 +128,7 @@ or configures the same on the package's settings page. It allows `npm stage publ
 
 ## The owner's settings
 
-- **The environment `npm`:** deployments only from the branch `main`, with no tag rule; _Allow administrators to bypass configured protection rules_ off; and no required reviewer. His approval on npm is the gate. The branch rule is what keeps a run of any other ref, a tag off `main` included, from staging or reading `NPM_STAGE_TOKEN`.
+- **The environment `npm`:** deployments only from _Selected branches and tags_, with one rule, a branch rule named `main`, and no tag rule; _Allow administrators to bypass configured protection rules_ off; and no required reviewer. His approval on npm is the gate. The branch rule is what keeps a run of any other ref, a tag off `main` or a tag named `main` included, from staging or reading `NPM_STAGE_TOKEN`.
 - **No other workflow names the environment `npm`.**
 - **The ruleset `Release tags`** on `refs/tags/@ydinjs/**`: updates and deletions are blocked, with no bypass.
 - **Per package,** after its first publish: _Require two-factor authentication and disallow tokens_, and the trusted publisher above.

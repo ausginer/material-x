@@ -240,6 +240,36 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
 - **Building a `main` commit other than the head:** the provenance would name the head.
 - **The owner dispatching the release by hand:** it adds a command to every release. The tag's own run dispatches it with the `GITHUB_TOKEN`, which `workflow_dispatch` allows.
 
+### The dispatch names `main` by its short name
+
+**Decided 2026-11-20 by the architect,** on `reviewer-7` of Mx Reviewer B's feature proof of PR #81 at `30175e027` (`.plan/reviews/release-workflow-1/feature-proof-claude.md`), relayed by the coordinator. `RD-27` records it. Read at `738c9d20f`.
+
+**The finding.**
+
+- `dispatch` runs `gh workflow run release.yml --ref main` (`release.yml:73`).
+- A writer can create a tag named `main`, because the ruleset `Release tags` covers only `refs/tags/@ydinjs/**`.
+- GitHub doesn't document which ref a dispatch takes when a short name names both a branch and a tag.
+
+**What was read** (2026-11-20):
+
+- **`gh`** sends `--ref` to the dispatch endpoint unchanged. With `-f` inputs it reads no workflow file at the ref (`cli/cli`, `pkg/cmd/workflow/run/run.go`). Its flag help says _"Branch or tag name"_.
+- **GitHub's REST reference** for the dispatch endpoint says _"The reference can be a branch or tag name"_, with the example `topic-branch`. It doesn't say whether a full ref is accepted.
+- **benc-uk/workflow-dispatch** (399 stars, pushed 2026-09-02) passes its `ref` input to the endpoint unchanged, and that input defaults to `${{ github.head_ref || github.ref }}`. On a push run, `github.ref` is `refs/heads/<branch>`. Its issues report failures only for a ref that doesn't exist where it dispatches: `refs/pull/*/merge`, a branch missing from another repository, and an empty ref. So the endpoint most likely accepts a full ref. This is inferred, not documented.
+- **The repository,** through the API: no tag `main` exists, and the environment `npm` and the ruleset `Release tags` don't exist yet.
+
+**The decision: the dispatch keeps `--ref main`, because a run on a tag `main` fails closed.**
+
+1. **If the dispatch took a tag `main`,** the run would be the `release.yml` of that tag's commit, with `GITHUB_REF` `refs/tags/main`. The tag's creator chose that file. So neither `prepare`'s `ref` check nor `stage`'s `if` can be relied on: they guard only when the file is `main`'s.
+2. **The environment `npm` refuses `stage` anyway.** Its one deployment rule is the branch `main`, and GitHub matches it against `GITHUB_REF`. A job without the environment gets neither the OIDC claim that the trusted publisher names nor `NPM_STAGE_TOKEN`. So such a run can do only what a writer's own branch dispatch already can, and nothing is staged.
+3. **The owner's check already catches it.** Step 4 requires a run that succeeded and is on the branch `main`.
+4. **Recovery needs no new version.** The owner deletes the tag `main`. While his release tag is still `main`'s head, he dispatches the release himself, as `releasing.md` states under _A release run that isn't on `main`_. The release run's checks are the same.
+5. **The short name is safe only through O1.** So the reviewer's O1 reading before the first tag confirms that the one deployment policy is of type `branch` and named `main`, that the environment has `custom_branch_policies` `true` and `protected_branches` `false`, and that `can_admins_bypass` is `false` (task 4's proof, amended).
+
+**Not adopted:**
+
+- **A ruleset that restricts creating `refs/tags/main`.** GitHub's rulesets have the rule (_Restrict creations_: only actors that can bypass may create a matching ref), and with no bypass actor it binds the owner's account too. It would prevent only a release that fails closed and recovers without a new version, and only the owner's own account, through which the agents act, can cause one. It adds an owner setting with no security property. It also couldn't go in `Release tags`, which must leave creation open.
+- **The full ref `refs/heads/main`.** It most likely works, as read above, but neither GitHub's reference nor `gh`'s manual says so. The line runs for the first time at the first release's tag. It would trade the documented form for an undocumented one, to remove an ambiguity that already fails closed.
+
 ## Implementation
 
 **The order:** the owner's settings (O1 to O3 below) can happen at any time before the first release. Task 1 needs the decision merged. Tasks 2 and 3 follow task 1.
@@ -313,7 +343,7 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
     - a tag that doesn't exist;
     - a run with both `tag` and `package`, and one with neither.
   - **The digests** of a fixture tarball equal the constants that `sha1sum` and `openssl dgst -sha512 -binary | base64` print for it, recorded in the test.
-  - **The reviewer reads O1** through the API before the first tag: `gh api repos/ausginer/material-x/environments/npm` shows `can_admins_bypass: false` and a branch policy of `main` alone, and `…/deployment-branch-policies` lists one policy, the branch `main`.
+  - **The reviewer reads O1** through the API before the first tag: `gh api repos/ausginer/material-x/environments/npm` shows `can_admins_bypass: false` and a `deployment_branch_policy` with `custom_branch_policies: true` and `protected_branches: false`, and `…/deployment-branch-policies` lists one policy, of type `branch` and named `main` (amended on 2026-11-20 for [the dispatch's short name](#the-dispatch-names-main-by-its-short-name)).
   - **Task 2's dispatch proofs** still hold, and its first-release witnesses are as amended.
 
 **Review.** A feature proof of tasks 1 to 3 against this plan, by a reviewer who didn't implement them, before the first tag. It repeats the mutation dispatch.
