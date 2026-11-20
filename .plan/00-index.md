@@ -1516,10 +1516,13 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **Not adopted:** the plan's [section](release-workflow-1/release-workflow-plan.md#not-adopted). That covers a GitHub release, a release tool, a long-lived token, direct publish from CI, `aube publish`, several packages in one run, and a `prepack` script.
 
-**Open for the owner:** the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner):
+**Answered by the owner on 2026-11-20,** relayed by the coordinator: the plan's three [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner). Nothing is left open for him, and the plan's tasks 1 to 3 can start.
 
-- a required reviewer on the environment `npm`, recommended not;
-- the first publish by a one-day stage-only token, recommended, or by his own stage.
+- **The `RD-16` amendment** (property 6) is approved: _"Конечно да, пусть npm работает"_ ("Yes, of course, let npm do it"). The release workflow's `npm stage publish` of the checked tarball, outside any checkout, is the one npm step of a release.
+- **The environment `npm` has no required reviewer:** _"Согласен с архитектором"_ ("I agree with the architect"). His approval on npm, with his second factor, is the gate.
+- **The first publish uses the token** (property 4): _"Давай (а) попробуем"_ ("Let's try (a)").
+  - The token is stage-only and granular, lives for a day, and is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm`. It is revoked after the publish, and the first version keeps its provenance.
+  - If npm refuses a stage-only token for a name that doesn't exist yet, the fallback is that he stages the `prepare` job's tarball himself.
 
 ## Findings
 

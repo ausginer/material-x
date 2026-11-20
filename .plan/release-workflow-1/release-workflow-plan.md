@@ -1,6 +1,6 @@
 # Releasing `@ydinjs` packages: one workflow, staged on npm with provenance, approved by the owner
 
-**The decision** is `RD-27` in the [register](../00-index.md#rd-27--each-ydinjs-package-is-released-by-one-workflow-that-stages-it-on-npm-with-provenance-for-the-owner-to-approve-and-box-quads-first-release-is-100). This plan holds the design, the owner's steps, the implementer's tasks with their proofs, and the questions for the owner. It was written by the architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`, on the coordinator's task of 2026-11-20.
+**The decision** is `RD-27` in the [register](../00-index.md#rd-27--each-ydinjs-package-is-released-by-one-workflow-that-stages-it-on-npm-with-provenance-for-the-owner-to-approve-and-box-quads-first-release-is-100). This plan holds the design, the owner's steps, the implementer's tasks with their proofs, and the questions for the owner, which he answered on 2026-11-20. It was written by the architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`, on the coordinator's task of 2026-11-20.
 
 **Where it comes from:**
 
@@ -184,7 +184,7 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
 
 **The owner's settings, which agents don't make:**
 
-- **O1:** the environment `npm`, with its deployment rule for tags matching `@ydinjs/*@*`, and no required reviewer unless [question 1](#questions-for-the-owner) says otherwise.
+- **O1:** the environment `npm`, with its deployment rule for tags matching `@ydinjs/*@*`, and no required reviewer ([question 1](#questions-for-the-owner), answered).
 - **O2:** the ruleset `Release tags` on `refs/tags/@ydinjs/**`: block updates and deletions, with no bypass.
 - **O3:** for each package's first publish, the stage-only token and the secret; afterwards, the package setting and the trusted publisher.
 
@@ -238,11 +238,17 @@ If he rejects the staged version, he deletes nothing. The next attempt is a new 
 
 ## Questions for the owner
 
+**All three are answered** by the owner on 2026-11-20, relayed by the coordinator, and recorded in `RD-27`. The design above already assumed each recommended answer, so the answers change nothing in it.
+
 1. **A required reviewer on the environment `npm`?** **Recommended: no.** Every version already waits for your approval on npm, with your key. A GitHub reviewer would be a second click on the same decision, with a weaker factor.
+   - **Answered: no required reviewer.** _"Согласен с архитектором"_ ("I agree with the architect").
 2. **The first publish: a stage-only token for a day (recommended), or you stage the first tarball yourself?**
    - With the token, the first version carries provenance, as Q4 asks.
    - Staging it yourself needs no token, and that version has no provenance.
    - If npm refuses a stage-only token for a new name, the first run shows it, and the fallback is staging it yourself.
+   - **Answered: the token.** _"Давай (а) попробуем"_ ("Let's try (a)"). The token is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm` and revoked after the publish, as [the first publish](#the-first-publish-of-a-package) states. Staging it himself stays the fallback.
+3. **The amendment to `RD-16` property 1:** the `stage` job runs `npm stage publish`, outside any checkout, because aube implements neither trusted publishing nor staging ([what runs where](#the-workflow-githubworkflowsreleaseyml)).
+   - **Answered: approved.** _"Конечно да, пусть npm работает"_ ("Yes, of course, let npm do it").
 
 ## Not adopted
 
