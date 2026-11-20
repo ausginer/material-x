@@ -1,0 +1,37 @@
+# Mutation: the load hook's this.addWatchFile(id) removed.
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/vite-traits-plugin
+
+ ❯ |node| tests/declarations.node.test.ts (6 tests | 1 failed) 61ms
+   ❯ the plugin's load stage (4)
+     × should ask the host to watch the file it loaded 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/declarations.node.test.ts:100 > the plugin's load stage > should ask the host to watch the file it loaded
+AssertionError: expected [] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+- [
+-   "/workspaces/worktrees/e/packages/vite-traits-plugin/tests/fixtures/gen-dts-2nTI6X/opened.ts",
+- ]
++ []
+
+ ❯ tests/declarations.node.test.ts:104:21
+    102|     await loadHook('build', watched)(join(dir, 'opened.ts'));
+    103|
+    104|     expect(watched).toEqual([join(dir, 'opened.ts')]);
+       |                     ^
+    105|   });
+    106|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  09:06:59
+   Duration  251ms (import 40%, tests 36%, transform 23%, worker 2%)
+

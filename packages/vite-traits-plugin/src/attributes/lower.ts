@@ -1,12 +1,14 @@
 /**
- * Layer (b), lowered in the trait's own build. In each class whose static block
- * calls `attributes(this, TABLE)`, with `attributes` imported from core's
- * `traits/attribute-traits`:
+ * Layer (b), lowered in the trait's own build. In each module-scope class
+ * declaration decorated `@trait` and then `@attributes(TABLE)`, with
+ * `attributes` imported from core's `traits/attribute-traits` and `trait` from
+ * its `traits/composition`:
  *
  * - each `accessor name!: T` line becomes a getter and a setter that read and
  *   write the attribute through core's attribute operator and the table's
  *   converter;
- * - the `attributes` call is removed;
+ * - the `@attributes(TABLE)` decorator is removed, and `@trait` stays for the
+ *   trait module's transform;
  * - a static `observedAttributes` lists the table's keys.
  *
  * The result is a plain layer (a) trait. TABLE is an object literal, whose
@@ -15,21 +17,27 @@
  */
 import type {
   AccessorProperty,
+  CallExpression,
   Class,
+  Decorator,
   Expression,
+  ImportDeclaration,
   ObjectExpression,
   Program,
-  Statement,
 } from '@oxc-project/types';
 import { RolldownMagicString } from 'rolldown';
+import { traitLocalsOf } from '../composition/trait-module.ts';
 import { CODE, fail } from '../diagnostics.ts';
 import {
   collectImports,
   collectTopBindings,
   collectTopClasses,
+  forEachValueReference,
   importedLocals,
+  removeSpecifiers,
   staticKeyName,
   unwrapTS,
+  walk,
 } from '../syntax.ts';
 
 /** The specifier of core's layer (b), `traits/attribute-traits`. */
@@ -71,45 +79,130 @@ export function importsAttributes(program: Program): boolean {
   );
 }
 
-type TableCall = Readonly<{ statement: Statement; table: Expression }>;
+/** A class's `@attributes(TABLE)` decorator and its table. */
+type TableDecorator = Readonly<{ decorator: Decorator; table: Expression }>;
 
-/** The `attributes(this, TABLE)` statement in a class's static blocks. */
-function findTableCall(
-  node: Class,
+/** Whether `decorator` is `@trait`, bare. */
+function isTraitDecorator(
+  decorator: Decorator | undefined,
+  traitLocals: ReadonlySet<string>,
+): boolean {
+  return (
+    decorator?.expression.type === 'Identifier' &&
+    traitLocals.has(decorator.expression.name)
+  );
+}
+
+/**
+ * Checks that the module uses `attributes` only as `@attributes(TABLE)`, the
+ * second decorator of a module-scope class declaration whose first is
+ * `@trait`, and fails with `attributes-decorator` otherwise. Returns each
+ * such class's decorator and table. A decorator after the two is left to the
+ * trait module's transform, which refuses it.
+ */
+function tableDecorators(
+  program: Program,
   locals: ReadonlySet<string>,
-): TableCall | null {
-  for (const element of node.body.body) {
-    if (element.type !== 'StaticBlock') {
-      continue;
-    }
-    for (const statement of element.body) {
-      const call =
-        statement.type === 'ExpressionStatement'
-          ? unwrapTS(statement.expression)
-          : null;
-      if (
-        call?.type === 'CallExpression' &&
-        call.callee.type === 'Identifier' &&
-        locals.has(call.callee.name)
-      ) {
-        const [self, table] = call.arguments;
-        if (
-          self?.type !== 'ThisExpression' ||
-          !table ||
-          table.type === 'SpreadElement'
-        ) {
-          fail(
-            CODE.ATTRIBUTE_TABLE,
-            'attributes() takes this and a table',
-            call.start,
-          );
-        }
-        return { statement, table };
+  traitLocals: ReadonlySet<string>,
+): Map<Class, TableDecorator> {
+  const moduleScope = new Map<Decorator, Class>();
+  for (const { node } of collectTopClasses(program).values()) {
+    if (node.type === 'ClassDeclaration') {
+      for (const decorator of node.decorators) {
+        moduleScope.set(decorator, node);
       }
     }
   }
+  // The decorator each identifier is the expression or the callee of.
+  const decorated = new Map<
+    object,
+    Readonly<{ decorator: Decorator; call: CallExpression | null }>
+  >();
+  walk(program, (node) => {
+    if (node.type !== 'Decorator') {
+      return;
+    }
+    const { expression } = node;
+    if (expression.type === 'Identifier') {
+      decorated.set(expression, { decorator: node, call: null });
+    } else if (
+      expression.type === 'CallExpression' &&
+      expression.callee.type === 'Identifier'
+    ) {
+      decorated.set(expression.callee, { decorator: node, call: expression });
+    }
+  });
 
-  return null;
+  const tables = new Map<Class, TableDecorator>();
+  forEachValueReference(program, (reference) => {
+    const { name } = reference;
+    if (!locals.has(name)) {
+      return;
+    }
+    const use = decorated.get(reference);
+    if (!use) {
+      fail(
+        CODE.ATTRIBUTES_DECORATOR,
+        `${name} is used only as @${name}(TABLE) above a class`,
+        reference.start,
+      );
+    }
+    const { decorator, call } = use;
+    const [table, ...rest] = call?.arguments ?? [];
+    if (!table || table.type === 'SpreadElement' || rest.length > 0) {
+      fail(
+        CODE.ATTRIBUTES_DECORATOR,
+        `the decorator takes one table: @${name}(TABLE)`,
+        decorator.start,
+      );
+    }
+    const node = moduleScope.get(decorator);
+    if (!node) {
+      fail(
+        CODE.ATTRIBUTES_DECORATOR,
+        `@${name} decorates a module-scope class declaration`,
+        decorator.start,
+      );
+    }
+    const [first, second] = node.decorators;
+    if (
+      !node.decorators.some((other) => isTraitDecorator(other, traitLocals))
+    ) {
+      fail(
+        CODE.ATTRIBUTES_DECORATOR,
+        `@${name} decorates a @trait class`,
+        decorator.start,
+      );
+    }
+    if (!isTraitDecorator(first, traitLocals) || second !== decorator) {
+      fail(
+        CODE.ATTRIBUTES_DECORATOR,
+        `@trait comes first, then one @${name}(TABLE)`,
+        decorator.start,
+      );
+    }
+    tables.set(node, { decorator, table });
+  });
+
+  return tables;
+}
+
+/** Removes the specifiers of `locals` from an import, or the whole import. */
+function removeImported(
+  magic: RolldownMagicString,
+  code: string,
+  node: ImportDeclaration,
+  locals: ReadonlySet<string>,
+): void {
+  const unused = node.specifiers.filter((spec) => locals.has(spec.local.name));
+  if (unused.length === 0) {
+    return;
+  }
+  if (unused.length === node.specifiers.length) {
+    magic.remove(node.start, node.end);
+  } else {
+    removeSpecifiers(magic, code, node, new Set(unused));
+  }
 }
 
 /** Each table key's converter expression, in table order. */
@@ -201,7 +294,7 @@ function accessorName(element: AccessorProperty): string {
 
 /**
  * Lowers each attribute trait of a module. Returns `null` when the module
- * doesn't import `attributes` or calls it nowhere.
+ * doesn't import `attributes` or decorates no class with it.
  */
 export function lowerAttributes(
   code: string,
@@ -212,15 +305,14 @@ export function lowerAttributes(
   if (locals.size === 0) {
     return null;
   }
+  const tables = tableDecorators(program, locals, traitLocalsOf(program));
+  if (tables.size === 0) {
+    return null;
+  }
   const magic = new RolldownMagicString(code);
-  let lowered = false;
 
-  for (const { node } of collectTopClasses(program).values()) {
-    const call = findTableCall(node, locals);
-    if (!call) {
-      continue;
-    }
-    const converters = readTable(code, program, call.table);
+  for (const [node, { decorator, table }] of tables) {
+    const converters = readTable(code, program, table);
     const accessors = node.body.body.filter(
       (element): element is AccessorProperty =>
         element.type === 'AccessorProperty',
@@ -249,20 +341,24 @@ export function lowerAttributes(
         fail(
           CODE.ATTRIBUTE_TABLE,
           `the table's ${key} has no accessor`,
-          call.table.start,
+          table.start,
         );
       }
     }
-    magic.remove(call.statement.start, call.statement.end);
+    const [space] = /^\s*/u.exec(code.slice(decorator.end))!;
+    magic.remove(decorator.start, decorator.end + space.length);
     magic.appendRight(
       node.body.start + 1,
       `\n  static observedAttributes = ${JSON.stringify([...converters.keys()])};`,
     );
-    lowered = true;
   }
 
-  if (!lowered) {
-    return null;
+  // Every other use of `attributes` is an error, so the lowered module has
+  // none left.
+  for (const node of program.body) {
+    if (node.type === 'ImportDeclaration') {
+      removeImported(magic, code, node, locals);
+    }
   }
   const { specifier } = [...imports.values()].find(
     ({ imported, specifier: from }) =>

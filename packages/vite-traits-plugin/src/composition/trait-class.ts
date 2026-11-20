@@ -46,7 +46,6 @@ import {
   brandConstants,
   brandName,
   findTraitInstall,
-  isTraitBlock,
   staticValueName,
   traitLocalsOf,
   type TraitInstall,
@@ -385,14 +384,11 @@ export async function normalizeTraitClass(
   for (const element of cls.node.body.body) {
     switch (element.type) {
       case 'StaticBlock':
-        if (!isTraitBlock(element, ctx.traitLocals)) {
-          fail(
-            CODE.TRAIT_MEMBER,
-            `${name}: a static block does more than call trait(this)`,
-            element.start,
-          );
-        }
-        break;
+        return fail(
+          CODE.TRAIT_MEMBER,
+          `${name}: a trait has no static block`,
+          element.start,
+        );
       case 'MethodDefinition':
         // The generated brand install is neither copied nor merged.
         if (
@@ -457,7 +453,7 @@ export async function normalizeTraitClass(
       case 'AccessorProperty':
         return fail(
           CODE.TRAIT_MEMBER,
-          `${name}: an accessor field; attributes(this, …) declares it`,
+          `${name}: an accessor field; @attributes(TABLE) declares it`,
           element.start,
         );
       case 'TSAbstractAccessorProperty':
@@ -470,17 +466,19 @@ export async function normalizeTraitClass(
     }
   }
 
-  const brand =
-    ref.install.brand ?? brandName(cls.node.id?.name ?? name, ctx.topLevel);
+  let brand: BindingRef;
+  if (ref.install.kind === 'method') {
+    brand = link(ref.install.brand);
+  } else {
+    const exportName = brandName(cls.node.id?.name ?? name, ctx.topLevel);
+    brand = local
+      ? { specifier: '', exportName, local: true }
+      : { specifier: ref.specifier, exportName };
+  }
 
   return {
     name,
-    brand:
-      ref.install.brand === null
-        ? local
-          ? { specifier: '', exportName: brand, local: true }
-          : { specifier: ref.specifier, exportName: brand }
-        : link(brand),
+    brand,
     members,
     statics,
   };

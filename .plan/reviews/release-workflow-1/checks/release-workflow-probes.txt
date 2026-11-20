@@ -1,0 +1,111 @@
+Feature-proof probes for PR #81 at e73411cf4, run by the reviewer on 2026-11-20 in the devcontainer, in a scratch worktree. Nothing was pushed, tagged or dispatched.
+
+1. The suite: aube exec vitest run --project repo .scripts/release-check.node.test.ts
+      Tests  35 passed (35)
+
+2. Mutations, each reverted after its run:
+   - 'src' removed from EXCLUDED_DIRECTORIES:        Tests  1 failed | 34 passed (35)
+   - repository.url comparison made 'if (false)':   Tests  1 failed | 34 passed (35)
+   - 'code === 1' made 'code === 2' (reachability): Tests  1 failed | 34 passed (35)
+   - '<= 0' made '< 0' in the latest comparison:    Tests  35 passed (35)  (survives)
+
+3. The '<' mutant against checkRegistry, with registry latest 1.0.0 and versions {1.0.0} (probe latest-probe.ts):
+   head:
+     1.0.0 compare 0 ["registry-version"]
+     1.0.0+build.1 compare 0 ["latest"]
+     0.9.0+x compare -1 ["latest"]
+     1.0.1 compare 1 []
+   mutant:
+     1.0.0 compare 0 ["registry-version"]
+     1.0.0+build.1 compare 0 []
+     0.9.0+x compare -1 ["latest"]
+     1.0.1 compare 1 []
+
+4. just release-check box-quad, box-quad as on the branch: exit 1, problems by check:
+         1 release-check access
+        61 release-check pack-excluded
+        13 release-check pack-files
+         3 release-check pack-required
+         1 release-check repository-directory
+         1 release-check repository-url
+
+5. With box-quad's release plan property 1 applied for the run (version 1.0.0, files, sideEffects, repository with directory, publishConfig.access public, root LICENSE, one-line README.md, CHANGELOG.md with a 1.0.0 heading), then reverted: exit 0
+   ### @ydinjs/box-quad@1.0.0
+   
+   - tarball: `ydinjs-box-quad-1.0.0.tgz`
+   - sha256: `3eaf0eb07c314b44da1ebdbfc2fadcaf954d191dff10b77825a283f66995e373`
+   
+   - `CHANGELOG.md`
+   - `LICENSE`
+   - `README.md`
+   - `index.d.ts`
+   - `index.js`
+   - `index.js.map`
+   - `package.json`
+   aube pack --json reports filename as an absolute path (7 files).
+
+6. The local form of the plan's mutation dispatch: property 1 applied plus "src/index.ts" in files: exit 1
+   ::error title=release-check pack-excluded::src/index.ts is a source, test or record file
+
+7. Action pins, resolved through the GitHub API (git/ref/tags, then git/tags for annotated tags):
+   actions/checkout v7.0.1 -> 3d3c42e5aac5ba805825da76410c181273ba90b1 MATCH
+   actions/setup-node v7.1.0 -> 949feb2413d6458794dcd2491c4babbbce0c15c1 MATCH
+   actions/upload-artifact v7.0.2 -> cf430e030ddbb5b0abf93d22962f4752f3646cd9 MATCH
+   actions/download-artifact v8.0.2 -> 9000827ccba6bdab643e8b6fd33ac0654aef8333 MATCH
+   Each is its repository's latest release.
+
+8. checkCommit's Actions query against the real API:
+   verify.yml runs?event=push&branch=main&head_sha=d69e3ddbc... (origin/main) -> 1 run, verify, push, main, success
+   the same for e73411cf4 (not on main) -> total_count 0
+
+9. The stage step's shell. release.yml sets no shell, so a run: step is 'bash -e {0}'; 'shell: bash' is 'bash --noprofile --norc -eo pipefail {0}' (GitHub's workflow syntax, jobs.<job_id>.steps[*].shell). The step's pipeline, with npm replaced by false:
+   | false | tee out.txt
+   | stage_id="$(sed -n "s/.*(staged with id \(.*\))$/\1/p" out.txt)"
+   | echo "Staged, with the stage id ${stage_id:-not reported}"
+   bash -e:                          prints 'Staged, with the stage id not reported', exit 0
+   bash --noprofile --norc -eo pipefail: exit 1
+   jq on empty input (the pack step's pipeline when aube pack fails): exit 0, no output
+
+10. npm 11.21.2 (tag v11.21.2 = 1c66798c9; v11.21.3 was published 2026-11-19, so 11.21.2 is the newest 11.x older than 7 days), read through the GitHub contents API:
+   lib/commands/stage/publish.js: StagePublish extends Publish, params = Publish.params
+   lib/commands/publish.js:100,223: scripts run only for a directory spec
+   lib/commands/publish.js:243-245: '+ <id> (staged with id <stageId>)', or '+ <id> (staged)'
+   lib/utils/oidc.js: a GitHub Actions run with ACTIONS_ID_TOKEN_REQUEST_* exchanges the id token; every failure returns undefined and leaves the configured _authToken
+   lib/commands/trust/github.js: file, repository (alias repo), environment (alias env), allow-publish, allow-stage-publish
+   lib/utils/tar.js:75-100: ssri with algorithms sha1 and sha512; the log prints 'shasum' (sha1 hex) and 'integrity' (sha512). No sha256 anywhere in it.
+
+Re-review at 30175e027, run by the reviewer on 2026-11-20 in the same scratch worktree, moved to that commit. Nothing was pushed, tagged or dispatched.
+
+11. The suite: aube exec vitest run --project repo .scripts/release-check.node.test.ts
+      Tests  46 passed (46)
+
+12. Mutations at 30175e027, each reverted after its run:
+   - '<= 0' made '< 0' in the latest comparison (reviewer-4):        Tests  1 failed | 45 passed (46)
+   - the ref check made 'if (false)':                                 Tests  1 failed | 45 passed (46)
+   - the tag equality made 'else if (false)':                         Tests  1 failed | 45 passed (46)
+   - 'refs/tags/${tag}^{commit}' made 'refs/tags/${tag}':             Tests  1 failed | 45 passed (46)  (the annotated tag)
+   - 'tagged.code === 1' made 'tagged.code === 2' (a missing tag):    Tests  1 failed | 45 passed (46)
+   - checkInputs 'Boolean(tag) === Boolean(packageName)' made '&&':   Tests  1 failed | 45 passed (46)
+   - createHash('sha1') made createHash('sha256'):                    Tests  1 failed | 45 passed (46)
+   The probe of item 3 at 30175e027 prints: 1.0.0+build.1 compare 0 ["latest"]
+
+13. The fixture's digests, computed independently:
+   sha1sum .scripts/fixtures/release-check/fixture.tgz           2866dac8edc6a4dfbbba3f2f03c60063fdc708ad
+   openssl dgst -sha512 -binary | base64 -w0                     sha512-i6d1VlgLGvrkAvaMU59//ouDOJ4Knd/sWmtZxOoLgLc7UykRkEcmZPhqHYu8R17xPqldXbt1GGdJTwZN19NKCw==
+   sha256sum                                                     375e9fd629870e9ce3a018d6f43c6135d8d214938400dce0bee6aa83a1100800
+   Each equals the constant in release-check.node.test.ts (:331, :337 and :343).
+
+14. npm 11.21.2, read through the GitHub contents API:
+   lib/utils/key-values.js logStageItem: id, version, tag, 'date staged', 'staged by', shasum. That is what npm stage view <stage-id> prints.
+   workspaces/libnpmpublish/lib/publish.js:155-163: log.notice 'Signed provenance statement …', then 'Provenance statement published to transparency log: <TLOG_BASE_URL>?logIndex=<n>'. These are proc-log notices on stderr, which the step's 2>&1 captures.
+   docs/lib/content/commands/npm-stage.md:82-85: to stage the same version under a different tag, reject the staged package first and then stage it again.
+
+15. GitHub's documentation, read on 2026-11-20 by a fetch sub-agent, with the quotes checked against the URLs:
+   docs.github.com/en/actions/concepts/security/github_token: "events triggered by the `GITHUB_TOKEN` will not create a new workflow run, with the following exceptions:" … "`workflow_dispatch` and `repository_dispatch` events always create workflow runs."
+   docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments: "The deployment branch or tag rule is matched against the `GITHUB_REF` of the workflow run." "Name patterns must be configured for branches or tags individually." "By default, administrators can bypass the protection rules and force deployments to specific environments." "Secrets stored in an environment are only available to workflow jobs that reference the environment."
+   docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows, workflow_dispatch: GITHUB_SHA "Last commit on the `GITHUB_REF` branch or tag"; GITHUB_REF "Branch or tag that received dispatch". Not stated there: how an ambiguous short ref such as `main`, which names both a branch and a tag, is resolved.
+   docs.npmjs.com/staged-publishing: "Review the package names, versions, dist-tags, publishers, and SHASUMs." "Inspect or download the staged contents as needed before approving them." The page doesn't list the stage id among the fields that Staged Packages shows, and it doesn't mention provenance on the review page.
+
+16. Other workflows and the environment npm: grep 'environment' .github/workflows/*.yml outside release.yml finds only verify.yml:393, the deploy job's environment github-pages.
+
+17. Formatting and diffs at 30175e027: aube exec just fmt-check exits 0, and git diff --check e73411cf4 30175e027 is clean. CI runs 44703929071 (521d5d171) and 44706338733 (644bbf1ed) failed only at fmt-check on .agents/docs/releasing.md, which 30175e027 formats.

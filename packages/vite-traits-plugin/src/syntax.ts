@@ -5,12 +5,14 @@
 import { createHash } from 'node:crypto';
 import type {
   Class,
+  ImportDeclaration,
   Node,
   Program,
   Statement,
   VariableDeclarator,
 } from '@oxc-project/types';
 import { parseSync } from 'oxc-parser';
+import type { RolldownMagicString } from 'rolldown';
 
 /** Range in a module's source, as `[start, end)` offsets. */
 export type Span = readonly [number, number];
@@ -76,6 +78,144 @@ export function walk(root: Node, visit: (node: Node) => void): void {
       }
       stack.push((current as Record<string, unknown>)[key]);
     }
+  }
+}
+
+/**
+ * Removes some of an import's specifiers, each with the comma after it, or,
+ * for the last one kept, the comma before it.
+ */
+export function removeSpecifiers(
+  magic: RolldownMagicString,
+  code: string,
+  node: ImportDeclaration,
+  unused: ReadonlySet<ImportDeclaration['specifiers'][number]>,
+): void {
+  const { specifiers } = node;
+  const lastKept = specifiers.findLastIndex((spec) => !unused.has(spec));
+  specifiers.forEach((spec, index) => {
+    if (!unused.has(spec)) {
+      return;
+    }
+    if (index > lastKept) {
+      magic.remove(specifiers[index - 1]!.end, spec.end);
+    } else {
+      const [after] = /^\s*,\s*/u.exec(code.slice(spec.end)) ?? [''];
+      magic.remove(spec.start, spec.end + after.length);
+    }
+  });
+}
+
+/** An identifier-like node that reads a binding. */
+export type ValueReference = Readonly<{
+  type: string;
+  name: string;
+  start: number;
+  end: number;
+}>;
+
+/** The fields that hold only types, in any node. */
+const TYPE_FIELDS = new Set([
+  'typeAnnotation',
+  'typeArguments',
+  'typeParameters',
+  'returnType',
+  'superTypeArguments',
+  'implements',
+]);
+
+/** Type nodes and type-only declarations, besides every `TS…Type`. */
+const TYPE_NODES = new Set([
+  'TSTypeAnnotation',
+  'TSTypeReference',
+  'TSTypeQuery',
+  'TSTypeLiteral',
+  'TSTypeOperator',
+  'TSTypePredicate',
+  'TSTypeParameterDeclaration',
+  'TSTypeParameterInstantiation',
+  'TSTypeAliasDeclaration',
+  'TSInterfaceDeclaration',
+]);
+
+/** Whether a node is a type, or a declaration that emits nothing. */
+function isTypeOnly(
+  node: Readonly<Record<string, unknown>> & { type?: string },
+): boolean {
+  const { type } = node;
+
+  return (
+    type !== undefined &&
+    (TYPE_NODES.has(type) ||
+      /^TS\w*(?:Type|Keyword)$/u.test(type) ||
+      node['declare'] === true)
+  );
+}
+
+/**
+ * Visits each value reference under `node`. It fails closed: every node is
+ * walked, TypeScript or not, so a shape this function doesn't know visits its
+ * identifiers, which can only refuse what a caller checks. Any
+ * identifier-like node is visited, `JSXIdentifier` included, so `<X />` and
+ * `<X.Inner />` are references. Only these aren't visited: a type position,
+ * a type-only declaration, a `declare` declaration, a non-computed property
+ * key or member name, a JSX attribute name, the property of a JSX member name,
+ * a private or namespaced JSX name, a label, and an import. A shorthand
+ * property `{ X }` and an export specifier are visited. A direct
+ * `eval('X')` can't be seen.
+ */
+export function forEachValueReference(
+  node: unknown,
+  visit: (identifier: ValueReference) => void,
+): void {
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      forEachValueReference(item, visit);
+    }
+    return;
+  }
+  if (!node || typeof node !== 'object') {
+    return;
+  }
+  const value = node as Readonly<Record<string, unknown>> & { type?: string };
+  const { type } = value;
+  if (type === 'PrivateIdentifier' || type === 'JSXNamespacedName') {
+    // A private name and a namespaced JSX name never name a module binding.
+    return;
+  }
+  const { name } = value;
+  if (type?.endsWith('Identifier') && typeof name === 'string') {
+    // Any identifier-like node is a reference, `JSXIdentifier` included,
+    // unless its position is a known non-reference, which the parent skips.
+    visit(value as ValueReference);
+    return;
+  }
+  if (isTypeOnly(value) || type === 'ImportDeclaration') {
+    return;
+  }
+  if (type === 'ExportSpecifier') {
+    forEachValueReference(value['local'], visit);
+    return;
+  }
+  const keyed =
+    type === 'Property' ||
+    type === 'MethodDefinition' ||
+    type === 'PropertyDefinition' ||
+    type === 'AccessorProperty';
+  for (const [field, child] of Object.entries(value)) {
+    if (
+      TYPE_FIELDS.has(field) ||
+      field === 'label' ||
+      (keyed && field === 'key' && value['computed'] !== true) ||
+      (type === 'MemberExpression' &&
+        field === 'property' &&
+        value['computed'] !== true) ||
+      (type === 'JSXMemberExpression' && field === 'property') ||
+      (type === 'JSXAttribute' && field === 'name')
+    ) {
+      continue;
+    }
+    forEachValueReference(child, visit);
   }
 }
 

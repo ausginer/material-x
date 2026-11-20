@@ -1,0 +1,11 @@
+packages/core/traits/checkable.d.ts: 1/1
+packages/core/traits/disableable.d.ts: 1/1
+packages/core/traits/linkable.d.ts: 1/1
+packages/core/traits/nameable.d.ts: 1/1
+packages/core/traits/reorderable.d.ts: 1/1
+packages/core/traits/selectable.d.ts: 1/1
+packages/core/traits/typeable.d.ts: 1/1
+packages/core/traits/valuable.d.ts: 1/1
+packages/material-x/core/traits/focus-forwarding.d.ts: 1/1
+packages/material-x/button/IconButtonCore.d.ts: 1/1
+files with every trait doc: 10/10

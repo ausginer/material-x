@@ -1,0 +1,9 @@
+# just build at the repository root, interleaved, with the stage and with its load hook removed, after a build of the plugin each time. Seconds, wall clock.
+with-stage 7.073
+without-stage 7.418
+with-stage 8.399
+without-stage 7.020
+with-stage 6.764
+without-stage 6.570
+with-stage 6.674
+without-stage 6.730

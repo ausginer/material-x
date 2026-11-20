@@ -7,7 +7,8 @@
  *   and the component's own, in that order; an object spreads them; any other
  *   kind takes the last trait's value unless the component declares the key;
  * - each trait's members, in list order;
- * - `static { impl(this, …brands); }`.
+ * - `static { impl(this, …brands); }`, when the list has a trait. An empty
+ *   list brands nothing, so it gets neither the block nor the import.
  *
  * A trait's value and brand are linked, never copied, so its module stays the
  * one source of each.
@@ -168,15 +169,19 @@ export function lowerCompositions(
   implSpecifier: string,
 ): void {
   const links = new Map<string, BindingRef>();
+  let branded = false;
 
   for (const analyzed of compositions) {
     const { fields, folded } = mergedStatics(code, analyzed);
     const members = analyzed.traits.flatMap((trait) =>
       trait.members.map(memberSource),
     );
-    const brands = analyzed.traits
-      .map((trait) => linkLocal(trait.brand))
-      .join(', ');
+    const brands = analyzed.traits.map((trait) => linkLocal(trait.brand));
+    const install =
+      brands.length > 0
+        ? [`  static {\n    ${IMPL_LOCAL}(this, ${brands.join(', ')});\n  }`]
+        : [];
+    branded ||= brands.length > 0;
 
     magic.remove(...analyzed.declarationSpan);
     magic.overwrite(...analyzed.superClassSpan, analyzed.baseSource);
@@ -185,7 +190,7 @@ export function lowerCompositions(
     }
     magic.appendRight(
       analyzed.consumer.body.start + 1,
-      `\n${[...fields, ...members, `  static {\n    ${IMPL_LOCAL}(this, ${brands});\n  }`].join('\n')}\n`,
+      `\n${[...fields, ...members, ...install].join('\n')}\n`,
     );
 
     for (const ref of compositionLinks(analyzed.traits)) {
@@ -196,11 +201,17 @@ export function lowerCompositions(
   }
 
   const imports = [
-    `import { impl as ${IMPL_LOCAL} } from ${JSON.stringify(implSpecifier)};`,
+    ...(branded
+      ? [
+          `import { impl as ${IMPL_LOCAL} } from ${JSON.stringify(implSpecifier)};`,
+        ]
+      : []),
     ...[...links].map(
       ([local, ref]) =>
         `import { ${ref.exportName} as ${local} } from ${JSON.stringify(ref.specifier)};`,
     ),
   ];
-  magic.prepend(`${imports.join('\n')}\n`);
+  if (imports.length > 0) {
+    magic.prepend(`${imports.join('\n')}\n`);
+  }
 }

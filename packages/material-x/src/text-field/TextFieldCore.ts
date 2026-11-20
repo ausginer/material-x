@@ -60,18 +60,15 @@ export type TextFieldInputMode =
 
 type InputElement = HTMLInputElement | HTMLTextAreaElement;
 
+@trait
+@attributes({
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  type: Str as ConverterOf<TextFieldType>,
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  inputmode: Str as ConverterOf<TextFieldInputMode>,
+  outlined: Bool,
+})
 export class TextFieldLike extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      type: Str as ConverterOf<TextFieldType>,
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      inputmode: Str as ConverterOf<TextFieldInputMode>,
-      outlined: Bool,
-    });
-  }
-
   accessor type!: TextFieldType | null;
   accessor inputmode!: TextFieldInputMode | null;
   accessor outlined!: boolean;

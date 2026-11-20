@@ -1,16 +1,17 @@
 /**
  * A trait module's own transform, and how a trait class is recognized.
  *
- * In source, a trait class has a static block that calls `trait(this)`, with
- * `trait` imported from core's `composition` module. In built JavaScript it
- * has the method this transform generates, recognized only in exactly that
- * form. The transform:
+ * In source, a trait class is a module-scope class declaration whose one
+ * decorator is `@trait`, with `trait` imported from core's `composition`
+ * module. In built JavaScript it has the method this transform generates,
+ * recognized only in exactly that form. The transform:
  *
+ * - checks that the module uses `trait` only as such a decorator;
  * - hoists the brand into an exported module-level `Symbol` named after the
- *   class, and replaces `trait(this)` with a static method,
+ *   class, removes the decorator and puts a static method in the class,
  *   `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`.
- *   `trait` is never called with a brand. A bundle that never uses
- *   `instanceof` drops the class, and one that uses it keeps the method;
+ *   A bundle that never uses `instanceof` drops the class, and one that uses
+ *   it keeps the method;
  * - hoists each static field's value into an exported module-level constant,
  *   so a component links the value without retaining the trait class;
  * - exports, under build-only names, each private binding a member reads;
@@ -21,18 +22,16 @@
  * transformed module, another package's build, changes only what is missing.
  */
 import type {
-  CallExpression,
   Class,
   ClassElement,
+  Decorator,
   Expression,
-  ImportDeclaration,
   MethodDefinition,
   Program,
-  Statement,
-  StaticBlock,
   VariableDeclarator,
 } from '@oxc-project/types';
 import { RolldownMagicString } from 'rolldown';
+import { CODE, fail } from '../diagnostics.ts';
 import { collectFreeReferences } from '../free-references.ts';
 import {
   collectExportedNames,
@@ -40,7 +39,9 @@ import {
   collectTopBindings,
   collectTopClasses,
   collectTopLevelNames,
+  forEachValueReference,
   importedLocals,
+  removeSpecifiers,
   syntheticExportName,
   unwrapTS,
   walk,
@@ -51,43 +52,107 @@ import {
 const COMPOSITION_MODULE = /(?:^|\/)composition(?:\.[cm]?[jt]sx?)?$/u;
 
 /**
- * How a trait class installs its brand: the `trait(this[, brand])` call in a
- * static block of its source, or, once its own build has run, the generated
- * `static [Symbol.hasInstance](o)` method, which names the brand.
+ * How a trait class installs its brand: the `@trait` decorator in its source,
+ * or, once its own build has run, the generated `static [Symbol.hasInstance](o)`
+ * method, which names the brand.
  */
 export type TraitInstall = Readonly<
-  | {
-      kind: 'call';
-      block: StaticBlock;
-      statement: Statement;
-      call: CallExpression;
-      /** The brand's binding, when the call passes one. */
-      brand: string | null;
-    }
+  | { kind: 'decorator'; decorator: Decorator }
   | { kind: 'method'; method: MethodDefinition; brand: string }
 >;
 
-/** The `trait(this[, brand])` statement in `block`, if any. */
-function traitStatement(
-  block: StaticBlock,
+/**
+ * The class's `@trait` decorator, when it is the one decorator of a class
+ * declaration. Any other use is a `trait-decorator` error in the trait's own
+ * build.
+ */
+function traitDecorator(
+  node: Class,
   traitLocals: ReadonlySet<string>,
-): Readonly<{ statement: Statement; call: CallExpression }> | null {
-  for (const statement of block.body) {
-    const call =
-      statement.type === 'ExpressionStatement'
-        ? unwrapTS(statement.expression)
-        : null;
-    if (
-      call?.type === 'CallExpression' &&
-      call.callee.type === 'Identifier' &&
-      traitLocals.has(call.callee.name) &&
-      call.arguments[0]?.type === 'ThisExpression'
-    ) {
-      return { statement, call };
+): Decorator | null {
+  const [decorator, ...rest] = node.decorators;
+
+  return node.type === 'ClassDeclaration' &&
+    rest.length === 0 &&
+    decorator?.expression.type === 'Identifier' &&
+    traitLocals.has(decorator.expression.name)
+    ? decorator
+    : null;
+}
+
+/**
+ * Checks that the module uses `trait` only as the one decorator of a
+ * module-scope class declaration, and fails with `trait-decorator` otherwise.
+ */
+function checkTraitReferences(
+  program: Program,
+  traitLocals: ReadonlySet<string>,
+): void {
+  const moduleScope = new Map<Decorator, Class>();
+  for (const { node } of collectTopClasses(program).values()) {
+    if (node.type === 'ClassDeclaration') {
+      for (const decorator of node.decorators) {
+        moduleScope.set(decorator, node);
+      }
     }
   }
+  // The decorator each identifier is the expression or the callee of.
+  const decorated = new Map<
+    object,
+    Readonly<{ decorator: Decorator; called: boolean }>
+  >();
+  walk(program, (node) => {
+    if (node.type !== 'Decorator') {
+      return;
+    }
+    const { expression } = node;
+    if (expression.type === 'Identifier') {
+      decorated.set(expression, { decorator: node, called: false });
+    } else if (
+      expression.type === 'CallExpression' &&
+      expression.callee.type === 'Identifier'
+    ) {
+      decorated.set(expression.callee, { decorator: node, called: true });
+    }
+  });
 
-  return null;
+  forEachValueReference(program, (reference) => {
+    if (!traitLocals.has(reference.name)) {
+      return;
+    }
+    const use = decorated.get(reference);
+    if (!use) {
+      fail(
+        CODE.TRAIT_DECORATOR,
+        `${reference.name} is used only as @${reference.name} above a class`,
+        reference.start,
+      );
+    }
+    const { decorator, called } = use;
+    if (called) {
+      fail(
+        CODE.TRAIT_DECORATOR,
+        `the decorator is used bare: @${reference.name}`,
+        decorator.start,
+      );
+    }
+    const node = moduleScope.get(decorator);
+    if (!node) {
+      fail(
+        CODE.TRAIT_DECORATOR,
+        `@${reference.name} decorates a module-scope class declaration`,
+        decorator.start,
+      );
+    }
+    // Layer (b) has already removed `@attributes(TABLE)`.
+    if (node.decorators.length !== 1) {
+      fail(
+        CODE.TRAIT_DECORATOR,
+        `@${reference.name} is the class's first decorator, and the only other is @attributes(TABLE)`,
+        decorator.start,
+      );
+    }
+  });
 }
 
 /** Whether `node` is the identifier `name`. */
@@ -311,19 +376,11 @@ export function findTraitInstall(
   traitLocals: ReadonlySet<string>,
   brands: ReadonlySet<string>,
 ): TraitInstall | null {
+  const decorator = traitDecorator(node, traitLocals);
+  if (decorator) {
+    return { kind: 'decorator', decorator };
+  }
   for (const element of node.body.body) {
-    if (element.type === 'StaticBlock') {
-      const found = traitStatement(element, traitLocals);
-      if (found) {
-        const [, brand] = found.call.arguments;
-        return {
-          kind: 'call',
-          block: element,
-          ...found,
-          brand: brand?.type === 'Identifier' ? brand.name : null,
-        };
-      }
-    }
     const brand = hasInstanceBrand(element, brands);
     if (brand !== null && element.type === 'MethodDefinition') {
       return { kind: 'method', method: element, brand };
@@ -333,26 +390,7 @@ export function findTraitInstall(
   return null;
 }
 
-/** Whether a static block holds only `trait(this[, brand])` calls. */
-export function isTraitBlock(
-  block: StaticBlock,
-  traitLocals: ReadonlySet<string>,
-): boolean {
-  return block.body.every((statement) => {
-    const call =
-      statement.type === 'ExpressionStatement'
-        ? unwrapTS(statement.expression)
-        : null;
-
-    return (
-      call?.type === 'CallExpression' &&
-      call.callee.type === 'Identifier' &&
-      traitLocals.has(call.callee.name)
-    );
-  });
-}
-
-/** The brand install that replaces `trait(this)`. */
+/** The brand install that the build puts in a `@trait` class. */
 function hasInstanceMethod(brand: string): string {
   return `static [Symbol.hasInstance](o) {\n    return o != null && o[${brand}] === true;\n  }`;
 }
@@ -449,28 +487,16 @@ function readsClass(value: Expression, className: string): boolean {
   return reads;
 }
 
-/** Removes some of an import's specifiers, with their commas. */
-function removeSpecifiers(
-  magic: RolldownMagicString,
-  code: string,
-  unused: ImportDeclaration['specifiers'],
-): void {
-  for (const spec of unused) {
-    const after = /^\s*,\s*/u.exec(code.slice(spec.end));
-    magic.remove(spec.start, spec.end + (after?.[0].length ?? 0));
-  }
-}
-
 /**
- * Removes the import of `trait` when the replaced calls were its only uses: a
- * built trait module doesn't need layer (a)'s runtime.
+ * Removes the import of `trait` when the removed decorators were its only
+ * uses: a built trait module doesn't need layer (a)'s runtime.
  */
 function removeUnusedImports(
   magic: RolldownMagicString,
   program: Program,
   code: string,
   traitLocals: ReadonlySet<string>,
-  replaced: ReadonlySet<CallExpression>,
+  replaced: ReadonlySet<Decorator>,
 ): void {
   if (replaced.size === 0) {
     return;
@@ -485,8 +511,8 @@ function removeUnusedImports(
       });
     }
   }
-  for (const call of replaced) {
-    const { name } = call.callee as { name: string };
+  for (const decorator of replaced) {
+    const { name } = decorator.expression as { name: string };
     uses.set(name, (uses.get(name) ?? 0) - 1);
   }
   for (const node of program.body) {
@@ -505,7 +531,7 @@ function removeUnusedImports(
       magic.remove(node.start, node.end);
       continue;
     }
-    removeSpecifiers(magic, code, unused);
+    removeSpecifiers(magic, code, node, new Set(unused));
   }
 }
 
@@ -556,6 +582,9 @@ export function transformTraitModule(
   applicationBuild: boolean,
 ): RolldownMagicString | null {
   const traitLocals = traitLocalsOf(program);
+  if (traitLocals.size > 0) {
+    checkTraitReferences(program, traitLocals);
+  }
   const traits = collectTraitClasses(program, traitLocals);
   if (traits.size === 0) {
     return null;
@@ -566,7 +595,7 @@ export function transformTraitModule(
   const bindings = collectTopBindings(program);
   const topLevel = collectTopLevelNames(program);
   const exports = new Set<string>();
-  const replaced = new Set<CallExpression>();
+  const replaced = new Set<Decorator>();
   let changed = false;
 
   const exportBinding = (local: string, as: string): void => {
@@ -577,27 +606,37 @@ export function transformTraitModule(
 
   for (const [className, { node, statement, trait }] of traits) {
     const before: string[] = [];
+    // In `@trait export class`, the decorator lies before the statement, so
+    // the hoisted declarations go before the decorator.
+    let insertAt = statement.start;
 
-    if (trait.kind === 'call') {
-      const brand = trait.brand ?? brandName(className, topLevel);
-      if (trait.brand === null) {
-        before.push(
-          `export const ${brand} = Symbol(${JSON.stringify(className)});`,
-        );
+    if (trait.kind === 'decorator') {
+      const brand = brandName(className, topLevel);
+      const { decorator } = trait;
+      before.push(
+        `export const ${brand} = Symbol(${JSON.stringify(className)});`,
+      );
+      insertAt = Math.min(insertAt, decorator.start);
+      const [space] = /^\s*/u.exec(code.slice(decorator.end))!;
+      magic.remove(decorator.start, decorator.end + space.length);
+      // The method goes after the `static observedAttributes` that layer (b)
+      // puts first in the body, or else first.
+      const [first] = node.body.body;
+      const observed =
+        first?.type === 'PropertyDefinition' &&
+        first.static &&
+        isName(first.key, 'observedAttributes')
+          ? first
+          : null;
+      if (observed) {
+        magic.appendLeft(observed.end, `\n  ${hasInstanceMethod(brand)}\n`);
       } else {
-        exportBinding(brand, brand);
-      }
-      if (isTraitBlock(trait.block, traitLocals)) {
-        magic.overwrite(
-          trait.block.start,
-          trait.block.end,
-          hasInstanceMethod(brand),
+        magic.appendLeft(
+          node.body.start + 1,
+          `\n  ${hasInstanceMethod(brand)}\n`,
         );
-      } else {
-        magic.remove(trait.statement.start, trait.statement.end);
-        magic.appendLeft(trait.block.start, `${hasInstanceMethod(brand)}\n  `);
       }
-      replaced.add(trait.call);
+      replaced.add(decorator);
       changed = true;
     } else {
       exportBinding(trait.brand, trait.brand);
@@ -641,7 +680,7 @@ export function transformTraitModule(
     }
 
     if (before.length > 0) {
-      magic.appendLeft(statement.start, `${before.join('\n')}\n`);
+      magic.appendLeft(insertAt, `${before.join('\n')}\n`);
       changed = true;
     }
   }

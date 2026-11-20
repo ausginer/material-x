@@ -12,43 +12,36 @@ import { trait } from '../../src/traits/composition.ts';
 // Vitest's typecheck collector can't walk an `accessor` member. The table's
 // type reads a member's type, which is the same in both forms.
 
+@trait
+@attributes({ disabled: Bool })
 class Disableable extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { disabled: Bool });
-  }
-
   declare disabled: boolean;
 }
 
+@trait
+@attributes({ href: Str })
 class Linkable extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, { href: Str });
-  }
-
   declare href: string | null;
 }
 
+@trait
 class Focusing extends AnyElement {
-  static {
-    trait(this);
-  }
-
   override focus(_options?: FocusOptions): void {}
 }
 
 const SHARED_ATTRS: Readonly<{ href: ConverterOf<string> }> = { href: Str };
 declare const NARROW: ConverterOf<'a' | 'b'>;
 const WRONG_ATTRS: Readonly<{ href: ConverterOf<boolean> }> = { href: Bool };
+const EXTRA_ATTRS: Readonly<{
+  href: ConverterOf<string>;
+  label: ConverterOf<string>;
+}> = { href: Str, label: Str };
 
 describe('attributes', () => {
   it('should accept a converter that reads the member', () => {
+    @trait
+    @attributes({ checked: Bool })
     class Checked extends AnyElement {
-      static {
-        attributes(this, { checked: Bool });
-      }
-
       declare checked: boolean;
     }
 
@@ -56,12 +49,10 @@ describe('attributes', () => {
   });
 
   it("should reject a converter of another member's type", () => {
+    @trait
+    // @ts-expect-error: a string converter on a boolean
+    @attributes({ disabled: Str })
     class WrongConverter extends AnyElement {
-      static {
-        // @ts-expect-error: a string converter on a boolean
-        attributes(this, { disabled: Str });
-      }
-
       declare disabled: boolean;
     }
 
@@ -69,12 +60,10 @@ describe('attributes', () => {
   });
 
   it('should reject a converter that reads null into a member that cannot be null', () => {
+    @trait
+    // @ts-expect-error: Str reads null
+    @attributes({ label: Str })
     class WrongNullability extends AnyElement {
-      static {
-        // @ts-expect-error: Str reads null
-        attributes(this, { label: Str });
-      }
-
       declare label: string;
     }
 
@@ -82,12 +71,10 @@ describe('attributes', () => {
   });
 
   it('should reject a converter narrower than the member', () => {
+    @trait
+    // @ts-expect-error: it couldn't write every value of the member
+    @attributes({ href: NARROW })
     class NarrowConverter extends AnyElement {
-      static {
-        // @ts-expect-error: it couldn't write every value of the member
-        attributes(this, { href: NARROW });
-      }
-
       declare href: string | null;
     }
 
@@ -95,12 +82,10 @@ describe('attributes', () => {
   });
 
   it('should reject a key that names no member', () => {
+    @trait
+    // @ts-expect-error: no member is named `disabld`
+    @attributes({ disabld: Bool })
     class UnknownKey extends AnyElement {
-      static {
-        // @ts-expect-error: no member is named `disabld`
-        attributes(this, { disabld: Bool });
-      }
-
       declare disabled: boolean;
     }
 
@@ -108,12 +93,10 @@ describe('attributes', () => {
   });
 
   it('should reject a key that names a method', () => {
+    @trait
+    // @ts-expect-error: a method isn't an attribute
+    @attributes({ disabled: Bool, toggle: Bool })
     class MethodKey extends AnyElement {
-      static {
-        // @ts-expect-error: a method isn't an attribute
-        attributes(this, { disabled: Bool, toggle: Bool });
-      }
-
       declare disabled: boolean;
 
       toggle(): void {}
@@ -123,12 +106,10 @@ describe('attributes', () => {
   });
 
   it("should reject a key that names the base's member", () => {
+    @trait
+    // @ts-expect-error: `hidden` is HTMLElement's
+    @attributes({ disabled: Bool, hidden: Bool })
     class ElementKey extends AnyElement {
-      static {
-        // @ts-expect-error: `hidden` is HTMLElement's
-        attributes(this, { disabled: Bool, hidden: Bool });
-      }
-
       declare disabled: boolean;
     }
 
@@ -136,12 +117,10 @@ describe('attributes', () => {
   });
 
   it('should reject every key for a class with no attribute member', () => {
+    @trait
+    // @ts-expect-error: the class has no attribute member
+    @attributes({ hidden: Bool })
     class NoAttributes extends AnyElement {
-      static {
-        // @ts-expect-error: the class has no attribute member
-        attributes(this, { hidden: Bool });
-      }
-
       toggle(): void {}
     }
 
@@ -149,11 +128,9 @@ describe('attributes', () => {
   });
 
   it('should accept a shared table constant whose converters fit', () => {
+    @trait
+    @attributes(SHARED_ATTRS)
     class SharedTable extends AnyElement {
-      static {
-        attributes(this, SHARED_ATTRS);
-      }
-
       declare href: string | null;
     }
 
@@ -161,16 +138,54 @@ describe('attributes', () => {
   });
 
   it('should reject a shared table constant whose converters do not fit', () => {
+    @trait
+    // @ts-expect-error: a boolean converter on a string
+    @attributes(WRONG_ATTRS)
     class SharedWrong extends AnyElement {
-      static {
-        // @ts-expect-error: a boolean converter on a string
-        attributes(this, WRONG_ATTRS);
-      }
-
       declare href: string | null;
     }
 
     expectTypeOf<SharedWrong>().toExtend<HTMLElement>();
+  });
+
+  it('should reject a shared table constant with a key that names no member', () => {
+    @trait
+    // @ts-expect-error: no member is named `label`
+    @attributes(EXTRA_ATTRS)
+    class SharedExtra extends AnyElement {
+      declare href: string | null;
+    }
+
+    expectTypeOf<SharedExtra>().toExtend<HTMLElement>();
+  });
+
+  it('should reject the decorator without a table', () => {
+    @trait
+    // @ts-expect-error: TS1270, `attributes` takes the table
+    @attributes
+    class Bare extends AnyElement {
+      declare disabled: boolean;
+    }
+
+    expectTypeOf<Bare>().toExtend<HTMLElement>();
+  });
+
+  it('should reject a call with the class and the table', () => {
+    @trait
+    class Called extends AnyElement {
+      static {
+        // @ts-expect-error: TS2554, `attributes` takes the table alone
+        attributes(this, { disabled: Bool });
+      }
+
+      declare disabled: boolean;
+    }
+
+    expectTypeOf<Called>().toExtend<HTMLElement>();
+  });
+
+  it("should leave a decorated class's member types its declared ones", () => {
+    expectTypeOf<Linkable['href']>().toEqualTypeOf<string | null>();
   });
 });
 

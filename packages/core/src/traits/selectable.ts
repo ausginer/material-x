@@ -11,12 +11,9 @@ export const SELECTABLE_ATTRS: Readonly<{ selected: ConverterOf<boolean> }> = {
 /**
  * Element trait that exposes a presence-based `selected` boolean field.
  */
+@trait
+@attributes(SELECTABLE_ATTRS)
 export class Selectable extends AnyElement {
-  static {
-    trait(this);
-    attributes(this, SELECTABLE_ATTRS);
-  }
-
   accessor selected!: boolean;
 }
 

@@ -1,0 +1,220 @@
+[way2 core] build failed:
+      5 RolldownError: TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+[way2 material-x] build failed:
+      2 RolldownError: TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+      3 RolldownError: TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+
+=== standin against real
+.js files differing: 0; .d.ts files differing: 0; trait .d.ts with every doc: 10/10
+
+=== control against real
+.js files differing: 0; .d.ts files differing: 10; trait .d.ts with every doc: 0/10
+  Files $OUT/real/core/traits/checkable.d.ts and $OUT/control/core/traits/checkable.d.ts differ
+  Files $OUT/real/core/traits/disableable.d.ts and $OUT/control/core/traits/disableable.d.ts differ
+  Files $OUT/real/core/traits/linkable.d.ts and $OUT/control/core/traits/linkable.d.ts differ
+  Files $OUT/real/core/traits/nameable.d.ts and $OUT/control/core/traits/nameable.d.ts differ
+  Files $OUT/real/core/traits/reorderable.d.ts and $OUT/control/core/traits/reorderable.d.ts differ
+  Files $OUT/real/core/traits/selectable.d.ts and $OUT/control/core/traits/selectable.d.ts differ
+  Files $OUT/real/core/traits/typeable.d.ts and $OUT/control/core/traits/typeable.d.ts differ
+  Files $OUT/real/core/traits/valuable.d.ts and $OUT/control/core/traits/valuable.d.ts differ
+  Files $OUT/real/material-x/button/IconButtonCore.d.ts and $OUT/control/material-x/button/IconButtonCore.d.ts differ
+  Files $OUT/real/material-x/core/traits/focus-forwarding.d.ts and $OUT/control/material-x/core/traits/focus-forwarding.d.ts differ
+
+=== control-pre against real
+.js files differing: 0; .d.ts files differing: 10; trait .d.ts with every doc: 0/10
+  Files $OUT/real/core/traits/checkable.d.ts and $OUT/control-pre/core/traits/checkable.d.ts differ
+  Files $OUT/real/core/traits/disableable.d.ts and $OUT/control-pre/core/traits/disableable.d.ts differ
+  Files $OUT/real/core/traits/linkable.d.ts and $OUT/control-pre/core/traits/linkable.d.ts differ
+  Files $OUT/real/core/traits/nameable.d.ts and $OUT/control-pre/core/traits/nameable.d.ts differ
+  Files $OUT/real/core/traits/reorderable.d.ts and $OUT/control-pre/core/traits/reorderable.d.ts differ
+  Files $OUT/real/core/traits/selectable.d.ts and $OUT/control-pre/core/traits/selectable.d.ts differ
+  Files $OUT/real/core/traits/typeable.d.ts and $OUT/control-pre/core/traits/typeable.d.ts differ
+  Files $OUT/real/core/traits/valuable.d.ts and $OUT/control-pre/core/traits/valuable.d.ts differ
+  Files $OUT/real/material-x/button/IconButtonCore.d.ts and $OUT/control-pre/material-x/button/IconButtonCore.d.ts differ
+  Files $OUT/real/material-x/core/traits/focus-forwarding.d.ts and $OUT/control-pre/material-x/core/traits/focus-forwarding.d.ts differ
+
+=== way1 against real
+.js files differing: 0; .d.ts files differing: 0; trait .d.ts with every doc: 10/10
+
+=== way2 against real
+no build
+
+=== way3a against real
+.js files differing: 0; .d.ts files differing: 0; trait .d.ts with every doc: 10/10
+
+=== way3b against real
+.js files differing: 0; .d.ts files differing: 0; trait .d.ts with every doc: 10/10
+
+=== form against real
+.js files differing: 0; .d.ts files differing: 0; trait .d.ts with every doc: 10/10
+
+=== source maps (trait modules), each against control; form against its own source
+--- real, read against today's source before the migration
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 4 with problems
+--- control
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 4 with problems
+18 identical to $OUT/control, 0 differ
+--- control-pre
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 4 with problems
+18 identical to $OUT/control, 0 differ
+--- way1
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 4 with problems
+18 identical to $OUT/control, 0 differ
+--- way3a
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 4 with problems
+18 identical to $OUT/control, 0 differ
+--- way3b
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 4 with problems
+18 identical to $OUT/control, 0 differ
+--- form
+FAIL material-x/button/ButtonCore.js.map
+  class ButtonLike extends maps to line 48: export
+FAIL material-x/button/split-button.js.map
+  get open() maps to line null: (unmapped)
+  class SplitButtonLike extends maps to line 40: export
+FAIL material-x/checkbox/checkbox.js.map
+  get indeterminate() maps to line null: (unmapped)
+  class Indeterminable extends maps to line 36: export
+FAIL material-x/fab/fab.js.map
+  get size() maps to line null: (unmapped)
+  get color() maps to line null: (unmapped)
+  get extended() maps to line null: (unmapped)
+  get tonal() maps to line null: (unmapped)
+  class FABLike extends maps to line 47: export
+FAIL material-x/text-field/TextFieldCore.js.map
+  get type() maps to line null: (unmapped)
+  get inputmode() maps to line null: (unmapped)
+  get outlined() maps to line null: (unmapped)
+18 trait maps checked, 5 with problems
+
+=== the form's source, two files
+diff --git a/packages/core/src/traits/checkable.ts b/packages/core/src/traits/checkable.ts
+index 061cce5ce..988ea4950 100644
+--- a/packages/core/src/traits/checkable.ts
++++ b/packages/core/src/traits/checkable.ts
+@@ -11,12 +11,10 @@ export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
+ /**
+  * Element trait that exposes a presence-based `checked` boolean field.
+  */
+-export class Checkable extends AnyElement {
+-  static {
+-    trait(this);
+-    attributes(this, CHECKABLE_ATTRS);
+-  }
+-
++export
++@trait
++@attributes(CHECKABLE_ATTRS)
++class Checkable extends AnyElement {
+   accessor checked!: boolean;
+ }
+ 
+diff --git a/packages/material-x/src/fab/fab.ts b/packages/material-x/src/fab/fab.ts
+index da450a501..9a621d276 100644
+--- a/packages/material-x/src/fab/fab.ts
++++ b/packages/material-x/src/fab/fab.ts
+@@ -44,17 +44,15 @@ export type FABSize = 'medium' | 'large';
+ export type FABColor = 'primary' | 'secondary';
+ export type FABExtended = 'open' | 'closed';
+ 
+-export class FABLike extends AnyElement {
+-  static {
+-    trait(this);
+-    attributes(this, {
+-      size: Str as ConverterOf<FABSize>,
+-      color: Str as ConverterOf<FABColor>,
+-      extended: Str as ConverterOf<FABExtended>,
+-      tonal: Bool,
+-    });
+-  }
+-
++export
++@trait
++@attributes({
++  size: Str as ConverterOf<FABSize>,
++  color: Str as ConverterOf<FABColor>,
++  extended: Str as ConverterOf<FABExtended>,
++  tonal: Bool,
++})
++class FABLike extends AnyElement {
+   accessor size!: FABSize | null;
+   accessor color!: FABColor | null;
+   accessor extended!: FABExtended | null;

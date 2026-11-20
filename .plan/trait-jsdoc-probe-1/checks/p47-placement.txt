@@ -1,0 +1,23 @@
+oxc      ts6-dts  ts6-doc  case
+KEPT     KEPT     KEPT     0: doc, export class (today)
+DROPPED  KEPT     KEPT     1: doc, @trait, export class
+DROPPED  KEPT     KEPT     2: doc, @trait, @attributes(T), export class
+KEPT     DROPPED  DROPPED  3: @trait, doc, export class
+KEPT     DROPPED  DROPPED  4: @trait, @attributes(T), doc, export class
+KEPT     KEPT     KEPT     5: doc, export, @trait, class
+KEPT     KEPT     KEPT     6: doc, export, @trait, @attributes(T), class (oxfmt layout)
+DROPPED  DROPPED  DROPPED  7: export, doc, @trait, class
+DROPPED  DROPPED  DROPPED  8: export, @trait, doc, class
+KEPT     KEPT     KEPT     9: doc, @trait, class (not exported)
+
+tsc Version 7.0.2, declarations:
+KEPT     0
+KEPT     1
+KEPT     2
+DROPPED  3
+DROPPED  4
+KEPT     5
+KEPT     6
+DROPPED  7
+DROPPED  8
+KEPT     9
