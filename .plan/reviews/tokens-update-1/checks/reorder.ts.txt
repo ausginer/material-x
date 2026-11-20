@@ -1,0 +1,26 @@
+// What differs between the committed store and a conversion in another table
+// order: per token content, token order, set fields, display groups. Counts and names only.
+import { readFile } from 'node:fs/promises';
+import { isDeepStrictEqual } from 'node:util';
+const [, , store, raw] = process.argv as [string, string, string, string];
+const { convert } = await import(`${store}/../scripts/convert.ts`);
+const manifest = JSON.parse(await readFile(`${store}/manifest.json`, 'utf8'));
+const load = async (order: any[]) => Promise.all(order.map(async ({ kind, componentId }: any) => ({ kind, componentId, table: JSON.parse(await readFile(`${raw}/${kind}.${componentId}.json`, 'utf8')) })));
+const options = { release: manifest.source.release, fetchDate: manifest.fetchDate };
+for (const [label, order] of [['system last', [...manifest.tables.slice(4), ...manifest.tables.slice(0, 4)]], ['reversed', [...manifest.tables].reverse()]] as const) {
+  const c = convert(await load(order as any[]), options);
+  const r = { tokenSame: 0, tokenDiff: [] as string[], orderDiffSets: [] as string[], setFieldDiff: [] as string[], groupDiff: [] as string[] };
+  for (const [path, text] of c.files) {
+    if (!path.startsWith('sets/')) continue;
+    const a = JSON.parse(await readFile(`${store}/${path}`, 'utf8')); const b = JSON.parse(text);
+    const { tokens: at, displayGroups: ag, ...as } = a; const { tokens: bt, displayGroups: bg, ...bs } = b;
+    if (!isDeepStrictEqual(as, bs)) r.setFieldDiff.push(path);
+    if (!isDeepStrictEqual(ag, bg)) r.groupDiff.push(path);
+    if (!isDeepStrictEqual(at.map((t: any) => t.tokenName), bt.map((t: any) => t.tokenName))) r.orderDiffSets.push(path);
+    const bm = new Map(bt.map((t: any) => [t.tokenName, t]));
+    for (const t of at) { if (isDeepStrictEqual(t, bm.get(t.tokenName))) r.tokenSame++; else r.tokenDiff.push(t.tokenName); }
+  }
+  const ctx = isDeepStrictEqual(JSON.parse(c.files.get('context.json')), JSON.parse(await readFile(`${store}/context.json`, 'utf8')));
+  const ctxBytes = c.files.get('context.json') === await readFile(`${store}/context.json`, 'utf8');
+  console.log(label, 'tokens same', r.tokenSame, 'tokens differing', r.tokenDiff.length, r.tokenDiff.slice(0, 3).join(' '), '| sets with other token order', r.orderDiffSets.length, '| set fields differ', r.setFieldDiff.join(' ') || 0, '| groups differ', r.groupDiff.join(' ') || 0, '| context equal', ctx, 'bytes', ctxBytes);
+}
