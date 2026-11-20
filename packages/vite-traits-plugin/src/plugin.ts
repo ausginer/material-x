@@ -34,6 +34,10 @@ import {
   transformTraitModule,
 } from './composition/trait-module.ts';
 import {
+  moveExportBeforeDecorators,
+  positionWithoutStage,
+} from './declaration-doc.ts';
+import {
   diagnosticText,
   FlattenerError,
   type FlattenerWarning,
@@ -238,16 +242,33 @@ export function lowerForAnalysis(id: string, code: string): string {
 export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
   let kind: BuildKind = 'library';
 
+  // Per module id, the classes whose `export` the `load` stage moved.
+  const moved = new Map<string, ReadonlySet<string>>();
+
+  /** A diagnostic's position in `code`, as it would be without the stage. */
+  const position = (
+    id: string,
+    code: string,
+    pos: number | undefined,
+  ): number | undefined => {
+    const classes = moved.get(id);
+
+    return classes && pos !== undefined
+      ? positionWithoutStage(parseModule(id, code), code, classes, pos)
+      : pos;
+  };
+
   const report = (
     context: PluginContext,
     id: string,
+    code: string,
     error: unknown,
   ): never => {
     if (error instanceof FlattenerError) {
       return context.error({
         message: diagnosticText(error.code, error.message),
         id,
-        pos: error.pos,
+        pos: position(id, code, error.pos),
       });
     }
     throw error;
@@ -255,6 +276,41 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
 
   const attributes: Plugin & RolldownPlugin = {
     name: 'trait-attributes',
+    // Runs before every transform, so tsdown's declaration plugin records the
+    // stage's output. The dev server emits no declarations.
+    async load(id) {
+      if (
+        kind === 'serve' ||
+        id.includes('?') ||
+        !id.startsWith('/') ||
+        !isCandidate(id)
+      ) {
+        return null;
+      }
+      let code: string;
+      try {
+        code = await readFile(id, 'utf8');
+      } catch {
+        // Not a file on disk: another plugin loads it.
+        return null;
+      }
+      const stage = moveExportBeforeDecorators(id, code);
+      if (!stage) {
+        moved.delete(id);
+        return null;
+      }
+      moved.set(id, stage.classes);
+      // A module that a plugin loads isn't watched unless the plugin says so,
+      // and a rebuild must load the changed file again.
+      this.addWatchFile(id);
+
+      return {
+        code: stage.magic.toString(),
+        map: stage.magic
+          .generateMap({ source: id, includeContent: true, hires: true })
+          .toString(),
+      };
+    },
     configResolved(config) {
       if (config.command === 'serve') {
         kind = 'serve';
@@ -272,7 +328,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
 
         return magic ? emit(magic, cleanId, kind) : null;
       } catch (error) {
-        return report(this, cleanId, error);
+        return report(this, cleanId, code, error);
       }
     },
   } satisfies Plugin;
@@ -281,6 +337,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
     name: 'trait-flattener',
     watchChange(id) {
       invalidateModule(id);
+      moved.delete(id);
     },
     async transform(code, id) {
       const cleanId = id.split('?', 1)[0]!;
@@ -306,13 +363,13 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           this.warn({
             message: diagnosticText(warning.code, warning.message),
             id: cleanId,
-            pos: warning.pos,
+            pos: position(cleanId, code, warning.pos),
           });
         }
 
         return result.magic ? emit(result.magic, cleanId, kind) : null;
       } catch (error) {
-        return report(this, cleanId, error);
+        return report(this, cleanId, code, error);
       }
     },
   } satisfies Plugin;

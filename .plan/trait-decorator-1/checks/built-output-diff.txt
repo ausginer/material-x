@@ -1,23 +1,13 @@
-# Built output of @ydinjs/core and @ydinjs/material-x: 6211e435f (the code of d69e3ddbc) against the working tree after the @trait and @attributes passes.
+# Built output of @ydinjs/core and @ydinjs/material-x: 6211e435f (the code of d69e3ddbc) against the working tree with the load stage.
 # Each .js without its sourceMappingURL comment, and each .d.ts. Files that differ:
 packages/core/traits/attribute-traits.d.ts
 packages/core/traits/attribute-traits.js
-packages/core/traits/checkable.d.ts
 packages/core/traits/composition.d.ts
 packages/core/traits/composition.js
-packages/core/traits/disableable.d.ts
-packages/core/traits/linkable.d.ts
-packages/core/traits/nameable.d.ts
-packages/core/traits/reorderable.d.ts
-packages/core/traits/selectable.d.ts
-packages/core/traits/typeable.d.ts
-packages/core/traits/valuable.d.ts
-packages/material-x/button/IconButtonCore.d.ts
-packages/material-x/core/traits/focus-forwarding.d.ts
 packages/material-x/list/list-item.js
 
 # The differences:
-diff -r before/packages/core/traits/attribute-traits.d.ts after2/packages/core/traits/attribute-traits.d.ts
+diff -r before/packages/core/traits/attribute-traits.d.ts after4/packages/core/traits/attribute-traits.d.ts
 28,29c28,46
 <  * Declares a trait's attributes, from the trait class's static block:
 <  * `static { trait(this); attributes(this, { disabled: Bool }); }`, with each
@@ -60,7 +50,7 @@ diff -r before/packages/core/traits/attribute-traits.d.ts after2/packages/core/t
 < export declare function attributes<T extends object>(_trait: AbstractConstructor<T>, _table: NoInfer<AttributeTable<T>>): void;
 ---
 > export declare function attributes<const Table extends object>(_table: Table): AttributesDecorator<Table>;
-diff -r before/packages/core/traits/attribute-traits.js after2/packages/core/traits/attribute-traits.js
+diff -r before/packages/core/traits/attribute-traits.js after4/packages/core/traits/attribute-traits.js
 8,9c8,9
 < * Declares a trait's attributes, from the trait class's static block:
 < * `static { trait(this); attributes(this, { disabled: Bool }); }`, with each
@@ -88,12 +78,7 @@ diff -r before/packages/core/traits/attribute-traits.js after2/packages/core/tra
 > function attributes(_table) {
 > 	throw new Error("@attributes is compiled by @ydinjs/vite-traits-plugin; build the trait module");
 > }
-diff -r before/packages/core/traits/checkable.d.ts after2/packages/core/traits/checkable.d.ts
-7,9d6
-< /**
-<  * Element trait that exposes a presence-based `checked` boolean field.
-<  */
-diff -r before/packages/core/traits/composition.d.ts after2/packages/core/traits/composition.d.ts
+diff -r before/packages/core/traits/composition.d.ts after4/packages/core/traits/composition.d.ts
 69a70,73
 > /** What `@trait` decorates: a class whose heritage is a bound. */
 > type TraitClass = AbstractConstructor<object> & {
@@ -123,7 +108,7 @@ diff -r before/packages/core/traits/composition.d.ts after2/packages/core/traits
 <  * call, in each component's static block.
 ---
 >  * call, in the static block of each component that composes a trait.
-diff -r before/packages/core/traits/composition.js after2/packages/core/traits/composition.js
+diff -r before/packages/core/traits/composition.js after4/packages/core/traits/composition.js
 3,5c3,7
 < * Makes `ctr` a trait: an object is an instance of it when its `brand` is
 < * `true`. Called from the trait class's static block, `static { trait(this); }`.
@@ -153,63 +138,7 @@ diff -r before/packages/core/traits/composition.js after2/packages/core/traits/c
 < * call, in each component's static block.
 ---
 > * call, in the static block of each component that composes a trait.
-diff -r before/packages/core/traits/disableable.d.ts after2/packages/core/traits/disableable.d.ts
-7,9d6
-< /**
-<  * Element trait that exposes a presence-based `disabled` boolean field.
-<  */
-diff -r before/packages/core/traits/linkable.d.ts after2/packages/core/traits/linkable.d.ts
-8,10d7
-< /**
-<  * Element trait that exposes `href` and `target` navigation fields.
-<  */
-diff -r before/packages/core/traits/nameable.d.ts after2/packages/core/traits/nameable.d.ts
-7,9d6
-< /**
-<  * Element trait that exposes a string-backed nullable `name` field.
-<  */
-diff -r before/packages/core/traits/reorderable.d.ts after2/packages/core/traits/reorderable.d.ts
-22,25d21
-< /**
-<  * Element trait that exposes a presence-based `reorderable` boolean field,
-<  * indicating that the element's children can be dragged to reorder.
-<  */
-diff -r before/packages/core/traits/selectable.d.ts after2/packages/core/traits/selectable.d.ts
-7,9d6
-< /**
-<  * Element trait that exposes a presence-based `selected` boolean field.
-<  */
-diff -r before/packages/core/traits/typeable.d.ts after2/packages/core/traits/typeable.d.ts
-7,9d6
-< /**
-<  * Element trait that exposes a string-backed nullable `type` field.
-<  */
-diff -r before/packages/core/traits/valuable.d.ts after2/packages/core/traits/valuable.d.ts
-7,9d6
-< /**
-<  * Element trait that exposes a string-backed nullable `value` field.
-<  */
-diff -r before/packages/material-x/button/IconButtonCore.d.ts after2/packages/material-x/button/IconButtonCore.d.ts
-10,14d9
-< /**
-<  * The icon button's own attribute, `width`. ButtonLike's accessor reads and
-<  * writes `color`; the member is declared here with the values both colors
-<  * share, which is the type an icon button's `color` has.
-<  */
-diff -r before/packages/material-x/core/traits/focus-forwarding.d.ts after2/packages/material-x/core/traits/focus-forwarding.d.ts
-3,13d2
-< /**
-<  * Makes `host.focus()` focus the control that {@link useFocusForwarding}
-<  * registered, the element that delegating focus picks. Firefox doesn't delegate
-<  * focus from a host whose box is `display: contents`, which every adopter's host
-<  * is, so the shadow root's `delegatesFocus` alone leaves focus where it was
-<  * there (`repo:RF-33`). The shadow root still delegates focus, and this trait
-<  * goes once Firefox delegates through such a host.
-<  *
-<  * `focus()` is a method of the prototype, so a subclass overrides it and
-<  * reaches the control through `super.focus()`.
-<  */
-diff -r before/packages/material-x/list/list-item.js after2/packages/material-x/list/list-item.js
+diff -r before/packages/material-x/list/list-item.js after4/packages/material-x/list/list-item.js
 3c3
 < import { impl } from "@ydinjs/core/traits/composition.js";
 ---

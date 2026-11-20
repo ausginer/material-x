@@ -13,10 +13,20 @@ The transform affects JavaScript emission only. Declarations are generated from 
 
 ## What the plugin does to each module
 
-`viteTraitsPlugin()` returns two `enforce: 'pre'` plugins, applied in this order:
+`viteTraitsPlugin()` returns two `enforce: 'pre'` plugins. Their transforms apply in this order:
 
 1. **`trait-attributes`, layer (b).** In each module-scope class declaration decorated `@trait` and then `@attributes(TABLE)`, each `accessor name!: T` line becomes a getter and a setter that call core's attribute operator with the table's converter, `@attributes(TABLE)` and its import are removed, `@trait` stays, and a static `observedAttributes`, first in the class body, lists the table's keys. TABLE is an object literal, whose converters are identifiers or member expressions, or a module-scope `const` bound to one, read as `TABLE.name`. The operator is imported beside the module `attributes` comes from: `…/traits/attribute-traits.js` gives `…/attribute.js`.
 2. **`trait-flattener`.** The trait module's own transform, then the flattening of each composition in the module.
+
+### The doc in the declarations: a `load` stage
+
+oxc's declaration emitter, which tsdown runs, drops a JSDoc in front of a class's decorators, and tsdown's declaration plugin records each module in a `transform` that runs before any of the flattener's. So `trait-attributes` also has a `load` hook, which rolldown runs before every `transform` (`src/declaration-doc.ts`):
+
+- **What it rewrites.** In each exported class declaration whose decorators come before `export`, with a JSDoc directly in front of the first decorator, `export` and its whitespace move to the first decorator's start. `/** doc */ @trait @attributes(T) export class X` becomes `/** doc */ export @trait @attributes(T) class X`, which JavaScript and TypeScript read the same way, and whose doc the emitter keeps. The rest of the plugin accepts both forms, so nothing after the stage changes.
+- **What it reads:** a candidate module with an absolute file id and no query, in a build. It doesn't run on the dev server, which emits no declarations. It parses only a file with a line that starts with `@`, and returns `null` when it moves nothing, so the host reads the file as before. It returns the code with a hires map that includes the file's content.
+- **Watch.** It asks the host to watch each file it loads, because a module that a plugin loads isn't watched otherwise.
+- **Positions.** It records, per module, the classes it moved. A diagnostic's position inside a moved class's `export` or decorators is moved back, so every diagnostic carries the position it has without the stage.
+- **What retires it:** oxc's emitter keeping a JSDoc in front of decorators. The declarations test then passes without the stage, and the stage is deleted.
 
 The flattener reads every other module through a loader that applies step 1, so a trait from the same package is read already lowered.
 
@@ -128,6 +138,7 @@ Every error fails the build, through the host's `error`, with the module and pos
 | File | Responsibility |
 | --- | --- |
 | `plugin.ts` | The adapter: the build kind, the loader through the host's resolver and Node's for `@ydinjs/*`, watch files, diagnostics, and sourcemapped edits |
+| `declaration-doc.ts` | The `load` stage that keeps a decorated class's doc in the declarations, and the positions it moves |
 | `syntax.ts` | Parsing with a cache, imports, top-level bindings and classes, member keys, build-only export names |
 | `diagnostics.ts`, `ir.ts`, `free-references.ts` | The codes, the IR and the walker |
 | `attributes/lower.ts` | Layer (b) |
@@ -150,6 +161,7 @@ The plugin's node tests cover:
 - runtime equivalence of a flattened component, built from a layer (b) trait with a constant table, one with an inline table and a layer (a) trait with a private binding, against a hand-written expected class: prototype keys, attributes, `observedAttributes`, the private binding, `super` from a subclass and `instanceof`; and a trait in another package's built JavaScript;
 - a supertrait, whose composition stays; an empty list, which emits no `impl`; and a layer (b) trait from source composed in a Vite build and on the dev server;
 - the brand install in bundles, with rolldown and esbuild: an unused trait class drops, a used one keeps a correct `instanceof`, the deletion leaves it without members, and a library build keeps the brand install;
+- the `load` stage: a tsdown build with declarations keeps the doc in front of `@trait` and `@attributes(TABLE)`; the stage asks the host to watch the file, returns nothing on the dev server, and reads a file again at each load; and a rolldown build reports `trait-decorator`, `attributes-decorator` and `attribute-table` at the position it has without the stage;
 - the import boundary between `composition/` and `attributes/`.
 
 A change to the plugin is also checked by building `@ydinjs/core` and `@ydinjs/material-x` with it: the build prints no `trait-member-conflict`.
@@ -167,3 +179,4 @@ A change to the plugin is also checked by building `@ydinjs/core` and `@ydinjs/m
 | 2026-11-19 | Composition, Transform | **Corrected** on PR #76's repair verification (`verifier-1` to `verifier-3`). The `composition-shape` count fails closed and walks every node that isn't type-only; a brand is never written again by any target; and the limit on re-exports is stated |
 | 2026-11-19 | Composition, Transform | **Corrected** on PR #76's final verification (`final-1`, `final-2`). A JSX element's name counts as a value reference, a direct `eval` is stated as out of reach, and a nested `var` counts as a second declaration of a brand |
 | 2026-11-20 | Purpose, Layers, Transform, Composition, Emitted component, Diagnostics, Verification | **Changed for `RD-26`'s amendments of 2026-11-20.** A trait declares itself with `@trait` and its attributes with `@attributes(TABLE)`, which the plugin compiles into the same JavaScript; they were `trait(this)` and `attributes(this, TABLE)` in a static block, and a trait has no static block now. The codes `trait-decorator` and `attributes-decorator` are added. An empty trait list emits no `impl` block or import, where `impl` was always generated |
+| 2026-11-20 | What the plugin does, Plugin architecture, Verification | **Added** the `load` stage for `RD-26`'s third amendment of 2026-11-20: it moves `export` before a documented class's decorators, so the published declarations keep the class's doc |

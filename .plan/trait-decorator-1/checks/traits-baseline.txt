@@ -3,13 +3,13 @@ Breaking changes might not follow SemVer, please pin Vitest's version when using
 
  RUN  v5.1.0 /workspaces/worktrees/e
 
- ✓ |browser/material-x (chromium)| tests/traits-baseline.browser.test.ts:273 > should keep the runtime shape of every element 137ms
- ✓ |browser/material-x/firefox (firefox)| tests/traits-baseline.browser.test.ts:273 > should keep the runtime shape of every element 123ms
- ✓ |browser/material-x/webkit (webkit)| tests/traits-baseline.browser.test.ts:273 > should keep the runtime shape of every element 141ms
+ ✓ |browser/material-x (chromium)| tests/traits-baseline.browser.test.ts:273 > should keep the runtime shape of every element 125ms
+ ✓ |browser/material-x/firefox (firefox)| tests/traits-baseline.browser.test.ts:273 > should keep the runtime shape of every element 134ms
+ ✓ |browser/material-x/webkit (webkit)| tests/traits-baseline.browser.test.ts:273 > should keep the runtime shape of every element 124ms
 
  Test Files  3 passed (3)
       Tests  3 passed (3)
 Type Errors  no errors
-   Start at  08:10:40
-   Duration  7.01s (import 71%, worker 19%, tests 9%, setup 1%)
+   Start at  09:08:13
+   Duration  7.55s (import 72%, worker 19%, tests 8%, setup 1%)
 

@@ -1,7 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { rolldown } from 'rolldown';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { CODE } from '../src/diagnostics.ts';
 import { lowerForAnalysis, viteTraitsPlugin } from '../src/plugin.ts';
-import { fixtureId, transform } from './helpers.ts';
+import { FIXTURES, fixtureId, transform } from './helpers.ts';
 
 const HEADER = `import { compose, trait, bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';
 import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
@@ -589,4 +593,89 @@ describe('composition-shape and value references', () => {
       code: CODE.COMPOSITION_SHAPE,
     });
   });
+});
+
+describe('diagnostics through the load stage', () => {
+  const IMPORTS = `import { Bool, Str } from '@ydinjs/core/attribute.js';
+import { AnyElement, attributes } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+`;
+  // Each module is a documented class with its decorators above `export`,
+  // which the stage rewrites.
+  const modules: ReadonlyArray<readonly [string, string, string]> = [
+    [
+      'trait-decorator',
+      'sealed.ts',
+      `const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@trait\n@sealed\nexport class Sealed extends AnyElement {}\n`,
+    ],
+    [
+      'attributes-decorator',
+      'reversed.ts',
+      '/** Doc. */\n@attributes({ open: Bool })\n@trait\nexport class Reversed extends AnyElement {\n  accessor open!: boolean;\n}\n',
+    ],
+    [
+      'attribute-table',
+      'extra.ts',
+      '/** Doc. */\n@trait\n@attributes({ open: Bool, label: Str })\nexport class Extra extends AnyElement {\n  accessor open!: boolean;\n}\n',
+    ],
+  ];
+  let dir: string;
+
+  beforeAll(async () => {
+    dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-pos-'));
+    await Promise.all(
+      modules.map(([, file, body]) =>
+        writeFile(join(dir, file), `${IMPORTS}${body}`),
+      ),
+    );
+  });
+
+  afterAll(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  /** The code and `pos` of a rolldown build's error, with or without the stage. */
+  const failure = async (
+    file: string,
+    stage: boolean,
+  ): Promise<Readonly<{ code: unknown; pos: unknown }>> => {
+    const plugins = viteTraitsPlugin();
+    if (!stage) {
+      // oxlint-disable-next-line typescript/no-dynamic-delete
+      delete (plugins[0] as { load?: unknown }).load;
+    }
+    try {
+      const bundle = await rolldown({
+        input: join(dir, file),
+        plugins,
+        external: (id) => !id.startsWith('/') && !id.startsWith('.'),
+        logLevel: 'silent',
+      });
+      await bundle.generate({});
+    } catch (error) {
+      const [first] = (error as { errors?: Array<Record<string, unknown>> })
+        .errors ?? [error as Record<string, unknown>];
+
+      return {
+        code: /\((?<code>[a-z-]+)\)/u.exec(String(first!['message']))?.groups?.[
+          'code'
+        ],
+        pos: first!['pos'],
+      };
+    }
+
+    return { code: undefined, pos: undefined };
+  };
+
+  it.each(modules)(
+    'should report %s at the position it has without the stage',
+    async (code, file) => {
+      const without = await failure(file, false);
+
+      expect([without.code, await failure(file, true)]).toEqual([
+        code,
+        without,
+      ]);
+    },
+  );
 });

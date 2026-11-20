@@ -3,8 +3,8 @@ vitest run -c vitest.config.ts
  RUN  v5.1.0 /workspaces/worktrees/e/packages/vite-traits-plugin
 
 
- Test Files  8 passed (8)
-      Tests  144 passed (144)
-   Start at  08:14:09
-   Duration  475ms (tests 43%, import 41%, transform 13%, worker 3%)
+ Test Files  9 passed (9)
+      Tests  153 passed (153)
+   Start at  09:07:53
+   Duration  573ms (tests 47%, import 39%, transform 12%, worker 3%)
 

@@ -8,6 +8,6 @@ Breaking changes might not follow SemVer, please pin Vitest's version when using
  Test Files  26 passed (26)
       Tests  307 passed (307)
 Type Errors  no errors
-   Start at  08:05:51
-   Duration  4.09s (tests 52%, worker 32%, setup 7%, typecheck 5%, import 4%)
+   Start at  09:07:55
+   Duration  3.89s (tests 55%, worker 27%, setup 8%, typecheck 7%, import 4%)
 

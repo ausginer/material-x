@@ -1,0 +1,75 @@
+# P48's comparison with the real stage: eda3b1bfc's build against this tree's, every built .js, .d.ts and .map of @ydinjs/core and @ydinjs/material-x (293 files), byte for byte.
+# Files that differ:
+packages/core/traits/checkable.d.ts
+packages/core/traits/disableable.d.ts
+packages/core/traits/linkable.d.ts
+packages/core/traits/nameable.d.ts
+packages/core/traits/reorderable.d.ts
+packages/core/traits/selectable.d.ts
+packages/core/traits/typeable.d.ts
+packages/core/traits/valuable.d.ts
+packages/material-x/button/IconButtonCore.d.ts
+packages/material-x/core/traits/focus-forwarding.d.ts
+
+# Each difference (lines added by the stage):
+diff -r eda/packages/core/traits/checkable.d.ts stage/packages/core/traits/checkable.d.ts
+6a7,9
+> /**
+>  * Element trait that exposes a presence-based `checked` boolean field.
+>  */
+diff -r eda/packages/core/traits/disableable.d.ts stage/packages/core/traits/disableable.d.ts
+6a7,9
+> /**
+>  * Element trait that exposes a presence-based `disabled` boolean field.
+>  */
+diff -r eda/packages/core/traits/linkable.d.ts stage/packages/core/traits/linkable.d.ts
+7a8,10
+> /**
+>  * Element trait that exposes `href` and `target` navigation fields.
+>  */
+diff -r eda/packages/core/traits/nameable.d.ts stage/packages/core/traits/nameable.d.ts
+6a7,9
+> /**
+>  * Element trait that exposes a string-backed nullable `name` field.
+>  */
+diff -r eda/packages/core/traits/reorderable.d.ts stage/packages/core/traits/reorderable.d.ts
+21a22,25
+> /**
+>  * Element trait that exposes a presence-based `reorderable` boolean field,
+>  * indicating that the element's children can be dragged to reorder.
+>  */
+diff -r eda/packages/core/traits/selectable.d.ts stage/packages/core/traits/selectable.d.ts
+6a7,9
+> /**
+>  * Element trait that exposes a presence-based `selected` boolean field.
+>  */
+diff -r eda/packages/core/traits/typeable.d.ts stage/packages/core/traits/typeable.d.ts
+6a7,9
+> /**
+>  * Element trait that exposes a string-backed nullable `type` field.
+>  */
+diff -r eda/packages/core/traits/valuable.d.ts stage/packages/core/traits/valuable.d.ts
+6a7,9
+> /**
+>  * Element trait that exposes a string-backed nullable `value` field.
+>  */
+diff -r eda/packages/material-x/button/IconButtonCore.d.ts stage/packages/material-x/button/IconButtonCore.d.ts
+9a10,14
+> /**
+>  * The icon button's own attribute, `width`. ButtonLike's accessor reads and
+>  * writes `color`; the member is declared here with the values both colors
+>  * share, which is the type an icon button's `color` has.
+>  */
+diff -r eda/packages/material-x/core/traits/focus-forwarding.d.ts stage/packages/material-x/core/traits/focus-forwarding.d.ts
+2a3,13
+> /**
+>  * Makes `host.focus()` focus the control that {@link useFocusForwarding}
+>  * registered, the element that delegating focus picks. Firefox doesn't delegate
+>  * focus from a host whose box is `display: contents`, which every adopter's host
+>  * is, so the shadow root's `delegatesFocus` alone leaves focus where it was
+>  * there (`repo:RF-33`). The shadow root still delegates focus, and this trait
+>  * goes once Firefox delegates through such a host.
+>  *
+>  * `focus()` is a method of the prototype, so a subclass overrides it and
+>  * reaches the control through `super.focus()`.
+>  */
