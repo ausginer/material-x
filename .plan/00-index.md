@@ -789,7 +789,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Properties.**
 
-1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with two exceptions: npm's one bootstrap step in CI (property 9), and nx's script runner (amended 2026-11-17 at `c57722b67`).
+1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with three exceptions: npm's one bootstrap step in CI (property 9), nx's script runner (amended 2026-11-17 at `c57722b67`), and the release workflow's `npm stage publish` of a checked tarball, outside any checkout (amended 2026-11-20 by `RD-27` property 6, because aube implements neither trusted publishing nor staging).
    - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
    - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
    - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
@@ -1123,6 +1123,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **A reviewer needs a floor to judge a dependency on a recent feature.** `RF-43`'s feature proof found that a switch fires `click` and never `input` or `change` in an engine without invoker commands. With no floor stated, that couldn't be read as a defect or as accepted behaviour.
 - **A moving floor costs no user yet.** The package is unreleased (`RF-51`: a defect in its published surface _"blocks its first release, not a user"_). A list of minimum versions is a promise to consumers, so it is made with the release.
 
+**Dated 2026-11-20 by the architect: the floor of property 1 now covers every released `@ydinjs` package** (`RD-27` property 3, on the owner's answer: _"for now; minimum versions will be derived later for all packages"_). Property 3 doesn't change: material-x's browserslist is still owed before its first release, unless the unit that derives minimum versions for every package decides otherwise.
+
 #### RD-21 — One job fetches the engines' system packages before the test jobs start, and every job that launches a browser installs them offline from the cache
 
 **Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198`, which answers `RF-58`. The owner's earlier direction was that system dependencies are installed up front, before any test starts. The owner chose this cache over a custom image: _"the cache looks simpler, much simpler"_, because the cache goes cold only every few weeks. Recorded by the main slot's architect on `repo/ci-deps-1`. It was proposed as `RD-20`. That number went to the browser floor on `repo/traits-plugin-1`, so this entry is `RD-21`. **Implemented 2026-11-18** on `repo/ci-deps-1` (#38, not yet merged): the code at `10100984f`, and the report at `a4a90f683`. It applies to `main` when #38 merges. `RF-58`'s closure holds the reading. Before: unimplemented, and the handoff implemented it.
@@ -1277,6 +1279,8 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 - **Dated 2026-11-18 by the architect: the comment shows no base or difference** while `RF-65` is open. Property 5's own reading is then the only signal of a row's growth: a unit that changes material-x's runtime output reads its rows before and after. The **Why**'s _"the pull requests' comments show it"_ holds once `RF-65` is repaired. **Closed 2026-11-19 by the architect:** `RF-65` is repaired and closed, and #74's comment shows each material-x row's base and change.
 
 **Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: the repository's instrument, not a new one. Every entry, because a row costs about a tenth of a second and an entry without a row is `RF-45`'s gap. No ceiling while almost every change moves rows on purpose. A boundary that the owner performs, not a schedule. Not adopted: ceilings re-based at each approved change, amending `RF-45`'s required property, slack, rows for only some entries, and hand measurement.
+
+**Dated 2026-11-20 by the architect: the rule after the release is stated** (property 6's _"The architect states the rule that governs the limits after the release"_). It is `RD-27` property 2, in the owner's words: a ceiling may be lowered without asking, and raising one needs his approval. The release workflow refuses a package with a row over its ceiling. `RF-45` closes when material-x's ceilings exist, as before.
 
 #### RD-25 — An agent may open a pull request without being asked, and the owner merges it
 
@@ -1449,6 +1453,73 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 `RF-54`, `RF-57` and `RF-63` are closed on this date.
 
 `RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
+
+#### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
+
+**Decided 2026-11-20 by the owner,** relayed by the coordinator, in answer to Q1 to Q5 of Architect B's [box-quad release plan](https://github.com/ausginer/material-x/blob/repo/box-quad-release-1/.plan/box-quad-release-1/box-quad-release-plan.md#questions-for-the-owner) (PR #79, `0ef585e09`). The workflow's design is the architect's, in the [release workflow plan](release-workflow-1/release-workflow-plan.md), within the owner's Q4. Registered by the main slot's architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`. `RD-26` is the highest number on any branch on `origin`. **Unimplemented:** the plan's tasks 1 to 3, and the owner's settings O1 to O3.
+
+**The owner's answers,** quoted where his words were relayed:
+
+- **Q1:** box-quad's first version is `1.0.0`.
+- **Q2:** a ceiling at the reading after the release's last change, with no slack. _"Вниз изменять можно без вопросов, вверх - с моего одобрения"_ ("It can go down without asking; up only with my approval").
+- **Q3:** the current stable Chromium, Firefox and Safari, as `RD-20` states, for now. Minimum versions will be derived later, for all packages.
+- **Q4:** a release workflow with provenance, not a hand publish: _"я заколебался руками публиковать"_ ("I'm sick of publishing by hand").
+- **Q5:** he holds the `@ydinjs` scope on npm.
+  - His account used 2FA _"for authorization only"_, with an authenticator app and three security keys.
+  - On 2026-11-20 he switched it to authorization and writes: _"2FA обновил: ✓ Enabled for authorization and publishing"_ ("Updated 2FA").
+
+**Properties.** Each applies to every `@ydinjs` package's releases, drag's next, except where it names box-quad.
+
+1. **Versions.**
+   - Each package versions independently, by semver, with its own `CHANGELOG.md`.
+   - box-quad's first release is `1.0.0`. Any other package's first version is the owner's answer at its release.
+   - A dependency on another `@ydinjs` package is an exact version that is on the registry when the dependent package is released.
+   - A release is one tag, `@ydinjs/<name>@<version>`, on one `main` commit. The owner pushes it, and agents push no tag.
+2. **Size ceilings.**
+   - **At a package's first release,** each of its size rows gets a ceiling equal to its reading after the release's last change, with no slack.
+   - **A ceiling may be lowered** without asking.
+   - **Raising one needs the owner's approval,** which the unit that raises it records with the reading.
+   - **The release workflow refuses** a package with a row over its ceiling. `verify` goes on only notifying (`RD-7`).
+   - This is the rule after the release that `RD-24` property 6 asked the architect to state. It governs material-x's ceilings when it is released.
+3. **Browser support.**
+   - A released package supports the current stable release of Chromium, Firefox and Safari, as `RD-20` property 1 states for material-x, and its README says so.
+   - No minimum version is promised until a later unit derives the minimum versions for every package. Until then, a version that leaves stable leaves support, and that isn't a breaking change.
+4. **Publishing.**
+   - **No package is published by hand.** `.github/workflows/release.yml`, started by the release tag, checks the commit and the package, builds, packs and checks the tarball.
+   - **It stages the tarball with `npm stage publish`,** under the package's trusted publisher, with provenance.
+   - **The owner approves** each staged version on npm with his second factor. That approval is the gate: npm lets no OIDC or granular token approve.
+   - **The first publish** of a package, before a trusted publisher can exist for it, stages with a stage-only granular token that lives for a day. That token is then revoked.
+   - The plan's [design](release-workflow-1/release-workflow-plan.md#the-design) specifies the triggers, the jobs, their checks and permissions, the environment and the tags.
+5. **2FA.**
+   - **The account** stays in authorization and writes.
+   - **Each package,** once its first version is approved, is set to _"Require two-factor authentication and disallow tokens"_. Trusted publishing is unaffected.
+   - **The trusted publisher** allows `npm stage publish` only. It is configured within the 2 days before the package's second release, because npm expires an unvalidated configuration after 2 days.
+6. **npm stages the release** (an exception to `RD-16` property 1, amended on this date).
+   - The workflow's `stage` job runs `npm stage publish` on the tarball that `prepare` checked, outside any checkout, with an npm pinned in the workflow.
+   - aube implements neither trusted publishing nor staging. aube still installs, builds and packs.
+7. **What agents don't do:**
+   - push a release tag;
+   - approve or reject a staged version;
+   - create a token;
+   - configure a trusted publisher;
+   - change the environment or a ruleset.
+
+   These are the owner's acts.
+
+**Why:**
+
+- **Staging gives the owner's approval a second factor at the registry,** independent of GitHub. So nothing an agent, a tag or a compromised workflow does can make a version public.
+- **Trusted publishing removes the long-lived token.** npm removes direct publishing with granular tokens in January 2027 anyway.
+- **One tag per package per version** keeps each package's history its own, and needs no release tool.
+- **The ceiling rule** is the owner's words.
+- **Support follows the suite,** which runs each engine's current stable release and nothing older.
+
+**Not adopted:** the plan's [section](release-workflow-1/release-workflow-plan.md#not-adopted). That covers a GitHub release, a release tool, a long-lived token, direct publish from CI, `aube publish`, several packages in one run, and a `prepack` script.
+
+**Open for the owner:** the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner):
+
+- a required reviewer on the environment `npm`, recommended not;
+- the first publish by a one-day stage-only token, recommended, or by his own stage.
 
 ## Findings
 

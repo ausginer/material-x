@@ -1,0 +1,72 @@
+npm documentation, read 2026-11-20 by the architect with curl from https://docs.npmjs.com/<page>,
+tags stripped; each line is the page, the phrase searched for, and the text around it.
+
+[trusted-publishers] '11.5.1':
+  osystem including PyPI , RubyGems , and other major package registries in offering this security enhancement. Note: Trusted publishing requires npm CLI version 11.5.1 or later and Node version 22.14.0 or higher. How trusted publishing works Trusted publishing creates a trust relationship between npm and your CI/CD provider using OIDC. When you configure a trusted publisher for
+
+[trusted-publishers] 'Self-hosted runners':
+  ders Trusted publishing currently supports: GitHub Actions (GitHub-hosted runners) GitLab CI/CD Pipelines (GitLab.com shared runners) CircleCI (CircleCI cloud) Self-hosted runners are not currently supported but are planned for future releases. Configuring trusted publishing Trusted publisher setup: Multiple trusted publishers Single trusted publisher Step 1: Add a first truste
+
+[trusted-publishers] 'must exactly match':
+  other details are correct, as errors will only appear when you attempt to publish. To publish from GitHub, your package's repository.url field in package.json must exactly match your GitHub repository. This may be an issue for misconfigured packages, but could also impact publication from forks that haven't updated package.json to match the forked repo. If your package has pri
+
+[trusted-publishers] 'before falling back':
+  o traditional authentication methods like npm tokens and manual publishes. The npm CLI automatically detects OIDC environments and uses them for authentication before falling back to traditional tokens. This approach eliminates the security risks associated with long-lived write tokens, which can be compromised, accidentally exposed in logs, or require manual rotation. Instead,
+
+[trusted-publishers] 'within 2 days':
+  nection and create a new one. Trusted publisher configuration expiry A newly created trusted publisher configuration must complete its first successful publish within 2 days. The first successful publish validates the configuration and binds it to the repository's immutable identity. If the configuration is not validated within 2 days, it expires and can no longer be used or ed
+
+[trusted-publishers] 'Sep 03, 2026':
+  ns created before May 20, 2026 are automatically set to allow npm publish only — no behavior change occurs for current workflows. Configurations created before Sep 03, 2026 require you to explicitly select at least one allowed action — no behavior change occurs for current workflows. Configurations created after Sep 03, 2026 are automatically set to allow npm stage publish , an
+
+[trusted-publishers] 'require interactive authentication':
+  stage publish , and the dist-tag operations described above. Other stage subcommands ( npm stage list , npm stage view , npm stage approve , npm stage reject ) require interactive authentication and cannot use OIDC tokens, as these actions require proof of presence and can only be performed via the CLI or npmjs.com . Other npm commands such as install , view , or access still r
+
+[trusted-publishers] 'not supported for private':
+  ese conditions are met: Publishing via trusted publishing (OIDC) Publishing from a public repository Publishing a public package Note: Provenance generation is not supported for private repositories , even when publishing public packages. Disabling provenance generation While we strongly recommend keeping provenance enabled, you can disable it if needed. Set the provenance opti
+
+[trusted-publishers] 'only affects traditional token':
+  becomes publicly available. Combined with disallowing tokens, this provides the maximum security posture for your packages. Note: The "disallow tokens" setting only affects traditional token authentication. Your trusted publishers will continue to work normally, as they use OIDC tokens. Migration tip If you're transitioning from token-based publishing: Set up trusted publishers
+
+[cli/v11/commands/npm-trust] 'Package must exist':
+  Tokens (GAT) with the bypass 2FA option are not supported. Legacy basic auth (username and password) credentials will not work for trust commands or endpoints. Package must exist : The package you're configuring must already exist on the npm registry. Description Configure trust relationships between npm packages and CI/CD providers using OpenID Connect (OIDC). This is the comm
+
+[cli/v11/commands/npm-trust] '11.15.0':
+  nopsis Note: This command is unaware of workspaces. Prerequisites Before using npm trust commands, ensure the following requirements are met: npm version : npm@11.15.0 or above is required. Use npm install -g npm@^11.15.0 to update if needed. Write permissions on the package : You must have write access to the package you're configuring. 2FA enabled on account : Two-factor auth
+
+[staged-publishing] 'both new and existing':
+  e. Staged publishing is useful when you want an extra review step before a package version becomes available on the registry. You can use staged publishing for both new and existing packages. When you stage a package that does not yet exist, npm publishes a placeholder version of the package with the version 0.0.0-stage . This placeholder version is publicly available, but the
+
+[staged-publishing] 'does not require 2FA':
+  rectory of your package. cd /path/to/package To stage your package, run: npm stage publish This submits your package to a staging area. Note: npm stage publish does not require 2FA. Review a staged package After you stage a package, you can inspect it in the CLI or on npmjs.com . Using the CLI To list staged packages you have access to: npm stage list [<package-spec>] To view d
+
+[staged-publishing] '11.15.0':
+  a maintainer approves the staged package. After approval, the staged version is published to the package page. Note: Staged publishing requires npm CLI version 11.15.0 or later and Node version 22.14.0 or higher. How staged publishing works Staged publishing has three steps: Stage a package Review a staged package Approve a staged package Prerequisites Before using staged publi
+
+[staged-publishing] 'whether you approve':
+  e-id> Using npmjs.com On npmjs.com , review the staged package in the Staged Packages tab, then click Approve . Note: You will be prompted for 2FA verification whether you approve the package in the CLI or on npmjs.com . Approve or reject staged packages in batches On npmjs.com , you can approve or reject multiple staged package versions with one confirmation and one 2FA challe
+
+[staged-publishing] 'must still review':
+  sted publishers If you use trusted publishing (OIDC) from CI/CD, you can use staged publishing to submit a package for review before it goes live. A maintainer must still review and approve the staged package with 2FA. For more information on configuring trusted publisher permissions, see " Trusted publishing for npm packages ." Learn more Trusted publishing for npm packages Ge
+
+[cli/v11/commands/npm-stage] 'create a new package':
+  xists as a staged version for that package. You can still publish packages normally while you have staged packages pending. Staged publishing will allow you to create a new package if it does not exist. You can stage multiple versions of the same package. npm stage publish has parity with npm publish and will respect "private": true in package.json , refusing to stage the packa
+
+[cli/v11/commands/npm-stage] 'Shortlived tokens':
+  tage (if allowed) Can publish (if allowed) Trust Relationship Permissions With staged publishing, trust relationships now support granular command permissions. Shortlived tokens issued through trust relationships can only be used with npm stage publish and npm publish . Shortlived tokens cannot run npm stage subcommands. npm trust <provider> supports --allow-publish and --allow
+
+[about-access-tokens] 'stage only':
+  ddress ranges Select between Read-only or Read and write access. For packages and scopes, Read and write access can either publish and stage new versions or be stage only (see " About stage-only tokens "). Configure a token to Bypass 2FA requirements You can create up to 1000 granular access tokens on your npm account. You can set how long your token is valid for, at least one
+
+[about-access-tokens] 'January 2027':
+  FA tokens with direct-publish access are being deprecated. The ability to publish new package versions directly with a granular access token will be removed in January 2027 . To prepare, switch automation that publishes new versions to a Read and write (stage only) token together with the staging workflow described above. See also " Account-identity actions require an interacti
+
+[about-two-factor-authentication] 'authorization and':
+  ation, see the npm documentation on requiring 2FA for package publishing . Two-factor authentication on npm Two-factor authentication on npm can be enabled for authorization and writes, or authorization only. Authorization and writes By default, 2FA is enabled for authorization and writes. We will request a second form of authentication for certain authorized actions, as well a
+
+[about-two-factor-authentication] 'Starting August 2026':
+  n up. Important: Publishing to npm requires either: Two-factor authentication (2FA) enabled on your account, OR A granular access token with bypass 2FA enabled Starting August 2026, account-identity and account-governance actions cannot be performed with a bypass-2FA token. For more information, see the npm documentation on requiring 2FA for package publishing . Two-factor auth
+
+[requiring-2fa-for-package-publishing-and-settings-modification] 'regardless of their bypass':
+  see " About access tokens ." When Require two-factor authentication and disallow tokens is selected at the package level, granular access tokens cannot be used regardless of their bypass 2FA setting Configuring two-factor authentication on package settings On the npm " Sign In " page, enter your account details and click Sign In . Navigate to the package on which you want to re
+
