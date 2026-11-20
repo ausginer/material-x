@@ -4,7 +4,15 @@ import { fileURLToPath } from 'node:url';
 
 type JSONRecord = Record<string, unknown>;
 
-const configPath = fileURLToPath(new URL('../.oxlintrc.json', import.meta.url));
+// The recipe writes `.oxlintrc.migrated.json` from `eslint.base.config.ts`, the
+// ESLint configuration without the rules that `eslint.config.ts` derives from
+// the oxlint configuration, so the output never depends on its own last run.
+// `.oxlintrc.json` is written by hand and extends this file.
+const eslintConfigPath = fileURLToPath(
+  new URL('../eslint.base.config.ts', import.meta.url),
+);
+const configURL = new URL('../.oxlintrc.migrated.json', import.meta.url);
+const configPath = fileURLToPath(configURL);
 const JS_FILES = [
   '**/*.{js,jsx,mjs,cjs,mjsx,cjsx}',
 ] as const satisfies readonly string[];
@@ -59,6 +67,9 @@ async function runMigrate(): Promise<void> {
         'exec',
         '--',
         '@oxlint/migrate',
+        eslintConfigPath,
+        '--output-file',
+        configPath,
         '--type-aware',
         '--details',
         '--with-nursery',
@@ -89,13 +100,14 @@ async function runMigrate(): Promise<void> {
 
 await runMigrate();
 
-const { default: config } = await import(
-  new URL(`../.oxlintrc.json?ts=${Date.now()}`, import.meta.url).toString(),
-  { with: { type: 'json' } }
-);
+const { default: config } = await import(configURL.href, {
+  with: { type: 'json' },
+});
 
 if (!isRecord(config)) {
-  throw new TypeError('Expected .oxlintrc.json to contain a JSON object.');
+  throw new TypeError(
+    'Expected .oxlintrc.migrated.json to contain a JSON object.',
+  );
 }
 
 const retargetedOverrides = retargetJsOnlyOverrides(config);
