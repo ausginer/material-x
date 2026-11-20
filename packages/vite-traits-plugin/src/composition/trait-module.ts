@@ -41,7 +41,8 @@ import {
   collectTopLevelNames,
   forEachValueReference,
   importedLocals,
-  removeSpecifiers,
+  addImportRemovals,
+  type ImportRemovals,
   syntheticExportName,
   unwrapTS,
   walk,
@@ -488,13 +489,12 @@ function readsClass(value: Expression, className: string): boolean {
 }
 
 /**
- * Removes the import of `trait` when the removed decorators were its only
- * uses: a built trait module doesn't need layer (a)'s runtime.
+ * Adds the import of `trait` to `removals` when the removed decorators were
+ * its only uses: a built trait module doesn't need layer (a)'s runtime.
  */
 function removeUnusedImports(
-  magic: RolldownMagicString,
+  removals: ImportRemovals,
   program: Program,
-  code: string,
   traitLocals: ReadonlySet<string>,
   replaced: ReadonlySet<Decorator>,
 ): void {
@@ -515,23 +515,13 @@ function removeUnusedImports(
     const { name } = decorator.expression as { name: string };
     uses.set(name, (uses.get(name) ?? 0) - 1);
   }
+  const unused = new Set(
+    [...traitLocals].filter((name) => (uses.get(name) ?? 0) <= 0),
+  );
   for (const node of program.body) {
-    if (node.type !== 'ImportDeclaration') {
-      continue;
+    if (node.type === 'ImportDeclaration') {
+      addImportRemovals(removals, node, unused);
     }
-    const unused = node.specifiers.filter(
-      (spec) =>
-        traitLocals.has(spec.local.name) &&
-        (uses.get(spec.local.name) ?? 0) <= 0,
-    );
-    if (unused.length === 0) {
-      continue;
-    }
-    if (unused.length === node.specifiers.length) {
-      magic.remove(node.start, node.end);
-      continue;
-    }
-    removeSpecifiers(magic, code, node, new Set(unused));
   }
 }
 
@@ -575,12 +565,16 @@ function privateReads(
  *
  * @param applicationBuild - The output is an application's, so no consumer
  *   copies from it and each trait class's instance members are deleted.
+ * @param removals - Receives the import specifiers that the transform leaves
+ *   unused. The caller removes them with `removeImports`, after its other
+ *   edits to the module.
  * @param createMagic - Gives the magic string of `code` that the edits go to.
  */
 export function transformTraitModule(
   code: string,
   program: Program,
   applicationBuild: boolean,
+  removals: ImportRemovals,
   createMagic: () => RolldownMagicString = () => new RolldownMagicString(code),
 ): RolldownMagicString | null {
   const traitLocals = traitLocalsOf(program);
@@ -687,7 +681,7 @@ export function transformTraitModule(
     }
   }
 
-  removeUnusedImports(magic, program, code, traitLocals, replaced);
+  removeUnusedImports(removals, program, traitLocals, replaced);
 
   if (exports.size > 0) {
     magic.append(`\nexport { ${[...exports].join(', ')} };\n`);

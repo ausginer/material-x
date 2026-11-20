@@ -25,17 +25,42 @@ export class Opened extends AnyElement {
 /** An element that is only a trait. */
 @trait
 export class Plain extends AnyElement {}
+
+/** A trait whose doc a line comment follows. */
+// A note.
+@trait
+export class LineNoted extends AnyElement {}
+
+/** A trait whose doc a block comment follows. */
+/* A note. */
+@trait
+export class BlockNoted extends AnyElement {}
+
+/** An abstract trait. */
+@trait
+export abstract class Abstracted extends AnyElement {}
+`;
+
+/** A trait that its module exports as the default. */
+const DEFAULT_TRAIT = `import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+
+/** A default trait. */
+@trait
+export default class Defaulted extends AnyElement {}
 `;
 
 let dir: string;
 let declarations: string;
+let defaultDeclarations: string;
 
 beforeAll(async () => {
   dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-dts-'));
   await writeFile(join(dir, 'opened.ts'), TRAIT);
+  await writeFile(join(dir, 'defaulted.ts'), DEFAULT_TRAIT);
   await build({
     config: false,
-    entry: [join(dir, 'opened.ts')],
+    entry: [join(dir, 'opened.ts'), join(dir, 'defaulted.ts')],
     outDir: join(dir, 'out'),
     format: 'esm',
     platform: 'neutral',
@@ -48,6 +73,10 @@ beforeAll(async () => {
     logLevel: 'silent',
   });
   declarations = await readFile(join(dir, 'out', 'opened.d.ts'), 'utf8');
+  defaultDeclarations = await readFile(
+    join(dir, 'out', 'defaulted.d.ts'),
+    'utf8',
+  );
 }, 60_000);
 
 afterAll(async () => {
@@ -64,6 +93,30 @@ describe("a trait's declarations through tsdown", () => {
   it('should keep the JSDoc in front of @trait alone', () => {
     expect(declarations).toContain(
       '/** An element that is only a trait. */\nexport declare class Plain',
+    );
+  });
+
+  it('should keep the JSDoc that a line comment follows', () => {
+    expect(declarations).toContain(
+      '/** A trait whose doc a line comment follows. */\nexport declare class LineNoted',
+    );
+  });
+
+  it('should keep the JSDoc that a block comment follows', () => {
+    expect(declarations).toContain(
+      '/** A trait whose doc a block comment follows. */\nexport declare class BlockNoted',
+    );
+  });
+
+  it('should keep the JSDoc of an export default class', () => {
+    expect(defaultDeclarations).toContain(
+      '/** A default trait. */\nexport default class Defaulted',
+    );
+  });
+
+  it('should keep the JSDoc of an abstract class', () => {
+    expect(declarations).toContain(
+      '/** An abstract trait. */\nexport declare abstract class Abstracted',
     );
   });
 });

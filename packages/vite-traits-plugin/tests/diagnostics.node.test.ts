@@ -618,6 +618,11 @@ import { trait } from '@ydinjs/core/traits/composition.js';
       'extra.ts',
       '/** Doc. */\n@trait\n@attributes({ open: Bool, label: Str })\nexport class Extra extends AnyElement {\n  accessor open!: boolean;\n}\n',
     ],
+    [
+      'trait-decorator',
+      'defaulted.ts',
+      `const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@trait\n@sealed\nexport default class Defaulted extends AnyElement {}\n`,
+    ],
   ];
   let dir: string;
 
@@ -668,7 +673,7 @@ import { trait } from '@ydinjs/core/traits/composition.js';
   };
 
   it.each(modules)(
-    'should report %s at the position it has without the stage',
+    'should report %s in %s at the position it has without the stage',
     async (code, file) => {
       const without = await failure(file, false);
 
