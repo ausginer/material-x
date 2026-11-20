@@ -1,0 +1,45 @@
+# Does a top-level rule's option reach a file through `extends`?
+# Read on 2026-11-20 at b02f4f635's tree, oxlint 1.93.0.
+#
+# `oxlint --print-config` shows an extended file's top-level rules without
+# their options ("deny" for ["deny", ["always"]]). Each package's config
+# already printed them that way at d69e3ddbc. This probe asks whether the
+# option still applies.
+#
+# Probe file, `.scripts/zz-probe.ts` (removed after the probe):
+#
+#   async function inner(): Promise<number> {
+#     return 1;
+#   }
+#   export async function outer(): Promise<number> {
+#     return inner();
+#   }
+#
+# `typescript/return-await` reports `return inner()` with "always" and does not
+# report it with the rule's default or with "never". The rule is set only in
+# `.oxlintrc.migrated.json`, which `.oxlintrc.json` extends.
+
+## "typescript/return-await": ["error", "always"] in .oxlintrc.migrated.json
+$ aube exec -- oxlint -f unix .scripts/zz-probe.ts
+.scripts/zz-probe.ts:1:1: Function has no 'await' expression. [Error/typescript(require-await)]
+.scripts/zz-probe.ts:5:10: Returning an awaited promise is required in this context. [Error/typescript(return-await)]
+
+2 problems
+
+## the same at d69e3ddbc's single .oxlintrc.json
+.scripts/zz-probe.ts:1:1: Function has no 'await' expression. [Error/typescript(require-await)]
+.scripts/zz-probe.ts:5:10: Returning an awaited promise is required in this context. [Error/typescript(return-await)]
+
+2 problems
+
+## "typescript/return-await": "error" (the default) in .oxlintrc.migrated.json
+.scripts/zz-probe.ts:1:1: Function has no 'await' expression. [Error/typescript(require-await)]
+
+1 problem
+
+## "typescript/return-await": ["error", "never"] in .oxlintrc.migrated.json
+.scripts/zz-probe.ts:1:1: Function has no 'await' expression. [Error/typescript(require-await)]
+
+1 problem
+
+# Result: the option applies through `extends`; only the printed form drops it.

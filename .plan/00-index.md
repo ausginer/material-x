@@ -789,7 +789,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Properties.**
 
-1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with two exceptions: npm's one bootstrap step in CI (property 9), and nx's script runner (amended 2026-11-17 at `c57722b67`).
+1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with three exceptions: npm's one bootstrap step in CI (property 9), nx's script runner (amended 2026-11-17 at `c57722b67`), and the release workflow's `npm stage publish` of a checked tarball, outside any checkout (amended 2026-11-20 by `RD-27` property 6, because aube implements neither trusted publishing nor staging).
    - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
    - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
    - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
@@ -1123,6 +1123,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **A reviewer needs a floor to judge a dependency on a recent feature.** `RF-43`'s feature proof found that a switch fires `click` and never `input` or `change` in an engine without invoker commands. With no floor stated, that couldn't be read as a defect or as accepted behaviour.
 - **A moving floor costs no user yet.** The package is unreleased (`RF-51`: a defect in its published surface _"blocks its first release, not a user"_). A list of minimum versions is a promise to consumers, so it is made with the release.
 
+**Dated 2026-11-20 by the architect: the floor of property 1 now covers every released `@ydinjs` package** (`RD-27` property 3, on the owner's answer: _"for now; minimum versions will be derived later for all packages"_). Property 3 doesn't change: material-x's browserslist is still owed before its first release, unless the unit that derives minimum versions for every package decides otherwise.
+
 #### RD-21 — One job fetches the engines' system packages before the test jobs start, and every job that launches a browser installs them offline from the cache
 
 **Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198`, which answers `RF-58`. The owner's earlier direction was that system dependencies are installed up front, before any test starts. The owner chose this cache over a custom image: _"the cache looks simpler, much simpler"_, because the cache goes cold only every few weeks. Recorded by the main slot's architect on `repo/ci-deps-1`. It was proposed as `RD-20`. That number went to the browser floor on `repo/traits-plugin-1`, so this entry is `RD-21`. **Implemented 2026-11-18** on `repo/ci-deps-1` (#38, not yet merged): the code at `10100984f`, and the report at `a4a90f683`. It applies to `main` when #38 merges. `RF-58`'s closure holds the reading. Before: unimplemented, and the handoff implemented it.
@@ -1277,6 +1279,8 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 - **Dated 2026-11-18 by the architect: the comment shows no base or difference** while `RF-65` is open. Property 5's own reading is then the only signal of a row's growth: a unit that changes material-x's runtime output reads its rows before and after. The **Why**'s _"the pull requests' comments show it"_ holds once `RF-65` is repaired. **Closed 2026-11-19 by the architect:** `RF-65` is repaired and closed, and #74's comment shows each material-x row's base and change.
 
 **Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: the repository's instrument, not a new one. Every entry, because a row costs about a tenth of a second and an entry without a row is `RF-45`'s gap. No ceiling while almost every change moves rows on purpose. A boundary that the owner performs, not a schedule. Not adopted: ceilings re-based at each approved change, amending `RF-45`'s required property, slack, rows for only some entries, and hand measurement.
+
+**Dated 2026-11-20 by the architect: the rule after the release is stated** (property 6's _"The architect states the rule that governs the limits after the release"_). It is `RD-27` property 2, in the owner's words: a ceiling may be lowered without asking, and raising one needs his approval. The release workflow refuses a package with a row over its ceiling. `RF-45` closes when material-x's ceilings exist, as before.
 
 #### RD-25 — An agent may open a pull request without being asked, and the owner merges it
 
@@ -1533,6 +1537,106 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **P47's ways 2, 3a and 3b,** for the reasons in [its record](trait-jsdoc-probe-1/trait-jsdoc-probe.md#results).
   - **The probed internal form,** `static { trait(this); … }`. It is the source form that `trait-decorator` rejects, it needs a second compile stage in the analysis loader too, and it moves an inline table's positions into the class body.
   - **`export` on the doc's last line,** which keeps every line and column: 30 built files changed (P48).
+
+#### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
+
+**Decided 2026-11-20 by the owner,** relayed by the coordinator, in answer to Q1 to Q5 of Architect B's [box-quad release plan](https://github.com/ausginer/material-x/blob/repo/box-quad-release-1/.plan/box-quad-release-1/box-quad-release-plan.md#questions-for-the-owner) (PR #79, `0ef585e09`). The workflow's design is the architect's, in the [release workflow plan](release-workflow-1/release-workflow-plan.md), within the owner's Q4. Registered by the main slot's architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`. `RD-26` is the highest number on any branch on `origin`. **Implemented 2026-11-20** on `repo/release-workflow-1` (#81, not yet merged): the plan's tasks 1 to 3 at `e73411cf4`, corrected after the feature proof in the commit that follows it. The [report](release-workflow-1/release-workflow-report.md) holds the proofs. It applies to `main` when #81 merges. **Still pending:** the dispatched check runs after the merge, which need box-quad's own task 1 first; what the first release must show; and the owner's settings O1 to O3. Before: unimplemented. **Corrected 2026-11-20:** this line also listed the architect's decisions on the feature proof's `reviewer-2` and `reviewer-3` as pending, and the amendment below records them.
+
+**The owner's answers,** quoted where his words were relayed:
+
+- **Q1:** box-quad's first version is `1.0.0`.
+- **Q2:** a ceiling at the reading after the release's last change, with no slack. _"Вниз изменять можно без вопросов, вверх - с моего одобрения"_ ("It can go down without asking; up only with my approval").
+- **Q3:** the current stable Chromium, Firefox and Safari, as `RD-20` states, for now. Minimum versions will be derived later, for all packages.
+- **Q4:** a release workflow with provenance, not a hand publish: _"я заколебался руками публиковать"_ ("I'm sick of publishing by hand").
+- **Q5:** he holds the `@ydinjs` scope on npm.
+  - His account used 2FA _"for authorization only"_, with an authenticator app and three security keys.
+  - On 2026-11-20 he switched it to authorization and writes: _"2FA обновил: ✓ Enabled for authorization and publishing"_ ("Updated 2FA").
+
+**Properties.** Each applies to every `@ydinjs` package's releases, drag's next, except where it names box-quad.
+
+1. **Versions.**
+   - Each package versions independently, by semver, with its own `CHANGELOG.md`.
+   - box-quad's first release is `1.0.0`. Any other package's first version is the owner's answer at its release.
+   - A dependency on another `@ydinjs` package is an exact version that is on the registry when the dependent package is released.
+   - A release is one tag, `@ydinjs/<name>@<version>`, on one `main` commit. The owner pushes it, and agents push no tag.
+2. **Size ceilings.**
+   - **At a package's first release,** each of its size rows gets a ceiling equal to its reading after the release's last change, with no slack.
+   - **A ceiling may be lowered** without asking.
+   - **Raising one needs the owner's approval,** which the unit that raises it records with the reading.
+   - **The release workflow refuses** a package with a row over its ceiling. `verify` goes on only notifying (`RD-7`).
+   - This is the rule after the release that `RD-24` property 6 asked the architect to state. It governs material-x's ceilings when it is released.
+3. **Browser support.**
+   - A released package supports the current stable release of Chromium, Firefox and Safari, as `RD-20` property 1 states for material-x, and its README says so.
+   - No minimum version is promised until a later unit derives the minimum versions for every package. Until then, a version that leaves stable leaves support, and that isn't a breaking change.
+4. **Publishing.**
+   - **No package is published by hand.** `.github/workflows/release.yml`, started by the release tag, checks the commit and the package, builds, packs and checks the tarball.
+   - **It stages the tarball with `npm stage publish`,** under the package's trusted publisher, with provenance.
+   - **The owner approves** each staged version on npm with his second factor. That approval is the gate: npm lets no OIDC or granular token approve.
+   - **The first publish** of a package, before a trusted publisher can exist for it, stages with a stage-only granular token that lives for a day. That token is then revoked.
+   - The plan's [design](release-workflow-1/release-workflow-plan.md#the-design) specifies the triggers, the jobs, their checks and permissions, the environment and the tags.
+5. **2FA.**
+   - **The account** stays in authorization and writes.
+   - **Each package,** once its first version is approved, is set to _"Require two-factor authentication and disallow tokens"_. Trusted publishing is unaffected.
+   - **The trusted publisher** allows `npm stage publish` only. It is configured within the 2 days before the package's second release, because npm expires an unvalidated configuration after 2 days.
+6. **npm stages the release** (an exception to `RD-16` property 1, amended on this date).
+   - The workflow's `stage` job runs `npm stage publish` on the tarball that `prepare` checked, outside any checkout, with an npm pinned in the workflow.
+   - aube implements neither trusted publishing nor staging. aube still installs, builds and packs.
+7. **What agents don't do:**
+   - push a release tag;
+   - approve or reject a staged version;
+   - create a token;
+   - configure a trusted publisher;
+   - change the environment or a ruleset.
+
+   These are the owner's acts.
+
+**Why:**
+
+- **Staging gives the owner's approval a second factor at the registry,** independent of GitHub. So nothing an agent, a tag or a compromised workflow does can make a version public.
+- **Trusted publishing removes the long-lived token.** npm removes direct publishing with granular tokens in January 2027 anyway.
+- **One tag per package per version** keeps each package's history its own, and needs no release tool.
+- **The ceiling rule** is the owner's words.
+- **Support follows the suite,** which runs each engine's current stable release and nothing older.
+
+**Not adopted:** the plan's [section](release-workflow-1/release-workflow-plan.md#not-adopted). That covers a GitHub release, a release tool, a long-lived token, direct publish from CI, `aube publish`, several packages in one run, and a `prepack` script.
+
+**Answered by the owner on 2026-11-20,** relayed by the coordinator: the plan's three [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner). Nothing is left open for him, and the plan's tasks 1 to 3 can start.
+
+- **The `RD-16` amendment** (property 6) is approved: _"Конечно да, пусть npm работает"_ ("Yes, of course, let npm do it"). The release workflow's `npm stage publish` of the checked tarball, outside any checkout, is the one npm step of a release.
+- **The environment `npm` has no required reviewer:** _"Согласен с архитектором"_ ("I agree with the architect"). His approval on npm, with his second factor, is the gate.
+- **The first publish uses the token** (property 4): _"Давай (а) попробуем"_ ("Let's try (a)").
+  - The token is stage-only and granular, lives for a day, and is stored as the secret `NPM_STAGE_TOKEN` of the environment `npm`. It is revoked after the publish, and the first version keeps its provenance.
+  - If npm refuses a stage-only token for a name that doesn't exist yet, the fallback is that he stages the `prepare` job's tarball himself.
+
+**Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of PR #81 at `e73411cf4`, relayed by the coordinator. Both block the first tag. The plan's [amendment](release-workflow-1/release-workflow-plan.md#amendment-a-release-runs-on-main) has the reading, the sources and task 4. **Task 4 implemented 2026-11-20** on `repo/release-workflow-1` (#81, not yet merged), in the commit after `644bbf1ed`. The [report](release-workflow-1/release-workflow-report.md) holds the proofs. **Unimplemented:** O1 as amended, which is the owner's setting. The reviewer reads it before the first tag. **Answered by the owner on 2026-11-20,** relayed by the coordinator: _"Q4-5 согласен."_ ("I agree with Q4–5."). That answers the plan's [questions](release-workflow-1/release-workflow-plan.md#questions-for-the-owner) 4 and 5 as recommended, and he approved task 4.
+
+- **Q4:** a release is tagged at `main`'s head, and he merges nothing until its run has started.
+- **Q5:** O1 as amended. The environment `npm` admits only the branch `main`, with no tag rule and the administrator bypass off. That setting is his to make.
+
+- **`reviewer-3`: a release runs on `main`** (property 4).
+  - **The finding.** A tag push runs the tagged commit's own `release.yml`, so whoever tags a commit off `main` can delete its commit checks. The environment admitted the tag, so such a run could stage and read `NPM_STAGE_TOKEN`.
+  - **How the run starts.** The tag push's run only dispatches `release.yml` on `main`, with the tag as input. That run's `prepare` and `stage` are `main`'s own file, which only a reviewed pull request changes (`Main protection` has no bypass actors).
+  - **What it checks first:** its ref is `refs/heads/main`; the tag points at its own commit, which is `main`'s head when it starts; and `verify` passed on that commit. Equality replaces _reachable from `origin/main`_, because npm's provenance names the run's `GITHUB_SHA`.
+  - **O1:** the environment `npm` admits only the branch `main` (GitHub matches the rule against the run's `GITHUB_REF`), with no tag rule and no administrator bypass. So no other ref gets the OIDC environment claim that the trusted publisher requires, nor the token.
+- **Property 1 gains:** the release commit is `main`'s head when the release run starts. If `main` moves first, the run refuses, and the release takes a new version.
+- **`reviewer-2`: what the owner compares before approving** (property 4).
+  - **On GitHub,** the release run that his tag dispatched: its branch is `main`, it succeeded, and its summary names his tag and commit.
+  - **On npm,** in _Staged Packages_ or with `npm stage view`: the stage id and the `shasum` equal the summary's.
+  - **The digest is npm's `shasum`** (SHA-1). It is what npm's review page and `npm stage view` show, and npm computes no sha256.
+  - **The summary** carries `shasum` and `integrity` beside the sha256, which stays as the check between the jobs.
+  - **Not before approval:** the transparency-log entry, which exists at stage time. The summary links it. The provenance is still read after approval, at step 6.
+- **Why:** the boundary moves to where GitHub enforces it, a branch rule on the environment. A summary written by the tagged commit's own file and a hand check would not hold it. The stage id and the `shasum` tie the version the owner approves to the run he has checked.
+
+**Amended 2026-11-20 by the architect,** on `reviewer-7` of Mx Reviewer B's feature proof of PR #81 at `30175e027`, relayed by the coordinator. The plan's [section](release-workflow-1/release-workflow-plan.md#the-dispatch-names-main-by-its-short-name) has the reading and the sources. Nothing changes in `release.yml`. `releasing.md` gains the recovery and states O1's rule as a branch rule.
+
+- **`reviewer-7`: the dispatch keeps `--ref main`, because a run on a tag `main` fails closed** (property 4).
+  - **The finding.** A writer can create a tag named `main`, which `Release tags` doesn't cover. GitHub doesn't document which ref a dispatch takes for a short name that names both a branch and a tag.
+  - **Why it fails closed.** A run on a tag `main` runs that tag's own `release.yml`, so its ref check and `stage`'s `if` can't be relied on. The environment `npm`, whose one rule is the branch `main`, refuses `stage`, so the run gets neither the trusted publisher's OIDC claim nor `NPM_STAGE_TOKEN`. Nothing is staged, and the owner's step 4 requires a run on the branch `main`.
+  - **Recovery needs no new version:** the owner deletes the tag `main` and, while his release tag is still `main`'s head, dispatches the release himself.
+  - **O1's reading** before the first tag confirms one policy, of type `branch` and named `main`, with `custom_branch_policies` `true`, `protected_branches` `false` and `can_admins_bypass` `false`. The short name is safe only through that setting.
+- **Not adopted:**
+  - **A ruleset that restricts creating `refs/tags/main`** (_Restrict creations_, no bypass). It would prevent only a release that fails closed and recovers, and adds an owner setting with no security property. O2 doesn't change.
+  - **The full ref `refs/heads/main`.** The endpoint most likely accepts it, by `gh`'s and a widely used dispatch action's behaviour, but GitHub doesn't document it, and the line first runs at the first release's tag.
 
 ## Findings
 
@@ -2262,7 +2366,7 @@ Tier C, **decided, implemented, open** (decided 2026-11-17 at `51a992b49`; see _
 
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
-Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
+Tier C, **closed 2026-11-20** on `repo/oxlint-migrate-1` (see _Closure_ below). Before closure: decided at `d6838d0f1`, unimplemented. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
 
 - **What:** the recipe runs `@oxlint/migrate` 1.93.0 on `eslint.config.ts` and writes `.oxlintrc.json`. Its output differs from the committed file in these ways:
   - it drops every comment;
@@ -2303,6 +2407,44 @@ Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Deci
 
 - **Filtering by config name.** `buildFromOxlintConfigFile`'s configs are named `oxlint/from-oxlint-config`, `oxlint/from-oxlint-config-override-<n>` and `oxlint/oxlint-config-ignore-patterns`, so a wrapper could give the recipe `eslint.config.ts` without them. That isn't better than the split: it depends on a naming convention that the plugin doesn't document as a contract, it also needs a name on the hand-written block, and it adds code that the positional argument makes unnecessary. The split is the owner's choice.
 - **One hand-maintained `.oxlintrc.json`,** with the recipe as a diff aid or deleted. A rule change in ESLint would then reach oxlint only through a hand copy.
+
+**Closure.** Implemented on 2026-11-20 by the implementer on `repo/oxlint-migrate-1`, from `d69e3ddbc` (`origin/main`), in the two commits of property 3. Requested as issue #47. The evidence is in [`oxlint-migrate-1/checks/`](oxlint-migrate-1/checks/). Its probes are `capture.sh`, which captures both linters' `--print-config` for a TypeScript file at the root and in each package, from the root and from the package's directory, and both linters' results over the tree, and the comparison scripts beside it.
+
+- **Commit 1, the split, `b02f4f635`.**
+  - `eslint.base.config.ts` is the part of `eslint.config.ts` above the spread. `eslint.config.ts` is the base, the spread, the block of disables, then the `unbound-method` block. The root `tsconfig.json` includes the new file.
+  - `.oxlintrc.migrated.json` holds the rules and the five generated overrides of the previous `.oxlintrc.json`, moved. `.oxlintrc.json` extends it and carries `options`, `ignorePatterns`, `plugins`, `categories` and the custom override with its comments.
+  - **Read in oxlint 1.93.0: `plugins` and `categories` stay in `.oxlintrc.json`.** oxlint doesn't take `categories`, `options` or `ignorePatterns` from an extended file. A file without `plugins` contributes oxlint's default set, so without `plugins` in `.oxlintrc.json` the `oxc` plugin was added.
+  - **Witness ([`witness-split.txt`](oxlint-migrate-1/checks/witness-split.txt)).** ESLint's `--print-config` is byte-identical in all 17 captures. Both linters' results are identical in every package and at the root, and ESLint lints one more file, `eslint.base.config.ts`, with no message. oxlint's `--print-config` is identical in the 8 package captures. In the 9 root captures it differs in two ways: the `extends` key, and five top-level rules printed without their options. That is how oxlint prints an extended file's rules: each package's config already printed them that way at `d69e3ddbc`. A [probe](oxlint-migrate-1/checks/options-probe.txt) shows that `return-await`'s `always` still applies through `extends`.
+- **Commit 2, one regeneration.**
+  - **The recipe.** `.scripts/oxlint-migrate.ts` runs `@oxlint/migrate` from the root, with `eslint.base.config.ts` and `--output-file .oxlintrc.migrated.json` as relative paths, because the tool joins both to the working directory. It removes the `.bak` copy that the tool leaves of the file it replaces. The `just oxlint-migrate` recipe then formats the output with `oxfmt`.
+  - **Proof.** On the commit's tree, two runs of the recipe leave `.oxlintrc.json` and `.oxlintrc.migrated.json` byte-identical ([`new-recipe.txt`](oxlint-migrate-1/checks/new-recipe.txt)). The previous recipe, run on `d69e3ddbc`, rewrote `.oxlintrc.json` with 164 insertions and 126 deletions ([`old-recipe.txt`](oxlint-migrate-1/checks/old-recipe.txt)). So `aube exec just oxlint-migrate && git diff --exit-code .oxlintrc.json .oxlintrc.migrated.json` passes on the new recipe and fails on the old one. It is a check to run by hand. No CI job runs it.
+  - **Witness ([`witness-regeneration.txt`](oxlint-migrate-1/checks/witness-regeneration.txt)).** Both linters' results are identical to `d69e3ddbc`'s in every package and at the root. The rule state changes as listed below.
+- **Each rule the regeneration changed, and what was done.** "On" and "off" are the effective state for a `.ts` and a `.test.ts` file, from the root and from a package's directory.
+  - **Turned on in oxlint, with no finding in the tree:** `func-name-matching`, `import/newline-after-import`, `logical-assignment-operators`, `no-implicit-globals`, `no-unreachable-loop`, `no-useless-assignment`, `one-var`, `prefer-arrow-callback`, `prefer-regex-literals`, `require-unicode-regexp`, `typescript/consistent-return`, `typescript/explicit-member-accessibility`, `typescript/no-unsafe-enum-assignment`, `typescript/strict-void-return`. Kept. ESLint ran each of them before, at least from a package's directory. Where `buildFromOxlintConfigFile` maps one, ESLint's form is now off, and the witness lists each ESLint rule whose state changed.
+  - **`typescript/no-unsafe-type-assertion` (194 findings) and `typescript/promise-function-async` (103):** turned off in `.oxlintrc.json`'s `rules`, with the reason. Neither linter ran them before: `eslint.config.ts` turns them off as rules that oxlint runs, and the previous `.oxlintrc.json` didn't have them. The findings are in most packages, including `vite-traits-plugin` and core's traits, which are outside this unit. Turning either on is a source change of its own.
+  - **`typescript/unbound-method` (54 findings, all in `drag`):** turned off in `.oxlintrc.json`, with the reason. ESLint's form, last in `eslint.config.ts`, stays the instrument and reports none. Oxlint's port also reports a method passed with its receiver, as in `drag.use(this.#release, this)`.
+  - **`typescript/no-generated-empty-object-type` (2 findings):** set to `allow` in the custom override, beside `typescript/no-empty-object-type`. That is the intent the comment in `eslint.config.ts` states. That comment said oxlint doesn't implement the rule. oxlint 1.93.0 implements it, so the comment now says why the `allow` doesn't reach ESLint.
+  - **`no-use-before-define` and `import/no-duplicates`:** the regenerated override from `eslint.base.config.ts`'s TypeScript block turns them off, and `eslint.base.config.ts` turns ESLint's forms off. Without a repair, neither linter would run them. They are kept on in the custom override with their previous options, because the tree meets both. **Whether they should stay on is the owner's question:** the ESLint block that turns them off gives no reason.
+  - **`typescript/dot-notation`:** dropped by the tool. ESLint's `@typescript-eslint/dot-notation` now runs from the root as well. From a package's directory, ESLint already ran it. No action.
+  - **Other changes in the file:** `.test.*` override now also covers `.spec.*`, the first override also matches JavaScript files, and the `import` plugin is named per override. `ignorePatterns`, `options` and `categories` now appear in `.oxlintrc.migrated.json`, and oxlint doesn't read them from an extended file. Each has no effect on the results above.
+- **Not changed, and outside this entry.** A package's `.oxlintrc.json` doesn't set `plugins` or `categories`. So from a package's directory, oxlint runs with its default plugins, `oxc` included, and the `correctness` category on, where the root config turns `correctness` off. That held at `d69e3ddbc` and is unchanged here. It is a reading, not a finding registered by this unit.
+- **How a rule changes now:** in `eslint.base.config.ts` and then `just oxlint-migrate`, or as an override with its reason in `.oxlintrc.json`. `.oxlintrc.migrated.json` is never edited by hand.
+
+**Corrected and amended 2026-11-20** by the implementer on `repo/oxlint-migrate-1`, after `e2a33205d`. This follows the feature proof ([`reviews/oxlint-migrate-1/feature-proof-claude.md`](reviews/oxlint-migrate-1/feature-proof-claude.md)) and the owner's ruling, relayed by the coordinator. The bullets above stay as they were written.
+
+- **`typescript/unbound-method`: the reason was wrong** (`reviewer-1`). The closure said that ESLint's form _"stays the instrument and reports none"_, and that oxlint's port _"also reports a method passed with its receiver"_. `.oxlintrc.json` said the same. The reviewer measured otherwise:
+  - with the root configuration, ESLint reports 30 lines in `drag`, including methods passed with their receiver, such as `src/sortable.ts:59`. That is why `drag:DRD-37` turns ESLint's form off in `drag`;
+  - oxlint's port reports those 30 lines and 18 more, and every extra line is a private `#method` read without a receiver, which ESLint doesn't report;
+  - outside `drag`, the port reports nothing in the tree.
+
+  The rule's state, off, is unchanged, and it matches `d69e3ddbc`: in `drag`, neither linter ran it. `.oxlintrc.json`'s reason now states the measured difference.
+
+- **An option change that the list above leaves out** (`reviewer-2`). `no-shadow-restricted-names` gained `reportGlobalThis: true`, so it now also reports a binding that shadows `globalThis`. ESLint's form already had the option, and it is off. There is no finding in the tree. Kept.
+- **The owner's ruling on the two rules kept on above:** _"`import/no-duplicates` оставляем (включаем), а `no-use-before-define` предлагаю выключить."_ ("We keep `import/no-duplicates` (turn it on), and I suggest turning `no-use-before-define` off.")
+  - `import/no-duplicates` stays on in `.oxlintrc.json`'s custom override, with `prefer-inline`.
+  - `no-use-before-define` is `off` there, with the quotation as its reason. That turns it off for TypeScript files (`.ts` and `.test.ts` resolve from on to off), and no other rule's effective state changes. JavaScript files keep the state that `eslint.base.config.ts`'s JavaScript block gives them. That is unchanged, and the owner's question was about the TypeScript override.
+- **`retargetJsOnlyOverrides` is removed from `.scripts/oxlint-migrate.ts`** (`reviewer-3`). It retargeted 0 overrides with both the old recipe and the new one, because the tool now writes the first override with a JavaScript and a TypeScript glob. The recipe's script now only runs the tool and removes its `.bak` copy. Property 2's post-processing is the `oxfmt` step of the `just oxlint-migrate` recipe. Two runs of the recipe still leave `.oxlintrc.json` and `.oxlintrc.migrated.json` byte-identical, and no `.bak` file remains.
+- **Lint results after these changes:** `just lint` exits 0. oxlint reports 0 diagnostics at the root and in each of the 8 packages. Turning `no-use-before-define` off can only remove findings, and there were none.
 
 #### RF-50 — `mx-checkbox`, `mx-radio` and the text fields change their own state on user interaction, against the controlled principle
 

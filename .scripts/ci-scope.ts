@@ -262,7 +262,8 @@ export async function decide(options: DecideOptions): Promise<Decision> {
   };
 }
 
-async function ghApi(path: string): Promise<unknown> {
+/** An `Api` through `gh api`, with the token that `gh` reads. */
+export async function ghApi(path: string): Promise<unknown> {
   const stdout = await new Promise<string>((resolve, reject) => {
     execFile(
       'gh',
