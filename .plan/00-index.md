@@ -2591,7 +2591,7 @@ Tier C, **closed 2026-11-19** (below). Before closure: decided 2026-11-18 (see _
 
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONTRIBUTING.md`'s rule on published dependencies to today's manifests ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) C). **No row is disabled.**
+Tier C, **closed 2026-11-20** on `repo/rolldown-peer-1` (below). Before closure: open. Registered on 2026-11-18 by the architect, from applying `CONTRIBUTING.md`'s rule on published dependencies to today's manifests ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) C). **No row is disabled.**
 
 - **What was read:**
   - `@ydinjs/vite-custom-element-assets` and `@ydinjs/vite-traits-plugin` both declare `"rolldown": "1.3.2"` in `dependencies` and `"vite": "^8.1.4"` in `peerDependencies`;
@@ -2687,6 +2687,18 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
   - **The private plugin's probe** ([script](rolldown-peer-1/checks/assets-host-binding.ts), [reading](rolldown-peer-1/checks/assets-host-binding.txt)) gives the same four results, and each of the same five mutations changes its own cases.
   - **The limit** is the ruling's. On a host without `meta.magicString`, which today means Vite 8.1 to 8.3, two copies of one version that each load their own binding still drop the edit. No package manager has been shown to produce that tree. The version fallback goes when the `vite` peer floor reaches a Vite that passes `meta.magicString`.
   - **`RF-55` stays open** until the architect reads task 4's proof. The pull request says `Refs #48`.
+- **Closed 2026-11-20 by the architect** on `repo/rolldown-peer-1` at `e068354fd` (#83, not yet merged), under the plan's [_Closing_](rolldown-peer-1/rolldown-peer-plan.md#closing), as `RF-23` and `RF-31` were closed. The pull request says `Closes #48` from this closure.
+  - **Read:** task 4's [feature proof](reviews/rolldown-peer-1/feature-proof-task4-claude.md), at `129640d0b`, with its [rerun](reviews/rolldown-peer-1/checks/task4-rerun.txt) and [probe](reviews/rolldown-peer-1/checks/meta-getter-reads.mjs). It finds no defect against task 4 as amended. The earlier proofs, of [tasks 1 and 2](reviews/rolldown-peer-1/feature-proof-claude.md), [R1](reviews/rolldown-peer-1/feature-proof-r1-claude.md) and [task 3](reviews/rolldown-peer-1/feature-proof-task3-claude.md), each met their task, and each finding they raised is ruled above or was the coordinator's.
+  - **The required property holds.** Both plugins declare `rolldown` as a peer, `^1.1.4`, and not in `dependencies`. Their public types name the consumer's `rolldown`. The plan's tasks 1 to 4 are in, and each proof the plan prescribed was rerun by a reviewer and matched its reading.
+  - **What the closure rests on in task 4's proof:**
+    - the consumer paths, the same-version copies and the host-path witness match their readings line for line, and Vite 8.4.0-beta.1 returns the host's own instance, so it is native by binding, not by version;
+    - material-x's 213 built files are byte-identical to `main`'s at `3457e3463`;
+    - `'magicString' in meta` doesn't call rolldown's lazy getter, and the native path builds no more magic strings than before task 4;
+    - with rolldown's getter memoized, the traits plugin's `magic === meta.magicString` holds exactly when the ruling's `instanceof` does. A host whose getter isn't memoized would take the string path, which is correct and slower;
+    - the assets plugin needs no dev-server guard, because its `transform` is registered only when `isProd` is true, and both of its callers pass that only for a build.
+  - **The architect read** both checks in `src/plugin.ts` and `src/index.ts` and both manifests at `e068354fd` against the amended property 1. `e068354fd` adds only the proof's record to `129640d0b`.
+  - **Not read, and not owed by the plan:** CI on #83, which was pending at `e068354fd` and is the merge's gate, not the closure's; a tsdown host on another `rolldown` copy, and a getter that isn't memoized, which are readings; the private plugin's probe mutations, which have no committed script. The plan asks that probe for the four cases, and the rerun gives them.
+  - **What stays:** the limit, as ruled. On a host without `meta.magicString`, which today means Vite 8.1 to 8.3, two copies of one version that each load their own binding still drop the edit. If a package manager is shown to produce that tree, it is Tier A, and the fallback becomes the string path. The version fallback and the `VERSION` import go when the `vite` peer floor reaches a Vite that passes `meta.magicString`. That change has its own decision, which isn't open here.
 - **Issue:** #48.
 
 #### RF-56 — In a connected button group, a selected button isn't a full pill, and a pressed button's inner corners grow instead of shrinking

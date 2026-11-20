@@ -171,6 +171,7 @@ The plugins keep the native magic string only when the host's magic-string class
 ### Closing
 
 - **`RF-55` closes** when tasks 1, 2, 3 and 4 are in and proven. The architect closes it on the branch, before the pull request merges, as `RF-23` and `RF-31` were closed. Until task 4, this said: _"when tasks 1 and 2 are in, and task 3 too if the owner answers yes"_.
+- **Closed 2026-11-20 by the architect** at `e068354fd`, after reading task 4's [feature proof](../reviews/rolldown-peer-1/feature-proof-task4-claude.md). `repo:RF-55` has the closure.
 - **The pull request says `Closes #48`** when it closes `RF-55`, and `Refs #48` otherwise.
 - **Out of scope:** the proposals for `RD-27` above, which the release workflow's architect takes up.
 
