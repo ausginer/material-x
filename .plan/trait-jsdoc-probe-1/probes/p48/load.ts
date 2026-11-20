@@ -39,7 +39,11 @@ export function moveExportAboveDecorators(
     }
     magic ??= new RolldownMagicString(code);
     const [space] = /^\s*/u.exec(code.slice(statement.start + 6))!;
-    magic.move(statement.start, statement.start + 6 + space.length, first.start);
+    magic.move(
+      statement.start,
+      statement.start + 6 + space.length,
+      first.start,
+    );
   }
   return magic;
 }

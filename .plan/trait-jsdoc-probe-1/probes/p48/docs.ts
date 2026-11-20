@@ -5,18 +5,37 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 const [root, out] = process.argv.slice(2) as [string, string];
-const core = ['checkable', 'disableable', 'linkable', 'nameable', 'reorderable', 'selectable', 'typeable', 'valuable'];
+const core = [
+  'checkable',
+  'disableable',
+  'linkable',
+  'nameable',
+  'reorderable',
+  'selectable',
+  'typeable',
+  'valuable',
+];
 const pairs: Array<[string, string]> = [
-  ...core.map((n): [string, string] => [`packages/core/src/traits/${n}.ts`, `packages/core/traits/${n}.d.ts`]),
-  ['packages/material-x/src/core/traits/focus-forwarding.ts', 'packages/material-x/core/traits/focus-forwarding.d.ts'],
-  ['packages/material-x/src/button/IconButtonCore.ts', 'packages/material-x/button/IconButtonCore.d.ts'],
+  ...core.map((n): [string, string] => [
+    `packages/core/src/traits/${n}.ts`,
+    `packages/core/traits/${n}.d.ts`,
+  ]),
+  [
+    'packages/material-x/src/core/traits/focus-forwarding.ts',
+    'packages/material-x/core/traits/focus-forwarding.d.ts',
+  ],
+  [
+    'packages/material-x/src/button/IconButtonCore.ts',
+    'packages/material-x/button/IconButtonCore.d.ts',
+  ],
 ];
 let complete = 0;
 for (const [src, dts] of pairs) {
   const source = readFileSync(resolve(root, src), 'utf8');
   const stage = readFileSync(resolve(out, 'stage', dts), 'utf8');
   const ref = readFileSync(resolve(out, 'ref', dts), 'utf8');
-  const re = /(\/\*\*(?:(?!\*\/)[\s\S])*\*\/)\s*@trait\b[\s\S]*?export\s+class\s+(\w+)/gu;
+  const re =
+    /(\/\*\*(?:(?!\*\/)[\s\S])*\*\/)\s*@trait\b[\s\S]*?export\s+class\s+(\w+)/gu;
   let found = 0;
   let kept = 0;
   for (const [, doc, name] of source.matchAll(re)) {
