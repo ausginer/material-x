@@ -141,9 +141,32 @@ The plugins keep the native magic string only when the host's magic-string class
 - **The node test** calls both transforms with a `meta.magicString` of the plugin's class, one of another class, and none. Only the first gives a `RolldownMagicString` and no map. The other two give a string and a map that names the module. Each branch fails under its mutation.
 - **The feature proof's probe** (`same-version-copies.sh`), rerun with the real check in place of the stand-in. `shared-binding` takes the native path and keeps the edit. `own-binding` takes the string path and keeps it too.
 - **Consumer D,** rerun with its mutant. The build is flattened, and with the check replaced by `true` it isn't.
-- **Task 2's consumers,** at Vite 8.1.4, 8.3.8 hoisted and isolated, and 8.4.0-beta.1. Each build is flattened, and the record says which path each took. A host on the floor's rolldown that offers no `meta.magicString` takes the string path, which is correct.
+- **Task 2's consumers,** at Vite 8.1.4, 8.3.8 hoisted and isolated, and 8.4.0-beta.1. Each build is flattened, and the record says which path each took. A host that offers no `meta.magicString` takes the path that [the amendment](#amended-a-host-that-offers-no-metamagicstring) gives it. Until the amendment, this said: _"A host on the floor's rolldown that offers no `meta.magicString` takes the string path, which is correct."_ The absent `meta.magicString` is Vite's doing, not the floor rolldown's.
 - **material-x, on the native path:** its 213 build files are byte-identical to `main`'s, and docs-build and docs-smoke pass. A witness shows that the tsdown and Vite build hosts took the native path, not only produced the same bytes.
 - **The private plugin's probe,** rerun with the three `meta` cases.
+
+#### Amended: a host that offers no `meta.magicString`
+
+**Amended 2026-11-20 by the architect,** on the implementer's finding at `d79bf6f38` ([reading](checks/consumer-paths.txt), the `host:` lines), relayed by the coordinator.
+
+- **What the finding shows.** Vite 8.1.4 and 8.3.8 replace the `transform` handler's third argument with `{ moduleType, ssr }`. Their rolldown, 1.1.8 and 1.2.19, builds `meta.magicString`, and Vite doesn't pass it on. Vite 8.4.0-beta.1 passes `{ moduleType, rawId, attributes, ssr }` with `magicString`, as tsdown does.
+- **So, as first written, task 4 takes every stable Vite in the peer range onto the string path.** That includes the common case: one `rolldown` copy, which task 3 kept native. Property 3 held only where the native path could be reached.
+- **Ruling: the binding where the host offers it, and the version where it doesn't.** Properties 1 and 2 become:
+  1. **Outside the dev server** (`kind !== 'serve'`), a host that offers `meta.magicString` is native exactly when that object is `instanceof` the plugin's `RolldownMagicString`. A host that doesn't offer it is native exactly when `this.meta.rolldownVersion === VERSION`, as in task 3. When the binding check is available it decides, and a foreign instance gets the string path even at an equal version. `VERSION` stays imported.
+  2. **Everything else** gets a string and a source map.
+
+  Properties 3 and 4 hold as written, on both native paths.
+
+- **The limit, stated as the probes show it.** A host that offers no `meta.magicString` is Vite 8.1 to 8.3 today. There, two copies of one `rolldown` version that each load their own native binding still drop the edit with exit 0, as under task 3. No package manager has been shown to produce that tree. If one is shown, that is Tier A, and the fallback becomes the string path, option (i).
+- **When the fallback goes.** It goes when the `vite` peer floor reaches a Vite that passes `meta.magicString`, which is 8.4 if its stable release does what 8.4.0-beta.1 does. The `VERSION` import goes with it. The range's floor moves with its own decision (task 1, point 3), and this is a reason to remove the fallback in that change.
+- **Why not (i), the string path wherever `meta.magicString` is absent.** It would make every one-copy build on stable Vite slower, which is the common case. It would do so to guard against a tree that no package manager has been shown to produce. The owner's answer (a) to question 1 accepted a slower build only when the host's copy differs, and _"every other build is unchanged"_.
+- **Why not (iii), another channel to the host's class.** No public channel that Vite 8.1 to 8.3 hands to a plugin is known to carry an instance of the host's binding class. The fallback's life ends with the floor's move in any case, so a search for one isn't owed.
+- **Proofs, in place of task 4's:**
+  - **The node test** covers four cases. `meta.magicString` of the plugin's class is native. One of another class, at an equal `rolldownVersion`, takes the string path. No `meta.magicString` with an equal version is native. No `meta.magicString` with another version takes the string path. Each branch fails under its mutation.
+  - **The consumer paths,** rerun. Vite 8.3.8 hoisted and isolated, and 8.1.4, are native by version. 8.4.0-beta.1 is native by binding. Consumer D takes the string path and is flattened, and its mutant isn't flattened.
+  - **The feature proof's probe,** whose host offers `meta.magicString`, gives task 4's results. `shared-binding` is native and `own-binding` takes the string path, and both keep the edit.
+  - **material-x** is byte-identical, with the witness of the native path in its build hosts, and docs-build and docs-smoke pass.
+  - **The private plugin's probe** covers the same four cases.
 
 ### Closing
 
