@@ -1,0 +1,36 @@
+# just size-reading at e4b0e475d, without and with core's "sideEffects": false (Brotli bytes)
+package row before after
+box-quad index 1182 1182
+core element 312 312
+core emitter 198 198
+core traits/reorderable 3114 3114
+material-x button/button 4844 4844
+material-x button/icon-button 5109 5109
+material-x button/link-button 4808 4808
+material-x button/switch-button 5188 5188
+material-x button/switch-icon-button 5603 5603
+material-x button/split-button 7408 7408
+material-x button-group/button-group 3120 3120
+material-x button-group/connected-button-group 3884 3884
+material-x checkbox/checkbox 4021 4021
+material-x fab/fab 4234 4234
+material-x icon/icon 661 661
+material-x list/list 3673 3673
+material-x list/list-item 2567 2567
+material-x list/list-button-item 4575 4575
+material-x list/list-link-item 4746 4746
+material-x radio/radio 3590 3590
+material-x text-field/multiline-text-field 4437 4437
+material-x text-field/text-field 8128 8128
+material-x complete 16929 16929
+drag draggable alone 2189 2189
+drag draggable + lift 3932 3932
+drag example: resize handle 3265 3265
+drag example: drop zone 4570 4570
+drag example: canvas group 3261 3261
+drag freeDrag 4984 4984
+drag freeDrag + bounds + landing 5465 5465
+drag sortable + y 6533 6533
+drag sortable + xy 6484 6484
+drag complete 7143 7143
+rows: 33, changed: 0

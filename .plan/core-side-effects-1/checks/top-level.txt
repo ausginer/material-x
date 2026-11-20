@@ -1,0 +1,229 @@
+# top-level.ts at e4b0e475d, core built by the root just build: every top-level statement of the 27 modules
+## ./attribute.js
+  const Bool = ObjectExpression { from: (value) => value !== null, to: (value) => value ? "" : null }
+  const Num = ObjectExpression { from(value) { if (!value) return null; const num = Number(value); re…
+  const Str = ObjectExpression { from: (value) => value, to: (value) => value ?? null }
+  const operator = ObjectExpression { get(host, name, { from }) { return from(operator.getRaw(host, name))…
+  export {5}
+## ./controllers/useARIA.js
+  import {1} ../attribute.js
+  import {1} ./useConnected.js
+  import {1} ./useMutationObserver.js
+  function useARIA
+  export {1}
+## ./controllers/useAttributes.js
+  import {1} ../attribute.js
+  import {1} ../element.js
+  function transfer
+  function via
+  function useAttributes
+  export {3}
+## ./controllers/useConnected.js
+  import {1} ../element.js
+  function useConnected
+  export {1}
+## ./controllers/useContext.js
+  import {1} ../element.js
+  import {1} ./useEvents.js
+  const CONTEXT_EVENT_INIT = ObjectExpression { bubbles: true, cancelable: false, composed: true }
+  var ContextEvent = ClassExpression class extends Event { value; } [extends Identifier Event]
+  function createContext
+  function useProvider
+  function useContext
+  export {3}
+## ./controllers/useCSSProps.js
+  import {1} ./useConnected.js
+  var CSSVariableError = ClassExpression class extends Error { name = this.constructor.name; /** * Creates a pa… [extends Identifier Error]
+  function useCSSProps
+  export {2}
+## ./controllers/useEvents.js
+  import {1} ../element.js
+  function useEvents
+  export {1}
+## ./controllers/useKeyboard.js
+  import {1} ./useEvents.js
+  function useKeyboard
+  export {1}
+## ./controllers/useMutationObserver.js
+  import {1} ../element.js
+  function useMutationObserver
+  export {1}
+## ./controllers/useResizeObserver.js
+  import {1} ../element.js
+  function useResizeObserver
+  export {1}
+## ./controllers/useRovingTabindex.js
+  import {1} ../element.js
+  import {1} ../traits/checkable.js
+  import {1} ../traits/disableable.js
+  import {1} ../traits/valuable.js
+  import {1} ../utils/DOM.js
+  import {1} ./useAttributes.js
+  import {1} ./useEvents.js
+  import {1} ./useKeyboard.js
+  import {1} ./useSlot.js
+  const notifySelection = CallExpression createEventNotifier({ input: { cancelable: false }, change: { cancelab…
+  function notifyFocused
+  function isItem
+  const EDGE_FIRST = Literal 0
+  const EDGE_LAST = UnaryExpression -1
+  const DIRECTION_LEFT = UnaryExpression -1
+  const DIRECTION_RIGHT = Literal 1
+  var RovingItems = ClassExpression class { #host; #items = []; constructor(host) { this.#host = host; } s…
+  function hasKeyModifier
+  function useRovingTabindex
+  export {1}
+## ./controllers/useShadowDOM.js
+  function useShadowDOM
+  export {1}
+## ./controllers/useSlot.js
+  import {1} ../utils/DOM.js
+  import {1} ./useEvents.js
+  function useSlot
+  export {1}
+## ./element.js
+  import {1} ./utils/runtime.js
+  function define
+  let use = none
+  let internals = none
+  var ControlledElement = ClassExpression class extends HTMLElement { static { use = (element, controller) => { … [extends Identifier HTMLElement; static block StaticBlock static { use = (element, controller) => { element.#controllers.push(co…]
+  export {4}
+## ./emitter.js
+  import {1} ./utils/runtime.js
+  var EventEmitter = ClassExpression class { #dependencies = /* @__PURE__ */ new Set(); #handler; /** * Reg…
+  export {1}
+## ./traits/attribute-traits.js
+  import {1} ./composition.js
+  const AnyElement = CallExpression bound()
+  const Controlled = CallExpression bound()
+  function attributes
+  export {3}
+## ./traits/checkable.js
+  import {2} ../attribute.js
+  import {2} ../controllers/useAttributes.js
+  import {1} ./attribute-traits.js
+  const CHECKABLE_ATTRS = ObjectExpression { checked: Bool }
+  const $checkable = CallExpression Symbol("Checkable")
+  const __mxflat_Checkable_observedAttributes_cad06aa5 = ArrayExpression ["checked"]
+  var Checkable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Checka… [extends Identifier AnyElement; static init Identifier __mxflat_Checkable_observedAttributes_cad06aa5; computed key MemberExpression Symbol.hasInstance]
+  function useCheckable
+  export {5}
+## ./traits/composition.js
+  function trait
+  function impl
+  function bound
+  function compose
+  export {4}
+## ./traits/disableable.js
+  import {2} ../attribute.js
+  import {2} ../controllers/useAttributes.js
+  import {1} ./attribute-traits.js
+  const DISABLEABLE_ATTRS = ObjectExpression { disabled: Bool }
+  const $disableable = CallExpression Symbol("Disableable")
+  const __mxflat_Disableable_observedAttributes_e2af3a58 = ArrayExpression ["disabled"]
+  var Disableable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Disabl… [extends Identifier AnyElement; static init Identifier __mxflat_Disableable_observedAttributes_e2af3a58; computed key MemberExpression Symbol.hasInstance]
+  function useDisableable
+  export {5}
+## ./traits/linkable.js
+  import {2} ../attribute.js
+  import {1} ../controllers/useAttributes.js
+  import {1} ../controllers/useEvents.js
+  import {1} ./attribute-traits.js
+  const LINKABLE_ATTRS = ObjectExpression { href: Str, target: Str }
+  const $linkable = CallExpression Symbol("Linkable")
+  const __mxflat_Linkable_observedAttributes_1274d6eb = ArrayExpression ["href", "target"]
+  var Linkable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Linkab… [extends Identifier AnyElement; static init Identifier __mxflat_Linkable_observedAttributes_1274d6eb; computed key MemberExpression Symbol.hasInstance]
+  function useLinkable
+  function useDisableableLinkable
+  export {6}
+## ./traits/nameable.js
+  import {2} ../attribute.js
+  import {2} ../controllers/useAttributes.js
+  import {1} ./attribute-traits.js
+  const NAMEABLE_ATTRS = ObjectExpression { name: Str }
+  const $nameable = CallExpression Symbol("Nameable")
+  const __mxflat_Nameable_observedAttributes_67a1e6b9 = ArrayExpression ["name"]
+  var Nameable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Nameab… [extends Identifier AnyElement; static init Identifier __mxflat_Nameable_observedAttributes_67a1e6b9; computed key MemberExpression Symbol.hasInstance]
+  function useNameable
+  export {5}
+## ./traits/reorderable.js
+  import {2} ../attribute.js
+  import {1} ../controllers/useEvents.js
+  import {1} ../controllers/useSlot.js
+  import {3} ../element.js
+  import {1} ../utils/DOM.js
+  import {1} ./attribute-traits.js
+  const REORDER_EVENT_INIT = ObjectExpression { bubbles: true, cancelable: true, composed: true }
+  var ReorderEvent = ClassExpression class extends Event { item; from; to; constructor(item, from, to) { su… [extends Identifier Event]
+  const $reorderable = CallExpression Symbol("Reorderable")
+  const __mxflat_Reorderable_observedAttributes_84ff49bd = ArrayExpression ["reorderable"]
+  var Reorderable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Reorde… [extends Identifier AnyElement; static init Identifier __mxflat_Reorderable_observedAttributes_84ff49bd; computed key MemberExpression Symbol.hasInstance]
+  const ORIGIN = ObjectExpression { x: 0, y: 0 }
+  const DRAGGED_STATE = Literal "drag"
+  const DRAG_THRESHOLD = Literal 8
+  const COMMIT_TIMEOUT = Literal 500
+  const DRAGGING_PROPS = ArrayExpression [ "position", "inset", "top", "left", "width", "height", "margin", "bo…
+  const itemTargets = NewExpression new WeakMap()
+  function getItemTarget
+  function measure
+  function center
+  function distanceSquared
+  function nearestItem
+  function footprintIndex
+  function neighbor
+  function createFootprint
+  function snapshotStyles
+  function restoreStyles
+  function pinVisual
+  function enterTopLayer
+  function exitTopLayer
+  function createCommitTracker
+  function createDragSession
+  function createKeyboardSession
+  function useReorderable
+  function useReorderableItem
+  export {6}
+## ./traits/selectable.js
+  import {2} ../attribute.js
+  import {2} ../controllers/useAttributes.js
+  import {1} ./attribute-traits.js
+  const SELECTABLE_ATTRS = ObjectExpression { selected: Bool }
+  const $selectable = CallExpression Symbol("Selectable")
+  const __mxflat_Selectable_observedAttributes_a569caaf = ArrayExpression ["selected"]
+  var Selectable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Select… [extends Identifier AnyElement; static init Identifier __mxflat_Selectable_observedAttributes_a569caaf; computed key MemberExpression Symbol.hasInstance]
+  function useSelectable
+  export {5}
+## ./traits/typeable.js
+  import {2} ../attribute.js
+  import {2} ../controllers/useAttributes.js
+  import {1} ./attribute-traits.js
+  const TYPEABLE_ATTRS = ObjectExpression { type: Str }
+  const $typeable = CallExpression Symbol("Typeable")
+  const __mxflat_Typeable_observedAttributes_d307d547 = ArrayExpression ["type"]
+  var Typeable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Typeab… [extends Identifier AnyElement; static init Identifier __mxflat_Typeable_observedAttributes_d307d547; computed key MemberExpression Symbol.hasInstance]
+  function useTypeable
+  export {5}
+## ./traits/valuable.js
+  import {2} ../attribute.js
+  import {2} ../controllers/useAttributes.js
+  import {1} ./attribute-traits.js
+  const VALUABLE_ATTRS = ObjectExpression { value: Str }
+  const $valuable = CallExpression Symbol("Valuable")
+  const __mxflat_Valuable_observedAttributes_624f2c17 = ArrayExpression ["value"]
+  var Valuable = ClassExpression class extends AnyElement { static observedAttributes = __mxflat_Valuab… [extends Identifier AnyElement; static init Identifier __mxflat_Valuable_observedAttributes_624f2c17; computed key MemberExpression Symbol.hasInstance]
+  function useValuable
+  export {5}
+## ./utils/DOM.js
+  function $
+  function $$
+  const DEFAULT_EVENT_INIT = ObjectExpression { bubbles: true, composed: true, cancelable: true }
+  function createEventNotifier
+  function toggleState
+  function switchState
+  var FrameRequestHandler = ClassExpression class { #scheduled = false; #handle = -1; schedule(callback) { if (!th…
+  export {7}
+## ./utils/runtime.js
+  function identity
+  function forEachMaybePromise
+  export {2}
+modules read: 27
