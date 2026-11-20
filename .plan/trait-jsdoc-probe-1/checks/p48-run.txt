@@ -1,0 +1,58 @@
+
+# P48 run.sh, 2026-11-20, at eda3b1bfc (repo/trait-decorator-1), aube 2.10.0, node v26.13.1
+same 293 files
+differs: packages/core/traits/checkable.d.ts
+differs: packages/core/traits/disableable.d.ts
+differs: packages/core/traits/linkable.d.ts
+differs: packages/core/traits/nameable.d.ts
+differs: packages/core/traits/reorderable.d.ts
+differs: packages/core/traits/selectable.d.ts
+differs: packages/core/traits/typeable.d.ts
+differs: packages/core/traits/valuable.d.ts
+differs: packages/material-x/button/IconButtonCore.d.ts
+differs: packages/material-x/core/traits/focus-forwarding.d.ts
+
+## docs.ts
+packages/core/traits/checkable.d.ts: 1/1
+packages/core/traits/disableable.d.ts: 1/1
+packages/core/traits/linkable.d.ts: 1/1
+packages/core/traits/nameable.d.ts: 1/1
+packages/core/traits/reorderable.d.ts: 1/1
+packages/core/traits/selectable.d.ts: 1/1
+packages/core/traits/typeable.d.ts: 1/1
+packages/core/traits/valuable.d.ts: 1/1
+packages/material-x/core/traits/focus-forwarding.d.ts: 1/1
+packages/material-x/button/IconButtonCore.d.ts: 1/1
+files with every trait doc: 10/10
+
+## Every differing .d.ts only adds lines, and each added line is part of a JSDoc
+packages/core/traits/checkable.d.ts: removed 0, added 3, added outside a comment 0
+packages/core/traits/disableable.d.ts: removed 0, added 3, added outside a comment 0
+packages/core/traits/linkable.d.ts: removed 0, added 3, added outside a comment 0
+packages/core/traits/nameable.d.ts: removed 0, added 3, added outside a comment 0
+packages/core/traits/reorderable.d.ts: removed 0, added 4, added outside a comment 0
+packages/core/traits/selectable.d.ts: removed 0, added 3, added outside a comment 0
+packages/core/traits/typeable.d.ts: removed 0, added 3, added outside a comment 0
+packages/core/traits/valuable.d.ts: removed 0, added 3, added outside a comment 0
+packages/material-x/button/IconButtonCore.d.ts: removed 0, added 5, added outside a comment 0
+packages/material-x/core/traits/focus-forwarding.d.ts: removed 0, added 11, added outside a comment 0
+
+## positions.ts: a diagnostic in checkable.ts, built by rolldown with the plugin from source, without and with the stage
+P48_LOAD=0, @trait written @trait() (line 14):
+  trait-flattener (attributes-decorator): @attributes decorates a @trait class
+  loc undefined pos 491
+P48_LOAD=0, an inline table with a key that names no accessor (line 15):
+  trait-flattener (attribute-table): the table's nope has no accessor
+  loc undefined pos 501
+P48_LOAD=1, @trait written @trait() (line 14):
+  trait-flattener (attributes-decorator): @attributes decorates a @trait class
+  loc undefined pos 498
+P48_LOAD=1, an inline table with a key that names no accessor (line 15):
+  trait-flattener (attribute-table): the table's nope has no accessor
+  loc undefined pos 508
+  The plugin passes pos inside the log object, so rolldown computes no loc or frame (its this.error(e, pos) does only for a second argument); the CLI prints the plugin, the file and the message, the same with and without the stage. With the stage, pos is 7 later, the length of 'export ' moved in front of the decorators.
+
+## The layout not adopted: 'export' appended to the JSDoc's last line, and spaces in its place (keeps every line and column)
+  All 10 trait .d.ts kept their docs, but 30 files differed: each trait's .d.ts, .js and .js.map. checkable.d.ts:
+    > */ export declare class Checkable extends AnyElement {
+  and checkable.js: '*/ const $checkable = Symbol("Checkable");' where the reference has the comment's own line.
