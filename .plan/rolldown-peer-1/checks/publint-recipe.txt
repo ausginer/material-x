@@ -1,0 +1,32 @@
+RF-55 task R1, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0 and publint 0.3.25, on repo/rolldown-peer-1 at 1e5172392 with the recipe edited, after aube exec just build in packages/material-x.
+Command, from the repository root: .plan/rolldown-peer-1/checks/publint-recipe.sh <S>, where <S> is an empty scratch directory.
+
+== pass
+exit: 0
+  $ just publint
+  Running publint v0.3.25 for <S>/pass-tmp/tmp.Fi6RCbqx6R/ydinjs-material-x-0.1.0.tgz...
+  Unpacking tarball...
+  Linting...
+  All good!
+mentions npm pack: no
+left in TMPDIR: 0 entries
+== missing-export
+exit: 1
+  $ just publint
+  Running publint v0.3.25 for <S>/missing-export-tmp/tmp.yEDBcuZ2U3/ydinjs-material-x-0.1.0.tgz...
+  Unpacking tarball...
+  Linting...
+  Errors:
+  1. pkg.exports["./button/button.js"].default is ./button/button.js but the file does not exist.
+  error: recipe `publint` failed with exit code 1
+mentions npm pack: no
+left in TMPDIR: 0 entries
+== restored
+exit: 0
+  $ just publint
+  Running publint v0.3.25 for <S>/restored-tmp/tmp.XKGEbDR1en/ydinjs-material-x-0.1.0.tgz...
+  Unpacking tarball...
+  Linting...
+  All good!
+mentions npm pack: no
+left in TMPDIR: 0 entries

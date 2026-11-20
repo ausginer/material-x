@@ -146,8 +146,9 @@ A package's manifest names every package that its published files import. Publis
 **Peers.**
 
 - A peer's range names the majors that the workspace builds and tests against.
+- When another peer also depends on a peer, as `vite` depends on `rolldown`, the peer's range covers every version that a release inside the other peer's range declares. Its floor is the floor that the other peer's floor declares, and the two floors move in one commit. The consumer then installs one copy, and the two share it. Two copies can fail silently: a build drops a plugin's output with no error ([`repo:RF-55`](.plan/00-index.md)).
 - When only an optional entry point imports a peer, `peerDependenciesMeta` marks it optional, and its `@types/*` package too.
-- The workspace installs each peer for its own builds and tests, in the package's or the root's `devDependencies`, at a version inside the range.
+- The workspace installs each peer for its own builds and tests, in the package's or the root's `devDependencies`, at a version inside the range. A prerelease is inside a range only when the range names a prerelease of the same version: `8.4.0-beta.1` satisfies `^8.4.0-beta.1` and not `^8.1.4`.
 
 **Why the build depends on this too.** tsdown keeps an import that no manifest names external by its resolved path, so an undeclared import writes the build machine's absolute path into the output ([`repo:RF-51`](.plan/00-index.md)).
 
@@ -439,3 +440,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-15 | Reading one entry of a record; §1.1 | **Changed:** the resolver is `.scripts/entry.sh`, and a retired scope resolves at the commit its scope row names. The examples read drag's record. §1.1 names only drag's failure path. Links into drag2 name its paths at `0870abd75`, or its entries by `drag2:` address. Record: `repo:RD-5` |
 | 2026-11-18 | Part I, Dependencies of a published package | **Added:** which manifest field each package goes in, `@types/*` packages included, on the owner's request after `repo:RF-51` (material-x's React typings imported React by an absolute path). Record: `repo:RF-51` |
 | 2026-11-18 | Part I, Language and platform | **Added:** material-x's browser floor, the current stable release of each engine, on the owner's answer to the question `repo:RF-43` left open. No document stated a floor before. Record: `repo:RD-20` |
+| 2026-11-20 | Part I, Dependencies of a published package | **Added:** a peer that another peer depends on takes a range covering what that peer's range declares, and its floor moves with that peer's floor. Also added: a prerelease is inside a range only when the range names one. Neither was stated before. Record: `repo:RF-55` |

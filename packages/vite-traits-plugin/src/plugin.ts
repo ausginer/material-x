@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
   RolldownMagicString,
+  VERSION,
   type Plugin as RolldownPlugin,
   type PluginContext,
 } from 'rolldown';
@@ -63,24 +64,63 @@ export type BuildKind = 'library' | 'application' | 'serve';
 
 type Emitted = Readonly<{ code: RolldownMagicString | string; map?: string }>;
 
+/** What a transform's host passes as the handler's third argument. */
+type TransformMeta = Readonly<{ magicString?: RolldownMagicString }>;
+
 /**
- * A transform's result. The dev server's plugin container passes `code` on to
- * native transforms that read only a string, so it gets a string and a source
- * map; a build keeps rolldown's native magic string.
+ * The magic string that a transform edits. It is the host's own instance when
+ * that is of this module's `RolldownMagicString` class, which is the class the
+ * host accepts back, and a new one otherwise.
+ */
+function editable(
+  code: string,
+  meta: TransformMeta | undefined,
+  kind: BuildKind,
+): () => RolldownMagicString {
+  return () => {
+    const host = kind === 'serve' ? undefined : meta?.magicString;
+
+    return host instanceof RolldownMagicString
+      ? host
+      : new RolldownMagicString(code);
+  };
+}
+
+/**
+ * A transform's result. A magic string goes back as it is when the host
+ * accepts it, and the host derives the map from it. Any other magic string
+ * becomes a string and a source map: the dev server's plugin container passes
+ * `code` on to native transforms that read only a string, and a host doesn't
+ * recognize a magic string of another binding's class, so it would drop the
+ * edit.
+ *
+ * A host that offers `meta.magicString` accepts its own instance. A host that
+ * offers none, as Vite 8.1 to 8.3, is taken to accept this module's class when
+ * it runs the same rolldown version.
+ *
+ * @param rolldownVersion - The rolldown version that the host runs.
  */
 function emit(
   magic: RolldownMagicString,
   id: string,
+  meta: TransformMeta | undefined,
   kind: BuildKind,
+  rolldownVersion: string,
 ): Emitted {
-  return kind === 'serve'
-    ? {
+  const native =
+    kind !== 'serve' &&
+    (meta && 'magicString' in meta
+      ? magic === meta.magicString
+      : rolldownVersion === VERSION);
+
+  return native
+    ? { code: magic }
+    : {
         code: magic.toString(),
         map: magic
           .generateMap({ source: id, includeContent: true, hires: true })
           .toString(),
-      }
-    : { code: magic };
+      };
 }
 
 function isCandidate(id: string): boolean {
@@ -181,12 +221,14 @@ export type FlattenResult = Readonly<{
  * {@link FlattenerError} for a build error.
  *
  * @param loader - Reads other modules, with layer (b) lowered.
+ * @param createMagic - Gives the magic string of `code` that the edits go to.
  */
 export async function flattenModule(
   code: string,
   id: string,
   kind: BuildKind,
   loader: ModuleLoader,
+  createMagic: () => RolldownMagicString = () => new RolldownMagicString(code),
 ): Promise<FlattenResult> {
   const program = parseModule(id, code);
   const ctx = moduleCtx(id, code, program);
@@ -194,13 +236,14 @@ export async function flattenModule(
     code,
     program,
     kind === 'application',
+    createMagic,
   );
   const sites = findSites(ctx);
   if (sites.length === 0) {
     return { magic: transformed, warnings: [], dependencies: [] };
   }
 
-  const magic = transformed ?? new RolldownMagicString(code);
+  const magic = transformed ?? createMagic();
   const r: Resolver = {
     consumerId: id,
     loader,
@@ -318,15 +361,21 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
         kind = config.build.lib ? 'library' : 'application';
       }
     },
-    transform(code, id) {
+    transform(code, id, meta) {
       const cleanId = id.split('?', 1)[0]!;
       if (!isCandidate(cleanId) || !code.includes('attributes')) {
         return null;
       }
       try {
-        const magic = lowerAttributes(code, parseModule(cleanId, code));
+        const magic = lowerAttributes(
+          code,
+          parseModule(cleanId, code),
+          editable(code, meta, kind),
+        );
 
-        return magic ? emit(magic, cleanId, kind) : null;
+        return magic
+          ? emit(magic, cleanId, meta, kind, this.meta.rolldownVersion)
+          : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }
@@ -339,7 +388,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
       invalidateModule(id);
       moved.delete(id);
     },
-    async transform(code, id) {
+    async transform(code, id, meta) {
       const cleanId = id.split('?', 1)[0]!;
       if (
         !isCandidate(cleanId) ||
@@ -355,6 +404,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           cleanId,
           kind,
           hostLoader(this),
+          editable(code, meta, kind),
         );
         for (const dependency of result.dependencies) {
           this.addWatchFile(dependency);
@@ -367,7 +417,9 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
           });
         }
 
-        return result.magic ? emit(result.magic, cleanId, kind) : null;
+        return result.magic
+          ? emit(result.magic, cleanId, meta, kind, this.meta.rolldownVersion)
+          : null;
       } catch (error) {
         return report(this, cleanId, code, error);
       }

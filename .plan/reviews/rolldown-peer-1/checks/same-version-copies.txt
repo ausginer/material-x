@@ -1,0 +1,15 @@
+RF-55 task 3's limit, run by the reviewer on 2026-11-20 in the devcontainer with node v26.13.1, copying rolldown 1.3.2 and its linux-x64-gnu binding from the workspace installed at aaa29b3a0 in a scratch worktree.
+Command: .plan/reviews/rolldown-peer-1/checks/same-version-copies.sh <worktree> <S>, where <S> is an empty scratch directory.
+
+host: rolldown 1.3.2, <S>/node_modules/rolldown/dist/index.mjs
+host binding: <S>/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+== shared-binding
+  plugin: rolldown 1.3.2, <S>/node_modules/shared-binding/node_modules/rolldown/dist/index.mjs
+  plugin binding: <S>/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+  versions equal: true
+  output: EDITED (kept)
+== own-binding
+  plugin: rolldown 1.3.2, <S>/node_modules/own-binding/node_modules/rolldown/dist/index.mjs
+  plugin binding: <S>/node_modules/own-binding/node_modules/@rolldown/binding-linux-x64-gnu/rolldown-binding.linux-x64-gnu.node
+  versions equal: true
+  output: MARK (edit dropped)

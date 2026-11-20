@@ -575,11 +575,13 @@ function privateReads(
  *
  * @param applicationBuild - The output is an application's, so no consumer
  *   copies from it and each trait class's instance members are deleted.
+ * @param createMagic - Gives the magic string of `code` that the edits go to.
  */
 export function transformTraitModule(
   code: string,
   program: Program,
   applicationBuild: boolean,
+  createMagic: () => RolldownMagicString = () => new RolldownMagicString(code),
 ): RolldownMagicString | null {
   const traitLocals = traitLocalsOf(program);
   if (traitLocals.size > 0) {
@@ -590,7 +592,7 @@ export function transformTraitModule(
     return null;
   }
 
-  const magic = new RolldownMagicString(code);
+  const magic = createMagic();
   const exported = collectExportedNames(program);
   const bindings = collectTopBindings(program);
   const topLevel = collectTopLevelNames(program);

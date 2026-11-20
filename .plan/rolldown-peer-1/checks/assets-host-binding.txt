@@ -1,0 +1,43 @@
+RF-55 task 4 as amended, for @ydinjs/vite-custom-element-assets, run by the implementer on 2026-11-20 on repo/rolldown-peer-1 at c6c75027c with task 4's source change, after `aube exec just build`.
+
+Command: node .plan/rolldown-peer-1/checks/assets-host-binding.ts
+
+meta.magicString of the plugin's class, another version: code is a magic string (the host's instance), no map, replaced: true
+meta.magicString of another class, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+meta.magicString of none, the same version: code is a magic string, no map, replaced: true
+meta.magicString of none, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+Each mutation edits the built index.js, runs the probe, and restores the file.
+
+The mutation: the version decides where the host offers a magic string.
+
+  meta.magicString of the plugin's class, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of another class, the same version: code is a magic string, no map, replaced: true
+  meta.magicString of none, the same version: code is a magic string, no map, replaced: true
+  meta.magicString of none, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+The mutation: never native.
+
+  meta.magicString of the plugin's class, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of another class, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of none, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of none, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+The mutation: any host magic string is edited.
+
+  meta.magicString of the plugin's class, another version: code is a magic string (the host's instance), no map, replaced: true
+  TypeError: s.replaceRegex is not a function
+
+The mutation: a host that offers none always gets a string.
+
+  meta.magicString of the plugin's class, another version: code is a magic string (the host's instance), no map, replaced: true
+  meta.magicString of another class, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of none, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of none, another version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+
+The mutation: a host that offers none is always native.
+
+  meta.magicString of the plugin's class, another version: code is a magic string (the host's instance), no map, replaced: true
+  meta.magicString of another class, the same version: code is a string, map sources ["/virtual/prop.ts"], replaced: true
+  meta.magicString of none, the same version: code is a magic string, no map, replaced: true
+  meta.magicString of none, another version: code is a magic string, no map, replaced: true

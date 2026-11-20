@@ -1,0 +1,27 @@
+RF-55 task 2, run by the implementer on 2026-11-20 in the devcontainer with aube 2.10.0 and the npm registry of that day,
+on repo/rolldown-peer-1 at f9a0c020e with task 1's manifests. @ydinjs/core and @ydinjs/vite-traits-plugin were built with nx and packed with
+`aube pack --ignore-scripts`. The packed plugin manifest: dependencies {@oxc-project/types 0.158.0, oxc-parser 0.158.0},
+peerDependencies {rolldown ^1.1.4, vite ^8.1.4 || ^8.4.0-beta.1}.
+
+Command: .plan/rolldown-peer-1/checks/plugin-consumer.sh <scratch> <plugin tarball> <core tarball>
+
+a-vite8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+a-vite8.3.8-isolated: vite 8.3.8, plugin rolldown 1.2.19, vite rolldown 1.2.19, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+b-vite8.1.4-hoisted: vite 8.1.4, plugin rolldown 1.1.8, vite rolldown 1.1.8, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+c-vite8.4.0-beta.1-hoisted: vite 8.4.0-beta.1, plugin rolldown 1.3.3, vite rolldown 1.3.3, one copy
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link flattened
+  dist/main.js: 0 compose(Base), 1 impl(this
+mutant-a-vite8.3.8-hoisted: vite 8.3.8, plugin rolldown 1.3.2, vite rolldown 1.2.19, two copies
+  tsc --noEmit, skipLibCheck off: passes
+  vite build: exit 0, Link NOT flattened
+  dist/main.js: 2 compose(Base), 0 impl(this
