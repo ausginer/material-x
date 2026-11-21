@@ -1,0 +1,78 @@
+# How Chromium exposes mx-list, mx-sortable-list and their items: node .plan/list-sortable-1/probes/list-a11y.ts "$PWD/packages/material-x"
+# Read by the implementer on 2026-11-21 at 8b294543d plus the unit's working tree, after material-x's build, in Playwright's Chromium. The probe evaluates list/sortable-list.js first, because an item that upgrades before its list is defined doesn't resolve the list's context until RF-69's repair. RF-68's fix isn't on the base, so no item has the listitem role.
+
+ariaSnapshot of #l:
+- text: Static one ≡ Static two
+- button "Button item"
+- link "Link item":
+  - /url: "#x"
+ariaSnapshot of #s:
+- text: Sortable static with handle
+- button "Reorder": ≡
+- text: Sortable static without handle
+- button "Sortable button item"
+
+CDP AX tree (not ignored):
+  RootWebArea ""
+  list ""
+  list ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  button "Button item"
+  link "Link item"
+  generic ""
+  generic ""
+  generic ""
+  button "Sortable button item"
+  StaticText "Static one"
+  StaticText "≡"
+  StaticText "Static two"
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  StaticText "Sortable static with handle"
+  button "Reorder"
+  StaticText "Sortable static without handle"
+  generic ""
+  generic ""
+  InlineTextBox "Static one"
+  InlineTextBox "≡"
+  InlineTextBox "Static two"
+  StaticText "Button item"
+  StaticText "Link item"
+  InlineTextBox "Sortable static with handle"
+  StaticText "≡"
+  InlineTextBox "Sortable static without handle"
+  StaticText "Sortable button item"
+  InlineTextBox "Button item"
+  InlineTextBox "Link item"
+  InlineTextBox "≡"
+  InlineTextBox "Sortable button item"
+
+Tab order, with the focused AX node:
+  1. MX-LIST-BUTTON-ITEM > BUTTON ( Button item): role button, name "Button item", description ""
+  2. MX-LIST-LINK-ITEM > A ( Link item): role link, name "Link item", description ""
+  3. SPAN (s ≡): role button, name "Reorder", description "Use the arrow keys to move"
+  4. MX-LIST-ITEM > DIV ( Sortable static without handle): role generic, name "Sortable static without handle", description "Use the arrow keys to move"
+  5. MX-LIST-BUTTON-ITEM > BUTTON ( Sortable button item): role button, name "Sortable button item", description "Use the arrow keys to move"
+  6. BODY ( Static one≡
+  Static two
+  Button item
+  Link item
+
+
+  Sortable static with handle≡
+  Sortable static without handle
+  Sortable button item): role none, name "", description ""
+  7. MX-LIST-BUTTON-ITEM > BUTTON ( Button item): role button, name "Button item", description ""
+  8. MX-LIST-LINK-ITEM > A ( Link item): role link, name "Link item", description ""

@@ -42,7 +42,6 @@ const { Checkable } = await import('@ydinjs/core/traits/checkable.js');
 const { Disableable } = await import('@ydinjs/core/traits/disableable.js');
 const { Linkable } = await import('@ydinjs/core/traits/linkable.js');
 const { Nameable } = await import('@ydinjs/core/traits/nameable.js');
-const { Reorderable } = await import('@ydinjs/core/traits/reorderable.js');
 const { Selectable } = await import('@ydinjs/core/traits/selectable.js');
 const { Typeable } = await import('@ydinjs/core/traits/typeable.js');
 const { Valuable } = await import('@ydinjs/core/traits/valuable.js');
@@ -63,7 +62,6 @@ const TRAITS: Readonly<Record<string, unknown>> = {
   Disableable,
   Linkable,
   Nameable,
-  Reorderable,
   Selectable,
   Typeable,
   Valuable,

@@ -88,10 +88,6 @@
       "types": "./traits/nameable.d.ts",
       "default": "./traits/nameable.js"
     },
-    "./traits/reorderable.js": {
-      "types": "./traits/reorderable.d.ts",
-      "default": "./traits/reorderable.js"
-    },
     "./traits/selectable.js": {
       "types": "./traits/selectable.d.ts",
       "default": "./traits/selectable.js"

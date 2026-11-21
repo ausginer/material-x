@@ -21,7 +21,6 @@
     "traits/disableable",
     "traits/linkable",
     "traits/nameable",
-    "traits/reorderable",
     "traits/selectable",
     "traits/typeable",
     "traits/valuable",
