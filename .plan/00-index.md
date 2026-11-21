@@ -3267,6 +3267,14 @@ Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sorta
 - **This replaces the _Decided_, _Not adopted_ and _Seen, not registered_ items of the dating before.** They said: _"`listitem` goes on the item's row, the outermost element of its shadow tree that has a box. [...] The host keeps `display: contents` and sets no role."_; _"the role on the host. WebKit then puts each interactive item's button or link outside its item, because it parents shadow content by its box past a `display: contents` host."_; and that WebKit's split of slotted nodes stays, which the box host now repairs for the list items.
 - **Owner question,** in the handoff: whether a consumer's `tabindex` on an `mx-list-item` host stands as a tab stop. `RD-31` gets a follow-up on its branch.
 
+**Dated a third time 2026-11-21 by the architect: the repair is re-ruled again,** at `4c727d25d`, on the owner's direction to fold `mx-list-item`'s inner `div` into its host in this unit, relayed by the coordinator. The [handoff](list-roles-1/list-roles-handoff.md#the-decision) holds decisions 1 and 3 as re-ruled, the readings, and [what they replace](list-roles-1/list-roles-handoff.md#what-the-second-re-ruling-replaces). The repair is **Unimplemented** in this form.
+
+- **Decided:** `mx-list-item` has no inner element and no part `impl`: its host is its box, with its layout and its elevation on `:host`. Every item's drag lifts its host, so the `lifted` state goes. While core's trait lifts a host, its `:host` rule's own padding, overflow, color and background keep the UA popover's values out. Read in three engines ([reading](list-roles-1/checks/list-fold.txt), [probe](list-roles-1/probes/list-fold.ts)): the layout and the pixels are `main`'s, a lifted host keeps its rect and the list its size, and focus reaches a static host with `tabindex` and survives a lift. The trees are clean ([reading](list-roles-1/checks/list-roles-fold.txt)).
+- **This replaces the _Decided_ item's lift of the dating before:** _"While an item's `.host` is lifted, a state toggled from its `beforetoggle` takes the host's box away."_ It also replaces the ruling that kept `mx-list-item`'s `div` and made its fold `RD-31`'s follow-up.
+- **`architecture.md`'s `.host` invariant gains a case,** _the host is the box_, for `mx-list-item`.
+- **`RD-31`'s follow-up** writes a static item's tab stop and description on its host, and drops its `visual` callback and `mx-list-item`'s `FocusForwarding`. The owner question stands, and the fold strengthens the recommended answer.
+- **Seen, not registered,** in the handoff: the list items and the FAB draw no penumbra, because their `all: unset` resets the elevation's `box-shadow`, and `interactive.styles.css` ships nowhere.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

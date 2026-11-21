@@ -12,6 +12,10 @@
 //             through its internals
 //     hostbox - as host, and a document style gives each item host
 //             `display: block` in place of `display: contents`
+//     hostbox-fold - as hostbox, and each static item's shadow `.host` div is
+//             removed, its children moved to the shadow root, as folding
+//             it into the host would have it (added by the architect for the
+//             re-ruling of 2026-11-21)
 //     inner-contents - as inner, with `display: contents` on each
 //             interactive item's wrapper, so its control is again the
 //             list's flex item (added by the architect for reviewer-1)
@@ -109,14 +113,20 @@ for (const item of document.querySelectorAll('mx-list-button-item, mx-list-link-
   wrap.append(target);
 }`;
 
+const FOLD = `for (const item of document.querySelectorAll('mx-list-item')) {
+  const div = item.shadowRoot.querySelector('.host');
+  item.shadowRoot.append(...div.childNodes);
+  div.remove();
+}`;
+
 async function page(code: string): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), 'list-roles-page-'));
   const file = join(dir, 'index.html');
   await writeFile(
     file,
-    `<!doctype html><html><head><meta charset="utf-8">${VARIANT === 'hostbox' ? '<style>#l > * { display: block; }</style>' : ''}</head><body>${BODY}
+    `<!doctype html><html><head><meta charset="utf-8">${VARIANT.startsWith('hostbox') ? '<style>#l > * { display: block; }</style>' : ''}</head><body>${BODY}
 <script>${code}</script>
-<script>${VARIANT.startsWith('inner') || VARIANT === 'host-none' ? `const CONTENTS = ${VARIANT === 'inner-contents'};\n${INNER}` : ''}</script></body></html>`,
+<script>${VARIANT.startsWith('inner') || VARIANT === 'host-none' ? `const CONTENTS = ${VARIANT === 'inner-contents'};\n${INNER}` : ''}${VARIANT === 'hostbox-fold' ? FOLD : ''}</script></body></html>`,
   );
   return pathToFileURL(file).href;
 }
