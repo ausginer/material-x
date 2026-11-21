@@ -83,6 +83,12 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 - Expose class-owned state through read-only views, and changes through methods. A `readonly` field or a getter is not a read-only view if callers can still write to the returned array, buffer, collection or record.
 - A read-only interface used by some callers does not make writable fields on the implementing class acceptable. The class's own public surface must preserve its ownership boundary.
 
+## Parent and child components
+
+A parent component and the components it contains are linked through context: the parent calls `useProvider` and each child calls `useContext`. Don't link them through a module-level registry that maps a child to its parent or a parent to its children. A child resolves the context through the DOM tree when it connects, so the link keeps no module state.
+
+The rule covers only that link. A map from an element to its own parts, such as an item's inner control, isn't a parent–child link.
+
 ## Naming and self-documentation
 
 Follow the [technical English guide](.agents/docs/technical-english.md). Choose names that describe the operation or value in familiar technical terms. Improve an unclear name before adding a comment to translate it. Preserve the performance priorities above when considering changes to code structure.
@@ -441,3 +447,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-18 | Part I, Dependencies of a published package | **Added:** which manifest field each package goes in, `@types/*` packages included, on the owner's request after `repo:RF-51` (material-x's React typings imported React by an absolute path). Record: `repo:RF-51` |
 | 2026-11-18 | Part I, Language and platform | **Added:** material-x's browser floor, the current stable release of each engine, on the owner's answer to the question `repo:RF-43` left open. No document stated a floor before. Record: `repo:RD-20` |
 | 2026-11-20 | Part I, Dependencies of a published package | **Added:** a peer that another peer depends on takes a range covering what that peer's range declares, and its floor moves with that peer's floor. Also added: a prerelease is inside a range only when the range names one. Neither was stated before. Record: `repo:RF-55` |
+| 2026-11-21 | Part I, Parent and child components | **Added:** at the owner's direction, a parent component and its children are linked through context, not through a registry. A map from an element to its own parts isn't covered. No document stated it before. Record: the owner's direction in [`list-sortable-plan.md`](https://github.com/ausginer/material-x/blob/6214e3b57/.plan/list-sortable-1/list-sortable-plan.md) at `6214e3b57` |
