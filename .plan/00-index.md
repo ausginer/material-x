@@ -3349,17 +3349,6 @@ Tier B, **open**. Registered on 2026-11-20 by the architect, on `tproc/tokens-so
 
   - `RD-28` stops the data entering the tree, and `RD-29` removes it from the history.
 
-#### RF-68 — `mx-list` is exposed as a list whose items aren't list items
-
-Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sortable-1`, while answering the owner's question about focus for `RD-31`. `RF-67` is the highest `RF-` on any branch on `origin`, so this is the next free number.
-
-- **What happens:** `mx-list` sets `role="list"` through its internals (`src/list/list.ts`). No list item sets a role: `mx-list-item`, `mx-list-button-item` and `mx-list-link-item` set none, and their hosts are `display: contents`. In Chromium 158, the list is `list`, and each item is `generic`, with its text, `button` or `link` inside ([reading](list-sortable-1/checks/list-a11y.txt), [probe](list-sortable-1/probes/list-a11y.ts)). WAI-ARIA requires a `list` to contain `listitem` elements. A screen reader that counts the items of a list, or moves from item to item, gets nothing from this one.
-- **What is established:** the roles in Chromium's tree, by that reading. Firefox, WebKit and the screen readers themselves aren't read.
-- **Required property:** each item of `mx-list`, and of `mx-sortable-list` once `RD-31` adds it, is exposed as a list item. The button and the link inside an interactive item keep their roles, names and focus.
-- **Not in `RD-31`'s scope.** `RD-31` doesn't change item roles, and its sortable list has the same items.
-
-**Dated 2026-11-21 by the architect:** the owner calls the missing role a bug to fix, in its own unit outside `RD-31`, relayed by the coordinator. #92 tracks it. `RD-31`'s third amendment makes a static item without a handle a tab stop in `mx-sortable-list`, so the fix also gives that focused item its role. Neither unit waits for the other.
-
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
