@@ -6,6 +6,39 @@
 
 The earlier report, for the fold before #90, is this file at `709e9fb55`.
 
+**Updated 2026-11-21 for the feature proof on `RD-31`,** at `d1df5e19d`: [the fix for `reviewer-1`](#the-fix-for-reviewer-1), as the handoff's [ruling](list-roles-handoff.md#the-proof-on-rd-31-reviewer-1-ruled) states, and `reviewer-2`'s two corrections, in [proof 2](#2-the-structure-and-the-lift-in-every-engine-of-the-gate) and [proof 8](#8-sizes).
+
+## The fix for `reviewer-1`
+
+**A value is the item's from its write until anyone else writes or removes that attribute on that element.** From then on it's the consumer's, and the item never removes it. This holds on a handle, an interactive item's control and a static host (`sortable-item.ts`).
+
+- **The mechanism:** one `MutationObserver` per sorted item, with an `attributeFilter` of the claimed names (`tabindex`, `role`, `aria-label` and `aria-description`). It observes the control and the current handle.
+  - The item runs its own writes and removals inside one function. That function first takes the pending records, which are another writer's, and drops ownership of each recorded name on its element. After the writes it takes the records again and discards them, so they are the item's own.
+  - The observer's callback drops ownership in the same way for the records it receives.
+  - When the handle changes, the observer is disconnected and observes the control and the new handle. At the release, the pending records are applied first, then the item removes what it still owns, and the observer is disconnected. So a write in the same task as the release is the consumer's, and nothing observes the elements after the release.
+- **`touch-action`** is an inline style, which the observer doesn't see. The item removes it only if it is still `none`, the item's value, so a consumer's write of the same value isn't told apart. The comment says so.
+- **A consumer's removal** is a record too, so the item stops owning the attribute and doesn't write it again until its next update.
+- **The comments** on `claim` and `sortItem` state the rule. `accessibility.md`'s list section says that a value anyone else writes or removes, at any time, is the consumer's. `mx-sortable-list`'s and `mx-list-item`'s JSDoc name no time, so they already state the rule, and they don't change.
+
+**The rows,** in `sortable-list.browser.test.ts` › _values a consumer writes after the claim_. Each starts with the item's claim:
+
+- a handle's `aria-label` written by the consumer, then the handle is removed: the handle keeps `aria-label` and nothing else of the item's;
+- the host's `tabindex="-1"` and `aria-description`, then a move into `mx-list`: both stay;
+- the host's `tabindex="0"`, the item's own value, then a handle: `tabindex="0"` stays, and the item's description goes;
+- the host's `tabindex="0"`, then a move into `mx-list`: `focus()` reaches the host and Tab stops on it;
+- the host's `tabindex="0"` written in the same task as the item leaves the list: it stays;
+- a button item whose host gets `aria-description="Mine"`, which useARIA forwards to the control, then leaves the list: the control keeps `Mine`;
+- the same button item, then a handle instead: the control keeps `Mine`. This row releases the control's record without a reconnect, because a reconnect makes useARIA forward the host's `aria-*` again;
+- the consumer removes the host's `tabindex`, then the item moves into `mx-list`: the item doesn't write it again, and the host ends with neither attribute.
+
+`MX_TEST_ENGINES=chromium,firefox,webkit`: `sortable-list.browser.test.ts` passes 228 rows, 76 in each engine, the existing rows included.
+
+**The mutation** (proof 5): `disown` iterates no record, so the release removes every recorded name again ([output](checks/mutations-reviewer-1.txt)). In each engine, six of the eight rows fail: the handle's, both `mx-list` cases, the handle on the host, the same-task write and the button item's handle. **Two rows don't fail under it.** The button item that leaves the list passes because the reconnect forwards the host's `aria-*` again. The consumer's removal passes because the item's removal of an absent attribute changes nothing. Both rows read the rule's outcome, and neither observes the record. After the revert, all 228 rows pass.
+
+**Gates:** material-x in Chromium, Firefox and WebKit passes 1,630 rows, with 1 expected fail and 4 skipped. The root `aube exec just test` passes 2,517 rows. Root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations` pass, and so do `fmt`, `lint-fix`, `fmt` and `lint` on the two changed files.
+
+**Sizes** ([reading](checks/list-sizes-reviewer-1.txt)), Brotli, against `de24d50d5`: `list/sortable-list` 8,548 → 8,686 (+138), under `RD-31`'s 9,600 B. `complete` 22,198 → 22,379 (+181). `list/list`, `list/list-item`, `list/list-button-item`, `list/list-link-item` and every row outside the list are unchanged.
+
 ## What changed
 
 **Step 1, the merge `7b90a846f`** of `origin/main` (`73f081dc4`), resolved to the handoff:
@@ -44,7 +77,7 @@ The structure rows are unchanged and pass. Every row below passes in Chromium, F
 
 **The reset row:** `*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid }`. It covers an item with one, two or three lines, and an item with only a label, only a lead or only a trail. For each, the item's box in a 360 px list and the boxes of its `.lead`, `.content` and `.trail` in the item equal the reading without the rule.
 
-**The rise row,** for `mx-list-item` and `mx-list-button-item` in `mx-sortable-list`. Rest is 0, the raised value read from `--_container-elevation` is 8, and the first `--_level` reading above rest is below 8. The ruling asks for the value one frame after `onStart`. In WebKit that value can still be 0, before the transition's first tick (see the [reading](checks/lift-rise.txt)). So the row waits for the first frame that has left rest and asserts that the level hasn't jumped.
+**The rise row,** for `mx-list-item` and `mx-list-button-item` in `mx-sortable-list`. Rest is 0, the raised value read from `--_container-elevation` is 8, and the first `--_level` reading above rest is below 8. The ruling asks for the value one frame after `onStart`. In Chromium, Firefox and WebKit that value can still be 0, before the transition's first tick (see the [reading](checks/lift-rise.txt), whose `state` column is 0 in each engine). So the row waits for the first frame that has left rest and asserts that the level hasn't jumped. **Corrected 2026-11-21 on `reviewer-2`:** this said _"In WebKit that value can still be 0"_, but the reading shows it in all three engines.
 
 **The new tab stop row:** an `mx-list-item` with a consumer's `tabindex="0"` in `mx-list` is reached by Tab.
 
@@ -101,7 +134,8 @@ Brotli bytes. The base is `aube exec just size-reading` on `73f081dc4`, the merg
 
 - **No row grows by more than 150 B.** `list/list-item` reads 2,803 B, under 3.1 kB, and `list/sortable-list` reads 8,549 B, under 9.6 kB. `list/list` gains no module.
 - **The control rows hold:** with the base's names, `list/list` and every row outside the list are unchanged. The drag, core and box-quad rows are unchanged in both figures.
-- Each list row is within its estimate. `complete` is at the top of its estimate of −150 to +100 B. It carries the box rule twice, under `:host` and under `.host`, and the spacing margins, while each item row carries only its own stylesheet. The reading doesn't break the +100 B down further.
+- Each list row is within its estimate. **`complete` is +106 B in the build's own figure, 6 B over its estimate of −150 to +100 B,** and +100 B with the base's names. It carries the box rule twice, under `:host` and under `.host`, and the spacing margins, while each item row carries only its own stylesheet. The reading doesn't break the difference down further. **Corrected 2026-11-21 on `reviewer-2`:** this said _"`complete` is at the top of its estimate"_, which holds only for the figure with the base's names.
+- **After the fix for `reviewer-1`,** `list/sortable-list` is 8,686 B and `complete` 22,379 B: [above](#the-fix-for-reviewer-1).
 
 ### The lift's rise
 

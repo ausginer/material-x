@@ -947,6 +947,124 @@ describe('mx-sortable-list handle semantics', () => {
   });
 });
 
+describe('mx-sortable-list values a consumer writes after the claim', () => {
+  function moveIntoPlainList(item: HTMLElement): void {
+    const plain = document.createElement('mx-list');
+    document.body.append(plain);
+    plain.append(item);
+  }
+
+  it("should keep a consumer's aria-label on a handle once the handle leaves", async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+    const handle = handleOf(a!);
+    handle.setAttribute('aria-label', 'Drag A');
+    await nextFrame();
+    handle.remove();
+    await nextFrame();
+
+    expect([written(handle), handle.getAttribute('aria-label')]).toEqual([
+      ['aria-label'],
+      'Drag A',
+    ]);
+  });
+
+  it("should keep a consumer's tabindex and description on the host once it moves into mx-list", async () => {
+    const [, [a]] = await createList(['A']);
+    a!.setAttribute('tabindex', '-1');
+    a!.setAttribute('aria-description', 'Mine');
+    await nextFrame();
+    moveIntoPlainList(a!);
+    await nextFrame();
+
+    expect([
+      a!.getAttribute('tabindex'),
+      a!.getAttribute('aria-description'),
+    ]).toEqual(['-1', 'Mine']);
+  });
+
+  it("should keep a consumer's tabindex of the item's value on the host once it gains a handle", async () => {
+    const [, [a]] = await createList(['A']);
+    a!.setAttribute('tabindex', '0');
+    await nextFrame();
+    a!.prepend(createHandle());
+    await nextFrame();
+
+    expect([
+      a!.getAttribute('tabindex'),
+      a!.hasAttribute('aria-description'),
+    ]).toEqual(['0', false]);
+  });
+
+  it("should keep a consumer's tabindex of the item's value as a tab stop in mx-list", async () => {
+    const [, [a]] = await createList(['A']);
+    a!.setAttribute('tabindex', '0');
+    await nextFrame();
+    moveIntoPlainList(a!);
+    await nextFrame();
+    const before = document.createElement('button');
+    a!.parentElement!.before(before);
+    a!.focus();
+    const focused = document.activeElement === a;
+    before.focus();
+    await userEvent.tab();
+
+    expect([focused, document.activeElement === a]).toEqual([true, true]);
+  });
+
+  it("should keep a consumer's write made in the same task as the release", async () => {
+    const [, [a]] = await createList(['A']);
+    a!.setAttribute('tabindex', '0');
+    document.body.append(a!);
+    await nextFrame();
+
+    expect([
+      a!.getAttribute('tabindex'),
+      a!.hasAttribute('aria-description'),
+    ]).toEqual(['0', false]);
+  });
+
+  it("should keep the description that the host forwards to a button item's control once it leaves", async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-button-item' });
+    a!.setAttribute('aria-description', 'Mine');
+    await nextFrame();
+    const forwarded = visualOf(a!).getAttribute('aria-description');
+    document.body.append(a!);
+    await nextFrame();
+
+    expect([forwarded, visualOf(a!).getAttribute('aria-description')]).toEqual([
+      'Mine',
+      'Mine',
+    ]);
+  });
+
+  // A reconnect forwards the host's `aria-*` to the control again, so this row
+  // releases the control's record in place, by a handle.
+  it("should keep the description that the host forwards to a button item's control once it gains a handle", async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-button-item' });
+    a!.setAttribute('aria-description', 'Mine');
+    await nextFrame();
+    a!.prepend(createHandle());
+    await nextFrame();
+
+    expect(visualOf(a!).getAttribute('aria-description')).toBe('Mine');
+  });
+
+  it('should not write again an attribute the consumer removed, before or at the release', async () => {
+    const [, [a]] = await createList(['A']);
+    a!.removeAttribute('tabindex');
+    await nextFrame();
+    const removed = a!.hasAttribute('tabindex');
+    moveIntoPlainList(a!);
+    await nextFrame();
+
+    expect([
+      removed,
+      a!.hasAttribute('tabindex'),
+      a!.hasAttribute('aria-description'),
+    ]).toEqual([false, false, false]);
+  });
+});
+
 describe('mx-list-item focus', () => {
   async function createStatic(tag: ListTag): Promise<HTMLElement> {
     const [, [a]] = await createList(['A'], { tag });

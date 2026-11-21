@@ -1,0 +1,27 @@
+# Proof 5's reviewer-1 mutation: the claim record's ownership removed (disown iterates no record, so release removes every recorded name again), run and reverted: MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test tests/list/sortable-list.browser.test.ts (packages/material-x)
+# Run by the implementer on 2026-11-21 on the reviewer-1 fix over d1df5e19d, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2.
+
+ ❯ |browser (chromium)| tests/list/sortable-list.browser.test.ts (76 tests | 6 failed)
+     × should keep a consumer's aria-label on a handle once the handle leaves
+     × should keep a consumer's tabindex and description on the host once it moves into mx-list
+     × should keep a consumer's tabindex of the item's value on the host once it gains a handle
+     × should keep a consumer's tabindex of the item's value as a tab stop in mx-list
+     × should keep a consumer's write made in the same task as the release
+     × should keep the description that the host forwards to a button item's control once it gains a handle
+ ❯ |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts (76 tests | 6 failed)
+     × should keep a consumer's aria-label on a handle once the handle leaves
+     × should keep a consumer's tabindex and description on the host once it moves into mx-list
+     × should keep a consumer's tabindex of the item's value on the host once it gains a handle
+     × should keep a consumer's tabindex of the item's value as a tab stop in mx-list
+     × should keep a consumer's write made in the same task as the release
+     × should keep the description that the host forwards to a button item's control once it gains a handle
+ ❯ |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts (76 tests | 6 failed)
+     × should keep a consumer's aria-label on a handle once the handle leaves
+     × should keep a consumer's tabindex and description on the host once it moves into mx-list
+     × should keep a consumer's tabindex of the item's value on the host once it gains a handle
+     × should keep a consumer's tabindex of the item's value as a tab stop in mx-list
+     × should keep a consumer's write made in the same task as the release
+     × should keep the description that the host forwards to a button item's control once it gains a handle
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  18 failed | 210 passed (228)
+after revert:       Tests  228 passed (228)
