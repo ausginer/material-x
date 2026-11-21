@@ -12,6 +12,8 @@
 
 **Ruled on step 2's stop 2026-11-21 by the architect,** at `11331a545`, on the implementer's reading that the lift's rise is instant in WebKit with the lift's `transition` rule, relayed by the coordinator: [The rise in WebKit, ruled](#the-rise-in-webkit-ruled). `onStart` reads one computed style value of the item before it sets the `drag` state, and the rule stays. Property 6 is unchanged, and the owner isn't asked. [What the ruling on the rise replaces](#what-the-ruling-on-the-rise-replaces) records the text as it was at `11331a545`.
 
+**Ruled on the feature proof on `RD-31` 2026-11-21 by the architect,** at `8efe7c009`, on the coordinator's task: [The proof on `RD-31`: `reviewer-1`, ruled](#the-proof-on-rd-31-reviewer-1-ruled). A value that anyone but the item writes on an element the item claimed is no longer the item's, whenever it was written, so the item doesn't remove it. That holds for the handle, an interactive item's control and a static host. It blocks #99, and the owner isn't asked. Proof 5's first bullet is corrected. [What the ruling on `reviewer-1` replaces](#what-the-ruling-on-reviewer-1-replaces) records the text as it was at `8efe7c009`. **The implementer's next change is the fix,** under [What the implementer does](#what-the-implementer-does), then `reviewer-2` (Tier C, the report), and then a re-check of `reviewer-1`.
+
 **Governing records:**
 
 - `RF-68` in [`../00-index.md`](../00-index.md): its required property and its datings. This branch carries the entry, as [Where `RF-68`'s record lives](#where-rf-68s-record-lives) explains;
@@ -165,7 +167,7 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
   - A row reads the rise of the lift's `transition`, as above.
 - **Docs and record:** `accessibility.md`'s list section says that a handle-less static item in a sortable list takes focus on its host, which is its `listitem`. Rerun `RD-31`'s [accessibility probe](../list-sortable-1/probes/list-a11y.ts) on the build after step 2, and save it beside its reading on this branch, as `checks/list-a11y-roles.txt`. In Chromium, the focused handle-less static item is a `listitem` with its name and the arrow-key description, and has no node of its own around it.
 
-**Not in this unit:** core's reorderable trait, which `main` no longer has, and every drag source. `sortable-list.ts` changes by the `visual` callback, its JSDoc and the style read in `onStart` alone, and `sortable-item.ts` by the static item's writes.
+**Not in this unit:** core's reorderable trait, which `main` no longer has, and every drag source. `sortable-list.ts` changes by the `visual` callback, its JSDoc and the style read in `onStart` alone, and `sortable-item.ts` by the static item's writes and the claim record's ownership ([`reviewer-1`, ruled](#the-proof-on-rd-31-reviewer-1-ruled)).
 
 #### Proposed seventh amendment of `RD-31`
 
@@ -231,7 +233,7 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
 - the list item templates: the interactive items' back to `main`'s, and `mx-list-item`'s without its `div`;
 - `ListItemCore.ts`, for the role, the reorderable registration and where the shared content goes, `ListInteractiveItemCore.ts`, for `FocusForwarding`, and `list-item.ts`, for its part line;
 - the item styles, for `:host`'s `display`, the box rule of each kind and `mx-list-item`'s spacing;
-- after the merge of #90 (re-planned): `sortable-list.ts`, for its `visual` callback, its JSDoc and the style read in `onStart`, `sortable-item.ts`, for the static item's writes, and #90's static-item rows in `sortable-list.browser.test.ts`;
+- after the merge of #90 (re-planned): `sortable-list.ts`, for its `visual` callback, its JSDoc and the style read in `onStart`, `sortable-item.ts`, for the static item's writes and the claim record's ownership, and #90's static-item rows in `sortable-list.browser.test.ts`;
 - the lift's `transition` rule in `main.styles.css`;
 - material-x tests, `traits-baseline` and the test command for the Chromium tree;
 - `focus-forwarding.browser.test.ts`'s list of adopters;
@@ -279,7 +281,8 @@ Use the `test-component` skill for every material-x test.
 3. **Three engines' trees, by the committed probe.** Rerun [`probes/list-roles.ts`](probes/list-roles.ts) against the branch's build, in its `main` variant, which reads the built package unchanged. Save the reading under `checks/`, and show properties 1 and 3 in Chromium, Firefox and WebKit, with the slotted nodes inside their items in WebKit. Also rerun [`probes/list-lift.ts`](probes/list-lift.ts)'s `none` mode, and save it.
 4. **The layout and pixel reading.** For the fixtures in property 5, read every item's box and the list's rect in all three engines, on `main`'s build and on the branch's, with [`probes/list-layout.ts`](probes/list-layout.ts). It reads an item without a `.host` by its host. The readings are equal. Save both under `checks/`. With `--png <dir>`, it also writes a screenshot per engine at elevation level 0 and 6. Each of the branch's screenshots is byte-equal to `main`'s (`cmp`); record the comparison in the report. **Also rerun [`probes/fold-cascade.ts`](probes/fold-cascade.ts)** on the branch's build after the change, and save it. In its `branch` variant, `branch reset` reads as `branch plain`, its screenshots at level 0 and 6 are byte-equal to them, and every lift's `lifted` line keeps the `before` line's values, except the `popover` rule's `box-shadow`. Its other variants emulate the fixes, so they read as `branch`.
 5. **Mutations.** Each fails, and each is reverted:
-   - with `{ role: 'listitem' }` removed from the `useCore` call, proofs 1 and 2 fail;
+   - with `{ role: 'listitem' }` removed from the `useCore` call, proof 1's Chromium rows fail. Proof 2's rows read the template, `display` and the `role` attribute, and none of them observes a role set through the internals. In Firefox and WebKit the committed probe of proof 3 observes it;
+   - with the claim record's ownership removed, so that `release` removes every recorded name again, the rows of [`reviewer-1`'s ruling](#the-proof-on-rd-31-reviewer-1-ruled) fail in each engine;
    - with the trait's kept values removed, proof 2's lift rows fail for both items under the `[popover]` rule, and the interactive item's row fails without it. **Re-planned:** with drag's `UA_PROPS` emptied in the workspace build, and the build restored after;
    - with the lift's `transition` rule removed, the rise row fails, if step 2's reading added the rule;
    - with the style read in `onStart` removed, the rise row fails in WebKit ([The rise in WebKit, ruled](#the-rise-in-webkit-ruled));
@@ -364,6 +367,45 @@ Use the `test-component` skill for every material-x test.
 **`reviewer-4`** stays with the implementer: [After the ruling on the fold's proof](#after-the-ruling-on-the-folds-proof).
 
 **Seen, not registered:** `button-group`'s standard variant puts `padding-inline` on `:host ::slotted(*)`, not on `:host` as the proof says. A page's universal reset beats a `::slotted` declaration too. The slotted buttons' hosts are `display: contents`, so whether that padding has any effect wasn't read. A rule in `CONTRIBUTING.md`'s [Shadow tree structure](../../CONTRIBUTING.md#shadow-tree-structure) that states what a host owes the page's rules would be project documentation, which has its own pull request (`RD-32`). It isn't written yet.
+
+## The proof on `RD-31`: `reviewer-1`, ruled
+
+**Ruled 2026-11-21 by the architect,** on the [feature proof](../reviews/list-roles-1/feature-proof-rd31-claude.md) at `8efe7c009`, which read `de24d50d5`, relayed by the coordinator. Its [reading](../reviews/list-roles-1/checks/consumer-writes.txt) and the code agree: `claim` records a name when it writes the attribute, and `release` removes every recorded name, whoever wrote the value last (`sortable-item.ts`). So in the three engines, a `tabindex` or `aria-description` that the consumer writes on a static host after the item claimed it is removed when the item gains a handle, leaves the list or moves into `mx-list`. That includes `tabindex="0"`: in `mx-list` the host is then no tab stop. On `main` (`73f081dc4`) the same record removes a consumer's later `aria-label` from a handle.
+
+**The ruling: "kept" has no condition on time.** A value is the item's from its write until anyone else writes that attribute on that element. From then on it is the consumer's, and the item never removes it. This is the owner's answer (a) as given, _"a consumer's `tabindex` stands"_, and `RD-31`'s property 4, _"Values the consumer set are kept"_. Neither text, nor the JSDoc, nor `accessibility.md` names a time, so the record is the defect and the contract stands. No amendment of `RD-31` is needed, and the owner isn't asked.
+
+**It blocks #99.** It's Tier A on what this unit states. The unit puts the record on the consumer's own element and on `tabindex`, and its property 4 and the seventh amendment state answer (a). A framework that binds `tabindex` from state after the first render is correctly integrated. The handle's case is `main`'s, and it is fixed here too, because it's the same record and the same two functions.
+
+**Required properties.**
+
+1. **Whoever writes, the item yields.** Every write after the claim by anyone but the item makes the value the consumer's, for each attribute the item claims (`tabindex`, `role`, `aria-label` and `aria-description`). That includes a write of the same value, a write in the same task as the release, and core's forwarding of the host's `aria-*` to an interactive item's control. The item then doesn't remove it at the release. That holds on a handle, an interactive item's control and a static host.
+2. **`touch-action`, the handle's inline style property, is the consumer's** once its inline value differs from the item's. A consumer's write of the same inline value isn't told apart. The comment says so in one sentence.
+3. **The item's own writes and removals don't count as the consumer's.**
+4. **A consumer's removal ends the item's ownership.** The item doesn't write that attribute again until its next update, as today.
+5. **After the item's release, nothing of the item observes its elements,** and the record holds no element.
+6. **Only `list/sortable-list` contains it,** as `RD-31` properties 3 and 4 state. No plain list row grows, and `list/sortable-list` stays within `RD-31`'s bound of 9,600 B.
+
+**The mechanism is the implementer's.** One that meets property 1: a `MutationObserver` per sorted item, with an `attributeFilter` of the claimed names, observing the elements it claims on. The item takes its records synchronously before each of its own writes and removals, and discards the records those produce. A comparison of values at the release alone doesn't meet property 1, because it can't tell a consumer's `tabindex="0"` from the item's, and that is answer (a)'s case.
+
+**Not adopted:**
+
+- **Narrowing answer (a) to values set before the claim.** It would make a correctly integrated framework binding lose its `tabindex`, and it would need the owner to take back an answer whose text has no such condition. Property 1 costs one observer per sorted item, in the sortable entry only.
+- **Writing the description through `ElementInternals`** so that the consumer's attribute overrides it. `tabindex` has no internals equivalent, so the record stays, and the handle's and the control's writes aren't the host's.
+- **Leaving the handle's case to `main`.** It is the same two functions, and splitting them would leave one record with two rules.
+
+### What the implementer does
+
+- **`sortable-item.ts`:** the claim record meets properties 1 to 5. The comments on `claim` and `sortItem` say what holds: a value is the item's until anyone else writes it.
+- **Tests, in `sortable-list.browser.test.ts`, three engines,** each with the item's claim first:
+  - the review's four cases, as its [probe](../reviews/list-roles-1/probes/consumer-writes.browser.test.ts) writes them: the handle's `aria-label`, then its removal; the host's `tabindex="-1"` and `aria-description`, then `mx-list`; the host's `tabindex="0"`, then a handle; and the host's `tabindex="0"`, then `mx-list`, where `focus()` reaches the host and Tab stops on it;
+  - a consumer's write and the release in the same task;
+  - an interactive item whose host gets a consumer's `aria-description` after the claim, then leaves the list: its control keeps the consumer's value;
+  - a consumer's removal of a claimed attribute, then the release: the item doesn't write it again and removes nothing;
+  - the existing rows still pass, including _should keep the consumer's tabindex and description on the host_.
+- **Proof 5:** the new mutation, as its bullet states.
+- **Sizes:** `aube exec just size-reading`, with `list/sortable-list`'s growth against `de24d50d5` reported. **Stop** if it exceeds 9,600 B or a plain list row changes.
+- **`accessibility.md`, `mx-sortable-list`'s and `mx-list-item`'s JSDoc:** their text already states the ruling. Change them only where they say less.
+- **The report:** the fix, its rows, the mutation and the sizes, and `reviewer-2`'s two corrections.
 
 ## Knock-on for `RD-31` (#90): a follow-up on its branch
 
@@ -457,6 +499,13 @@ The full text before is this file at `11331a545`.
 - **The scope** had `sortable-list.ts` _"for its `visual` callback and its JSDoc"_.
 - **A stop** was _"with the lift's `transition` rule, the elevation doesn't rise over the drag's duration in an engine"_.
 - **Proof 5** had no mutation of the style read.
+
+## What the ruling on `reviewer-1` replaces
+
+The full text before is this file at `8efe7c009`.
+
+- **[On top of `RD-31` (#90)](#on-top-of-rd-31-90)'s _Not in this unit_** said: _"and `sortable-item.ts` by the static item's writes"_. **The scope** had `sortable-item.ts` _"for the static item's writes"_.
+- **Proof 5's first bullet** said: _"with `{ role: 'listitem' }` removed from the `useCore` call, proofs 1 and 2 fail"_. It had no mutation of the claim record.
 
 ## Seen, not registered
 
