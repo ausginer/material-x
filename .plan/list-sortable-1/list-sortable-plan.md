@@ -384,6 +384,8 @@ Ruled on 2026-11-21 on Mx Implementer B's size stop at `88801757e`, relayed by t
 
 This slot doesn't amend record entries, so the text is proposed here.
 
+**Registered on 2026-11-21 by the main slot's architect,** with one change. The item on handle semantics now says that the item applies these writes, the (Q6) item's tab stop included, and that the code runs only when the item calls the value with its own host and control, writing only on that item's elements. The proposed _"The list writes nothing on an item"_ is replaced by _"The list keeps no registry and queries no item"_, because the code that writes is now in the list's module. The new reason adds that the item hands the value its own elements. Property 7 is as proposed. [`RD-31`](../00-index.md) holds the text in force.
+
 In property 4's item on handle semantics, replace _"The item writes it on its own handle or control while it is in a sortable list, and never on its host. The list writes nothing on an item."_ with:
 
 > The item applies it to its own handle or control while it is in a sortable list, and never to its host. The code that writes it is in a module that only `list/sortable-list` imports, and reaches the item through the context's value, so a plain list's items don't contain it. The list writes nothing on an item.
