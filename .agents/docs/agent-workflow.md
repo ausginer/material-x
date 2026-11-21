@@ -23,11 +23,24 @@ Reviewers find and document; they do not fix or decide. Only the architect creat
 
 `decision when needed → implementation → independent review → remediation or routed decision`
 
+A decision and its implementation are one unit, on one branch, with one pull request ([below](#one-branch-and-one-pull-request-per-unit)).
+
 Straightforward defects go to the implementer. A change to architecture, contract, lifecycle, ownership, parity or public surface goes to the architect. An owner answer that changes a contract is recorded by the architect before dependent implementation resumes.
 
 For a new or substantially reworked architecture, use the [prototype checkpoint](#architecture-prototypes) before committing to the full design and production implementation.
 
 Top-level prompts and closing messages travel as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays them, or a `coordinator` session sends them directly. The consolidator's review-local dispatch is governed by its [role definition](../../.claude/agents/consolidator.md).
+
+## One branch and one pull request per unit
+
+A unit's plan is part of its implementation, so the plan and the implementation share one branch and one pull request. The owner set this rule on 2026-11-21.
+
+- **The plan is committed on the unit's branch:** the plan, its readings and probes, and the record entries it adds or amends. The architect pushes the branch and doesn't open a pull request for it.
+- **The implementer continues on that branch.** The implementation prompt names it. The architect's worktree releases the branch once the plan is pushed, because git checks a branch out in only one worktree.
+- **Roles that write to the branch take turns.** Each pushes before the next one starts. A later amendment of the plan, for an owner's answer or a finding, is committed on the same branch.
+- **The pull request opens once the implementation is pushed,** and its description covers both.
+- **A unit with nothing to implement,** such as a decision that only records an answer, has its pull request by itself.
+- **A change to project documentation is a unit of its own,** with its own pull request, and doesn't go into a feature's pull request. Project documentation is the agent rules (`AGENTS.md`, `.agents/docs/`, the role definitions under `.claude/agents/`) and user documentation. The documentation that a feature's implementation owes, such as its JSDoc and its component page, goes with the feature.
 
 ## Architecture prototypes
 
@@ -86,7 +99,7 @@ Several units may be open at once, one in each session slot ([coordinator-setup.
 - **Opening one.** A unit that builds on another's unmerged work branches from that unit's branch, and its pull request's base is that branch. `verify` runs on it.
 - **While the lower pull request is open,** merge the lower branch into the upper one to bring its changes up.
 - **Merge order.** The lower pull request merges first. The owner merges each one.
-- **An upper unit waits on decisions.** Its implementation starts after the lower unit's decisions that it builds on are committed, and its plan names them.
+- **An upper unit waits on decisions.** Its implementation starts after the lower unit's decisions that it builds on are committed, and its plan names them. Those decisions are on the lower unit's branch, with the lower unit's implementation. A plan and its own implementation are one unit, never a stack.
 - **After the lower one squash-merges:**
   1. retarget the upper pull request to `main` (`gh pr edit <number> --base main`), unless GitHub did it when the lower branch was deleted;
   2. in the upper branch, `git fetch origin && git merge origin/main`, with no rebase and no force-push;
@@ -134,7 +147,7 @@ Every task prompt ends with its recipient stamp on the final line:
 
 For an architect prompt, put `Bread rating: N/10` immediately before the stamp. It measures how much architectural reasoning the coordinator has preselected: 1/10 supplies the problem, evidence and constraints; 10/10 leaves only transcription. Aim low. Preserve an owner's concrete hypothesis as a hypothesis the architect can challenge, not a design silently chosen by the coordinator.
 
-An implementation prompt names settled decisions and the implementation boundary. If their expression reveals a contradiction, ask for escalation rather than prescribing an improvised architecture. A review prompt asks what must hold, without prescribing a repair.
+An implementation prompt names the unit's branch, which holds its plan, the settled decisions and the implementation boundary. If their expression reveals a contradiction, ask for escalation rather than prescribing an improvised architecture. A review prompt asks what must hold, without prescribing a repair.
 
 ## Architecture challenges
 
