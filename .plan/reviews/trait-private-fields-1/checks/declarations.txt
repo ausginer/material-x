@@ -1,0 +1,24 @@
+--- traits.d.ts
+import { AnyElement } from "@ydinjs/core/traits/attribute-traits.js";
+import { Composed } from "@ydinjs/core/traits/composition.js";
+export declare class Sup extends AnyElement {
+  #private;
+  constructor();
+  get ready(): boolean;
+}
+declare const SubBase: Composed<typeof AnyElement, [typeof Sup]>;
+export declare class Sub extends SubBase {
+  #private;
+  constructor();
+  get subX(): string;
+}
+export declare class Other extends AnyElement {
+  #private;
+  get other(): number;
+}
+export {};
+--- typecheck clean: 0 diagnostics
+--- typecheck mutation: reads a trait private name: 1 diagnostics
+TS2551: Property '#ready' does not exist on type 'Item'. Did you mean 'ready'?
+--- typecheck mutation: reads a missing member: 1 diagnostics
+TS2339: Property 'missing' does not exist on type 'Item'.

@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'tsdown';
+import ts from 'typescript';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { viteTraitsPlugin } from '../src/plugin.ts';
 import { FIXTURES } from './helpers.ts';
@@ -54,6 +55,57 @@ import { trait } from '@ydinjs/core/traits/composition.js';
 ${keywords} class Defaulted extends AnyElement {}
 `;
 
+/** Two traits with private members, one of them with a constructor. */
+const STATEFUL = `import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+
+/** A trait with private state and a constructor. */
+@trait
+export class Stateful extends AnyElement {
+  #count = 0;
+
+  constructor() {
+    super();
+    this.#count += 1;
+  }
+
+  #bump(): void {
+    this.#count += 1;
+  }
+
+  get count(): number {
+    this.#bump();
+    return this.#count;
+  }
+}
+
+/** A trait with private state and no constructor. */
+@trait
+export class Keyed extends AnyElement {
+  #x = 'keyed';
+
+  get key(): string {
+    return this.#x;
+  }
+}
+`;
+
+/** A component of both traits, typed against their declarations. */
+const STATEFUL_COMPONENT = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import type { Keyed, Stateful } from './out/stateful.js';
+
+const ItemBase: Composed<typeof HTMLElement, [typeof Stateful, typeof Keyed]> =
+  compose(HTMLElement);
+
+export class Item extends ItemBase {
+  #x = 1;
+
+  read(): number {
+    return this.count + this.key.length + this.#x;
+  }
+}
+`;
+
 /** Each default trait's module, by file name. */
 const DEFAULT_TRAITS: Readonly<Record<string, string>> = {
   'defaulted.ts': defaultTrait('export default'),
@@ -63,18 +115,24 @@ const DEFAULT_TRAITS: Readonly<Record<string, string>> = {
 
 let dir: string;
 let declarations: string;
+let statefulDeclarations: string;
 const defaultDeclarations = new Map<string, string>();
 
 beforeAll(async () => {
   dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-dts-'));
   await writeFile(join(dir, 'opened.ts'), TRAIT);
+  await writeFile(join(dir, 'stateful.ts'), STATEFUL);
   const defaults = Object.keys(DEFAULT_TRAITS);
   await Promise.all(
     defaults.map((file) => writeFile(join(dir, file), DEFAULT_TRAITS[file]!)),
   );
   await build({
     config: false,
-    entry: [join(dir, 'opened.ts'), ...defaults.map((file) => join(dir, file))],
+    entry: [
+      join(dir, 'opened.ts'),
+      join(dir, 'stateful.ts'),
+      ...defaults.map((file) => join(dir, file)),
+    ],
     outDir: join(dir, 'out'),
     format: 'esm',
     platform: 'neutral',
@@ -87,6 +145,10 @@ beforeAll(async () => {
     logLevel: 'silent',
   });
   declarations = await readFile(join(dir, 'out', 'opened.d.ts'), 'utf8');
+  statefulDeclarations = await readFile(
+    join(dir, 'out', 'stateful.d.ts'),
+    'utf8',
+  );
   for (const file of defaults) {
     defaultDeclarations.set(
       file,
@@ -145,6 +207,41 @@ describe("a trait's declarations through tsdown", () => {
     expect(declarations).toContain(
       '/** An abstract trait. */\nexport declare abstract class Abstracted',
     );
+  });
+});
+
+describe('the declarations of a trait with private members', () => {
+  it('should emit one #private marker per class and no private member', () => {
+    expect([
+      statefulDeclarations.match(/#private;/gu)?.length,
+      /#(?:count|bump|x)\b/u.test(statefulDeclarations),
+    ]).toEqual([2, false]);
+  });
+
+  it('should emit the constructor with no parameters', () => {
+    expect(statefulDeclarations).toContain('constructor();');
+  });
+
+  it('should typecheck a component that composes both traits and declares its own #x', async () => {
+    const component = join(dir, 'item.ts');
+    await writeFile(component, STATEFUL_COMPONENT);
+    const config = ts.getParsedCommandLineOfConfigFile(
+      fileURLToPath(new URL('../tsconfig.json', import.meta.url)),
+      {},
+      { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} },
+    )!;
+    const program = ts.createProgram([component], {
+      ...config.options,
+      noEmit: true,
+    });
+
+    expect(
+      ts
+        .getPreEmitDiagnostics(program)
+        .map((diagnostic) =>
+          ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+        ),
+    ).toEqual([]);
   });
 });
 

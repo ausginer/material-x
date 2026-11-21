@@ -85,6 +85,56 @@ describe('transformTraitModule', () => {
   });
 });
 
+describe('transformTraitModule on a trait with private members and a constructor', () => {
+  const STATEFUL = `import { trait } from '@ydinjs/core/traits/composition.js';
+
+const step = 2;
+const limit = 3;
+
+@trait
+export class Stepped {
+  #count = step;
+  constructor() {
+    super();
+    this.#count += limit;
+  }
+  #bump() {
+    this.#count += 1;
+  }
+  get count() {
+    this.#bump();
+    return this.#count;
+  }
+}
+`;
+
+  it('should export the private bindings that an initializer and the constructor read', () => {
+    expect(transformTrait('stepped.ts', STATEFUL)).toMatch(
+      /export \{ step as __mxflat_step_\w+, step, limit as __mxflat_limit_\w+, limit \};/u,
+    );
+  });
+
+  it('should delete the private members and the constructor in an application build', () => {
+    const code = transformTrait('stepped.ts', STATEFUL, true);
+
+    expect([code.includes('#'), code.includes('constructor')]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('should keep instanceof correct once they are deleted', async () => {
+    const module = (await import(
+      `data:text/javascript,${encodeURIComponent(transformTrait('stepped.ts', STATEFUL, true))}`
+    )) as { Stepped: abstract new () => object; $stepped: symbol };
+
+    expect([
+      { [module.$stepped]: true } instanceof module.Stepped,
+      {} instanceof module.Stepped,
+    ]).toEqual([true, false]);
+  });
+});
+
 describe('transformTraitModule on each form of @trait', () => {
   const IMPORT =
     "import { trait } from '@ydinjs/core/traits/composition.js';\n";
