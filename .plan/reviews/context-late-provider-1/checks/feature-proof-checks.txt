@@ -1,0 +1,176 @@
+# Feature proof of PR #100 (RF-69), reviewer checks. Tree: 13d64e449 (core/context-late-provider-1), clean. Before = packages/core/src/controllers/useContext.ts at f12db1ced in the same tree.
+# Core is rebuilt (aube exec just build, packages/core) before every material-x run, because material-x resolves @ydinjs/core through its built files. Core's own tests import src.
+# Engines: Playwright's Chromium 158, Firefox 159 and WebKit 27.2 (MX_TEST_ENGINES=chromium,firefox,webkit). Safari not run (deferred by the owner).
+
+## 1. Order row, before the fix (packages/material-x: vitest run -c vitest.config.ts --project 'browser*' tests/button-group/button-group-order)
+     × should apply its disabled state and size to buttons that upgraded first
+     × should apply its disabled state and size to buttons that upgraded first
+     × should apply its disabled state and size to buttons that upgraded first
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+ Test Files  3 failed (3)
+      Tests  3 failed (3)
+
+## 1. Order row and the changed files, after the fix (same command, plus tests/button-group/button-group.browser tests/button/SwitchCore.browser tests/button/button.browser)
+ Test Files  12 passed (12)
+      Tests  275 passed | 1 expected fail (276)
+
+## 2. Isolation: three scratch files, each asserting customElements.get('x-isolation-probe') and a global are undefined, then defining both; --maxWorkers=1. Removed after the run.
+ ✓ |browser (chromium)| tests/zz-isolation-probe/a.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser (chromium)| tests/zz-isolation-probe/b.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser (chromium)| tests/zz-isolation-probe/c.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser/firefox (firefox)| tests/zz-isolation-probe/a.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser/firefox (firefox)| tests/zz-isolation-probe/b.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser/firefox (firefox)| tests/zz-isolation-probe/c.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser/webkit (webkit)| tests/zz-isolation-probe/a.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser/webkit (webkit)| tests/zz-isolation-probe/b.browser.test.ts:4 > sees a registry and a global no other file touched
+ ✓ |browser/webkit (webkit)| tests/zz-isolation-probe/c.browser.test.ts:4 > sees a registry and a global no other file touched
+ Test Files  9 passed (9)
+      Tests  9 passed (9)
+
+## 3. Core rows (packages/core: vitest run -c vitest.config.ts --project 'browser*' tests/controllers/useContext)
+### after the fix
+ Test Files  3 passed (3)
+      Tests  72 passed (72)
+### before the fix (count per row over the three engines)
+      3 × should do nothing for a connection that ended before the definition
+      3 × should not run the effect synchronously under a defined provider
+      3 × should not run the effect while the parent is never defined
+      3 × should resolve a provider defined after the consumer connected
+      3 × should resolve only the provider it moved to before either was defined
+      3 × should run each cleanup once over connections that end before and after the lookup
+      3 × should wait for the host of the shadow root it is at the top level of
+      Tests  21 failed | 51 passed (72)
+
+## 4. Mutation: the wait removed: if (parent?.localName.includes('-')) -> if (false). Core rows, then the order row. Reverted.
+      3 × should do nothing for a connection that ended before the definition
+      3 × should not run the effect synchronously under a defined provider
+      3 × should not run the effect while the parent is never defined
+      3 × should resolve a provider defined after the consumer connected
+      3 × should resolve only the provider it moved to before either was defined
+      3 × should run each cleanup once over connections that end before and after the lookup
+      3 × should wait for the host of the shadow root it is at the top level of
+core:       Tests  21 failed | 51 passed (72)
+order row:       Tests  3 failed (3)
+
+## 4. Mutation: the stale-connection check removed: if (current === connection) -> if (current === current). Core rows, then the order row. Reverted.
+      3 × should do nothing for a connection that ended before the definition
+      3 × should resolve only the provider it moved to before either was defined
+      3 × should run each cleanup once over connections that end before and after the lookup
+core:       Tests  9 failed | 63 passed (72)
+order row:       Tests  3 passed (3)
+
+## 4. Mutation: the disposer not cleared: 'disposer = undefined;' deleted. Core rows, then the order row. Reverted.
+      3 × should run each cleanup once over connections that end before and after the lookup
+core:       Tests  3 failed | 69 passed (72)
+order row:       Tests  3 passed (3)
+
+## 4. Mutation: the shadow host not read: parent = host.parentElement. Core rows, then the order row. Reverted.
+      3 × should wait for the host of the shadow root it is at the top level of
+core:       Tests  3 failed | 69 passed (72)
+order row:       Tests  3 passed (3)
+
+## 4. Mutation: the global registry always: (parent.customElementRegistry ?? customElements) -> customElements. Core rows, then the order row. Reverted.
+core:       Tests  72 passed (72)
+order row:       Tests  3 passed (3)
+
+## 5. Registry probe: a scratch core browser file, removed after the run. (a) A shadow root attached with customElementRegistry: new CustomElementRegistry(); its innerHTML puts an undefined parent around a consumer defined only in that registry; then the parent is defined in that registry only. (b) A DOMParser tree <p><c></c></p> appended to document.body, the consumer defined globally first, then the parent defined globally.
+### at 13d64e449
+[probe] scoped {"childUpgraded":true,"parentRegistryIsScoped":true,"globalHasParent":false,"callsBeforeDefine":0,"calls":[[{"name":"v"}]]}   (chromium)
+[probe] domparser Chrome/158.0.0.0 {"inParsedDoc":"null","afterInsert":"global","childUpgraded":true,"callsBeforeDefine":0,"calls":[[{"name":"v"}]]}
+[probe] scoped {"childUpgraded":true,"parentRegistryIsScoped":true,"globalHasParent":false,"callsBeforeDefine":0,"calls":[[{"name":"v"}]]}   (firefox)
+[probe] domparser Firefox/159.0 {"inParsedDoc":"null","afterInsert":"global","childUpgraded":true,"callsBeforeDefine":0,"calls":[[{"name":"v"}]]}
+[probe] ... Version/27.2 Safari/605.1.15: no Element.prototype.customElementRegistry; skipped   (webkit, scoped case)
+[probe] domparser Version/27.2 {"inParsedDoc":"undefined","afterInsert":"undefined","childUpgraded":true,"callsBeforeDefine":0,"calls":[[{"name":"v"}]]}
+      Tests  6 passed (6)
+### with the registry mutation of section 4
+[probe] scoped {"childUpgraded":true,"parentRegistryIsScoped":true,"globalHasParent":false,"callsBeforeDefine":0,"calls":[]}   (chromium, firefox)
+ × |browser (chromium)| zz-registry-probe > scoped registry: a parent defined only in the shadow root registry
+ ✓ |browser (chromium)| zz-registry-probe > DOMParser: a parsed tree adopted into the document
+ × |browser/firefox (firefox)| zz-registry-probe > scoped registry: a parent defined only in the shadow root registry
+ ✓ |browser/firefox (firefox)| zz-registry-probe > DOMParser: a parsed tree adopted into the document
+ ✓ |browser/webkit (webkit)| (both: the scoped case is skipped)
+      Tests  2 failed | 4 passed (6)
+
+## 6. Unchanged group rows under material-x mutations (vitest -t on the four rows; count per row over the three engines). Each mutation reverted.
+# A: ButtonCore.ts:131 'target.disabled = host.disabled || (newValue as boolean);' -> 'target.disabled ||= newValue as boolean;' (the group never re-enables)
+# B: SwitchCore.ts:83-85, the 'else if (oldValue != null && oldValue === host.value) { host.checked = false; }' branch deleted (removing the group's value unchecks nothing)
+# C: SwitchCore.ts:81, a join with no group value unchecks: 'if (newValue == null && oldValue == null) { host.checked = false; } else if (newValue != null) {'
+### core=13d64e449 mutation=none
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### core=13d64e449 mutation=A
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### core=13d64e449 mutation=B
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### core=13d64e449 mutation=C
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### core=f12db1ced mutation=none
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### core=f12db1ced mutation=A
+      3 × tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 × tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+### core=f12db1ced mutation=B
+      3 × tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### core=f12db1ced mutation=C
+      3 × tests/button/SwitchCore.browser.test.ts:396 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+      3 ✓ tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+      3 ✓ tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+      3 ✓ tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+### the whole material-x suite at 13d64e449, Chromium, under each mutation
+A: browser: Tests  219 passed (219)  spec: Tests  204 passed (204)
+B: browser: Tests  219 passed (219)  spec: Tests  204 passed (204)
+C: browser: Tests  219 passed (219)  spec: Tests  204 passed (204)
+
+## 7. Probe .plan/context-late-provider-1/probes/context-order.ts packages/material-x <engine>, on 13d64e449's build
+# engine chromium 158.0.8127.18
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+# engine firefox 159.0
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+# engine webkit 27.2
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+
+## 8. Sizes: node ../../.plan/context-late-provider-1/probes/size-rows.ts <rows>, from packages/material-x after just build-lib; complete.js regenerated by node .size-limit.ts first (the cached one was stale, from another branch's files.json, and read 23,824 -> 23,873).
+| Row | Before (f12db1ced) | After (13d64e449) | Change |
+| button/button | 4843 | 4946 | +103 |
+| button/icon-button | 5108 | 5205 | +97 |
+| button/link-button | 4809 | 4919 | +110 |
+| button/switch-button | 5187 | 5301 | +114 |
+| button/switch-icon-button | 5598 | 5702 | +104 |
+| button/split-button | 7406 | 7524 | +118 |
+| button-group/button-group | 3126 | 3126 | +0 |
+| button-group/connected-button-group | 3888 | 3888 | +0 |
+| complete | 16975 | 17069 | +94 |
+
+## 9. Gates at 13d64e449
+core, --project 'browser*', three engines: Tests  783 passed (783)
+material-x, --project 'browser*', three engines: Tests  656 passed | 1 expected fail (657)
+typecheck (core, material-x), fmt-check and lint on the changed .ts files: clean
+root, aube exec just test: Test Files  148 passed (148), Tests  2354 passed (2354), exit 0
