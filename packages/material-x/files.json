@@ -15,6 +15,7 @@
     "list/list-item",
     "list/list-button-item",
     "list/list-link-item",
+    "list/sortable-list",
     "radio/radio",
     "text-field/multiline-text-field",
     "text-field/text-field"

@@ -84,6 +84,12 @@ import type {
   ListEvents,
   ListProperties,
 } from './list/list.ts';
+import type SortableList from './list/sortable-list.ts';
+import type {
+  SortableListCSSProperties,
+  SortableListEvents,
+  SortableListProperties,
+} from './list/sortable-list.ts';
 import type Radio from './radio/radio.ts';
 import type {
   RadioCSSProperties,
@@ -174,6 +180,12 @@ type ListLinkItemJSX = JSXWrapper<
   ListLinkItemEvents
 >;
 
+type SortableListJSX = JSXWrapper<
+  SortableList,
+  SortableListProperties,
+  SortableListEvents
+>;
+
 type TextFieldJSX = JSXWrapper<TextField, TextFieldProperties, TextFieldEvents>;
 type MultilineTextFieldJSX = JSXWrapper<
   MultilineTextField,
@@ -198,6 +210,7 @@ declare module 'react' {
       'mx-list-item': ListItemJSX;
       'mx-list-button-item': ListButtonItemJSX;
       'mx-list-link-item': ListLinkItemJSX;
+      'mx-sortable-list': SortableListJSX;
       'mx-radio': RadioJSX;
       'mx-icon': IconJSX;
       'mx-text-field': TextFieldJSX;
@@ -221,6 +234,7 @@ declare module 'react' {
       ListItemCSSProperties,
       ListButtonItemCSSProperties,
       ListLinkItemCSSProperties,
+      SortableListCSSProperties,
       RadioCSSProperties,
       TextFieldCSSProperties {}
 }

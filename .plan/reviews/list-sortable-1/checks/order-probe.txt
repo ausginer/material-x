@@ -1,0 +1,10 @@
+# The definition-order probe, checks/order-probe.browser.test.ts.txt, copied into packages/material-x/tests/list/ as zz-probe-order.browser.test.ts, run with MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project 'browser*', then deleted. The markup holds three handle-less mx-list-item elements in an mx-sortable-list, parsed in an iframe before the modules are evaluated.
+
+      Tests  3 failed | 6 passed (9)
+ FAIL  |browser (chromium)| tests/list/zz-probe-order.browser.test.ts:49 > probe: definition order and the collection > sortable-list.ts first: ArrowDown on a focused static item proposes a move
+ FAIL  |browser/firefox (firefox)| tests/list/zz-probe-order.browser.test.ts:49 > probe: definition order and the collection > sortable-list.ts first: ArrowDown on a focused static item proposes a move
+ FAIL  |browser/webkit (webkit)| tests/list/zz-probe-order.browser.test.ts:49 > probe: definition order and the collection > sortable-list.ts first: ArrowDown on a focused static item proposes a move
+AssertionError: expected [ true, [] ] to deeply equal [ true, [ [ +0, 1 ] ] ]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+## The rows that pass (3 per engine): 'list-item.ts first' and 'sortable-list.ts first, then one slot change'.

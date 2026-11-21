@@ -7,6 +7,8 @@ import './list-button-item.ts';
 import './list-item.ts';
 import './list-link-item.ts';
 import './list.ts';
+import './sortable-list.ts';
+import type { ReorderEvent } from './sortable-list.ts';
 
 const meta: Meta = {
   title: 'List',
@@ -226,8 +228,26 @@ export const Media = (): JSX.Element => (
   </mx-list>
 );
 
+function useOrder(
+  initial: readonly string[],
+): readonly [readonly string[], (event: ReorderEvent) => void] {
+  const [items, setItems] = useState(initial);
+
+  return [
+    items,
+    ({ from, to }) => {
+      setItems((current) => {
+        const next = current.slice();
+        const [moved] = next.splice(from, 1);
+        next.splice(to, 0, moved!);
+        return next;
+      });
+    },
+  ];
+}
+
 export const Draggable = (): JSX.Element => {
-  const [items, setItems] = useState([
+  const [items, onReorder] = useOrder([
     'Item 1',
     'Item 2',
     'Item 3',
@@ -236,17 +256,7 @@ export const Draggable = (): JSX.Element => {
   ]);
 
   return (
-    <mx-list
-      reorderable
-      onreorder={({ from, to }) => {
-        setItems((current) => {
-          const next = current.slice();
-          const [moved] = next.splice(from, 1);
-          next.splice(to, 0, moved!);
-          return next;
-        });
-      }}
-    >
+    <mx-sortable-list onreorder={onReorder}>
       {items.map((item) => (
         <mx-list-item key={item}>
           <mx-icon data-handle slot="lead">
@@ -255,6 +265,49 @@ export const Draggable = (): JSX.Element => {
           {item}
         </mx-list-item>
       ))}
-    </mx-list>
+    </mx-sortable-list>
+  );
+};
+
+export const DraggableButtons = (): JSX.Element => {
+  const [items, onReorder] = useOrder([
+    'Inbox',
+    'Starred',
+    'Sent',
+    'Drafts',
+    'Archive',
+  ]);
+
+  return (
+    <mx-sortable-list onreorder={onReorder}>
+      {items.map((item) => (
+        <mx-list-button-item key={item}>{item}</mx-list-button-item>
+      ))}
+    </mx-sortable-list>
+  );
+};
+
+export const DraggableMixedHandles = (): JSX.Element => {
+  const [items, onReorder] = useOrder([
+    'With a handle 1',
+    'Without a handle 1',
+    'With a handle 2',
+    'Without a handle 2',
+    'With a handle 3',
+  ]);
+
+  return (
+    <mx-sortable-list onreorder={onReorder}>
+      {items.map((item) => (
+        <mx-list-item key={item}>
+          {item.startsWith('With a') ? (
+            <mx-icon data-handle slot="lead">
+              drag_handle
+            </mx-icon>
+          ) : null}
+          {item}
+        </mx-list-item>
+      ))}
+    </mx-sortable-list>
   );
 };

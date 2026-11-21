@@ -1,6 +1,7 @@
 /**
  * Real pointer input that `userEvent` can't express: a press held across an
- * observation. Node side; `tests/support/browser-commands.ts` declares these
+ * observation, and a move while it is held. Also the reduced-motion
+ * emulation, which only Playwright performs. Node side; `tests/support/browser-commands.ts` declares these
  * for the browser.
  *
  * Each command runs on the provider that runs the test: Playwright's mouse for
@@ -11,7 +12,11 @@ import { defineBrowserCommand } from '@vitest/browser';
 import type { BrowserCommand } from 'vitest/node';
 
 interface Mouse {
-  move(x: number, y: number): Promise<void>;
+  move(
+    x: number,
+    y: number,
+    options?: Readonly<{ steps: number }>,
+  ): Promise<void>;
   down(): Promise<void>;
   up(): Promise<void>;
 }
@@ -32,7 +37,10 @@ interface ActionChain {
 
 type Context = Readonly<{
   provider: Readonly<{ name: string }>;
-  page: Readonly<{ mouse: Mouse }>;
+  page: Readonly<{
+    mouse: Mouse;
+    emulateMedia(options: Readonly<{ reducedMotion: string }>): Promise<void>;
+  }>;
   browser: Readonly<{
     action(
       type: 'pointer',
@@ -72,6 +80,35 @@ export const inputBrowserCommands: Readonly<
         .move({ x, y, origin: 'viewport', duration: 0 })
         .down({ button: 0 })
         .perform(true);
+    },
+  ),
+  pointerMove: defineBrowserCommand<[number, number, number]>(
+    async (context, x, y, steps): Promise<void> => {
+      const { provider, page, browser } = context as unknown as Context;
+
+      if (provider.name === 'playwright') {
+        await page.mouse.move(x, y, { steps });
+        return;
+      }
+
+      await browser
+        .action('pointer', POINTER)
+        .move({ x, y, origin: 'viewport', duration: steps * 16 })
+        .perform(true);
+    },
+  ),
+  emulateReducedMotion: defineBrowserCommand<[boolean]>(
+    async (context, reduced): Promise<void> => {
+      const { provider, page } = context as unknown as Context;
+
+      if (provider.name !== 'playwright') {
+        throw new Error('emulateReducedMotion needs Playwright');
+      }
+
+      // Explicit, because `null` leaves the emulation in place in WebKit.
+      await page.emulateMedia({
+        reducedMotion: reduced ? 'reduce' : 'no-preference',
+      });
     },
   ),
   pointerRelease: defineBrowserCommand<[]>(async (context): Promise<void> => {

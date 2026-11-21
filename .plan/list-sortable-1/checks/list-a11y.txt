@@ -1,0 +1,40 @@
+# How Chromium exposes mx-list and its items: node .plan/list-sortable-1/probes/list-a11y.ts packages/material-x
+# Read by the architect on 2026-11-20 at 3f610deaa (material-x source equals e4b0e475d), after the root build, in Playwright's Chromium 158.0.8127.18.
+
+ariaSnapshot of #l:
+- text: Static one
+- button "Reorder": ≡
+- text: Static two
+- button "Button item"
+- link "Link item":
+  - /url: "#x"
+
+CDP AX tree (not ignored):
+  RootWebArea ""
+  list ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  button "Button item"
+  link "Link item"
+  StaticText "Static one"
+  button "Reorder"
+  StaticText "Static two"
+  generic ""
+  generic ""
+  generic ""
+  generic ""
+  InlineTextBox "Static one"
+  StaticText "≡"
+  InlineTextBox "Static two"
+  StaticText "Button item"
+  StaticText "Link item"
+  InlineTextBox "≡"
+  InlineTextBox "Button item"
+  InlineTextBox "Link item"
+
+Tab order: SPAN | MX-LIST-BUTTON-ITEM > BUTTON | MX-LIST-LINK-ITEM > A | BODY | SPAN

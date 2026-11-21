@@ -1,0 +1,16 @@
+# Gates after reviewer-1's fix, at 6921f9aa9.
+
+## packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project "browser*"
+ Test Files  45 passed (45)
+      Tests  860 passed | 1 expected fail (861)
+   Duration  63.14s (tests 88%, import 6%, worker 5%, setup 1%)
+exit 0
+
+## root: aube exec just test
+ Test Files  151 passed (151)
+      Tests  2471 passed (2471)
+   Duration  290.95s (tests 96%, worker 2%, import 2%)
+exit 0
+
+## packages/material-x: fmt, lint-fix, fmt, lint on src/list/sortable-list.ts tests/list/sortable-list.browser.test.ts: exit 0, no diagnostics
+## packages/material-x: just typecheck: exit 0

@@ -48,7 +48,7 @@ Traits are plain classes in two layers, instead of deep runtime inheritance. [`t
 
 - **Layer (a), `@ydinjs/core/traits/composition.js`,** knows nothing of elements. A trait extends a bound, `bound()`, and is decorated `@trait`, which the build compiles. A component names its base and its traits in the annotation of a constant, `const XBase: Composed<typeof Base, [typeof A, typeof B]> = compose(Base)`, which one class extends. The build replaces the constant with the base, copies each trait's members in list order, merges statics by their declared kind and brands the class. A key two traits supply takes the later trait's member.
 - **Layer (b), `@ydinjs/core/traits/attribute-traits.js`,** is optional sugar for elements: `accessor name!: T` with `@attributes({ name: Converter })` below `@trait`, lowered in the trait's own build to a getter and a setter and a static `observedAttributes`. It also exports the bounds `AnyElement` and `Controlled`, and `Props`.
-- Shared traits include `Disableable`, `Valuable`, `Checkable`, `Linkable`, `Nameable`, `Reorderable`, `Selectable`, and `Typeable`.
+- Shared traits include `Disableable`, `Valuable`, `Checkable`, `Linkable`, `Nameable`, `Selectable`, and `Typeable`.
 
 `@ydinjs/core/attribute.js` supplies converters that bind HTML attributes to properties: `Bool`, `Num`, and `Str`.
 

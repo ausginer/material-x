@@ -1,0 +1,11 @@
+# The standing check's failure proof, at 59650e176 plus the unit's working tree (task 3a), 2026-11-21T07:49:56Z.
+# Temporary change: the line `import '@ydinjs/drag/sortable.js';` added at the top of packages/material-x/src/list/list.ts, then reverted.
+# aube exec vitest run -c vitest.config.ts --project node tests/package-entries.node.test.ts (from packages/material-x; the project's global setup rebuilds the package)
+
+## With the temporary import
+     × should not reach @ydinjs/drag from list/list 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 18 passed (19)
+
+## Reverted
+      Tests  19 passed (19)
