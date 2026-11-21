@@ -16,7 +16,7 @@ Each package is released by [`.github/workflows/release.yml`](../../.github/work
 
 ## One release
 
-1. **Agents prepare the release pull request:** the version, the changelog section, on a first release the package's size ceilings at their readings (`repo:RD-27` property 2), and whatever the package's own release plan requires.
+1. **Agents prepare the release pull request:** the version, the changelog section, on a first release the package's size ceilings at their readings (`repo:RD-27` property 2) and, for a package whose code runs in a browser, the `browserslist` field `baseline newly available` in its `package.json` (`repo:RD-27` property 3), and whatever the package's own release plan requires.
    - `just release-check <name>` passes locally, and a [check run](#check-runs) passes on the pull request's head.
    - The owner merges it, and `verify` passes on the merge commit _M_ on `main`.
 2. **On a first release,** steps 1 and 2 of [the first publish](#the-first-publish-of-a-package). **On the second release,** [the trusted publisher](#the-trusted-publisher).
