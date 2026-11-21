@@ -1,0 +1,15 @@
+# The branch's build, read with the committed lift probe: node .plan/list-roles-1/probes/list-lift.ts $PWD/packages/material-x <engine>
+# Read by the implementer on 2026-11-21. The build has the real row and its rule, so the 'none' line is the real row. The 'wrapper' and 'collapse' lines add the probe's own wrapper inside the real row, which moves .host out of the row's direct children, so they don't describe the branch.
+
+# engine chromium 158.0.8127.18
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 204, link top 144 -> 156, lifted=true
+# engine firefox 159.0
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 204, link top 144 -> 156, lifted=true
+# engine webkit 27.2
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 204, link top 144 -> 156, lifted=true

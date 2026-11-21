@@ -4,9 +4,14 @@
  * here reaches both.
  */
 import type { BrowserCommand } from 'vitest/node';
+import { accessibilityBrowserCommands } from './accessibility-commands.node.ts';
 import { inputBrowserCommands } from './input-commands.node.ts';
 import { tokenContractCommands } from './visual-contracts.node.ts';
 
 export const materialXBrowserCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
-> = { ...tokenContractCommands, ...inputBrowserCommands };
+> = {
+  ...tokenContractCommands,
+  ...inputBrowserCommands,
+  ...accessibilityBrowserCommands,
+};

@@ -1,0 +1,42 @@
+# Every item's .host rect and the list's rect (x y width height, CSS pixels): node .plan/list-roles-1/probes/list-layout.ts $PWD/packages/material-x
+# Read by the implementer on 2026-11-21 on the build of origin/main's source at 640658b5c, merged into the branch at afca2d68f.
+
+# engine chromium 158.0.8127.18
+list 0 0 360 880
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+# engine firefox 159.0
+list 0 0 360 880
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+# engine webkit 27.2
+list 0 0 360 880
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56

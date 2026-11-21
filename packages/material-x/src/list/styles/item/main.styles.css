@@ -82,6 +82,14 @@ slot:has-slotted {
   }
 }
 
+/*
+ * An interactive item's row holds its control. While the control is lifted into
+ * the top layer, the row has no box, so the list keeps no gap for it.
+ */
+.row:has(> .host:popover-open) {
+  display: contents;
+}
+
 .content {
   flex: 1 1 auto;
   display: flex;

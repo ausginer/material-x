@@ -49,13 +49,17 @@ None known.
 
 ### Accessibility test notes
 
-- `mx-list` exposes `role="list"` through `ElementInternals`, and list items currently expose `role="listitem"` through `ElementInternals` on the custom-element host (`src/list/list.ts`, `src/list/ListItemCore.ts`).
-- List item hosts use `display: contents` so their internal `div`, `button`, or `a` implementation can participate in layout without an extra host box (`src/list/styles/default/main.styles.css`). Future accessibility tests must verify that the host `listitem` role is still exposed in the accessibility tree for `mx-list-item`, `mx-list-button-item`, and `mx-list-link-item` in the supported Baseline browser matrix.
-- Tests should also verify that interactive items retain their native control semantics: `mx-list-button-item` remains operable and exposed as a button, while `mx-list-link-item` remains exposed as a link when enabled and is removed from focus/navigation when disabled (`src/list/list-button-item.ts`, `src/list/list-link-item.ts`).
+- `mx-list` exposes `role="list"` through `ElementInternals` (`src/list/list.ts`).
+- Each item's `listitem` role is a `role` attribute on its row: the outermost element of the item's shadow tree, which has a box and holds everything the item renders. For `mx-list-item`, the row is its `.host`. For `mx-list-button-item` and `mx-list-link-item`, the row is a `div` around the `<button>` or `<a>` `.host`, which keeps its own role (`src/list/list-item.tpl.html`, `src/list/list-button-item.tpl.html`, `src/list/list-link-item.tpl.html`). The host sets no role, and its `role` attribute stays the consumer's.
+- The role isn't on the host, because the host is `display: contents`: WebKit then parents an interactive item's button or link to the list, outside its `listitem`. On the row, each control is inside its item in Chromium, Firefox and WebKit.
+- The row draws nothing. While an interactive item's control is lifted into the top layer for a drag, the row is `display: contents`, so the list keeps no gap for it (`src/list/styles/item/main.styles.css`).
+- `tests/list/list-roles.browser.test.ts` checks the structure in every engine of the gate, and Chromium's own accessibility tree through CDP: one `listitem` per item, below the list, with each button and link inside its item and keeping its role and name. Firefox's and WebKit's trees were read with the probe in `.plan/list-roles-1/probes/list-roles.ts`.
+- Interactive items keep their native control semantics: `mx-list-button-item` is operable and exposed as a button, and `mx-list-link-item` is exposed as a link, and is removed from the tab order when disabled (`src/list/list-button-item.ts`, `src/list/list-link-item.ts`).
 
 ### Missing requirements
 
-- No automated accessibility coverage exists yet for the `display: contents` host plus `ElementInternals.role` combination. If tests show that a supported browser/AT combination drops the host `listitem` role, move list item semantics to a non-`display: contents` wrapper or another tested structure.
+- **WebKit parents an item's slotted light-DOM content, such as its label text and a `data-handle` grip, to the list rather than to the item's `listitem`,** because the host is `display: contents`. The item's name is still computed from its content. This was read in Playwright's WebKit build, not in Safari with VoiceOver. Only a host with a box would remove it, and the list's layout depends on the host having none. [Docs]
+- A static item's host with its own `tabindex` gets an accessible node of its own: `generic` in Chromium and `group` in WebKit.
 
 ## Drag (`@ydinjs/drag` sortable)
 
