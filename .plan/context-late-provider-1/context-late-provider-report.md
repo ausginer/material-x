@@ -157,6 +157,13 @@ The other rows that use a group already passed, because the state they read ends
    - The button rows are +83 to +104 B against _before_, around the sketch's +87 to +101 B. `switch-button` is 3 B over the sketch's range, and `button`, `switch-icon-button` and `split-button` are under it.
    - **`complete` doesn't follow the sketch.** The sketch read 17,019, −50 against revision 1, and this revision reads 17,079, +10. Revision 1, rebuilt in the same tree, reads 17,069 again, as do `button` and `switch-button`, so the instrument reproduces. The bundled consumer is the minimal shape: `r&&n.includes(r)?customElements.whenDefined(r).then(…):s()`. Why `complete` doesn't shrink is unexplained. No ablation was run.
 
+### The switch order row — 2026-11-21
+
+**Added by the implementer** on [the amendment](context-late-provider-handoff-r2.md#amendment-a-switch-row-for-proof-2) to the handoff, at `76ff2d724`. `packages/material-x/tests/button-group/button-group-switch-order.browser.test.ts` imports `src/button/switch-button.ts` statically and no group module, as its header says. It parses `<mx-connected-button-group value="b">` around two `mx-switch-button`, `value="a" checked` and then `value="b"`, with no whitespace between them. It then imports `src/button-group/connected-button-group.ts` and awaits `nextFrame`. Its one assertion, `[undefinedBefore, checked]` equals `[true, [false, true]]`, passes in Chromium, Firefox and WebKit. No source changed.
+
+- **Witness** ([output](checks/r2-switch-mutations.txt)): `SwitchCore` passing `[]` in place of `BUTTON_GROUP_ELEMENTS`, and `BUTTON_GROUP_ELEMENTS` without `'mx-connected-button-group'`, each fail the row in all three engines. Both were reverted.
+- **Gates** ([output](checks/r2-switch-gates.txt)): material-x's browser suite with `MX_TEST_ENGINES=chromium,firefox,webkit`: 662 rows pass, and the one expected failure fails as expected. `fmt`, `lint-fix`, `fmt` and `lint` on the new file, and material-x's `typecheck`: clean.
+
 ### Open
 
 - **For the architect:** date `RF-69` when #100 merges. Revision 2's `complete` figure differs from the sketch's, as stated above.
