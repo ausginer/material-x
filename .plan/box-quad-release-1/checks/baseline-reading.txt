@@ -1,0 +1,80 @@
+# Which Baseline year box-quad's shipped code needs. Read by the architect on 2026-11-21 on repo/baseline-floor-1 at 315a18ad1,
+# for RD-27's amendment of that date. Source: packages/box-quad/src/index.ts, the package's only runtime entry (files.json),
+# built by tsdown with target esnext, so the shipped syntax is the source's. Feature data: web-features 3.47.0 from the npm
+# registry, read as data with wf-read.mjs (below). Query resolution: the workspace's browserslist 4.29.4 with
+# baseline-browser-mapping 2.11.31. Chrome's standardized zoom: Chrome 128 release notes, stable 2024-08-20
+# (https://developer.chrome.com/release-notes/128), not a web-features feature of its own.
+
+## web-features, per compat key the source uses: feature -> Baseline low date and first versions
+css.properties.rotate -> individual-transforms: baseline=high low=2022-08-05 support={"chrome":"104","chrome_android":"104","edge":"104","firefox":"72","firefox_android":"79","safari":"14.1","safari_ios":"14.5"}
+css.properties.scale -> individual-transforms: baseline=high low=2022-08-05 support={"chrome":"104","chrome_android":"104","edge":"104","firefox":"72","firefox_android":"79","safari":"14.1","safari_ios":"14.5"}
+css.properties.translate -> individual-transforms: baseline=high low=2022-08-05 support={"chrome":"104","chrome_android":"104","edge":"104","firefox":"72","firefox_android":"79","safari":"14.1","safari_ios":"14.5"}
+javascript.builtins.Array.at -> array-at: baseline=high low=2022-03-14 support={"chrome":"92","chrome_android":"92","edge":"92","firefox":"90","firefox_android":"90","safari":"15.4","safari_ios":"15.4"}
+css.properties.zoom -> zoom: baseline=high low=2024-05-14 support={"chrome":"1","chrome_android":"18","edge":"12","firefox":"126","firefox_android":"126","safari":"3.1","safari_ios":"3"}
+javascript.operators.nullish_coalescing_assignment -> nullish-coalescing: baseline=high low=2020-09-16 support={"chrome":"85","chrome_android":"85","edge":"85","firefox":"79","firefox_android":"79","safari":"14","safari_ios":"14"}
+javascript.operators.nullish_coalescing -> nullish-coalescing: baseline=high low=2020-09-16 support={"chrome":"85","chrome_android":"85","edge":"85","firefox":"79","firefox_android":"79","safari":"14","safari_ios":"14"}
+api.DOMMatrix.DOMMatrix -> dom-geometry: baseline=high low=2020-01-15 support={"chrome":"61","chrome_android":"61","edge":"79","firefox":"33","firefox_android":"33","safari":"11","safari_ios":"11"}
+api.DOMMatrix.preMultiplySelf -> dom-geometry: baseline=high low=2020-01-15 support={"chrome":"61","chrome_android":"61","edge":"79","firefox":"33","firefox_android":"33","safari":"11","safari_ios":"11"}
+api.DOMMatrixReadOnly.is2D -> dom-geometry: baseline=high low=2020-01-15 support={"chrome":"61","chrome_android":"61","edge":"79","firefox":"33","firefox_android":"33","safari":"11","safari_ios":"11"}
+api.Element.assignedSlot -> slot: baseline=high low=2020-01-15 support={"chrome":"53","chrome_android":"53","edge":"79","firefox":"63","firefox_android":"63","safari":"10","safari_ios":"10"}
+api.Node.getRootNode -> shadow-dom: baseline=high low=2020-01-15 support={"chrome":"53","chrome_android":"53","edge":"79","firefox":"63","firefox_android":"63","safari":"10","safari_ios":"10"}
+api.ShadowRoot.host -> shadow-dom: baseline=high low=2020-01-15 support={"chrome":"53","chrome_android":"53","edge":"79","firefox":"63","firefox_android":"63","safari":"10","safari_ios":"10"}
+javascript.grammar.template_literals -> template-literals: baseline=high low=2020-01-15 support={"chrome":"62","chrome_android":"62","edge":"79","firefox":"53","firefox_android":"53","safari":"11","safari_ios":"11"}
+javascript.statements.export -> js-modules: baseline=high low=2018-05-09 support={"chrome":"61","chrome_android":"61","edge":"16","firefox":"60","firefox_android":"60","safari":"11","safari_ios":"11"}
+api.Element.getClientRects -> dom: baseline=high low=2015-07-29 support={"chrome":"1","chrome_android":"18","edge":"12","firefox":"1","firefox_android":"4","safari":"1","safari_ios":"1"}
+api.Window.getComputedStyle -> get-computed-style: baseline=high low=2015-07-29 support={"chrome":"11","chrome_android":"18","edge":"12","firefox":"3.5","firefox_android":"4","safari":"5.1","safari_ios":"5"}
+javascript.builtins.Number.isFinite -> number: baseline=high low=2015-07-29 support={"chrome":"1","chrome_android":"18","edge":"12","firefox":"1","firefox_android":"4","safari":"1","safari_ios":"1"}
+
+## browserslist: the lowest version of each core browser that each query lists
+baseline 2022              safari 16.0, and_ff 158, and_chr 156, ios_saf 16.0, chrome 108, firefox 108, edge 108
+baseline 2023              safari 17.2, and_ff 158, and_chr 156, ios_saf 17.2, chrome 120, firefox 121, edge 120
+baseline 2024              safari 18.2, and_ff 158, and_chr 156, ios_saf 18.2, chrome 130, firefox 132, edge 130
+baseline 2025              safari 26.2, and_ff 158, and_chr 156, ios_saf 26.2, chrome 141, firefox 145, edge 141
+baseline newly available   safari 27, and_ff 158, and_chr 156, ios_saf 27.0, chrome 153, firefox 155, edge 153
+# and_chr and and_ff list only their latest version for every query: browserslist's Android data holds one version.
+
+## wf-read.mjs
+import { readFileSync } from 'node:fs';
+const data = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const f = data.features;
+const want = process.argv.slice(3);
+// find features by id or by compat key substring
+for (const w of want) {
+  const hits = Object.entries(f).filter(([id, v]) => id === w || (v.compat_features ?? []).some((k) => k === w));
+  if (!hits.length) { console.log(`${w}: no feature`); continue; }
+  for (const [id, v] of hits) {
+    const st = v.status ?? {};
+    let per = '';
+    if (st.by_compat_key && st.by_compat_key[w]) {
+      const k = st.by_compat_key[w];
+      per = ` | key ${w}: baseline=${k.baseline} low=${k.baseline_low_date ?? '-'} support=${JSON.stringify(k.support)}`;
+    }
+    console.log(`${w} -> ${id}: baseline=${st.baseline} low=${st.baseline_low_date ?? '-'} support=${JSON.stringify(st.support)}${per}`);
+  }
+}
+
+## Reading
+#
+# What the code needs to run, the latest Baseline date first:
+#   individual transform properties (`style.rotate`, `style.scale`, `style.translate`)   2022-08-05  Chrome 104, Firefox 72, Safari 14.1
+#     composeNode compares each with 'none'. Without the property the value is undefined, so `get2DRotation(undefined)`
+#     and `style.scale.split` throw on every element. This is the hard floor.
+#   Array.prototype.at (`values.at(-1)`)                                                 2022-03-14  Chrome 92, Firefox 90, Safari 15.4
+#   `??` and `??=`                                                                        2020-09-16
+#   DOMMatrix with a CSS transform string, scaleSelf, rotateSelf, multiplySelf,
+#     preMultiplySelf, is2D                                                               2020-01-15
+#   assignedSlot, getRootNode, ShadowRoot.host                                            2020-01-15
+#   ES modules, template literals, getClientRects, getComputedStyle, Number.*             2020 or earlier
+# So `baseline 2022` is the lowest year in which every function runs.
+#
+# What the code needs for its CSS `zoom` results to be right:
+#   CSS `zoom` (web-features `zoom`)                                                      2024-05-14  Firefox 126
+#     In a Firefox before 126, `style.zoom` is undefined, zoomOf returns 1, and the engine applies no zoom either, so the
+#     result is right: the page has no zoom to account for.
+#   Chrome's standardized zoom                                                            2024-08-20  Chrome 128
+#     Before Chrome 128, getClientRects divided by the zoom of the element and its ancestors. box-quad reads the client
+#     rect as scaled and composes zoom into the matrix, so in Chromium 108-127 an element under a CSS `zoom` other than 1
+#     gets a wrong box, and nothing returns false for it. `baseline 2024` lists Chrome and Edge from 130, past 128.
+#   WebKit's zoom before Safari 18.2 was not read here.
+# So `baseline 2024` is the lowest year in which the whole contract, zoom included, holds in every core browser by
+# this reading, and `baseline 2022` and `baseline 2023` hold it only for a page with no CSS `zoom` other than 1.

@@ -41,7 +41,8 @@ Read by the architect at `d69e3ddbc` in slot `f`. The transcript is [`checks/rea
 | README | Missing | Consumer documentation | [Property 2](#2-the-readme) |
 | Changelog | Missing | `CHANGELOG.md`, one entry for this version | [Property 3](#3-the-changelog) |
 | Size limit | Measured, no ceiling | The reading after the release's last change, no slack | [Q2](#owners-answers), [task 4](#implementation) |
-| Browser support | Not stated anywhere | The current stable release of Chromium, Firefox and Safari | [Q3](#owners-answers), [property 2](#2-the-readme) |
+| Browser support | Not stated anywhere | Baseline 2024, which box-quad 1.x pins, in the README. **Amended 2026-11-21:** it said _the current stable release of Chromium, Firefox and Safari_ | [Q3](#owners-answers), [property 2](#2-the-readme), `RD-27` property 3, [task 5](#implementation) |
+| `browserslist` | None | `baseline 2024`, without `with downstream`, in `package.json`. The owner's choice of 2026-11-21 (`RD-27`). **Added 2026-11-21** | `RD-27` property 3, [task 5](#implementation) |
 | TypeDoc | Recipes write into drag's directory, and nothing runs them | Its own section in the dev cache and in `.docs/api`, linked from the API index and from Storybook | [Property 4](#4-the-api-docs) |
 | Contract | Described a function the source doesn't export | Describes the exported API. **Done** | [Property 5](#5-the-contract-describes-the-published-api) |
 | Release workflow | None | A workflow that publishes with provenance, a repository-wide unit of its own | [Q4](#owners-answers), [Release procedure](#release-procedure) |
@@ -75,7 +76,7 @@ These are the architect's, within the owner's authorization to prepare the packa
 - the storage model: each function writes into storage the caller owns and returns `true`, or returns `false` and leaves the storage untouched. `[]`, a plain object and a `Float64Array` of the stated length all work, and the slots are listed;
 - the two preconditions that the types can't state: a `Space` passed to `coordinates` must be that element's own, and the two boxes passed to `projection` must come from the same viewport;
 - what is supported and what returns `false`, from `contract/04-support-matrix.md` §§2–3 in plain words;
-- browser support: the current stable release of Chromium, Firefox and Safari ([Q3](#owners-answers)), in the words of the decision that registers it;
+- browser support: Baseline 2024, which box-quad 1.x pins, the core browsers' lowest versions it lists, and that raising it needs a new major, in the words of `RD-27` property 3 as amended on 2026-11-21. It said _the current stable release of Chromium, Firefox and Safari_ ([Q3](#owners-answers)) before. [Task 5](#implementation) writes the section;
 - a link to the API reference on the docs site, `https://ausginer.github.io/material-x/api/box-quad/`, which exists once property 4 is on `main` and deployed;
 - the license.
 
@@ -165,7 +166,7 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
 
 ## Implementation
 
-**The order:** the owner answered, and the main slot's architect registers the answers. Task A is done. Then tasks 1 to 4, the review, the release-workflow unit, and the publish. Tasks 1, 2 and 4 don't depend on each other. Task 3 needed A and Q3, and both are settled. Each task's proof is recorded in this unit's handoff or in the implementer's report, under `checks/`.
+**The order:** the owner answered, and the main slot's architect registers the answers. Task A is done. Then tasks 1 to 4, task 5 (added 2026-11-21), the review, the release-workflow unit, and the publish. Tasks 1, 2 and 4 don't depend on each other. Task 3 needed A and Q3, and both are settled. Each task's proof is recorded in this unit's handoff or in the implementer's report, under `checks/`.
 
 **A. The contract (box-quad's architect, record only).** [Property 5](#5-the-contract-describes-the-published-api).
 
@@ -212,7 +213,18 @@ Whether the tarball check is a step of the workflow or a standing test is the wo
 
 - **Done 2026-11-20** by the implementer ([transcript](checks/implementation.txt)). After a build, the root `clean-build` removes `packages/box-quad/index.js`. **The `index` row reads 1182 B (Brotli), and its ceiling is `"limit": "1182 B"`**: `just size` passes at 1182 and fails at 1181. PR #81's `release-check.ts package` passes on the packed tarball. It ran from that branch, which isn't merged here.
 
-**Review.** A feature proof of tasks 1 to 4 against this plan, by a reviewer who didn't implement them, before the publish. It repeats the pack listing and the docs mutation.
+**5. The `browserslist` field and the README's browser support (implementer). Added 2026-11-21** by `RD-27`'s amendment of that date, which the owner confirmed: _"Да, добавить надо"_ ("Yes, it needs adding"). **Amended the same day:** box-quad's first release is `1.0.0`, so the field pins a Baseline year, not `baseline newly available`. **The year is `baseline 2024`, the owner's choice of 2026-11-21:** _"Ну, 2024 лучше всего. Сильно занижать нет смысла (новая либа всё равно), да и не люблю я сильно старые браузеры поддерживать. Если вдруг что, выпустим версию 2.0"_ ("Well, 2024 is best. There's no point going much lower (it's a new library anyway), and I don't like supporting very old browsers. If anything comes up, we'll release 2.0"). It is the lowest ended year in which box-quad's CSS `zoom` results hold in every core browser, and `baseline 2022` is the lowest in which it runs at all (`RD-27`'s refinement, and the [reading](checks/baseline-reading.txt)).
+
+- `packages/box-quad/package.json` gets `"browserslist": ["baseline 2024"]`, with no `with downstream`.
+- The README's _Browser support_ section says that box-quad 1.x supports Baseline 2024, names each core browser's lowest version that `browserslist` lists for it, and says that a higher floor comes only with a new major version. It drops the current wording, which describes the moving floor that applies before 1.0.0.
+- _Proof:_
+  - `aube exec browserslist` in `packages/box-quad` lists only the core set's browsers, `and_chr`, `and_ff`, `chrome`, `edge`, `firefox`, `ios_saf` and `safari`, and no downstream browser such as `samsung` or `opera`. Their lowest versions match the README's. The transcript is recorded.
+  - `aube exec just build` leaves `index.js`, `index.js.map` and `index.d.ts` byte-identical to the build before the field (`cmp`). tsdown's `target` is `esnext`, so no change is expected. If a byte changes, the implementer stops and reports it, because the size ceiling is the reading after the last change.
+  - `aube pack --dry-run` still lists exactly the seven files, and the packed `package.json` has the field.
+  - `just release-check box-quad` passes.
+  - Task 3's README checks hold for the changed section: `oxfmt` leaves it unchanged, and it has no record identifier.
+
+**Review.** A feature proof of tasks 1 to 5 against this plan, by a reviewer who didn't implement them, before the publish. It repeats the pack listing and the docs mutation.
 
 **One pull request or several.** Tasks 1 to 4 can be one implementation pull request, with `Closes #56` left to the record change after the publish (the [Release procedure](#release-procedure)'s last property). This plan's own pull request says `Refs #56`.
 

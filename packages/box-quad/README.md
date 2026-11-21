@@ -102,7 +102,7 @@ There is no option for a box other than the border box, and no list of fragments
 
 ## Browser support
 
-The current stable release of Chromium, Firefox and Safari. No minimum version is promised: a browser version that leaves stable leaves support, and that isn't a breaking change.
+Current [Baseline](https://web.dev/baseline): the current stable release of Chrome and Firefox on desktop and Android, Edge, and Safari on macOS and iOS. No minimum version is promised: a browser version that leaves stable leaves support, and that isn't a breaking change.
 
 ## API reference
 
