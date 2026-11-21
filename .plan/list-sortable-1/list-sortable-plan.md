@@ -40,7 +40,7 @@ Read by the architect at `e4b0e475d`.
   - `mx-list-item` renders a `<div class="host">` with no `tabindex` and no role.
   - `mx-list-button-item` and `mx-list-link-item` render a native `<button>` and `<a>`, and delegate focus to them.
   - No item sets a role of its own, `listitem` included.
-  - In Chromium 158 the tab order is the handle, then the button item's `<button>`, then the link item's `<a>`. The static items have no tab stop, and every item is `generic` inside the `list` ([reading](checks/list-a11y.txt), [probe](probes/list-a11y.ts)). That is `RF-68`, registered beside this plan.
+  - In Chromium 158 the tab order is the handle, then the button item's `<button>`, then the link item's `<a>`. The static items have no tab stop, and every item is `generic` inside the `list` ([reading](checks/list-a11y.txt), [probe](probes/list-a11y.ts)). That is `RF-68`. It was registered beside this plan, and its entry now lives on `material-x/list-roles-1`, the fix's branch.
 - **No arrow-key navigation.** No list module handles a key.
 - `list.stories.tsx`'s `Draggable` story uses `reorderable`, `onreorder` and `data-handle`.
 - `tests/traits-baseline.browser.test.ts` imports core's `Reorderable` into its `TRAITS`, and `__snapshots__/traits-baseline.json` records `mx-list`'s `reorderable` attribute.
@@ -159,13 +159,13 @@ Only `list/sortable-list` imports `@ydinjs/drag`. No module that another runtime
   - an accessible description, _Use the arrow keys to move_;
   - `touch-action: none`.
 
-  An interactive item with no handle gets the same description, on the item, which `useARIA` passes to its button or link. A static item that becomes a tab stop gets it too. Values the consumer set are kept, as today. This also applies to a handle added to an item after the item is slotted. In `mx-list`, nothing is written to a `[data-handle]` or to an item.
+  An interactive item with no handle gets the same description, on its button or link. A static item that becomes a tab stop gets it too, on its inner `.host`. The list writes both on the item's control, not on the item's host ([How a static item takes focus](#how-a-static-item-takes-focus)). Values the consumer set are kept, as today. This also applies to a handle added to an item after the item is slotted. In `mx-list`, nothing is written to a `[data-handle]` or to an item.
 
 - <a id="focus-on-a-handle-less-static-item"></a>**Focus on a handle-less static item (Q6).**
   - **When.** A static item is a tab stop exactly while it is in the collection of an `mx-sortable-list` and has no `[data-handle]`. Otherwise the list leaves the item as it would be in `mx-list`, with no tab stop. So the tab stop goes when a handle is added, and when the item leaves the list or moves to an `mx-list`. It comes back when the handle is removed or the item returns.
   - **Which items.** Only items that take no focus themselves, which today is `mx-list-item`. The list writes nothing that changes the focus of a button or link item, which keeps its own control as its only tab stop.
-  - **How it is written.** The list sets the standard `tabindex="0"` on the item element and removes it when the conditions end. A `tabindex` the consumer set is never changed or removed, and the list doesn't remove one it didn't write. The description _Use the arrow keys to move_ follows the same rules.
-  - **What the item does with it.** `mx-list-item` takes focus when its element has a `tabindex`, in every engine the gate runs, and its host stays `display: contents`. The element that takes focus is the item's inner `.host`, as [How a static item takes focus](#how-a-static-item-takes-focus) rules. It shows Material's list focus indicator, from the list item's `focus-indicator` tokens. That is a property of `mx-list-item` itself, so it also holds for a `tabindex` the consumer sets in `mx-list`.
+  - **How it is written.** The list sets `tabIndex = 0` and the description _Use the arrow keys to move_ on the item's inner `.host`, which the item registers as its control, and removes both when the conditions end. Nothing is written on the item's host. The list doesn't change or remove a value it didn't write.
+  - **What the item does with it.** The inner `.host` takes focus in every engine the gate runs, and the host stays `display: contents`. It shows Material's list focus indicator, from the list item's `focus-indicator` tokens. [How a static item takes focus](#how-a-static-item-takes-focus) has the mechanism. `mx-list-item` has no public way to take focus: a `tabindex` on its host does nothing, in `mx-list` or in the sortable list.
   - **What a screen reader gets on focus.** [The Q6 section](#q6-a-handle-less-item-takes-focus) states it: the item's own role and text, the description, and after a move the live region's position.
 
 - **The `reorder` event** is dispatched on the list from `onReorder`. It bubbles, is composed and is cancelable.
@@ -245,7 +245,7 @@ The owner answered on 2026-11-21 ([his words](#owners-answers)): with a handle, 
 | `mx-list-item` without a handle | The whole item | The item, while it has no handle | The focused item |
 | Button or link item without a handle | The whole item | Its own button or link, as in `mx-list` | Its focused button or link |
 
-In `mx-list`, no item becomes a tab stop. The items there change only by section 3's removal of the handle code, and by `mx-list-item` taking focus when a consumer gives it a `tabindex`, which section 4 requires of the item.
+In `mx-list`, no item becomes a tab stop. The items there change only by section 3's removal of the handle code, and by `mx-list-item` registering its inner `.host` as its control, which has no effect there.
 
 **The pointer with a handle: `handle-only` retires.** The owner: _"Yes, probably the handle's presence should switch on handle-only by itself"_ (translated by the coordinator).
 
@@ -268,47 +268,65 @@ No owner question is needed for this. The description is section 4's existing ru
 
 ## How a static item takes focus
 
-Ruled on 2026-11-21, on Mx Implementer B's finding during task 3. The [probe](probes/item-focus.browser.test.ts) and its [reading](checks/item-focus.txt) are at `be89be254`, in Chromium 158, Firefox 159 and WebKit 27.2.
+Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, and **revised the same day** on Mx Architect's reading for `RF-68`. The first ruling, at `5bf743235`, made the host's `tabindex` the switch. The revision moves the switch off the host. [What the revision changed](#what-the-revision-changed) lists it.
 
-**What the reading shows.**
+**What the readings show.**
 
-- The real `mx-list-item` with `tabindex="0"` takes focus in no engine, by Tab or by `focus()`. Its host is `display: contents`, and that box can't take focus.
-- An inner block with `tabindex="0"` under such a host is one tab stop in every engine, forward and back. It matches `:focus-visible`, and the host matches `:focus`. That holds with or without `delegatesFocus`.
-- `host.focus()` reaches the inner element in Chromium and WebKit with `delegatesFocus`, and in no engine without it. Firefox doesn't delegate from a `display: contents` host. That is `RF-33`, and `FocusForwarding` already works around it for the interactive items.
-- The inner element is a tab stop on its own `tabindex`, whatever the host has. So the inner value has to follow the host's.
-- drag restores focus by calling `focus()` on the element inside the item that had it (`kernel/session.ts`'s `restoreFocus`, through `shared/focus.ts`), and that element is the inner `.host`.
+- **Mx Implementer B's [probe](probes/item-focus.browser.test.ts) and [reading](checks/item-focus.txt),** at `be89be254`, in Chromium 158, Firefox 159 and WebKit 27.2:
+  - The real `mx-list-item` with `tabindex="0"` takes focus in no engine, by Tab or by `focus()`. Its host is `display: contents`, and that box can't take focus.
+  - An inner block with `tabindex="0"` under such a host is one tab stop in every engine, forward and back. It matches `:focus-visible`, and the host matches `:focus`. That holds with or without `delegatesFocus`.
+  - `host.focus()` reaches the inner element in Chromium and WebKit with `delegatesFocus`, and in no engine without it. Firefox doesn't delegate from a `display: contents` host. That is `RF-33`, and `FocusForwarding` already works around it for the interactive items.
+  - The inner element is a tab stop on its own `tabindex`, whatever the host has.
+  - drag restores focus by calling `focus()` on the element inside the item that had it (`kernel/session.ts`'s `restoreFocus`, through `shared/focus.ts`), and that element is the inner `.host`.
+- **Mx Architect's reading for `RF-68`,** `.plan/list-roles-1/checks/list-roles.txt` on `material-x/list-roles-1` at `45272694c`, from each engine's own accessibility tree:
+  - **A `display: contents` host with a `tabindex` gets a node of its own:** `generic` in Chromium, around its item, and `group` in WebKit, beside its item and holding the item's slotted text. It still takes no focus. So a host `tabindex` adds an empty node to the list in WebKit, and moves the item's text into it.
+  - `RF-68`'s fix puts `listitem` on the item's row, which for `mx-list-item` is its inner `.host`. So the element that takes focus here is the list item.
 
-**The ruling.**
+**The ruling, as revised.**
 
-1. **The inner `.host` takes focus, and its `tabindex` follows the host's.** The host's `tabindex` attribute is the item's public switch, for the sortable list and for a consumer alike. While the host has one, the inner `.host` has the same value. When the host has none, the inner `.host` has none. The host stays `display: contents`. The item's shadow root delegates focus, as the interactive items' roots do.
-2. **The item reuses the interactive items' focus pieces, and adds one.** It composes `FocusForwarding`, so `item.focus()` reaches the inner `.host` in every engine. It runs `useARIA`, so an `aria-*` attribute on the host, the description included, reaches the focused element. And it observes `tabindex` through its attribute path, which is the only new mechanism. No new controller and no second observer are added for it.
-3. **The description sits on the focused element,** which `useARIA` makes it. The list still writes it on the host, beside `tabindex`, and removes it under the same rules. The ruling places nothing else on the host or on the inner `.host`, so `RF-68`'s fix may put `listitem` on either. That choice is `RF-68`'s, and the report of this unit states which element takes focus.
-4. **The Firefox gap in `item.focus()` isn't accepted, so it isn't documented as a limit.** `FocusForwarding` closes it, as it does for the button and link items. A consumer who restores focus with `item.focus()` after a re-render, which the commit wait allows, gets the same result in every engine.
+1. **The inner `.host` takes focus. The switch is internal, and nothing is written on the host.** `mx-list-item` registers its inner `.host` as its control, through the registry that `FocusForwarding`'s `useFocusForwarding` already keeps for the interactive items. The sortable list reads an item's control from that registry, and sets `tabIndex` and the description on it while the item has no handle, and removes them when it gets one or leaves the list. The host keeps `display: contents` and gets no `tabindex` and no `aria-*` from the list.
+2. **The item composes `FocusForwarding`,** as the interactive items do, and its root delegates focus. So `item.focus()` reaches the inner `.host` in every engine, Firefox included.
+3. **The description is on the focused element,** written there directly. The list writes it the same way on a handle-less interactive item's control, its button or link, so no item's host carries it. With `RF-68`'s fix, the focused static item is a `listitem` with that description.
+4. **The Firefox gap in `item.focus()` isn't accepted,** and isn't documented as a limit. `FocusForwarding` closes it.
+5. **`mx-list-item` has no public way to take focus.** A consumer's `tabindex` on its host does nothing, in either list. That matches the owner's Q6 rule: a static item is a tab stop only in a sortable list without a handle.
 
 **Why.**
 
-- **The host can't take focus,** so some element inside it must. The inner `.host` is already the item's visual, so the focus indicator draws on the box the user sees.
-- **`tabindex` on the host is the platform's word for "this takes focus".** A consumer already knows it, and section 4 promised it to consumers of `mx-list`. A second attribute, such as `focusable`, would be a second name for the same thing (`CONTRIBUTING.md` §12).
-- **The item owns its shadow tree.** The list writing the inner `.host` directly would reach into another element's internals, and a consumer's `tabindex` in `mx-list` would do nothing.
-- **One mechanism, shared** (`CONTRIBUTING.md` §6). `delegatesFocus`, `FocusForwarding` and `useARIA` are already how a list item forwards focus and ARIA to its inner element. The static item uses the same pieces, so they also leave together: `FocusForwarding` goes from every item once Firefox delegates through a `display: contents` host. Only the `tabindex` that follows the host's is new.
+- **The host can't take focus,** so some element inside it must. The inner `.host` is the item's visual and, with `RF-68`, its list item, so the focus indicator draws on the box the user sees, and the focused element is the item.
+- **The host can't carry the switch either.** A `tabindex` on it adds a node to the list in Chromium and WebKit, and in WebKit an empty `group` that takes the item's text. An `aria-*` attribute on a `display: contents` host wasn't read. Writing nothing on the host avoids both.
+- **No public attribute** (`CONTRIBUTING.md` §4 and §12). The only writer is the sortable list, so no consumer has to write the value. A new attribute would be permanent surface for an internal channel, and the host's `tabindex` can't be used.
+- **The item still owns its shadow tree.** The list doesn't search the item's shadow root. The item hands its control out through the registry, as it does for `focus()`.
+- **One registry, already there** (`CONTRIBUTING.md` §6). `useFocusForwarding` already maps an item to its control for `focus()`. The sortable list reads the same map, so the channel adds a read, not a mechanism. `FocusForwarding`'s JSDoc says the trait goes once Firefox delegates through a `display: contents` host. With this ruling, the registry stays then, because the sortable list reads it, and the JSDoc says so.
 - **The Firefox gap would be a correctness failure under valid use,** caused by the platform (`CONTRIBUTING.md` §1.1), and the package already has its fix.
 
-**What it costs.** `list/list-item` gains `FocusForwarding`, `useARIA` and its observer, the focus indicator's styles and the `tabindex` handler. The interactive items already contain all but the last, so `complete` gains only that handler. The [size estimate](#size-what-each-consumer-pays) is revised to match.
+**What it costs.** `list/list-item` gains `FocusForwarding`, its registration and the focus indicator's styles. It no longer needs `useARIA` or a `tabindex` handler. `list/sortable-list` gains the registry's read, and the writes it had already. The interactive items already contain `FocusForwarding`, so `complete` grows only by `mx-list-item`'s registration. The [size estimate](#size-what-each-consumer-pays) is revised to match.
 
 **Not adopted.**
 
-- **The list writes the inner `.host`'s `tabindex` and description itself:** it reaches into the item's shadow tree, and a consumer's `tabindex` in `mx-list` stays inert.
+- **The host's `tabindex` as the switch,** the first ruling: the extra node above.
+- **A new public attribute on `mx-list-item`,** such as `focusable`: §4 and §12, and no consumer needs it.
+- **The list searching the item's shadow root** for `.host`: it reaches into another element's internals, where the registry is the item's own handoff.
+- **A context from the list to its items,** as `button-group` uses: it costs every item in every list a subscription, for one writer.
+- **`useARIA` for the description:** it copies from the host, which mustn't carry the attribute.
 - **The host stops being `display: contents`:** the list's flex layout and the item's styling depend on it, and the plan's stop condition excludes it.
 - **No `delegatesFocus`, with `FocusForwarding` alone:** that works too, by the reading, but it would make the static item differ from its siblings for no saving, and `FocusForwarding`'s own JSDoc expects the root to delegate.
 - **Accepting the Firefox gap and documenting it:** the fix exists in the package and costs a few bytes.
 
+#### What the revision changed
+
+At `5bf743235` the ruling said: the host's `tabindex` was the item's public switch, for the sortable list and for a consumer, and the inner `.host`'s `tabindex` followed it. `mx-list-item` ran `useARIA`, so the description that the list wrote on the host reached the focused element. The item observed `tabindex`, and `traits-baseline` expected `tabindex` in its observed attributes. A consumer's `tabindex` in `mx-list` was a supported way to focus the item. Each of those is replaced above.
+
 ### Proposed amendment of `RD-31`, for the main slot's architect
 
-This slot doesn't amend record entries, so the text is proposed here. In property 4's _(Q6)_ item, after _"`mx-list-item` takes focus when its element has a `tabindex`, and shows Material's list focus indicator."_, add:
+This slot doesn't amend record entries, so the text is proposed here. It replaces the proposal made at `5bf743235`, which no one registered.
 
-> Its host stays `display: contents`, which takes focus in no engine. So the item's inner `.host` takes focus. Its `tabindex` follows the host's, and the host's `tabindex` is the item's public switch. The item's root delegates focus. It composes `FocusForwarding`, so `item.focus()` works in Firefox too (`RF-33`). It runs `useARIA`, so the description reaches the focused element. Nothing else is placed on the host or the inner element, so `RF-68`'s fix may put `listitem` on either.
+In property 4's _(Q6)_ item, replace _"The list sets `tabindex="0"` on the item while the item is in its collection and has no `[data-handle]`, and removes it when either stops being true. It never changes or removes a `tabindex` the consumer set."_ and _"`mx-list-item` takes focus when its element has a `tabindex`, and shows Material's list focus indicator."_ with:
 
-And add a dated line under the entry's status: _"**Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading, `list-sortable-1/checks/item-focus.txt`: property 4's (Q6) item. Nothing was replaced; one sentence was added."_
+> While the item is in its collection and has no `[data-handle]`, the list sets `tabIndex = 0` and the arrow-key description on the item's inner `.host`, and removes them when either stops being true. The item registers that element as its control, through `FocusForwarding`'s registry, and nothing is written on the item's host: a `display: contents` host with a `tabindex` gets an accessibility node of its own in Chromium and WebKit, and takes no focus. The item composes `FocusForwarding`, so `item.focus()` works in Firefox too (`RF-33`), and it shows Material's list focus indicator. `mx-list-item` has no public way to take focus.
+
+In the item on handle semantics, replace _"A handle-less interactive item, and a static item while it is a tab stop, get the same description"_ with _"A handle-less interactive item, on its button or link, and a static item while it is a tab stop, on its inner `.host`, get the same description, written on the item's control and never on its host"_.
+
+Add a dated line under the entry's status: _"**Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading `list-sortable-1/checks/item-focus.txt` and the `RF-68` reading on `material-x/list-roles-1`: two sentences of property 4. What they replaced is at the end."_, and add the replaced sentences to the end of the entry, as the earlier amendments did.
 
 ## Q2: the keyboard model
 
@@ -357,11 +375,11 @@ Read rows are in [Readings](#readings). The rest are **estimates**, and task 6 r
 | drag, every composition | 2,189 to 7,143 | unchanged: no drag source changes |
 | `mx-list` | 3,670 | about 1,000 to 1,500 (estimate): it loses core's trait |
 | The interactive items | 4,580 to 4,750 | slightly less: they lose the handle code |
-| `mx-list-item` | 2,570 | about 2,600 to 3,100 (estimate): it loses the handle code, and gains the focus indicator, `FocusForwarding`, `useARIA` and its `tabindex` handler (Q6) |
+| `mx-list-item` | 2,570 | about 2,500 to 3,000 (estimate): it loses the handle code, and gains the focus indicator and `FocusForwarding` with its registration (Q6) |
 | `mx-sortable-list` | — | about 8,600 to 9,600 (estimate) |
 
 - **The plain list gets about 2 to 2.5 kB smaller.** It no longer carries core's 3.11 kB trait, minus the modules it shares with it.
-- **Q6 adds little.** The sortable list writes and removes one attribute and a description on static items, a few tens of bytes, and loses the `handle-only` attribute, so its estimate rises by 100 B. `mx-list-item` gains Material's focus indicator, whose source styles are under 1 kB before compression, and [what it needs to take focus](#how-a-static-item-takes-focus): `FocusForwarding`, `useARIA` and a `tabindex` handler. The interactive items already carry the first three, so `complete` grows only by the handler. `RF-68`'s role is that unit's bytes, not this one's.
+- **Q6 adds little.** The sortable list writes and removes one attribute and a description on static items, a few tens of bytes, and loses the `handle-only` attribute, so its estimate rises by 100 B. `mx-list-item` gains Material's focus indicator, whose source styles are under 1 kB before compression, and [what it needs to take focus](#how-a-static-item-takes-focus): `FocusForwarding` and its registration. The interactive items already carry `FocusForwarding`, so `complete` grows only by the registration. `RF-68`'s role is that unit's bytes, not this one's.
 - **A sortable list costs about 5 kB more than today's reorderable list** (3.67 kB). drag's sortable with landing is 6.87 kB, against core's trait at 3.11 kB. That is the cost of moving to drag, which the owner chose. Task 6 checks it by reading.
 
 ## Owner's answers
@@ -410,12 +428,12 @@ One unit, on this plan's branch, `repo/list-sortable-1`: the implementer continu
 - Check that the built `list/sortable-list.d.ts` and `react.d.ts` contain no `@ydinjs/drag` specifier.
 - Check that the root `build` and `typecheck` build drag before material-x.
 
-**Task 3. The plain list and the items.** Remove `Reorderable`, `useReorderable`, `ReorderEvent` and the landing's CSS props from `list.ts`. Remove `useReorderableItem` and `enhanceHandle` from `ListItemCore.ts`. Make `mx-list-item` take focus, with Material's focus indicator, when its element has a `tabindex`, as [How a static item takes focus](#how-a-static-item-takes-focus) rules: the inner `.host` takes focus and follows the host's `tabindex`, the root delegates focus, and the item composes `FocusForwarding` and runs `useARIA`. Those are the only additions to an item. If an engine in the gate doesn't then give one tab stop on the inner `.host`, with `item.focus()` reaching it, stop and report. Move the `Draggable` story to `mx-sortable-list`, and add one story with button items and no handles, and one with static items, some with handles and some without. A story's handler may stay a React state update, which the commit wait allows.
+**Task 3. The plain list and the items.** Remove `Reorderable`, `useReorderable`, `ReorderEvent` and the landing's CSS props from `list.ts`. Remove `useReorderableItem` and `enhanceHandle` from `ListItemCore.ts`. Make `mx-list-item` able to take focus, with Material's focus indicator, as [How a static item takes focus](#how-a-static-item-takes-focus) rules: the item registers its inner `.host` through `useFocusForwarding`, its root delegates focus, and it composes `FocusForwarding`. The sortable list (task 2) reads the control from that registry and writes `tabIndex` and the description on it. Update `FocusForwarding`'s JSDoc: its registry also serves the sortable list, so the registry stays when the trait goes. Those are the only additions to an item. If an engine in the gate doesn't then give one tab stop on the inner `.host`, with `item.focus()` reaching it, stop and report. Move the `Draggable` story to `mx-sortable-list`, and add one story with button items and no handles, and one with static items, some with handles and some without. A story's handler may stay a React state update, which the commit wait allows.
 
 **Task 4. Tests.** Write the material-x rows in the [test map](#test-map), in `tests/list/`.
 
 - They run in the gate's engines. A row that needs media emulation, such as the reduced-motion row, runs only where the engine supports it (`RD-6` property 6).
-- Update `traits-baseline` in exactly four ways: `Reorderable` leaves `TRAITS`, `mx-list` loses `reorderable`, `mx-sortable-list` is added with the same attributes as `mx-list`, none, and `mx-list-item` gains `FocusForwarding` (its `instanceOf` flag, and `focus` and the trait's symbol on the prototype) and `tabindex` in its observed attributes, with any reflection row that adds.
+- Update `traits-baseline` in exactly four ways: `Reorderable` leaves `TRAITS`, `mx-list` loses `reorderable`, `mx-sortable-list` is added with the same attributes as `mx-list`, none, and `mx-list-item` gains `FocusForwarding` (its `instanceOf` flag, and `focus` and the trait's symbol on the prototype). Its observed attributes don't change.
 
 **Task 5. Remove core's trait.** Delete `src/traits/reorderable.ts`, `tests/traits/reorderable.browser.test.ts`, the `./traits/reorderable.js` export, the `files.json` entry, the `.size-limit.json` row and the README section. Rebuild core before typechecking material-x.
 
@@ -446,7 +464,7 @@ One unit, on this plan's branch, `repo/list-sortable-1`: the implementer continu
 - `traits-baseline` changes in any other way than task 4 states;
 - a plain list row reaches drag, or grows;
 - `mx-sortable-list` reads more than 9.6 kB Brotli, the top of the estimate;
-- `mx-list-item` reads more than 3.1 kB Brotli, or grows by anything other than its focus indicator, `FocusForwarding`, `useARIA` and the `tabindex` handler;
+- `mx-list-item` reads more than 3.1 kB Brotli, or grows by anything other than its focus indicator and `FocusForwarding` with its registration;
 - a new row stalls or fails intermittently in WebKit or Firefox.
 
 **The pull request** says `Closes #86` and `Closes #44`, the issue that tracks `RF-36`.
@@ -504,8 +522,8 @@ Core's rows in `tests/traits/reorderable.browser.test.ts` at `e4b0e475d`:
 
 - with no handle, a press anywhere on the item drags it. With a handle, a press on the item outside the handle doesn't drag it;
 - ArrowDown on a focused `mx-list-button-item` without a handle moves it, and Space still activates it;
-- a static `mx-list-item` without a handle is a tab stop in `mx-sortable-list`, and ArrowDown on it moves it. Its focus indicator shows. It isn't a tab stop in `mx-list`, nor once it has a handle, nor after it leaves the sortable list, and it is one again when the handle is removed. A `tabindex` the consumer set is kept in every case;
-- `mx-list-item` in `mx-list`: with a consumer's `tabindex="0"`, Tab reaches its inner `.host` once and leaves it, Shift+Tab returns, and `item.focus()` focuses it in every engine. Without a `tabindex`, neither Tab nor `item.focus()` focuses it. Removing the host's `tabindex` removes the inner one;
+- a static `mx-list-item` without a handle is a tab stop in `mx-sortable-list`, and ArrowDown on it moves it. Its focus indicator shows. It isn't a tab stop in `mx-list`, nor once it has a handle, nor after it leaves the sortable list, and it is one again when the handle is removed. The list writes no attribute on the item's host in any of these states;
+- a handle-less static item in `mx-sortable-list`: Tab reaches its inner `.host` once and leaves it, Shift+Tab returns, and `item.focus()` focuses it in every engine. In `mx-list`, neither Tab nor `item.focus()` focuses it;
 - after a keyboard move of a static item, focus is on its inner `.host`, and a second ArrowDown moves it again;
 - the focused handle-less static item has the arrow-key description, and a button item has no tab stop added;
 - ArrowDown in a text field marked `data-drag-ignore` inside a handle-less item moves the caret and not the item;
