@@ -85,10 +85,10 @@ A trait can occur twice in an expanded list, for example when two traits share a
 
 ### The first adopter follows
 
-`FocusForwarding` replaces its module-level `WeakMap` with a private field in a unit of its own, after the owner answers the [question](#owner-question) below. Two reasons:
+`FocusForwarding` replaces its module-level `WeakMap` with a private field in a unit of its own, after the owner answers the [question](#owner-question) below.
 
-- **Module code can't reach a private name.** `useFocusForwarding(host, control)` writes the control, and `RD-31`'s sortable list reads it. Both are module functions, and an ES-private name exists only inside its class body. So the trait needs a member that module code calls, and what kind of member is a choice of its own. A plain public member is on every adopter's prototype, where `traits-baseline` and the public surface see it. A member keyed by a module-scope `Symbol` would need the plugin to link a computed key, which it refuses today.
-- **`RD-31` is implementing on that registry now** (#90): the sortable list reads an item's control from it. Changing the registry in the same days would collide.
+- **Module code can't reach a private name.** `useFocusForwarding(host, control)` is a module function that writes the control, and an ES-private name exists only inside its class body. So the trait needs a member that module code calls, and what kind of member is a choice of its own. A plain public member is on every adopter's prototype, where `traits-baseline` and the public surface see it. A member keyed by a module-scope `Symbol` would need the plugin to link a computed key, which it refuses today.
+- **Corrected on 2026-11-21:** this said that `RD-31`'s sortable list reads the control from the registry, and gave as a second reason that `RD-31` was implementing on it. Since `6214e3b57`, an item writes on its own control through context, so `RD-31` doesn't depend on the registry or on this unit.
 
 ## Required properties
 

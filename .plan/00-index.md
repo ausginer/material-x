@@ -1879,7 +1879,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **Not adopted:** public instance fields and static private members, for property 6's reasons. A diagnostic for an initializer that reads a component's field isn't adopted either: the trait's types already exclude it.
 
-**The first adopter follows, in a unit of its own:** `FocusForwarding`'s control moves from a module-level `WeakMap` to a private field. Module code writes the control and `RD-31`'s sortable list reads it, and no module code can name a private field. So the trait needs a member that module code reaches, and which kind of member is the owner's question in the [plan](trait-private-fields-1/trait-private-fields-plan.md#owner-question). The architect recommends one keyed by a module-scope `Symbol`.
+**The first adopter follows, in a unit of its own:** `FocusForwarding`'s control moves from a module-level `WeakMap` to a private field. Module code writes the control, and no module code can name a private field. (Corrected on 2026-11-21: this said that `RD-31`'s sortable list reads it too, which it doesn't since `6214e3b57`.) So the trait needs a member that module code reaches, and which kind of member is the owner's question in the [plan](trait-private-fields-1/trait-private-fields-plan.md#owner-question). The architect recommends one keyed by a module-scope `Symbol`.
 
 ## Findings
 
