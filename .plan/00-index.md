@@ -3277,6 +3277,13 @@ Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sorta
 
 **Dated 2026-11-21 by the architect: the owner approves the second re-ruling and answers the owner question,** relayed by the coordinator. His answer is (a), verbatim _"tabindex забыл - тут (а)"_: a consumer's `tabindex` on `mx-list-item` stands, so the item is a tab stop in either list, and the item doesn't suppress it. The [handoff](list-roles-1/list-roles-handoff.md#owner-question) records it. `RD-31`'s ruling item 7 says the opposite, and `RD-31`'s follow-up amends it. The repair is being implemented on this branch.
 
+**Dated 2026-11-21 by the architect: the fold's feature proof is ruled, and the unit is re-planned to follow `RD-31`.** The [handoff](list-roles-1/list-roles-handoff.md#reviewer-2-and-reviewer-3-ruled) holds the rulings, at `f977899e8`, and the [re-plan](list-roles-1/list-roles-handoff.md#on-top-of-rd-31-90). The repair is implemented on this branch apart from the rulings and the re-plan.
+
+- **`reviewer-2`, a page's universal reset removes `mx-list-item`'s spacing:** a defect of the fold. The spacing moves from the host's padding to margins of its shadow children, which no page rule reaches. **The owner accepts the consequence,** relayed by the coordinator, verbatim _"да, ощущается как expected"_ ("yes, it feels as expected"): a consumer's `padding` on `mx-list-item` adds to the item's spacing, which `--md-list-item-leading-space` and `--md-list-item-trailing-space` set.
+- **`reviewer-3`, a page's `[popover]` rule restyles a lifted host:** a defect of the fold. The lift keeps the host's own padding, border, overflow, color and background color.
+- **Re-planned on the owner's direction,** relayed by the coordinator: `RD-31` (#90) merges first, and this unit follows on top of it. So core's trait, which #90 deletes, isn't changed here. Drag's lift already keeps that set, and closes `reviewer-3`. This unit makes `RD-31`'s knock-on itself: a static item's sortable writes go on its host, `mx-list-item` drops `FocusForwarding` and `delegatesFocus`, and the sortable list's `visual` callback goes. The architect amends `RD-31` on this branch after the merge.
+- **Read in the code, not run:** drag's lift writes `transition: none` inline, so with the host lifted, the item's elevation wouldn't rise over the drag's duration. The re-plan restores that one transition for the lift, after a reading.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
