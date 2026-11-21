@@ -1,0 +1,200 @@
+# RF-69 revision 2: mutations. Each applied to the working tree on fb19feaf7, core rebuilt for a core mutation, run with MX_TEST_ENGINES=chromium,firefox,webkit and vitest run -c vitest.config.ts --project 'browser*', then reverted (scratch script, not committed).
+# Core mutations: core's tests/controllers/useContext, then material-x's tests/button-group/button-group-order.
+#   wait-removed:             if (name && parents.includes(name)) -> if (false)
+#   any-custom-element:       if (name && parents.includes(name)) -> if (name?.includes('-'))
+#   first-name-only:          if (name && parents.includes(name)) -> if (name && name === parents[0])
+#   connection-check-removed: if (current === connection) -> if (current === current)
+#   disposer-not-cleared:     'disposer = undefined;' deleted
+# material-x mutations, the feature proof's A, B and C (feature-proof-checks.txt §6): the four group-related files, then the whole material-x browser suite.
+
+## mutation wait-removed: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  Test Files  3 failed (3)
+  Tests  21 failed | 54 passed (75)
+### material-x order
+  FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  Test Files  3 failed (3)
+  Tests  6 failed (6)
+## mutation any-custom-element: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:615 > useContext with a named parent > should run the effect synchronously under a defined provider that is not named
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:615 > useContext with a named parent > should run the effect synchronously under a defined provider that is not named
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:615 > useContext with a named parent > should run the effect synchronously under a defined provider that is not named
+  Test Files  3 failed (3)
+  Tests  3 failed | 72 passed (75)
+### material-x order
+  Test Files  3 passed (3)
+  Tests  6 passed (6)
+## mutation first-name-only: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  Test Files  3 failed (3)
+  Tests  9 failed | 66 passed (75)
+### material-x order
+  FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  Test Files  3 failed (3)
+  Tests  3 failed | 3 passed (6)
+## mutation connection-check-removed: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  Test Files  3 failed (3)
+  Tests  9 failed | 66 passed (75)
+### material-x order
+  Test Files  3 passed (3)
+  Tests  6 passed (6)
+## mutation disposer-not-cleared: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  Test Files  3 failed (3)
+  Tests  3 failed | 72 passed (75)
+### material-x order
+  Test Files  3 passed (3)
+  Tests  6 passed (6)
+
+# The connected order row's fixture lost its whitespace after the runs above (see the report); wait-removed and first-name-only rerun on the final fixture:
+
+## mutation wait-removed: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  Test Files  3 failed (3)
+  Tests  21 failed | 54 passed (75)
+### material-x order
+  FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  Test Files  3 failed (3)
+  Tests  6 failed (6)
+## mutation first-name-only: packages/core/src/controllers/useContext.ts
+### core
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser (chromium)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined
+  FAIL  |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup
+  Test Files  3 failed (3)
+  Tests  9 failed | 66 passed (75)
+### material-x order
+  FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+  Test Files  3 failed (3)
+  Tests  3 failed | 3 passed (6)
+
+## mutation A: packages/material-x/src/button/ButtonCore.ts
+### material-x group rows
+  FAIL  |browser (chromium)| tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+  FAIL  |browser (chromium)| tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+  FAIL  |browser/firefox (firefox)| tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+  FAIL  |browser/webkit (webkit)| tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+  Test Files  6 failed | 6 passed (12)
+  Tests  6 failed | 272 passed | 1 expected fail (279)
+### material-x whole
+  FAIL  |browser (chromium)| tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+  FAIL  |browser (chromium)| tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+  FAIL  |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+  FAIL  |browser/firefox (firefox)| tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+  FAIL  |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled
+  FAIL  |browser/webkit (webkit)| tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled
+  Test Files  6 failed | 33 passed (39)
+  Tests  6 failed | 653 passed | 1 expected fail (660)
+## mutation B: packages/material-x/src/button/SwitchCore.ts
+### material-x group rows
+  FAIL  |browser (chromium)| tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+  FAIL  |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+  FAIL  |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+  Test Files  3 failed | 9 passed (12)
+  Tests  3 failed | 275 passed | 1 expected fail (279)
+### material-x whole
+  FAIL  |browser (chromium)| tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+  FAIL  |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+  FAIL  |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+  Test Files  3 failed | 36 passed (39)
+  Tests  3 failed | 656 passed | 1 expected fail (660)
+## mutation C: packages/material-x/src/button/SwitchCore.ts
+### material-x group rows
+  FAIL  |browser (chromium)| tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+  FAIL  |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+  FAIL  |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+  Test Files  3 failed | 9 passed (12)
+  Tests  3 failed | 275 passed | 1 expected fail (279)
+### material-x whole
+  FAIL  |browser (chromium)| tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+  FAIL  |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+  FAIL  |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+  Test Files  3 failed | 36 passed (39)
+  Tests  3 failed | 656 passed | 1 expected fail (660)

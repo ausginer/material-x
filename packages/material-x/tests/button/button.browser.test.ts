@@ -210,12 +210,13 @@ describe('mx-button in a button group', () => {
     expect(getNativeButton(button).disabled).toBe(true);
   });
 
-  it('should re-enable when the group context clears disabled', () => {
+  it('should re-enable when the group context clears disabled', async () => {
     const group = document.createElement('mx-button-group');
     group.toggleAttribute('disabled', true);
     const button = document.createElement('mx-button');
     group.append(button);
     document.body.append(group);
+    await contextResolved();
 
     group.toggleAttribute('disabled', false);
 

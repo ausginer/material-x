@@ -83,15 +83,14 @@ export type ContextEffect<T> = (
 /**
  * Resolves the nearest provider value each time the host connects.
  *
- * When the host's parent is a custom element, or the host of the shadow root
- * the host is at the top level of, the lookup waits for that element's
- * definition, through the registry that defines it, and then runs. So the
- * provider is found in whatever order the two elements are defined, and the
- * effect runs asynchronously, in a microtask after the connect at the
- * earliest, even when the parent is already defined. While the parent stays
- * undefined, the effect doesn't run. Only the parent is waited for: an
- * undefined custom element further up isn't. With any other parent the lookup
- * runs synchronously on connect.
+ * `parents` names the custom elements that provide `ctx` to the host as its
+ * parent. When the host's parent element is one of them, the lookup waits for
+ * that name's definition in the global `customElements` registry and then
+ * runs. So the provider is found in whatever order the two elements are
+ * defined, and the effect runs asynchronously, in a microtask after the
+ * connect at the earliest, even when the parent is already defined. While the
+ * parent's name stays undefined, the effect doesn't run. With any other parent,
+ * or none, the lookup runs synchronously on connect.
  *
  * The effect runs at most once for each connection, with the value or with
  * `undefined` when no provider answers. A connection that ends before its
@@ -104,11 +103,14 @@ export type ContextEffect<T> = (
  * @typeParam T - The stable value shape exposed through this context.
  * @param host - The consumer host element.
  * @param ctx - The context channel to resolve.
+ * @param parents - The local names of the custom elements that provide `ctx`
+ * as the host's parent.
  * @param effect - Callback invoked with the resolved provider value.
  */
 export function useContext<T>(
   host: ControlledElement,
   ctx: Context<T>,
+  parents: readonly string[],
   effect: ContextEffect<T>,
 ): void {
   let disposer: Unsubscribe | undefined;
@@ -128,23 +130,14 @@ export function useContext<T>(
     connected() {
       connection += 1;
       const current = connection;
-      const node = host.parentNode;
-      const parent =
-        node instanceof ShadowRoot ? node.host : host.parentElement;
+      const name = host.parentElement?.localName;
 
-      // Every custom element name has a hyphen, and no built-in name does.
-      if (parent?.localName.includes('-')) {
-        // A rejection is a reserved hyphenated name, which isn't a custom
-        // element, so the lookup runs then too.
-        const settle = (): void => {
+      if (name && parents.includes(name)) {
+        void customElements.whenDefined(name).then(() => {
           if (current === connection) {
             resolve();
           }
-        };
-
-        (parent.customElementRegistry ?? customElements)
-          .whenDefined(parent.localName)
-          .then(settle, settle);
+        });
       } else {
         resolve();
       }

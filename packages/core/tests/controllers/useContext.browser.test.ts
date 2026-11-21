@@ -49,18 +49,20 @@ function createMutableProvider(
 
 function createConsumerWithEffect(
   ctx: ContextToken,
+  parents: readonly string[],
   effect: Mock<ContextEffect<ContextValue>>,
 ): Constructor<ControlledElement> {
   return class Consumer extends ControlledElement {
     constructor() {
       super();
-      useContext(this, ctx, effect);
+      useContext(this, ctx, parents, effect);
     }
   };
 }
 
 function createConsumer(
   ctx: ContextToken,
+  parents: readonly string[],
 ): readonly [
   effectMock: Mock<ContextEffect<ContextValue>>,
   updateMock: Mock<UpdateCallback<[string]>>,
@@ -71,13 +73,17 @@ function createConsumer(
     value?.emitter.on(updateMock),
   );
 
-  return [effectMock, updateMock, createConsumerWithEffect(ctx, effectMock)];
+  return [
+    effectMock,
+    updateMock,
+    createConsumerWithEffect(ctx, parents, effectMock),
+  ];
 }
 
 function captureContextEvent(): Event {
   const ctx = createContext<ContextValue>();
   const effectMock = vi.fn<ContextEffect<ContextValue>>();
-  const Consumer = createConsumerWithEffect(ctx, effectMock);
+  const Consumer = createConsumerWithEffect(ctx, [], effectMock);
   const consumerTag = nameCE();
   let lookupEvent: Event | undefined;
 
@@ -150,7 +156,7 @@ describe('useContext', () => {
   it('should call effect with undefined when no provider is found', () => {
     const ctx = createContext<ContextValue>();
     const effectMock = vi.fn<ContextEffect<ContextValue>>();
-    const Consumer = createConsumerWithEffect(ctx, effectMock);
+    const Consumer = createConsumerWithEffect(ctx, [], effectMock);
     const consumerTag = nameCE();
 
     defineCE(consumerTag, Consumer);
@@ -167,8 +173,8 @@ describe('useContext', () => {
       name: 'provider',
     } as const;
     const Provider = createProvider(ctx, value);
-    const [effectMock, _, Consumer] = createConsumer(ctx);
     const providerTag = nameCE();
+    const [effectMock, _, Consumer] = createConsumer(ctx, [providerTag]);
     const consumerTag = nameCE();
 
     defineCE(providerTag, Provider);
@@ -196,9 +202,9 @@ describe('useContext', () => {
     } as const;
     const OuterProvider = createProvider(ctx, outerValue);
     const InnerProvider = createProvider(ctx, innerValue);
-    const [effectMock, _, Consumer] = createConsumer(ctx);
     const outerTag = nameCE();
     const innerTag = nameCE();
+    const [effectMock, _, Consumer] = createConsumer(ctx, [innerTag]);
     const consumerTag = nameCE();
 
     defineCE(outerTag, OuterProvider);
@@ -226,8 +232,12 @@ describe('useContext', () => {
       name: 'provider',
     });
     const effectMock = vi.fn<ContextEffect<ContextValue>>();
-    const Consumer = createConsumerWithEffect(consumerCtx, effectMock);
     const providerTag = nameCE();
+    const Consumer = createConsumerWithEffect(
+      consumerCtx,
+      [providerTag],
+      effectMock,
+    );
     const consumerTag = nameCE();
 
     defineCE(providerTag, Provider);
@@ -260,10 +270,13 @@ describe('useContext', () => {
     const FirstProvider = createProvider(ctx, firstValue);
     const SecondProvider = createProvider(ctx, secondValue);
 
-    const [effectMock, _, Consumer] = createConsumer(ctx);
-
     const firstProviderTag = nameCE();
     const secondProviderTag = nameCE();
+
+    const [effectMock, _, Consumer] = createConsumer(ctx, [
+      firstProviderTag,
+      secondProviderTag,
+    ]);
     const consumerTag = nameCE();
 
     defineCE(firstProviderTag, FirstProvider);
@@ -300,11 +313,15 @@ describe('useContext', () => {
       .fn<ContextEffect<ContextValue>>()
       .mockReturnValueOnce(firstCleanup)
       .mockReturnValueOnce(secondCleanup);
-    const Consumer = createConsumerWithEffect(ctx, effectMock);
-    const FirstProvider = createProvider(ctx, firstValue);
-    const SecondProvider = createProvider(ctx, secondValue);
     const firstProviderTag = nameCE();
     const secondProviderTag = nameCE();
+    const Consumer = createConsumerWithEffect(
+      ctx,
+      [firstProviderTag, secondProviderTag],
+      effectMock,
+    );
+    const FirstProvider = createProvider(ctx, firstValue);
+    const SecondProvider = createProvider(ctx, secondValue);
     const consumerTag = nameCE();
 
     defineCE(firstProviderTag, FirstProvider);
@@ -337,8 +354,8 @@ describe('useContext', () => {
       emitter,
       name: 'provider',
     });
-    const [_, updateMock, Consumer] = createConsumer(ctx);
     const providerTag = nameCE();
+    const [_, updateMock, Consumer] = createConsumer(ctx, [providerTag]);
     const consumerTag = nameCE();
 
     defineCE(providerTag, Provider);
@@ -372,9 +389,12 @@ describe('useContext', () => {
       emitter: secondEmitter,
       name: 'second',
     });
-    const [_, updateMock, Consumer] = createConsumer(ctx);
     const firstProviderTag = nameCE();
     const secondProviderTag = nameCE();
+    const [_, updateMock, Consumer] = createConsumer(ctx, [
+      firstProviderTag,
+      secondProviderTag,
+    ]);
     const consumerTag = nameCE();
 
     defineCE(firstProviderTag, FirstProvider);
@@ -410,8 +430,8 @@ describe('useContext', () => {
     } as const;
     const Provider = createProvider(ctx, value);
     const effectMock = vi.fn<ContextEffect<ContextValue>>();
-    const Consumer = createConsumerWithEffect(ctx, effectMock);
     const providerTag = nameCE();
+    const Consumer = createConsumerWithEffect(ctx, [providerTag], effectMock);
     const consumerTag = nameCE();
 
     defineCE(providerTag, Provider);
@@ -442,8 +462,10 @@ describe('useContext', () => {
       name: 'second',
     } as const;
     const Provider = createMutableProvider(ctx, firstValue);
-    const [effectMock, updateMock, Consumer] = createConsumer(ctx);
     const providerTag = nameCE();
+    const [effectMock, updateMock, Consumer] = createConsumer(ctx, [
+      providerTag,
+    ]);
     const consumerTag = nameCE();
 
     defineCE(providerTag, Provider);
@@ -475,9 +497,13 @@ describe('useContext', () => {
       emitter,
       name: 'provider',
     });
-    const [_a, firstUpdateMock, FirstConsumer] = createConsumer(ctx);
-    const [_b, secondUpdateMock, SecondConsumer] = createConsumer(ctx);
     const providerTag = nameCE();
+    const [_a, firstUpdateMock, FirstConsumer] = createConsumer(ctx, [
+      providerTag,
+    ]);
+    const [_b, secondUpdateMock, SecondConsumer] = createConsumer(ctx, [
+      providerTag,
+    ]);
     const firstConsumerTag = nameCE();
     const secondConsumerTag = nameCE();
 
@@ -506,7 +532,7 @@ describe('useContext', () => {
   });
 });
 
-describe('useContext with a custom-element parent', () => {
+describe('useContext with a named parent', () => {
   function createValue(name: string): ContextValue {
     return { emitter: new EventEmitter<[string]>(), name };
   }
@@ -529,8 +555,8 @@ describe('useContext with a custom-element parent', () => {
   it('should resolve a provider defined after the consumer connected', async () => {
     const ctx = createContext<ContextValue>();
     const value = createValue('late');
-    const [effectMock, , Consumer] = createConsumer(ctx);
     const [providerTag, provider] = createPending();
+    const [effectMock, , Consumer] = createConsumer(ctx, [providerTag]);
     defineCE(nameCE(), Consumer);
     provider.append(new Consumer());
     document.body.append(provider);
@@ -545,8 +571,9 @@ describe('useContext with a custom-element parent', () => {
   it('should not run the effect synchronously under a defined provider', () => {
     const ctx = createContext<ContextValue>();
     const Provider = createProvider(ctx, createValue('provider'));
-    const [effectMock, , Consumer] = createConsumer(ctx);
-    defineCE(nameCE(), Provider);
+    const providerTag = nameCE();
+    const [effectMock, , Consumer] = createConsumer(ctx, [providerTag]);
+    defineCE(providerTag, Provider);
     defineCE(nameCE(), Consumer);
     const provider = new Provider();
     provider.append(new Consumer());
@@ -560,8 +587,9 @@ describe('useContext with a custom-element parent', () => {
     const ctx = createContext<ContextValue>();
     const value = createValue('provider');
     const Provider = createProvider(ctx, value);
-    const [effectMock, , Consumer] = createConsumer(ctx);
-    defineCE(nameCE(), Provider);
+    const providerTag = nameCE();
+    const [effectMock, , Consumer] = createConsumer(ctx, [providerTag]);
+    defineCE(providerTag, Provider);
     defineCE(nameCE(), Consumer);
     const provider = new Provider();
     provider.append(new Consumer());
@@ -574,7 +602,7 @@ describe('useContext with a custom-element parent', () => {
 
   it('should run the effect synchronously under a parent that is not a custom element', () => {
     const ctx = createContext<ContextValue>();
-    const [effectMock, , Consumer] = createConsumer(ctx);
+    const [effectMock, , Consumer] = createConsumer(ctx, [nameCE()]);
     defineCE(nameCE(), Consumer);
     const parent = document.createElement('div');
     parent.append(new Consumer());
@@ -584,13 +612,31 @@ describe('useContext with a custom-element parent', () => {
     expect(effectMock.mock.calls).toEqual([[undefined]]);
   });
 
-  it('should wait for the host of the shadow root it is at the top level of', async () => {
+  it('should run the effect synchronously under a defined provider that is not named', () => {
     const ctx = createContext<ContextValue>();
-    const value = createValue('shadow');
-    const [effectMock, , Consumer] = createConsumer(ctx);
-    const [providerTag, provider] = createPending();
+    const value = createValue('unnamed');
+    const Provider = createProvider(ctx, value);
+    const [effectMock, , Consumer] = createConsumer(ctx, [nameCE()]);
+    defineCE(nameCE(), Provider);
     defineCE(nameCE(), Consumer);
-    provider.attachShadow({ mode: 'open' }).append(new Consumer());
+    const provider = new Provider();
+    provider.append(new Consumer());
+
+    document.body.append(provider);
+
+    expect(effectMock.mock.calls).toEqual([[value]]);
+  });
+
+  it('should resolve the second named provider while the first is never defined', async () => {
+    const ctx = createContext<ContextValue>();
+    const value = createValue('second');
+    const [providerTag, provider] = createPending();
+    const [effectMock, , Consumer] = createConsumer(ctx, [
+      nameCE(),
+      providerTag,
+    ]);
+    defineCE(nameCE(), Consumer);
+    provider.append(new Consumer());
     document.body.append(provider);
     await tasks(1);
 
@@ -603,8 +649,10 @@ describe('useContext with a custom-element parent', () => {
   it('should do nothing for a connection that ended before the definition', async () => {
     const ctx = createContext<ContextValue>();
     const value = createValue('late');
-    const [effectMock, updateMock, Consumer] = createConsumer(ctx);
     const [providerTag, provider] = createPending();
+    const [effectMock, updateMock, Consumer] = createConsumer(ctx, [
+      providerTag,
+    ]);
     defineCE(nameCE(), Consumer);
     const consumer = new Consumer();
     provider.append(consumer);
@@ -622,9 +670,9 @@ describe('useContext with a custom-element parent', () => {
     const ctx = createContext<ContextValue>();
     const firstValue = createValue('first');
     const secondValue = createValue('second');
-    const [effectMock, , Consumer] = createConsumer(ctx);
     const [firstTag, first] = createPending();
     const [secondTag, second] = createPending();
+    const [effectMock, , Consumer] = createConsumer(ctx, [firstTag, secondTag]);
     defineCE(nameCE(), Consumer);
     const consumer = new Consumer();
     first.append(consumer);
@@ -642,8 +690,8 @@ describe('useContext with a custom-element parent', () => {
 
   it('should not run the effect while the parent is never defined', async () => {
     const ctx = createContext<ContextValue>();
-    const [effectMock, , Consumer] = createConsumer(ctx);
-    const [, provider] = createPending();
+    const [providerTag, provider] = createPending();
+    const [effectMock, , Consumer] = createConsumer(ctx, [providerTag]);
     defineCE(nameCE(), Consumer);
     provider.append(new Consumer());
     document.body.append(provider);
@@ -659,10 +707,15 @@ describe('useContext with a custom-element parent', () => {
     const effectMock = vi
       .fn<ContextEffect<ContextValue>>()
       .mockReturnValue(cleanup);
-    const Consumer = createConsumerWithEffect(ctx, effectMock);
     const Provider = createProvider(ctx, createValue('provider'));
+    const providerTag = nameCE();
     const [pendingTag, pending] = createPending();
-    defineCE(nameCE(), Provider);
+    const Consumer = createConsumerWithEffect(
+      ctx,
+      [providerTag, pendingTag],
+      effectMock,
+    );
+    defineCE(providerTag, Provider);
     defineCE(nameCE(), Consumer);
     const provider = new Provider();
     const consumer = new Consumer();

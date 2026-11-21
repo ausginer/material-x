@@ -117,9 +117,10 @@ describe('mx-button-group context forwarding', () => {
     expect(getNativeButton(group.children[0]!).disabled).toBe(true);
   });
 
-  it('should re-enable child buttons when the group clears disabled', () => {
+  it('should re-enable child buttons when the group clears disabled', async () => {
     const group = createStandard();
     group.toggleAttribute('disabled', true);
+    await contextResolved();
 
     group.toggleAttribute('disabled', false);
 
