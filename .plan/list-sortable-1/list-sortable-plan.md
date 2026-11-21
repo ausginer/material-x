@@ -1,5 +1,7 @@
 # The list's sortable items on `@ydinjs/drag` — plan
 
+**Dated 2026-11-21 by the architect: [`RD-31`](../00-index.md) is amended a seventh time,** on `RF-68`'s [re-plan](../list-roles-1/list-roles-handoff.md#on-top-of-rd-31-90) (#99). `mx-list-item` has no inner `.host`, so a handle-less static item's tab stop and description go on its host, it composes neither `FocusForwarding` nor `delegatesFocus`, and drag's `visual` is the item itself. Where this plan says the inner `.host`, `FocusForwarding` or the `visual` callback, the entry governs.
+
 **Status: the owner answered Q1 to Q5 on 2026-11-20 and Q6, with its two follow-ups, on 2026-11-21 ([Owner's answers](#owners-answers)). No question is open, and the plan is ready for implementation.** The architect wrote this plan on 2026-11-20 at `e4b0e475d` (`origin/main`), on `repo/list-sortable-1`, for the coordinator's task on issue #86. It was revised twice the same day for the answers, and on 2026-11-21 for Q6 ([what Q6 changes](#q6-a-handle-less-item-takes-focus)).
 
 **Revised 2026-11-21 on the implementer's size stop at `88801757e`:** the items' sortable writes move into a module that only `list/sortable-list` imports, and reach the item through the context's value. The stop bounds don't change. [Where the sortable writes live](#where-the-sortable-writes-live) has the ruling, and task 3a the work.
