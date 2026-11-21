@@ -34,6 +34,22 @@ Brotli bytes, against `73f081dc4`. `just size` passes. The full table is in [`ch
 
 `text-field` only loses CSS here, the `.input-polyfill` selector and rule. Minified, it shrinks from 34282 to 34123 bytes (−159), and only its Brotli figure grows. Brotli is the figure that governs. The growth has no code behind it: the removed text was compressing well against the rest of the bundle. Readings: [`checks/text-field-min-vs-brotli.txt`](checks/text-field-min-vs-brotli.txt). Probe: [`probes/entry.ts`](probes/entry.ts), which reproduces size-limit's figures for that row.
 
+## After merging `main`
+
+`3b33a50b5` merges `origin/main` at `71a516e92`, which includes #106. Two files conflicted, and both conflicts came from #106's API changes meeting the polyfill's removal. In `src/core/utils/polyfills.ts`, the polyfill stays removed: the imports are `internals` and `ControlledElement` without `use`, and `toggleState` without `$$`. In `src/text-field/multiline-text-field.ts`, the polyfill import and the `define` import both go, and `customElements.define` stays as `main` has it.
+
+After the merge, the text-field file passes 81/81 across Chromium, Firefox and WebKit, growth row included. material-x passes 516/516 in Chromium. `just fmt-check`, lint on the two resolved files and the test file, typecheck, and `just size` all pass.
+
+The sizes against `71a516e92` differ from the table above, because the base changed. Brotli bytes; every other row is 0. Full table: [`checks/size-report-after-main-71a516e92.md`](checks/size-report-after-main-71a516e92.md).
+
+| Row                               |  Head |  Base | Change |
+| --------------------------------- | ----: | ----: | -----: |
+| `text-field/multiline-text-field` |  4071 |  4392 |   −321 |
+| `text-field/text-field`           |  8160 |  8210 |    −50 |
+| `complete`                        | 21960 | 22237 |   −277 |
+
+On this base, `text-field` shrinks under Brotli as well, so the +12 B described above no longer appears.
+
 ## Open
 
 `CONTRIBUTING.md` Part I says "Use Baseline-2025 features", and `field-sizing` is Baseline 2026. The owner made this call himself. This report states the tension and doesn't resolve it.
