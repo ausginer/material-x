@@ -1,0 +1,125 @@
+# Mutations of 586a99e60, each one literal replacement applied with perl, run from packages/material-x with MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project 'browser*' tests/list/sortable-list.browser.test.ts, then reverted with git checkout. Core was rebuilt for the core mutation, before and after. Lines kept: the diff, the totals, the failing rows and unhandled errors.
+
+## mutation wait-removed on 586a99e60
+-      if (name && parents.includes(name)) {
++      if (false) {
+      Tests  3 failed | 183 passed (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ Test Files  3 failed (3)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+## mutation names-empty on 586a99e60
+-export const SORTABLE_LIST_ELEMENTS: readonly string[] = ['mx-sortable-list'];
++export const SORTABLE_LIST_ELEMENTS: readonly string[] = [];
+      Tests  3 failed | 183 passed (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ Test Files  3 failed (3)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+## mutation cancel-not-destroy on 586a99e60
+-        void controller!.requestDestroy();
++        void controller!.requestCancel();
+      Tests  186 passed (186)
+     Errors  9 errors
+ Test Files  3 passed (3)
+ ❯ DragFault ../drag/src/fault.ts:22:5
+DragFault: drag: sortable/landing-placeholder-lost
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+## mutation no-destroy on 586a99e60
+-        void controller!.requestDestroy();
++        
+      Tests  4 failed | 182 passed (186)
+     Errors  18 errors
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:427 > mx-sortable-list pointer > should stop and dispatch nothing more when the list disconnects during the commit wait
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:402 > mx-sortable-list pointer > should tear down when the list disconnects mid-drag
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:427 > mx-sortable-list pointer > should stop and dispatch nothing more when the list disconnects during the commit wait
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:427 > mx-sortable-list pointer > should stop and dispatch nothing more when the list disconnects during the commit wait
+ Test Files  3 failed (3)
+ ❯ DragFault ../drag/src/fault.ts:22:5
+DragFault: drag: Cannot read properties of null (reading '#internals')
+DragFault: drag: can't convert null to object
+DragFault: drag: null is not an object (evaluating 'element.#internals')
+DragFault: drag: sortable/landing-placeholder-lost
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+## mutation handle-ignored on 586a99e60
+-      handle: (item) => handleOf(item) ?? item,
++      handle: (item) => item,
+      Tests  6 failed | 180 passed (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:463 > mx-sortable-list pointer > should not start a drag when the press misses the handle
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:550 > mx-sortable-list keyboard > should not move an item with a handle from another focused element
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:463 > mx-sortable-list pointer > should not start a drag when the press misses the handle
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:550 > mx-sortable-list keyboard > should not move an item with a handle from another focused element
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:463 > mx-sortable-list pointer > should not start a drag when the press misses the handle
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:550 > mx-sortable-list keyboard > should not move an item with a handle from another focused element
+ Test Files  3 failed (3)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+## mutation no-static-tabstop on 586a99e60
+-      control.tabIndex = 0;
+      Tests  35 failed | 151 passed (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1004 > mx-sortable-list definition order > should make a static item a tab stop when sortable-list.js is evaluated first
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:670 > mx-sortable-list static item focus > should make a static item without a handle a tab stop
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:679 > mx-sortable-list static item focus > should move a focused static item on ArrowDown
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:691 > mx-sortable-list static item focus > should keep focus on the inner element and move again after a keyboard move
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:706 > mx-sortable-list static item focus > should show the focus indicator on a focused static item
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:717 > mx-sortable-list static item focus > should describe a focused static item with the arrow keys
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:745 > mx-sortable-list static item focus > should restore the tab stop once the handle is removed
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:920 > mx-list-item focus > should take focus on its inner element by Tab in mx-sortable-list
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:929 > mx-list-item focus > should leave by Tab after one stop
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:939 > mx-list-item focus > should return by Shift+Tab
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:950 > mx-list-item focus > should take focus by focus() in mx-sortable-list
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1004 > mx-sortable-list definition order > should make a static item a tab stop when sortable-list.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:670 > mx-sortable-list static item focus > should make a static item without a handle a tab stop
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:679 > mx-sortable-list static item focus > should move a focused static item on ArrowDown
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:691 > mx-sortable-list static item focus > should keep focus on the inner element and move again after a keyboard move
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:706 > mx-sortable-list static item focus > should show the focus indicator on a focused static item
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:717 > mx-sortable-list static item focus > should describe a focused static item with the arrow keys
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:745 > mx-sortable-list static item focus > should restore the tab stop once the handle is removed
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:920 > mx-list-item focus > should take focus on its inner element by Tab in mx-sortable-list
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:939 > mx-list-item focus > should return by Shift+Tab
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:950 > mx-list-item focus > should take focus by focus() in mx-sortable-list
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1004 > mx-sortable-list definition order > should make a static item a tab stop when sortable-list.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:670 > mx-sortable-list static item focus > should make a static item without a handle a tab stop
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:679 > mx-sortable-list static item focus > should move a focused static item on ArrowDown
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:691 > mx-sortable-list static item focus > should keep focus on the inner element and move again after a keyboard move
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:706 > mx-sortable-list static item focus > should show the focus indicator on a focused static item
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:717 > mx-sortable-list static item focus > should describe a focused static item with the arrow keys
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:745 > mx-sortable-list static item focus > should restore the tab stop once the handle is removed
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:920 > mx-list-item focus > should take focus on its inner element by Tab in mx-sortable-list
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:929 > mx-list-item focus > should leave by Tab after one stop
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:939 > mx-list-item focus > should return by Shift+Tab
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:950 > mx-list-item focus > should take focus by focus() in mx-sortable-list
+ Test Files  3 failed (3)
+⎯⎯⎯⎯⎯⎯ Failed Tests 35 ⎯⎯⎯⎯⎯⎯⎯
+
+## mutation no-parent-check on 586a99e60
+-  if (host.parentElement !== list) {
++  if (false) {
+      Tests  3 failed | 183 passed (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:887 > mx-sortable-list handle semantics > should leave the items of an mx-list nested in an item plain
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:887 > mx-sortable-list handle semantics > should leave the items of an mx-list nested in an item plain
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:887 > mx-sortable-list handle semantics > should leave the items of an mx-list nested in an item plain
+ Test Files  3 failed (3)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+## mutation no-release on 586a99e60
+-      item.release();
+      Tests  6 failed | 180 passed (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:756 > mx-sortable-list static item focus > should remove the tab stop once the item leaves the list
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:869 > mx-sortable-list handle semantics > should remove what it wrote and keep the consumer values in mx-list
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:756 > mx-sortable-list static item focus > should remove the tab stop once the item leaves the list
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:869 > mx-sortable-list handle semantics > should remove what it wrote and keep the consumer values in mx-list
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:756 > mx-sortable-list static item focus > should remove the tab stop once the item leaves the list
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:869 > mx-sortable-list handle semantics > should remove what it wrote and keep the consumer values in mx-list
+ Test Files  3 failed (3)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯

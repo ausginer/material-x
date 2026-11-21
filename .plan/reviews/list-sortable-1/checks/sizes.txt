@@ -1,0 +1,126 @@
+# Byte-exact Brotli rows, from .plan/list-sortable-1/probes/list-modules.ts after just size, in packages/material-x of each tree. main is 87fc2d2db, which has no list/sortable-list (rolldown error, so complete is not printed there; size-limit read it as 17.08 kB). PR is 586a99e60.
+
+## size-limit at 586a99e60 (just size)
+  list/list
+  Size: 685 B brotlied
+  list/list-item
+  Size: 2.83 kB brotlied
+  list/list-button-item
+  Size: 4.67 kB brotlied
+  list/list-link-item
+  Size: 4.88 kB brotlied
+  list/sortable-list
+  Size: 8.58 kB brotlied
+  complete
+  Size: 22.14 kB brotlied
+
+## size-limit at 87fc2d2db (just size)
+  list/list
+  Size: 3.67 kB brotlied
+  list/list-item
+  Size: 2.57 kB brotlied
+  list/list-button-item
+  Size: 4.58 kB brotlied
+  list/list-link-item
+  Size: 4.75 kB brotlied
+  complete
+  Size: 17.08 kB brotlied
+
+## module lists of the plain rows at 586a99e60
+list/list: 685 B brotli, 8 modules, 0 from drag or box-quad
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list.tpl.html.js
+  packages/material-x/list/styles/default/main.css.js
+  packages/material-x/list/ListCore.js
+  packages/material-x/list/list.js
+list/list-item: 2828 B brotli, 20 modules, 0 from drag or box-quad
+  packages/core/traits/composition.js
+  packages/material-x/core/traits/focus-forwarding.js
+  packages/material-x/core/styles/focus/focus.css.js
+  packages/material-x/list/list-item.tpl.html.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useEvents.js
+  packages/core/controllers/useSlot.js
+  packages/material-x/core/utils/polyfills.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/core/controllers/useContext.js
+  packages/material-x/list/sortable-list-context.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/material-x/list/ListItemCore.js
+  packages/material-x/list/list-item.js
+list/list-button-item: 4667 B brotli, 32 modules, 0 from drag or box-quad
+  packages/core/traits/composition.js
+  packages/material-x/core/traits/focus-forwarding.js
+  packages/material-x/list/list-button-item.tpl.html.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useConnected.js
+  packages/core/controllers/useCSSProps.js
+  packages/material-x/core/utils/fns.js
+  packages/material-x/core/animations/ripple/styles/main.css.js
+  packages/core/controllers/useEvents.js
+  packages/material-x/core/animations/ripple/ripple.js
+  packages/material-x/core/styles/focus/focus.css.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useSlot.js
+  packages/material-x/core/utils/polyfills.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/core/controllers/useContext.js
+  packages/material-x/list/sortable-list-context.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/material-x/list/ListItemCore.js
+  packages/core/attribute.js
+  packages/core/controllers/useMutationObserver.js
+  packages/core/controllers/useARIA.js
+  packages/core/controllers/useAttributes.js
+  packages/core/traits/disableable.js
+  packages/material-x/list/ListInteractiveItemCore.js
+  packages/core/traits/selectable.js
+  packages/material-x/list/list-button-item.js
+list/list-link-item: 4885 B brotli, 33 modules, 0 from drag or box-quad
+  packages/core/traits/composition.js
+  packages/material-x/core/traits/focus-forwarding.js
+  packages/material-x/list/list-link-item.tpl.html.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useConnected.js
+  packages/core/controllers/useCSSProps.js
+  packages/material-x/core/utils/fns.js
+  packages/material-x/core/animations/ripple/styles/main.css.js
+  packages/core/controllers/useEvents.js
+  packages/material-x/core/animations/ripple/ripple.js
+  packages/material-x/core/styles/focus/focus.css.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useSlot.js
+  packages/material-x/core/utils/polyfills.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/core/controllers/useContext.js
+  packages/material-x/list/sortable-list-context.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/material-x/list/ListItemCore.js
+  packages/core/attribute.js
+  packages/core/controllers/useMutationObserver.js
+  packages/core/controllers/useARIA.js
+  packages/core/controllers/useAttributes.js
+  packages/core/traits/disableable.js
+  packages/material-x/list/ListInteractiveItemCore.js
+  packages/core/traits/linkable.js
+  packages/core/traits/selectable.js
+  packages/material-x/list/list-link-item.js
