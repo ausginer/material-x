@@ -1,0 +1,90 @@
+# How Chromium, Firefox and WebKit expose mx-list's items with each host a box and mx-list-item's inner div folded into its host: node .plan/list-roles-1/probes/list-roles.ts packages/material-x hostbox-fold <engine>
+# Read by the architect on 2026-11-21 for the second re-ruling, Playwright 1.65.0 (Chromium 158.0.8127.18, Firefox 159.0, WebKit 27.2), on the main checkout's build at e4b0e475d, as list-roles.txt. The variant is described at the top of the probe.
+
+# variant hostbox-fold, engine chromium
+chromium AX tree from the list (not ignored, text nodes left out):
+  list "" <mx-list#l>
+    listitem "" <mx-list-item#s1>
+      generic "" <slot.label has-slotted>
+      generic "" <slot.trail has-slotted>
+        button "Reorder" <span>
+    listitem "" <mx-list-item#s2>
+      generic "" <slot.label has-slotted>
+    listitem "" <mx-list-item#s3>
+      generic "" <slot.label has-slotted>
+    listitem "" <mx-list-button-item#b>
+      button "Button item" <button.host>
+        generic "" <slot.label has-slotted>
+        generic "" <div.ripple>
+    listitem "" <mx-list-link-item#a>
+      link "Link item" <a.host>
+        generic "" <slot.label has-slotted>
+        generic "" <div.ripple>
+tab order: span | #s3 | #b > button | #a > a | #after | body
+
+# variant hostbox-fold, engine firefox
+firefox AX tree from the list (Marionette, text leaves left out):
+  list ""
+    listitem "Static one Reorder"
+      generic ""
+         "Static one"
+      generic ""
+        button "Reorder"
+           "≡"
+    listitem "Static two"
+      generic ""
+         "Static two"
+    listitem "Focusable host"
+      generic ""
+         "Focusable host"
+    listitem "Button item"
+      button "Button item"
+        generic ""
+           "Button item"
+        generic ""
+    listitem "Link item"
+      link "Link item"
+        generic ""
+           "Link item"
+        generic ""
+  host #s1: role=listitem parent-is-list=true
+  host #s2: role=listitem parent-is-list=true
+  host #s3: role=listitem parent-is-list=true
+  host #b: role=listitem parent-is-list=true
+  host #a: role=listitem parent-is-list=true
+tab order: span | #s3 | #b > button | #a > a | #after | body
+
+# variant hostbox-fold, engine webkit
+webkit AX tree from the list (childNodeIds, which leave text out):
+  list "" <mx-list#l> parent=<#document>
+    listitem "Static one" <mx-list-item#s1> parent=<mx-list#l>
+      generic "" <slot.label has-slotted> parent=<mx-list-item#s1>
+      generic "" <slot.trail has-slotted> parent=<mx-list-item#s1>
+        button "Reorder" <span> parent=<slot.trail has-slotted>
+    listitem "Static two" <mx-list-item#s2> parent=<mx-list#l>
+      generic "" <slot.label has-slotted> parent=<mx-list-item#s2>
+    listitem "Focusable host" <mx-list-item#s3> parent=<mx-list#l>
+      generic "" <slot.label has-slotted> parent=<mx-list-item#s3>
+    listitem "" <mx-list-button-item#b> parent=<mx-list#l>
+      button "Button item" <button.host> parent=<mx-list-button-item#b>
+    listitem "" <mx-list-link-item#a> parent=<mx-list#l>
+      link "Link item" <a.host> parent=<mx-list-link-item#a>
+        generic "" <<pseudo>> parent=<a.host>
+        generic "" <slot.label has-slotted> parent=<a.host>
+        generic "" <div.ripple> parent=<a.host>
+          generic "" <<pseudo>> parent=<div.ripple>
+          generic "" <<pseudo>> parent=<div.ripple>
+        generic "" <<pseudo>> parent=<a.host>
+  host #s1: exists=true role=listitem ignored=undefined parent=<mx-list#l>
+  host #s2: exists=true role=listitem ignored=undefined parent=<mx-list#l>
+  host #s3: exists=true role=listitem ignored=undefined parent=<mx-list#l>
+  host #b: exists=true role=listitem ignored=undefined parent=<mx-list#l>
+  host #a: exists=true role=listitem ignored=undefined parent=<mx-list#l>
+  light child <#text "Static one">: exists=true role=text ignored=true parent=<slot.label has-slotted>
+  light child <span>: exists=true role=button ignored=undefined parent=<slot.trail has-slotted>
+  light child <#text "Static two">: exists=true role=text ignored=true parent=<slot.label has-slotted>
+  light child <#text "Focusable host">: exists=true role=text ignored=true parent=<slot.label has-slotted>
+  light child <#text "Button item">: exists=true role=text ignored=true parent=<button.host>
+  light child <#text "Link item">: exists=true role=text ignored=true parent=<slot.label has-slotted>
+tab order: span | #s3 | #b > button | #a > a | #after | body
+

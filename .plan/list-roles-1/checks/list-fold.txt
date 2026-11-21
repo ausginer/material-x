@@ -1,0 +1,133 @@
+# node .plan/list-roles-1/probes/list-fold.ts packages/material-x <engine>, the sections described at the top of the probe
+# Read by the architect on 2026-11-21 for the second re-ruling, Playwright 1.65.0, on the package built in the main checkout at e4b0e475d, whose list and core sources equal origin/main's at 555ab85bc. The fold and the box host are emulated in the page; 'main' is the build unchanged.
+
+# engine chromium 158.0.8127.18
+## layout
+equal  list 16 16 360 880
+equal  item1 16 16 360 56
+equal  item2 16 84 360 72
+equal  item3 16 168 360 88
+equal  butt1 16 268 360 56
+equal  butt2 16 336 360 72
+equal  butt3 16 420 360 88
+equal  link1 16 520 360 56
+equal  link2 16 588 360 72
+equal  link3 16 672 360 88
+equal  butt-disabled 16 772 360 56
+equal  link-disabled 16 840 360 56
+DIFFER main: sanity item1 host display=contents ::before content=none position=static unset-left=[] shadow-children=div.host
+       fold: sanity item1 host display=flex ::before content="" position=absolute unset-left=[] shadow-children=slot.lead has-slotted,div.content,slot.trail has-slotted
+## computed (item1 and item3: main's .host and the folded host, with their ::before and ::after; only the differences)
+item1 transition-duration: main "0s", fold "0.65s"
+item1 transition-property: main "all", fold "--fk"
+item1 transition-timing-function: main "ease", fold "cubic-bezier(0.39, 1.29, 0.35, 0.98)"
+item1 unicode-bidi: main "isolate", fold "normal"
+item3 transition-duration: main "0s", fold "0.65s"
+item3 transition-property: main "all", fold "--fk"
+item3 transition-timing-function: main "ease", fold "cubic-bezier(0.39, 1.29, 0.35, 0.98)"
+item3 unicode-bidi: main "isolate", fold "normal"
+## pixels
+level 0: main and fold screenshots equal (37557 and 37557 bytes)
+level 6: main and fold screenshots equal (50127 and 50127 bytes)
+## lift
+s inner      list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0
+s core       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=auto background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels DIFFER from inner
+s core-reset list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+s drag       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+b inner      list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0
+b core       list 192 -> 192, link top 152 -> 152, rect kept=false, padding=4px/4px overflow=auto background=rgb(255, 255, 255), visual 8x8 larger at 0,0; its box 0x0 larger at 4,4, pixels DIFFER from inner
+b core-reset list 192 -> 192, link top 152 -> 152, rect kept=true, padding=0px/0px overflow=visible background=rgba(0, 0, 0, 0), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+b drag       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=0px/0px overflow=visible background=rgba(0, 0, 0, 0), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+## focus
+s.focus() reaches #s
+b.focus() reaches #b > button
+Tab from #before: #s (:focus-visible true) | #b > button | #after
+focus on #s, host lifted: #s (s); after the drop: #s
+focus on #b, host lifted: #b > button (b); after the drop: #b > button
+
+# engine firefox 159.0
+## layout
+equal  list 16 16 360 880
+equal  item1 16 16 360 56
+equal  item2 16 84 360 72
+equal  item3 16 168 360 88
+equal  butt1 16 268 360 56
+equal  butt2 16 336 360 72
+equal  butt3 16 420 360 88
+equal  link1 16 520 360 56
+equal  link2 16 588 360 72
+equal  link3 16 672 360 88
+equal  butt-disabled 16 772 360 56
+equal  link-disabled 16 840 360 56
+DIFFER main: sanity item1 host display=contents ::before content=none position=static unset-left=[] shadow-children=div.host
+       fold: sanity item1 host display=flex ::before content="" position=absolute unset-left=[] shadow-children=slot.lead has-slotted,div.content,slot.trail has-slotted
+## computed (item1 and item3: main's .host and the folded host, with their ::before and ::after; only the differences)
+item1 transition-duration: main "0s", fold "0.65s"
+item1 transition-property: main "all", fold "--fk"
+item1 transition-timing-function: main "ease", fold "cubic-bezier(0.39, 1.29, 0.35, 0.98)"
+item1 unicode-bidi: main "isolate", fold "normal"
+item3 transition-duration: main "0s", fold "0.65s"
+item3 transition-property: main "all", fold "--fk"
+item3 transition-timing-function: main "ease", fold "cubic-bezier(0.39, 1.29, 0.35, 0.98)"
+item3 unicode-bidi: main "isolate", fold "normal"
+## pixels
+level 0: main and fold screenshots equal (56215 and 56215 bytes)
+level 6: main and fold screenshots equal (74360 and 74360 bytes)
+## lift
+s inner      list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0
+s core       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=auto background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels DIFFER from inner
+s core-reset list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+s drag       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+b inner      list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0
+b core       list 192 -> 192, link top 152 -> 152, rect kept=false, padding=4px/4px overflow=auto background=rgb(255, 255, 255), visual 8x8 larger at 0,0; its box 0x0 larger at 4,4, pixels DIFFER from inner
+b core-reset list 192 -> 192, link top 152 -> 152, rect kept=true, padding=0px/0px overflow=visible background=rgba(0, 0, 0, 0), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+b drag       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=0px/0px overflow=visible background=rgba(0, 0, 0, 0), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+## focus
+s.focus() reaches #s
+b.focus() reaches #b > button
+Tab from #before: #s (:focus-visible true) | #b > button | #after
+focus on #s, host lifted: #s (s); after the drop: #s
+focus on #b, host lifted: #b > button (b); after the drop: #b > button
+
+# engine webkit 27.2
+## layout
+equal  list 16 16 360 880
+equal  item1 16 16 360 56
+equal  item2 16 84 360 72
+equal  item3 16 168 360 88
+equal  butt1 16 268 360 56
+equal  butt2 16 336 360 72
+equal  butt3 16 420 360 88
+equal  link1 16 520 360 56
+equal  link2 16 588 360 72
+equal  link3 16 672 360 88
+equal  butt-disabled 16 772 360 56
+equal  link-disabled 16 840 360 56
+DIFFER main: sanity item1 host display=contents ::before content=none position=static unset-left=[] shadow-children=div.host
+       fold: sanity item1 host display=flex ::before content="" position=absolute unset-left=["-internal-hyphenate-limit-chars-word: unset","-internal-hyphenate-limit-chars-word: unset","-internal-hyphenate-limit-chars-word: unset"] shadow-children=slot.lead has-slotted,div.content,slot.trail has-slotted
+## computed (item1 and item3: main's .host and the folded host, with their ::before and ::after; only the differences)
+item1 transition-duration: main "0s", fold "0.65s"
+item1 transition-property: main "all", fold "--fk"
+item1 transition-timing-function: main "ease", fold "cubic-bezier(0.39, 1.29, 0.35, 0.98)"
+item3 transition-duration: main "0s", fold "0.65s"
+item3 transition-property: main "all", fold "--fk"
+item3 transition-timing-function: main "ease", fold "cubic-bezier(0.39, 1.29, 0.35, 0.98)"
+## pixels
+level 0: main and fold screenshots equal (46127 and 46127 bytes)
+level 6: main and fold screenshots equal (60442 and 60442 bytes)
+## lift
+s inner      list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0
+s core       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=auto background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels DIFFER from inner
+s core-reset list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+s drag       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+b inner      list 192 -> 192, link top 152 -> 152, rect kept=true, padding=10px/16px overflow=visible background=rgb(247, 251, 234), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0
+b core       list 192 -> 192, link top 152 -> 152, rect kept=false, padding=4px/4px overflow=auto background=rgb(255, 255, 255), visual 8x8 larger at 0,0; its box 0x0 larger at 4,4, pixels DIFFER from inner
+b core-reset list 192 -> 192, link top 152 -> 152, rect kept=true, padding=0px/0px overflow=visible background=rgba(0, 0, 0, 0), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+b drag       list 192 -> 192, link top 152 -> 152, rect kept=true, padding=0px/0px overflow=visible background=rgba(0, 0, 0, 0), visual 0x0 larger at 0,0; its box 0x0 larger at 0,0, pixels equal to inner
+## focus
+s.focus() reaches #s
+b.focus() reaches #b > button
+Tab from #before: #s (:focus-visible true) | #b > button | #after
+focus on #s, host lifted: #s (s); after the drop: #s
+focus on #b, host lifted: #b > button (b); after the drop: #b > button
+

@@ -1,0 +1,40 @@
+# node probes/list-lift.ts packages/material-x <engine>, the modes described at the top of the probe
+# run 2026-11-21 by the architect, Playwright 1.65.0, on the package built in the main checkout, whose list and core sources equal origin/main's at bd1dee7df; it has no role in any template. Each comparison is within this one build
+# 'list after hidePopover' is read before any teardown: the footprint is still in the list and the visual keeps its fixed position, so it shows only whether the host's box came back (204) or not (192).
+
+# engine chromium 158.0.8127.18
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+wrapper            list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+collapse           list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox            list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-static     list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-has        list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-has-static list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-state      list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-state-static list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+host-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=false, list after hidePopover 192
+host-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=false, list after hidePopover 192
+# engine firefox 159.0
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+wrapper            list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+collapse           list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox            list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-static     list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-has        list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-has-static list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-state      list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-state-static list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+host-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=false, list after hidePopover 192
+host-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=false, list after hidePopover 192
+# engine webkit 27.2
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+wrapper            list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+collapse           list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox            list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-static     list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+hostbox-has        list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-has-static list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-state      list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+hostbox-state-static list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 204
+host-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=false, list after hidePopover 192
+host-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=false, list after hidePopover 192

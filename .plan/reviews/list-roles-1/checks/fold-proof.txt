@@ -1,0 +1,733 @@
+# fold-proof.ts, read by the reviewer on 2026-11-21. Playwright 1.65.0: Chromium 158.0.8127.18, Firefox 159.0, WebKit 27.2, Node 26.13.1.
+# main: packages/material-x built at 555ab85bc, the branch's merge base, whose material-x, core and drag sources equal origin/main's (e4b0e475d). branch: built at 6a2c21a68.
+# node .plan/reviews/list-roles-1/probes/fold-proof.ts <packages/material-x> <engine> <png dir>
+
+### main, chromium
+# engine chromium 158.0.8127.18
+## lift #s
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 68 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 div[fp] b a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 68 360 56 before s
+lifted: lifted host open true rect 0 68 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=null style=""
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 68 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## lift #b
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 136 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 s div[fp] a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 136 360 56 before b
+lifted: lifted host open true rect 0 136 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=null style=""
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 136 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## focus
+s.focus(): active body inner none host :focus false
+st.focus(): active body inner none host :focus false
+b.focus(): active b inner button.host host :focus true
+bd.focus(): active body inner none host :focus false
+a.focus(): active a inner a.host host :focus true
+ad.focus(): active ad inner a.host host :focus true
+click #b: active b inner button
+click #a: active a inner a
+## tab
+tabindex="0" on #st, #bt, #at: b>button | bt>button | at>a | after(fv) | body | start(fv)
+tabindex="-1" on #st, #bt, #at: b>button | after(fv) | body | start(fv) | b>button | after(fv)
+## layers
+#s .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#s .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#s host: content normal display contents position static inset auto radius 0px shadow none events auto
+#s host::before: content none display block position static inset auto radius 0px shadow none events auto
+#s host::after: content none display block position static inset auto radius 0px shadow none events auto
+#b .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#b .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#b .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b host: content normal display contents position static inset auto radius 0px shadow none events auto
+#b host::before: content none display block position static inset auto radius 0px shadow none events auto
+#b host::after: content none display block position static inset auto radius 0px shadow none events auto
+#a .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#a .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#a .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#a host: content normal display contents position static inset auto radius 0px shadow none events auto
+#a host::before: content none display block position static inset auto radius 0px shadow none events auto
+#a host::after: content none display block position static inset auto radius 0px shadow none events auto
+## reset
+no reset   #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+no reset   #b box 0 136 360 56 padding 10px 16px label 16 152 295.828125 24
+no reset   #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+with reset #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+with reset #b box 0 136 360 56 padding 10px 16px label 16 152 295.828125 24
+with reset #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+## popover
+#s lifted: lifted host open true rect 0 68 360 56
+#s lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+#b lifted: lifted host open true rect 0 136 360 56
+#b lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+
+### branch, chromium
+# engine chromium 158.0.8127.18
+## lift #s
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 68 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 div[fp] b a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 68 360 56 before s
+lifted: lifted host open true rect 0 68 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=manual style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 68 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## lift #b
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 136 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 s div[fp] a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 136 360 56 before b
+lifted: lifted host open true rect 0 136 360 56
+lifted: lifted padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+lifted: ::before none static auto none | ::after none static auto none
+lifted: host attrs popover=manual style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 136 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## focus
+s.focus(): active body inner none host :focus false
+st.focus(): active st inner none host :focus true
+b.focus(): active b inner button.host host :focus true
+bd.focus(): active body inner none host :focus false
+a.focus(): active a inner a.host host :focus true
+ad.focus(): active ad inner a.host host :focus true
+click #b: active b inner button
+click #a: active a inner a
+## tab
+tabindex="0" on #st, #bt, #at: st(fv) | b>button | bt>button | at>a | after(fv) | body
+tabindex="-1" on #st, #bt, #at: b>button | after(fv) | body | start(fv) | b>button | after(fv)
+## layers
+#s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#b .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#b .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b host: content normal display block position static inset auto radius 0px shadow none events auto
+#b host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#b host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#a .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#a .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#a .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#a host: content normal display block position static inset auto radius 0px shadow none events auto
+#a host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#a host::after: content none display inline position static inset auto radius 0px shadow none events auto
+## reset
+no reset   #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+no reset   #b box 0 136 360 56 padding 10px 16px label 16 152 295.828125 24
+no reset   #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+with reset #s0 box 0 0 360 56 padding 0px label 0 16 360 24
+with reset #b box 0 136 360 56 padding 10px 16px label 16 152 295.828125 24
+with reset #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+## popover
+#s lifted: lifted host open true rect 0 68 360 56
+#s lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+#b lifted: lifted host open true rect 0 136 392 88
+#b lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+
+### diff main branch, chromium
+16c16
+< lifted: host attrs popover=null style=""
+---
+> lifted: host attrs popover=manual style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+36,38c36,38
+< lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+< lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+< lifted: host attrs popover=null style=""
+---
+> lifted: lifted padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+> lifted: ::before none static auto none | ::after none static auto none
+> lifted: host attrs popover=manual style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+48c48
+< st.focus(): active body inner none host :focus false
+---
+> st.focus(): active st inner none host :focus true
+56c56
+< tabindex="0" on #st, #bt, #at: b>button | bt>button | at>a | after(fv) | body | start(fv)
+---
+> tabindex="0" on #st, #bt, #at: st(fv) | b>button | bt>button | at>a | after(fv) | body
+59,64c59,64
+< #s .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+< #s .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+< #s .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+< #s host: content normal display contents position static inset auto radius 0px shadow none events auto
+< #s host::before: content none display block position static inset auto radius 0px shadow none events auto
+< #s host::after: content none display block position static inset auto radius 0px shadow none events auto
+---
+> #s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+> #s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+> #s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+> #s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+> #s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+> #s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+68,70c68,70
+< #b host: content normal display contents position static inset auto radius 0px shadow none events auto
+< #b host::before: content none display block position static inset auto radius 0px shadow none events auto
+< #b host::after: content none display block position static inset auto radius 0px shadow none events auto
+---
+> #b host: content normal display block position static inset auto radius 0px shadow none events auto
+> #b host::before: content none display inline position static inset auto radius 0px shadow none events auto
+> #b host::after: content none display inline position static inset auto radius 0px shadow none events auto
+74,76c74,76
+< #a host: content normal display contents position static inset auto radius 0px shadow none events auto
+< #a host::before: content none display block position static inset auto radius 0px shadow none events auto
+< #a host::after: content none display block position static inset auto radius 0px shadow none events auto
+---
+> #a host: content normal display block position static inset auto radius 0px shadow none events auto
+> #a host::before: content none display inline position static inset auto radius 0px shadow none events auto
+> #a host::after: content none display inline position static inset auto radius 0px shadow none events auto
+81c81
+< with reset #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+---
+> with reset #s0 box 0 0 360 56 padding 0px label 0 16 360 24
+86,88c86,88
+< #s lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+< #b lifted: lifted host open true rect 0 136 360 56
+< #b lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+---
+> #s lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+> #b lifted: lifted host open true rect 0 136 392 88
+> #b lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+
+### main, firefox
+# engine firefox 159.0
+## lift #s
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 68 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 div[fp] b a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 68 360 56 before s
+lifted: lifted host open true rect 0 68 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=null style=""
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 68 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## lift #b
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 136 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 s div[fp] a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 136 360 56 before b
+lifted: lifted host open true rect 0 136 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=null style=""
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 136 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## focus
+s.focus(): active body inner none host :focus false
+st.focus(): active body inner none host :focus false
+b.focus(): active b inner button.host host :focus true
+bd.focus(): active body inner none host :focus false
+a.focus(): active a inner a.host host :focus true
+ad.focus(): active ad inner a.host host :focus true
+click #b: active b inner button
+click #a: active a inner a
+## tab
+tabindex="0" on #st, #bt, #at: b>button | bt>button | at>a | after(fv) | body | start(fv)
+tabindex="-1" on #st, #bt, #at: b>button | after(fv) | body | start(fv) | b>button | after(fv)
+## layers
+#s .host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#s .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#s host: content normal display contents position static inset auto radius 0px shadow none events auto
+#s host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#s host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#b .host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#b .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#b .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b host: content normal display contents position static inset auto radius 0px shadow none events auto
+#b host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#b host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#a .host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#a .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#a .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#a host: content normal display contents position static inset auto radius 0px shadow none events auto
+#a host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#a host::after: content none display inline position static inset auto radius 0px shadow none events auto
+## reset
+no reset   #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+no reset   #b box 0 136 360 56 padding 10px 16px label 16 152 296.66668701171875 24
+no reset   #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+with reset #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+with reset #b box 0 136 360 56 padding 10px 16px label 16 152 296.66668701171875 24
+with reset #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+## popover
+#s lifted: lifted host open true rect 0 68 360 56
+#s lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+#b lifted: lifted host open true rect 0 136 360 56
+#b lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+
+### branch, firefox
+# engine firefox 159.0
+## lift #s
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 68 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 div[fp] b a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 68 360 56 before s
+lifted: lifted host open true rect 0 68 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=manual style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 68 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## lift #b
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 136 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 s div[fp] a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 136 360 56 before b
+lifted: lifted host open true rect 0 136 360 56
+lifted: lifted padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+lifted: ::before none static auto none | ::after none static auto none
+lifted: host attrs popover=manual style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 136 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## focus
+s.focus(): active body inner none host :focus false
+st.focus(): active st inner none host :focus true
+b.focus(): active b inner button.host host :focus true
+bd.focus(): active body inner none host :focus false
+a.focus(): active a inner a.host host :focus true
+ad.focus(): active ad inner a.host host :focus true
+click #b: active b inner button
+click #a: active a inner a
+## tab
+tabindex="0" on #st, #bt, #at: st(fv) | b>button | bt>button | at>a | after(fv) | body
+tabindex="-1" on #st, #bt, #at: b>button | after(fv) | body | start(fv) | b>button | after(fv)
+## layers
+#s host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#s host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b .host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#b .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#b .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b host: content normal display block position static inset auto radius 0px shadow none events auto
+#b host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#b host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#a .host: content normal display flex position relative inset auto radius 4px shadow none events auto
+#a .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#a .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#a host: content normal display block position static inset auto radius 0px shadow none events auto
+#a host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#a host::after: content none display inline position static inset auto radius 0px shadow none events auto
+## reset
+no reset   #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+no reset   #b box 0 136 360 56 padding 10px 16px label 16 152 296.66668701171875 24
+no reset   #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+with reset #s0 box 0 0 360 56 padding 0px label 0 16 360 24
+with reset #b box 0 136 360 56 padding 10px 16px label 16 152 296.66668701171875 24
+with reset #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+## popover
+#s lifted: lifted host open true rect 0 68 360 56
+#s lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+#b lifted: lifted host open true rect 0 136 392 88
+#b lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+
+### diff main branch, firefox
+16c16
+< lifted: host attrs popover=null style=""
+---
+> lifted: host attrs popover=manual style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+36,38c36,38
+< lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+< lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+< lifted: host attrs popover=null style=""
+---
+> lifted: lifted padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+> lifted: ::before none static auto none | ::after none static auto none
+> lifted: host attrs popover=manual style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+48c48
+< st.focus(): active body inner none host :focus false
+---
+> st.focus(): active st inner none host :focus true
+56c56
+< tabindex="0" on #st, #bt, #at: b>button | bt>button | at>a | after(fv) | body | start(fv)
+---
+> tabindex="0" on #st, #bt, #at: st(fv) | b>button | bt>button | at>a | after(fv) | body
+59,64c59,64
+< #s .host: content normal display flex position relative inset auto radius 4px shadow none events auto
+< #s .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+< #s .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+< #s host: content normal display contents position static inset auto radius 0px shadow none events auto
+< #s host::before: content none display inline position static inset auto radius 0px shadow none events auto
+< #s host::after: content none display inline position static inset auto radius 0px shadow none events auto
+---
+> #s host: content normal display flex position relative inset auto radius 4px shadow none events auto
+> #s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+> #s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+> #s host: content normal display flex position relative inset auto radius 4px shadow none events auto
+> #s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+> #s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+68c68
+< #b host: content normal display contents position static inset auto radius 0px shadow none events auto
+---
+> #b host: content normal display block position static inset auto radius 0px shadow none events auto
+74c74
+< #a host: content normal display contents position static inset auto radius 0px shadow none events auto
+---
+> #a host: content normal display block position static inset auto radius 0px shadow none events auto
+81c81
+< with reset #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+---
+> with reset #s0 box 0 0 360 56 padding 0px label 0 16 360 24
+86,88c86,88
+< #s lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+< #b lifted: lifted host open true rect 0 136 360 56
+< #b lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+---
+> #s lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+> #b lifted: lifted host open true rect 0 136 392 88
+> #b lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+
+### main, webkit
+# engine webkit 27.2
+## lift #s
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 68 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 div[fp] b a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 68 360 56 before s
+lifted: lifted host open true rect 0 68 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=null style=""
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 68 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## lift #b
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 136 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 s div[fp] a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 136 360 56 before b
+lifted: lifted host open true rect 0 136 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=null style=""
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 136 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## focus
+s.focus(): active body inner none host :focus false
+st.focus(): active body inner none host :focus false
+b.focus(): active b inner button.host host :focus true
+bd.focus(): active body inner none host :focus false
+a.focus(): active a inner a.host host :focus true
+ad.focus(): active ad inner a.host host :focus true
+click #b: active b inner button
+click #a: active a inner a
+## tab
+tabindex="0" on #st, #bt, #at: b>button | bt>button | at>a | after(fv) | body | start(fv)
+tabindex="-1" on #st, #bt, #at: b>button | after(fv) | body | start(fv) | b>button | after(fv)
+## layers
+#s .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#s .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#s host: content normal display contents position static inset auto radius 0px shadow none events auto
+#s host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#s host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#b .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#b .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#b .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b host: content normal display contents position static inset auto radius 0px shadow none events auto
+#b host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#b host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#a .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#a .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#a .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#a host: content normal display contents position static inset auto radius 0px shadow none events auto
+#a host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#a host::after: content none display inline position static inset auto radius 0px shadow none events auto
+## reset
+no reset   #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+no reset   #b box 0 136 360 56 padding 10px 16px label 16 152 296.671875 24
+no reset   #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+with reset #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+with reset #b box 0 136 360 56 padding 10px 16px label 16 152 296.671875 24
+with reset #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+## popover
+#s lifted: lifted host open true rect 0 68 360 56
+#s lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+#b lifted: lifted host open true rect 0 136 360 56
+#b lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+
+### branch, webkit
+# engine webkit 27.2
+## lift #s
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 68 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 div[fp] b a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 68 360 56 before s
+lifted: lifted host open true rect 0 68 360 56
+lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+lifted: host attrs popover=manual style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 68 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## lift #b
+before: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+before: next item top 204
+before: footprint none
+before: lifted host open false rect 0 136 360 56
+before: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 4px
+before: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+before: host attrs popover=null style=""
+lifted: list 260, flow s0 s div[fp] a sum 260, hosts with a box around a lifted .host 0
+lifted: next item top 204
+lifted: footprint 0 136 360 56 before b
+lifted: lifted host open true rect 0 136 360 56
+lifted: lifted padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+lifted: ::before none static auto none | ::after none static auto none
+lifted: host attrs popover=manual style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after: list 260, flow s0 s b a sum 260, hosts with a box around a lifted .host 0
+after: next item top 204
+after: footprint none
+after: lifted host open false rect 0 136 360 56
+after: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+after: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px
+after: host attrs popover=null style=""
+## focus
+s.focus(): active body inner none host :focus false
+st.focus(): active st inner none host :focus true
+b.focus(): active b inner button.host host :focus true
+bd.focus(): active body inner none host :focus false
+a.focus(): active a inner a.host host :focus true
+ad.focus(): active ad inner a.host host :focus true
+click #b: active b inner button
+click #a: active a inner a
+## tab
+tabindex="0" on #st, #bt, #at: st(fv) | b>button | bt>button | at>a | after(fv) | body
+tabindex="-1" on #st, #bt, #at: b>button | after(fv) | body | start(fv) | b>button | after(fv)
+## layers
+#s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#b .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#b .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#b host: content normal display block position static inset auto radius 0px shadow none events auto
+#b host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#b host::after: content none display inline position static inset auto radius 0px shadow none events auto
+#a .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+#a .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+#a .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+#a host: content normal display block position static inset auto radius 0px shadow none events auto
+#a host::before: content none display inline position static inset auto radius 0px shadow none events auto
+#a host::after: content none display inline position static inset auto radius 0px shadow none events auto
+## reset
+no reset   #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+no reset   #b box 0 136 360 56 padding 10px 16px label 16 152 296.671875 24
+no reset   #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+with reset #s0 box 0 0 360 56 padding 0px label 0 16 360 24
+with reset #b box 0 136 360 56 padding 10px 16px label 16 152 296.671875 24
+with reset #a box 0 204 360 56 padding 10px 16px label 16 220 328 24
+## popover
+#s lifted: lifted host open true rect 0 68 360 56
+#s lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+#b lifted: lifted host open true rect 0 136 392 88
+#b lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+
+### diff main branch, webkit
+16c16
+< lifted: host attrs popover=null style=""
+---
+> lifted: host attrs popover=manual style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+36,38c36,38
+< lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+< lifted: ::before "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px | ::after "" absolute 0px color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px
+< lifted: host attrs popover=null style=""
+---
+> lifted: lifted padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+> lifted: ::before none static auto none | ::after none static auto none
+> lifted: host attrs popover=manual style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+48c48
+< st.focus(): active body inner none host :focus false
+---
+> st.focus(): active st inner none host :focus true
+56c56
+< tabindex="0" on #st, #bt, #at: b>button | bt>button | at>a | after(fv) | body | start(fv)
+---
+> tabindex="0" on #st, #bt, #at: st(fv) | b>button | bt>button | at>a | after(fv) | body
+59,64c59,64
+< #s .host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+< #s .host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+< #s .host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+< #s host: content normal display contents position static inset auto radius 0px shadow none events auto
+< #s host::before: content none display inline position static inset auto radius 0px shadow none events auto
+< #s host::after: content none display inline position static inset auto radius 0px shadow none events auto
+---
+> #s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+> #s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+> #s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+> #s host: content normal display flex position relative inset 0px radius 4px shadow none events auto
+> #s host::before: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px events none
+> #s host::after: content "" display block position absolute inset 0px radius 4px shadow color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px events none
+68c68
+< #b host: content normal display contents position static inset auto radius 0px shadow none events auto
+---
+> #b host: content normal display block position static inset auto radius 0px shadow none events auto
+74c74
+< #a host: content normal display contents position static inset auto radius 0px shadow none events auto
+---
+> #a host: content normal display block position static inset auto radius 0px shadow none events auto
+81c81
+< with reset #s0 box 0 0 360 56 padding 10px 16px label 16 16 328 24
+---
+> with reset #s0 box 0 0 360 56 padding 0px label 0 16 360 24
+86,88c86,88
+< #s lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+< #b lifted: lifted host open true rect 0 136 360 56
+< #b lifted: lifted padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+---
+> #s lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(25, 29, 19) box-shadow none border 0px radius 16px
+> #b lifted: lifted host open true rect 0 136 392 88
+> #b lifted: lifted padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 0) box-shadow none border 0px radius 0px
+
+### screenshots during the lift (lift-*) and with a document [popover] rule (popover-*), cmp main branch
+chromium-lift-b.png equal
+chromium-lift-s.png equal
+chromium-popover-b.png differ
+chromium-popover-s.png differ
+firefox-lift-b.png equal
+firefox-lift-s.png equal
+firefox-popover-b.png differ
+firefox-popover-s.png differ
+webkit-lift-b.png equal
+webkit-lift-s.png equal
+webkit-popover-b.png differ
+webkit-popover-s.png differ

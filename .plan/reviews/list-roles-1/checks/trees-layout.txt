@@ -1,0 +1,161 @@
+# Proofs 3 and 4 rerun by the reviewer on 2026-11-21 at 1deacdc54, Playwright 1.65.0: Chromium 158.0.8127.18, Firefox 159.0, WebKit 27.2, Node 26.13.1.
+# Branch build: packages/material-x 'aube exec just build' at 1deacdc54.
+# Main build: the same tree with src/list/{list-item,list-button-item,list-link-item}.tpl.html and src/list/styles/item/main.styles.css checked out from 640658b5c, the branch's base, rebuilt. No other src file differs from 640658b5c.
+
+## node .plan/list-roles-1/probes/list-roles.ts $PWD/packages/material-x main <engine>, branch build
+# Compared with checks/list-roles-branch.txt without comment and blank lines: identical.
+
+# variant main, engine chromium
+# variant main, engine chromium
+chromium AX tree from the list (not ignored, text nodes left out):
+  list "" <mx-list#l>
+    generic "" <mx-list-item#s1>
+      listitem "" <div.host>
+        generic "" <slot.label has-slotted>
+        generic "" <slot.trail has-slotted>
+          button "Reorder" <span>
+    generic "" <mx-list-item#s2>
+      listitem "" <div.host>
+        generic "" <slot.label has-slotted>
+    generic "" <mx-list-item#s3>
+      listitem "" <div.host>
+        generic "" <slot.label has-slotted>
+    generic "" <mx-list-button-item#b>
+      listitem "" <div.row>
+        button "Button item" <button.host>
+          generic "" <slot.label has-slotted>
+          generic "" <div.ripple>
+    generic "" <mx-list-link-item#a>
+      listitem "" <div.row>
+        link "Link item" <a.host>
+          generic "" <slot.label has-slotted>
+          generic "" <div.ripple>
+tab order: span | #b > button | #a > a | #after | body | span
+# variant main, engine firefox
+# variant main, engine firefox
+firefox AX tree from the list (Marionette, text leaves left out):
+  list ""
+    listitem "Static one Reorder"
+      generic ""
+         "Static one"
+      generic ""
+        button "Reorder"
+           "≡"
+    listitem "Static two"
+      generic ""
+         "Static two"
+    listitem "Focusable host"
+      generic ""
+         "Focusable host"
+    listitem "Button item"
+      button "Button item"
+        generic ""
+           "Button item"
+        generic ""
+    listitem "Link item"
+      link "Link item"
+        generic ""
+           "Link item"
+        generic ""
+  host #s1: no accessible
+  host #s2: no accessible
+  host #s3: no accessible
+  host #b: no accessible
+  host #a: no accessible
+tab order: span | #b > button | #a > a | #after | body | span
+# variant main, engine webkit
+# variant main, engine webkit
+webkit AX tree from the list (childNodeIds, which leave text out):
+  list "" <mx-list#l> parent=<#document>
+    button "Reorder" <span> parent=<mx-list#l>
+    group "" <mx-list-item#s3> parent=<mx-list#l>
+    listitem "Static one" <div.host> parent=<mx-list#l>
+      generic "" <slot.label has-slotted> parent=<div.host>
+      generic "" <slot.trail has-slotted> parent=<div.host>
+    listitem "Static two" <div.host> parent=<mx-list#l>
+      generic "" <slot.label has-slotted> parent=<div.host>
+    listitem "Focusable host" <div.host> parent=<mx-list#l>
+      generic "" <slot.label has-slotted> parent=<div.host>
+    listitem "" <div.row> parent=<mx-list#l>
+      button "Button item" <button.host> parent=<div.row>
+    listitem "" <div.row> parent=<mx-list#l>
+      link "Link item" <a.host> parent=<div.row>
+        generic "" <<pseudo>> parent=<a.host>
+        generic "" <slot.label has-slotted> parent=<a.host>
+        generic "" <div.ripple> parent=<a.host>
+          generic "" <<pseudo>> parent=<div.ripple>
+          generic "" <<pseudo>> parent=<div.ripple>
+        generic "" <<pseudo>> parent=<a.host>
+  host #s1: exists=true role=- ignored=true parent=<mx-list#l>
+  host #s2: exists=true role=- ignored=true parent=<mx-list#l>
+  host #s3: exists=true role=group ignored=undefined parent=<mx-list#l>
+  host #b: exists=true role=- ignored=true parent=<mx-list#l>
+  host #a: exists=true role=- ignored=true parent=<mx-list#l>
+  light child <#text "Static one">: exists=true role=text ignored=true parent=<mx-list#l>
+  light child <span>: exists=true role=button ignored=undefined parent=<mx-list#l>
+  light child <#text "Static two">: exists=true role=text ignored=true parent=<mx-list#l>
+  light child <#text "Focusable host">: exists=true role=text ignored=true parent=<mx-list-item#s3>
+  light child <#text "Button item">: exists=true role=text ignored=true parent=<mx-list#l>
+  light child <#text "Link item">: exists=true role=text ignored=true parent=<mx-list#l>
+tab order: span | #b > button | #a > a | #after | body | span
+
+## node .plan/list-roles-1/probes/list-lift.ts $PWD/packages/material-x <engine>, branch build
+# The none line reads the real row and its rule. The wrapper and collapse lines add the probe's own wrapper inside the row, as the report says.
+# engine chromium
+# engine chromium 158.0.8127.18
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 204, link top 144 -> 156, lifted=true
+# engine firefox
+# engine firefox 159.0
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 204, link top 144 -> 156, lifted=true
+# engine webkit
+# engine webkit 27.2
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 204, link top 144 -> 156, lifted=true
+
+## node .plan/list-roles-1/probes/list-layout.ts $PWD/packages/material-x
+# diff main build vs branch build: empty. diff main build vs checks/list-layout-main.txt, without comments and blank lines: empty.
+# branch build:
+# engine chromium 158.0.8127.18
+list 0 0 360 880
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+# engine firefox 159.0
+list 0 0 360 880
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+# engine webkit 27.2
+list 0 0 360 880
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56

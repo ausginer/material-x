@@ -1,3 +1,4 @@
+import type { AccessibilityNode } from './accessibility-commands.node.ts';
 import type {
   TokenContractRequest,
   TokenContractResponse,
@@ -19,5 +20,10 @@ declare module 'vitest/browser' {
     emulateReducedMotion(reduced: boolean): Promise<void>;
     /** Releases the button that {@link pointerPress} holds. */
     pointerRelease(): Promise<void>;
+    /**
+     * Chromium's accessibility tree below the first element of the test's
+     * document that matches `selector`, with ignored nodes left out.
+     */
+    readAccessibilityTree(selector: string): Promise<AccessibilityNode>;
   }
 }

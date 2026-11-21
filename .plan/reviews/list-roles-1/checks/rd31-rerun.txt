@@ -1,0 +1,241 @@
+# Reruns of RF-68's proofs on top of RD-31 by the feature proof, 2026-11-21. Branch: de24d50d5 (material-x/list-roles-1). Base: 73f081dc4 (main, the step-1 merge's parent). Each built with aube exec just build in its own detached worktree. Playwright 1.65.0: Chromium 158.0.8127.18, Firefox 159.0, WebKit 27.2. Node 26.13.1.
+
+## Tests, branch: MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts tests/list/list-roles.browser.test.ts tests/list/sortable-list.browser.test.ts (packages/material-x)
+## (also run: tests/list/list-item.browser.test.ts tests/core/traits/focus-forwarding.browser.test.ts, three engines: Tests  60 passed (60))
+      Tests  323 passed | 4 skipped (327)
+
+## Proof 5: mutations, each applied, run on tests/list/list-roles.browser.test.ts in three engines, and reverted with git checkout (drag rebuilt after M2 and after its revert). Script: the failing rows, de-duplicated, then the FAIL lines.
+## clean
+      Tests  119 passed | 4 skipped (123)
+ packages/material-x/src/list/ListItemCore.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## M1 role removed
+       × should expose one listitem per item, in DOM order, below the list
+       × should keep each item's content and control inside its listitem
+      Tests  2 failed | 117 passed | 4 skipped (123)
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:381 > mx-list item roles > Chromium's accessibility tree > should expose one listitem per item, in DOM order, below the list
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:388 > mx-list item roles > Chromium's accessibility tree > should keep each item's content and control inside its listitem
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ packages/drag/src/lift.ts | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+## M2 drag UA_PROPS emptied
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+      Tests  15 failed | 104 passed | 4 skipped (123)
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:317 > mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+ packages/material-x/src/list/styles/item/main.styles.css | 3 ---
+ 1 file changed, 3 deletions(-)
+## M3 lift transition rule removed
+      Tests  6 failed | 113 passed | 4 skipped (123)
+     × should raise the lifted mx-list-button-item's elevation over the drag's duration
+     × should raise the lifted mx-list-item's elevation over the drag's duration
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-button-item's elevation over the drag's duration
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-item's elevation over the drag's duration
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-button-item's elevation over the drag's duration
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-item's elevation over the drag's duration
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-button-item's elevation over the drag's duration
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-item's elevation over the drag's duration
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ packages/material-x/src/list/sortable-list.ts | 1 -
+ 1 file changed, 1 deletion(-)
+## M4 onStart style read removed
+      Tests  2 failed | 117 passed | 4 skipped (123)
+     × should raise the lifted mx-list-button-item's elevation over the drag's duration
+     × should raise the lifted mx-list-item's elevation over the drag's duration
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-button-item's elevation over the drag's duration
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:342 > mx-list item roles > should raise the lifted mx-list-item's elevation over the drag's duration
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ .../src/list/styles/item/static-box.styles.css     | 35 ++--------------------
+ 1 file changed, 3 insertions(+), 32 deletions(-)
+## M5 spacing on the host's padding
+       × should keep the boxes of an item with a label only
+       × should keep the boxes of an item with a lead only
+       × should keep the boxes of an item with a trail only
+       × should keep the boxes of an item with one line
+       × should keep the boxes of an item with three lines
+       × should keep the boxes of an item with two lines
+      Tests  18 failed | 101 passed | 4 skipped (123)
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a label only
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a lead only
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a trail only
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with one line
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with three lines
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with two lines
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a label only
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a lead only
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a trail only
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with one line
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with three lines
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with two lines
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a label only
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a lead only
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with a trail only
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with one line
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with three lines
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:233 > mx-list item roles > mx-list-item's spacing under a page's universal reset > should keep the boxes of an item with two lines
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+## clean after reverts
+      Tests  119 passed | 4 skipped (123)
+
+## The rise: .plan/list-roles-1/probes/lift-rise.browser.test.ts, copied to packages/material-x/tests/list/ and run in three engines on the branch (rule and read). 'state' is the first animation frame that sees the drag state.
+RISE chromium mx-list-button-item rest=0 duration=.65s | state 0 | +12ms 0.673494 popover-open=true | +29ms 1.34522 popover-open=true | +46ms 2.00501 popover-open=true | +62ms 2.65422 popover-open=true | +79ms 3.29703 popover-open=true | +96ms 3.91755 popover-open=true | +1000ms 8
+RISE chromium mx-list-item rest=0 duration=.65s | state 0 | +14ms 0.673494 popover-open=true | +29ms 1.34522 popover-open=true | +46ms 2.00896 popover-open=true | +63ms 2.66196 popover-open=true | +79ms 3.29703 popover-open=true | +96ms 3.91755 popover-open=true | +1000ms 8
+RISE firefox mx-list-button-item rest=0 duration=.65s | state 0 | +16ms 0.696135 popover-open=true | +30ms 1.35525 popover-open=true | +47ms 1.99427 popover-open=true | +64ms 2.66234 popover-open=true | +81ms 3.31691 popover-open=true | +98ms 3.91695 popover-open=true | +1000ms 8
+RISE firefox mx-list-item rest=0 duration=.65s | state 0 | +15ms 0.654084 popover-open=true | +30ms 1.34903 popover-open=true | +46ms 1.98981 popover-open=true | +64ms 2.66116 popover-open=true | +80ms 3.27828 popover-open=true | +97ms 3.91569 popover-open=true | +1000ms 8
+RISE webkit mx-list-button-item rest=0 duration=.65s | state 0 | +16ms 0.64924 popover-open=true | +32ms 1.29319 popover-open=true | +48ms 1.929977 popover-open=true | +66ms 2.634853 popover-open=true | +81ms 3.21002 popover-open=true | +97ms 3.807659 popover-open=true | +1000ms 8
+RISE webkit mx-list-item rest=0 duration=.65s | state 0.040702 | +25ms 1.052439 popover-open=true | +51ms 2.048395 popover-open=true | +65ms 2.634853 popover-open=true | +92ms 3.660007 popover-open=true | +101ms 3.990397 popover-open=true | +124ms 4.766433 popover-open=true | +1000ms 8
+
+## Proof 8: aube exec just size-reading on each commit. row, base, branch, difference (Brotli bytes)
+box-quad index	1182	1182	+0
+core element	312	312	+0
+core emitter	198	198	+0
+material-x button/button	4926	4929	+3
+material-x button/icon-button	5203	5216	+13
+material-x button/link-button	4900	4900	+0
+material-x button/switch-button	5291	5297	+6
+material-x button/switch-icon-button	5682	5694	+12
+material-x button/split-button	7492	7507	+15
+material-x button-group/button-group	3126	3113	-13
+material-x button-group/connected-button-group	3888	3898	+10
+material-x checkbox/checkbox	4021	4025	+4
+material-x fab/fab	4234	4236	+2
+material-x icon/icon	661	661	+0
+material-x list/list	685	686	+1
+material-x list/list-item	2828	2789	-39
+material-x list/list-button-item	4667	4664	-3
+material-x list/list-link-item	4885	4883	-2
+material-x list/sortable-list	8605	8548	-57
+material-x radio/radio	3590	3590	+0
+material-x text-field/multiline-text-field	4437	4437	+0
+material-x text-field/text-field	8188	8253	+65
+material-x complete	22092	22198	+106
+drag draggable alone	2189	2189	+0
+drag draggable + lift	3932	3932	+0
+drag example: resize handle	3265	3265	+0
+drag example: drop zone	4570	4570	+0
+drag example: canvas group	3261	3261	+0
+drag freeDrag	4984	4984	+0
+drag freeDrag + bounds + landing	5465	5465	+0
+drag sortable + y	6533	6533	+0
+drag sortable + xy	6484	6484	+0
+drag complete	7143	7143	+0
+
+## Proof 3: node .plan/list-roles-1/probes/list-roles.ts $PWD/packages/material-x main <engine>, on the branch's build
+diff of .plan/list-roles-1/checks/list-roles-on-rd31.txt (its three header lines removed) against this rerun: one trailing empty line, nothing else.
+
+## Proof 4 and limit 4: node .plan/reviews/list-roles-1/probes/list-layout-reset.ts <packages/material-x> [reset] --png <dir>, on both builds, with and without the universal reset
+## list-layout-reset.ts on 73f081dc4's build, no reset
+# engine chromium 158.0.8127.18
+list 0 0 360 1172
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+label-only 0 892 360 56
+lead-only 0 960 360 56
+trail-only 0 1028 360 56
+lead-large 0 1096 360 76
+# engine firefox 159.0
+list 0 0 360 1172
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+label-only 0 892 360 56
+lead-only 0 960 360 56
+trail-only 0 1028 360 56
+lead-large 0 1096 360 76
+# engine webkit 27.2
+list 0 0 360 1172
+item1 0 0 360 56
+item2 0 68 360 72
+item3 0 152 360 88
+butt1 0 252 360 56
+butt2 0 320 360 72
+butt3 0 404 360 88
+link1 0 504 360 56
+link2 0 572 360 72
+link3 0 656 360 88
+butt-disabled 0 756 360 56
+link-disabled 0 824 360 56
+label-only 0 892 360 56
+lead-only 0 960 360 56
+trail-only 0 1028 360 56
+lead-large 0 1096 360 76
+
+## diff of the four readings (base, base reset, branch, branch reset) against the first
+diff layout-base.txt layout-base-reset.txt: empty
+diff layout-base.txt layout-plain.txt: empty
+diff layout-base.txt layout-reset.txt: empty
+
+## cmp of the screenshots
+chromium-level0.png base vs: base-reset=equal plain=equal reset=equal
+chromium-level6.png base vs: base-reset=equal plain=equal reset=equal
+firefox-level0.png base vs: base-reset=equal plain=equal reset=equal
+firefox-level6.png base vs: base-reset=equal plain=equal reset=equal
+webkit-level0.png base vs: base-reset=equal plain=equal reset=equal
+webkit-level6.png base vs: base-reset=equal plain=equal reset=equal
+
+## Control: branch with mx-list-item's spacing on its host's padding (proof 5's last mutation), built
+diff layout-base.txt layout-m5.txt: empty
+diff layout-m5.txt layout-m5-reset.txt:
+2c2
+< list 0 0 360 1172
+---
+> list 0 0 360 1152
+17c17
+< lead-large 0 1096 360 76
+---
+> lead-large 0 1096 360 56
+19c19
+< list 0 0 360 1172
+---
+> list 0 0 360 1152
+34c34
+< lead-large 0 1096 360 76
+---
+> lead-large 0 1096 360 56
+36c36
+< list 0 0 360 1172
+---
+> list 0 0 360 1152
+51c51
+< lead-large 0 1096 360 76
+---
+> lead-large 0 1096 360 56
+chromium-level0.png m5 vs base: equal, m5-reset vs m5: DIFFERS
+chromium-level6.png m5 vs base: equal, m5-reset vs m5: DIFFERS
+firefox-level0.png m5 vs base: equal, m5-reset vs m5: DIFFERS
+firefox-level6.png m5 vs base: equal, m5-reset vs m5: DIFFERS
+webkit-level0.png m5 vs base: equal, m5-reset vs m5: DIFFERS
+webkit-level6.png m5 vs base: equal, m5-reset vs m5: DIFFERS

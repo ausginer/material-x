@@ -1,0 +1,60 @@
+# Proof 2, proof 5 and the lift pin, rerun by the reviewer on 2026-11-21 at 1deacdc54.
+# Each command ran in packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' tests/list/list-roles.browser.test.ts
+
+## Clean: 56 passed | 4 skipped (60)
+
+## Mutation 1: role="listitem" removed from list-link-item.tpl.html (the implementer mutated the button item)
+      Tests  14 failed | 42 passed | 4 skipped (60)
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:178 > mx-list item roles > Chromium's accessibility tree > should expose one listitem per item, in DOM order, below the list
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:185 > mx-list item roles > Chromium's accessibility tree > should keep each item's content and control inside its listitem
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:71 > mx-list item roles > mx-list-link-item, disabled: false > should have exactly one listitem role in its shadow tree
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:71 > mx-list item roles > mx-list-link-item, disabled: true > should have exactly one listitem role in its shadow tree
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:79 > mx-list item roles > mx-list-link-item, disabled: false > should put the role on the row that holds the control
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:79 > mx-list item roles > mx-list-link-item, disabled: true > should put the role on the row that holds the control
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:71 > mx-list item roles > mx-list-link-item, disabled: false > should have exactly one listitem role in its shadow tree
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:71 > mx-list item roles > mx-list-link-item, disabled: true > should have exactly one listitem role in its shadow tree
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:79 > mx-list item roles > mx-list-link-item, disabled: false > should put the role on the row that holds the control
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:79 > mx-list item roles > mx-list-link-item, disabled: true > should put the role on the row that holds the control
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:71 > mx-list item roles > mx-list-link-item, disabled: false > should have exactly one listitem role in its shadow tree
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:71 > mx-list item roles > mx-list-link-item, disabled: true > should have exactly one listitem role in its shadow tree
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:79 > mx-list item roles > mx-list-link-item, disabled: false > should put the role on the row that holds the control
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:79 > mx-list item roles > mx-list-link-item, disabled: true > should put the role on the row that holds the control
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+## Mutation 2: the selector .row:has(> .host:popover-open) renamed to .row-disabled-mutation in styles/item/main.styles.css
+      Tests  6 failed | 50 passed | 4 skipped (60)
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:122 > mx-list item roles > mx-list-button-item lifted > should keep the list and the next item where they were
+ FAIL  |browser (chromium)| tests/list/list-roles.browser.test.ts:122 > mx-list item roles > mx-list-link-item lifted > should keep the list and the next item where they were
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:122 > mx-list item roles > mx-list-button-item lifted > should keep the list and the next item where they were
+ FAIL  |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts:122 > mx-list item roles > mx-list-link-item lifted > should keep the list and the next item where they were
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:122 > mx-list item roles > mx-list-button-item lifted > should keep the list and the next item where they were
+ FAIL  |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts:122 > mx-list item roles > mx-list-link-item lifted > should keep the list and the next item where they were
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+- Expected
++ Received
+
+  [
+-   192,
+-   160,
++   204,
++   172,
+  ]
+
+ ❯ tests/list/list-roles.browser.test.ts:162:24
+
+## Lift pin: line 162 'expect(read()).toEqual(before)' replaced by 'expect([before, read()]).toEqual([[192, 160], [192, 160]])', run with -t lifted
+branch sources:                                  6 passed | 54 skipped (60)
+main's list templates and item style (640658b5c): 6 passed | 54 skipped (60)
+
+## Existing gates, three engines: focus-forwarding, list-item, list-roles, traits-baseline
+Test Files  12 passed (12); Tests  134 passed | 4 skipped (138)
+aube exec just typecheck (packages/material-x): exit 0
+git diff --name-only 640658b5c..1deacdc54 | grep -c ^packages/drag: 0
+
+## Sizes: aube exec size-limit --json in packages/material-x, Brotli bytes
+row                    main-src  branch  diff
+list/list                   3673    3673     0
+list/list-item              2567    2593    26
+list/list-button-item       4575    4610    35
+list/list-link-item         4746    4803    57
+complete                   16975   16983     8
