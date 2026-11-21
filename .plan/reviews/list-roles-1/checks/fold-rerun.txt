@@ -1,0 +1,95 @@
+# Reruns by the reviewer on 2026-11-21 at 6a2c21a68, with the same builds and browsers as fold-proof.txt.
+
+## Material X, MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts
+ Test Files  61 passed (61)
+      Tests  1338 passed | 1 expected fail | 4 skipped (1343)
+
+## Mutations on tests/list/list-roles.browser.test.ts, three engines, each reverted with git checkout
+M1 interactive-box.styles.css :host resets removed: 3 failed | 80 passed | 4 skipped. Failed: mx-list-button-item lifted by the list > should keep the host's rect, padding, overflow and background, in chromium, firefox, webkit
+M2 static-box.styles.css overflow: visible removed: 3 failed | 80 passed | 4 skipped. Failed: mx-list-item lifted by the list > should keep the host's rect, padding, overflow and background, in chromium, firefox, webkit
+M3 ListItemCore.ts { role: 'listitem' } replaced by {}: 2 failed | 81 passed | 4 skipped. Failed: Chromium's accessibility tree > both rows, chromium only
+clean: 83 passed | 4 skipped
+
+## probes/list-layout.ts --png, main and branch
+diff of the whole output: empty
+chromium-level0.png equal
+chromium-level6.png equal
+firefox-level0.png equal
+firefox-level6.png equal
+webkit-level0.png equal
+webkit-level6.png equal
+chromium level0 != level6
+firefox level0 != level6
+webkit level0 != level6
+
+## probes/list-lift.ts, branch, modes none,item-lift,item-lift-static
+# engine chromium 158.0.8127.18
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+item-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+item-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine firefox 159.0
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+item-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+item-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine webkit 27.2
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+item-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+item-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+
+## probes/list-lift.ts, main, mode none
+# engine chromium 158.0.8127.18
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine firefox 159.0
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine webkit 27.2
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+
+## probes/list-roles.ts main <engine>, branch build: compared with checks/list-roles-branch.txt without comment and blank lines
+identical
+
+## Sizes, aube exec size-limit --json in packages/material-x, Brotli bytes: row main branch difference (rows that differ, and the list and complete rows)
+button/button                        4843 4841 -2
+button/icon-button                   5108 5130 22
+button/link-button                   4809 4823 14
+button/switch-button                 5187 5204 17
+button/switch-icon-button            5598 5609 11
+button/split-button                  7406 7425 19
+button-group/button-group            3126 3127 1
+button-group/connected-button-group  3888 3870 -18
+checkbox/checkbox                    4021 4025 4
+fab/fab                              4234 4238 4
+list/list                            3673 3670 -3
+list/list-item                       2567 2586 19
+list/list-button-item                4575 4581 6
+list/list-link-item                  4746 4757 11
+text-field/text-field                8109 8136 27
+complete                             16975 17050 75
+
+## Private property names: node .plan/reviews/list-roles-1/probes/private-props-remap.ts
+count 227 227 same keys true
+renamed 92
+{
+  same: 71,
+  renamedOnly: 14,
+  differ: [
+    'list/ListInteractiveItemCore.js',
+    'list/ListItemCore.js',
+    'list/list-button-item.js',
+    'list/list-item.js',
+    'list/list-link-item.js',
+    'list/styles/item/main.css.js'
+  ],
+  missing: [
+    'list/styles/item/interactive-box.css.js',
+    'list/styles/item/static-box.css.js'
+  ]
+}
+
+## custom-elements.json, diff main branch (pretty-printed)
+1445,1450d1444
+<      "cssParts": [
+<       {
+<        "description": "Internal list item container.",
+<        "name": "impl"
+<       }
+<      ],
