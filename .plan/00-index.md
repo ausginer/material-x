@@ -3275,6 +3275,8 @@ Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sorta
 - **`RD-31`'s follow-up** writes a static item's tab stop and description on its host, and drops its `visual` callback and `mx-list-item`'s `FocusForwarding`. The owner question stands, and the fold strengthens the recommended answer.
 - **Seen, not registered,** in the handoff: the list items and the FAB draw no penumbra, because their `all: unset` resets the elevation's `box-shadow`, and `interactive.styles.css` ships nowhere.
 
+**Dated 2026-11-21 by the architect: the owner approves the second re-ruling and answers the owner question,** relayed by the coordinator. His answer is (a), verbatim _"tabindex забыл - тут (а)"_: a consumer's `tabindex` on `mx-list-item` stands, so the item is a tab stop in either list, and the item doesn't suppress it. The [handoff](list-roles-1/list-roles-handoff.md#owner-question) records it. `RD-31`'s ruling item 7 says the opposite, and `RD-31`'s follow-up amends it. The repair is being implemented on this branch.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

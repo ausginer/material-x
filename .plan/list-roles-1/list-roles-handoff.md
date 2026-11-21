@@ -110,7 +110,7 @@ On this branch, from `001f8d833`, merged with `main`:
 - **`ListInteractiveItemCore.ts`:** `FocusForwarding` leaves `ListInteractiveItemCoreTraits`, its import and the `useFocusForwarding` call. The shadow root still delegates focus.
 - **Tests:** `list-roles.browser.test.ts`'s structure and lift rows follow proof 2. `list-item.browser.test.ts` keeps its `.host` lookups, which are interactive items'. `focus-forwarding.browser.test.ts` drops the two list items from its adopters, and its `mx-list-button-item` subclass case. `traits-baseline.json` changes as property 7 says.
 - **`accessibility.md`:** as property 8 says. `architecture.md` already has the new case of the `.host` invariant.
-- **The report:** the proofs again, the size table, and the answer to the owner question if it has come.
+- **The report:** the proofs again, and the size table. The owner question is answered: (a).
 
 ## Required properties
 
@@ -120,7 +120,7 @@ On this branch, from `001f8d833`, merged with `main`:
    - `focus()` and Tab reach the same element as on `main`, in the same order, in Firefox too, without `FocusForwarding`.
    - A disabled link item leaves the tab order as on `main`.
    - The host's `aria-*` attributes reach the control as on `main`.
-4. **This unit adds no focus behavior to `mx-list-item`.** In `mx-list` it takes no focus, as on `main`. One thing changes with the box: a consumer's `tabindex` on an `mx-list-item` host makes the host a tab stop, as on any element with a box. On `main` it does nothing. The [owner question](#owner-question) asks whether that stands.
+4. **This unit adds no focus behavior to `mx-list-item`.** In `mx-list` it takes no focus, as on `main`. One thing changes with the box: a consumer's `tabindex` on an `mx-list-item` host makes the host a tab stop, as on any element with a box. On `main` it does nothing. It stands: the owner answered the [owner question](#owner-question) with (a).
 5. **The layout and the pixels don't change.** In each engine, each item's box and the list's box are the same as on `main`. An item's box is its `.host` in the interactive items and its host in `mx-list-item`. That holds for one-, two- and three-line items, with lead and trail content, in a list with a `gap`. An interactive item's host draws nothing: no padding, border, margin, background or shape of its own. `mx-list-item`'s host draws what its `.host` drew: the list's pixels are `main`'s, at elevation level 0 and raised.
 6. **A lift doesn't change the layout or the visual.** Each item's drag lifts its host. While it is lifted, the list's size and the other items' boxes are the same as on `main`, and the host's rect, padding, overflow and background are what they were before the lift, in all three engines. Core's trait lifts the host: `useReorderableItem(host)`.
 7. **No part, attribute, property, event, slot or export is added or removed, except `mx-list-item`'s part `impl`.** It goes with the `div`, and a consumer styles the item element, which now has a box. `@ydinjs/material-x` isn't published, so nothing deprecates it (`CONTRIBUTING.md` Part II §8). The interactive items keep `part="impl"` on their control.
@@ -217,12 +217,14 @@ Use the `test-component` skill for every material-x test.
 - **Ruling item 6 goes.** `mx-list-item` composes neither `FocusForwarding` nor `delegatesFocus`. Its host is the element that takes focus, in every engine (finding 13). Its focus indicator draws on `:host(:focus-visible)`, because the shared focus stylesheet's rule is on `.host:focus-visible`. `list/list-item`'s estimate loses the trait.
 - **A static item's sortable writes go on its host.** A handle-less static item's `tabindex="0"` and `aria-description` are written on the host. They are recorded and kept as the handle's are: a value the consumer set stays, and only what the item wrote is removed. The owner accepts the item writing in the consumer's markup. `sortItem`'s test for a static item becomes the control being the host.
 - **The sortable list's `visual` callback goes.** Drag's `visual` defaults to the item, which is now what every item lifts. Drag's lift writes the computed padding, border, overflow, color and background inline (finding 12), so the interactive items' resets go too, with core's trait.
-- **Ruling item 7 changes.** A consumer's `tabindex` on the host no longer does nothing: the host becomes a tab stop, in either list (the [owner question](#owner-question)).
+- **Ruling item 7 changes.** A consumer's `tabindex` on the host no longer does nothing: the host becomes a tab stop, in either list, and the item doesn't suppress it (the [owner question](#owner-question), answered (a)).
 - **_Not adopted_'s _"The host stops being `display: contents`"_ goes,** and so does the reason that the host must carry no `tabindex` or `aria-*`. Both were about a `display: contents` host's extra node.
 - **The focused element is the list item.** A handle-less static item's focus lands on its host, which is its `listitem`, so `RD-31`'s Q6 section holds as written: the focused item is announced with its role.
 - **Stop if drag needs a change.** None is expected: the item is drag's default visual.
 
 ## Owner question
+
+**Answered 2026-11-21 by the owner, relayed by the coordinator: (a).** Verbatim: _"tabindex забыл - тут (а)"_ ("I forgot about tabindex: here it's (a)"). A consumer's `tabindex` on `mx-list-item` stands, so the item is a tab stop in `mx-list` and in `mx-sortable-list`, and the item doesn't suppress it. Nothing is added in this unit. `RD-31`'s ruling item 7 says the opposite, and its follow-up amends it. The question as it was put follows.
 
 **With a box host, does a consumer's `tabindex` on `mx-list-item` stand as a tab stop?** On `main` and under `RD-31`'s ruling item 7, it does nothing, _"as the owner's Q6 rule wants"_. With a box, the platform makes the host focusable, in `mx-list` and in `mx-sortable-list`, and its accessibility node is its `listitem`, with no extra node (finding 3 doesn't apply to a box host).
 
