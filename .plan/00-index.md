@@ -3258,6 +3258,16 @@ Tier A, **open**. Registered on 2026-11-21 by the architect, on `core/context-la
 - **Not adopted, by the owner:** the provider prompting its children to request again on connect, which `RD-31`'s plan had proposed for this entry, and the Context Community Protocol's document-level `ContextRoot`.
 - **Size:** _medium_. Core's controller, its tests and one material-x test, on its own branch, with nothing left to decide.
 
+**Re-planned 2026-11-21 by the architect, on the owner's direction; this supersedes the repair above.** `13d64e449` implemented the repair, and the [feature proof](reviews/context-late-provider-1/feature-proof-claude.md) at `2f36dd486` found it held. The owner then said, in translation, relayed by the coordinator: _"Stop, #100 went the wrong way. It's overcomplicated. It is enough for `useContext` to take the parent's name."_ His _"always wait"_ still holds. [Revision 2](context-late-provider-1/context-late-provider-handoff-r2.md) of the handoff holds the decisions, the properties and the proofs. **Unimplemented.**
+
+- **The repair now:** `useContext(host, ctx, parents, effect)`. On every connect, a consumer whose `parentElement` has a local name in `parents` waits for that name's definition in the global `customElements`, and then dispatches its request. Any other parent, or none, gets the request synchronously.
+- **`parents` is a list,** because `mx-button-group` and `mx-connected-button-group` both provide the button family's context.
+- **Removed:** the hyphen check, the shadow host as a parent, `Element.customElementRegistry`, and the rejection handler. That closes the feature proof's `reviewer-2`, since the registry choice it found unwitnessed no longer exists.
+- **Kept:** the connection count, so a stale or moved connection does nothing, and the cleared disposer, so each cleanup runs once.
+- **Kept, and why:** the comparison with the parent. With no comparison, a wait on two names can't settle correctly, and on a page that never loads a group every button that connected stays in memory.
+- **Owed with it:** `reviewer-1`'s four rows, each with an awaited resolution.
+- **Size, read from a scratch sketch:** 9 to 22 B smaller than revision 1 on the button rows, and 50 B smaller on `complete`.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

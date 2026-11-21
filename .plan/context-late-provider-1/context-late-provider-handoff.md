@@ -1,5 +1,7 @@
 # Handoff: a context consumer waits for its parent's definition (`RF-69`)
 
+**Superseded on 2026-11-21 by [revision 2](context-late-provider-handoff-r2.md),** on the owner's direction that `useContext` take the parent's name. Revision 2 says which decisions here still hold. `13d64e449` implements this revision.
+
 **Recipient:** the implementer. **Branch:** `core/context-late-provider-1`, from `main` at `640658b5c`. **Input:** the architect's commit that adds this file. **Authorized** by the owner on 2026-11-21, relayed by the coordinator. The plan and its implementation share this branch and one pull request (`RD-32`): continue here, and open the pull request after the implementation.
 
 **Governing records:**
