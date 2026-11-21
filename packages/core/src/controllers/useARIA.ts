@@ -1,4 +1,4 @@
-import attr from '../attribute.ts';
+import { setAttribute } from '../attribute.ts';
 import type { ControlledElement } from '../element.ts';
 import { useConnected } from './useConnected.ts';
 import { useMutationObserver } from './useMutationObserver.ts';
@@ -36,7 +36,7 @@ export function useARIA(
   useConnected(host, () => {
     for (const { name } of host.attributes) {
       if (name.startsWith('aria-')) {
-        attr.setRaw(target, name, transform(name, attr.getRaw(host, name)));
+        setAttribute(target, name, transform(name, host.getAttribute(name)));
       }
     }
   });
@@ -46,7 +46,7 @@ export function useARIA(
     (records) => {
       for (const { type, attributeName: name } of records) {
         if (type === 'attributes' && name?.startsWith('aria-')) {
-          attr.setRaw(target, name, transform(name, attr.getRaw(host, name)));
+          setAttribute(target, name, transform(name, host.getAttribute(name)));
         }
       }
     },

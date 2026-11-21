@@ -1,6 +1,5 @@
 import { useResizeObserver } from '@ydinjs/core/controllers/useResizeObserver.js';
 import type { ControlledElement } from '@ydinjs/core/element.js';
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import css from './notched-outline.ctr.css' with { type: 'css' };
 import template from './notched-outline.tpl.html' with { type: 'html' };
 
@@ -14,7 +13,8 @@ export function useNotchedOutline(
   host.shadowRoot!.adoptedStyleSheets.push(css);
   container.prepend(template.content.cloneNode(true));
 
-  const outline = $<HTMLElement>(host, '.notched-outline')!;
+  const outline =
+    host.shadowRoot!.querySelector<HTMLElement>('.notched-outline')!;
 
   useResizeObserver(
     host,

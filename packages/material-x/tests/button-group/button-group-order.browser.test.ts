@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import '../../src/button/button.ts';
 import { nextFrame } from '../browser.ts';
@@ -7,7 +6,9 @@ import { nextFrame } from '../browser.ts';
 // after its buttons have upgraded.
 
 function nativeOf(button: Element): HTMLButtonElement {
-  return $<HTMLButtonElement>(button as HTMLElement, 'button')!;
+  return (button as HTMLElement).shadowRoot!.querySelector<HTMLButtonElement>(
+    'button',
+  )!;
 }
 
 describe('mx-button-group defined after its buttons', () => {

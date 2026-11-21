@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import type Checkbox from '../../src/checkbox/checkbox.ts';
 import '../../src/checkbox/checkbox.ts';
@@ -18,7 +17,7 @@ function createCheckbox(): Checkbox {
 }
 
 function getControl(element: Checkbox): HTMLInputElement {
-  const control = $<HTMLInputElement>(element, '#input');
+  const control = element.shadowRoot!.querySelector<HTMLInputElement>('#input');
 
   if (!control) {
     throw new Error('Missing internal control');
@@ -28,7 +27,7 @@ function getControl(element: Checkbox): HTMLInputElement {
 }
 
 function getIcon(element: Checkbox): HTMLElement {
-  const icon = $<HTMLElement>(element, '.icon');
+  const icon = element.shadowRoot!.querySelector<HTMLElement>('.icon');
 
   if (!icon) {
     throw new Error('Missing internal icon');

@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import '../../../src/checkbox/checkbox.ts';
@@ -27,7 +26,7 @@ function createCheckable(tag: CheckableTag): CheckableHost {
 }
 
 function getControl(element: HTMLElement): HTMLInputElement {
-  const control = $<HTMLInputElement>(element, '#input');
+  const control = element.shadowRoot!.querySelector<HTMLInputElement>('#input');
 
   if (!control) {
     throw new Error('Missing internal control');

@@ -6,7 +6,6 @@ import {
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import {
   ControlledElement,
-  define,
   internals,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
@@ -20,7 +19,7 @@ import {
   trait,
   type Composed,
 } from '@ydinjs/core/traits/composition.js';
-import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
 import { notify } from '../core/utils/events.ts';
@@ -110,7 +109,7 @@ export default class SplitButton extends SplitButtonConstructor {
           notify(this, 'secondaryaction');
         },
       },
-      $(this, 'mx-icon-button') ?? undefined,
+      this.shadowRoot!.querySelector('mx-icon-button') ?? undefined,
     );
 
     const innards = internals(this);
@@ -121,7 +120,7 @@ export default class SplitButton extends SplitButtonConstructor {
       },
     });
 
-    const group = $(this, 'mx-connected-button-group')!;
+    const group = this.shadowRoot!.querySelector('mx-connected-button-group')!;
     useAttributes(
       this,
       Object.fromEntries(
@@ -131,7 +130,7 @@ export default class SplitButton extends SplitButtonConstructor {
   }
 }
 
-define('mx-split-button', SplitButton);
+customElements.define('mx-split-button', SplitButton);
 
 declare global {
   interface HTMLElementTagNameMap {

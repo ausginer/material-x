@@ -1,56 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  $,
-  $$,
   createEventNotifier,
   DEFAULT_EVENT_INIT,
   switchState,
   toggleState,
 } from '../../src/utils/DOM.ts';
-
-function createHost(): HTMLDivElement {
-  return document.createElement('div');
-}
-
-describe('$', () => {
-  it('should query the host shadow root', () => {
-    const host = createHost();
-    const root = host.attachShadow({ mode: 'open' });
-    const target = document.createElement('button');
-
-    target.className = 'target';
-    root.append(target);
-
-    expect($(host, '.target')).toBe(target);
-  });
-
-  it('should return undefined when the host has no shadow root', () => {
-    const host = createHost();
-
-    expect($(host, '.target')).toBeUndefined();
-  });
-});
-
-describe('$$', () => {
-  it('should query all matching elements in the host shadow root', () => {
-    const host = createHost();
-    const root = host.attachShadow({ mode: 'open' });
-    const first = document.createElement('button');
-    const second = document.createElement('button');
-
-    first.className = 'target';
-    second.className = 'target';
-    root.append(first, second);
-
-    expect(Array.from($$(host, '.target') ?? [])).toEqual([first, second]);
-  });
-
-  it('should return undefined when the host has no shadow root', () => {
-    const host = createHost();
-
-    expect($$(host, '.target')).toBeUndefined();
-  });
-});
 
 describe('DEFAULT_EVENT_INIT', () => {
   it('should expose bubbling composed cancelable defaults', () => {

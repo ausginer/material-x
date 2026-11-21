@@ -1,0 +1,5 @@
+pairs 78 head br 22237 ablated br 22230 min 107036 106022
+{ head: 22237, define: 22222, qs: 22231, both: 22231 }
+complete, head with a shared define() wrapper (probe build, reverted): min 106523 br 22141
+complete, head: min 107036 br 22237
+complete, base 73f081dc4: min 105354 br 22092

@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import attr, { Bool, Num, Str } from '../src/attribute.ts';
+import { setAttribute, Bool, Num, Str } from '../src/attribute.ts';
 
-describe('attr', () => {
+describe('attribute', () => {
   let host: HTMLDivElement;
 
   beforeEach(() => {
@@ -9,24 +9,24 @@ describe('attr', () => {
   });
 
   it('should read missing boolean attribute as false', () => {
-    expect(attr.get(host, 'disabled', Bool)).toBeFalsy();
+    expect(Bool.from(host.getAttribute('disabled'))).toBeFalsy();
   });
 
   it('should read present boolean attribute as true', () => {
     host.setAttribute('disabled', '');
 
-    expect(attr.get(host, 'disabled', Bool)).toBeTruthy();
+    expect(Bool.from(host.getAttribute('disabled'))).toBeTruthy();
   });
 
   it('should write true boolean value as empty attribute', () => {
-    attr.set(host, 'disabled', true, Bool);
+    setAttribute(host, 'disabled', Bool.to(true));
 
     expect(host.getAttribute('disabled')).toBe('');
   });
 
   it('should remove boolean attribute when writing false', () => {
     host.setAttribute('disabled', '');
-    attr.set(host, 'disabled', false, Bool);
+    setAttribute(host, 'disabled', Bool.to(false));
 
     expect(host.hasAttribute('disabled')).toBeFalsy();
   });
@@ -34,113 +34,103 @@ describe('attr', () => {
   it('should read integer attribute through Num converter', () => {
     host.setAttribute('tabindex', '42');
 
-    expect(attr.get(host, 'tabindex', Num)).toBe(42);
+    expect(Num.from(host.getAttribute('tabindex'))).toBe(42);
   });
 
   it('should read decimal attribute through Num converter', () => {
     host.setAttribute('data-scale', '3.14');
 
-    expect(attr.get(host, 'data-scale', Num)).toBe(3.14);
+    expect(Num.from(host.getAttribute('data-scale'))).toBe(3.14);
   });
 
   it('should read zero through Num converter', () => {
     host.setAttribute('tabindex', '0');
 
-    expect(attr.get(host, 'tabindex', Num)).toBe(0);
+    expect(Num.from(host.getAttribute('tabindex'))).toBe(0);
   });
 
   it('should read missing numeric attribute as null', () => {
-    expect(attr.get(host, 'tabindex', Num)).toBeNull();
+    expect(Num.from(host.getAttribute('tabindex'))).toBeNull();
   });
 
   it('should read empty numeric attribute as null', () => {
     host.setAttribute('tabindex', '');
 
-    expect(attr.get(host, 'tabindex', Num)).toBeNull();
+    expect(Num.from(host.getAttribute('tabindex'))).toBeNull();
   });
 
   it('should read invalid numeric attribute as null', () => {
     host.setAttribute('tabindex', 'foo');
 
-    expect(attr.get(host, 'tabindex', Num)).toBeNull();
+    expect(Num.from(host.getAttribute('tabindex'))).toBeNull();
   });
 
   it('should write numeric value as serialized string', () => {
-    attr.set(host, 'tabindex', 42, Num);
+    setAttribute(host, 'tabindex', Num.to(42));
 
     expect(host.getAttribute('tabindex')).toBe('42');
   });
 
   it('should remove numeric attribute when writing null', () => {
     host.setAttribute('tabindex', '42');
-    attr.set(host, 'tabindex', null, Num);
+    setAttribute(host, 'tabindex', Num.to(null));
 
     expect(host.hasAttribute('tabindex')).toBeFalsy();
   });
 
   it('should remove numeric attribute when writing undefined', () => {
     host.setAttribute('tabindex', '42');
-    attr.set(host, 'tabindex', undefined, Num);
+    setAttribute(host, 'tabindex', Num.to(undefined));
 
     expect(host.hasAttribute('tabindex')).toBeFalsy();
   });
 
   it('should remove numeric attribute when writing NaN', () => {
     host.setAttribute('tabindex', '42');
-    attr.set(host, 'tabindex', Number.NaN, Num);
+    setAttribute(host, 'tabindex', Num.to(Number.NaN));
 
     expect(host.hasAttribute('tabindex')).toBeFalsy();
   });
 
   it('should read missing string attribute as null', () => {
-    expect(attr.get(host, 'aria-label', Str)).toBeNull();
+    expect(Str.from(host.getAttribute('aria-label'))).toBeNull();
   });
 
   it('should read string attribute unchanged through Str converter', () => {
     host.setAttribute('aria-label', 'Close');
 
-    expect(attr.get(host, 'aria-label', Str)).toBe('Close');
+    expect(Str.from(host.getAttribute('aria-label'))).toBe('Close');
   });
 
   it('should write string value unchanged through Str converter', () => {
-    attr.set(host, 'aria-label', 'Close', Str);
+    setAttribute(host, 'aria-label', Str.to('Close'));
 
     expect(host.getAttribute('aria-label')).toBe('Close');
   });
 
   it('should remove string attribute when writing null', () => {
     host.setAttribute('aria-label', 'Close');
-    attr.set(host, 'aria-label', null, Str);
+    setAttribute(host, 'aria-label', Str.to(null));
 
     expect(host.hasAttribute('aria-label')).toBeFalsy();
   });
 
   it('should remove string attribute when writing undefined', () => {
     host.setAttribute('aria-label', 'Close');
-    attr.set(host, 'aria-label', undefined, Str);
+    setAttribute(host, 'aria-label', Str.to(undefined));
 
     expect(host.hasAttribute('aria-label')).toBeFalsy();
   });
 
-  it('should return raw attribute value through getRaw', () => {
-    host.setAttribute('data-state', 'open');
-
-    expect(attr.getRaw(host, 'data-state')).toBe('open');
-  });
-
-  it('should return null from getRaw when attribute is missing', () => {
-    expect(attr.getRaw(host, 'data-state')).toBeNull();
-  });
-
-  it('should write raw attribute value through setRaw', () => {
-    attr.setRaw(host, 'data-state', 'open');
+  it('should write attribute value through setAttribute', () => {
+    setAttribute(host, 'data-state', 'open');
 
     expect(host.getAttribute('data-state')).toBe('open');
   });
 
-  it('should remove attribute when setRaw receives null', () => {
+  it('should remove attribute when setAttribute receives null', () => {
     host.setAttribute('data-state', 'open');
-    attr.setRaw(host, 'data-state', null);
+    setAttribute(host, 'data-state', null);
 
     expect(host.hasAttribute('data-state')).toBeFalsy();
   });

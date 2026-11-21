@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
 import '../../src/text-field/multiline-text-field.ts';
@@ -19,7 +18,9 @@ function createField(tag: FieldTag): FieldElement {
 }
 
 function getInput(field: HTMLElement): InternalFieldElement {
-  const input = $<HTMLInputElement | HTMLTextAreaElement>(field, '.input');
+  const input = field.shadowRoot!.querySelector<
+    HTMLInputElement | HTMLTextAreaElement
+  >('.input');
 
   if (!input) {
     throw new Error('Missing internal text field');
@@ -47,7 +48,7 @@ function addSlottedContent(
  * `.input` are found by class; no selector beside `:has-slotted` names either.
  */
 function getShadowElement(field: HTMLElement, selector: string): HTMLElement {
-  const element = $<HTMLElement>(field, selector);
+  const element = field.shadowRoot!.querySelector<HTMLElement>(selector);
 
   if (!element) {
     throw new Error(`Missing internal text field element ${selector}`);

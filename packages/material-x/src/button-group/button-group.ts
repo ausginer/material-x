@@ -2,7 +2,6 @@ import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -87,7 +86,7 @@ export default class ButtonGroup extends ButtonGroupConstructor {
   }
 }
 
-define('mx-button-group', ButtonGroup);
+customElements.define('mx-button-group', ButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {

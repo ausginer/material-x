@@ -3,7 +3,6 @@ import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import {
   ControlledElement,
-  define,
   internals,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
@@ -17,7 +16,7 @@ import {
   trait,
   type Composed,
 } from '@ydinjs/core/traits/composition.js';
-import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
 import {
   type CheckableCoreTraits,
@@ -108,7 +107,7 @@ export default class Checkbox extends CheckboxConstructor {
     );
 
     const innards = internals(this);
-    const icon = $<Icon>(this, '.icon')!;
+    const icon = this.shadowRoot!.querySelector<Icon>('.icon')!;
 
     useAttributes(this, {
       checked: via(Bool, (_, value) => {
@@ -142,7 +141,7 @@ export default class Checkbox extends CheckboxConstructor {
   }
 }
 
-define('mx-checkbox', Checkbox);
+customElements.define('mx-checkbox', Checkbox);
 
 declare global {
   interface HTMLElementTagNameMap {

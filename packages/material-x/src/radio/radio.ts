@@ -1,6 +1,5 @@
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -74,7 +73,7 @@ export default class Radio extends RadioConstructor {
   }
 }
 
-define('mx-radio', Radio);
+customElements.define('mx-radio', Radio);
 
 declare global {
   interface HTMLElementTagNameMap {
