@@ -1,0 +1,13 @@
+$ MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts tests/text-field/text-field.browser.test.ts -t "grow the textarea"
+
+At 846fcd8ca:
+      Tests  3 passed | 78 skipped (81)
+
+Mutation: the first `  field-sizing: content;` line deleted from src/text-field/styles/default/main.styles.css (`.input`), restored with `git checkout` afterwards:
+     × should grow the textarea by one line for each line typed 299ms
+     × should grow the textarea by one line for each line typed 460ms
+     × should grow the textarea by one line for each line typed 287ms
+AssertionError: expected [ 'first\nsecond\nthird', 24 ] to deeply equal [ 'first\nsecond\nthird', 72 ]
+AssertionError: expected [ 'first\nsecond\nthird', 24 ] to deeply equal [ 'first\nsecond\nthird', 72 ]
+AssertionError: expected [ 'first\nsecond\nthird', 24 ] to deeply equal [ 'first\nsecond\nthird', 72 ]
+      Tests  3 failed | 78 skipped (81)

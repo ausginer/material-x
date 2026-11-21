@@ -1,0 +1,3 @@
+$ MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts tests/text-field/text-field.browser.test.ts
+ Test Files  3 passed (3)
+      Tests  81 passed (81)

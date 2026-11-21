@@ -1,0 +1,16 @@
+$ MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts tests/text-field/text-field.browser.test.ts -t "grow the textarea" --reporter=verbose
+
+With `.input { field-sizing: content }`:
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:406 > mx-multiline-text-field > should grow the textarea by one line for each line typed 364ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:406 > mx-multiline-text-field > should grow the textarea by one line for each line typed 424ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:406 > mx-multiline-text-field > should grow the textarea by one line for each line typed 362ms
+      Tests  3 passed | 78 skipped (81)
+
+Mutation: the `field-sizing: content` declaration deleted from `.input` (restored afterwards):
+     × should grow the textarea by one line for each line typed 320ms
+     × should grow the textarea by one line for each line typed 405ms
+     × should grow the textarea by one line for each line typed 498ms
+AssertionError: expected [ 'first\nsecond\nthird', 24 ] to deeply equal [ 'first\nsecond\nthird', 72 ]
+AssertionError: expected [ 'first\nsecond\nthird', 24 ] to deeply equal [ 'first\nsecond\nthird', 72 ]
+AssertionError: expected [ 'first\nsecond\nthird', 24 ] to deeply equal [ 'first\nsecond\nthird', 72 ]
+      Tests  3 failed | 78 skipped (81)
