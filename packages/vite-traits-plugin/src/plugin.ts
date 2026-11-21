@@ -10,8 +10,10 @@ import type { Plugin } from 'vite';
 import { importsAttributes, lowerAttributes } from './attributes/lower.ts';
 import {
   baseStaticKind,
+  chainTraits,
   findSites,
   resolveTraits,
+  traitIdentities,
   type Site,
 } from './composition/annotation.ts';
 import {
@@ -19,9 +21,13 @@ import {
   type AnalyzedComposition,
 } from './composition/lower.ts';
 import {
+  checkComponentFields,
   checkLanguages,
   checkLayers,
   checkMemberScope,
+  checkPrivateNames,
+  constructorSite,
+  copiesInstanceState,
   staticKinds,
 } from './composition/rules.ts';
 import {
@@ -36,7 +42,9 @@ import {
   positionWithoutStage,
 } from './declaration-doc.ts';
 import {
+  CODE,
   diagnosticText,
+  fail,
   FlattenerError,
   type FlattenerWarning,
 } from './diagnostics.ts';
@@ -185,9 +193,29 @@ async function analyzeSite(
     // oxlint-disable-next-line no-await-in-loop
     traits.push(await normalizeTraitClass(r, ref));
   }
+  // A second copy of a trait with a constructor or private state would run
+  // the constructor twice per instance, or hold a second set of fields.
+  const stateful = refs.filter((_, index) =>
+    copiesInstanceState(traits[index]!),
+  );
+  if (stateful.length > 0) {
+    const composed = await chainTraits(r, ctx, site);
+    const repeated = stateful.find((ref) =>
+      traitIdentities(ref).some((identity) => composed.has(identity)),
+    );
+    if (repeated) {
+      fail(
+        CODE.TRAIT_LIST,
+        `${repeated.name} has a constructor or private members, and the base's chain already composes it`,
+        pos,
+      );
+    }
+  }
   checkLanguages(refs, traits, ctx.id, pos);
   warnings.push(...checkLayers(site.consumer, traits, pos));
   checkMemberScope(ctx, site.consumer, traits, pos);
+  checkPrivateNames(site.consumer, traits, pos);
+  checkComponentFields(site.consumer, traits);
   const base = site.call.arguments[0]!;
   const superClass = site.consumer.superClass!;
   const baseKinds = new Map<string, StaticKind | null>();
@@ -201,6 +229,7 @@ async function analyzeSite(
 
   return {
     traits,
+    constructorSite: constructorSite(site.consumer, traits, pos),
     kinds: staticKinds(traits, { name: baseSource, kinds: baseKinds }, pos),
     baseSource,
     declarationSpan: [site.statement.start, site.statement.end],

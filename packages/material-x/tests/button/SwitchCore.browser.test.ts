@@ -4,7 +4,7 @@ import { server, userEvent } from 'vitest/browser';
 import '../../src/button-group/connected-button-group.ts';
 import '../../src/button/switch-button.ts';
 import '../../src/button/switch-icon-button.ts';
-import { nextFrame } from '../browser.ts';
+import { contextResolved, nextFrame } from '../browser.ts';
 
 const SWITCH_TAGS = ['mx-switch-button', 'mx-switch-icon-button'] as const;
 
@@ -328,8 +328,9 @@ describe('mx-switch-button in a connected button group', () => {
     };
   }
 
-  it('should check the switch whose value matches the group value', () => {
+  it('should check the switch whose value matches the group value', async () => {
     const [group, switches] = createGroup();
+    await contextResolved();
 
     group.setAttribute('value', 'two');
 
@@ -339,8 +340,9 @@ describe('mx-switch-button in a connected button group', () => {
     ]);
   });
 
-  it('should uncheck the previous switch when the group value changes', () => {
+  it('should uncheck the previous switch when the group value changes', async () => {
     const [group, switches] = createGroup();
+    await contextResolved();
     group.setAttribute('value', 'two');
 
     group.setAttribute('value', 'one');
@@ -351,7 +353,7 @@ describe('mx-switch-button in a connected button group', () => {
     ]);
   });
 
-  it('should check only the matching switch when a checked switch joins a group with a value', () => {
+  it('should check only the matching switch when a checked switch joins a group with a value', async () => {
     const group = document.createElement('mx-connected-button-group');
     group.setAttribute('value', 'b');
     const switches = ['a', 'b'].map((value) => {
@@ -365,11 +367,12 @@ describe('mx-switch-button in a connected button group', () => {
 
     group.append(...switches);
     document.body.append(group);
+    await contextResolved();
 
     expect(switches.map(({ checked }) => checked)).toStrictEqual([false, true]);
   });
 
-  it('should uncheck only the selected switch when the group value is removed', () => {
+  it('should uncheck only the selected switch when the group value is removed', async () => {
     const group = document.createElement('mx-connected-button-group');
     group.setAttribute('value', 'a');
     const selected = document.createElement(
@@ -381,6 +384,7 @@ describe('mx-switch-button in a connected button group', () => {
     ) as SwitchElement;
     group.append(selected, valueless);
     document.body.append(group);
+    await contextResolved();
 
     group.removeAttribute('value');
 
@@ -390,13 +394,14 @@ describe('mx-switch-button in a connected button group', () => {
     ]);
   });
 
-  it('should keep a checked switch checked when it joins a group with no value', () => {
+  it('should keep a checked switch checked when it joins a group with no value', async () => {
     const group = document.createElement('mx-connected-button-group');
     const element = document.createElement('mx-switch-button') as SwitchElement;
     element.checked = true;
 
     group.append(element);
     document.body.append(group);
+    await contextResolved();
 
     expect(observeSelection(element)).toStrictEqual({
       checked: true,

@@ -1,0 +1,512 @@
+# Size reading after reviewer-1's fix, at 6921f9aa9, against origin/main's merge base 87fc2d2db. origin/main is at 9377c7e1d, which changes only CONTRIBUTING.md. Each tree read with `aube exec just size-reading <file>` after a frozen install, and the table written by `node .scripts/size-report.ts --head <branch> --base <main>`. Brotli bytes. The measurement rows weren't read: no --tests file was passed.
+
+| Package | Row | Brotli | Base | Change | Limit | gzip |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| box-quad | index | 1182 | 1182 | 0 | 1182 | — |
+| core | element | 312 | 312 | 0 | 340 | — |
+| core | emitter | 198 | 198 | 0 | 210 | — |
+| material-x | button/button | 4926 | 4926 | 0 | — | — |
+| material-x | button/icon-button | 5203 | 5203 | 0 | — | — |
+| material-x | button/link-button | 4900 | 4900 | 0 | — | — |
+| material-x | button/switch-button | 5291 | 5291 | 0 | — | — |
+| material-x | button/switch-icon-button | 5682 | 5682 | 0 | — | — |
+| material-x | button/split-button | 7492 | 7492 | 0 | — | — |
+| material-x | button-group/button-group | 3126 | 3126 | 0 | — | — |
+| material-x | button-group/connected-button-group | 3888 | 3888 | 0 | — | — |
+| material-x | checkbox/checkbox | 4021 | 4021 | 0 | — | — |
+| material-x | fab/fab | 4234 | 4234 | 0 | — | — |
+| material-x | icon/icon | 661 | 661 | 0 | — | — |
+| material-x | list/list | 685 | 3673 | -2988 | — | — |
+| material-x | list/list-item | 2828 | 2567 | +261 | — | — |
+| material-x | list/list-button-item | 4667 | 4575 | +92 | — | — |
+| material-x | list/list-link-item | 4885 | 4746 | +139 | — | — |
+| material-x | list/sortable-list | 8605 | — | added | — | — |
+| material-x | radio/radio | 3590 | 3590 | 0 | — | — |
+| material-x | text-field/multiline-text-field | 4437 | 4437 | 0 | — | — |
+| material-x | text-field/text-field | 8188 | 8188 | 0 | — | — |
+| material-x | complete | 22092 | 17079 | +5013 | — | — |
+| drag | draggable alone | 2189 | 2189 | 0 | 2189 | 2422 |
+| drag | draggable + lift | 3932 | 3932 | 0 | 3932 | 4362 |
+| drag | example: resize handle | 3265 | 3265 | 0 | 3265 | 3607 |
+| drag | example: drop zone | 4570 | 4570 | 0 | 4570 | 5058 |
+| drag | example: canvas group | 3261 | 3261 | 0 | 3261 | 3573 |
+| drag | freeDrag | 4984 | 4984 | 0 | 4984 | 5526 |
+| drag | freeDrag + bounds + landing | 5465 | 5465 | 0 | 5465 | 6041 |
+| drag | sortable + y | 6533 | 6533 | 0 | 6533 | 7232 |
+| drag | sortable + xy | 6484 | 6484 | 0 | 6484 | 7191 |
+| drag | complete | 7143 | 7143 | 0 | 7143 | 7900 |
+| core | traits/reorderable | — | 3114 | removed | — | — |
+
+## Branch reading (JSON)
+{
+  "rows": [
+    {
+      "package": "box-quad",
+      "row": "index",
+      "brotli": 1182,
+      "gzip": null,
+      "limit": 1182
+    },
+    {
+      "package": "core",
+      "row": "element",
+      "brotli": 312,
+      "gzip": null,
+      "limit": 340
+    },
+    {
+      "package": "core",
+      "row": "emitter",
+      "brotli": 198,
+      "gzip": null,
+      "limit": 210
+    },
+    {
+      "package": "material-x",
+      "row": "button/button",
+      "brotli": 4926,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/icon-button",
+      "brotli": 5203,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/link-button",
+      "brotli": 4900,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-button",
+      "brotli": 5291,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-icon-button",
+      "brotli": 5682,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/split-button",
+      "brotli": 7492,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/button-group",
+      "brotli": 3126,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/connected-button-group",
+      "brotli": 3888,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "checkbox/checkbox",
+      "brotli": 4021,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "fab/fab",
+      "brotli": 4234,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "icon/icon",
+      "brotli": 661,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list",
+      "brotli": 685,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-item",
+      "brotli": 2828,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-button-item",
+      "brotli": 4667,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-link-item",
+      "brotli": 4885,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/sortable-list",
+      "brotli": 8605,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "radio/radio",
+      "brotli": 3590,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/multiline-text-field",
+      "brotli": 4437,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/text-field",
+      "brotli": 8188,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "complete",
+      "brotli": 22092,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "drag",
+      "row": "draggable alone",
+      "brotli": 2189,
+      "gzip": 2422,
+      "limit": 2189
+    },
+    {
+      "package": "drag",
+      "row": "draggable + lift",
+      "brotli": 3932,
+      "gzip": 4362,
+      "limit": 3932
+    },
+    {
+      "package": "drag",
+      "row": "example: resize handle",
+      "brotli": 3265,
+      "gzip": 3607,
+      "limit": 3265
+    },
+    {
+      "package": "drag",
+      "row": "example: drop zone",
+      "brotli": 4570,
+      "gzip": 5058,
+      "limit": 4570
+    },
+    {
+      "package": "drag",
+      "row": "example: canvas group",
+      "brotli": 3261,
+      "gzip": 3573,
+      "limit": 3261
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag",
+      "brotli": 4984,
+      "gzip": 5526,
+      "limit": 4984
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag + bounds + landing",
+      "brotli": 5465,
+      "gzip": 6041,
+      "limit": 5465
+    },
+    {
+      "package": "drag",
+      "row": "sortable + y",
+      "brotli": 6533,
+      "gzip": 7232,
+      "limit": 6533
+    },
+    {
+      "package": "drag",
+      "row": "sortable + xy",
+      "brotli": 6484,
+      "gzip": 7191,
+      "limit": 6484
+    },
+    {
+      "package": "drag",
+      "row": "complete",
+      "brotli": 7143,
+      "gzip": 7900,
+      "limit": 7143
+    }
+  ]
+}
+
+## main reading (JSON)
+{
+  "rows": [
+    {
+      "package": "box-quad",
+      "row": "index",
+      "brotli": 1182,
+      "gzip": null,
+      "limit": 1182
+    },
+    {
+      "package": "core",
+      "row": "element",
+      "brotli": 312,
+      "gzip": null,
+      "limit": 340
+    },
+    {
+      "package": "core",
+      "row": "emitter",
+      "brotli": 198,
+      "gzip": null,
+      "limit": 210
+    },
+    {
+      "package": "core",
+      "row": "traits/reorderable",
+      "brotli": 3114,
+      "gzip": null,
+      "limit": 3500
+    },
+    {
+      "package": "material-x",
+      "row": "button/button",
+      "brotli": 4926,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/icon-button",
+      "brotli": 5203,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/link-button",
+      "brotli": 4900,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-button",
+      "brotli": 5291,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-icon-button",
+      "brotli": 5682,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/split-button",
+      "brotli": 7492,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/button-group",
+      "brotli": 3126,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/connected-button-group",
+      "brotli": 3888,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "checkbox/checkbox",
+      "brotli": 4021,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "fab/fab",
+      "brotli": 4234,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "icon/icon",
+      "brotli": 661,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list",
+      "brotli": 3673,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-item",
+      "brotli": 2567,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-button-item",
+      "brotli": 4575,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-link-item",
+      "brotli": 4746,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "radio/radio",
+      "brotli": 3590,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/multiline-text-field",
+      "brotli": 4437,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/text-field",
+      "brotli": 8188,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "complete",
+      "brotli": 17079,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "drag",
+      "row": "draggable alone",
+      "brotli": 2189,
+      "gzip": 2422,
+      "limit": 2189
+    },
+    {
+      "package": "drag",
+      "row": "draggable + lift",
+      "brotli": 3932,
+      "gzip": 4362,
+      "limit": 3932
+    },
+    {
+      "package": "drag",
+      "row": "example: resize handle",
+      "brotli": 3265,
+      "gzip": 3607,
+      "limit": 3265
+    },
+    {
+      "package": "drag",
+      "row": "example: drop zone",
+      "brotli": 4570,
+      "gzip": 5058,
+      "limit": 4570
+    },
+    {
+      "package": "drag",
+      "row": "example: canvas group",
+      "brotli": 3261,
+      "gzip": 3573,
+      "limit": 3261
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag",
+      "brotli": 4984,
+      "gzip": 5526,
+      "limit": 4984
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag + bounds + landing",
+      "brotli": 5465,
+      "gzip": 6041,
+      "limit": 5465
+    },
+    {
+      "package": "drag",
+      "row": "sortable + y",
+      "brotli": 6533,
+      "gzip": 7232,
+      "limit": 6533
+    },
+    {
+      "package": "drag",
+      "row": "sortable + xy",
+      "brotli": 6484,
+      "gzip": 7191,
+      "limit": 6484
+    },
+    {
+      "package": "drag",
+      "row": "complete",
+      "brotli": 7143,
+      "gzip": 7900,
+      "limit": 7143
+    }
+  ]
+}

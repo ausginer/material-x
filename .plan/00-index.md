@@ -1845,6 +1845,174 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **a test that reads the top level of core's source:** the claim is about the built modules, which the plugin and tsdown write.
 - **`RD-26` and `RD-27` don't change.** `RD-26`'s fourth amendment and this unit don't wait for each other. `RD-27`'s properties don't enumerate the checks, and its plan's step 7 gains one.
 
+#### RD-31 — The list's sortable items are a separate element on `@ydinjs/drag`, and core's `reorderable` trait is deleted
+
+**Decided 2026-11-20 by the architect,** on the owner's request relayed by the coordinator for issue #86: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. Registered on `repo/list-sortable-1`, from `origin/main` at `e4b0e475d`. `RD-30` (`core/side-effects-1`) is the highest decision number on any branch on `origin`, so this is the next free number. The [plan](list-sortable-1/list-sortable-plan.md) has the readings, the test map and the tasks.
+
+**Status: implemented on `repo/list-sortable-1`, pending the owner's acceptance and the merge of #90.**
+
+**Dated 2026-11-21 by the implementer: implemented** in `88801757e` and `e54578a20`, against the sixth amendment. The [report](list-sortable-1/list-sortable-report.md) has the readings. Every stop bound holds after task 3a: `list/list-button-item` reads 4,575 → 4,601 B and `list/list-link-item` 4,746 → 4,788 B, `list/list-item` reads 2,739 B, `list/sortable-list` 8,579 B, and `list/list` 3,673 → 685 B ([reading](list-sortable-1/checks/size-after.txt)). No plain list row reaches drag, box-quad or the items' writes. One row was `it.fails` until `RF-69` (#100) was on the branch's base: a static item that upgraded before its list was defined didn't become a tab stop. (Corrected on 2026-11-21 by the architect, in tense only: since `f354bbaf8` the row is `it` and passes, as the next paragraph says.)
+
+**Dated 2026-11-21 by the architect: implemented on `repo/list-sortable-1` at `6921f9aa9`** (#90, not yet merged), relayed by the coordinator. It applies to `main` when #90 merges.
+
+- **`RF-69` is on the branch.** `5194f5069` merges `main` at `87fc2d2db`, and in `f354bbaf8` the item's consumer waits for `mx-sortable-list`'s definition. The definition-order row is now `it`. It passes in Chromium, Firefox and WebKit, and fails in each with core's wait removed ([report](list-sortable-1/list-sortable-report.md#after-rf-69--2026-11-21)).
+- **The [feature proof](reviews/list-sortable-1/feature-proof-claude.md)** at `586a99e60`, committed at `db591498f`, finds that the unit implements this decision in the three engines, with one Tier A finding, `reviewer-1`: an item upgraded after its sortable list never joined the list's collection, so it became a tab stop and didn't move.
+- **`reviewer-1` is remediated in `6921f9aa9`.** When an item resolves the list's context and isn't in the collection yet, the list's writer reads the slot again. Four rows move an item by keyboard and by pointer in each evaluation order ([report](list-sortable-1/list-sortable-report.md#reviewer-1-of-the-feature-proof--2026-11-21)). The [re-check](reviews/list-sortable-1/feature-proof-recheck-claude.md) at `6ba689932`, committed at `7aa6157ff`, finds the finding closed and the witness holding, and has no new finding.
+- **Sizes after the remediation,** against `main` at `87fc2d2db`, Brotli ([reading](list-sortable-1/checks/size-after-reviewer-1.txt)): `list/list-item` 2,828 B (+261, bound ≤ 3,100), `list/list-button-item` 4,667 B (+92, ±150), `list/list-link-item` 4,885 B (+139, ±150), `list/sortable-list` 8,605 B (a new row, ≤ 9,600) and `list/list` 685 B (−2,988, doesn't grow). Every bound holds. The items grew under `RF-69`'s wait, and the remediation moves only `list/sortable-list`, by 26 B.
+- **Owed:** the owner's acceptance and the merge of #90. Safari wasn't run, and the accessibility probe wasn't rerun with `list/list-item.js` evaluated first.
+
+**Answered by the owner on 2026-11-20 and 2026-11-21,** relayed by the coordinator. The plan's [Owner's answers](list-sortable-1/list-sortable-plan.md#owners-answers) quotes them in full.
+
+- **Q1: (a), the separate element.** _"Я думаю, стоит сделать отдельный элемент 🤔 Не очень хочется, но это более правильно."_ ("I think a separate element is worth it. I don't much want to, but it's more correct.") Property 2 stands.
+- **Q2: a direction, then deferred by Q5.** He asked which model is more correct, and then asked for grab mode as an opt-in sortable feature that doesn't hurt the size. The plan's [Q2 section](list-sortable-1/list-sortable-plan.md#q2-the-keyboard-model) has the comparison. `drag:DRD-70` wrote the feature down, and Q5 deferred it.
+- **Q3: the handle isn't required by default, and a consumer can require it.** _"Нет, не обязательна; однако если человек хочет сделать её обязательной — это надо предусмотреть."_ ("No, not required; but if someone wants to make it required, that has to be provided for.")
+- **Q5: the grab feature is deferred.** _"Так, фичу с захватом откладываем. Мне не очень нравится направление, тут надо, наверное, посидеть и отдельно подумать 🤔 Особенно мне не нравится идея "операция живёт между нажатиями", это прям подножка текущей архитектуре"_ ("So, we're deferring the grab feature. I don't much like the direction; I probably need to sit down and think about it separately. I especially dislike the idea that 'an operation lives across key presses'. That really trips up the current architecture."). `drag:DRD-70` is marked deferred and isn't in force. No drag change is part of this decision.
+- **Q4: drag's ordinary mode, for now.** _"Соответственно, Q4 - пока что это будет обычный режим drag."_ ("Accordingly, Q4: for now it will be drag's ordinary mode.")
+- **Q6, answered on 2026-11-21,** relayed in English translation only: _"If we make everything draggable, we must give a choice. Either through a handle: then dragging, keyboard included, is by the handle. Or, if the author wants no handle, the items must *become* draggable and get a tabindex. List items must not be tab stops permanently, but must become one when the developer chooses 'no handle'."_
+- **Q6's follow-ups, the same day,** in translation: on the pointer with a handle, _"Yes, probably the handle's presence should switch on handle-only by itself"_, which retires `handle-only`. On the role, the missing `listitem` role (`RF-68`, #92) is a bug to fix in its own unit, outside this decision.
+
+**Amended 2026-11-20, before implementation,** for Q1 to Q3: the status, properties 4 and 9, the reasons about the handle and about drag, and the list of what isn't adopted. **Amended again the same day, before implementation,** for Q4 and Q5: the status, property 4's keyboard, handle and announcement items, property 9, the reasons, and the list of what isn't adopted. **Amended a third time on 2026-11-21, before implementation,** for Q6 and its follow-ups: the status, the answers, property 4's handle, Q6 and handle-semantics items, property 7, a reason, and the list of what isn't adopted. It was written from slot b in `745fccb8c`, and the main slot's architect confirmed it the same day and corrected this list of what it changed, which named the keyboard item. **Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading [`item-focus.txt`](list-sortable-1/checks/item-focus.txt) and `RF-68`'s [reading](https://github.com/ausginer/material-x/blob/45272694ce5d6792f9c7590f839614aa9dc88289/.plan/list-roles-1/checks/list-roles.txt) on `material-x/list-roles-1`: three sentences of property 4's (Q6) item and a clause of its item on handle semantics. Proposed from slot b in the plan at `9f90572fb`. **Amended a fifth time on 2026-11-21, before implementation,** for the context between the list and its items, on the owner's rule that a parent–child link uses context: three passages of property 4, in the (Q6) item, the item on handle semantics and the last item, and a reason. Proposed from slot b in the plan at `d875ceb25`. **Amended a sixth time on 2026-11-21, before implementation,** for where the items' sortable writes live, on Mx Architect B's ruling on the implementer's size stop at `88801757e` (the plan's [Where the sortable writes live](list-sortable-1/list-sortable-plan.md#where-the-sortable-writes-live)): a passage of property 4's item on handle semantics, property 7's last sentence, and a reason. Proposed from slot b in the plan at `6de14c896`. The main slot's architect registered it with the item on handle semantics reworded, so that it reads with the fifth amendment: the item applies the writes, the (Q6) tab stop included, and the code that writes is in the list's module. What each amendment replaced is at the end. The first amendment's new items in the list of what isn't adopted were a grab built in the list and `handle(item, event)`.
+
+**Properties.**
+
+1. **Core's `reorderable` trait is deleted:** `src/traits/reorderable.ts`, the `./traits/reorderable.js` export, the `files.json` entry, the size row, the README section and `tests/traits/reorderable.browser.test.ts`. Nothing replaces it in core. Only material-x used it, and core is on no registry, so no alias is kept (`CONTRIBUTING.md` §8).
+2. **Sorting is a separate element (Q1).** `@ydinjs/material-x/list/sortable-list.js` defines `mx-sortable-list`, whose class `SortableList` is the default export. It renders and styles like `mx-list`, and it takes the same items. `mx-list` doesn't sort, and has no `reorderable` attribute and no `reorder` event.
+3. **No runtime entry other than `list/sortable-list` reaches `@ydinjs/drag`,** directly or through other modules, the list items included. A test over the built package checks this, and a temporary drag import in `list.ts` makes the test fail. The published declarations of `list/sortable-list` and `react` name no drag type.
+4. **The sortable list runs drag's `sortable` with `y()` and `landing()`, as drag is today. No drag change.**
+   - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+   - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface. There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
+   - **(Q4) The keyboard is drag's ordinary model:** an arrow key moves the item one slot at once and proposes the move, inside the same `handle`. So an arrow key moves an item from its focused handle. If the item has no handle, an arrow key also moves it from any focused element inside it, such as an interactive item's own button or link. At the collection's edge the key keeps its meaning.
+   - **(Q6) A static item without a handle is a tab stop in a sortable list,** and moves from the keyboard while it has focus. `mx-sortable-list` provides a context, and each item consumes it through core's `useContext`, and is in the list while the provider is its parent element. While it is and has no `[data-handle]`, the item sets `tabIndex = 0` and the arrow-key description on its own inner `.host`, and removes them when it gains a handle or disconnects. The item resolves the context in whatever order the two are defined (`RF-69`). Nothing is written on the item's host: a `display: contents` host with a `tabindex` takes no focus, and has an accessibility node of its own, `group` in WebKit and a `generic` in Chromium that `role: 'none'` doesn't remove. The item composes `FocusForwarding`, so `item.focus()` works in Firefox too (`RF-33`), and it shows Material's list focus indicator. `mx-list-item` has no public way to take focus. Interactive items keep their own control as their only tab stop. No item is a tab stop in `mx-list`.
+   - **A control inside a handle-less item that uses the arrow keys itself,** such as a text field or a slider, carries `data-drag-ignore`, which drag already honors. Otherwise its arrow keys move the item. The JSDoc says so.
+   - In a sortable list only, a handle is made focusable, named _Reorder_, described with the arrow keys and given `touch-action: none`. A handle-less interactive item, on its button or link, and a static item while it is a tab stop, on its inner `.host`, get the same description, which is how a focused item says that it moves. The item applies these, and the (Q6) item's tab stop, to its own handle or control while it is in a sortable list, and never to its host. The code that writes them is in a module that only `list/sortable-list` imports, and reaches the item through the context's value, so a plain list's items don't contain it. That code runs only when the item calls the value with its own host and control, and it writes only on that item's elements. The list keeps no registry and queries no item. Values the consumer set are kept. The items' `listitem` role is `RF-68`'s fix, not this decision's.
+   - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`, one per move. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+   - A polite live region in the list's shadow root announces each accepted move by position, from the pointer or the keyboard.
+   - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+   - A disconnect destroys the list's drag controller and clears the lifted item's `drag` state, and a connect creates a new one, so a reconnected list sorts again.
+5. **`@ydinjs/drag` is an optional peer of material-x,** and a dev dependency in the workspace. Its range is set at material-x's release.
+6. **The list's behavior rows move to material-x,** against the real element with real input. Rows for drag's mechanics stay drag's, and rows for behavior that is gone are deleted, as the plan's [test map](list-sortable-1/list-sortable-plan.md#test-map) lists.
+7. **The size reading proves the separation:** material-x's and core's rows before and after, with the modules of each list row. No plain list row contains a module of drag or box-quad. `list/list` doesn't grow. The interactive items grow, if at all, only by the context consumer, and `list/list-item` only by the consumer, its focus indicator and `FocusForwarding`. The items' sortable writes are in `list/sortable-list`.
+8. **`RF-36` closes when property 1 is implemented,** with its cause unknown, because the code it is about is deleted. Its property doesn't carry over to the new rows.
+9. **Release order.** box-quad, then drag, unchanged. This decision changes no drag source, so drag's release (#57) doesn't wait for it. material-x's release comes after drag's (`RD-27` property 1). This work uses drag's workspace build and doesn't wait for drag's release.
+
+**Why.**
+
+- **An element, not an import that switches `mx-list` on.** `list.js` upgrades the lists already in the page when it is evaluated, which is before any module that imports it could add sorting. An attribute that needs an import also fails silently without it. A function call isn't declarative for HTML or React.
+- **drag covers the list's needs as it is today.** Announcements, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements.
+- **Drag's ordinary keyboard model is the owner's answer,** and with it an interactive item needs no handle. Grab mode's argument for a keyboard handle was Space and Enter, which this model doesn't use.
+- **The screen-reader limit isn't new.** In NVDA's and JAWS's reading mode, bare arrow keys on a button don't reach the page, so a screen-reader user must switch to focus mode first. Today's grab mode moved with bare arrows too, with no role that changes the mode, so the limit is the same as today. It belongs to the deferred keyboard design (`drag:DRD-70`), and to move controls, which the plan notes for later.
+- **A peer, because the package must share the consumer's copy:** `drag:DRD-17`'s nesting rule holds within one copy, so a sortable list inside a consumer's own drag sortable needs one copy. Only an optional entry imports drag (`CONTRIBUTING.md` §Dependencies of a published package).
+- **No drag type in the declarations,** because `react.d.ts` imports every element's types, including for consumers without drag.
+- **Pointer drops are announced too,** because drag's `onEnd` doesn't say what started the drag. Today only keyboard steps are announced.
+- **A static item takes focus only when it has no handle, in a sortable list,** because the owner's Q6 answer ties the tab stop to the developer's choice of no handle. A handle remains the item's only tab stop when it has one.
+- **Context for the list and its items,** on the owner's rule that a contextual parent–child link uses context, not a registry (CONTRIBUTING's _Parent and child components_, #96).
+- **The items' writes travel in the context's value,** because only a sortable list runs them, and an item in a plain list doesn't carry them (`CONTRIBUTING.md` §7). The item hands the value its own elements, so the link is still context alone.
+
+**Not adopted:** a side-effect import or a function, drag as a regular dependency, a `reorderable` attribute on `mx-sortable-list`, grab mode in this unit (deferred by the owner), `handle(item, event)`, `layoutAnimation`, copying core's synthetic-host rows, `handle-only` (retired after Q6), a list-level handle switch, and `aria-roledescription` or `aria-grabbed` to say that an item moves. The plan's [Not adopted](list-sortable-1/list-sortable-plan.md#not-adopted) gives the reasons.
+
+**What the sixth amendment, of 2026-11-21, replaced.**
+
+- **In property 4's item on handle semantics:**
+
+  > The item writes it on its own handle or control while it is in a sortable list, and never on its host. The list writes nothing on an item.
+
+- **In property 7:**
+
+  > `list/list` and the interactive items don't grow, and `list/list-item` grows, if at all, only by its focus indicator and what taking focus needs.
+
+**What the fifth amendment, of 2026-11-21, replaced.**
+
+- **In property 4's (Q6) item:**
+
+  > While the item is in its collection and has no `[data-handle]`, the list sets `tabIndex = 0` and the arrow-key description on the item's inner `.host`, and removes them when either stops being true. The item registers that element as its control, through `FocusForwarding`'s registry,
+
+- **In property 4's item on handle semantics:**
+
+  > get the same description, written on the item's control and never on its host, which is how a focused item says that it moves.
+
+- **Property 4's last item:**
+
+  > A disconnect cancels the operation, and a reconnected list sorts again.
+
+**What the fourth amendment, of 2026-11-21, replaced.**
+
+- **In property 4's (Q6) item,** two passages:
+
+  > The list sets `tabindex="0"` on the item while the item is in its collection and has no `[data-handle]`, and removes it when either stops being true. It never changes or removes a `tabindex` the consumer set.
+
+  > `mx-list-item` takes focus when its element has a `tabindex`, and shows Material's list focus indicator.
+
+- **In property 4's item on handle semantics:**
+
+  > A handle-less interactive item, and a static item while it is a tab stop, get the same description
+
+**What the third amendment, of 2026-11-21, replaced.**
+
+- **Status:**
+
+  > **Status: unimplemented, and waiting for the owner's answer to the plan's [Q6](list-sortable-1/list-sortable-plan.md#questions-for-the-owner).** Property 4 states the recommended answer (a).
+
+- **Property 4's items on the handle, on Q6 and on handle semantics:**
+
+  > - **(Q3) The handle is optional.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. With the boolean attribute `handle-only`, it is the item's `[data-handle]` or nothing, so an item without a handle isn't dragged.
+  >
+  > - **(Q6) A static item without a handle can't be moved from the keyboard,** because nothing in it takes focus. The JSDoc says so.
+  >
+  > - In a sortable list only, a handle is made focusable, named _Reorder_, described with the arrow keys and given `touch-action: none`. A handle-less interactive item gets the same description. Values the consumer set are kept.
+
+- **Property 7:**
+
+  > 7. **The size reading proves the separation:** material-x's and core's rows before and after, with the modules of each list row. No plain list row contains a module of drag or box-quad, and none grows.
+
+**What the second amendment of 2026-11-20 replaced.**
+
+- **Status:**
+
+  > **Status: unimplemented, and waiting for the owner's answers to the plan's [Q4 and Q5](list-sortable-1/list-sortable-plan.md#questions-for-the-owner).** Property 4 states the recommended answers (a). If an answer is (b), the architect records the change before implementation.
+
+- **Property 4:**
+
+  > 4. **The sortable list runs drag's `sortable` with `y()`, `landing()` and `grab()` (`drag:DRD-70`):**
+  >    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+  >    - **(Q3) The handle is optional.** A press on an item's `[data-handle]` drags the item, and an item with no handle drags by its whole surface. With the boolean attribute `handle-only`, an item is dragged only by its handle, and an item with no handle isn't dragged.
+  >    - **(Q2, Q4) The keyboard is grab mode,** always on a handle: Space or Enter grabs, the arrows move one slot, Space or Enter drops, and Escape, Tab or focus leaving cancels and returns the item. Arrow keys do nothing until a grab. Space and Enter on an interactive item keep activating it. A list without handles reorders by pointer only.
+  >    - In a sortable list only, a handle is made focusable, named and `touch-action: none`, and its description names the keys. It has `role="application"` during a grab. Values the consumer set are kept.
+  >    - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`, one per move. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+  >    - A polite live region in the list's shadow root announces the grab with the keys, each step, the drop and a cancel, by position. A pointer drop is announced too.
+  >    - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+  >    - A disconnect cancels the operation, and a reconnected list sorts again.
+
+- **Property 9:**
+
+  > 9. **Release order.** box-quad, then drag. drag's release (#57) waits for `drag:DRD-70`, which adds public API. material-x's release comes after drag's (`RD-27` property 1). The list uses drag's workspace build, once `DRD-70` is on `main` or on a branch the list's unit stacks on.
+
+- **Three reasons:**
+
+  > - **drag covers the list's needs once `DRD-70` adds grab mode.** Announcements, roles, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements.
+  > - **Grab mode for the list** is the established model in dnd-kit, react-beautiful-dnd, React Aria and GitHub. It keeps the arrow keys away from screen-reader navigation until a grab, and it announces the keys at the grab. Immediate arrows on a handle don't reach the page in NVDA's or JAWS's browse mode. The plan's Q2 section has the sources.
+  > - **The keyboard needs a handle, even when the pointer doesn't,** because Space and Enter activate an interactive item and `mx-list-item` can't take focus. `grab()`'s own keyboard handle (`DRD-70` property 3) keeps that apart from the pointer's whole-surface drag.
+
+**What the first amendment of 2026-11-20 replaced.**
+
+- **Status:** _"unimplemented, and waiting for the owner's answers to the plan's Q1 to Q3. Properties 2, 4 and 5 state the recommended answers (a)."_
+- **Property 4:**
+
+  > 4. **The sortable list runs drag's `sortable` with `y()` and `landing()`:**
+  >    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+  >    - **(Q3)** An item is dragged by its `[data-handle]`, by pointer and keyboard. An item with no handle isn't dragged. In a sortable list only, the handle is made focusable, named, described and `touch-action: none`, and values the consumer set are kept.
+  >    - **(Q2)** The keyboard model is drag's: one arrow key press on the focused handle moves the item one slot. Focus stays on the handle.
+  >    - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+  >    - Each accepted move is announced by position through a live region in the list's shadow root.
+  >    - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+  >    - A disconnect cancels the operation, and a reconnected list sorts again.
+
+- **Property 9:**
+
+  > 9. **Release order.** box-quad, then drag, unchanged: no drag source changes. material-x's release comes after drag's (`RD-27` property 1). This work uses drag's workspace build and doesn't wait for drag's release.
+
+- **The reason about the handle:** _"**The handle is required** because drag's `handle` gates pointer and keyboard together. Without a handle, arrow keys anywhere in an item, a text field included, would move the item."_
+- **The reason about drag:** _"**drag covers the list's needs** with the recommended answers. Announcements, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements."_
+
 #### RD-32 — A unit's plan and its implementation share one branch and one pull request, and a change to project documentation has its own
 
 **Decided 2026-11-21 by the owner,** relayed by the coordinator: _"A change to project documentation (rules for agents, user-visible documentation, etc.) is a separate PR, that's right. But a plan is part of a feature's implementation, so they must go in one PR."_ (translated). Proposed by Mx Architect B in the description of [#93](https://github.com/ausginer/material-x/pull/93), from slot b, which doesn't mint. Registered by the architect on `repo/one-pr-rule-1`. `RD-31` is the highest number on any branch on `origin`, so this is the next free number. **Implemented** in `agent-workflow.md`, `AGENTS.md` and `work-queue.md` by #93 (`2f95645a6`), which the owner merged.
@@ -1856,6 +2024,54 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **Not settled: a feature's own user documentation.** The owner's words put user-visible documentation in a separate pull request. The rule as written keeps a feature's JSDoc and its component page with the feature, as `implementer.md` makes the documentation a task needs part of its implementation. Only documentation that no feature owes has its own pull request. If the owner meant a feature's documentation too, the section's last bullet and `implementer.md` change, and this entry is amended.
 
 **Why.** A plan is part of its feature's implementation, so the owner reviews and merges them together. Project documentation isn't a feature's, so it has its own pull request.
+
+#### RD-33 — A trait may declare private instance fields, methods, accessors and a constructor, which the flattener copies with each private name renamed per trait and any initializer allowed, and a component whose list has a trait constructor doesn't reference `this` in a field initializer
+
+**In force by the owner's decision of 2026-11-21,** relayed by the coordinator, in translation: _"RD-33, both yes. And honestly I now lean toward implementing it now, just so we don't manage to write traits or components that contradict it."_ "Both" accepts property 10's `trait-list` refusal and property 11. The implementer continues on `repo/trait-private-fields-1` from the [plan](trait-private-fields-1/trait-private-fields-plan.md), which was re-checked against `origin/main` at `bd1dee7df`. Until the implementation merges, `RD-26` property 2 and the [plugin document](../.agents/docs/trait-flattener-plugin.md) state what the plugin does.
+
+**Deferred earlier the same day, and resumed by the decision above.** The owner's words then, in translation: _"Let's defer RD-33. It's a good thing, but we'll implement it when a real user appears, or after we finish material-x, for its users. Put `constructor` in there too. I think it needs to be one unit."_
+
+**Decided 2026-11-21 by the owner,** relayed by the coordinator, in translation: _"Let's relax the trait idea. I accept the cost of the new trait implementation: in the end it mostly affects the plugin, and that's acceptable."_ On initializers: _"A trait is, in essence, a closed data-and-methods system, so with the private name renamed we can allow any initialization. I would allow `new Map()`."_ On the order: _"It's a trait. It's not allowed to read the fields of whoever implements it, unless that is the bound, and the bound should already be initialized by then."_ Registered by the architect on `repo/trait-private-fields-1`, from `origin/main` at `640658b5c`. `RD-32` is the highest number on any branch on `origin`, so this is the next free number. The [plan](trait-private-fields-1/trait-private-fields-plan.md) holds the reasons, the properties and the proofs. **Implemented 2026-11-21 by the implementer** on `repo/trait-private-fields-1` (#102, not yet merged; [report](trait-private-fields-1/trait-private-fields-report.md)). The [feature proof](reviews/trait-private-fields-1/feature-proof-claude.md) at `3fdd3a829` finds no Tier A. Property 8's amendment below is implemented in the same unit. Until then this said _"**Unimplemented.**"_
+
+**It amends `RD-26`'s property 2,** which copies a trait's methods and accessors only. Until this entry, a trait's instance field was `trait-field`, a member that read a private name was `trait-member`, and only a private field with no initializer, such as `#brand!: true`, was skipped.
+
+**Properties:**
+
+1. **A trait may declare private instance members:** fields with any initializer or none, methods, getters and setters. The flattener copies them into each component that lists the trait.
+2. **Each private name is renamed per trait,** to `#<name>_<hash>`. The hash comes from the specifier the component reaches the trait through and the trait's class name. A renamed name that equals another private name in the component's class body is an error.
+3. **A private name is used only as `this.#name`,** where `this` is the member's or the constructor's own. `other.#name`, `#name in other` and a private name in a nested `function` are `trait-member`. After renaming, a private name belongs to one component class, so a cross-instance access would fail for another class that has the trait, although the trait's types accept it.
+4. **The order of initialization.** A trait's field initializer doesn't reference `this`, in an arrow function or a nested function either, so it reads only linked module bindings and globals, and its value depends on no field and no constructor. The traits' fields run after `super()` returns, in list order, and within a trait in declaration order, before the component's own fields. A trait's constructor and members read its own trait's members, its bound's members, linked module bindings and globals. A component's member isn't in the trait's type, so there is neither a precondition nor a diagnostic for it.
+5. **An initializer is linked and rewritten as a member's body is,** through the same walker and the same build-only exports.
+6. **Still forbidden:**
+   - a public instance field (`trait-field`): an own property would cover a prototype accessor of the base or an earlier trait;
+   - a static private member (`trait-member`): a static is linked, not copied, so the trait's module keeps one copy of each, which a per-component copy would split.
+7. **The expanded trait list keeps each trait's first occurrence,** so a supertrait shared by two traits is copied once, ahead of both. No composition in the tree repeats a trait.
+8. **A private field with no initializer that nothing in its trait references isn't copied.** One with an initializer is copied and checked like any other, referenced or not, because its initializer's effects are observable.
+9. **Layer (b) and the declarations' form don't change.** The IR's version becomes 4.
+10. **A trait may declare a constructor with no parameters,** whose first statement is `super();`, which TypeScript requires of a trait, with no arguments and nothing before it. The flattener drops that call and inserts the rest of each body as a block into the component's constructor, right after the statement that is its one top-level `super(…)` call, in expanded-list order, supertrait before subtrait. When the component has no constructor, the flattener generates `constructor(...args) { super(...args); … }`. So per instance: every field, the base's, the traits' and the component's, then every trait's body in list order, then the component's statements after `super(…)`. A component's field that reads what a trait's constructor sets up would read it too early, so property 11 refuses it. Parameters, any other `super`, `arguments`, `new.target` and `return` are `trait-member`. A component's constructor that doesn't have exactly one `super(…)` call, as the whole expression of a top-level statement, is `component-constructor`, a new code: TypeScript doesn't require that under this repository's `esnext` class fields. A body name that the component's constructor binds is `trait-binding-shadowed`. A trait with a constructor or copied private instance members that the base's chain already composes is `trait-list`, because its body would run twice per instance; a `#brand!: true` isn't copied, so it doesn't count. The trait's declarations gain `constructor();`, which `Composed` accepts. The plan's [decision 7](trait-private-fields-1/trait-private-fields-plan.md#7-constructors) holds the reasons, the cases before `super()`, and the lowering not adopted.
+11. **A component whose expanded list has a trait with a constructor doesn't reference `this` or `super` in an instance field's initializer,** an `accessor` field's included, in an arrow function or a nested function either. What it needs from a trait's constructor, it does in its own constructor, after `super(…)`. Any `this` or `super` there is `component-field`, a new code. It is property 4's rule for the component: no field depends on a constructor. A diagnostic, not a precondition, because the component's types include the trait's members, so the early read typechecks and fails silently. Every `this` counts, not only one evaluated at once, because an arrow called while the initializer runs, such as `[1].map(() => this.x)`, can't be told apart without knowing the callee. A component with no trait constructor in its list, a static field and a subclass's field aren't checked. No composing class on `main` at `bd1dee7df` or on the open branches has an instance field initializer, so no component changes. The plan's [decision 8](trait-private-fields-1/trait-private-fields-plan.md#8-a-components-field-initializers) holds the reasons and the reading.
+
+**Not adopted:** public instance fields and static private members, for property 6's reasons. A diagnostic for an initializer that reads a component's field isn't adopted either: the trait's types already exclude it. **A hidden field per trait,** `#constructor_<hash> = (() => { … })();` after the trait's last field, was the constructor's first lowering, and it isn't adopted. The owner's reason, in translation: _"Just keep the sequence: supertrait → subtrait → component."_ With `this` refused in an initializer, no field depends on a constructor, so no body needs to run between two traits' fields, and the field cost every instance a private slot per trait with a constructor.
+
+**Amended 2026-11-21 by the architect, before any implementation:** property 10, the constructor, on the owner's word quoted in the _Deferred_ paragraph. The title said _"A trait may declare private instance fields, methods and accessors, which the flattener copies with each private name renamed per trait, and any initializer is allowed"_.
+
+**Amended again 2026-11-21 by the architect, before any implementation,** on the owner's decisions relayed by the coordinator, in translation: _"Just keep the sequence: supertrait → subtrait → component,"_ and _"This is where to forbid it: a trait must not have `this` in a field initializer. If you want `this`, go to the constructor."_ He also asked for a check of everything before `super()`, which the plan's decision 7 records. Properties 3, 4 and 10 and _Not adopted_ changed. What they said before:
+
+- property 3: _"where `this` is the member's or the initializer's own"_;
+- property 4: _"**The order of initialization.** The traits' fields run after `super()` returns, in list order, and within a trait in declaration order, before the component's own fields. An initializer reads its own trait's private members, its bound's members, linked module bindings and globals. The bound is initialized by then: the base's fields run inside `super()`, and a supertrait's list is expanded before the trait, so its fields come earlier. A component's field isn't in the trait's type, so there is neither a precondition nor a diagnostic for it."_;
+- property 10: _"**A trait may declare a constructor with no parameters,** whose first statement is `super();`, which TypeScript requires of a trait. The flattener drops that call and lowers the rest of the body to the initializer of one generated field, `#constructor_<hash> = (() => { … })();`, after the trait's last field. So the body runs once per instance, after its trait's fields and before the next trait's and the component's, and the component's constructor doesn't change. The body reads what an initializer reads, under property 3's rule. Parameters, any other `super`, `arguments`, `new.target` and a `return` with a value are `trait-member`. The trait's declarations gain `constructor();`, which `Composed` accepts. Each trait with a constructor costs each instance one private slot, which no key listing shows. The plan's [decision 7](trait-private-fields-1/trait-private-fields-plan.md#7-constructors) holds the lowerings weighed."_.
+
+**No adopter. Answered 2026-11-21 by the owner,** relayed by the coordinator: **(c), `FocusForwarding` keeps its module-level `WeakMap`.** His reason: a member keyed by a `Symbol` isn't readable under `isolatedDeclarations`, and it isn't true privacy either. So the adopter unit is dropped. This paragraph said:
+
+_"**The first adopter follows, in a unit of its own:** `FocusForwarding`'s control moves from a module-level `WeakMap` to a private field. Module code writes the control, and no module code can name a private field. (Corrected on 2026-11-21: this said that `RD-31`'s sortable list reads it too, which it doesn't since `6214e3b57`.) So the trait needs a member that module code reaches, and which kind of member is the owner's question in the [plan](trait-private-fields-1/trait-private-fields-plan.md#owner-question). The architect recommends one keyed by a module-scope `Symbol`."_
+
+**Amended a third time 2026-11-21 by the architect, before any implementation,** on the owner's decision quoted in the _In force_ paragraph. The status, the title, property 10 and property 11, which is new, changed. What they said before:
+
+- the status: _"**Deferred 2026-11-21 by the owner, not in force,** relayed by the coordinator, in translation: [the words quoted in the Deferred paragraph] So nothing implements it until the owner resumes it: when a component or a consumer needs it, or after material-x is finished. The plan stays on `repo/trait-private-fields-1` for the implementer then, and the branch opens no pull request until then. Until it is resumed, `RD-26` property 2 and the plugin document state what holds."_, and the second paragraph ended _"**Unimplemented,** and deferred (above)."_;
+- the title: _"A trait may declare private instance fields, methods, accessors and a constructor, which the flattener copies with each private name renamed per trait, and any initializer is allowed"_;
+- property 10: _"A component's field that reads what a trait's constructor sets up reads it too early, and the plugin doesn't check it."_ and _"A trait with a constructor or private instance members that the base's chain already composes is `trait-list`, because its body would run twice per instance."_
+
+**Amended a fourth time 2026-11-21 by the architect, after the implementation,** on `reviewer-1` of the [feature proof](reviews/trait-private-fields-1/feature-proof-claude.md) at `3fdd3a829`, relayed by the coordinator. Property 8 changed. Its reason was that an unreferenced private field can't be observed, which is false for an initializer with an effect: the hand-written class runs `#unused = rec(…)`, and the component didn't. The implementation's second open choice, that such a field isn't checked, made the loss silent. **Ruled: a field with an initializer is copied and checked,** so the component behaves as the hand-written class (the plan's property 2) with no new code, and only a field that runs nothing and that nothing names is left out. **Not adopted:** reporting an unreferenced initializer, which would refuse valid code that has a plain meaning; and copying `#brand!: true` too, which would give each instance a slot that nothing can observe. No trait in the tree has an unreferenced initializer, so no output changes. Property 8 said: _"**A private field that nothing in its trait references isn't copied.**"_
 
 ## Findings
 
@@ -2219,6 +2435,10 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - It covers only the wait after `ue.pointer` returns. If `ue.pointer` doesn't return, as under candidate B or a stalled driver, the row fails at the test's timeout with no trace, its `finally` doesn't run, and the trace's listeners, observer and wrapper stay installed for the file's later rows. That is outside the plan's _"when the row's wait gives up"_, and no change is required for it.
 - **Owed when a weekly run fails in the third row:** the trace exists only in the failing job's log, which the weekly issue links and GitHub keeps for a limited time. The unit that takes the failure first saves the trace into `.plan/reorderable-safari-1/checks/`, and the architect reads it against candidates A to E.
 - **What doesn't change:** both Safari skips stay, `src/` doesn't change, and the required property stands. **The finding stays open.**
+
+**Dated 2026-11-20 by the architect: `RD-31` deletes the code this finding is about.** Core's `reorderable` trait and both skipped rows are deleted when `RD-31` property 1 is implemented, and the finding then closes with its cause unknown. Its required property doesn't carry over to the list's new rows. A Safari stall in one of those rows is `drag:DRF-49` or a new finding. **Until then the finding stays open,** and the rows and their diagnostic stay as they are.
+
+**Dated 2026-11-21 by the implementer: the code and both skipped rows are deleted** in `88801757e`, with core's `reorderable` trait (`RD-31` property 1), and so is the third row of 2026-11-17. The finding closes with its cause unknown when #90 merges, and #44 closes with it. No row of the sortable list carries its required property. A Safari stall in such a row is `drag:DRF-49` or a new finding.
 
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 
@@ -3283,6 +3503,46 @@ Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sorta
 - **`reviewer-3`, a page's `[popover]` rule restyles a lifted host:** a defect of the fold. The lift keeps the host's own padding, border, overflow, color and background color.
 - **Re-planned on the owner's direction,** relayed by the coordinator: `RD-31` (#90) merges first, and this unit follows on top of it. So core's trait, which #90 deletes, isn't changed here. Drag's lift already keeps that set, and closes `reviewer-3`. This unit makes `RD-31`'s knock-on itself: a static item's sortable writes go on its host, `mx-list-item` drops `FocusForwarding` and `delegatesFocus`, and the sortable list's `visual` callback goes. The architect amends `RD-31` on this branch after the merge.
 - **Read in the code, not run:** drag's lift writes `transition: none` inline, so with the host lifted, the item's elevation wouldn't rise over the drag's duration. The re-plan restores that one transition for the lift, after a reading.
+
+#### RF-69 — A context consumer that connects before its provider is defined never resolves it
+
+Tier A, **closed 2026-11-21** (below). Before closure: open. Registered on 2026-11-21 by the architect, on `core/context-late-provider-1`, from Mx Architect B's proposal in `RD-31`'s [plan](https://github.com/ausginer/material-x/blob/6214e3b57/.plan/list-sortable-1/list-sortable-plan.md) at `6214e3b57`, which read the code and didn't run it. Relayed by the coordinator. `RF-68` (`material-x/list-roles-1`) is the highest `RF-` on any branch on `origin`, so this is the next free number. The proposal gave Tier B. A correctly integrated page sees the buttons ignore their group, so by consequence it is Tier A.
+
+- **What happens:** `useContext` (`packages/core/src/controllers/useContext.ts`) dispatches its request only in the consumer's `connected`, and a provider listens only once its host is upgraded. When a page parses `<mx-button-group><mx-button>` and evaluates the button's module before the group's, each button upgrades first, asks an element that isn't a provider yet, and never asks again. So a disabled group's buttons stay enabled, and none follows the group's size, color or shape.
+- **Read** in Chromium 158, Firefox 159 and WebKit 27.2 ([reading](context-late-provider-1/checks/context-order.txt), [probe](context-late-provider-1/probes/context-order.ts)). With the group's module first, both buttons follow it. With the button's first, both don't: right after the buttons upgrade, and 200 ms later through `import()`.
+- **Affected:** every consumer of core's `useContext`, which in material-x is the button family in `mx-button-group` and `mx-connected-button-group`. `RD-31`'s sortable list will be one too.
+- **Required property:** a consumer resolves its parent provider whatever order the two are defined and connected in, a lazy import included.
+
+**Dated 2026-11-21 by the architect: the repair is decided by the owner.** In translation, relayed by the coordinator: _"So let's do it this way from the start"_, the consumer waiting for its parent's definition. On the timing: _"Yes, 'always wait' is exactly what I meant. `whenDefined` resolves in any case if the definition exists, so we can just call it and wait. The only downside is an asynchronous event, but I think that's minor."_ He had first taken the behavior as intended, then said _"maybe I'm wrong here"_ and _"lazy import should probably be supported too"_. The [handoff](context-late-provider-1/context-late-provider-handoff.md) holds the decisions, the properties and the proofs. **Unimplemented.**
+
+- **The repair:** on every connect, a consumer whose parent is a custom element awaits that element's definition, through the registry that defines it, and then dispatches its request. A consumer with any other parent requests synchronously, as today. The effect runs at most once for each connection, and a disconnect or a move before the wait settles leaves nothing.
+- **What changes for consumers:** with a custom-element parent, the effect runs a microtask after the connect, even when the parent is already defined, still before the next frame. While the parent is undefined it doesn't run, where today it runs with `undefined`.
+- **Only the parent is waited for:** every context link in material-x is a direct parent–child link.
+- **Not adopted, by the owner:** the provider prompting its children to request again on connect, which `RD-31`'s plan had proposed for this entry, and the Context Community Protocol's document-level `ContextRoot`.
+- **Size:** _medium_. Core's controller, its tests and one material-x test, on its own branch, with nothing left to decide.
+
+**Re-planned 2026-11-21 by the architect, on the owner's direction; this supersedes the repair above.** `13d64e449` implemented the repair, and the [feature proof](reviews/context-late-provider-1/feature-proof-claude.md) at `2f36dd486` found it held. The owner then said, in translation, relayed by the coordinator: _"Stop, #100 went the wrong way. It's overcomplicated. It is enough for `useContext` to take the parent's name."_ His _"always wait"_ still holds. [Revision 2](context-late-provider-1/context-late-provider-handoff-r2.md) of the handoff holds the decisions, the properties and the proofs. **Unimplemented.**
+
+- **The repair now:** `useContext(host, ctx, parents, effect)`. On every connect, a consumer whose `parentElement` has a local name in `parents` waits for that name's definition in the global `customElements`, and then dispatches its request. Any other parent, or none, gets the request synchronously.
+- **`parents` is a list,** because `mx-button-group` and `mx-connected-button-group` both provide the button family's context.
+- **Removed:** the hyphen check, the shadow host as a parent, `Element.customElementRegistry`, and the rejection handler. That closes the feature proof's `reviewer-2`, since the registry choice it found unwitnessed no longer exists.
+- **Kept:** the connection count, so a stale or moved connection does nothing, and the cleared disposer, so each cleanup runs once.
+- **Kept, and why:** the comparison with the parent. With no comparison, a wait on two names can't settle correctly, and on a page that never loads a group every button that connected stays in memory.
+- **Owed with it:** `reviewer-1`'s four rows, each with an awaited resolution.
+- **Size, measured at `3fc90ba36`** ([report](context-late-provider-1/context-late-provider-report.md), [feature proof](reviews/context-late-provider-1/checks/feature-proof-r2-checks.txt) §5), Brotli: against revision 1, the button rows are 2 to 32 B smaller and `complete` is 10 B larger. Against _before_, the button rows are +83 to +104 B and `complete` is +104 B. The group rows don't move.
+
+**Dated 2026-11-21 by the architect,** on `reviewer-3` and `reviewer-4` of the [feature proof of revision 2](reviews/context-late-provider-1/feature-proof-r2-claude.md) at `73b835b51`, relayed by the coordinator. **Implemented at `3fc90ba36`** on `core/context-late-provider-1` (#100, not yet merged), and the feature proof finds that it meets revision 2: properties 1 to 8 hold, and proofs 1 to 7 reproduce in Chromium, Firefox and WebKit. **Not closed:** one row is owed first.
+
+- **`reviewer-3`: the row is owed in this unit.** No row fails when `SwitchCore` passes `[]`, though decision 6 names it as a caller and property 7 covers the switch buttons. The handoff's [amendment](context-late-provider-1/context-late-provider-handoff-r2.md#amendment-a-switch-row-for-proof-2) specifies the row, a parsed connected group defined after its switches, and its two mutations. `RF-69` closes on that row's witness.
+- **`reviewer-4`: corrected.** The size line above now states the measurement. The constant's placement explains the difference from the sketch (the feature proof's question 1): the minified `complete` is 37 B smaller than revision 1's, but the constant comes before other top-level bindings, so they get new short names, and Brotli doesn't keep the saving. **Not adopted:** moving the constant to the end of `button-group-context.ts`, which the ablation reads at 36 B less on `complete`. The saving comes from the minifier's naming, not from the code, so a later edit can undo it, and every row is under the 200 B stop as it is.
+- **Changed 2026-11-21 by the architect,** on `reviewer-4`. Until then, the re-plan's last bullet read: _"**Size, read from a scratch sketch:** 9 to 22 B smaller than revision 1 on the button rows, and 50 B smaller on `complete`."_
+
+**Closed 2026-11-21 by the architect** on `core/context-late-provider-1` at `9c18392c7` (#100, not yet merged), relayed by the coordinator, on the switch row's witness that the [amendment](context-late-provider-1/context-late-provider-handoff-r2.md#amendment-a-switch-row-for-proof-2) asks for. The required property holds: a consumer resolves its parent provider whatever order the two are defined and connected in, a lazy import included. The feature proof of revision 2 found properties 1 to 8 and proofs 1 to 7 hold at `3fc90ba36`, and this row was the one owed.
+
+- **The row meets the amendment,** read by the architect at `9c18392c7`. `button-group-switch-order.browser.test.ts` is a file of its own. It imports `src/button/switch-button.ts` and no group module statically, and says so at the top. It parses `<mx-connected-button-group value="b">` around the two switches, `a` checked and then `b`, with no whitespace and the connected order row's comment. It then imports `connected-button-group.ts`, awaits `nextFrame`, and asserts `[true, [false, true]]`. No source changed.
+- **Witness** ([output](context-late-provider-1/checks/r2-switch-mutations.txt)): `SwitchCore` passing `[]`, and `BUTTON_GROUP_ELEMENTS` without `'mx-connected-button-group'`, each fail the row in Chromium, Firefox and WebKit. Both were reverted. The architect read the output and didn't run the mutations again.
+- **Gates** ([output](context-late-provider-1/checks/r2-switch-gates.txt), [report](context-late-provider-1/context-late-provider-report.md#the-switch-order-row--2026-11-21)): material-x's browser suite passes 662 rows in the three engines, and the one expected failure fails. `typecheck` is clean. The architect ran `oxfmt --check` and `oxlint` on the new file at `9c18392c7`, and both are clean.
+- **When:** at the witness, on the branch, as the dated paragraph above says. The handoff and the report's _Open_ name #100's merge instead. The closure reaches `main` with #100, whose description says `Closes #98`, so the issue and the entry change at the same merge.
 
 ## Questions
 

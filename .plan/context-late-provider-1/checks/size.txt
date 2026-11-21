@@ -1,0 +1,159 @@
+# Sizes before and after RF-69's fix, in material-x. Exact Brotli bytes at quality 11, from probes/size-rows.ts (node ../../.plan/context-late-provider-1/probes/size-rows.ts <rows>), a copy of list-modules.ts on repo/list-sortable-1, which bundles each built entry as size-limit's rolldown preset does. Run from packages/material-x after its build. Before: f12db1ced (ce1544fed with origin/main bd1dee7df merged). After: f12db1ced plus the unit's working tree. core has no useContext row.
+
+| Row | Before | After | Change |
+| --- | --: | --: | --: |
+| `button/button` | 4,843 | 4,946 | +103 |
+| `button/icon-button` | 5,108 | 5,205 | +97 |
+| `button/link-button` | 4,809 | 4,919 | +110 |
+| `button/switch-button` | 5,187 | 5,301 | +114 |
+| `button/switch-icon-button` | 5,598 | 5,702 | +104 |
+| `button/split-button` | 7,406 | 7,524 | +118 |
+| `button-group/button-group` | 3,126 | 3,126 | 0 |
+| `button-group/connected-button-group` | 3,888 | 3,888 | 0 |
+| `complete` | 16,975 | 17,069 | +94 |
+
+## Rows before
+button/button: 4843 B brotli, 38 modules, 0 from drag or box-quad
+button/icon-button: 5108 B brotli, 39 modules, 0 from drag or box-quad
+button/link-button: 4809 B brotli, 36 modules, 0 from drag or box-quad
+button/switch-button: 5187 B brotli, 43 modules, 0 from drag or box-quad
+button/switch-icon-button: 5598 B brotli, 46 modules, 0 from drag or box-quad
+button/split-button: 7406 B brotli, 59 modules, 0 from drag or box-quad
+button-group/button-group: 3126 B brotli, 33 modules, 0 from drag or box-quad
+button-group/connected-button-group: 3888 B brotli, 35 modules, 0 from drag or box-quad
+complete: 16975 B brotli, 120 modules, 0 from drag or box-quad
+
+## Rows after
+button/button: 4946 B brotli, 38 modules, 0 from drag or box-quad
+button/icon-button: 5205 B brotli, 39 modules, 0 from drag or box-quad
+button/link-button: 4919 B brotli, 36 modules, 0 from drag or box-quad
+button/switch-button: 5301 B brotli, 43 modules, 0 from drag or box-quad
+button/switch-icon-button: 5702 B brotli, 46 modules, 0 from drag or box-quad
+button/split-button: 7524 B brotli, 59 modules, 0 from drag or box-quad
+button-group/button-group: 3126 B brotli, 33 modules, 0 from drag or box-quad
+button-group/connected-button-group: 3888 B brotli, 35 modules, 0 from drag or box-quad
+complete: 17069 B brotli, 120 modules, 0 from drag or box-quad
+
+## material-x: aube exec just size, before
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.84 kB brotlied
+  
+  button/icon-button
+  Size: 5.11 kB brotlied
+  
+  button/link-button
+  Size: 4.81 kB brotlied
+  
+  button/switch-button
+  Size: 5.19 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.6 kB brotlied
+  
+  button/split-button
+  Size: 7.41 kB brotlied
+  
+  button-group/button-group
+  Size: 3.13 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 3.89 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.02 kB brotlied
+  
+  fab/fab
+  Size: 4.23 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.67 kB brotlied
+  
+  list/list-item
+  Size: 2.57 kB brotlied
+  
+  list/list-button-item
+  Size: 4.58 kB brotlied
+  
+  list/list-link-item
+  Size: 4.75 kB brotlied
+  
+  radio/radio
+  Size: 3.59 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.44 kB brotlied
+  
+  text-field/text-field
+  Size: 8.11 kB brotlied
+  
+  complete
+  Size: 16.98 kB brotlied
+
+## material-x: aube exec just size, after
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.95 kB brotlied
+  
+  button/icon-button
+  Size: 5.21 kB brotlied
+  
+  button/link-button
+  Size: 4.92 kB brotlied
+  
+  button/switch-button
+  Size: 5.3 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.7 kB brotlied
+  
+  button/split-button
+  Size: 7.52 kB brotlied
+  
+  button-group/button-group
+  Size: 3.13 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 3.89 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.02 kB brotlied
+  
+  fab/fab
+  Size: 4.23 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.67 kB brotlied
+  
+  list/list-item
+  Size: 2.57 kB brotlied
+  
+  list/list-button-item
+  Size: 4.58 kB brotlied
+  
+  list/list-link-item
+  Size: 4.75 kB brotlied
+  
+  radio/radio
+  Size: 3.59 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.44 kB brotlied
+  
+  text-field/text-field
+  Size: 8.2 kB brotlied
+  
+  complete
+  Size: 17.07 kB brotlied

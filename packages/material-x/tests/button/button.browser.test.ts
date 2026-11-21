@@ -5,6 +5,7 @@ import '../../src/button-group/button-group.ts';
 import '../../src/button/button.ts';
 import '../../src/button/icon-button.ts';
 import '../../src/button/link-button.ts';
+import { contextResolved } from '../browser.ts';
 
 type ButtonTag = 'mx-button' | 'mx-icon-button';
 
@@ -198,22 +199,24 @@ describe('mx-button', () => {
 });
 
 describe('mx-button in a button group', () => {
-  it('should derive disabled state from the group context', () => {
+  it('should derive disabled state from the group context', async () => {
     const group = document.createElement('mx-button-group');
     group.toggleAttribute('disabled', true);
     const button = document.createElement('mx-button');
     group.append(button);
     document.body.append(group);
+    await contextResolved();
 
     expect(getNativeButton(button).disabled).toBe(true);
   });
 
-  it('should re-enable when the group context clears disabled', () => {
+  it('should re-enable when the group context clears disabled', async () => {
     const group = document.createElement('mx-button-group');
     group.toggleAttribute('disabled', true);
     const button = document.createElement('mx-button');
     group.append(button);
     document.body.append(group);
+    await contextResolved();
 
     group.toggleAttribute('disabled', false);
 

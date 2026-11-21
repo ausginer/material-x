@@ -1,0 +1,10 @@
+$ node constructor-lowering.ts
+refused: class A { #constructor = 1 }: Classes may not have a field named 'constructor'
+refused: class A { #constructor() {} }: Class constructor may not be a private method
+base < trait field < trait constructor reads 1 < component field
+own keys: [ 'base', 'own' ]
+
+$ tsc --ignoreConfig --noEmit --strict --target es2022 constructor-super.ts   # Version 7.0.2
+constructor-super.ts(5,3): error TS2377: Constructors for derived classes must contain a 'super' call.
+constructor-super.ts(6,5): error TS17009: 'super' must be called before accessing 'this' in the constructor of a derived class.
+exit 1

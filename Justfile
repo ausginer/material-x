@@ -92,11 +92,12 @@ test-safari *ARGS: _test-builds
     exit "$failed"
 
 # The packages that tests, stories and the Vite configuration import by name
-# resolve to their builds, as a consumer's do. drag's own build is the consumer
-# project's global setup, and no package imports material-x's.
+# resolve to their builds, as a consumer's do: material-x's sortable list imports
+# drag. drag's consumer project also builds drag in its global setup, and
+# material-x's node project builds material-x in its own.
 [private]
 _package-builds:
-    nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+    nx run-many -t build --projects=box-quad,core,drag,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
 
 # The CSS plugin also reads the custom property list that material-x's
 # `build:prepare` collects.

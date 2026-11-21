@@ -2,7 +2,9 @@
  * Finds a module's compositions, `const X: Composed<B, [...]> = compose(B)`
  * extended by one class, and resolves each one's trait list from the
  * annotation: `typeof T`, a tuple alias, local or imported, a spread of one,
- * and a supertrait's own list, expanded before the supertrait.
+ * and a supertrait's own list, expanded before the supertrait. The expanded
+ * list keeps each trait's first occurrence, the only order that keeps every
+ * supertrait ahead of each trait that extends it.
  */
 import type {
   CallExpression,
@@ -36,7 +38,11 @@ import {
   type Resolver,
   type TraitRef,
 } from './trait-class.ts';
-import { findTraitInstall, isCompositionModule } from './trait-module.ts';
+import {
+  brandName,
+  findTraitInstall,
+  isCompositionModule,
+} from './trait-module.ts';
 
 /** A composition and the class that extends it. */
 export type Site = Readonly<{
@@ -279,6 +285,9 @@ async function addTrait(
   if (x.path.has(key)) {
     fail(CODE.TRAIT_LIST, `${name} composes itself`, x.pos);
   }
+  if (x.out.some((ref) => ref.ctx.id === ctx.id && ref.name === className)) {
+    return;
+  }
   const { superClass } = found.cls.node;
   if (superClass?.type === 'Identifier') {
     const binding = ctx.bindings.get(superClass.name);
@@ -425,6 +434,151 @@ export async function baseStaticKind(
     }
     if (!found.cls.node.superClass) {
       return null;
+    }
+    module = found.ctx;
+    heritage = unwrapTS(found.cls.node.superClass);
+  }
+}
+
+/**
+ * How a trait is named across modules: its module and each name its brand is
+ * exported as. A built base names a trait by the brand it passes to `impl`.
+ */
+function brandIdentities(ctx: ModuleCtx, brand: string): string[] {
+  return (ctx.exported.get(brand) ?? [brand]).map(
+    (exported) => `${ctx.id}\0${exported}`,
+  );
+}
+
+/** The identities of trait `ref`'s brand, as {@link brandIdentities}. */
+export function traitIdentities(ref: TraitRef): string[] {
+  const brand =
+    ref.install.kind === 'method'
+      ? ref.install.brand
+      : brandName(ref.cls.node.id?.name ?? ref.name, ref.ctx.topLevel);
+
+  return brandIdentities(ref.ctx, brand);
+}
+
+/** The brands a flattened class passes to `impl` in its static block. */
+async function implBrands(
+  r: Resolver,
+  ctx: ModuleCtx,
+  cls: Class,
+): Promise<string[]> {
+  const identities: string[] = [];
+  for (const element of cls.body.body) {
+    if (element.type !== 'StaticBlock') {
+      continue;
+    }
+    for (const statement of element.body) {
+      const call =
+        statement.type === 'ExpressionStatement' ? statement.expression : null;
+      const callee =
+        call?.type === 'CallExpression' && call.callee.type === 'Identifier'
+          ? ctx.imports.get(call.callee.name)
+          : undefined;
+      if (
+        callee?.imported !== 'impl' ||
+        !isCompositionModule(callee.specifier)
+      ) {
+        continue;
+      }
+      for (const argument of (call as CallExpression).arguments.slice(1)) {
+        if (argument.type !== 'Identifier') {
+          continue;
+        }
+        const imported = ctx.imports.get(argument.name);
+        if (!imported) {
+          identities.push(...brandIdentities(ctx, argument.name));
+          continue;
+        }
+        // oxlint-disable-next-line no-await-in-loop
+        const id = await r.loader.resolve(imported.specifier, ctx.id);
+        if (id) {
+          identities.push(`${id}\0${imported.imported}`);
+        }
+      }
+    }
+  }
+
+  return identities;
+}
+
+/**
+ * The traits that the base's class chain already composes, by identity: the
+ * list of each composition in a source chain, and the brands that each built
+ * flattened class passes to `impl`. The walk starts at `compose`'s argument
+ * and follows each `extends` to a global or a class with no superclass. A
+ * heritage it can't read is a `trait-list` error, because the caller asks only
+ * when the list has a trait that a second copy would break.
+ */
+export async function chainTraits(
+  r: Resolver,
+  ctx: ModuleCtx,
+  site: Site,
+): Promise<ReadonlySet<string>> {
+  const identities = new Set<string>();
+  const refuse = (): never =>
+    fail(
+      CODE.TRAIT_LIST,
+      "the base's class chain can't be read to find the traits it composes",
+      site.declarator.start,
+    );
+  let module = ctx;
+  let heritage = unwrapTS(site.call.arguments[0] as Expression);
+  for (;;) {
+    if (heritage.type !== 'Identifier') {
+      return refuse();
+    }
+    const binding = module.bindings.get(heritage.name);
+    const annotation = binding?.declarator.id.typeAnnotation?.typeAnnotation;
+    const init = binding?.declarator.init
+      ? unwrapTS(binding.declarator.init)
+      : null;
+    if (
+      annotation?.type === 'TSTypeReference' &&
+      annotation.typeArguments?.params[1] &&
+      init?.type === 'CallExpression' &&
+      init.arguments.length === 1 &&
+      compositionLocals(module).compose.has(
+        init.callee.type === 'Identifier' ? init.callee.name : '',
+      )
+    ) {
+      // A composition in the chain's source: its list, then its base.
+      // oxlint-disable-next-line no-await-in-loop
+      const scope = await declarationsOf(r.loader, module.id, module.code);
+      if (!scope) {
+        return refuse();
+      }
+      const x: Expansion = {
+        r,
+        out: [],
+        path: new Set(),
+        pos: site.declarator.start,
+      };
+      // oxlint-disable-next-line no-await-in-loop
+      await expandList(x, scope, annotation.typeArguments.params[1]);
+      for (const identity of x.out.flatMap(traitIdentities)) {
+        identities.add(identity);
+      }
+      heritage = unwrapTS(init.arguments[0] as Expression);
+      continue;
+    }
+    // oxlint-disable-next-line no-await-in-loop
+    const found = await heritageClass(r, module, heritage.name);
+    if (found === 'global') {
+      return identities;
+    }
+    if (!found) {
+      return refuse();
+    }
+    // oxlint-disable-next-line no-await-in-loop
+    for (const identity of await implBrands(r, found.ctx, found.cls.node)) {
+      identities.add(identity);
+    }
+    if (!found.cls.node.superClass) {
+      return identities;
     }
     module = found.ctx;
     heritage = unwrapTS(found.cls.node.superClass);

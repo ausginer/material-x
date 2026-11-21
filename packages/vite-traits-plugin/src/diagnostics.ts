@@ -12,7 +12,9 @@ export const CODE = {
   COMPOSITION_SHAPE: 'composition-shape',
   /**
    * A list element isn't `typeof T`, a tuple alias of those or a spread of
-   * one, or the expansion has a cycle.
+   * one, or the expansion has a cycle; or the base's chain already composes a
+   * trait with a constructor or copied private members, or can't be read
+   * when the list has such a trait.
    */
   TRAIT_LIST: 'trait-list',
   /**
@@ -22,7 +24,7 @@ export const CODE = {
   TRAIT_UNRESOLVED: 'trait-unresolved',
   /** A trait's member is outside the subset that can be copied. */
   TRAIT_MEMBER: 'trait-member',
-  /** A trait declares an instance field. */
+  /** A trait declares a public instance field. */
   TRAIT_FIELD: 'trait-field',
   /** The component's module or class binds a name a copied member reads. */
   TRAIT_BINDING_SHADOWED: 'trait-binding-shadowed',
@@ -40,6 +42,17 @@ export const CODE = {
   CLASS_SUPER_TRAIT_MEMBER: 'class-super-trait-member',
   /** `super[k]` in the component. */
   CLASS_COMPUTED_SUPER: 'class-computed-super',
+  /**
+   * The list has a trait with a constructor, and the component's constructor
+   * doesn't have exactly one `super(…)` call, as the whole expression of a
+   * statement at its top level.
+   */
+  COMPONENT_CONSTRUCTOR: 'component-constructor',
+  /**
+   * The list has a trait with a constructor, and an instance field
+   * initializer of the component references `this` or `super`.
+   */
+  COMPONENT_FIELD: 'component-field',
   /**
    * `trait` is used other than as the first decorator of a module-scope class
    * declaration whose only other is `@attributes(TABLE)`: called, on another

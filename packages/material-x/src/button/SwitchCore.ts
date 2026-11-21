@@ -13,7 +13,10 @@ import {
   type ValuableProps,
 } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
-import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
+import {
+  BUTTON_GROUP_CTX,
+  BUTTON_GROUP_ELEMENTS,
+} from '../button-group/button-group-context.ts';
 import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
@@ -76,6 +79,7 @@ export function useSwitchCore(
   useContext(
     host,
     BUTTON_GROUP_CTX,
+    BUTTON_GROUP_ELEMENTS,
     VALUABLE_ATTRS,
     (_, oldValue, newValue) => {
       if (newValue != null) {

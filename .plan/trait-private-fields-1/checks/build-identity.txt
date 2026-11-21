@@ -1,0 +1,330 @@
+# Proof 12: core's and material-x's built output, at the main last merged into the branch and at the branch
+# Read by the implementer on 2026-11-21. main: origin/main at bd1dee7df, merged into repo/trait-private-fields-1 at dbf0ab8ae, built with the plugin's source unchanged.
+# branch: the same tree with this unit's plugin. Each side ran: aube exec just _package-builds (which rebuilds @ydinjs/vite-traits-plugin, whose built index.js both libraries' tsdown configurations import), then just build in packages/core and in packages/material-x.
+# Reread at the remediation of reviewer-1, against a worktree at dbf0ab8ae, so main's tree with the plugin before this unit: the lists, diff -r, the size rows and every sha256 below are unchanged.
+# The files compared are every untracked, ignored file under each package, outside node_modules and .cache: git ls-files -o -i --exclude-standard.
+
+## core: 81 files, the same list on both sides; diff -r of the two trees: empty
+## material-x: 213 files, the same list on both sides; diff -r of the two trees: empty
+
+## trait-member-conflict in the build logs: main core 0, material-x 0; branch core 0, material-x 0
+
+## Size rows, Brotli bytes (size-limit --json), equal on both sides
+element: 312 -> 312
+emitter: 198 -> 198
+traits/reorderable: 3114 -> 3114
+button/button: 4843 -> 4843
+button/icon-button: 5108 -> 5108
+button/link-button: 4809 -> 4809
+button/switch-button: 5187 -> 5187
+button/switch-icon-button: 5598 -> 5598
+button/split-button: 7406 -> 7406
+button-group/button-group: 3126 -> 3126
+button-group/connected-button-group: 3888 -> 3888
+checkbox/checkbox: 4021 -> 4021
+fab/fab: 4234 -> 4234
+icon/icon: 661 -> 661
+list/list: 3673 -> 3673
+list/list-item: 2567 -> 2567
+list/list-button-item: 4575 -> 4575
+list/list-link-item: 4746 -> 4746
+radio/radio: 3590 -> 3590
+text-field/multiline-text-field: 4437 -> 4437
+text-field/text-field: 8109 -> 8109
+complete: 16975 -> 16975
+
+## sha256 of each file, identical on both sides
+2021d629c402181f6ea2668b9bc8b96da43e2816ffa2add2be360b46ebdf2853  ./packages/core/attribute.d.ts
+9118272c648af2484ed85b75f4b27e9102511ad07a1a087fbd435b6e57b297b1  ./packages/core/attribute.js
+c33746fd6a34cd39b43def3c73b6a5eac7a74777773d17b0728e042f1d28de81  ./packages/core/attribute.js.map
+d1ea6c53906560a9c47cd4f1945b262c9ee0f3effd4daf277190fabfd04bb003  ./packages/core/controllers/useARIA.d.ts
+4d27e6651cd29c85b80fd97956a38c10cf8d11a8b3ca962126639cd401f7ec61  ./packages/core/controllers/useARIA.js
+d2a26692fa9e28b0292b7cd3510ddd923032fab4473d65e721b5ffe9731965e9  ./packages/core/controllers/useARIA.js.map
+84cd0a14fa75b23bd82c0f669e8f073debc15e6460ec48e65b440014412c3b5c  ./packages/core/controllers/useAttributes.d.ts
+41ae7125a4f656ad9697a7de4a2b0918e602fc25f8015e62ddda1e2bf56a79fe  ./packages/core/controllers/useAttributes.js
+96865d87207f56ecff68bc069d35c784655022c74f10467aec5930861867330a  ./packages/core/controllers/useAttributes.js.map
+f6a275708b4e8e69f5d29e9accc5c4752b65918420769948d734d328d1947baf  ./packages/core/controllers/useCSSProps.d.ts
+26b7df7474a758cb2103a954a8c0cf02b8d89795a3f1fa73cc6e153a8067f7ae  ./packages/core/controllers/useCSSProps.js
+a3ec8f4ddf6e82b8695f2a597f1386ecfc5c20fc69f3663a2e9f5883c9b83efa  ./packages/core/controllers/useCSSProps.js.map
+50f728fb4963075d3e1fd5ab9384408328b62791d48b32c9ca8c466c587ae381  ./packages/core/controllers/useConnected.d.ts
+9cff3893e49bae87aea405d9772a5a9163d7eba5b66a95b7884f3a1200cd8351  ./packages/core/controllers/useConnected.js
+81979778ca0f769a031bb11d7c93e2ab7ddd6b28417fd17761007e749fac1ca4  ./packages/core/controllers/useConnected.js.map
+e1e0c92d8b7388947df09a2406a4fe9a6f68c5afeb829e1fb95c9899d5327c6f  ./packages/core/controllers/useContext.d.ts
+26ee6dc1f5f87683186e4670cd017c2c6a02cfae7d1759823420ca1266894562  ./packages/core/controllers/useContext.js
+c6639e7b7da43332b057fe43457e718432c04500b3ddbac105f4a306f54e424d  ./packages/core/controllers/useContext.js.map
+b38dbbcf7d5c624e7797866b65e1824998b5e9a87601764a7a8488ac139278c4  ./packages/core/controllers/useEvents.d.ts
+f231ae28ecb37844be51eec7a1dd1cc733ab3ea9713dff38da90f6611234ab3f  ./packages/core/controllers/useEvents.js
+2bdc0903d254ce79e9e21b4d0057528016576239b3b08d597dd41240b7930cf9  ./packages/core/controllers/useEvents.js.map
+289e721e793c3c410e3fcee3c0bcc564776b9fb946d0aca5e4e2d416e613bd46  ./packages/core/controllers/useKeyboard.d.ts
+bd6ab47e6b53cc833dd36be27b62387e26cf4bb6f712e89311f09144e41317b9  ./packages/core/controllers/useKeyboard.js
+914287bd707acd0062a228d51b9ffe0e1f2ef294388ad951cf3404cbc18bfd3c  ./packages/core/controllers/useKeyboard.js.map
+85d19695ef0ec556a57d8797cfe25d5a73f87affc8c941e4eae9f24ee246a78e  ./packages/core/controllers/useMutationObserver.d.ts
+a72ab37afd8005a317e090e6392e894631417e3d1d02ed360433a301916c3fbb  ./packages/core/controllers/useMutationObserver.js
+26045a01ab85ee48e8fdbbd237ca26af25a578a29637334f7763d71ce186d23d  ./packages/core/controllers/useMutationObserver.js.map
+75115b1212f879950b2ba3b7b5ea461d44fb0c704b79aef7edfc11b8e30c0924  ./packages/core/controllers/useResizeObserver.d.ts
+321ee7a4041e5f83d8b99ac6b09f1bcff75f762edfd6ce2022ec8fb189d91df6  ./packages/core/controllers/useResizeObserver.js
+45c19af1928b0d36decc96a033f830b3d129345aad820abf64922e28ca849dd2  ./packages/core/controllers/useResizeObserver.js.map
+613489ad6d08955b0d49d160299afd01e020007ae5b25a759608480f7c1a474c  ./packages/core/controllers/useRovingTabindex.d.ts
+f501ee8522704e28d853c5acf77da43cb3dd6f89de1a85fb7011c5aaa9961bf6  ./packages/core/controllers/useRovingTabindex.js
+b71d2ab24932088ac4ba952c5e3c4c2121cf0e1f670789d27fb0bbb90ef7dda9  ./packages/core/controllers/useRovingTabindex.js.map
+5d26741a31b4b564802260dba86e2936df26d6d00f76e3914291919300ba74a2  ./packages/core/controllers/useShadowDOM.d.ts
+1d6ee9b52071dff10214f1cf3c0439fe60396ce0f2f4eda65883fd96e4db232f  ./packages/core/controllers/useShadowDOM.js
+82d19fbcab2200a79753f5ffc0e22ca9d2bbdbf3d5818c27808660049be71efe  ./packages/core/controllers/useShadowDOM.js.map
+2f8b300533b3fe9cc654abf25e1b23dcc10e767a6cb0e84243c066cf96242c61  ./packages/core/controllers/useSlot.d.ts
+c9fee174359951f5164a4b86677ec943d39347c3c213ddbc698bcee6d1bc77d0  ./packages/core/controllers/useSlot.js
+c75cc97df422d7e510f6134159f2dfed0e3632dbe7dd3e20d803558dc7409c8b  ./packages/core/controllers/useSlot.js.map
+8cb566f98f87525511903a376f14f124ef1dbba7eacb8b5e51dd1fadfd0080be  ./packages/core/element.d.ts
+0f67cf4f627356fc1076a01773f91d90398dd4bb7cad2522bc14c386b886e165  ./packages/core/element.js
+8fba1b7aaef8130a3f6cdf4ff5ad973791d75bbea60a92da13ffd5dc8d8b5516  ./packages/core/element.js.map
+68708d2ce23e6c1eddecb50a9c7fff82b1c7e93f8df5fe86623ab10719adb731  ./packages/core/emitter.d.ts
+8eee6d8cbc8f912897aabc2a04b36928d4438555e3766823aa55fae28753eb80  ./packages/core/emitter.js
+4901205aba1b31e0b8d3f662d83f69e2a14c999fb0c700229e7bd1bf02506504  ./packages/core/emitter.js.map
+78ecd36ff295c854cb5e5b8f65e136653fae87fe9e3116089c859a2a1d696d3c  ./packages/core/traits/attribute-traits.d.ts
+b7624bf98889ef8146721a045bab07b60faceaf3f28e6853e82c548539d71f05  ./packages/core/traits/attribute-traits.js
+8eafba5ff76161f3a192cd24a3244b4a0d937f50d5289440c9a45af0a18f06f1  ./packages/core/traits/attribute-traits.js.map
+8bd2c1f9c319a14eb93bb861cf821103cf1b9c3515ce01134556dfe018f6a59e  ./packages/core/traits/checkable.d.ts
+302513b58d1bc978c2f47597837f039f277589c5a980218e9024049e33775a5d  ./packages/core/traits/checkable.js
+febd81621dfa781b9c8f7546add5e979fb9eaad8c4ac27d7adb11d45fe02c43f  ./packages/core/traits/checkable.js.map
+3920e9ef8b57f0b0f0083afc381ccdd0ae646a471fefb0e2b0c8394bc536cb4b  ./packages/core/traits/composition.d.ts
+6bea0240d010c72f11b28877349320c53a03feb71dcd8e2fd2b10556c8423bfa  ./packages/core/traits/composition.js
+85987eb1797e656d7412d68a9b23e51440c811e4ab1e87b5a69603661ee5a4cf  ./packages/core/traits/composition.js.map
+6a2a93c286b88bbaaffb4f56df71d730cb71f492b6bdf910cfbd4864b2d7835b  ./packages/core/traits/disableable.d.ts
+07a9567f27774a90903e1eb27655ee5b3ae8d49d04b6fe60d1f3af99d6ee25aa  ./packages/core/traits/disableable.js
+56d2bf4c1f36ddb33bd38d70dbc93986a9bfa56d58f72a390cd005317be69ba2  ./packages/core/traits/disableable.js.map
+21bef20836a60f70ca5d72e38c6915f2c7e0a10f97ce7797333400e6037d4672  ./packages/core/traits/linkable.d.ts
+c4c09c6a7d6c687e8f6b1a70c0f4984e87030c205c8ae3269e278506b51329af  ./packages/core/traits/linkable.js
+2e98403427a0b9ac30ec0c7efc26ae1747885f09f918457d6c4242cdedc44e1f  ./packages/core/traits/linkable.js.map
+186a4e41169d0fdde849989b9385175aa149a591379b6b848fdc4f5f2dd3af46  ./packages/core/traits/nameable.d.ts
+2c17981c54a5ee5e2dba35184dd025a39bd240cd9edaa0a55b5ef83e72c4fa4f  ./packages/core/traits/nameable.js
+5716a7efb391f4d03b190cb51f41cac7ff285708cfd244e162f1c8c21a186420  ./packages/core/traits/nameable.js.map
+9787c44706a66bfb3024eb3930deff23cda16b1f1f7118928de811aad9da45b7  ./packages/core/traits/reorderable.d.ts
+6af5042d2ba254ea747529fff61a96cf28f08a31b4e4f62b9696b10bdb52e2e1  ./packages/core/traits/reorderable.js
+6b47163a78ae665b6e426d0c81607e6fe555100e2a3d0232979c877a6b8862bc  ./packages/core/traits/reorderable.js.map
+b9a014cd7fac41c568fc4f95d3e413be8e5b55336b55eba746a953b31f87f726  ./packages/core/traits/selectable.d.ts
+c786624f87cf5b0fb46e487da44224d7007d574c71c7a3e795c1af349bb7bbb2  ./packages/core/traits/selectable.js
+014fa178ca7ddca261801e35245b4132b726e537ef1f2b11cdc14471e16e7ab1  ./packages/core/traits/selectable.js.map
+5d25f0b481bf2835f91284a554c6de6c9e87c861e944bc07890573bde9f25d26  ./packages/core/traits/typeable.d.ts
+e7711a2c71f25dcb6ad2ef03275807507b14ded49432e0aeb6a31e92879a3785  ./packages/core/traits/typeable.js
+4bb679b695158a14914943365f6086dfbcbcbc2646dddb9670adf8d622f30de0  ./packages/core/traits/typeable.js.map
+b3e655c1c8700aea9beb975589c5fc2b8c2a9778de29ea73426b3589d12f0925  ./packages/core/traits/valuable.d.ts
+4baa1e74dbd63bbcaba262db93d25424a704012b56be31e780fffb178e1085e7  ./packages/core/traits/valuable.js
+f34fd6bc454763c94385e52f779b9afc5177be922b26e6ec91cc01516b0b9f5c  ./packages/core/traits/valuable.js.map
+9fbf99c2519149999a7d4826923e7de069bdc62304fde8863c8b7a078fd4c9eb  ./packages/core/utils/DOM.d.ts
+c5599bdf062af4e84c86492e1ba3ca0647f0e56a64a77b153323789f87ec0e23  ./packages/core/utils/DOM.js
+ef220ee2f80e93525efe5a49e9a3bfe1f59448ba55413e4e6d3804ff39ff73c1  ./packages/core/utils/DOM.js.map
+300b6f2f006fbe2b4d81ff80d10e599e05a2df8c9c5d210c145c56d0b40b2b76  ./packages/core/utils/runtime.d.ts
+ac3c08f43ac7d492c4597733de17ff5713f3c54744ee48c3f4812983d5cafa94  ./packages/core/utils/runtime.js
+c95f680e70d50d9b7d6570c331a39c2877454ff543d094a4ab822a2814aefd2a  ./packages/core/utils/runtime.js.map
+bcd879e9e3250f21a9bd4788c53f7dde833d09d23c36f81b381622bfbc142dd9  ./packages/material-x/button-group/ButtonGroupCore.d.ts
+a4a9d4410299806b056d52aadafd50ea6861b31f0f3ba9d5a2e95b30674d75b0  ./packages/material-x/button-group/ButtonGroupCore.js
+622219a5fee618146ad9b705962f92ca418ba84c2a7126f878503e20933bd4f0  ./packages/material-x/button-group/ButtonGroupCore.js.map
+24da4af077e22636fa0699b5da0275bcf6f427d1707bc17a12f0a9ccda0adc13  ./packages/material-x/button-group/button-group-context.js
+7bd79c05aa6b7dc90f6232caaf5cc706c7dc39749d10dba2c1cee0ddeed8dd2c  ./packages/material-x/button-group/button-group-context.js.map
+a1a586d8060a4d6b1ae21f2d918cb8b63efd0a0ac5bc74e3136d8faf15dc1017  ./packages/material-x/button-group/button-group.d.ts
+d48b93aa19bf40c21e7cb1ac56525c52318a16ee0258e679923684ccc9a930fc  ./packages/material-x/button-group/button-group.js
+9c7f089784b6cdeff345731d1d3a47e1f42ee093374bd98de6c03d359d6ed406  ./packages/material-x/button-group/button-group.js.map
+c96f8b45b3a6f44a530a2270e57327ca472bd653c61909a7706ea60001136b92  ./packages/material-x/button-group/button-group.tpl.html.js
+141cdb724550f2880f8501cb05596a8fe1e6d924c9262f1c66c70bf8b3e5e454  ./packages/material-x/button-group/button-group.tpl.html.js.map
+33fe57b6bf58ef86d740f8886e955920aec9d81313b45751a236e2abafc25d46  ./packages/material-x/button-group/connected-button-group.d.ts
+1329ff129655713bafdcfd673f7a56ba339af2e89a94e755769512208cba5151  ./packages/material-x/button-group/connected-button-group.js
+93f1b95b628dbdfc951bc257d33b78dc018f3bddc2e5c1290d257760f52c662c  ./packages/material-x/button-group/connected-button-group.js.map
+234fb8a185de09eaf74a99bdc7d0c5f6d719b9e29613db6b051387427894c2cb  ./packages/material-x/button-group/styles/connected/main.css.js
+9a570347221f2eb2d0f8288736c1b533974b53259003ca6586fa12696a9db31c  ./packages/material-x/button-group/styles/connected/main.css.js.map
+caa6c6acde92cf223abe0c972eb98d7ef64620a3e41ba5cc99307c46f09f2829  ./packages/material-x/button-group/styles/standard/main.css.js
+bc14b758a5c2244ada26d4601831c644b44b59f7af5892f721ee03a56d0bca46  ./packages/material-x/button-group/styles/standard/main.css.js.map
+54930719076dd43941972f23321fc1afa5f8b2b2579c01ac2a47f225633b65c9  ./packages/material-x/button-group/utils.js
+df68bcc67b900c230d44d4cdb47120f95e236abe043ebbe0f44e9ed07fb1affd  ./packages/material-x/button-group/utils.js.map
+c0f5bd499702f9466b273d5f42b22f843c7ccadce4974bae5c2452f46a60a341  ./packages/material-x/button/ButtonCore.d.ts
+352d814e2fb82c20cd6a950cadf09fd7ae4daf28a33364671650722c4dd2d959  ./packages/material-x/button/ButtonCore.js
+8d874a68bb7529dd27d2afe992e56f0d78d6c77d04fed5185f1954dbc9a1cb10  ./packages/material-x/button/ButtonCore.js.map
+77a0f4b08374f672501e4d6e09996391f519fca356b8e82dc7a7d8ca974e302d  ./packages/material-x/button/IconButtonCore.d.ts
+775ef7edd96a7243d1f663287016dba7d77c8ee24d01515021c2177ba9eda615  ./packages/material-x/button/IconButtonCore.js
+5409c9175fd0feec4478dc868bb72947e443d0026e6e297d6135d73a993bcf3e  ./packages/material-x/button/IconButtonCore.js.map
+7bdc8f7ecf98fd6bd8711427d90affbc4de753b38c141f076ecdb11c657386ed  ./packages/material-x/button/SwitchCore.d.ts
+bc3b943cd92dcc034ebbf37b8407fcbb2064b4869338cf30ed7e135fc807b419  ./packages/material-x/button/SwitchCore.js
+37f5bad2c04a838ad60c97b0993babc600e6a10cd867ce8320db7d5b6b78fe49  ./packages/material-x/button/SwitchCore.js.map
+779a324a253dd08ecbe3088302a3a5aee3660334fb0862ccbc5612beeaaef334  ./packages/material-x/button/button.d.ts
+c32121d7eae03eec62673142aed8a5c0281e0290e5fe391b6d1c70ed43af9643  ./packages/material-x/button/button.js
+b55314d4cd3c5986b5b383e5b6c70c3f4b3ecd18b4acf9ae3f46490003d8b9e5  ./packages/material-x/button/button.js.map
+82dcc317d31258b0e9069a76c9d285c31431536f6a9b9a878a1d89852bb0b5b5  ./packages/material-x/button/button.tpl.html.js
+0e4ee6418cc96005675b90b0b64f4bad4bacae638c8fb8d7c8f41e40024f49e2  ./packages/material-x/button/button.tpl.html.js.map
+fb5d45f1a44951bdf1bab39bf1845d55bab0457b6ce1b67ee6f9da66330a591f  ./packages/material-x/button/icon-button.d.ts
+bfcac9e09cb9d6659e34e78da658c73c5a83c586b395f9082b3531c68b44ffcd  ./packages/material-x/button/icon-button.js
+5b4370731677597f01671996e4b067d8fc2d73ee6290bd8f5476e6136adbfeec  ./packages/material-x/button/icon-button.js.map
+6b9962ced0a2be8f2ba640a22cba5bec2adc8ba7c3e910fd87f16ae04ea97924  ./packages/material-x/button/icon-button.tpl.html.js
+72bd6c7c071c434a89726fe7812f35a25b1cf6ff80f70e2f96a3aff2835606d2  ./packages/material-x/button/icon-button.tpl.html.js.map
+7ed2d7c0886811ef57bfc05417c32c347c11702f9a065896cb2d682269d5dd80  ./packages/material-x/button/link-button.d.ts
+466e72e7062fc9ffb91591ad7004e943d91ec8d7adebe55b5ed767693ce5c2e1  ./packages/material-x/button/link-button.js
+a7ef3e5e2a4ab97b3a80ddb5203012f8efdd927a4ea8fcba4d31f80ea7db1d84  ./packages/material-x/button/link-button.js.map
+f6088e1125bd1c7ade1e9858f26c4e6b0607333f52b4ee4b477d6b2f1cb785d0  ./packages/material-x/button/link-button.tpl.html.js
+dd064018248ee4b90cb9ee2e378d641d4cdd371a592552f1b774c2b23790f21a  ./packages/material-x/button/link-button.tpl.html.js.map
+5881a5712097e2af6954fb60d211669ab4b662a21404f1e5ca73c55cb7fb5e11  ./packages/material-x/button/split-button.d.ts
+8cd554aa68abf8dc905d08b132472fe454af978f1c12544c077d0b6bd998ae1f  ./packages/material-x/button/split-button.js
+8a5c58d03323bcbc194aca25c6a54184d38346ada16f792d25d20414f4e62f47  ./packages/material-x/button/split-button.js.map
+1009d2abf74d38fb7573a4f21a2cc5404df9a47b0204ebc22e3390d9a22056ba  ./packages/material-x/button/split-button.tpl.html.js
+4bcba9b72fb971d4fc05b4ff1ca9817894f8e7c6ab619a58d7e3eb82897d3770  ./packages/material-x/button/split-button.tpl.html.js.map
+6002ab48aeed39c2f3dd782577d063f36e462da5e3c6e151f8cd853a0691a183  ./packages/material-x/button/styles/default/disabled.css.js
+f8ad66dafe76ef3643a27bd66cde93ef9e4469036785835ccac83af2d30e4fc9  ./packages/material-x/button/styles/default/disabled.css.js.map
+27b29feab74dfd4385cb5c4a1d28bfe42965e69c837f831c1b94bf524e2cbc9d  ./packages/material-x/button/styles/default/main.css.js
+31c060e78937b85131f7757b05f7aaed62cceedc003dbcef1b0b6367a740618e  ./packages/material-x/button/styles/default/main.css.js.map
+8af72ba3f3094e5febab4f266e3e89631c7a3213780f6fd44b89ba85a0ed6755  ./packages/material-x/button/styles/default/switch.css.js
+cb92804490ff7aeeabcd7739cf9e7c5c816899bb12cae1a5bac28c521d671596  ./packages/material-x/button/styles/default/switch.css.js.map
+49fd6a6bbaef31ee1771b65ec9789cec641729961dafe9ef6e925caed391d411  ./packages/material-x/button/styles/elevated/main.css.js
+d34496ef6bad3005eeab02bdea468424cf325b188245c2a5bd9333afffc4bbca  ./packages/material-x/button/styles/elevated/main.css.js.map
+3da78b8b991be38fd3fafe833c5dfca5a92dc5852c3d1fbb34e30d7f14576c46  ./packages/material-x/button/styles/elevated/switch.css.js
+582bf8dd6ff3e6a00d90dd6af3437dacfe37dcb960ffeb64f39a696b33f562ac  ./packages/material-x/button/styles/elevated/switch.css.js.map
+221d8f65ea02b937b2064a301bc3b51af23e280d24764372c0e15d47a0b9e0b5  ./packages/material-x/button/styles/icon/main.css.js
+31fd56410026a454fbe5e96cdf15c871b5ae96a7c863c536351c4b88772f6484  ./packages/material-x/button/styles/icon/main.css.js.map
+cbc7e63dc72aefb85b380e78929b8e338ff78f36ba380e67178a3af5ba95df61  ./packages/material-x/button/styles/icon/switch.css.js
+24d2c458ce27ee7c90d684b46fafe992ff94444eb1dc47a1667aa8ba007348a3  ./packages/material-x/button/styles/icon/switch.css.js.map
+14ae5fc43728c9eba6db9288e02d5601357d2e4347e11cb1f53e810ed57d067e  ./packages/material-x/button/styles/outlined/main.css.js
+5e6345f4ccc0818a856610fc2595d5c6e84fda0ff90ec850cc633793c0c4bb6e  ./packages/material-x/button/styles/outlined/main.css.js.map
+17cf5bbfa34ad0057353a24a2fa8b8f7e0a0a718ddb786d9bb23c5670d2a2965  ./packages/material-x/button/styles/outlined/switch.css.js
+65e54256c7175b994a389dda030c3e27ccf1c3c8fa22545f3c9174eb59ef1e37  ./packages/material-x/button/styles/outlined/switch.css.js.map
+9009e15ad5b0f7557cf5fd5a3c409a22f815b196602fb02a1e24d466f47ab478  ./packages/material-x/button/styles/shape/main.css.js
+45d66f1db3aea783b239f40ff01e8ab8172b22dce4bddfecdbf12a9a3625056a  ./packages/material-x/button/styles/shape/main.css.js.map
+1481a747e349c50bf147a2ebaa72d57ccdde579d08a2aaa766a2cfe0d4150aad  ./packages/material-x/button/styles/size/main.css.js
+f98350c1f035d931b3b5acd8e5b025afe8053ddcb7b9e21e0488ebfd3e1eec3d  ./packages/material-x/button/styles/size/main.css.js.map
+c40f12c3c9f995703afcfe19ba1e0595c2bf37ce104a87e57a531af5aa00a10b  ./packages/material-x/button/styles/size/switch.css.js
+5a0531ccc448fc2ccc14e9231198777ed668252a7448801c946fe192d0a74750  ./packages/material-x/button/styles/size/switch.css.js.map
+82dd19c3f7bcd74c9e3af7b78eec76a6759350872e2bb566675aa9bd2d0c9187  ./packages/material-x/button/styles/split/main.css.js
+e8c2d8192b45560204f507857842efc201617e9ca177b04b73f35ad314e9399e  ./packages/material-x/button/styles/split/main.css.js.map
+542c4b7c518916ebac24fb60c24203c44798d1240ccdd52db7b3ff9315dced82  ./packages/material-x/button/styles/text/main.css.js
+ffc903dc10d04256c032525612fb18c5b12ae34b2c0ebc37b1fc188ebb5c5e4a  ./packages/material-x/button/styles/text/main.css.js.map
+4c0557879248482297662234e5dd56489011d1038a6054107c24780901ec2b61  ./packages/material-x/button/styles/tonal/main.css.js
+0a899dd0d225954bcd01428751b482a2313f8b23a8aa8d73e073aebea7aed970  ./packages/material-x/button/styles/tonal/main.css.js.map
+616eeaa445b9445b6226b08f472ced89166174052cb7fdaf15c7555592fd8c36  ./packages/material-x/button/styles/tonal/switch.css.js
+137d1c3a46941b92b1490b4082f14b35b9b00397c1dad0da968a08613c2351d7  ./packages/material-x/button/styles/tonal/switch.css.js.map
+47febe126ca1fe459e6b686d8390fb807fb87c6322556c4bb462b68c61c4c201  ./packages/material-x/button/switch-button.d.ts
+d8206b688b521d812ab8e8e78707dc72058aa14ff653c352992d035ebd31993b  ./packages/material-x/button/switch-button.js
+06e52b40ed2f7a772623ae895a1e5b0922a28c75582700e20fd7f38bccd3b31d  ./packages/material-x/button/switch-button.js.map
+8fecbc986ba91159d2119b82885aedbc385edad62dc3b3a488d2d329d70b5791  ./packages/material-x/button/switch-button.tpl.html.js
+fbe9c2a987c51ed3da9922bd3ebfdcb22b3aa48ee601177f2f1101d38748c0a0  ./packages/material-x/button/switch-button.tpl.html.js.map
+ac879443ed35facd1486b3695feec4f4f1bf14d00231466e29d04a9fa3f27298  ./packages/material-x/button/switch-icon-button.d.ts
+23a96283cd18497340d3b10ec147ae80ba2bdfdf5c8a6449056d80b46ae46e1b  ./packages/material-x/button/switch-icon-button.js
+74b502889cef1c50766d74ecde939d56d39fe13eeba5034289e15370a76a650e  ./packages/material-x/button/switch-icon-button.js.map
+a1eda6f242fcb8b72964d0b2f25cbf063c3a949cac262692c6b17c6eaefa3f94  ./packages/material-x/button/switch-icon-button.tpl.html.js
+eb27ce06fc55c135b627d3e4e42221878a921bbaf0696fe7855cd7e60d2e35aa  ./packages/material-x/button/switch-icon-button.tpl.html.js.map
+e7a0d079c0bb5cbd554445fae1ace92a01bed302ae62ff44ca368def79cfed94  ./packages/material-x/checkbox/checkbox.d.ts
+2ae2faffa6a8c7a9d2c7e8a4a2fd0bbf9cd08ddc9d02c82d237649fbf546ecc4  ./packages/material-x/checkbox/checkbox.js
+b2e56fa23bef375a83735c910e68aea1d08fdee4e0091ddf8164d03356e6c739  ./packages/material-x/checkbox/checkbox.js.map
+82e4612c2c70c6dd7fe41eec7e305e98505962c9882f2ae9b26780e396c79aa3  ./packages/material-x/checkbox/checkbox.tpl.html.js
+8801bd85c4c74192b8ebe0a4444f7fe5c537ac249bf1970efad0b96ea3690b85  ./packages/material-x/checkbox/checkbox.tpl.html.js.map
+39c8730e4ce7360e6d7cf2ada36bbea7afe974a706aa8452fa410f8b4d9b1235  ./packages/material-x/checkbox/styles/default/main.css.js
+850a5540d554d298daad2b7dbf9170307f9ad477b0b8bdfdc4763fdc5863f144  ./packages/material-x/checkbox/styles/default/main.css.js.map
+fa79f24587a4e8ccf1fe51534ca9f90292295a311d18d0fd613a4f30eac17403  ./packages/material-x/core/animations/notched-outline/notched-outline.ctr.css.js
+da0deadd124148e014d6dbb7761f75ea15558423014f80db0cbb1b7dafcd22d8  ./packages/material-x/core/animations/notched-outline/notched-outline.ctr.css.js.map
+fa82f6cfc88376859190b8f45a36c9d60c69755d3a8e3ec339c69a6d42b08e1a  ./packages/material-x/core/animations/notched-outline/notched-outline.js
+37efb5e31a7b466d91aeeab8fd264556c298ccd86ace444007e78d83d48e1e3a  ./packages/material-x/core/animations/notched-outline/notched-outline.js.map
+6390a239caf50339be698ae718eaf83333b8bba2e7e5abac967968fd4f3d378a  ./packages/material-x/core/animations/notched-outline/notched-outline.tpl.html.js
+57e5661307860f72069d5025abab7aa5120b4748ecc9e8a1b8c42c8caaf6ddbe  ./packages/material-x/core/animations/notched-outline/notched-outline.tpl.html.js.map
+d1b324be3349f8834a3bb89664a8df7bafd504f288850f3430133135bf030984  ./packages/material-x/core/animations/ripple/ripple.js
+07d5b93807518686645b0329123741e954f23b1ed26ecce6f243033cca1dee33  ./packages/material-x/core/animations/ripple/ripple.js.map
+541d1dafee23bff7ce45c21a1d8d97dcf0bbd41c0987d458d55e2ff5f43a0c15  ./packages/material-x/core/animations/ripple/styles/main.css.js
+fbc4d8d73e49fc12b9e79bb47cedd57e1896524b48b6b6ceaca67d7a5a8abe3d  ./packages/material-x/core/animations/ripple/styles/main.css.js.map
+fd275c45e94275f880dc9640e5575f4f0bc03c5805ebc2373c944f761a041c02  ./packages/material-x/core/elements/CheckableCore.d.ts
+9a8df17b76b0c0d4db70cdb390e37fdbdf7f018b6af2b33161bd2bfbf8f4810b  ./packages/material-x/core/elements/CheckableCore.js
+ad3fbfd9bef130829377f47f37937f2ba6abe4cbd198e12d968fdfdfa770e5ed  ./packages/material-x/core/elements/CheckableCore.js.map
+394e44184161fae9da3b855dcf656554789601bd5d93c440f4a898ef06eb1803  ./packages/material-x/core/elements/styles/main.css.js
+8682e0f75ff622f08c439329447f6b8bbd40fd80ab343410c21e240c82b04033  ./packages/material-x/core/elements/styles/main.css.js.map
+9af8c49dd6c982ffda6fec58edc24d7c3d207c0e5433eac6dc5d7005a7d76bca  ./packages/material-x/core/styles/elevation/elevation.css.js
+08c1147e475ff31222c8593a4c22eb26fb28db5731d9be0d9507f987545d3b2a  ./packages/material-x/core/styles/elevation/elevation.css.js.map
+7c54c18b2b2f18bb2ded591e7d89c71f6cc75dc6a5aa3c1627f9097553d72843  ./packages/material-x/core/styles/elevation/elevation.runtime.js
+f8d980d4be3114fd5dfcd072894d8c50d79c74d1be07c66eecb6cfba13af4205  ./packages/material-x/core/styles/elevation/elevation.runtime.js.map
+7f4bcfb41b05a9da6fe0402caf17af80803c3a85ba9f7f0e08a93f9fff889d86  ./packages/material-x/core/styles/focus/focus.css.js
+7c6cec5ee0202089c14e521d9623e0f957e472d879f8aaa94a34e66063a7dc0c  ./packages/material-x/core/styles/focus/focus.css.js.map
+26428d016151f379a2e0ef51e418f5f022cbe0586e6e7a1e1d05094fca80c9b4  ./packages/material-x/core/traits/focus-forwarding.d.ts
+cafae5b092a71e292226648853fa51303a89dbb7d4ccbf65bd4e01a6a70cb324  ./packages/material-x/core/traits/focus-forwarding.js
+c635ee27b81f0a8c07a95a0b54347748c6b3ccbd8512122da4347bd9a6379580  ./packages/material-x/core/traits/focus-forwarding.js.map
+0f95d29a9770c17acf6d5fd8b80737d84d4386101cea0849f4380123ee11897d  ./packages/material-x/core/utils/events.js
+c44a1d07bc060198a46d28f32d8a89bc1b4112e77d4c0754a7982e77de4fceb9  ./packages/material-x/core/utils/events.js.map
+74b9a6809e86143331f0a8086bfd68368253e01c367fece6eb1d82c2804f799d  ./packages/material-x/core/utils/fns.js
+f8e35c430cf6fe0fddbc34ac2a936cfd9d9b9cc86279f3ed73147eb9b2a9dc55  ./packages/material-x/core/utils/fns.js.map
+b795a2c4fda9ffe3201b39ffcd1c6478ab3375fa4efce905f0e3868c3a340ff5  ./packages/material-x/core/utils/polyfills.js
+ade8665184560cc45b709dd61e38b6610a8917634f0310adcb4c117557340a31  ./packages/material-x/core/utils/polyfills.js.map
+ac5ccb77baec2f01b17bd768dfc4a1cce1828db36896e442445dfa4322c58dbd  ./packages/material-x/core/utils/useContext.js
+79dd6f4b009f61e80c4de157d31a8153ea97ef71c763aa8ae745d0c21abe77f1  ./packages/material-x/core/utils/useContext.js.map
+8fb61ce68c62904d946dde77a38841f02886f29356f41fdc682a546ab959f975  ./packages/material-x/core/utils/useCore.js
+b43704c8987faf1354c3262e25ebfbb30f06785cfcdc1806ef85e8c6ba9df0d4  ./packages/material-x/core/utils/useCore.js.map
+cb50f3db77c6e0c924e6350a27f56f10c4df6efa968b5106cff80ff9938a7020  ./packages/material-x/custom-elements.json
+6150e4aa8097877b8a84b3034345c506db680dc84b63274f7b4be2b261998054  ./packages/material-x/fab/fab.d.ts
+c6c64341fa21fd2d575bbadfaf81d47e4f98be1bc399478cdd7c26fcb444577d  ./packages/material-x/fab/fab.js
+27b6915d9e736ceaf3f430f50319852fe95654ba882c78659000261ff3fc127b  ./packages/material-x/fab/fab.js.map
+9261fa8086f73b79f8c4a020c3b031e92a48eea8afdf9ac1899597fe33bd0a87  ./packages/material-x/fab/fab.tpl.html.js
+0e89862196ee0f440a1bdab5a57972aaf4ee8fe2a15f4d0ae165cec065925551  ./packages/material-x/fab/fab.tpl.html.js.map
+55431435e8c26c9011690dfc3b2fb48e63a6adfa9b98e3b71429a0e1288661f7  ./packages/material-x/fab/styles/color/main.css.js
+55c5e80427a46c2a9338148b1658fb1903619bf521a36bfd80272cf665352d8b  ./packages/material-x/fab/styles/color/main.css.js.map
+17fcb49f379e78bff9757335509e17830110203420a4a083892d876c45386a75  ./packages/material-x/fab/styles/default/main.css.js
+a44ab3753f3cd351ea6793e6250f42f17b1d3f1fb9dd403470be3b191d7a61d0  ./packages/material-x/fab/styles/default/main.css.js.map
+138ddc3437df243d13ab7331967c50b4c911b252c9daac57c1e629916fc2876d  ./packages/material-x/fab/styles/extended/main.css.js
+91240eb48d719cf496636dd70cb71b0d2a911da2a791636b71c771190040a925  ./packages/material-x/fab/styles/extended/main.css.js.map
+0fa9e0be2efeadc718c7430a8cc923cd2aa2fd3439812b0c2b0a315d6e6a59a0  ./packages/material-x/fab/styles/size/main.css.js
+c5fa9424ce97af3711dc89435416a1014a10f9b9b18193f8a612738ae0797b37  ./packages/material-x/fab/styles/size/main.css.js.map
+66f9516b2739dccda4e2b38342ae1f6995043c44ef68e34052650bc47218df31  ./packages/material-x/fab/styles/tonal/main.css.js
+14cd71d0b2e831849a5e6ab0a039a4182036d83d1ec01bd27c20b76b44ed258f  ./packages/material-x/fab/styles/tonal/main.css.js.map
+064f1666144d3a0ceaf01b74157f9e71eb7f55b4b3a30ed90420b92d2dcd6408  ./packages/material-x/icon/icon.d.ts
+dfb680691efdde90d6b539079b0a84f47f0694cf94881ceba36f6319c92b7d9b  ./packages/material-x/icon/icon.js
+7f4609b46814830b4a71b19def7dbf258890192490d6dee75cff26efe3ae01f5  ./packages/material-x/icon/icon.js.map
+146e46e6a0a4a97847abb7007de6a38800a5f0c004847b4db22b2b87305e0cc8  ./packages/material-x/icon/icon.tpl.html.js
+9f9adc09f138c0de61f665dbb01cb7a78aeca23e1e580e70a0e8f699557668e9  ./packages/material-x/icon/icon.tpl.html.js.map
+e0dea572bb207cdcd3c3a21075e54bbc031b5fee5d9183c60eee7fbac314449b  ./packages/material-x/icon/styles/icon.ctr.css.js
+8ac32436532b9acebecfbf13e18b928cc6361a5412f264ff8a5af9c1a019cc1d  ./packages/material-x/icon/styles/icon.ctr.css.js.map
+90123afe2153d013890ab123888801da20171b41327225da1f5dbefa3a36ffd7  ./packages/material-x/list/ListInteractiveItemCore.d.ts
+0307316a05e0e4ebac349f02a56d10e1c7009900eebd216a60e902cb232737ba  ./packages/material-x/list/ListInteractiveItemCore.js
+047009d04c5324a98c8879acefb16c0ee406baec82a07d436a95d8d714276ccc  ./packages/material-x/list/ListInteractiveItemCore.js.map
+5aeeaf99ee0a4bc24699c9124dd4948cd6089a71ad4c63d7d2adb2b114d52416  ./packages/material-x/list/ListItemCore.d.ts
+02958003a1e677c52611d705abc22b886c3c19d0052eedecf2e10b9012635964  ./packages/material-x/list/ListItemCore.js
+c6ecc651f7e3a2d4038b12e6b3d7649057eacf5e44275c7972f0dd339e93f917  ./packages/material-x/list/ListItemCore.js.map
+49d28741f3494789e69f22c052b48e88794de7e7e71e0f93e6e4e61b2ccf1ed8  ./packages/material-x/list/list-button-item.d.ts
+a016de4f333edcb300873890106c9eb8186a35eefc88a9d0397b7d4af12bbc62  ./packages/material-x/list/list-button-item.js
+e7dc5d903d8cbb35180bf7a4254849021269690df681358bb78351a27df5a153  ./packages/material-x/list/list-button-item.js.map
+dd920302fa8027e949faf26587ff9d90593b192e0905c6441b4597eb8168273d  ./packages/material-x/list/list-button-item.tpl.html.js
+1a103b4c9c3927a0e4e37530a0c15a15cb3592ee65b95a82b87d7cce83dffecf  ./packages/material-x/list/list-button-item.tpl.html.js.map
+c3b3b99e6f7ffbe75d6a926559118f9069781df96ecb43d0bc15b9490a5a6fcb  ./packages/material-x/list/list-item-shared.tpl.html.js
+a7140f7808508f250a11d80322816b9defd3f547e9666638df6b72da495dc4dc  ./packages/material-x/list/list-item-shared.tpl.html.js.map
+f600e48e83553d77993cd2ba2583b6628934fc83d3322e542beeee233c804746  ./packages/material-x/list/list-item.d.ts
+53d27e405f1a8b35243fea95ad33255961ed4796beb7986ada1e783e44c5653b  ./packages/material-x/list/list-item.js
+800b559a28ad414ef53187b6adc6ade716b6da8ec861a12df19d196619eca4f7  ./packages/material-x/list/list-item.js.map
+27af4072cdb4002dde9b23b5a7c434c4732b92d2e2cbe3e1eac1f8b45f642cb4  ./packages/material-x/list/list-item.tpl.html.js
+798006011603b9defaafc7ba881b6e32649a7ae1d89687df0bbcfa43164f2e3a  ./packages/material-x/list/list-item.tpl.html.js.map
+8c132459bb36ff8c3c26d2ea0ba8d3372d8d6a79cb0d6f793517ac718b61cc40  ./packages/material-x/list/list-link-item.d.ts
+7165e211b6d71ed13d8830ec2335ee3af3898f71260470c38f935f2eb0e88019  ./packages/material-x/list/list-link-item.js
+7b5bd8fd10a501c7894f148bafb0d0c379f421d83f2357741f74ef078d731005  ./packages/material-x/list/list-link-item.js.map
+b221485dc90d2df4ee144c4fd209de8da0cd15bbd0087875ac0f2297ac1dff81  ./packages/material-x/list/list-link-item.tpl.html.js
+cb1b2b983901b91425ffa61eccb82f4496cdb74f2463bb17622570291438ed4b  ./packages/material-x/list/list-link-item.tpl.html.js.map
+e7e79a58ac2cdb0e3ee0c904d596bf81bda9d43cc178136dc38ed0da289b9935  ./packages/material-x/list/list.d.ts
+93beec608963019fcbc09b5fef2a296d2611dfd4f2ccb641830daf65de061ac6  ./packages/material-x/list/list.js
+b59eb4f71793f19e6243657ccdb86a8536ceb9578d09aedc1fd59b7b66466680  ./packages/material-x/list/list.js.map
+92e3fab4ed19b8c859e51823d17e47e53eb5676c4ee732eeb2d38d871d090c5b  ./packages/material-x/list/list.tpl.html.js
+4fb70bc09f1848301bffd4e28dbb57de6152c4fb24960e4f1f7250fc4d33a193  ./packages/material-x/list/list.tpl.html.js.map
+3659ee13eb992591bcec04f496c3e522efeb75ad4ede53fa97651c5b3ab4e2ea  ./packages/material-x/list/styles/default/main.css.js
+36c33e5d63e9e7a6ce3d20d89974416aa0beb6de79e5e9e21abd12cec1560c52  ./packages/material-x/list/styles/default/main.css.js.map
+af4d8682ee3ce108b4d1511cf62264eac1523b660be4f1b6365a8faa2e794ab4  ./packages/material-x/list/styles/item/main.css.js
+b09ef8db46c30ffb6a79dbd78ee60def405594d3ab7a8cb07ca3e88e91bc1a5e  ./packages/material-x/list/styles/item/main.css.js.map
+ea2610126060447e189fde8d99092ef3f89847b23ac84f661fec831a47e10a23  ./packages/material-x/radio/radio.d.ts
+e90bfb4d41577fd69d06b67375c36f6970821ec4887f46e80d1cff11885c88cd  ./packages/material-x/radio/radio.js
+eca663fed66e4e2095d34b7170f2b20e43c9e96b959999a9ef0eaae05eb9d57b  ./packages/material-x/radio/radio.js.map
+82d04d3e0cb207aa8a28ceb6d3ba33a1ad465d551f167b65acb1372b25c051ac  ./packages/material-x/radio/radio.tpl.html.js
+806ad350487e039b1490deac82d7da0349e8df10a6b98caa1b4b55f3219561eb  ./packages/material-x/radio/radio.tpl.html.js.map
+37b95374d1a526ea5bdedf1db3086a775a8b19f19fbe9d694a235f0ea17629a8  ./packages/material-x/radio/styles/default/main.css.js
+4a9dc927bb4b516b82f379409d2455df5a39278be0592352612afb94684ec984  ./packages/material-x/radio/styles/default/main.css.js.map
+da00a35b2f8b61d815a375c4e57752844d1124f6df9fd8e0691f94de3b7e3441  ./packages/material-x/react.d.ts
+b1b98ff464fce1d67709ee394c319f6214f4f1a524c6498269ccc7b46cbbba31  ./packages/material-x/text-field/TextFieldCore.d.ts
+28717f65fa77a2f429b855012fbd60dfb1561ed9b77cda5bcbe08a37bca0576d  ./packages/material-x/text-field/TextFieldCore.js
+1f3558fd3082b6f1c75579b2eb6b81d865f3585bb42f01de31a196ae841da416  ./packages/material-x/text-field/TextFieldCore.js.map
+3b7eada255c782d054abf7d8b6a6e10cfa47fc15b101d626e2a56a94f9d79b6b  ./packages/material-x/text-field/multiline-text-field.d.ts
+e6c858106f83b46a90024c6ff54a1553ea5848299e1eda175c638e9058a0f9a9  ./packages/material-x/text-field/multiline-text-field.js
+f5afba8f3ba5887cbad8c580a1468ace5a96d850ba156a0bf5ee620fe0593529  ./packages/material-x/text-field/multiline-text-field.js.map
+ff4a5181556e4765516bcb67b2e9c32b11802054f5d9d9acb450f90ee9b31165  ./packages/material-x/text-field/multiline-text-field.tpl.html.js
+972fb89e72e61f7f1326a090af05162d5b9d3b80ddd22cb3c9e0e0028b3398ee  ./packages/material-x/text-field/multiline-text-field.tpl.html.js.map
+975b63814aa77cf64051b78f5958a47f6f7e1cb426bd0f259d4c100c6f050e57  ./packages/material-x/text-field/styles/default/main.css.js
+392fc369466c2c8e2cb44a6de0d56da2fe273aadfa26b2143b2c919746e83faa  ./packages/material-x/text-field/styles/default/main.css.js.map
+80592bb55a1cd973c6b5aed44a0e1ffce3763d9874d4d81aa8341441f6e9beed  ./packages/material-x/text-field/styles/outlined/main.css.js
+9271fcabd115e21d4185dfcdba1a2df6b56b9b6509be060d8b2a0c3836c14d0f  ./packages/material-x/text-field/styles/outlined/main.css.js.map
+4024c3ab37eea8a815a745139bfa3f3a2056b6e3ea768678113946199eff7a1a  ./packages/material-x/text-field/text-field-core.tpl.html.js
+571de15aac2e693bea26b6d0e8b6045c8fccd72d176ae525463608d776c4996f  ./packages/material-x/text-field/text-field-core.tpl.html.js.map
+3d818959dbcc8fde808873fcdbb2036eec3dfc0ad71f49aacf6c1d50e30465a7  ./packages/material-x/text-field/text-field.d.ts
+8706a6f55de05ccae60ee0e798826ae4e5c8f5bee21142a9f89d5796f8e5cadc  ./packages/material-x/text-field/text-field.js
+c09eac22587a14d074285b0a0458a85c0270ddde5e2d5921cfc0b5ebd700d851  ./packages/material-x/text-field/text-field.js.map
+f3b67270a60e5f0c4cf8c022b4fe5b07fbcd8c380cce81e381984ec0b07854ea  ./packages/material-x/text-field/text-field.tpl.html.js
+e065b8b5dda2cbaa57687e5b25c5daac4a603efd3d0cb85aac8cf32b5371704d  ./packages/material-x/text-field/text-field.tpl.html.js.map

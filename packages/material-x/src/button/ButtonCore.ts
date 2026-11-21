@@ -15,7 +15,10 @@ import {
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
 import { $, switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
-import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
+import {
+  BUTTON_GROUP_CTX,
+  BUTTON_GROUP_ELEMENTS,
+} from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
@@ -125,6 +128,7 @@ export function useButtonCore(
   useContext(
     host,
     BUTTON_GROUP_CTX,
+    BUTTON_GROUP_ELEMENTS,
     BUTTON_CORE_ATTRS,
     (attr, oldValue, newValue) => {
       if (attr === 'disabled') {

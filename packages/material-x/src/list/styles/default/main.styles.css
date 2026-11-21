@@ -13,7 +13,7 @@
   }
 }
 
-::slotted([data-footprint]) {
+::slotted([data-drag-placeholder]) {
   box-sizing: border-box;
   border-radius: var(--md-list-container-shape, var(--_container-shape));
   background-color: var(--_footprint-color);

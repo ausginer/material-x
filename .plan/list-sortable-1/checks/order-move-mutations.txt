@@ -1,0 +1,27 @@
+# reviewer-1's remediation: the definition-order rows under mutation. Each applied to the working tree on db591498f plus the fix and the rows, core rebuilt for a core mutation, run from packages/material-x with MX_TEST_ENGINES=chromium,firefox,webkit and vitest run -c vitest.config.ts --project 'browser*' tests/list/sortable-list.browser.test.ts -t 'definition order', then reverted (scratch commands, not committed).
+#   fix-reverted:  packages/material-x/src/list/sortable-list.ts at db591498f (the provider calls sortItem without reading the slot again)
+#   wait-removed:  packages/core/src/controllers/useContext.ts, if (name && parents.includes(name)) -> if (false)
+# Six rows: the tab stop, the keyboard move and the pointer move, each with sortable-list.js first and with list-item.js first.
+
+## mutation fix-reverted
+      Tests  6 failed | 12 passed | 180 skipped (198)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1081 > mx-sortable-list definition order > should move a static item by keyboard when sortable-list.js is evaluated first
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1093 > mx-sortable-list definition order > should move a static item by pointer when sortable-list.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1081 > mx-sortable-list definition order > should move a static item by keyboard when sortable-list.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1093 > mx-sortable-list definition order > should move a static item by pointer when sortable-list.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1081 > mx-sortable-list definition order > should move a static item by keyboard when sortable-list.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1093 > mx-sortable-list definition order > should move a static item by pointer when sortable-list.js is evaluated first
+ Test Files  3 failed (3)
+
+## mutation wait-removed
+      Tests  6 failed | 12 passed | 180 skipped (198)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1070 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1087 > mx-sortable-list definition order > should move a static item by keyboard when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1070 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1087 > mx-sortable-list definition order > should move a static item by keyboard when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1070 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1087 > mx-sortable-list definition order > should move a static item by keyboard when list-item.js is evaluated first
+ Test Files  3 failed (3)
+## no mutation (the fix)
+      Tests  18 passed | 180 skipped (198)
+ Test Files  3 passed (3)

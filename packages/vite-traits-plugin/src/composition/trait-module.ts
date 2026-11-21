@@ -32,7 +32,7 @@ import type {
 } from '@oxc-project/types';
 import { RolldownMagicString } from 'rolldown';
 import { CODE, fail } from '../diagnostics.ts';
-import { collectFreeReferences } from '../free-references.ts';
+import { collectReferences } from '../free-references.ts';
 import {
   collectExportedNames,
   collectImports,
@@ -526,33 +526,50 @@ function removeUnusedImports(
 }
 
 /**
- * The private module bindings that a trait class's methods and accessors
- * read. A member outside the subset is skipped here; a component that
- * composes the trait reports it.
+ * The private module bindings that a trait class's copied source reads: its
+ * methods and accessors, its private fields' initializers and its
+ * constructor's body after `super();`. Source outside the subset is skipped
+ * here; a component that composes the trait reports it.
  */
 function privateReads(
   node: Class,
   bindings: ReturnType<typeof collectTopBindings>,
 ): Set<string> {
   const names = new Set<string>();
+  const unmodeled = (): never => {
+    throw new Error('unmodeled');
+  };
   for (const element of node.body.body) {
-    if (
-      element.type !== 'MethodDefinition' ||
-      element.kind === 'constructor' ||
-      element.value.body === null
-    ) {
-      continue;
-    }
+    let found: ReadonlyArray<{ name: string }> = [];
     try {
-      for (const { name } of collectFreeReferences(element.value, () => {
-        throw new Error('unmodeled');
-      })) {
-        if (bindings.get(name)?.exported === false) {
-          names.add(name);
-        }
+      if (element.type === 'MethodDefinition' && element.value.body) {
+        found =
+          element.kind === 'constructor'
+            ? collectReferences(
+                element.value.body.body.slice(1),
+                'constructor',
+                unmodeled,
+              ).references
+            : collectReferences(element.value, 'member', unmodeled).references;
+      } else if (
+        element.type === 'PropertyDefinition' &&
+        !element.static &&
+        element.key.type === 'PrivateIdentifier' &&
+        element.value
+      ) {
+        found = collectReferences(
+          element.value,
+          'initializer',
+          unmodeled,
+        ).references;
       }
     } catch {
       // Reported where a component composes the trait.
+    }
+    for (const { name } of found) {
+      if (bindings.get(name)?.exported === false) {
+        names.add(name);
+      }
     }
   }
 

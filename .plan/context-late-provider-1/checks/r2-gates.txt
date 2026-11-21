@@ -1,0 +1,17 @@
+# Gates on the final source of revision 2, MX_TEST_ENGINES=chromium,firefox,webkit
+## packages/core: vitest run -c vitest.config.ts --project 'browser*'
+ Test Files  66 passed (66)
+      Tests  786 passed (786)
+## packages/material-x: vitest run -c vitest.config.ts --project 'browser*'
+ Test Files  39 passed (39)
+      Tests  659 passed | 1 expected fail (660)
+## root: aube exec just test (exit 0)
+ Test Files  148 passed (148)
+      Tests  2356 passed (2356)
+Type Errors  no errors
+## an earlier root run, before the connected order row's fixture lost its whitespace: 2356 passed, exit 1 on one unhandled error
+TypeError: Cannot convert undefined or null to object
+ ❯ packages/material-x/src/button-group/connected-button-group.ts:67:26
+ ❯ packages/material-x/src/button-group/connected-button-group.ts:66:21
+ ❯ HTMLSlotElement.slotchange packages/core/src/controllers/useSlot.ts:52:9
+## fmt, lint-fix, fmt, lint on the changed .ts files of core and material-x: clean. typecheck in core, then in material-x after core's build: clean

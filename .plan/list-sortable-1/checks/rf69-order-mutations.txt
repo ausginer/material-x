@@ -1,0 +1,48 @@
+# RD-31 after RF-69: mutations witnessing "should make a static item a tab stop when list-item.js is evaluated first". Each applied to the working tree on 5194f5069 plus the adaptation, core rebuilt for a core mutation, run from packages/material-x with MX_TEST_ENGINES=chromium,firefox,webkit and vitest run -c vitest.config.ts --project 'browser*' tests/list/sortable-list.browser.test.ts -t 'tab stop when', then reverted with git checkout (scratch commands, not committed).
+#   wait-removed:      packages/core/src/controllers/useContext.ts, if (name && parents.includes(name)) -> if (false)
+#   list-names-empty:  packages/material-x/src/list/sortable-list-context.ts, SORTABLE_LIST_ELEMENTS ['mx-sortable-list'] -> []
+# The row evaluated first, "... when sortable-list.js is evaluated first", is the control: a synchronous request satisfies it.
+
+## mutation wait-removed
+-      if (name && parents.includes(name)) {
++      if (false) {
+-import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
++import {
++  SORTABLE_LIST_CTX,
++  SORTABLE_LIST_ELEMENTS,
++} from './sortable-list-context.ts';
+-  useContext(host, SORTABLE_LIST_CTX, (sort) => {
++  useContext(host, SORTABLE_LIST_CTX, SORTABLE_LIST_ELEMENTS, (sort) => {
+- * reads it, so this module holds no runtime code beyond the token, and the
+- * writer that the value carries lives in the sortable list's own modules.
++ * reads it, so this module holds no runtime code beyond the token and the
++ * providing element's name. The writer that the value carries lives in the
++ * sortable list's own modules.
++/** The element that provides `SORTABLE_LIST_CTX` to its child items. */
++export const SORTABLE_LIST_ELEMENTS: readonly string[] = ['mx-sortable-list'];
+      Tests  3 failed | 3 passed | 180 skipped (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ Test Files  3 failed (3)
+
+## mutation list-names-empty
+-import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
++import {
++  SORTABLE_LIST_CTX,
++  SORTABLE_LIST_ELEMENTS,
++} from './sortable-list-context.ts';
+-  useContext(host, SORTABLE_LIST_CTX, (sort) => {
++  useContext(host, SORTABLE_LIST_CTX, SORTABLE_LIST_ELEMENTS, (sort) => {
+- * reads it, so this module holds no runtime code beyond the token, and the
+- * writer that the value carries lives in the sortable list's own modules.
++ * reads it, so this module holds no runtime code beyond the token and the
++ * providing element's name. The writer that the value carries lives in the
++ * sortable list's own modules.
++/** The element that provides `SORTABLE_LIST_CTX` to its child items. */
++export const SORTABLE_LIST_ELEMENTS: readonly string[] = [];
+      Tests  3 failed | 3 passed | 180 skipped (186)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1010 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ Test Files  3 failed (3)

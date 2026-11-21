@@ -5,7 +5,7 @@ import '../../src/button-group/button-group.ts';
 import '../../src/button-group/connected-button-group.ts';
 import '../../src/button/button.ts';
 import '../../src/button/switch-button.ts';
-import { nextFrame } from '../browser.ts';
+import { contextResolved, nextFrame } from '../browser.ts';
 
 const SIZE_STATE_CASES = [
   { attribute: 'xsmall' },
@@ -85,49 +85,55 @@ describe('mx-button-group host size state', () => {
 });
 
 describe('mx-button-group context forwarding', () => {
-  it('should forward the size to child buttons as a custom state', () => {
+  it('should forward the size to child buttons as a custom state', async () => {
     const group = createStandard();
+    await contextResolved();
     group.setAttribute('size', 'large');
 
     expect(group.children[0]!.matches(':state(large)')).toBe(true);
   });
 
-  it('should forward the color to child buttons as a custom state', () => {
+  it('should forward the color to child buttons as a custom state', async () => {
     const group = createStandard();
+    await contextResolved();
     group.setAttribute('color', 'elevated');
 
     expect(group.children[0]!.matches(':state(elevated)')).toBe(true);
   });
 
-  it('should forward the shape to child buttons as a custom state', () => {
+  it('should forward the shape to child buttons as a custom state', async () => {
     const group = createStandard();
+    await contextResolved();
     group.setAttribute('shape', 'square');
 
     expect(group.children[0]!.matches(':state(square)')).toBe(true);
   });
 
-  it('should forward disabled to the native child buttons', () => {
+  it('should forward disabled to the native child buttons', async () => {
     const group = createStandard();
+    await contextResolved();
     group.toggleAttribute('disabled', true);
 
     expect(getNativeButton(group.children[0]!).disabled).toBe(true);
   });
 
-  it('should re-enable child buttons when the group clears disabled', () => {
+  it('should re-enable child buttons when the group clears disabled', async () => {
     const group = createStandard();
     group.toggleAttribute('disabled', true);
+    await contextResolved();
 
     group.toggleAttribute('disabled', false);
 
     expect(getNativeButton(group.children[0]!).disabled).toBe(false);
   });
 
-  it('should forward the current context to a late-added child button', () => {
+  it('should forward the current context to a late-added child button', async () => {
     const group = createStandard(0);
     group.setAttribute('size', 'large');
 
     const button = document.createElement('mx-button');
     group.append(button);
+    await contextResolved();
 
     expect(button.matches(':state(large)')).toBe(true);
   });
@@ -225,8 +231,9 @@ describe('mx-connected-button-group roving tabindex', () => {
 });
 
 describe('mx-connected-button-group selection', () => {
-  it('should check the child whose value matches the group value', () => {
+  it('should check the child whose value matches the group value', async () => {
     const group = createConnected(['one', 'two', 'three']);
+    await contextResolved();
 
     group.setAttribute('value', 'two');
 

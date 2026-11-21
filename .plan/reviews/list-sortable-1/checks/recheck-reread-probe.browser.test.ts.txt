@@ -1,0 +1,104 @@
+// Scratch probe for the re-check of reviewer-1: how often the provider's writer
+// reads the slot again, against the slot callback's reads. Requires the
+// instrumented sortable-list.ts (globalThis.__reads per read(), __miss per
+// writer refresh).
+import { $ } from '@ydinjs/core/utils/DOM.js';
+import { expect, it, onTestFinished } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/sortable-list.ts';
+import { nextFrame } from '../browser.ts';
+
+const N = 1000;
+type Counters = { __reads?: number; __miss?: number };
+const g = globalThis as Counters;
+const reset = (w: Counters): void => { w.__reads = 0; w.__miss = 0; };
+const read = (w: Counters): string => `reads=${w.__reads ?? 0} misses=${w.__miss ?? 0}`;
+const settle = async (): Promise<void> => { await nextFrame(); await nextFrame(); };
+
+function list(): HTMLElement {
+  const l = document.createElement('mx-sortable-list');
+  l.style.setProperty('--_drag-duration', '0s');
+  document.body.append(l);
+  onTestFinished(() => l.remove());
+  return l;
+}
+const item = (label: string): HTMLElement => {
+  const i = document.createElement('mx-list-item');
+  i.append(label);
+  return i;
+};
+
+it('A: append N one by one, synchronously', async () => {
+  const l = list(); await settle(); reset(g);
+  const t = performance.now();
+  for (let i = 0; i < N; i++) l.append(item(String(i)));
+  await settle();
+  expect(`PROBE A N=${N} ${read(g)} ms=${(performance.now() - t).toFixed(1)}`).toBe("report");
+});
+
+it('B: append N one by one, a microtask apart', async () => {
+  const l = list(); await settle(); reset(g);
+  const t = performance.now();
+  for (let i = 0; i < N; i++) { l.append(item(String(i))); await Promise.resolve(); await Promise.resolve(); }
+  await settle();
+  expect(`PROBE B N=${N} ${read(g)} ms=${(performance.now() - t).toFixed(1)}`).toBe("report");
+});
+
+it('C: innerHTML N', async () => {
+  const l = list(); await settle(); reset(g);
+  const t = performance.now();
+  l.innerHTML = Array.from({ length: N }, (_, i) => `<mx-list-item>${i}</mx-list-item>`).join('');
+  await settle();
+  expect(`PROBE C N=${N} ${read(g)} ms=${(performance.now() - t).toFixed(1)}`).toBe("report");
+});
+
+async function parsed(modules: readonly string[]): Promise<Counters> {
+  const frame = document.createElement('iframe');
+  const urls = modules.map((m) => new URL(`../../src/list/${m}`, import.meta.url).href);
+  frame.srcdoc = `<mx-sortable-list>${Array.from({ length: N }, (_, i) => `<mx-list-item>${i}</mx-list-item>`).join('')}</mx-sortable-list>
+<script type="module">
+for (const url of ${JSON.stringify(urls)}) await import(url);
+await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+document.body.dataset.ready = '';
+</script>`;
+  document.body.append(frame);
+  onTestFinished(() => frame.remove());
+  await expect.poll(() => frame.contentDocument?.body.dataset['ready'], { timeout: 20_000 }).toBe('');
+  return frame.contentWindow as unknown as Counters;
+}
+
+it('D: parsed N, sortable-list.js first', async () => {
+  expect(`PROBE D N=${N} ${read(await parsed(['sortable-list.ts', 'list-item.ts']))}`).toBe("report");
+});
+
+it('E: parsed N, list-item.js first', async () => {
+  expect(`PROBE E N=${N} ${read(await parsed(['list-item.ts', 'sortable-list.ts']))}`).toBe("report");
+});
+
+it('F: an item appended and a moved item re-inserted during a pointer drag', async () => {
+  const l = list();
+  for (const label of ['A', 'B', 'C']) l.append(item(label));
+  await settle();
+  const moves: string[] = [];
+  l.addEventListener('reorder', (event) => {
+    const { item: moved, next, from, to } = event as unknown as { item: HTMLElement; next: HTMLElement | null; from: number; to: number };
+    moves.push(`${from}->${to}`);
+    l.insertBefore(moved, next);
+    l.append(item('late'));
+  });
+  const [a, b] = [...l.children].map((c) => $<HTMLElement>(c as HTMLElement, '.host')!);
+  const ra = a!.getBoundingClientRect(); const rb = b!.getBoundingClientRect();
+  const x = ra.left + ra.width / 2; const y = ra.top + ra.height / 2;
+  reset(g);
+  await commands.pointerPress(x, y);
+  await commands.pointerMove(x, y + 12, 3);
+  l.append(item('mid-drag'));
+  await settle();
+  const midDrag = read(g);
+  await commands.pointerMove(x, rb.top + rb.height / 2 + 10, 8);
+  await commands.pointerRelease();
+  await expect.poll(() => moves.length).toBe(1);
+  await settle();
+  expect(`PROBE F moves=${JSON.stringify(moves)} midDrag[${midDrag}] end[${read(g)}] order=${[...l.children].map((c) => c.textContent).join(',')} dragState=${[...l.children].filter((c) => (c as unknown as { matches(s: string): boolean }).matches(':state(drag)')).length}`).toBe("report");
+});
