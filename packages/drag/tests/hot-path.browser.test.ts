@@ -270,12 +270,18 @@ describe('drag:DRI-17 hot path', () => {
       await commands.pointerMove(start.x, start.y + 10, 2);
       await frames();
 
-      // This first pass is not sampled. It lets the kernel's code reach its
-      // optimized form, so the test bounds what warm code allocates. What the
-      // earlier tiers allocate depends on what ran before the test.
+      // The moves below are sent by CDP rather than Playwright's mouse. With a
+      // button held, Playwright's mouse runs page script on each move, and V8's
+      // repeated recompiling of that script is filed under the kernel's
+      // `handleEvent` by the heap sampler, by up to about 100 B per move.
+      //
+      // This first pass is not sampled. It doesn't bring the kernel's code to
+      // the optimized tier: the window starts with `handleEvent` in the baseline
+      // tier, so it includes the kernel's tier-up. What the earlier tiers
+      // allocate depends on what ran before the test.
       for (let i = 0; i < 300; i += 1) {
         // oxlint-disable-next-line no-await-in-loop -- one sample per step
-        await commands.pointerMove(start.x + (i % 40), start.y + 12);
+        await commands.pointerMoveHeldByCdp(start.x + (i % 40), start.y + 12);
       }
 
       await frames();
@@ -284,13 +290,18 @@ describe('drag:DRI-17 hot path', () => {
       for (let i = 0; i < 300; i += 1) {
         // Inside one slot, so that only samples and warm frames run.
         // oxlint-disable-next-line no-await-in-loop -- one sample per step
-        await commands.pointerMove(start.x + (i % 40), start.y + 12);
+        await commands.pointerMoveHeldByCdp(start.x + (i % 40), start.y + 12);
       }
 
       // The server's root is this package, so a url path that starts with `/src/`
       // is this package's source, and a key is `<path under src>:<function>`.
       const bytes = await commands.stopHeapSampling('/src/');
 
+      // Playwright's mouse is still where its last move left it. This move, to
+      // the point of the last CDP move, makes its position the browser's again
+      // before any later Playwright pointer command, the harness's release
+      // included.
+      await commands.pointerMove(start.x + (299 % 40), start.y + 12);
       await commands.keyPress('Escape');
 
       const kernelPerMove =
@@ -305,8 +316,8 @@ describe('drag:DRI-17 hot path', () => {
       );
 
       // The kernel is every module under `src/kernel/` and `src/draggable.ts`.
-      // Warm, the kernel reads 0 to about 1 B per move. An allocation that
-      // escapes, such as an object per sample, shows as tens of bytes.
+      // Over this window it reads about 5 to 10 B per move. With an allocation
+      // that escapes, such as one object per sample, it reads about 60.
       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
         'lift.ts:translate',

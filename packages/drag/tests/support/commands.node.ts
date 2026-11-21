@@ -215,6 +215,29 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       });
     },
   ),
+  /**
+   * One move with the left button held, sent by CDP as Playwright's mouse sends
+   * it, but without Playwright's mouse. With a button held, Playwright's
+   * Chromium mouse runs page script on each move, and the heap sampler
+   * attributes V8's work for that script to the kernel. Playwright's mouse keeps
+   * its last position, which this move doesn't change.
+   */
+  pointerMoveHeldByCdp: playwrightOnly<[number, number]>(
+    'pointerMoveHeldByCdp',
+    async (context, x, y): Promise<void> => {
+      const cdp = await cdpOf(context);
+
+      await cdp.send('Input.dispatchMouseEvent', {
+        type: 'mouseMoved',
+        button: 'left',
+        buttons: 1,
+        x,
+        y,
+        modifiers: 0,
+        force: 0.5,
+      });
+    },
+  ),
   forceGarbageCollection: playwrightOnly<[]>(
     'forceGarbageCollection',
     async (context): Promise<void> => {

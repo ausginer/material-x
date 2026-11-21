@@ -98,6 +98,12 @@ Follow the [technical English guide](.agents/docs/technical-english.md). Choose 
 - Prefer CSS classes over inline styles.
 - Files with a `.css.ts` extension are compiled to CSS for browser use rather than executed as modules.
 
+## Shadow tree structure
+
+- **A host is `display: contents` only so that a native element with behavior of its own is the box.** When a component's semantics come from a native element in its shadow tree, such as a `<button>`, an `<a>` or an `<input>`, a `display: contents` host lets that element lay out, take focus and activate as itself, and the component doesn't reimplement its behavior. A plain container such as a `<div>` has no such behavior, so there the host is the component's box and isn't `display: contents`. A `display: contents` host generates no box, so it can't take focus or carry the component's own styling.
+- **A shadow tree has as few elements as the component needs.** Don't add an element that CSS can replace, such as a wrapper for layout or a box that a pseudo-element, a border or a background can draw. Some extra CSS is better than extra elements. This is a soft goal, not a ban: an element stays when replacing it would grow the CSS or the JS by much.
+- **These rules don't change the [`.host` invariant](.agents/docs/architecture.md#components-ydinjsmaterial-x).** A template change that adds or removes the shadow root's root element states which case of the invariant the component is in.
+
 ## Unit tests
 
 - Use `describe` for the unit under test.
@@ -447,4 +453,5 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-18 | Part I, Dependencies of a published package | **Added:** which manifest field each package goes in, `@types/*` packages included, on the owner's request after `repo:RF-51` (material-x's React typings imported React by an absolute path). Record: `repo:RF-51` |
 | 2026-11-18 | Part I, Language and platform | **Added:** material-x's browser floor, the current stable release of each engine, on the owner's answer to the question `repo:RF-43` left open. No document stated a floor before. Record: `repo:RD-20` |
 | 2026-11-20 | Part I, Dependencies of a published package | **Added:** a peer that another peer depends on takes a range covering what that peer's range declares, and its floor moves with that peer's floor. Also added: a prerelease is inside a range only when the range names one. Neither was stated before. Record: `repo:RF-55` |
+| 2026-11-21 | Part I, Shadow tree structure | **Added:** at the owner's direction of 2026-11-21, relayed by the coordinator, a host is `display: contents` only so that a native element with behavior of its own is the box, and a shadow tree has as few elements as CSS allows, within reason for the CSS and JS size. No document stated either before. `accessibility.md`'s list item lines describe the list's current structure, and `repo:RF-68`'s unit revises them. Record: none yet; a `repo:RD-` entry is proposed for the main slot's architect |
 | 2026-11-21 | Part I, Parent and child components | **Added:** at the owner's direction, a parent component and its children are linked through context, not through a registry. A map from an element to its own parts isn't covered. No document stated it before. Record: the owner's direction in [`list-sortable-plan.md`](https://github.com/ausginer/material-x/blob/6214e3b57/.plan/list-sortable-1/list-sortable-plan.md) at `6214e3b57` |
