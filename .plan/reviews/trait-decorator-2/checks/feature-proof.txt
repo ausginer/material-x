@@ -1,0 +1,124 @@
+# Feature proof of PR #88 at 69b721a3e, baseline origin/main e4b0e475d
+
+## builds: aube ci, then just build (head: just clean-build first)
+main-build.log:main exit 0
+head-build.log:head exit 0
+trait-member-conflict lines: main 0, head 0
+
+## plugin suite at 69b721a3e
+ Test Files  10 passed (10)
+      Tests  172 passed (172)
+
+## implementer's before.sh against e4b0e475d
+## baseline: e4b0e475d
+       × should remove the import whole
+     × should remove trait's import when only an inline type is left in it
+     × should remove compose's import when only an inline type is left in it
+     × should remove an import that the trait transform and the lowering empty together
+     × should keep the JSDoc that a line comment follows
+     × should keep the JSDoc that a block comment follows
+     × should keep the JSDoc of an export default class
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  7 failed | 136 passed (143)
+before exit 0
+
+## implementer's mutations.sh at 69b721a3e, diffed against the committed transcript
+17d16
+<        × should remove the import whole
+18a18
+>        × should remove the import whole
+(diff exit 1: only the order of one nested-describe line)
+mutations exit 0
+
+## implementer's tree.sh e4b0e475d 69b721a3e
+## base e4b0e475d, head 69b721a3e
+same 294 built files in each
+## files that differ (.js without sourceMappingURL)
+packages/material-x/button-group/ButtonGroupCore.js
+    4d3
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/button-group/ButtonGroupCore.js.map
+    field mappings differs
+packages/material-x/button/ButtonCore.js
+    13d12
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/button/ButtonCore.js.map
+    field mappings differs
+packages/material-x/list/list-item.js
+    3d2
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/list/list-item.js.map
+    field mappings differs
+## bare imports of @ydinjs packages in material-x's .js, e4b0e475d
+button-group/ButtonGroupCore.js:4:import "@ydinjs/core/traits/composition.js";
+button-group/ButtonGroupCore.js:7:import "@ydinjs/core/traits/attribute-traits.js";
+button/ButtonCore.js:13:import "@ydinjs/core/traits/composition.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+list/list-item.js:3:import "@ydinjs/core/traits/composition.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";
+## bare imports of @ydinjs packages in material-x's .js, 69b721a3e
+button-group/ButtonGroupCore.js:6:import "@ydinjs/core/traits/attribute-traits.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";
+
+## stage-edges.ts (positions mapped back through positionWithoutStage)
+comment between export and default: THROWS TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+comment after last decorator: "/** d */\nexport @trait /* c */ class X {}\n" exports=X mismapped=9:"e",10:"x",11:"p",12:"o",13:"r",14:"t",23:"/",24:"*",26:"c",28:"*",29:"/"
+comment after last decorator, default: "/** d */\nexport default @trait /* c */ class X {}\n" exports=default mismapped=9:"e",10:"x",11:"p",12:"o",13:"r",14:"t",16:"d",18:"f",19:"a",20:"u",21:"l",31:"/",32:"*",34:"c",36:"*",37:"/"
+jsdoc then other statement then decorator: unchanged
+trailing jsdoc on same line as prev: "const a = 1; /** d */\nexport @trait\nclass X {}\n" exports=X mismapped=none
+anonymous default, two decorators: "/** d */\nexport default @trait\n@sealed\nclass {}\n" exports=default mismapped=none
+two classes, second documented: "@trait\nexport class A {}\n/** d */ // n\nexport default @trait\nclass B {}\n" exports=default mismapped=none
+
+## untouched-imports.ts
+kept    import 'side-effect-a';
+kept    import "side-effect-b";
+kept    import {} from 'empty-braces';
+kept    import { type X } from 'inline-type';
+kept    import type { Y } from 'type-only';
+kept    import { type Z, value } from 'mixed';
+kept    import * as ns from 'namespace';
+kept    import def from 'default';
+imports of composition.js: none
+imports of attribute-traits.js: none
+--- output head
+import __mxflat_attr from "@ydinjs/core/attribute.js";
+import 'side-effect-a';
+import "side-effect-b";
+import {} from 'empty-braces';
+import { type X } from 'inline-type';
+import type { Y } from 'type-only';
+import { type Z, value } from 'mixed';
+import * as ns from 'namespace';
+import def from 'default';
+
+
+import { Bool } from '@ydinjs/core/attribute.js';
+import { Base } from './base.ts';
+
+/** Doc. */
+export const $named = Symbol("Named");
+
+## export-comment-default.ts
+## e4b0e475d
+"/** Doc. */\n@trait\nexport /* c */ default class X {}\n" -> null
+"/** Doc. */\n@sealed\nexport // c\ndefault class Y {}\n" -> null
+"/** Doc. */\n@trait\nexport /* c */ class Z {}\n" -> "/** Doc. */\nexport @trait\n/* c */ class Z {}\n"
+## 69b721a3e
+"/** Doc. */\n@trait\nexport /* c */ default class X {}\n" -> THROWS TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+"/** Doc. */\n@sealed\nexport // c\ndefault class Y {}\n" -> THROWS TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+"/** Doc. */\n@trait\nexport /* c */ class Z {}\n" -> "/** Doc. */\nexport @trait\n/* c */ class Z {}\n"
+
+## build-crash.ts (rolldown with viteTraitsPlugin, a module with no trait)
+# entry $SCRATCH/probe-src/sealed.ts: "/** Doc. */\n@sealed\nexport /* c */ default class Y {}\nfunction sealed(_v: unknown, _c: unknown): void {}\n"
+## e4b0e475d
+built: "// ../../..$SCRATCH/probe-src/sealed.ts\nvar Y = @sealed class {};\nfunction sealed(_v, _c) {}\nexport { Y as default };\n"
+## 69b721a3e
+build FAILED: Build failed with 1 error: /  / [plugin trait-attributes]
+
+## size readings
+size-base.json and size-head.json are byte-identical

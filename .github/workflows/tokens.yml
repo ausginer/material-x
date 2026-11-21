@@ -1,0 +1,67 @@
+# Material's token database, compared weekly with tproc's committed store
+# (`repo:RD-28`, step 3). A database the store doesn't record opens an issue
+# labelled `tokens-release`, or comments on the open one when it doesn't name
+# that database yet. It never commits, opens a pull request or blocks a merge:
+# an update is a person's pull request, made with `just update-tokens`.
+name: tokens
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 26
+
+jobs:
+  # Reads the site's current release and its database version. The check
+  # script imports only Node's built-in modules, so nothing is installed.
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      release: ${{ steps.check.outputs.release }}
+      database: ${{ steps.check.outputs.database }}
+      stored: ${{ steps.check.outputs.stored }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: check
+        run: node packages/tproc/scripts/check-release.ts
+
+  # Holds the workflow's only write permission and runs no repository code.
+  issue:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RELEASE: ${{ needs.check.outputs.release }}
+          DATABASE: ${{ needs.check.outputs.database }}
+          STORED: ${{ needs.check.outputs.stored }}
+        run: |
+          body="$(printf -- '- **Site:** release %s, database %s\n- **Store:** %s\n- **Run:** %s\n' \
+            "$RELEASE" "$DATABASE" "$STORED" "$RUN_URL")"
+          if ! gh label list --limit 1000 --json name --jq '.[].name' | grep -qx tokens-release; then
+            gh label create tokens-release --description 'Material published a token database the store does not record' --color 0e8a16
+          fi
+          number="$(gh issue list --label tokens-release --state open --limit 1 --json number --jq '.[0].number // empty')"
+          if [ -z "$number" ]; then
+            gh issue create --label tokens-release --title 'Material has published a token database the store does not record' --body "$body"
+          elif ! gh issue view "$number" --json body,comments --jq '.body, .comments[].body' | grep -qF "database $DATABASE"; then
+            gh issue comment "$number" --body "$body"
+          fi

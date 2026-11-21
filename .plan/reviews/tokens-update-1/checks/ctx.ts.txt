@@ -1,0 +1,16 @@
+// context.json descriptions against every table's records. Counts only.
+import { readFile, readdir } from 'node:fs/promises';
+const [, , store, raw] = process.argv as [string, string, string, string];
+const ctx = JSON.parse(await readFile(`${store}/context.json`, 'utf8'));
+const c: Record<string, number> = {}; const inc = (k: string) => { c[k] = (c[k] ?? 0) + 1; };
+const g = new Map(ctx.contextTagGroups.map((x: any) => [x.contextTagGroupName, x]));
+for (const f of await readdir(raw)) {
+  const { system } = JSON.parse(await readFile(`${raw}/${f}`, 'utf8'));
+  const groupById = new Map(system.contextTagGroups.map((x: any) => [x.name, x]));
+  for (const rg of system.contextTagGroups) { inc('group records'); if ('description' in rg) inc('group records with description'); inc((g.get(rg.contextTagGroupName) as any)?.description === rg.description ? 'group same' : 'group DIFF'); }
+  for (const rt of system.tags) { inc('tag records'); if ('description' in rt) inc('tag records with description');
+    const gid = rt.name.slice(0, rt.name.lastIndexOf('/tags/')); const sg: any = g.get((groupById.get(gid) as any)?.contextTagGroupName);
+    const st = sg?.tags.find((x: any) => x.tagName === rt.tagName); inc(st && st.description === rt.description ? 'tag same' : 'tag DIFF'); }
+  if ('navigation' in system) inc('tables with navigation');
+}
+console.log(JSON.stringify(c));

@@ -1,0 +1,4 @@
+# oracle.ts at e4b0e475d, rolldown 1.3.2: bytes kept for a bare import
+pure.js: default → 0 | moduleSideEffects: true → 0 | moduleSideEffects: 'no-external' → 0 | moduleSideEffects: () => true → 0
+global.js: default → 0 | moduleSideEffects: true → 0 | moduleSideEffects: 'no-external' → 15 | moduleSideEffects: () => true → 15
+define.js: default → 0 | moduleSideEffects: true → 0 | moduleSideEffects: 'no-external' → 65 | moduleSideEffects: () => true → 65

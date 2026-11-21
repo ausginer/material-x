@@ -30,10 +30,7 @@ import {
   type ModuleCtx,
   type Resolver,
 } from './composition/trait-class.ts';
-import {
-  isCompositionModule,
-  transformTraitModule,
-} from './composition/trait-module.ts';
+import { transformTraitModule } from './composition/trait-module.ts';
 import {
   moveExportBeforeDecorators,
   positionWithoutStage,
@@ -44,7 +41,13 @@ import {
   type FlattenerWarning,
 } from './diagnostics.ts';
 import type { StaticKind, TraitIR } from './ir.ts';
-import { invalidateModule, parseModule, type ModuleLoader } from './syntax.ts';
+import {
+  invalidateModule,
+  parseModule,
+  removeImports,
+  type ImportRemovals,
+  type ModuleLoader,
+} from './syntax.ts';
 
 /** Only JavaScript and TypeScript modules are candidates. */
 const CANDIDATE = /\.[cm]?[jt]sx?$/u;
@@ -232,14 +235,19 @@ export async function flattenModule(
 ): Promise<FlattenResult> {
   const program = parseModule(id, code);
   const ctx = moduleCtx(id, code, program);
+  const removals: ImportRemovals = new Map();
   const transformed = transformTraitModule(
     code,
     program,
     kind === 'application',
+    removals,
     createMagic,
   );
   const sites = findSites(ctx);
   if (sites.length === 0) {
+    if (transformed) {
+      removeImports(transformed, code, removals);
+    }
     return { magic: transformed, warnings: [], dependencies: [] };
   }
 
@@ -257,11 +265,10 @@ export async function flattenModule(
     // oxlint-disable-next-line no-await-in-loop
     compositions.push(await analyzeSite(r, ctx, site, warnings));
   }
-  const implSpecifier = [...ctx.imports.values()].find(
-    ({ imported, specifier }) =>
-      imported === 'compose' && isCompositionModule(specifier),
-  )!.specifier;
-  lowerCompositions(magic, code, compositions, implSpecifier);
+  lowerCompositions(magic, code, program, compositions, removals);
+  // After both transforms, so that a declaration they empty together goes
+  // whole.
+  removeImports(magic, code, removals);
 
   return { magic, warnings, dependencies: [...r.dependencies] };
 }
@@ -285,7 +292,8 @@ export function lowerForAnalysis(id: string, code: string): string {
 export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
   let kind: BuildKind = 'library';
 
-  // Per module id, the classes whose `export` the `load` stage moved.
+  // Per module id, the names that the classes whose `export` the `load` stage
+  // moved are exported as.
   const moved = new Map<string, ReadonlySet<string>>();
 
   /** A diagnostic's position in `code`, as it would be without the stage. */
@@ -294,10 +302,10 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
     code: string,
     pos: number | undefined,
   ): number | undefined => {
-    const classes = moved.get(id);
+    const exports = moved.get(id);
 
-    return classes && pos !== undefined
-      ? positionWithoutStage(parseModule(id, code), code, classes, pos)
+    return exports && pos !== undefined
+      ? positionWithoutStage(parseModule(id, code), code, exports, pos)
       : pos;
   };
 
@@ -342,7 +350,7 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
         moved.delete(id);
         return null;
       }
-      moved.set(id, stage.classes);
+      moved.set(id, stage.exports);
       // A module that a plugin loads isn't watched unless the plugin says so,
       // and a rebuild must load the changed file again.
       this.addWatchFile(id);

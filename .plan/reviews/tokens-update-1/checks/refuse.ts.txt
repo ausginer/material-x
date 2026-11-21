@@ -1,0 +1,26 @@
+// Mutations of the real tables that the covering rule must refuse, and one it
+// must accept. Prints refusal messages (table, token, field) or counts only.
+import { readFile } from 'node:fs/promises';
+const [, , store, raw] = process.argv as [string, string, string, string];
+const { convert } = await import(`${store}/../scripts/convert.ts`);
+const manifest = JSON.parse(await readFile(`${store}/manifest.json`, 'utf8'));
+const options = { release: manifest.source.release, fetchDate: manifest.fetchDate };
+const load = async (order = manifest.tables) => Promise.all(order.map(async ({ kind, componentId }: any) => ({ kind, componentId, table: JSON.parse(await readFile(`${raw}/${kind}.${componentId}.json`, 'utf8')) })));
+const sys = (t: any[], name: string) => t.find((s) => `${s.kind}.${s.componentId}` === name).table.system;
+const BUTTONS = 'TOKEN_TABLE.1c4257f8804f9478';
+const tok = (s: any, n: string) => s.tokens.find((t: any) => t.tokenName === n);
+const vals = (s: any, n: string) => s.values.filter((v: any) => v.name.startsWith(`${tok(s, n).name}/values/`));
+const P = 'md.sys.color.primary';
+const cases: Record<string, [(t: any[]) => void, any[]?]> = {
+  // Two of the partial copy's entries equal the same entry of the covering copy.
+  'partial copy repeats one entry in place of another': [(t) => { const v = vals(sys(t, BUTTONS), P); const { name, ...rest } = v[0]; for (const k of Object.keys(v[1])) if (k !== 'name') delete v[1][k]; Object.assign(v[1], rest); }],
+  'same, with the partial copy read first': [(t) => { const v = vals(sys(t, BUTTONS), P); const { name, ...rest } = v[0]; for (const k of Object.keys(v[1])) if (k !== 'name') delete v[1][k]; Object.assign(v[1], rest); }, [...manifest.tables.slice(4), ...manifest.tables.slice(0, 4)]],
+  'partial copy with a displayGroup of another id': [(t) => { const s = sys(t, BUTTONS); const x = tok(s, P); const other = s.tokens.find((y: any) => y.displayGroup && y.displayGroup !== x.displayGroup && y.name.split('/tokens/')[0] === x.name.split('/tokens/')[0]); if (!other) throw new Error('no other group'); x.displayGroup = other.displayGroup; }],
+  'partial copy given a tree that differs': [(t) => { const s = sys(t, BUTTONS); const c = sys(t, 'COLOR.20543ce18892f7d9'); const id = tok(s, P).name; const tree = structuredClone(c.contextualReferenceTrees[id]); tree.contextualReferenceTree.pop(); s.contextualReferenceTrees[id] = tree; }],
+  'partial copy given COLOR\'s tree, with its values in another order': [(t) => { const s = sys(t, BUTTONS); const c = sys(t, 'COLOR.20543ce18892f7d9'); const id = tok(s, P).name; s.contextualReferenceTrees[id] = structuredClone(c.contextualReferenceTrees[id]); }],
+};
+for (const [label, [mutate, order]] of Object.entries(cases)) {
+  const t = await load(order); mutate(t);
+  try { const r = convert(t, options); console.log(`${label}: converts, ${r.files.size} files, conflicts ${r.conflicts.length}, covered ${JSON.stringify(r.covered)}`); }
+  catch (e) { console.log(`${label}: refused: ${(e as Error).message}`); }
+}

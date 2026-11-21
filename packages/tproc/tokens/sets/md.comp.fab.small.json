@@ -1,6 +1,6 @@
 {
   "tokenSetName": "md.comp.fab.small",
-  "displayName": "[Deprecated] FAB - Size - Small",
+  "displayName": "FAB - Size - Small",
   "description": "For small FABs. Not used in expressive FABs.",
   "tokenType": "COMPONENT",
   "custom": {

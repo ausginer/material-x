@@ -17,6 +17,8 @@
  *   Empty values count as not given, as a dispatch's unset inputs are.
  * - `package --directory <dir> --tarball <file>`: steps 6 and 7, on the tarball
  *   that `aube pack` wrote. It writes `<file>.sha256` in `sha256sum`'s format.
+ *   Step 7 also checks a manifest's `"sideEffects": false`: a bare import of
+ *   each export, bundled by rolldown, must emit nothing (`repo:RD-30`).
  * - `local <name>`: what `just release-check` runs. It builds the package, runs
  *   its `size` script if it has one, packs it into a temporary directory, and
  *   runs `package` on the tarball.
@@ -41,6 +43,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import type { RolldownLog } from 'rolldown';
 import { type Api, ghApi } from './ci-scope.ts';
 
 export type { Api };
@@ -93,7 +96,8 @@ export type CheckName =
   | 'access'
   | 'private'
   | 'dependency'
-  | 'consumer';
+  | 'consumer'
+  | 'side-effects';
 
 export type Problem = Readonly<{ check: CheckName; message: string }>;
 
@@ -109,6 +113,7 @@ export type Manifest = Readonly<{
   peerDependencies?: Readonly<Record<string, string>>;
   optionalDependencies?: Readonly<Record<string, string>>;
   exports?: string | Readonly<Record<string, unknown>>;
+  sideEffects?: unknown;
 }>;
 
 /** The registry's abbreviated document for one package name. */
@@ -730,12 +735,157 @@ export function exportSpecifiers({ name = '', exports }: Manifest): string[] {
     .map((subpath) => (subpath === '.' ? name : `${name}${subpath.slice(1)}`));
 }
 
+const ENTRY = '\0side-effects-entry';
+
+/**
+ * In an installed module's path, the module's name, such as
+ * `@ydinjs/core/utils/runtime.js`, follows the last occurrence of this.
+ */
+const NODE_MODULES = '/node_modules/';
+
+/**
+ * Step 7's check of `"sideEffects": false`, in a project that has installed the
+ * package: rolldown bundles a bare import of each export, and the bundle must
+ * emit no code and no asset. `moduleSideEffects` is a function because only a
+ * function overrides the package's field: under `true` or the default, rolldown
+ * trusts the field and leaves out a module that has an effect. An import that
+ * doesn't resolve is reported as that import, not as an effect. A manifest
+ * without the field isn't checked, and one with another value is reported,
+ * because the check doesn't read that form.
+ */
+export async function checkSideEffects(
+  manifest: Manifest,
+  projectDirectory: string,
+): Promise<Problem[]> {
+  const { sideEffects } = manifest;
+
+  if (sideEffects === undefined) {
+    return [];
+  }
+
+  if (sideEffects !== false) {
+    return [
+      {
+        check: 'side-effects',
+        message: `sideEffects is ${JSON.stringify(sideEffects)}, and the check reads only false`,
+      },
+    ];
+  }
+
+  // A release run's first step runs this script before `aube ci` installs
+  // anything, so evaluating the module needs only Node's built-in modules.
+  // Step 7 runs after the install, and only it imports rolldown.
+  const { rolldown } = await import('rolldown');
+  const problems = await Promise.all(
+    exportSpecifiers(manifest).map(async (specifier): Promise<Problem[]> => {
+      // rolldown keeps a bare specifier that doesn't resolve as an external
+      // import, with a warning, and fails the build on a relative one. The
+      // bytes such a bundle keeps aren't an effect, so the check reports the
+      // import that doesn't resolve instead.
+      const unresolved: RolldownLog[] = [];
+      const bundle = await rolldown({
+        input: ENTRY,
+        cwd: projectDirectory,
+        platform: 'neutral',
+        onLog: (_level, log) => {
+          if (log.code === 'UNRESOLVED_IMPORT') {
+            unresolved.push(log);
+          }
+        },
+        treeshake: { moduleSideEffects: () => true },
+        plugins: [
+          {
+            name: 'side-effects-entry',
+            resolveId: (id) => (id === ENTRY ? id : null),
+            load: (id) =>
+              id === ENTRY ? `import ${JSON.stringify(specifier)};\n` : null,
+          },
+          {
+            // rolldown doesn't bundle CSS. A consumer's bundler emits an
+            // imported stylesheet as an asset, so the check does too.
+            name: 'side-effects-css',
+            async load(id) {
+              if (!id.endsWith('.css')) {
+                return null;
+              }
+
+              this.emitFile({
+                type: 'asset',
+                name: basename(id),
+                source: await readFile(id),
+              });
+
+              return { code: '', moduleType: 'js' };
+            },
+          },
+        ],
+      });
+
+      let bytes = 0;
+
+      try {
+        const { output } = await bundle.generate({
+          format: 'es',
+          minify: true,
+        });
+        bytes = output.reduce(
+          (total, file) =>
+            total +
+            (file.type === 'chunk'
+              ? file.code.trim().length
+              : typeof file.source === 'string'
+                ? file.source.length
+                : file.source.byteLength),
+          0,
+        );
+      } catch (error) {
+        const { errors = [] } = error as Readonly<{
+          errors?: readonly RolldownLog[];
+        }>;
+
+        if (
+          errors.length === 0 ||
+          errors.some(({ code }) => code !== 'UNRESOLVED_IMPORT')
+        ) {
+          throw error;
+        }
+
+        unresolved.push(...errors);
+      } finally {
+        await bundle.close();
+      }
+
+      if (unresolved.length > 0) {
+        return unresolved.map(({ id, exporter }) => ({
+          check: 'side-effects',
+          message:
+            id === ENTRY
+              ? `${specifier} doesn't resolve: publish the file that its export names`
+              : `a bare import of ${specifier} reaches ${id!.slice(id!.lastIndexOf(NODE_MODULES) + NODE_MODULES.length)}, whose import of ${exporter} doesn't resolve: publish the module, or declare its package in dependencies`,
+        }));
+      }
+
+      return bytes > 0
+        ? [
+            {
+              check: 'side-effects',
+              message: `a bare import of ${specifier} keeps ${bytes} bytes: remove the effect, or list the module in sideEffects`,
+            },
+          ]
+        : [];
+    }),
+  );
+
+  return problems.flat();
+}
+
 /**
  * Step 7: installs the tarball into an empty project with aube, so that its
  * `@ydinjs` dependencies come from the registry as a consumer's do, and
  * type-checks a module that imports every export, with `skipLibCheck` off and
- * the DOM library. `workDirectory` must not exist, and is left for the caller
- * to remove.
+ * the DOM library. Then it checks the manifest's `"sideEffects": false` with
+ * `checkSideEffects`. `workDirectory` must not exist, and is left for the
+ * caller to remove.
  */
 export async function checkConsumer(
   tarball: string,
@@ -802,14 +952,17 @@ export async function checkConsumer(
     workDirectory,
   );
 
-  return typecheck.code === 0
-    ? []
-    : [
-        {
-          check: 'consumer',
-          message: `the exports don't type-check as a consumer imports them:\n${typecheck.stdout}${typecheck.stderr}`,
-        },
-      ];
+  return [
+    ...(typecheck.code === 0
+      ? []
+      : [
+          {
+            check: 'consumer',
+            message: `the exports don't type-check as a consumer imports them:\n${typecheck.stdout}${typecheck.stderr}`,
+          } as const,
+        ]),
+    ...(await checkSideEffects(manifest, workDirectory)),
+  ];
 }
 
 /** The registry's abbreviated document, from the endpoint `npm view` reads. */

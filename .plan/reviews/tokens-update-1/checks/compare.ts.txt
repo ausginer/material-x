@@ -1,0 +1,24 @@
+// Converts the tables in a directory and compares each file byte for byte with
+// the committed store. Prints counts and file names only.
+import { readFile, readdir } from 'node:fs/promises';
+const [, , store, raw] = process.argv as [string, string, string, string];
+const { convert } = await import(`${store}/../scripts/convert.ts`);
+const manifest = JSON.parse(await readFile(`${store}/manifest.json`, 'utf8'));
+const load = async (order: any[]) => Promise.all(order.map(async ({ kind, componentId }: any) => ({ kind, componentId, table: JSON.parse(await readFile(`${raw}/${kind}.${componentId}.json`, 'utf8')) })));
+const options = { release: manifest.source.release, fetchDate: manifest.fetchDate };
+const run = async (label: string, order: any[]) => {
+  const c = convert(await load(order), options);
+  const committed = new Set([...(await readdir(`${store}/sets`)).map((f) => `sets/${f}`), 'manifest.json', 'context.json']);
+  let same = 0; const diff: string[] = [];
+  for (const [path, text] of c.files) {
+    let disk: string | undefined;
+    try { disk = await readFile(`${store}/${path}`, 'utf8'); } catch { disk = undefined; }
+    if (disk === text) same++; else diff.push(path);
+    committed.delete(path);
+  }
+  console.log(label, 'files', c.files.size, 'identical', same, 'different', diff.length, diff.slice(0, 5).join(' '), 'committed-only', [...committed].join(' ') || 0, 'conflicts', c.conflicts.length, 'covered', JSON.stringify(c.covered));
+};
+await run('manifest order:', manifest.tables);
+// Every system table after every component table, and reversed.
+await run('system tables last:', [...manifest.tables.slice(4), ...manifest.tables.slice(0, 4)]);
+await run('reversed:', [...manifest.tables].reverse());

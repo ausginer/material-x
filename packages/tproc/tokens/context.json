@@ -1,165 +1,259 @@
 {
   "contextTagGroups": [
     {
-      "contextTagGroupName": "ios.weight.setting",
-      "displayName": "iOS weight setting",
-      "specificity": 9,
-      "defaultTag": "default",
-      "tags": [
-        {
-          "tagName": "default",
-          "displayName": "Default",
-          "tagOrder": 1
-        },
-        {
-          "tagName": "bold",
-          "displayName": "Bold",
-          "tagOrder": 2
-        }
-      ]
-    },
-    {
-      "contextTagGroupName": "ios.dark.theme.elevation",
-      "displayName": "iOS dark theme elevation",
-      "specificity": 8,
-      "defaultTag": "none",
-      "tags": [
-        {
-          "tagName": "elevated",
-          "displayName": "Elevated",
-          "tagOrder": 2
-        },
-        {
-          "tagName": "none",
-          "displayName": "None",
-          "tagOrder": 1
-        }
-      ]
-    },
-    {
-      "contextTagGroupName": "contrast",
-      "displayName": "Contrast",
-      "specificity": 7,
-      "defaultTag": "default",
-      "tags": [
-        {
-          "tagName": "medium.contrast",
-          "displayName": "Medium contrast",
-          "tagOrder": 2
-        },
-        {
-          "tagName": "default",
-          "displayName": "Default",
-          "tagOrder": 1
-        },
-        {
-          "tagName": "high.contrast",
-          "displayName": "High contrast",
-          "tagOrder": 3
-        }
-      ]
-    },
-    {
       "contextTagGroupName": "motion.scheme",
       "displayName": "Motion scheme",
+      "description": "Sets motion scheme for all springs.",
       "specificity": 5,
       "defaultTag": "standard",
       "tags": [
         {
-          "tagName": "standard",
-          "displayName": "Standard",
-          "tagOrder": 1
-        },
-        {
           "tagName": "expressive",
           "displayName": "Expressive",
-          "tagOrder": 2
-        }
-      ]
-    },
-    {
-      "contextTagGroupName": "font",
-      "displayName": "Font",
-      "specificity": 6,
-      "defaultTag": "static",
-      "tags": [
-        {
-          "tagName": "ios.bold",
-          "displayName": "iOS bold",
-          "tagOrder": 3
-        },
-        {
-          "tagName": "variable",
-          "displayName": "Variable",
+          "description": "Expressive motion scheme.",
           "tagOrder": 2
         },
         {
-          "tagName": "static",
-          "displayName": "Static",
+          "tagName": "standard",
+          "displayName": "Standard",
+          "description": "Standard motion scheme.",
           "tagOrder": 1
-        }
-      ]
-    },
-    {
-      "contextTagGroupName": "audience",
-      "displayName": "Audience",
-      "specificity": 3,
-      "defaultTag": "1p.baseline",
-      "tags": [
-        {
-          "tagName": "1p.baseline",
-          "displayName": "1P Baseline",
-          "tagOrder": 1
-        },
-        {
-          "tagName": "3p",
-          "displayName": "3P",
-          "tagOrder": 2
         }
       ]
     },
     {
       "contextTagGroupName": "platform",
       "displayName": "Platform",
+      "description": "Defines iOS color and component overrides, and sets one easing motion token for all platforms (md.sys.motion.easing.emphasized)",
       "specificity": 2,
       "defaultTag": "android",
       "tags": [
         {
-          "tagName": "compose",
-          "displayName": "Compose",
-          "tagOrder": 4
-        },
-        {
-          "tagName": "web",
-          "displayName": "Web",
-          "tagOrder": 3
-        },
-        {
           "tagName": "ios",
           "displayName": "iOS",
+          "description": "iOS component overrides, color scheme overrides, and motion tokens.",
           "tagOrder": 2
+        },
+        {
+          "tagName": "compose",
+          "displayName": "Compose",
+          "description": "Android Jetpack Compose motion token.",
+          "tagOrder": 4
         },
         {
           "tagName": "android",
           "displayName": "Android",
+          "description": "Android Views motion token.",
           "tagOrder": 1
+        },
+        {
+          "tagName": "web",
+          "displayName": "Web",
+          "description": "Web motion token.",
+          "tagOrder": 3
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "font",
+      "displayName": "Font",
+      "description": "DEPRECATED. Use variable font tokens and iOS weight setting context!",
+      "specificity": 6,
+      "defaultTag": "static",
+      "tags": [
+        {
+          "tagName": "static",
+          "displayName": "Static",
+          "description": "DEPRECATED. Don't use! - Static font tokens (like Google Sans, Roboto).",
+          "tagOrder": 1
+        },
+        {
+          "tagName": "ios.bold",
+          "displayName": "iOS bold",
+          "description": "DEPRECATED. Use iOS weight setting content instead! - Bolds iOS weights by one level.",
+          "tagOrder": 3
+        },
+        {
+          "tagName": "variable",
+          "displayName": "Variable",
+          "description": "DEPRECATED. Use variable font tokens instead! - Applies variable font (like Google Sans Flex, Roboto Flex).",
+          "tagOrder": 2
         }
       ]
     },
     {
       "contextTagGroupName": "theme",
       "displayName": "Theme",
+      "description": "Sets light and dark theme ref color tokens.",
       "specificity": 1,
       "defaultTag": "light",
       "tags": [
         {
+          "tagName": "light",
+          "displayName": "Light",
+          "description": "Light theme.",
+          "tagOrder": 1
+        },
+        {
           "tagName": "dark",
           "displayName": "Dark",
+          "description": "Dark theme.",
+          "tagOrder": 2
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "audience",
+      "displayName": "Audience",
+      "description": "Sets baseline blue (1P) or dynamic color (3P) and typography changes. Use \"3P\" to apply dynamic color to your product.",
+      "specificity": 3,
+      "defaultTag": "1p.baseline",
+      "tags": [
+        {
+          "tagName": "3p",
+          "displayName": "3P",
+          "description": "Applies default dynamic color palette and Roboto typefaces. (Dynamic color resolves to a purple color scheme by default.)",
           "tagOrder": 2
         },
         {
-          "tagName": "light",
-          "displayName": "Light",
+          "tagName": "1p.baseline",
+          "displayName": "1P Baseline",
+          "description": "Applies custom baseline blue color palette and Google Sans typefaces.",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "device",
+      "displayName": "Device",
+      "description": "Android Compose only. For adaptive design changes based on device or form factor.",
+      "specificity": 11,
+      "defaultTag": "mobile",
+      "tags": [
+        {
+          "tagName": "tv",
+          "displayName": "TV",
+          "description": "TVs.",
+          "tagOrder": 4
+        },
+        {
+          "tagName": "mobile",
+          "displayName": "Mobile",
+          "description": "Phones, foldables, and other handheld devices.",
+          "tagOrder": 1
+        },
+        {
+          "tagName": "desktop",
+          "displayName": "Desktop",
+          "description": "Laptop, desktop, and other large monitors.",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "auto",
+          "displayName": "Auto",
+          "description": "Car screens.",
+          "tagOrder": 3
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "contrast",
+      "displayName": "Contrast",
+      "description": "Changes system color contrast based on user accessibility setting. For iOS \"high contrast mode\", use the medium contrast setting.",
+      "specificity": 7,
+      "defaultTag": "default",
+      "tags": [
+        {
+          "tagName": "high.contrast",
+          "displayName": "High contrast",
+          "description": "High contrast levels. Not used on iOS.",
+          "tagOrder": 3
+        },
+        {
+          "tagName": "medium.contrast",
+          "displayName": "Medium contrast",
+          "description": "Medium contrast levels. On iOS, use for High contrast mode.",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "default",
+          "displayName": "Default",
+          "description": "Default contrast levels.",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "language.height",
+      "displayName": "Language height",
+      "description": "Adjusts line-height axis based on script height. Details: https://carbon.googleplex.com/google-material-3/pages/typography/type-scale-tokens#43e323b2-7f17-411f-97ec-63980c89a19d",
+      "specificity": 10,
+      "defaultTag": "small",
+      "tags": [
+        {
+          "tagName": "extra.large",
+          "displayName": "Extra large",
+          "description": "Around 100% taller: Nastaliq",
+          "tagOrder": 4
+        },
+        {
+          "tagName": "large",
+          "displayName": "Large",
+          "description": "Around 30% taller: Burmese, Telugu",
+          "tagOrder": 3
+        },
+        {
+          "tagName": "medium",
+          "displayName": "Medium",
+          "description": "Around 7% taller: Amharic, Arabic, Armenian, Bangla, Chinese, Gujarati, Hindi, Japanese, Kannada, Khmer, Korean, Lao, Malayalam, Odia, Punjabi, Sinhala, Tamil, Thai, Vietnamese, most other languages.",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "small",
+          "displayName": "Small",
+          "description": "Cyrillic, Greek, Hebrew, Latin-based languages (except Vietnamese)",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "ios.dark.theme.elevation",
+      "displayName": "iOS dark theme elevation",
+      "description": "For iOS dark mode \"elevated\" surface theme. Maps surface container tones one level brighter. Details: https://carbon.googleplex.com/google-material-3/pages/gm3-apple-platforms/ios-foundations-styles#37d7117c-a36e-48ac-b2b4-6547ba3019a5",
+      "specificity": 8,
+      "defaultTag": "none",
+      "tags": [
+        {
+          "tagName": "elevated",
+          "displayName": "Elevated",
+          "description": "Elevated theme on.",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "none",
+          "displayName": "None",
+          "description": "Elevated theme off.",
+          "tagOrder": 1
+        }
+      ]
+    },
+    {
+      "contextTagGroupName": "ios.weight.setting",
+      "displayName": "iOS weight setting",
+      "description": "For the iOS \"Bold\" accessibility setting. Increases all weights by 100.",
+      "specificity": 9,
+      "defaultTag": "default",
+      "tags": [
+        {
+          "tagName": "bold",
+          "displayName": "Bold",
+          "description": "Bold setting on.",
+          "tagOrder": 2
+        },
+        {
+          "tagName": "default",
+          "displayName": "Default",
+          "description": "Bold setting off.",
           "tagOrder": 1
         }
       ]

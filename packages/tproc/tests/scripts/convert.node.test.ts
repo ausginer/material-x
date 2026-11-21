@@ -320,6 +320,48 @@ describe('convert', () => {
     });
   });
 
+  it("should keep a context group's and a tag's description", () => {
+    const table = createTable();
+    edit(table, ['system', 'contextTagGroups', 0, 'description'], 'Group');
+    edit(table, ['system', 'tags', 0, 'description'], 'Tag');
+    const { files } = convert([source(table)], options);
+
+    expect(files.get('context.json')).toBe(
+      `${JSON.stringify(
+        {
+          contextTagGroups: [
+            {
+              contextTagGroupName: 'motion.scheme',
+              displayName: 'Motion scheme',
+              description: 'Group',
+              specificity: 1,
+              defaultTag: 'expressive',
+              tags: [
+                {
+                  tagName: 'expressive',
+                  displayName: 'Expressive',
+                  description: 'Tag',
+                  tagOrder: 0,
+                },
+              ],
+            },
+          ],
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  });
+
+  it("should drop the site's navigation", () => {
+    const table = createTable();
+    edit(table, ['system', 'navigation'], { guidelinesNodes: [] });
+
+    expect(convert([source(table)], options).files).toEqual(
+      convert([source(createTable())], options).files,
+    );
+  });
+
   it('should name a token that no set holds after its suffix', () => {
     const table = createTable();
     edit(table, ['system', 'tokens', 2], {
@@ -627,8 +669,91 @@ describe('convert refusals', () => {
     expect(() =>
       convert([source(createTable(), 'c1'), source(other, 'c2')], options),
     ).toThrow(
-      'TOKEN_TABLE.c2: md.comp.test.a: token: converts differently in TOKEN_TABLE.c1',
+      'TOKEN_TABLE.c2: md.comp.test.a: token: no copy covers both this one and the one in TOKEN_TABLE.c1',
     );
+  });
+});
+
+/** A table holding `createTable()`'s tokens with no reference tree. */
+function createPartialTable(): Table {
+  const table = createTable();
+  edit(table, ['system', 'contextualReferenceTrees'], {});
+  return table;
+}
+
+/** Gives `md.comp.test.a` a second value, before or after its first. */
+function addValue(table: Table, first: boolean): void {
+  const values = at(table, ['system', 'values']) as unknown[];
+  const value = {
+    name: `${TOKEN}/values/v3`,
+    length: { value: 2, unit: 'DP' },
+  };
+  if (first) {
+    values.unshift(value);
+  } else {
+    values.splice(1, 0, value);
+  }
+}
+
+const COVER_REFUSAL =
+  'TOKEN_TABLE.c2: md.comp.test.a: token: no copy covers both this one and the one in TOKEN_TABLE.c1';
+
+describe('convert duplicates', () => {
+  it('should keep the copy with a tree over a copy it covers', () => {
+    expect(setFile([createTable(), createPartialTable()])).toEqual(
+      setFile([createTable()]),
+    );
+  });
+
+  it('should keep the covering copy when a covered copy is read first', () => {
+    expect(setFile([createPartialTable(), createTable()]).tokens).toEqual(
+      setFile([createTable()]).tokens,
+    );
+  });
+
+  it("should keep the covering copy's order of values", () => {
+    const full = createTable();
+    addValue(full, false);
+    const partial = createPartialTable();
+    addValue(partial, true);
+
+    expect(setFile([partial, full]).tokens).toEqual(setFile([full]).tokens);
+  });
+
+  it('should count the copies covered and their tokens', () => {
+    const { covered } = convert(
+      [source(createTable(), 'c1'), source(createPartialTable(), 'c2')],
+      options,
+    );
+
+    expect(covered).toEqual({ copies: 1, tokens: 1 });
+  });
+
+  it('should refuse a copy with a value that the covering copy lacks', () => {
+    const partial = createPartialTable();
+    edit(partial, ['system', 'values', 0, 'specificityScore'], '2');
+
+    expect(() =>
+      convert([source(createTable(), 'c1'), source(partial, 'c2')], options),
+    ).toThrow(COVER_REFUSAL);
+  });
+
+  it('should refuse a copy whose description differs', () => {
+    const partial = createPartialTable();
+    edit(partial, ['system', 'tokens', 0, 'description'], 'Other');
+
+    expect(() =>
+      convert([source(createTable(), 'c1'), source(partial, 'c2')], options),
+    ).toThrow(COVER_REFUSAL);
+  });
+
+  it('should refuse two copies whose trees differ', () => {
+    const other = createTable();
+    edit(other, [...TREE, 'resolvedValue', 'length', 'value'], 5);
+
+    expect(() =>
+      convert([source(createTable(), 'c1'), source(other, 'c2')], options),
+    ).toThrow(COVER_REFUSAL);
   });
 });
 

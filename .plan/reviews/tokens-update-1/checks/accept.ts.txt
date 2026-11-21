@@ -1,0 +1,17 @@
+// A partial copy whose values are in the covering copy's order, given that
+// copy's tree, is identical and accepted; the store is unchanged.
+import { readFile } from 'node:fs/promises';
+import { isDeepStrictEqual } from 'node:util';
+const [, , store, raw] = process.argv as [string, string, string, string];
+const { convert } = await import(`${store}/../scripts/convert.ts`);
+const manifest = JSON.parse(await readFile(`${store}/manifest.json`, 'utf8'));
+const options = { release: manifest.source.release, fetchDate: manifest.fetchDate };
+const t: any[] = await Promise.all(manifest.tables.map(async ({ kind, componentId }: any) => ({ kind, componentId, table: JSON.parse(await readFile(`${raw}/${kind}.${componentId}.json`, 'utf8')) })));
+const s = t.find((x) => x.componentId === '1c4257f8804f9478').table.system;
+const c = t.find((x) => x.kind === 'COLOR').table.system;
+const ids = (sy: any, id: string) => sy.values.filter((v: any) => v.name.startsWith(`${id}/values/`)).map((v: any) => v.name);
+const cand = s.tokens.find((x: any) => c.tokens.some((y: any) => y.name === x.name) && !s.contextualReferenceTrees[x.name] && isDeepStrictEqual(ids(s, x.name), ids(c, x.name)));
+s.contextualReferenceTrees[cand.name] = structuredClone(c.contextualReferenceTrees[cand.name]);
+const r = convert(t, options);
+let same = 0; for (const [p, text] of r.files) if (text === await readFile(`${store}/${p}`, 'utf8')) same++;
+console.log(`accepted: ${r.files.size} files, ${same} identical to the store, covered ${JSON.stringify(r.covered)}`);

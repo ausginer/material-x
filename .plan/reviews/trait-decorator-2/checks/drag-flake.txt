@@ -1,0 +1,11 @@
+# drag hot-path.browser.test.ts alone, just test-engines in packages/drag, after just _test-builds; runs alternate between the trees
+run 1 e4b0e475d: Tests  1 failed | 8 passed (9) FAIL: × should allocate per sample only the CSS string a lifted write needs; 
+run 1 69b721a3e: Tests  9 passed (9)  
+run 2 e4b0e475d: Tests  1 failed | 8 passed (9) FAIL: × should allocate per sample only the CSS string a lifted write needs; 
+run 2 69b721a3e: Tests  9 passed (9)  
+run 3 e4b0e475d: Tests  1 failed | 8 passed (9) FAIL: × should allocate per sample only the CSS string a lifted write needs; 
+run 3 69b721a3e: Tests  1 failed | 8 passed (9) FAIL: × should allocate per sample only the CSS string a lifted write needs; 
+run 4 e4b0e475d: Tests  9 passed (9)  
+run 4 69b721a3e: Tests  9 passed (9)  
+run 5 e4b0e475d: Tests  1 failed | 8 passed (9) FAIL: × should allocate per sample only the CSS string a lifted write needs; 
+run 5 69b721a3e: Tests  9 passed (9)  

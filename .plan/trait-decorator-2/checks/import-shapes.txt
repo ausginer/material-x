@@ -1,0 +1,5 @@
+# import-shapes.ts at 645410c12
+valueAndType: import "@ydinjs/core/traits/composition.js"; / import { ControlledElement } from "@ydinjs/core/element.js";
+inlineTypeOnly: import "@ydinjs/core/traits/composition.js"; / import { ControlledElement } from "@ydinjs/core/element.js";
+importType: import { ControlledElement } from "@ydinjs/core/element.js";
+declarationRemoved: import { ControlledElement } from "@ydinjs/core/element.js";

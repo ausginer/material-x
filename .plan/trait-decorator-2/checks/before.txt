@@ -1,0 +1,10 @@
+## baseline: 645410c12
+       × should remove the import whole
+     × should remove trait's import when only an inline type is left in it
+     × should remove compose's import when only an inline type is left in it
+     × should remove an import that the trait transform and the lowering empty together
+     × should keep the JSDoc that a line comment follows
+     × should keep the JSDoc that a block comment follows
+     × should keep the JSDoc of an export default class
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  7 failed | 136 passed (143)

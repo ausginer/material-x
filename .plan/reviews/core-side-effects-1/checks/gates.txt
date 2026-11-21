@@ -1,0 +1,23 @@
+# Proof 7 and departure 2, rerun by the feature proof at 42999d4a3 (aube exec just <recipe>, from the root)
+
+typecheck: exit 0
+lint: exit 0
+fmt-check: exit 0
+
+## just test, as committed (rolldown imported in checkSideEffects); load average 3.44 at the start
+ Test Files  146 passed (146)
+      Tests  2307 passed (2307)
+exit 0
+
+## just test with rolldown imported at release-check.ts's top (scratch change, reverted after); load average 3.35 at the start
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed | 145 passed (146)
+      Tests  1 failed | 2306 passed (2307)
+exit 1
+     × should allocate per sample only the CSS string a lifted write needs 10273ms
+ FAIL  |shipped/drag (chromium)| tests/hot-path.browser.test.ts:261 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"sortable/operation.ts:updateInsertion":7092,"sortable/y.ts:resolve":6672,"kernel/session.ts:handleEvent":5224,"sortable/operation.ts:move":25444,"lift.ts:translate":18372}: expected 17.413333333333334 to be less than 16
+
+## where rolldown loads under the committed import, read from the source
+- .scripts/release-check.node.test.ts is the only file that imports .scripts/release-check.ts.
+- Its row "should type-check box-quad's intended pack as a consumer imports it" calls checkConsumer with BOX_QUAD_MANIFEST, whose sideEffects is false, so checkSideEffects imports rolldown in that run as well.

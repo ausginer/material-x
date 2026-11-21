@@ -1,0 +1,17 @@
+# just release-check box-quad, after the unresolved-import fix
+node .scripts/release-check.ts local box-quad
+### @ydinjs/box-quad@1.0.0
+
+- tarball: `ydinjs-box-quad-1.0.0.tgz`
+- shasum (SHA-1), as npm shows it: `d8feb6e3bb2392e6b6a4e0d419115fefd453b255`
+- integrity: `sha512-SbKhc8GZta7KMMqaxyidCvA8pGJ9VnIDpy5jb8K3dtUGw+I6K8LEz0R0hSXQAFhpuPxOiVSOmm+S0VK3nZuoNQ==`
+- sha256: `4235cc62833440f9d8ae3f99b6312be916ea7fb2096e37d4fcf60ffe2c14f725`
+
+- `CHANGELOG.md`
+- `LICENSE`
+- `README.md`
+- `index.d.ts`
+- `index.js`
+- `index.js.map`
+- `package.json`
+exit 0

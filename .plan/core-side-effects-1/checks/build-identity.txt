@@ -1,0 +1,6 @@
+# Built files of core and material-x at e4b0e475d (root just build), sha256 prefix, without core's field and with it
+files compared: 175 (core 27 .js and 27 .d.ts, material-x 92 .js, 28 .d.ts, 1 other)
+result: identical, every file
+core's package.json after the build with the field, against e4b0e475d:
+4a5
+>   "sideEffects": false,

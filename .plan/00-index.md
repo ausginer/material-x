@@ -1316,7 +1316,7 @@ No register entry held that design. It lived in the code, in that document and i
    - It replaces the constant with the base.
    - It copies each trait's members in list order, before the component's own.
    - It merges statics by property 3.
-   - It generates `static { impl(this, …brands) }` when the list has a trait, and neither the block nor the import for an empty list. _(Amended 2026-11-20, below.)_
+   - It generates `static { impl(this, …brands) }` when the list has a trait, and neither the block nor the import for an empty list. _(Amended 2026-11-20, twice, below.)_
    - Every case the copy can't carry is a build error. Layer (a) has no runtime composition to fall back on.
 3. **A static merges by the kind its declaration states,** read syntactically.
    - An array concatenates, and an object spreads shallowly. The types say the same through `MergeStatics`.
@@ -1516,7 +1516,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **The defect** (P47). rolldown's declaration emitter, oxc's, drops a JSDoc in front of a class's decorators. tsdown's declaration plugin records each module's code before any transform of ours runs. So the 10 published trait `.d.ts` files lose their class docs.
 - **The written form stays** `/** doc */`, then `@trait` and `@attributes(TABLE)`, each on its own line, then `export class`. The owner also asked whether a tool option like Babel's old `decoratorsBeforeExport` exists. None does: `oxfmt` 0.78 has no decorator option, and oxc and TypeScript attach comments by fixed rules.
 - **The stage,** a `load` hook of the `trait-attributes` plugin:
-  - **What it does.** For an exported class declaration whose decorators come before `export`, with a JSDoc directly in front of them, it moves `export` to the first decorator's start. JavaScript and TypeScript read the result, `/** doc */ export @trait @attributes(T) class X`, the same way. The emitter, TypeScript 6 and tsc 7 all keep its doc.
+  - **What it does.** For an exported class declaration whose decorators come before `export`, with a JSDoc directly in front of them, it moves `export` to the first decorator's start. _(Amended 2026-11-20 a fourth time, below: `export default` too, and other comments may follow the JSDoc.)_ JavaScript and TypeScript read the result, `/** doc */ export @trait @attributes(T) class X`, the same way. The emitter, TypeScript 6 and tsc 7 all keep its doc.
   - **Why it comes first.** rolldown runs `load` before every `transform`, so the declaration plugin records the rewritten code.
   - **What it reads:** candidate modules with an absolute file id and no query, in every build and not on the dev server, which emits no declarations. It parses only a file with a line that starts with `@`, and returns `null` when it has nothing to move.
   - **What it returns:** the code and a hires map whose `sourcesContent` is the file.
@@ -1537,6 +1537,36 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **P47's ways 2, 3a and 3b,** for the reasons in [its record](trait-jsdoc-probe-1/trait-jsdoc-probe.md#results).
   - **The probed internal form,** `static { trait(this); … }`. It is the source form that `trait-decorator` rejects, it needs a second compile stage in the analysis loader too, and it moves an inline table's positions into the class body.
   - **`export` on the doc's last line,** which keeps every line and column: 30 built files changed (P48).
+
+**Dated 2026-11-20 by the architect: the three amendments of 2026-11-20 are implemented,** by PR #85, merged at `3457e3463`. The [feature proof](reviews/trait-decorator-1/feature-proof-claude.md)'s verdict at `f8acb005b` is that nothing blocks. Their _Unimplemented_ lines are answered.
+
+- **`reviewer-1` is accepted as resolved.** `.storybook/main.ts` sets `typescript: { reactDocgen: false }`, because react-docgen's parser rejects decorators before `export`. The re-review read every docs page and every story's `argTypes` with docgen on and off and found them identical. Nothing the site shows reads docgen's output.
+- **`reviewer-3` and `reviewer-4`** are decided in the amendment below. **`reviewer-5`** is deferred by the owner.
+
+**Amended 2026-11-20 a fourth time, by the architect: no trait form loses its doc, and the plugin leaves no import it emptied** (the third amendment's stage, and property 2's fourth bullet). **Asked by the owner,** relayed by the coordinator: _"The owner wants both done"_, for the feature proof's `reviewer-3` and `reviewer-4`. Registered on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. An amendment, because both findings are about how this decision's properties hold. The [plan](trait-decorator-2/trait-decorator-2-plan.md) holds the diagnosis, the tasks, the proofs and the probes. **Unimplemented.**
+
+**Approved by the owner on 2026-11-20,** relayed by the coordinator: _"Да, давай по обоим пунктам"_ ("Yes, go on both"). The two points were the plan's tasks 1 to 4, which the implementer takes on this branch, and the plan's [question 1](trait-decorator-2/trait-decorator-2-plan.md#questions-for-the-owner), answered yes as recommended: `@ydinjs/core` declares `"sideEffects": false`, as its own unit with a size reading, before core's first release. That unit is `RD-30`, planned on `core/side-effects-1`. Neither unit waits for the other.
+
+- **The doc forms** (`reviewer-3`, [transcript](trait-decorator-2/checks/doc-forms.txt)).
+  - **`@trait export abstract class` keeps its doc.** The finding came from the probe's test, `(export )?declare class`, which can't match `export declare abstract class`.
+  - **Two forms lose it, both because of the stage:** a comment between the JSDoc and the first decorator, because the stage requires only whitespace there; and `@trait export default class X`, because the stage reads only `export class`.
+  - **Both keep it from now on, and neither is refused.** The stage reads `export default class` too, and moves `export default`. A statement counts as documented when a JSDoc lies between the previous statement and the first decorator, whatever comments follow the JSDoc. The emitter keeps the doc of each form the stage produces, and the compile already accepts each one. Refusing a form would make the compiler a lint rule about comment placement, or remove `export default`, which the resolver supports.
+  - **An anonymous `export default` trait** is refused already, by `trait-decorator`.
+- **The bare import** (`reviewer-4`, [transcripts](trait-decorator-2/checks/bare-imports.txt)). material-x's built JavaScript has eight bare imports of core modules, from two mechanisms.
+  - **The plugin's, three of them:** `list-item.js`, `ButtonCore.js` and `ButtonGroupCore.js` import `composition.js` bare. The lowerer keeps `import { compose, type Composed }` after removing the composition, and the trait transform keeps `import { type Composed }` after removing `trait`. Under `verbatimModuleSyntax`, both are emitted as an import that rolldown keeps for an external module.
+  - **Decided:** when the plugin removes an import specifier and no value specifier remains in that declaration, it removes the declaration. An inline `type` specifier isn't a value specifier. The lowerer removes `compose` once nothing in the module references it. A declaration the plugin didn't touch stays as written. Property 2's _"nor the import"_ then holds for the module: an empty composition leaves no import of `composition.js`.
+  - **rolldown's, five of them:** a material-x trait class that the package's runtime doesn't read is tree-shaken away, and rolldown keeps its external imports as bare imports. No hook of the plugin sees those uses go. This unit leaves them.
+- **Not adopted:**
+  - **`treeshake.moduleSideEffects: 'no-external'` in material-x's build:** it would drop a deliberate bare import of any package without a warning. In the probe it also changed `fab.d.ts`.
+  - **core's `sideEffects` as the fix for `reviewer-4`:** it lets only a consumer's bundler drop the import, and material-x's published file would keep it.
+  - **Moving `export` for every decorated class, with no doc test:** that widens the stage's rewrites, the scope that `reviewer-5` questions.
+- **Answered by the owner** (above): `@ydinjs/core` declares `"sideEffects": false`, which is core's published contract. It is true of all 27 built modules today. It goes in before core's first release, as its own unit with a size reading (`RD-30`). This amendment doesn't need it. Until the answer, this bullet began _"**For the owner:** whether"_ and said _"Recommended before core's first release"_.
+
+**Dated 2026-11-20 by the architect: the fourth amendment is implemented on `repo/trait-decorator-2`** (PR #88, not yet merged). Its _Unimplemented_ line is answered, and it applies to `main` when #88 merges. The [feature proof](reviews/trait-decorator-2/feature-proof-claude.md)'s _Re-review at `9bbbc8c3f`_, committed at `fe800111a` and relayed by the coordinator, finds that nothing blocks and that there's no new finding.
+
+- **`reviewer-1` is resolved** by `fc5986185`. It was Tier A: the stage threw on a comment between `export` and `default`, so the build failed. The stage now moves `export` or `export default` with every comment between them, taking the span from the declaration, and it leaves a module it can't parse as written.
+- **The non-trait rows' deviation is accepted, within property 1.** They assert that a decorated `export default class` that isn't a trait differs from the build without the plugin only by the kept doc. Property 1 reads every documented class whose decorators come before `export`, as the third amendment's stage already did for `export class`. Whether the stage should rewrite a class that isn't a trait stays `reviewer-5`'s question, which the owner deferred.
+- **No test witnesses the parse-error guard.** The proof records this as a note, not a finding: with oxc-parser 0.158 the stage returns `null` for every unparseable input it tried whether or not the guard returns, so the guard changes no output.
 
 #### RD-27 — Each `@ydinjs` package is released by one workflow that stages it on npm with provenance for the owner to approve, and box-quad's first release is 1.0.0
 
@@ -1673,6 +1703,31 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **The second rulings implemented 2026-11-20 by the implementer,** in PR #84. P1–P5, P10, P11 and P12 hold ([transcript](tokens-source-1/checks/step-1.txt), its last section). The store is 58.9 MB, and `storeVersion` stays 1. No child value is unresolved, and the 704 conflicts are unchanged.
 
+**Steps 2 and 3 approved by the owner,** relayed by the coordinator on 2026-11-20.
+
+**Ruled 2026-11-20 by the architect,** on the implementer's questions for steps 2 and 3, relayed by the coordinator. The plan's [rulings for steps 2 and 3](tokens-source-1/tokens-source-plan.md#rulings-for-steps-2-and-3) have the readings and the proofs. The release is `2026-11-19_06-20-01`, database `41.1.12` in all 14 tables. The architect read the 14 tables and ran `main`'s converter on them.
+
+- **Three keys upstream added,** under property 4's rule:
+  - `system.navigation` is dropped. It is the guideline site's page tree of 55 nodes, with page titles, slugs and ids, and no token data.
+  - A context tag group's `description` (140 records) and a tag's (392) are kept in `context.json`. They are upstream's text about the contexts, and all 14 tables agree on them.
+  - `storeVersion` becomes 2, because `context.json` gains a key after the store reached `main`.
+- **Duplicates, property 5:** the converter keeps a copy that covers every other copy. A copy covers another when the two are identical, or when the other has no reference tree, equals it in every other field but `values`, and has only `values` entries that each equal a different one of its own. A token for which no copy covers every other refuses the update.
+  - At this release, all 704 conflicting copies of 217 tokens are covered. Each lacks a tree, and 98 have fewer values. 27 copies of 5 tokens list the same entries in another order. The kept copy is always a system table's and has a tree.
+  - So the conflicts weren't caused by step 1's mixed snapshot, as the plan had said: component tables carry the system tokens they reference as partial copies.
+  - It stays inside the owner's _"fields and data stay original"_. A covered copy holds no token data that the kept copy lacks.
+- **Step 3,** the implementer's proposals with one correction:
+  - **What counts as a change:** the site's current database, by `versionName` or version id, isn't one that the manifest records. A new release id that serves the same database isn't a change. Confirmed.
+  - **The issue:** a weekly workflow opens one issue labelled `tokens-release`, as `safari.yml` does, and `work-queue.md` names that label as a non-queue label. Confirmed.
+  - **Corrected:** a run comments on the open issue only when the current database isn't one that the issue already names. Under the proposal, every weekly run commented while the versions differed.
+  - **P9:** before merge, against a stub `gh`. A real `workflow_dispatch` run is owed after merge, on the owner's go. Confirmed.
+
+**Steps 2 and 3 implemented 2026-11-20 by the implementer,** on `tproc/tokens-update-1`, at the rulings above. The plan has the [result](tokens-source-1/tokens-source-plan.md#steps-revised) and the proofs are in [`step-2.txt`](tokens-source-1/checks/step-2.txt).
+
+- The store is converted from release `2026-11-19_06-20-01`, database `41.1.12`, at `storeVersion` 2. 704 copies of 217 tokens are covered, and there is no conflict.
+- The [update report](tokens-source-1/checks/step-2-report.md) lists 30 tokens added, none removed, no deprecation added and 104 selected values changed.
+- material-x's CSS changes in one place: `xsmall` buttons get a 4px icon-label space, from `md.comp.button.xsmall.icon-label-space`. P1–P3, P5–P8 and P12 hold.
+- The weekly check is `.github/workflows/tokens.yml`. P9 holds before merge, and a `workflow_dispatch` run is owed after merge, on the owner's go.
+
 - **The source stays the design-system database tables that m3.material.io serves** (`_dsm/data/dsdb-m3/<release>/<KIND>.<id>.json`). The [survey](tokens-source-1/tokens-source-plan.md#survey) found no other public source with contextual values. material-web, Flutter's `material_ui`, Compose and MDC-Android each export the same database for one context, months behind. The Figma Design Kit has no component tokens, and its variables can't be read headlessly without an Enterprise plan.
 - **Required properties:**
   1. **tproc reads only the committed store,** through a reader with no network path. A missing or invalid store file fails the load and names the file. `DB`, `DB/index.ts` and `TokenTable.ts` are deleted.
@@ -1690,8 +1745,9 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
      - **It keeps every field that carries a token's data,** whether tproc reads it or not: `elevation`, `svgPath` and `undefined: true` among the literal fields, `resolvedCustomCompositeValue` where an entry has no `resolvedValue`, and a token's `description`. Ruled on 2026-11-20 ([field rulings](tokens-source-1/tokens-source-plan.md#field-rulings)). Until then, the plan's lists left them out.
      - **It also keeps a tree node's `fieldNames`, each child node's value as an index into its token's `values`, and each set's display groups,** with `parentGroup`, `orderInParentTokenSet`, `orderInParentDisplayGroup` and `description`. A group is identified by its path of `displayName`s, in `parentGroup` and in a token's `displayGroup`. The component catalogue stays out. Ruled on 2026-11-20 ([second rulings](tokens-source-1/tokens-source-plan.md#field-rulings-from-the-feature-proof)). Until then, a token's group was its `displayName`, and a tree kept only `tokenName` and `childNodes`.
      - **Every key is ruled, at every depth:** the allow list keeps it or the drop list names it, and a key in neither refuses the conversion. Inside a value field, keys and types match the schema exactly. Until then, the allow list stopped at a value field's name.
-  5. **The converter refuses** a table whose fields the converter reads are missing or of another type. It also refuses a tag id that resolves to no tag, a tree that doesn't start at the token's own value, a reference to a token that isn't in the store, and a token that two tables convert differently. It names the table, the token and the field.
-     - A token that two tables convert differently is allowed only in step 1's legacy conversion of today's mixed snapshot. There the table `DB.load()` reads first wins, and each conflict is listed.
+     - **`context.json` keeps a context tag group's and a tag's `description`, and the drop list names `system.navigation`.** `storeVersion` is 2. Ruled on 2026-11-20 ([step 2 rulings](tokens-source-1/tokens-source-plan.md#step-2)). Until then, neither record kept a `description`, and the store was at version 1.
+  5. **The converter refuses** a table whose fields the converter reads are missing or of another type. It also refuses a tag id that resolves to no tag, a tree that doesn't start at the token's own value, a reference to a token that isn't in the store, and a token for which no table's copy covers every other. It names the table, the token and the field.
+     - **A token that more than one table carries is stored from the copy that covers every other,** and a token for which no copy does is refused. A copy covers another when the two are identical, or when the other has no `contextualReferenceTree`, equals it in every other field but `values`, and has only `values` entries that each equal a different one of its own. Ruled on 2026-11-20 ([step 2 rulings](tokens-source-1/tokens-source-plan.md#step-2)). Until then, this said: _"A token that two tables convert differently is allowed only in step 1's legacy conversion of today's mixed snapshot. There the table `DB.load()` reads first wins, and each conflict is listed."_
   6. An update is a pull request carrying a report: tokens added and removed, deprecations added, and each changed one-hop reference and literal for `expressive` and `web`, by token set, with the difference in material-x's generated CSS. The report is saved in that pull request's record.
   7. The component list is explicit, one manifest row per component id.
   8. **The CSS layer** (`processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable`, `selector`) reads the reader and keeps its surface. Its value mapping is one exported pure function from a stored value to a CSS value. The reader's selection rule is today's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry.
@@ -1752,6 +1808,40 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **Why the rewrite changes so much.** It changes every commit hash, because `--sensitive-data-removal` also removes every commit's signature. The map keeps the record's citations readable without rewriting the record.
 - **Why Support is needed.** Without it, GitHub keeps the old commits reachable through the 55 `refs/pull/N/head` refs and by hash. Only Support can remove those.
 - **Why nothing else on GitHub needs removing.** The scan of the pull requests' and issues' text, the artifacts, the deployed site and the run logs found no copy ([reading](tokens-source-1/checks/history-scan.txt)).
+
+#### RD-30 — `@ydinjs/core` declares `"sideEffects": false`, and the release check bundles a bare import of each export to prove the claim of every package that makes it
+
+**Decided 2026-11-20 by the owner,** relayed by the coordinator, answering question 1 of the [`@trait` follow-ups plan](https://github.com/ausginer/material-x/blob/repo/trait-decorator-2/.plan/trait-decorator-2/trait-decorator-2-plan.md#questions-for-the-owner) as recommended: _"Да, давай по обоим пунктам"_ ("Yes, go on both"). `RD-26`'s fourth amendment, on `repo/trait-decorator-2`, records the answer. The check's design is the architect's. Registered on `core/side-effects-1`, from `origin/main` at `e4b0e475d`. `RD-29` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number. The [plan](core-side-effects-1/core-side-effects-plan.md) holds the readings, the tasks, the proofs and the probes. It must be in before core's first release.
+
+**Implemented 2026-11-20 by the implementer** on `core/side-effects-1` ([report](core-side-effects-1/core-side-effects-report.md)). Until then this said _"Unimplemented."_
+
+- core declares the field, and step 7 runs the `side-effects` check. Proofs 1–7 hold. `just release-check core` lists no `side-effects` problem, and lists `@ydinjs/core/utils/runtime.js` with a scratch top-level effect. box-quad passes.
+- rolldown 1.3.2 doesn't bundle CSS, so the check emits an imported stylesheet as an asset itself, and property 4 holds as written. For that reason the `moduleSideEffects: true` mutation fails the two effect rows and not the CSS row.
+- rolldown is imported when step 7 runs, not at the module's top, because a release run's first step runs `release-check.ts release` before `aube ci`, so evaluating the module must need only Node's built-in modules. With a static import, that step fails with `ERR_MODULE_NOT_FOUND` ([probe](reviews/core-side-effects-1/checks/without-dependencies.txt)). Separately, with a static import the root `just test` failed `drag:DRI-17`'s hot-path row, which passes alone. That is an observation for #70, not a reason for the import's position.
+- An import that rolldown doesn't resolve, such as an export whose file is missing or a module's import of an undeclared package, is reported as that import, with a repair that applies to it, and not as an effect. Before the feature proof's `reviewer-2`, such an export was reported as keeping bytes, and an unresolved relative import made the check throw.
+- **Corrected 2026-11-20** after the [feature proof](reviews/core-side-effects-1/feature-proof-claude.md) (`reviewer-1`, `reviewer-2`). This line explained the lazy import only by DRI-17, and didn't name unresolved imports.
+
+1. **The claim.** core's `package.json` declares `"sideEffects": false`.
+   - **It is true of the 27 modules at `e4b0e475d`.** Their top levels only import other core modules, bind functions, classes and values, and call `Symbol`, `bound()` (which returns `null`) and `createEventNotifier` (which returns a closure). `element.js`'s static block assigns its own module's bindings. No module writes a global, defines an element, adopts a stylesheet or adds a listener, and core imports no CSS ([reading](core-side-effects-1/checks/top-level.txt)).
+   - **The one observable thing is a throw:** `element.js` and the modules that extend `Event` throw where the global doesn't exist. Leaving the module out removes only that failure.
+   - **rolldown agrees without the field:** told that every module has effects unless it proves otherwise, it keeps nothing of a bare import of any of the 27 ([reading](core-side-effects-1/checks/consumer-drop.txt)).
+2. **The check.** The release workflow's step 7 checks the claim of every packed manifest whose `sideEffects` is `false`, box-quad's included:
+   - for each export, it bundles a bare import of the specifier from the consumer project with the repository's rolldown, with `treeshake.moduleSideEffects` a function that returns `true`. Only a function overrides the package's field ([reading](core-side-effects-1/checks/oracle.txt));
+   - each bundle must emit no code and no asset. Otherwise it reports a `side-effects` problem that names the specifier and the bytes kept;
+   - a manifest whose field has another value, such as an array, is reported until the check reads that form.
+3. **A module that gains an effect** fails the next release's check run. Its author removes the effect, marks the call `/* @__PURE__ */`, or changes the field to an array of the modules that have effects and extends the check to read it.
+
+- **Why `false` and not an array:** an empty array means the same, and neither form keeps out a module that nobody listed. The check does, in either form.
+- **Why rolldown judges it:** it is the repository's bundler, and it keeps what it can't prove free of effects. When it is wrong, the release fails on an effect that isn't one, which is the safe side.
+- **Why at release:** the field is a contract once the package is published, and step 7 already installs the tarball that is published, in every check run, release run and `just release-check`.
+- **What it changes** ([plan](core-side-effects-1/core-side-effects-plan.md#the-size-reading)):
+  - **No size row,** of 33, because size-limit bundles with rolldown, which already drops these modules. The five bare imports of core that rolldown keeps in material-x's built `IconButtonCore.js`, `TextFieldCore.js`, `ButtonGroupCore.js` and `focus-forwarding.js` cost 0 bytes in a rolldown bundle, with or without the field ([reading](core-side-effects-1/checks/size-reading.txt));
+  - **No built file** of core or material-x. material-x's build treats core as external, so its published files keep the five imports ([reading](core-side-effects-1/checks/build-identity.txt));
+  - **An esbuild consumer's bundle:** 14 of material-x's 18 runtime entries lose 42 to 51 minified bytes, which are `attribute-traits.js`'s `bound` and its two calls. A bare import of a core module keeps up to 959 bytes without the field, and nothing with it ([reading](core-side-effects-1/checks/consumer-entries.txt)).
+- **Not adopted:**
+  - **the check in the pull-request workflow as well:** no job there packs a package, and nothing is published between a pull request and the check run before the next release;
+  - **a test that reads the top level of core's source:** the claim is about the built modules, which the plugin and tsdown write.
+- **`RD-26` and `RD-27` don't change.** `RD-26`'s fourth amendment and this unit don't wait for each other. `RD-27`'s properties don't enumerate the checks, and its plan's step 7 gains one.
 
 #### RD-31 — The list's sortable items are a separate element on `@ydinjs/drag`, and core's `reorderable` trait is deleted
 

@@ -1,0 +1,66 @@
+// P5 at release 2026-11-19_06-20-01, outside legacy mode, with the step 2
+// rulings' witnesses and the reordered-tables check. Saved under
+// packages/tproc/.data/ and run from packages/tproc as `node .data/p5.ts <tables directory>`.
+// Each mutation is applied to a fresh copy of the tables. Prints refusals and counts only.
+import { readFile } from 'node:fs/promises';
+import { isDeepStrictEqual } from 'node:util';
+import { convert, type SourceTable } from '../scripts/convert.ts';
+const dir = process.argv[2]!;
+const manifest = JSON.parse(await readFile(new URL('../tokens/manifest.json', import.meta.url), 'utf8'));
+const ORDER: string[] = manifest.tables.map(({ kind, componentId }: any) => `${kind}.${componentId}`);
+const load = async (order = ORDER): Promise<SourceTable[]> => Promise.all(order.map(async (f) => { const [kind, componentId] = f.split('.') as [string, string]; return { kind, componentId, table: JSON.parse(await readFile(`${dir}/${f}.json`, 'utf8')) }; }));
+const options = { release: '2026-11-19_06-20-01', fetchDate: '2026-11-20' };
+type Sys = { system: any };
+const sys = (t: SourceTable[], name: string) => (t.find((s) => `${s.kind}.${s.componentId}` === name)!.table as Sys).system;
+const checkbox = (t: SourceTable[]) => sys(t, 'TOKEN_TABLE.31f16b44fe03b0c0');
+const buttons = (t: SourceTable[]) => sys(t, 'TOKEN_TABLE.1c4257f8804f9478');
+const first = (s: any) => s.tokens[0];
+const primary = (s: any) => s.tokens.find((t: any) => t.tokenName === 'md.sys.color.primary');
+const primaryValues = (s: any) => s.values.filter((v: any) => v.name.startsWith(`${primary(s).name}/values/`));
+function composite(t: SourceTable[]): any {
+  for (const { table } of t) for (const tree of Object.values<any>((table as Sys).system.contextualReferenceTrees)) for (const e of tree.contextualReferenceTree) if (e.resolvedCustomCompositeValue) return Object.values<any>(e.resolvedCustomCompositeValue.properties)[0];
+  throw new Error('no resolvedCustomCompositeValue');
+}
+const mutations: Record<string, (t: SourceTable[]) => void> = {
+  'removed contextualReferenceTree': (t) => { const s = checkbox(t); s.contextualReferenceTrees[first(s).name] = {}; },
+  'renamed resolvedValue': (t) => { const s = checkbox(t); const e = s.contextualReferenceTrees[first(s).name].contextualReferenceTree[0]; e.resolved = e.resolvedValue; delete e.resolvedValue; },
+  'one-hop reference to a missing token': (t) => { const s = checkbox(t); const v = s.values.find((v: any) => v.tokenName != null); v.tokenName = 'md.comp.checkbox.missing'; },
+  'tree node naming a missing token': (t) => { const s = checkbox(t); const e = s.contextualReferenceTrees[first(s).name].contextualReferenceTree[0]; e.referenceTree.tokenName = 'md.comp.checkbox.missing'; },
+  'value with an unknown value kind': (t) => { const s = checkbox(t); const v = s.values.find((v: any) => v.tokenName != null); v.upstreamKind = v.tokenName; delete v.tokenName; },
+  'tag id naming no tag': (t) => { const s = checkbox(t); const v = s.values.find((v: any) => v.contextTags?.length); v.contextTags = ['designSystems/x/contextTagGroups/y/tags/missing']; },
+  "tree not starting at the token's own value": (t) => { const s = checkbox(t); const e = s.contextualReferenceTrees[first(s).name].contextualReferenceTree[0]; e.referenceTree.value.name = 'designSystems/x/tokens/y/values/z'; },
+  'missing token field': (t) => { delete first(checkbox(t)).tokenValueType; },
+  'extra key in a color literal': (t) => { const s = checkbox(t); s.values.find((v: any) => v.color != null).color.hue = 0; },
+  'extra key in a resolvedCustomCompositeValue': (t) => { composite(t).extra = 1; },
+  'composite resolvedValue with two literal fields': (t) => { composite(t).resolvedValue = { numeric: 1, opacity: 1 }; },
+  'composite resolvedValue with no literal field': (t) => { composite(t).resolvedValue = {}; },
+  'composite resolvedValue as a non-object': (t) => { composite(t).resolvedValue = 1; },
+  'unknown key on a token': (t) => { first(checkbox(t)).upstreamAddedField = 'x'; },
+  'unknown key on a display group': (t) => { checkbox(t).displayGroups[0].upstreamAddedField = 'x'; },
+  'unknown key on a table system': (t) => { checkbox(t).upstreamAddedField = 'x'; },
+  'child value not its token\'s': (t) => { const s = checkbox(t); const e = Object.values<any>(s.contextualReferenceTrees).find((tree: any) => tree.contextualReferenceTree[0].referenceTree.childNodes?.length).contextualReferenceTree[0]; e.referenceTree.childNodes[0].value.name = e.referenceTree.value.name; },
+  // The step 2 rulings' witnesses, on the Buttons table's copy of md.sys.color.primary.
+  'partial copy with a value the covering copy lacks': (t) => { primaryValues(buttons(t))[0].specificityScore = '999'; },
+  'partial copy whose description differs': (t) => { primary(buttons(t)).description = 'Other'; },
+  'two copies whose trees differ': (t) => {
+    const color = sys(t, 'COLOR.20543ce18892f7d9'); const b = buttons(t);
+    const tree = structuredClone(color.contextualReferenceTrees[primary(color).name]);
+    const resolved = tree.contextualReferenceTree.find((e: any) => e.resolvedValue?.color);
+    resolved.resolvedValue.color = { ...resolved.resolvedValue.color, red: 0.123 };
+    b.contextualReferenceTrees[primary(b).name] = tree;
+  },
+  'two tables of different versions': (t) => { checkbox(t).version.versionName = '0.0.1'; },
+};
+for (const [name, mutate] of Object.entries(mutations)) {
+  const tables = await load(); mutate(tables);
+  try { convert(tables, options); console.log(`${name}: NOT REFUSED`); } catch (e) { console.log(`${name}: refused: ${(e as Error).message}`); }
+}
+const ok = convert(await load(), options);
+console.log(`unmutated: converts, ${ok.files.size} files, ${ok.conflicts.length} conflicts, covered ${ok.covered.copies} copies of ${ok.covered.tokens} tokens`);
+
+// The covering copy is kept wherever it comes from: COLOR read after every component table.
+const reordered = convert(await load([...ORDER.filter((n) => !n.startsWith('COLOR.')), ...ORDER.filter((n) => n.startsWith('COLOR.'))]), options);
+const tokensOf = (files: ReadonlyMap<string, string>) => new Map([...files].filter(([p]) => p.startsWith('sets/')).flatMap(([, text]) => JSON.parse(text).tokens.map((t: any) => [t.tokenName, t])));
+const a = tokensOf(ok.files); const b = tokensOf(reordered.files);
+const same = [...a].filter(([name, token]) => isDeepStrictEqual(token, b.get(name))).length;
+console.log(`COLOR read last: ${b.size} tokens, ${same} of ${a.size} identical to the manifest order; md.sys.color.primary ${isDeepStrictEqual(a.get('md.sys.color.primary'), b.get('md.sys.color.primary')) ? 'identical' : 'DIFFERS'}; covered ${reordered.covered.copies} copies of ${reordered.covered.tokens} tokens`);

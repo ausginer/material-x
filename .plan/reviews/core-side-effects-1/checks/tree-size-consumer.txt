@@ -1,0 +1,19 @@
+# Proofs 4, 5 and 6, rerun by the feature proof at 42999d4a3
+# 'without' is the same tree with the line '"sideEffects": false,' removed from packages/core/package.json, restored after.
+
+## proof 4: aube exec -- nx run-many -t build --projects=@ydinjs/core,@ydinjs/material-x --skipNxCache, then sha256sum of every ignored file under packages/core and packages/material-x (node_modules, .nx and tsbuildinfo left out)
+paths: 294 with, 294 without
+     55 d.ts
+    119 js
+      1 json
+    119 map
+every path byte-identical
+packages/core/package.json after the build with the field: no diff from the commit (git status clean)
+
+## proof 5: just size-reading <file>
+rows: 33 with, 33 without; the two readings are identical
+
+## proof 6: node .plan/core-side-effects-1/probes/consumer-drop.ts .
+with: the 27 module rows match the plan's transcript, field present
+without: the 27 module rows match the plan's transcript, field absent
+consumer-entries.ts: not rerun

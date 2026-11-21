@@ -21,7 +21,6 @@ import type {
   Class,
   Decorator,
   Expression,
-  ImportDeclaration,
   ObjectExpression,
   Program,
 } from '@oxc-project/types';
@@ -34,7 +33,9 @@ import {
   collectTopClasses,
   forEachValueReference,
   importedLocals,
-  removeSpecifiers,
+  addImportRemovals,
+  removeImports,
+  type ImportRemovals,
   staticKeyName,
   unwrapTS,
   walk,
@@ -185,24 +186,6 @@ function tableDecorators(
   });
 
   return tables;
-}
-
-/** Removes the specifiers of `locals` from an import, or the whole import. */
-function removeImported(
-  magic: RolldownMagicString,
-  code: string,
-  node: ImportDeclaration,
-  locals: ReadonlySet<string>,
-): void {
-  const unused = node.specifiers.filter((spec) => locals.has(spec.local.name));
-  if (unused.length === 0) {
-    return;
-  }
-  if (unused.length === node.specifiers.length) {
-    magic.remove(node.start, node.end);
-  } else {
-    removeSpecifiers(magic, code, node, new Set(unused));
-  }
 }
 
 /** Each table key's converter expression, in table order. */
@@ -358,11 +341,13 @@ export function lowerAttributes(
 
   // Every other use of `attributes` is an error, so the lowered module has
   // none left.
+  const removals: ImportRemovals = new Map();
   for (const node of program.body) {
     if (node.type === 'ImportDeclaration') {
-      removeImported(magic, code, node, locals);
+      addImportRemovals(removals, node, locals);
     }
   }
+  removeImports(magic, code, removals);
   const { specifier } = [...imports.values()].find(
     ({ imported, specifier: from }) =>
       imported === 'attributes' && ATTRIBUTE_TRAITS_MODULE.test(from),

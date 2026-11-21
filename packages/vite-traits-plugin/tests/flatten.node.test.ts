@@ -231,6 +231,29 @@ describe('flattening an empty trait list', () => {
     ]);
   });
 
+  it("should remove compose's import when only an inline type is left in it", async () => {
+    expect(
+      await flatten(
+        'const FooBase: Composed<typeof Base, []> = compose(Base);\nexport class Foo extends FooBase {}\n',
+      ),
+    ).toBe(
+      "\nimport { Base } from './base.ts';\n\nexport class Foo extends Base {\n\n}\n",
+    );
+  });
+
+  it('should remove an import that the trait transform and the lowering empty together', async () => {
+    const id = fixtureId('virtual-both.ts');
+    const { code } = await transform(id, {
+      files: {
+        [id]: `import { compose, trait, type Composed } from '@ydinjs/core/traits/composition.js';\nimport { Base } from './base.ts';\n\n@trait\nexport class Named {}\n\nconst FooBase: Composed<typeof Base, []> = compose(Base);\nexport class Foo extends FooBase {}\n`,
+      },
+    });
+
+    expect(code).toBe(
+      '\nimport { Base } from \'./base.ts\';\n\nexport const $named = Symbol("Named");\nexport class Named {\n  static [Symbol.hasInstance](o) {\n    return o != null && o[$named] === true;\n  }\n}\n\n\nexport class Foo extends Base {\n\n}\n',
+    );
+  });
+
   it('should import impl once for one empty and one non-empty list', async () => {
     const code = await flatten(
       `import type { Forwarding } from '@fixture/forwarding/forwarding.mjs';\nconst FooBase: Composed<typeof Base, []> = compose(Base);\nexport class Foo extends FooBase {}\nconst BarBase: Composed<typeof Base, [typeof Forwarding]> = compose(Base);\nexport class Bar extends BarBase {}\n`,
@@ -274,5 +297,14 @@ export class Outer extends OuterBase {
       code.includes('export class Outer extends OuterBase {'),
       code.includes('o[$outer] === true'),
     ]).toEqual([true, true, true]);
+  });
+
+  it('should keep compose in the import of a module that still calls it', async () => {
+    const id = fixtureId('virtual-supertrait.ts');
+    const { code } = await transform(id, { files: { [id]: source } });
+
+    expect(code).toMatch(
+      /^import \{ compose, type Composed \} from '@ydinjs\/core\/traits\/composition\.js';\n/u,
+    );
   });
 });
