@@ -1,0 +1,4 @@
+head (field-sizing polyfill removed):
+text-field/text-field min 34123 br 8200
+base (73f081dc4 sources, same worktree):
+text-field/text-field min 34282 br 8188
