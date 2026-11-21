@@ -2,13 +2,14 @@
 
 **Input:** `drag/alloc-flake-1` at `205bb0d43`, which carries the [handoff](allocation-row-handoff.md). **Governing records:** `DRF-53` and `DRF-48` in [`00-index.md`](00-index.md), with their datings of 2026-11-20; `DRI-17` ([`contract.md`](contract.md)); `repo:RD-7`; CONTRIBUTING §Comments and JSDoc. All local runs are in Playwright 1.65.0's Chromium 158.0.8127.18, the reading's browser.
 
-**Outcome: the handoff is implemented, and no return condition was met.** Nothing out of scope changed. P1 to P6 hold. P7 is recorded below.
+**Outcome: the handoff is implemented, and no return condition was met.** Nothing out of scope changed. P1 to P7 hold.
 
 | Commit | Content |
 | --- | --- |
 | `3bbd506f6` | The command `pointerMoveHeldByCdp` and the row's moves, comments and closing move |
 | `360ece230` | This report and the P5 probe, [`probes/allocation-row/input-probe.ts`](probes/allocation-row/input-probe.ts) |
-| the commit carrying this row | `oxfmt` on [`probes/allocation-row/st.mjs`](probes/allocation-row/st.mjs), and P6 and P7 in this report |
+| `a4d6f03a8` | `oxfmt` on [`probes/allocation-row/st.mjs`](probes/allocation-row/st.mjs), and P6 in this report |
+| the commit carrying this row | P7 in this report |
 
 ## What changed
 
@@ -86,10 +87,18 @@ On the three changed `.ts` files, in `packages/drag`: `just fmt`, `just lint-fix
 
 ### P7. CI
 
-To be recorded: the pull request's `measurements` job, the first run and two reruns.
+The pull request is #94. The `measurements` job ran three times on run 44875222605, at `a4d6f03a8`. The row passed in each, beside the `DRF-2` row, and each job read 12 passed and 2,212 skipped. The row prints its bytes only when it fails, so CI gives no figures.
+
+| Attempt | Job          | Row               |
+| ------- | ------------ | ----------------- |
+| 1       | 136758566524 | passed, 10,196 ms |
+| 2       | 136760677264 | passed, 10,196 ms |
+| 3       | 136761213104 | passed, 10,200 ms |
+
+The pull request's first run, 44874810393 at `360ece230`, also passed the row, in job 136757202562. That run's `static` job is §P6's failure, and the push of `a4d6f03a8` cancelled the run. The test code is the same at both commits.
 
 ## Stopping point
 
-The unit stops at the pull request. The architect reads this report and decides whether `DRF-53` and `DRF-48` close. Nothing is open beyond that decision, and P7 until it is recorded.
+The unit stops at the pull request. The architect reads this report and decides whether `DRF-53` and `DRF-48` close. Nothing is open beyond that decision.
 
 **Scratch work:** the worktree and the run logs are in this session's scratchpad. They are removed when the unit is handed off.
