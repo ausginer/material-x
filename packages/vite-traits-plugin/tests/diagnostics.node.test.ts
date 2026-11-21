@@ -485,6 +485,11 @@ describe("a trait's private members", () => {
         'class {}',
       ],
       [
+        'this in the initializer of a field that nothing references',
+        `${traitClass('Unread', '  #unread = this.constructor;')}${component('typeof Unread')}`,
+        'this',
+      ],
+      [
         'this.#x in a static member',
         reads('  static peek(o: Private): unknown { return this.#x; }'),
         '#x; }',

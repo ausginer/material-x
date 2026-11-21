@@ -79,7 +79,10 @@ export type MemberIR = CopiedSourceIR &
     private: boolean;
   }>;
 
-/** A private instance field that a member or the constructor references. */
+/**
+ * A copied private instance field: one with an initializer, or one that a
+ * member or the constructor references.
+ */
 export type FieldIR = CopiedSourceIR &
   Readonly<{
     /** The name without `#`. */

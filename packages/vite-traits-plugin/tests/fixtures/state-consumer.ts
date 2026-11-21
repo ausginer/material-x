@@ -2,7 +2,7 @@
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import { StateBase } from './state-base.ts';
 import { record } from './state-order.ts';
-import type { Counter, First, Left, Right, Second, Third } from './state.ts';
+import type { Counter, E, First, Left, Right, Second, Third } from './state.ts';
 
 // A trait with private state and a constructor. The component's constructor
 // parameter has the name of a const in the trait's body, and the component
@@ -77,3 +77,8 @@ export class Outer extends OuterBase {
     record('Outer body');
   }
 }
+
+// A trait whose initialized private field nothing references.
+const KEBase: Composed<typeof StateBase, [typeof E]> = compose(StateBase);
+
+export class KE extends KEBase {}

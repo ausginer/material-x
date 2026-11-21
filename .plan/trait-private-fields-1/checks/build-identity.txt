@@ -1,6 +1,7 @@
 # Proof 12: core's and material-x's built output, at the main last merged into the branch and at the branch
 # Read by the implementer on 2026-11-21. main: origin/main at bd1dee7df, merged into repo/trait-private-fields-1 at dbf0ab8ae, built with the plugin's source unchanged.
 # branch: the same tree with this unit's plugin. Each side ran: aube exec just _package-builds (which rebuilds @ydinjs/vite-traits-plugin, whose built index.js both libraries' tsdown configurations import), then just build in packages/core and in packages/material-x.
+# Reread at the remediation of reviewer-1, against a worktree at dbf0ab8ae, so main's tree with the plugin before this unit: the lists, diff -r, the size rows and every sha256 below are unchanged.
 # The files compared are every untracked, ignored file under each package, outside node_modules and .cache: git ls-files -o -i --exclude-standard.
 
 ## core: 81 files, the same list on both sides; diff -r of the two trees: empty

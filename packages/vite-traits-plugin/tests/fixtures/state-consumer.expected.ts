@@ -74,3 +74,14 @@ export class Counted extends StateBase {
     this.countAtStart = this.count;
   }
 }
+
+// What KE flattens to, written by hand: both of E's fields, the one nothing
+// references included.
+export class KEHand extends StateBase {
+  readonly #unused = record('E unused field');
+  readonly #used = record('E used field');
+
+  get ex(): string {
+    return this.#used;
+  }
+}

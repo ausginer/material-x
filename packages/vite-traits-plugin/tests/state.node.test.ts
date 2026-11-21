@@ -26,6 +26,7 @@ type Module = {
   OrderedSub: new () => Ordered;
   Sided: new (...args: unknown[]) => Sided;
   Outer: new () => Ordered;
+  KE: new () => { readonly ex: string };
 };
 type Entry = { order: string[]; Counter: abstract new () => object };
 
@@ -48,7 +49,7 @@ function prototypeKeys(instance: object): string[] {
 describe('a trait with private members and a constructor', () => {
   let gen: Materialized;
   let flat: Module;
-  let expected: Pick<Module, 'Counted'>;
+  let expected: Pick<Module, 'Counted'> & { KEHand: Module['KE'] };
   let packaged: {
     default: new (...args: unknown[]) => {
       readonly hits: number;
@@ -78,7 +79,7 @@ describe('a trait with private members and a constructor', () => {
       import(gen.url('state-consumer.expected.ts')),
       import(gen.url('state-package-consumer.ts')),
       import(gen.entryUrl),
-    ])) as [Module, Module, typeof packaged, Entry];
+    ])) as [Module, typeof expected, typeof packaged, Entry];
   });
 
   afterAll(async () => {
@@ -255,6 +256,22 @@ describe('a trait with private members and a constructor', () => {
         sided.match(/#visits_\w+ = 0;/gu)?.length,
         sided.indexOf('#visits_') < sided.indexOf('#side_'),
       ]).toEqual([1, true]);
+    });
+  });
+
+  describe('a private field with an initializer that nothing references', () => {
+    it('should run its initializer as the hand-written class does, in the same order', () => {
+      expect(construct(() => new flat.KE())).toEqual(
+        construct(() => new expected.KEHand()),
+      );
+    });
+
+    it('should be copied, renamed', () => {
+      const code = gen.code['state-consumer.ts']!;
+
+      expect(code.slice(code.indexOf('export class KE'))).toMatch(
+        /#unused_\w+ = __mxflat_lnk_\w+\('E unused field'\);/u,
+      );
     });
   });
 

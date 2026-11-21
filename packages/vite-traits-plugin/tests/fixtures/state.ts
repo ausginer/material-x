@@ -173,3 +173,15 @@ export class Third extends AnyBase {
     return this.#third;
   }
 }
+
+// From RD-33's feature proof: a private field with an initializer that
+// nothing references, beside one that a getter reads.
+@trait
+export class E extends AnyBase {
+  readonly #unused = record('E unused field');
+  readonly #used = record('E used field');
+
+  get ex(): string {
+    return this.#used;
+  }
+}

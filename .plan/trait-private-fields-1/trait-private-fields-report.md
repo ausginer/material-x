@@ -39,7 +39,7 @@ All of it is in `packages/vite-traits-plugin`, and the plugin document.
 **Two choices the plan left open, made here:**
 
 - **The code of a renamed name's collision** is `trait-binding-shadowed`. Decision 3 calls it an error without naming a code, and that code already means _"the component's class binds a name that copied source reads"_.
-- **An unreferenced private field isn't checked,** because it isn't copied. Its initializer may read `this` without an error.
+- **An unreferenced private field isn't checked,** because it isn't copied. Its initializer may read `this` without an error. **Reversed by the architect's ruling** in `02fa8d70c`, on the feature proof's `reviewer-1` ([review](../reviews/trait-private-fields-1/feature-proof-claude.md)): a private field with an initializer is copied and checked whether or not anything references it, and only an initializer-less private field that nothing names is skipped (§Remediation of `reviewer-1`).
 
 ## Proofs
 
@@ -54,7 +54,7 @@ Each is a node test of the plugin unless it says otherwise. The plugin's suite h
 | **5. Duplicates** | `Sided` of `[Left, Right]`, which share `Shared`, holds `Shared` once, ahead of both. `Shared field` and `Shared body` each run once per instance, `visits` is 1, and `greet()` is `Left`'s `'left'` |
 | **6. Diagnostics** | `tests/diagnostics.node.test.ts` › _a trait's private members_, each case at its token: a public instance field (`trait-field`); a static private field and method; `other.#x`, `#x in o`, `this.#x` in a nested function and in a static member; `super`, `arguments` and `this` in an initializer, directly, in an arrow and in a nested function; `class {}` as an initializer; and a renamed name that the component declares (`trait-binding-shadowed`) |
 | **7. Declarations** | `tests/declarations.node.test.ts` › _the declarations of a trait with private members_. tsdown emits one `#private;` per class, no private member and `constructor();`. A TypeScript program that composes both traits and declares its own `#x` has no diagnostic. With `this.missing` in it, the row fails |
-| **8. The unreferenced field** | `#brand!: true` isn't copied, against the exact text of the component |
+| **8. The unreferenced field** | `#brand!: true` isn't copied, against the exact text of the component. Since the remediation, an unreferenced initialized field is copied and checked (§Remediation of `reviewer-1`) |
 | **9. The application build** | `tests/trait-module.node.test.ts`: the transform exports the bindings that an initializer and the constructor read. The application build leaves no `#` and no `constructor`, and `instanceof` stays correct |
 | **10. Constructors** | The order is `before super`, `super argument`, `base field`, `base body`, `First field`, `Second field`, `component field`, `First body`, `Second body` and `after super`.<br>A subclass then runs `subclass field` and `subclass body`. Over a flattened base, `Third field`, `Outer field`, `Third body` and `Outer body` follow the base's whole order.<br>`Left`'s body reads `Shared`'s state, `Left body sees 1`. `Counter`'s body reads `baseField`, its private field and method, `START`, `prefix` and `record`, and the built trait's body reads `record`, `step` and `STATEFUL_START`.<br>The generated constructor passes `[1, 2]`. The component's `value` parameter and the body's `const value` stay apart: 7 and 20.<br>The emitted text drops `super();`, has one block per body and no generated field. A list with no trait constructor leaves the constructor's text as it was.<br>Every listed diagnostic is at its position. `return` in a nested arrow and in a nested function, and a base that composes only `#brand!: true`, are accepted |
 | **11. The component's field initializers** | `component-field` at the token for each listed form. Accepted: `new Map()`; `static self = this`; a `this` arrow initializer with no trait constructor, emitted as written; `countAtStart = this.count` in the constructor, which reads 11 at runtime; and `CountedSub`'s `cached = this.cache.get('counter')`, which reads 20 |
@@ -70,6 +70,27 @@ Root `aube exec just test` at the branch's final source: 148 of 148 files and 2,
 - **Errors in this unit's source:** an unnecessary optional chain, a missing destructuring, a `forEach` callback that returned a value, and `return this.#fail(…)` in two `case`s, which `consistent-return` refused. The code was rewritten. The typecheck found an `it.each` callback whose rows had an optional element, and the helper now computes the offset first.
 - **A gate defect, the autofix in a JavaScript file.** `lint-fix` applied oxlint's `typescript/prefer-readonly` to `stateful.mjs` and wrote `readonly #hits`, which is TypeScript, into a `.mjs` file. `fmt` then failed to parse it. The fixture's existing `oxlint-disable` line, which already turns off two TypeScript rules for that file's JavaScript, now names `typescript/prefer-readonly` too, and the autofix leaves the file as written. `forwarding.mjs` has no private field, so the rule never fired there. Running typed lint rules on `.mjs` fixtures may deserve its own finding.
 - **Fixture shape.** `state.ts` holds seven trait classes and `state-consumer.ts` six components, which `max-classes-per-file` refuses. Two getters of `state.ts` return literals, which `class-methods-use-this` and `class-literal-property-style` refuse. Each file has a file-level `oxlint-disable` with its reason, as `consumer.expected.ts` and the package fixtures do. In `state.node.test.ts`, the four constructions that `no-new` refused go through a `construct` helper.
+
+## Remediation of `reviewer-1`
+
+**Input:** `02fa8d70c`, which carries the architect's ruling in the plan's decision 3, property 10 and proof 8, and in `RD-33` property 8. **The change:** `normalizeTraitClass` skips a private field only when it has no initializer and no member or constructor of its trait references it. Every initialized private field goes through `normalizeField`. So it is renamed, linked, emitted in decision 1's order and checked, and `this` in its initializer is `trait-member`.
+
+**Proof 8's new rows:**
+
+- **The reviewer's fixture.** Trait `E`, its component `KE` and the hand-written `KEHand` are in `state.ts`, `state-consumer.ts` and `state-consumer.expected.ts`. They are as the review's [probe](../reviews/trait-private-fields-1/probes/fixtures/rv-traits.ts) wrote them, with `record` in place of `rec`.
+  - `tests/state.node.test.ts` › _should run its initializer as the hand-written class does, in the same order_: constructing `KE` and `KEHand` records the same steps, `base field`, `base body`, `E unused field` and `E used field`.
+  - › _should be copied, renamed_: the emitted `KE` holds `#unused_<hash> = <link>('E unused field');`.
+- **`this` in an unreferenced initializer.** `tests/diagnostics.node.test.ts` › _this in the initializer of a field that nothing references_ fails with `trait-member` at the `this`.
+- **They discriminate.** With the old filter put back, these three rows fail and the other 147 rows of the two files pass. The filter was then restored.
+
+**Gates, rerun at the remediation:**
+
+- The plugin's suite: 254 of 254 tests in 11 files.
+- In the plugin, on the changed files: `fmt`, `lint-fix`, `fmt` and `lint` give no error, and `typecheck` passes.
+- The root `aube exec just test`: 148 of 148 files and 2,420 of 2,420 tests, the three new rows included.
+- The build identity against `main` at `bd1dee7df` (proof 12) is unchanged. It was reread against a worktree at `dbf0ab8ae`, `main`'s tree with the plugin before this unit. core's 81 and material-x's 213 files are byte-identical, with the sha256 that [`checks/build-identity.txt`](checks/build-identity.txt) records, the size rows are equal, and neither build prints `trait-member-conflict`. No trait in either package has a private field with an initializer, so the rule changes no current output.
+
+**The plugin document** states the rule in §Its members, and the `RD-33` row of its change record says what it said before.
 
 ## Stopping point
 

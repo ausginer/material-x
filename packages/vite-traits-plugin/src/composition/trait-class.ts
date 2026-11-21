@@ -680,15 +680,19 @@ export async function normalizeTraitClass(
       : { specifier: ref.specifier, exportName };
   }
 
-  // A private field that nothing of its trait references can't be observed,
-  // so it isn't copied: `#brand!: true` stays a type-only brand.
+  // A private field with no initializer that nothing of its trait references
+  // runs nothing and nothing names it, so it isn't copied: `#brand!: true`
+  // stays a type-only brand. One with an initializer is copied, referenced or
+  // not, because its initializer's effects are observable.
   const referenced = new Set(
     [...members, ...(constructorBody ? [constructorBody] : [])].flatMap(
       ({ privateNames }) => privateNames.map((each) => each.name),
     ),
   );
   const fields = privateFields
-    .filter((element) => referenced.has(element.key.name))
+    .filter(
+      (element) => element.value !== null || referenced.has(element.key.name),
+    )
     .map((element) => normalizeField(ref, element, link, local));
 
   return {
