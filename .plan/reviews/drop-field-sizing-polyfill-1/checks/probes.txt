@@ -1,0 +1,21 @@
+$ MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts tests/text-field/zz-sizing-probe.browser.test.ts tests/text-field/zz-ws-probe.browser.test.ts tests/text-field/zz-wk-probe.browser.test.ts tests/text-field/zz-supports-probe.browser.test.ts --silent=false
+Probes: ../probes/sizing.browser.test.ts.txt (zz-sizing-probe), white-space.browser.test.ts.txt (zz-ws-probe), isolate.browser.test.ts.txt (zz-wk-probe), and a one-line `CSS.supports("field-sizing", "content")` log (zz-supports-probe), copied into packages/material-x/tests/text-field/ at 846fcd8ca and removed afterwards.
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36 {"rowsAttr":1,"overflowY":"auto","scrollFits":true,"empty":1,"three":3,"one":1,"programmatic":4,"cleared":1,"wrapped300Lines":9,"wrapped150Lines":20}
+READING Chrome/158.0.0.0 Safari/537.36 block {"base":4,"shadow":4,"allUnset":4,"allUnsetMinLh":4,"allUnsetNoRows":4,"displayBlock":4,"componentSet":4,"componentAfterStyleTouch":4,"componentDisplay":0}
+READING Chrome/158.0.0.0 Safari/537.36 true
+READING Chrome/158.0.0.0 Safari/537.36 {"whiteSpace":"normal","wsCollapse":"collapse","textWrap":"wrap","setLines":4,"setScrollLines":4,"afterTypeLines":4,"preWrapSetLines":4}
+READING ) Gecko/20100101 Firefox/159.0 block {"base":4,"shadow":4,"allUnset":4,"allUnsetMinLh":4,"allUnsetNoRows":4,"displayBlock":4,"componentSet":4,"componentAfterStyleTouch":4,"componentDisplay":0}
+Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0 {"rowsAttr":1,"overflowY":"visible","scrollFits":true,"empty":1,"three":3,"one":1,"programmatic":4,"cleared":1,"wrapped300Lines":9,"wrapped150Lines":20}
+READING ) Gecko/20100101 Firefox/159.0 {"whiteSpace":"normal","wsCollapse":"collapse","textWrap":"wrap","setLines":4,"setScrollLines":4,"afterTypeLines":4,"preWrapSetLines":4}
+READING ) Gecko/20100101 Firefox/159.0 true
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15 {"rowsAttr":1,"overflowY":"auto","scrollFits":true,"empty":1,"three":3,"one":1,"programmatic":1,"cleared":1,"wrapped300Lines":9,"wrapped150Lines":20}
+READING ) Version/27.2 Safari/605.1.15 block {"base":4,"shadow":4,"allUnset":1,"allUnsetMinLh":1,"allUnsetNoRows":1,"displayBlock":4,"componentSet":1,"componentAfterStyleTouch":1,"componentDisplay":0}
+READING ) Version/27.2 Safari/605.1.15 {"whiteSpace":"normal","wsCollapse":"collapse","textWrap":"wrap","setLines":1,"setScrollLines":1,"afterTypeLines":1,"preWrapSetLines":4}
+READING ) Version/27.2 Safari/605.1.15 true
+      Tests  12 passed (12)
+
+== Base: packages/material-x/src at 73f081dc4 (polyfill present), white-space probe only
+READING Chrome/158.0.0.0 Safari/537.36 {"whiteSpace":"normal","wsCollapse":"collapse","textWrap":"wrap","setLines":4,"setScrollLines":4,"afterTypeLines":4,"preWrapSetLines":4}
+READING ) Gecko/20100101 Firefox/159.0 {"whiteSpace":"normal","wsCollapse":"collapse","textWrap":"wrap","setLines":4,"setScrollLines":4,"afterTypeLines":4,"preWrapSetLines":4}
+READING ) Version/27.2 Safari/605.1.15 {"whiteSpace":"normal","wsCollapse":"collapse","textWrap":"wrap","setLines":1,"setScrollLines":1,"afterTypeLines":1,"preWrapSetLines":4}
+      Tests  3 passed (3)

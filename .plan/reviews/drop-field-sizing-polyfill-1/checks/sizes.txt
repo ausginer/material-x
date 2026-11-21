@@ -1,0 +1,19 @@
+$ just size-reading <head.json>   # at 846fcd8ca
+$ git checkout 73f081dc4 -- packages/material-x/src && just size-reading <base.json> && git checkout HEAD -- packages/material-x/src
+
+Rows whose Brotli bytes differ (head, base, change):
+material-x | text-field/multiline-text-field | 4136 | 4437 | -301
+material-x | text-field/text-field | 8200 | 8188 | 12
+material-x | complete | 21805 | 22092 | -287
+33 rows read; all others equal.
+
+The reviewer's head reading against the implementer's .plan/drop-field-sizing-polyfill-1/checks/size-head.json:
+  byte-identical
+The reviewer's base reading against the implementer's .plan/drop-field-sizing-polyfill-1/checks/size-base-73f081dc4.json:
+  byte-identical
+A second head reading after a rebuild:
+  byte-identical
+
+$ node .plan/drop-field-sizing-polyfill-1/probes/entry.ts <root> text-field/text-field   # base build, then head build
+text-field/text-field min 34282 br 8188
+text-field/text-field min 34123 br 8200

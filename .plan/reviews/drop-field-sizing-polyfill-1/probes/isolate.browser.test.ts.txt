@@ -1,0 +1,50 @@
+// Reviewer's probe: which declaration of `.input` stops WebKit growing for a
+// value set from script. Copied into packages/material-x/tests/text-field/ to run, then removed.
+import { $ } from '@ydinjs/core/utils/DOM.js';
+import { expect, it } from 'vitest';
+import '../../src/text-field/multiline-text-field.ts';
+import { nextFrame } from '../browser.ts';
+
+const V = 'x\ny\nz\nw';
+async function variant(css: string, shadow: boolean, rows: number | null): Promise<number> {
+  const host = document.createElement('div');
+  document.body.append(host);
+  const root: ParentNode & Node = shadow ? host.attachShadow({ mode: 'open' }) : host;
+  const ta = document.createElement('textarea');
+  if (rows != null) ta.rows = rows;
+  ta.style.cssText = css + ';font: 16px/20px sans-serif';
+  root.appendChild(ta);
+  await nextFrame();
+  ta.value = V;
+  await nextFrame(); await nextFrame();
+  const r = Math.round((ta.getBoundingClientRect().height / 20) * 100) / 100;
+  host.remove();
+  return r;
+}
+
+it('wk probe', async () => {
+  const fs = 'field-sizing: content';
+  const out: Record<string, number> = {
+    base: await variant(fs + ';padding:0;border:0', false, 1),
+    shadow: await variant(fs + ';padding:0;border:0', true, 1),
+    allUnset: await variant('all: unset;' + fs, false, 1),
+    allUnsetMinLh: await variant('all: unset;' + fs + ';min-block-size:1lh', false, 1),
+    allUnsetNoRows: await variant('all: unset;' + fs, false, null),
+    displayBlock: await variant('display:block;' + fs + ';padding:0;border:0', false, 1),
+  };
+  // In the component, also check after forcing a style change.
+  const field = document.createElement('mx-multiline-text-field') as HTMLElement & { value: string };
+  document.body.append(field);
+  await nextFrame();
+  const ta = $<HTMLTextAreaElement>(field, '.input')!;
+  const lh = parseFloat(getComputedStyle(ta).lineHeight);
+  field.value = V;
+  await nextFrame();
+  out.componentSet = ta.getBoundingClientRect().height / lh;
+  ta.style.color = 'red';
+  await nextFrame();
+  out.componentAfterStyleTouch = ta.getBoundingClientRect().height / lh;
+  out.componentDisplay = getComputedStyle(ta).display === 'inline' ? 1 : 0;
+  console.log('READING', navigator.userAgent.slice(-30), getComputedStyle(ta).display, JSON.stringify(out));
+  expect(out).toBeTruthy();
+});
