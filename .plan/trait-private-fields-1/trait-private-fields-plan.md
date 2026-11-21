@@ -60,7 +60,8 @@ An initializer goes through the same walker, links and rewrites as a member's bo
   The reason: after renaming, `#name_<hash>` belongs to one component class. So `other.#name` works only when `other` is an instance of that same class, while the trait's type accepts an instance of any class with the trait. `instanceof` with the trait is the check across classes.
 
 - **Read, write, call, update and compound assignment** of `this.#name` are allowed, and so is `this.#name` as an assignment or destructuring target.
-- **A private field that no member or constructor of its trait references isn't copied.** It can't be observed, so leaving it out keeps the runtime the same. `#brand!: true` stays as it is today, with no special case for it.
+- **A private field with no initializer that no member or constructor of its trait references isn't copied.** Nothing observes it: no code names it, `#name in` is refused, and it runs nothing. So leaving it out keeps the runtime the same, and `#brand!: true` stays as it is today, with no special case for it.
+- **A private field with an initializer is copied, whether or not anything references it.** The hand-written class runs its initializer once per instance, and an initializer's effects are observable: `#registered = registry.add(…)` calls an imported function. So the copy runs it too, in its place in decision 1's order, and checks it as every copied initializer is checked (decisions 1 and 2): `this` in it is `trait-member`. **Amended 2026-11-21** on the feature proof's `reviewer-1`; [`RD-33`](../00-index.md) property 8 records what this said before.
 
 ### 4. What stays forbidden
 
@@ -258,7 +259,7 @@ So the rule breaks no component, on `main` or on the open branches.
    The codes' table and messages say what each one refuses now.
 
 9. **The expanded list keeps each trait's first occurrence.**
-10. **An unreferenced private field isn't copied.**
+10. **A private field with no initializer that nothing in its trait references isn't copied.** One with an initializer is copied and checked like any other, referenced or not.
 11. **A trait's constructor body runs once per instance, inserted into the component's constructor,** as decision 7 lowers it:
     - as a block right after the component's `super(…)` statement, in expanded-list order, supertrait before subtrait, before the component's statements after `super(…)`;
     - in a generated `constructor(...args) { super(...args); … }` when the component has none, and with no change to a component whose list has no trait constructor;
@@ -343,7 +344,10 @@ Each is a node test of the plugin, unless it says otherwise.
    - an initializer the walker doesn't model;
    - a renamed name that the component already declares.
 7. **Declarations.** A tsdown build with declarations of a fixture trait with private members emits `#private;` and no private member, and one with a constructor emits `constructor();`. A typecheck of a component that composes two such traits, one of them with a constructor, and declares its own `#x` passes.
-8. **The unreferenced field.** `#brand!: true` isn't copied, against expected text.
+8. **The unreferenced field.**
+   - `#brand!: true` isn't copied, against expected text.
+   - An unreferenced `#unused = rec(…)` is copied, renamed, and its effect runs in the flattened component as in the hand-written class, in the same order. The feature proof's trait `E` and its classes `KE` and `KEHand` are that fixture.
+   - `this` in an unreferenced field's initializer is `trait-member`, at its position.
 9. **The application build** deletes the trait class's private instance members, with `instanceof` still correct.
 10. **Constructors,** against a hand-written expected class as in proof 1:
     - order: a base with a field and a constructor, two traits, each with a field and a constructor, and the component's own field and constructor record their order. It is: the component's statement before `super(…)`, `super(…)`'s argument, the base's field and constructor, A's field, B's field, the component's field, A's body, B's body, the component's statements after `super(…)`;
