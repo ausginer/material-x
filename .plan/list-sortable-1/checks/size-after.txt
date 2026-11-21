@@ -1,31 +1,23 @@
-# The size reading after the sortable list, against the reading before (size-before-2b1d8276f.txt, at 5ddd2eaae with origin/main 2b1d8276f merged). Exact Brotli bytes at quality 11 from probes/list-modules.ts, which match size-limit's rounded rows. The readings and module lists follow the table.
+# The size reading after the sortable list, against the reading before (size-before-2b1d8276f.txt, at 5ddd2eaae with origin/main 2b1d8276f merged). Read after task 3a, which moves the items' sortable writes into list/sortable-item.js, a module that only list/sortable-list imports. Exact Brotli bytes at quality 11 from probes/list-modules.ts, which match size-limit's rounded rows. The readings and module lists follow the table.
 
-| Row | Before | After | Change | Plan's estimate | Why |
-| --- | --: | --: | --: | --- | --- |
-| core `traits/reorderable` | 3,110 (3.11 kB) | — | row deleted | deleted | The trait, its export and its size row are deleted (task 5) |
-| material-x `list/list` | 3,673 | 685 | −2,988 | about 1,000 to 1,500 | Loses core's trait and the modules only it reached: `reorderable.js`, `useCSSProps`, `useSlot`, `useEvents`, `useConnected`, `attribute.js`, `composition.js`, `DOM.js` and `fns.js`. Gains `ListCore.js` |
-| material-x `list/list-item` | 2,567 | 3,042 | +475 | about 2,600 to 3,100 | Loses `reorderable.js` and the handle code. Gains `focus-forwarding.js` with `composition.js`, the focus indicator's `focus.css.js`, core's `useContext.js`, `sortable-list-context.js`, and the item's sortable writes in `ListItemCore.js` |
-| material-x `list/list-button-item` | 4,575 | 4,841 | **+266** | within 150 B either way | Loses `reorderable.js` and the handle code. Gains `useContext.js`, `sortable-list-context.js` and the item's sortable writes |
-| material-x `list/list-link-item` | 4,746 | 5,048 | **+302** | within 150 B either way | As the button item |
-| material-x `list/sortable-list` | — | 8,301 | new row | about 8,500 to 9,500 | drag's sortable with `y()` and `landing()` and box-quad, 21 modules, about 6,870 B alone, plus the list core, the provider and the sortable list |
-| material-x `complete` | 16,975 | 21,984 | +5,009 | — | Gains drag's 21 modules, `ListCore.js`, `sortable-list.js`, `sortable-list-context.js` and `useContext`'s consumer in `ListItemCore.js`, and loses `reorderable.js` |
+| Row | Before | No sortable code | After | Change | Bound | Plan's estimate | Why |
+| --- | --: | --: | --: | --: | --- | --- | --- |
+| core `traits/reorderable` | 3,110 (3.11 kB) | — | — | row deleted | — | deleted | The trait, its export and its size row are deleted (task 5) |
+| material-x `list/list` | 3,673 | — | 685 | −2,988 | doesn't grow | about 1,000 to 1,500 | Loses core's trait and the modules only it reached: `reorderable.js`, `useCSSProps`, `useSlot`, `useEvents`, `useConnected`, `attribute.js`, `composition.js`, `DOM.js` and `fns.js`. Gains `ListCore.js` |
+| material-x `list/list-item` | 2,567 | 2,594 | 2,739 | +172 | ≤ 3,100 | about 2,720 to 2,780 | Loses `reorderable.js` and the ungated handle code. Gains `focus-forwarding.js` with `composition.js`, the focus indicator's `focus.css.js`, and the context consumer: core's `useContext.js`, `sortable-list-context.js` and the call in `ListItemCore.js` |
+| material-x `list/list-button-item` | 4,575 | 4,433 | 4,601 | +26 | ±150 | about 4,560 to 4,620 | Loses `reorderable.js` and the ungated handle code. Gains the context consumer |
+| material-x `list/list-link-item` | 4,746 | 4,636 | 4,788 | +42 | ±150 | about 4,780 to 4,830 | As the button item |
+| material-x `list/sortable-list` | — | — | 8,579 | new row | ≤ 9,600 | about 8,600 | drag's sortable with `y()` and `landing()` and box-quad, 21 modules, about 6,870 B alone, plus the list core, the provider, `sortable-item.js` with the items' writes, and the sortable list |
+| material-x `complete` | 16,975 | — | 22,004 | +5,029 | — | — | Gains drag's 21 modules, `ListCore.js`, `sortable-list.js`, `sortable-item.js`, `sortable-list-context.js` and the consumer in `ListItemCore.js`, and loses `reorderable.js` |
 
-- **Stop condition met: an interactive item grows by more than 150 B.** `list/list-button-item` grows by 266 B and `list/list-link-item` by 302 B.
-- **Where the item bytes go,** by ablation of `ListItemCore.ts` and a rebuild, on the same tree. These are separate ablations and don't add exactly:
-
-  | Row | No sortable code | + context consumer only | + the writes (landed) |
-  | --- | --: | --: | --: |
-  | `list/list-item` | 2,583 | 2,717 (+134) | 3,042 (+325) |
-  | `list/list-button-item` | 4,451 | 4,561 (+110) | 4,841 (+280) |
-  | `list/list-link-item` | 4,646 | 4,775 (+129) | 5,048 (+273) |
-
-  The consumer is core's `useContext.js` and `sortable-list-context.js`. The writes are the handle semantics, the description, the static item's tab stop, the ownership record that keeps consumer values, and the `trail` slot's listener.
-- **A smaller write variant was measured and not landed:** an array of owned pairs instead of a map, and `touch-action` from a `::slotted([data-handle])` rule instead of an inline style. It read `list/list-item` 3,006, `list/list-button-item` 4,808 and `list/list-link-item` 5,022, about 30 B less. That doesn't clear the bound.
+- **No sortable code** is an ablation of `ListItemCore.ts` with the consumer and its call removed, rebuilt on the same tree. So the context consumer costs `list/list-item` 145 B, `list/list-button-item` 168 B and `list/list-link-item` 152 B, and nothing else in a plain item is the sortable list's.
+- **Every stop bound holds.** The interactive items grow by 26 and 42 B, inside 150 B. `list/list-item` reads 2,739 B, under 3.1 kB, and grows only by the consumer, its focus indicator and `FocusForwarding`. `list/sortable-list` reads 8,579 B, under 9.6 kB. `list/list` doesn't grow.
+- **The writes are in `list/sortable-list` only.** The description text _Use the arrow keys to move_ is in two built files, `list/sortable-list.js` (its JSDoc) and `list/sortable-item.js`. Neither is in the module list of `list/list`, `list/list-item`, `list/list-button-item` or `list/list-link-item`, below.
 - **The separation:** no module under `packages/drag` or `packages/box-quad` is in `list/list`, `list/list-item`, `list/list-button-item` or `list/list-link-item`. Only `list/sortable-list` and `complete` contain them.
-- **The other bounds:** `list/sortable-list` reads 8,301 B, under 9.6 kB. `list/list-item` reads 3,042 B, under 3.1 kB, and grows only by `FocusForwarding`, the focus indicator, the context consumer and the item's writes. `list/list` doesn't grow.
+- **The reading at the size stop,** at `88801757e`, was 3,042, 4,841, 5,048 and 8,301 B for the three items and the sortable list. That file's history keeps it.
 - **The rest of material-x's rows** read as before, and core's `element` and `emitter` rows don't change.
 
-# Size readings after, at 8b294543d plus the unit's working tree, 2026-11-21T07:27:21Z. Brotli.
+# Size readings after, at 59650e176 plus the unit's working tree (task 3a), 2026-11-21T07:51:44Z. Brotli.
 
 ## packages/core: aube exec just size
 size-limit 
@@ -84,16 +76,16 @@ size-limit
   Size: 685 B brotlied
   
   list/list-item
-  Size: 3.04 kB brotlied
+  Size: 2.74 kB brotlied
   
   list/list-button-item
-  Size: 4.84 kB brotlied
+  Size: 4.6 kB brotlied
   
   list/list-link-item
-  Size: 5.05 kB brotlied
+  Size: 4.79 kB brotlied
   
   list/sortable-list
-  Size: 8.3 kB brotlied
+  Size: 8.58 kB brotlied
   
   radio/radio
   Size: 3.59 kB brotlied
@@ -105,7 +97,7 @@ size-limit
   Size: 8.11 kB brotlied
   
   complete
-  Size: 21.98 kB brotlied
+  Size: 22 kB brotlied
 
 ## Modules and exact Brotli: node ../../.plan/list-sortable-1/probes/list-modules.ts list/list list/list-item list/list-button-item list/list-link-item list/sortable-list complete (from packages/material-x, after its build)
 list/list: 685 B brotli, 8 modules, 0 from drag or box-quad
@@ -117,7 +109,7 @@ list/list: 685 B brotli, 8 modules, 0 from drag or box-quad
   packages/material-x/list/styles/default/main.css.js
   packages/material-x/list/ListCore.js
   packages/material-x/list/list.js
-list/list-item: 3042 B brotli, 20 modules, 0 from drag or box-quad
+list/list-item: 2739 B brotli, 20 modules, 0 from drag or box-quad
   packages/core/traits/composition.js
   packages/material-x/core/traits/focus-forwarding.js
   packages/material-x/core/styles/focus/focus.css.js
@@ -138,7 +130,7 @@ list/list-item: 3042 B brotli, 20 modules, 0 from drag or box-quad
   packages/material-x/list/styles/item/main.css.js
   packages/material-x/list/ListItemCore.js
   packages/material-x/list/list-item.js
-list/list-button-item: 4841 B brotli, 32 modules, 0 from drag or box-quad
+list/list-button-item: 4601 B brotli, 32 modules, 0 from drag or box-quad
   packages/core/traits/composition.js
   packages/material-x/core/traits/focus-forwarding.js
   packages/material-x/list/list-button-item.tpl.html.js
@@ -171,7 +163,7 @@ list/list-button-item: 4841 B brotli, 32 modules, 0 from drag or box-quad
   packages/material-x/list/ListInteractiveItemCore.js
   packages/core/traits/selectable.js
   packages/material-x/list/list-button-item.js
-list/list-link-item: 5048 B brotli, 33 modules, 0 from drag or box-quad
+list/list-link-item: 4788 B brotli, 33 modules, 0 from drag or box-quad
   packages/core/traits/composition.js
   packages/material-x/core/traits/focus-forwarding.js
   packages/material-x/list/list-link-item.tpl.html.js
@@ -205,7 +197,7 @@ list/list-link-item: 5048 B brotli, 33 modules, 0 from drag or box-quad
   packages/core/traits/linkable.js
   packages/core/traits/selectable.js
   packages/material-x/list/list-link-item.js
-list/sortable-list: 8301 B brotli, 36 modules, 21 from drag or box-quad
+list/sortable-list: 8579 B brotli, 37 modules, 21 from drag or box-quad
   packages/core/utils/runtime.js
   packages/core/element.js
   packages/core/controllers/useCSSProps.js
@@ -215,6 +207,7 @@ list/sortable-list: 8301 B brotli, 36 modules, 21 from drag or box-quad
   packages/material-x/list/list.tpl.html.js
   packages/material-x/list/styles/default/main.css.js
   packages/material-x/list/ListCore.js
+  packages/material-x/list/sortable-item.js
   packages/core/controllers/useEvents.js
   packages/core/controllers/useContext.js
   packages/material-x/list/sortable-list-context.js
@@ -242,7 +235,7 @@ list/sortable-list: 8301 B brotli, 36 modules, 21 from drag or box-quad
   packages/drag/sortable/behavior.js
   packages/drag/sortable.js
   packages/material-x/list/sortable-list.js
-complete: 21984 B brotli, 143 modules, 21 from drag or box-quad
+complete: 22004 B brotli, 144 modules, 21 from drag or box-quad
   packages/core/attribute.js
   packages/core/utils/runtime.js
   packages/core/element.js
@@ -348,6 +341,7 @@ complete: 21984 B brotli, 143 modules, 21 from drag or box-quad
   packages/material-x/list/list-button-item.js
   packages/material-x/list/list-link-item.tpl.html.js
   packages/material-x/list/list-link-item.js
+  packages/material-x/list/sortable-item.js
   packages/box-quad/index.js
   packages/drag/shared/landing.js
   packages/drag/sortable/linear-shift.js

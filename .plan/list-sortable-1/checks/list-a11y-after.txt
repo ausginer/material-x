@@ -1,5 +1,5 @@
 # How Chromium exposes mx-list, mx-sortable-list and their items: node .plan/list-sortable-1/probes/list-a11y.ts "$PWD/packages/material-x"
-# Read by the implementer on 2026-11-21 at 8b294543d plus the unit's working tree, after material-x's build, in Playwright's Chromium. The probe evaluates list/sortable-list.js first, because an item that upgrades before its list is defined doesn't resolve the list's context until RF-69's repair. RF-68's fix isn't on the base, so no item has the listitem role.
+# Read by the implementer on 2026-11-21 at 8b294543d plus the unit's working tree, after material-x's build, in Playwright's Chromium. The probe evaluates list/sortable-list.js first, because an item that upgrades before its list is defined doesn't resolve the list's context until RF-69's repair. RF-68's fix isn't on the base, so no item has the listitem role. Read again after task 3a, at 59650e176 plus the unit's working tree: the output below is identical.
 
 ariaSnapshot of #l:
 - text: Static one ≡ Static two

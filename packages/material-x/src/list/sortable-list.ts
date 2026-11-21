@@ -20,7 +20,8 @@ import {
 import type { EmptyObject } from 'type-fest';
 import { parseMs } from '../core/utils/fns.ts';
 import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
-import { handleOf, SORTABLE_LIST_CTX } from './sortable-list-context.ts';
+import { handleOf, sortItem } from './sortable-item.ts';
+import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
 
 /**
  * How long an accepted move waits for the list's slot to show it before the
@@ -110,10 +111,12 @@ export default class SortableList extends SortableListConstructor {
   constructor() {
     super();
     useListCore(this);
-    // Each item writes its own handle semantics, description and tab stop
-    // while it resolves this list as its parent. The list writes nothing on
-    // an item.
-    useProvider(this, SORTABLE_LIST_CTX, this);
+    // Each item that resolves this list as its parent applies its sortable
+    // semantics to its own elements, with the writer the value carries. The
+    // list keeps no registry and queries no item.
+    useProvider(this, SORTABLE_LIST_CTX, (host, control) =>
+      sortItem(this, host, control),
+    );
 
     const live = document.createElement('div');
     live.setAttribute('aria-live', 'polite');

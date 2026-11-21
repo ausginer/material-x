@@ -8,7 +8,7 @@ import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { t
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
-import { handleOf, SORTABLE_LIST_CTX } from './sortable-list-context.ts';
+import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
 import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export type ListItemCoreTraits = readonly [];
@@ -29,41 +29,6 @@ export type ListItemCoreCSSProperties = Readonly<{
   '--md-list-item-leading-icon-size'?: string;
   '--md-list-item-trailing-icon-size'?: string;
 }>;
-
-const DESCRIPTION = 'Use the arrow keys to move';
-
-/**
- * Writes the attribute when the element doesn't have it, and records it in
- * `next` when the item owns it. An attribute the item wrote stays owned while
- * it is present. `touch-action` is the inline style property.
- */
-function claim(
-  owned: ReadonlyMap<HTMLElement, readonly string[]>,
-  next: Map<HTMLElement, string[]>,
-  element: HTMLElement,
-  name: string,
-  value: string,
-): void {
-  const isStyle = name === 'touch-action';
-
-  if (!(isStyle ? element.style.touchAction : element.hasAttribute(name))) {
-    if (isStyle) {
-      element.style.touchAction = value;
-    } else {
-      element.setAttribute(name, value);
-    }
-  } else if (!owned.get(element)?.includes(name)) {
-    return;
-  }
-
-  const names = next.get(element);
-
-  if (names) {
-    names.push(name);
-  } else {
-    next.set(element, [name]);
-  }
-}
 
 export function useListItemCore(
   host: ListItemCore,
@@ -86,68 +51,23 @@ export function useListItemCore(
 
   useHasSlottedPolyfill(host);
 
-  // The item's sortable semantics, which it writes on its own elements while
-  // an `mx-sortable-list` is its parent: the handle's, or else its control's.
-  // A static item's control is its inner `<div>`, which takes no focus of its
-  // own, so the item makes it the tab stop. Nothing goes on the host, whose
-  // `display: contents` box takes no focus and gains an accessibility node of
-  // its own with a `tabindex`.
-  let sortable = false;
-  let owned = new Map<HTMLElement, string[]>();
+  // While a sortable list is the item's parent, the context's value applies
+  // the item's sortable semantics to its own elements, and returns the update
+  // that each slot change runs. A plain list's items carry none of that code.
+  let update: (() => void) | undefined;
 
-  const update = (): void => {
-    const next = new Map<HTMLElement, string[]>();
+  useContext(host, SORTABLE_LIST_CTX, (sort) => {
+    const item = sort?.(host, target);
 
-    if (sortable) {
-      const handle = handleOf(host);
-
-      if (handle) {
-        claim(owned, next, handle, 'tabindex', '0');
-        claim(owned, next, handle, 'role', 'button');
-
-        if (!handle.hasAttribute('aria-labelledby')) {
-          claim(owned, next, handle, 'aria-label', 'Reorder');
-        }
-
-        claim(owned, next, handle, 'aria-description', DESCRIPTION);
-        claim(owned, next, handle, 'touch-action', 'none');
-      } else {
-        if (target.localName === 'div') {
-          claim(owned, next, target, 'tabindex', '0');
-        }
-
-        claim(owned, next, target, 'aria-description', DESCRIPTION);
-      }
-    }
-
-    for (const [element, names] of owned) {
-      for (const name of names) {
-        if (!next.get(element)?.includes(name)) {
-          if (name === 'touch-action') {
-            element.style.removeProperty(name);
-          } else {
-            element.removeAttribute(name);
-          }
-        }
-      }
-    }
-
-    owned = next;
-  };
-
-  // A provider that isn't the parent is an outer sortable list around a
-  // nested `mx-list`, whose items stay plain.
-  useContext(host, SORTABLE_LIST_CTX, (list) => {
-    if (list !== host.parentElement) {
+    if (!item) {
       return undefined;
     }
 
-    sortable = true;
-    update();
+    ({ update } = item);
 
     return () => {
-      sortable = false;
-      update();
+      update = undefined;
+      item.release();
     };
   });
 
@@ -157,10 +77,10 @@ export function useListItemCore(
       'lead-large',
       nodes.some((n) => n instanceof HTMLElement && 'large' in n.dataset),
     );
-    update();
+    update?.();
   });
 
-  useSlot(host, '.trail', update);
+  useSlot(host, '.trail', () => update?.());
 
   return target;
 }
