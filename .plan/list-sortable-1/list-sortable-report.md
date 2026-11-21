@@ -86,6 +86,37 @@ On the final source, after task 3a:
   - `fmt`, `lint-fix`, `fmt` and `lint` on the three changed files, and material-x's `typecheck`: clean.
 - **Not rerun:** the accessibility probe, which still evaluates `list/sortable-list.js` first, and Safari.
 
+## `reviewer-1` of the feature proof — 2026-11-21
+
+**By the implementer,** on [`reviewer-1`](../reviews/list-sortable-1/feature-proof-claude.md#reviewer-1) of the feature proof at `586a99e60`, relayed by the coordinator. No decision changes, and drag's source doesn't change.
+
+- **The defect.** With the markup parsed first and `list/sortable-list.js` evaluated before `list/list-item.js`, the list's first `slotchange` sees items that aren't upgraded yet, so its collection is empty. An upgrade fires no `slotchange`. The items became tab stops and didn't move, by keyboard or by pointer.
+- **The fix,** `6921f9aa9`, in `sortable-list.ts`: when an item resolves the list's context and isn't in the collection yet, the provider's writer reads the slot again before it applies the item's semantics. The read is the one the slot callback already runs, and it calls `invalidate()` only when the collection changed. It goes through the existing context link, so the list still keeps no registry. An item that the slot callback already found pays one `includes` per lookup.
+- **The rows.** The definition-order block gains four rows, in which two items are parsed and both modules are evaluated: a keyboard move (`ArrowDown` on the focused first item) and a pointer move (a drag from the first item onto the second). Each runs once with `sortable-list.js` first and once with `list-item.js` first, and asserts the dispatched moves, `[[0, 1]]`. The two tab-stop rows are unchanged. The block's frames are now removed at the end of each row.
+- **Witness** ([output](checks/order-move-mutations.txt)), in Chromium, Firefox and WebKit:
+  - **The fix reverted:** both `sortable-list.js`-first move rows fail in each engine, and the other four rows pass.
+  - **Core's definition wait removed:** the `list-item.js`-first tab-stop and keyboard rows fail in each engine.
+  - **With the fix:** all six rows pass in each engine.
+  - **What isn't witnessed.** No mutation fails the `list-item.js`-first pointer row. In that order the items are upgraded when the slot callback runs, so a pointer drag needs neither the fix nor the wait. The row shows that the move holds in that order.
+- **Sizes** against `main`'s merge base `87fc2d2db` ([reading](checks/size-after-reviewer-1.txt)), Brotli bytes. `origin/main` is at `9377c7e1d`, which changes only `CONTRIBUTING.md`.
+
+  | Row | `main` | Before the fix | After | Against `main` | Bound |
+  | --- | --: | --: | --: | --: | --- |
+  | `list/list` | 3,673 | 685 | 685 | −2,988 | doesn't grow |
+  | `list/list-item` | 2,567 | 2,828 | 2,828 | +261 | ≤ 3,100 |
+  | `list/list-button-item` | 4,575 | 4,667 | 4,667 | +92 | ±150 |
+  | `list/list-link-item` | 4,746 | 4,885 | 4,885 | +139 | ±150 |
+  | `list/sortable-list` | — | 8,579 | 8,605 | new row | ≤ 9,600 |
+  | `complete` | 17,079 | 22,144 | 22,092 | +5,013 | — |
+  - The fix is in `list/sortable-list` only, and the item rows don't move.
+  - `complete` reads 52 B smaller although `list/sortable-list` grew by 26 B. This wasn't explained, and no ablation was run.
+
+- **Gates** ([output](checks/reviewer-1-gates.txt)):
+  - material-x's browser suite with `MX_TEST_ENGINES=chromium,firefox,webkit`: 860 rows pass, and the one expected failure is `button.browser.test.ts`'s Firefox row (`RF-33`).
+  - The root `aube exec just test`: 151 files and 2,471 rows pass.
+  - `fmt`, `lint-fix`, `fmt` and `lint` on the two changed files, and material-x's `typecheck`: clean.
+- **Not run:** Safari.
+
 ## Open
 
 - **`RF-69` (#100):** merged and taken in, as _After `RF-69`_ says. The definition-order row passes. The accessibility probe wasn't rerun in the other import order.
