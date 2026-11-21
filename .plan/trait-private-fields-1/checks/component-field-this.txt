@@ -1,0 +1,104 @@
+# node probes/component-field-this.ts over each ref's packages/*/src files that call compose(…), read with git show
+# run 2026-11-21 by the architect; typescript 6.0.2
+
+## origin/main at bd1dee7df
+packages/material-x/src/button-group/button-group.ts ButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button-group/connected-button-group.ts ConnectedButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button/button.ts Button: 0 instance fields, 0 initialized 
+packages/material-x/src/button/icon-button.ts IconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/link-button.ts LinkButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/split-button.ts SplitButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-button.ts SwitchButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-icon-button.ts SwitchIconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/checkbox/checkbox.ts Checkbox: 0 instance fields, 0 initialized 
+packages/material-x/src/fab/fab.ts FAB: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-button-item.ts ListButtonItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-item.ts ListItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-link-item.ts ListLinkItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list.ts List: 0 instance fields, 0 initialized 
+packages/material-x/src/radio/radio.ts Radio: 0 instance fields, 0 initialized 
+packages/material-x/src/text-field/TextFieldCore.ts TextFieldCore: 1 instance fields, 0 initialized 
+  readonly #input: InputElement;
+
+## origin/repo/list-sortable-1 at 59650e176
+packages/material-x/src/button-group/button-group.ts ButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button-group/connected-button-group.ts ConnectedButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button/button.ts Button: 0 instance fields, 0 initialized 
+packages/material-x/src/button/icon-button.ts IconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/link-button.ts LinkButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/split-button.ts SplitButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-button.ts SwitchButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-icon-button.ts SwitchIconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/checkbox/checkbox.ts Checkbox: 0 instance fields, 0 initialized 
+packages/material-x/src/fab/fab.ts FAB: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-button-item.ts ListButtonItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-item.ts ListItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-link-item.ts ListLinkItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list.ts List: 0 instance fields, 0 initialized 
+packages/material-x/src/list/sortable-list.ts SortableList: 0 instance fields, 0 initialized 
+packages/material-x/src/radio/radio.ts Radio: 0 instance fields, 0 initialized 
+packages/material-x/src/text-field/TextFieldCore.ts TextFieldCore: 1 instance fields, 0 initialized 
+  readonly #input: InputElement;
+
+## origin/material-x/list-roles-1 at 1deacdc54
+packages/material-x/src/button-group/button-group.ts ButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button-group/connected-button-group.ts ConnectedButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button/button.ts Button: 0 instance fields, 0 initialized 
+packages/material-x/src/button/icon-button.ts IconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/link-button.ts LinkButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/split-button.ts SplitButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-button.ts SwitchButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-icon-button.ts SwitchIconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/checkbox/checkbox.ts Checkbox: 0 instance fields, 0 initialized 
+packages/material-x/src/fab/fab.ts FAB: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-button-item.ts ListButtonItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-item.ts ListItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-link-item.ts ListLinkItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list.ts List: 0 instance fields, 0 initialized 
+packages/material-x/src/radio/radio.ts Radio: 0 instance fields, 0 initialized 
+packages/material-x/src/text-field/TextFieldCore.ts TextFieldCore: 1 instance fields, 0 initialized 
+  readonly #input: InputElement;
+
+## origin/core/context-late-provider-1 at ce1544fed
+packages/material-x/src/button-group/button-group.ts ButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button-group/connected-button-group.ts ConnectedButtonGroup: 0 instance fields, 0 initialized 
+packages/material-x/src/button/button.ts Button: 0 instance fields, 0 initialized 
+packages/material-x/src/button/icon-button.ts IconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/link-button.ts LinkButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/split-button.ts SplitButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-button.ts SwitchButton: 0 instance fields, 0 initialized 
+packages/material-x/src/button/switch-icon-button.ts SwitchIconButton: 0 instance fields, 0 initialized 
+packages/material-x/src/checkbox/checkbox.ts Checkbox: 0 instance fields, 0 initialized 
+packages/material-x/src/fab/fab.ts FAB: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-button-item.ts ListButtonItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-item.ts ListItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list-link-item.ts ListLinkItem: 0 instance fields, 0 initialized 
+packages/material-x/src/list/list.ts List: 0 instance fields, 0 initialized 
+packages/material-x/src/radio/radio.ts Radio: 0 instance fields, 0 initialized 
+packages/material-x/src/text-field/TextFieldCore.ts TextFieldCore: 1 instance fields, 0 initialized 
+  readonly #input: InputElement;
+
+## witness: a fixture class that does reference this and super
+witness.ts X: 5 instance fields, 5 initialized 
+  plain = new Map();
+  eager = this.value;
+  #handler = () => this.toggle();
+  viaSuper = super.method();
+  accessor late = [1].map(() => this.value);
+  witness.ts:5 X eager eager: this.value
+  witness.ts:6 X #handler deferred: () => this.toggle()
+  witness.ts:7 X viaSuper eager: super.method()
+  witness.ts:8 X late deferred: [1].map(() => this.value)
+
+## the witness fixture, witness.ts
+    const C = compose(Base);
+    class X extends C {
+      static s = this.name;
+      plain = new Map();
+      eager = this.value;
+      #handler = () => this.toggle();
+      viaSuper = super.method();
+      accessor late = [1].map(() => this.value);
+    }
+
+# 'late' is listed as deferred, although Array.prototype.map calls its arrow while the initializer runs: an eager-only rule would accept it.

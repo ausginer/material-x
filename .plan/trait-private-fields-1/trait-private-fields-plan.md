@@ -1,8 +1,10 @@
 # Plan: private instance members and constructors in traits (`RD-33`)
 
-**Deferred by the owner on 2026-11-21, not in force.** In translation: _"Let's defer RD-33. It's a good thing, but we'll implement it when a real user appears, or after we finish material-x, for its users. Put `constructor` in there too. I think it needs to be one unit."_ So nothing implements this plan until the owner resumes it, and the branch opens no pull request until then. The constructor, [decision 7](#7-constructors), was added the same day, before any implementation, and is part of the same unit. Its first lowering was revised the same day on the owner's decisions, which also refuse `this` in a trait's field initializer (decision 1).
+**In force by the owner's decision of 2026-11-21,** relayed by the coordinator, in translation: _"RD-33, both yes. And honestly I now lean toward implementing it now, just so we don't manage to write traits or components that contradict it."_ "Both" accepts two points of the architect's report: the `trait-list` refusal of a trait that the base's chain already composes ([Before `super()`](#before-super)), and a rule for the component's field initializers, symmetric with the trait's ([decision 8](#8-a-components-field-initializers)).
 
-**Recipient,** once the owner resumes it: the implementer. **Branch:** `repo/trait-private-fields-1`, from `main` at `640658b5c`. Merge `main` first, because the plan was written against that commit. **Input:** the architect's commits on this file. **Decided** by the owner on 2026-11-21, relayed by the coordinator ([`RD-33`](../00-index.md)). The plan and its implementation share this branch and one pull request (`RD-32`): continue here, and open the pull request after the implementation.
+**Deferred earlier the same day, and resumed by the decision above.** The owner's words then, in translation: _"Let's defer RD-33. It's a good thing, but we'll implement it when a real user appears, or after we finish material-x, for its users. Put `constructor` in there too. I think it needs to be one unit."_ The constructor, [decision 7](#7-constructors), was added the same day, before any implementation, and is part of the same unit. Its first lowering was revised the same day on the owner's decisions, which also refuse `this` in a trait's field initializer (decision 1).
+
+**Recipient:** the implementer. **Branch:** `repo/trait-private-fields-1`, from `main` at `640658b5c`. **Merge `origin/main` at `bd1dee7df` first.** Since `640658b5c` it changed only `packages/drag` (#94), so the merge touches no file this plan names, and the plan was re-checked against it ([below](#re-checked-against-main)). **Input:** the architect's commits on this file. **Decided** by the owner on 2026-11-21, relayed by the coordinator ([`RD-33`](../00-index.md)). The plan and its implementation share this branch and one pull request (`RD-32`): continue here, and open the pull request after the implementation.
 
 **Governing records:**
 
@@ -18,6 +20,7 @@ Today a trait's instance field is `trait-field`, and a member that reads a priva
 - **The flattener copies them into the component and renames each private name per trait,** as it already gives a module-private binding a build-only name. So two traits, or a trait and the component, can each declare `#x`.
 - **Any initializer that doesn't reference `this` is allowed,** `new Map()` included. It is linked and rewritten as a member's body is.
 - **A trait may declare a constructor with no parameters.** The flattener inserts its body into the component's constructor, right after `super(…)`, so it runs once per instance after every field, supertrait before subtrait, before the component's own statements ([decision 7](#7-constructors)).
+- **A component whose list has a trait with a constructor doesn't reference `this` or `super` in an instance field's initializer.** What it needs from a trait's constructor, it does in its own constructor, after `super(…)`. The plugin reports `component-field` ([decision 8](#8-a-components-field-initializers)).
 
 Nothing adopts the feature in this unit, and no adopter is planned: `FocusForwarding` keeps its `WeakMap` ([below](#no-adopter-focusforwarding-keeps-its-weakmap)).
 
@@ -119,7 +122,7 @@ A trait can occur twice in an expanded list, for example when two traits share a
 4. every trait's constructor body, in list order;
 5. the component's statements after `super(…)`.
 
-A subtrait's body sees its supertrait's body's effects. **A component's field initializer runs before every trait's body,** so a field that reads what a trait's constructor sets up reads it too early. That follows from the owner's sequence, and the plugin doesn't check it, because the component's types include the trait's members. Such a field belongs in the component's constructor, after `super(…)`.
+A subtrait's body sees its supertrait's body's effects. **A component's field initializer runs before every trait's body,** so a field that reads what a trait's constructor sets up reads it too early. That follows from the owner's sequence. The component's types include the trait's members, so TypeScript doesn't catch it, and the plugin refuses `this` and `super` in such a component's field initializers ([decision 8](#8-a-components-field-initializers)).
 
 **When the component has no constructor,** the plugin generates `constructor(...args) { super(...args); … }` with the blocks. It forwards the arguments as the implicit constructor does, and it parses as both TypeScript and JavaScript. A list with no trait constructor changes no constructor and generates none, so no current output changes.
 
@@ -167,15 +170,57 @@ The owner asked for a check of everything that comes before `super()`, since it 
 - **A nested `super(…)`,** in an `if`, a `try`, a conditional expression or an arrow function, where the language allows it. No single point follows every path, so it is `component-constructor`. Inserting the blocks after each call would work for an `if`'s branches, but not for an arrow called later. The author computes the arguments first and calls `super(…)` once.
 - **A component whose base is itself a component,** flattened or hand-written. The base's whole construction happens inside the component's `super(…)`, including the traits' bodies of any flattened class in its chain. So each class in the chain keeps the order for its own traits, and the blocks go after the component's `super(…)` as before.
 - **A subclass of a component,** hand-written or itself a composition. Its `super(…)` runs the component's whole construction, the traits' bodies included, before the subclass's fields. So the order holds per class. A trait's body that calls a member which the subclass overrides reaches the override before the subclass's fields are initialized: decision 1's second unchecked case.
-- **A trait that the base's chain already composes** is refused when the trait has a constructor or private instance members. The code is `trait-list`.
+- **A trait that the base's chain already composes** is refused when the trait has a constructor or private instance members that the flattener copies. The code is `trait-list`. **Accepted by the owner on 2026-11-21** ("both yes", above).
   - Such a component gets a second copy of the trait: a second set of private fields, and a constructor body that runs twice per instance, once in each class. For example, a listener is added twice, and the base's copy of the body calls the component's copy of a public member before its private fields exist.
   - The plugin finds the chain's traits by their brands: the composition's list in a base's source, or the brands passed to `impl(this, …)` in a built base's static block, compared by module and export.
   - A chain the walk can't read is an error too, when the list has such a trait.
-  - A trait with neither stays as it is today. No composition in the tree has a flattened base: the sixteen in `packages/*/src` all compose `ControlledElement`.
+  - A trait with neither stays as it is today. A private field that isn't copied doesn't count (decision 3): `FocusForwarding`'s and `ButtonGroupLike`'s `#brand!: true` leave both traits as they are.
+  - No composition in the tree has a flattened base. The sixteen in `packages/*/src` at `bd1dee7df` all compose `ControlledElement`, and so does `RD-31`'s `SortableList`, the seventeenth on `repo/list-sortable-1` ([check](checks/component-field-this.txt)).
 
 #### Not adopted: a hidden field per trait
 
 The first lowering put each body in the initializer of a generated private field, `#constructor_<hash> = (() => { … })();`, after the trait's last field. **The owner chose the sequence supertrait → subtrait → component instead,** and refused `this` in an initializer, so that fields can't depend on constructors (decision 1). The hidden field existed to run each body between its trait's fields and the next trait's, for an initializer that read what a constructor set up. With no `this` in an initializer, no such initializer exists. The field also cost every instance a private slot per trait with a constructor, and every construction an arrow. What its reasoning said, rejecting this decision's lowering: _"Code in the component's constructor runs after every field, the component's included, because a derived class initializes its fields when `super()` returns. So the component's fields would run before the traits' constructors. The plugin would also write or edit the component's constructor and forward its arguments."_ The owner accepts the first consequence ([the resulting order](#the-lowering)). The second is this decision's lowering. The probe of the hidden field stays as [evidence](checks/constructor-lowering.txt), and so does its proof that `#constructor` is a reserved private name.
+
+### 8. A component's field initializers
+
+**Decided 2026-11-21 by the owner,** relayed by the coordinator, as the second point of "both yes": _a component that needs what a trait's constructor sets up does it in its constructor, not in a field initializer._ It is decision 1's rule seen from the component. A trait's field can't depend on a constructor, and with this rule neither can the component's.
+
+**The plugin holds it with a diagnostic.** When the expanded list has a trait with a constructor, an instance field initializer of the composing class doesn't reference `this` or `super`.
+
+- Any `this` or `super` in it is `component-field`, a new code, reported at the token.
+- As in decision 1, that includes one in an arrow function and in a nested `function`, class or object method, so the rule needs no scope analysis.
+- An `accessor` field's initializer is checked as a field's is.
+- `super` counts because `super.method()` in an initializer calls the base's member on the instance.
+- The message says to move the initialization into the constructor, after `super(…)`.
+
+**Not checked,** because no trait's body runs after them:
+
+- a component whose list has no trait with a constructor, so no current component is checked;
+- a static field or a static block;
+- a field of a class that extends the component, hand-written or itself a composition: it runs after its own `super(…)` returns, so after the component's whole construction, the traits' bodies included. A subclass that is a composition is checked for its own list's traits, as any composing class is.
+
+**Why a diagnostic, not a precondition:**
+
+- **The failure is silent.** The component's types include the trait's members, so a field that reads one typechecks. It then reads state that isn't set up yet: `undefined`, or a call that throws on it.
+- **The owner wants the rule so that no component contradicts it,** and a documented precondition doesn't stop one.
+- **It adds no pass.** The plugin already reads the composing class's body, for decision 3's collisions and decision 7's `super(…)`, and the check walks its field initializers there.
+- **It costs no current component anything:** no composing class has an instance field initializer ([below](#todays-components)).
+
+**Why every `this`, not only one evaluated while the initializer runs:**
+
+- **An initializer names the instance only through `this` or `super`.** It can reach it otherwise only indirectly, such as through a DOM query while the element is upgraded, and the plugin doesn't model that, as in a hand-written class.
+- **A `this` inside an arrow function isn't safe on its own.** It is safe only if nothing calls the arrow before the traits' bodies run, and `(() => this.x)()`, `[1].map(() => this.x)` and any callee that calls a callback at once each call it immediately. Telling them apart needs to know what each callee does. A rule that accepted arrows would let these through, and the failure would stay silent ([witness](checks/component-field-this.txt)).
+- **The cost is an event handler written as an arrow field,** such as `#onClick = () => this.toggle()`. In a component whose list has a trait with a constructor, it moves into the constructor after `super(…)`. That is where the repository's components set up their listeners today, through `useEvents` and the other controllers.
+
+#### Today's components
+
+Read with a [probe](probes/component-field-this.ts) over every class that extends a composition in `packages/*/src`, on `origin/main` at `bd1dee7df` and on three open branches: `repo/list-sortable-1` at `59650e176`, `material-x/list-roles-1` at `1deacdc54` and `core/context-late-provider-1` at `ce1544fed`. The output and a witness fixture that the probe does flag are in [`checks/component-field-this.txt`](checks/component-field-this.txt).
+
+- **No composing class has an instance field with an initializer.** The only instance field is `TextFieldCore`'s `readonly #input: InputElement;`, which its constructor assigns.
+- **The `static override formAssociated = true` fields** of seven components are static, and aren't checked.
+- **No trait has a constructor yet,** since this unit adds it, so nothing reports `component-field` until a trait declares one.
+
+So the rule breaks no component, on `main` or on the open branches.
 
 ### No adopter: `FocusForwarding` keeps its `WeakMap`
 
@@ -226,14 +271,15 @@ The first lowering put each body in the initializer of a generated private field
     - `trait-binding-shadowed`: a name the body reads that the component's constructor binds;
     - `trait-list`: a trait with a constructor or private instance members that the base's chain already composes, or a chain that can't be read when the list has such a trait.
 
-12. **Without an adopter, the build's output doesn't change:** core's and material-x's built JavaScript and declarations are byte-identical to `main`'s, and so are their size rows.
-13. **The plugin document states what holds.** In [`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md):
+12. **A component's field initializer doesn't reference `this` or `super`** when its expanded list has a trait with a constructor, as decision 8 states. Any `this` or `super` in an instance field's or an `accessor` field's initializer of the composing class, in an arrow function or a nested function too, is `component-field`, at the token. A component whose list has no trait with a constructor, a static field and a subclass's field aren't checked.
+13. **Without an adopter, the build's output doesn't change:** core's and material-x's built JavaScript and declarations are byte-identical to those of the `main` last merged into the branch, and so are their size rows.
+14. **The plugin document states what holds.** In [`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md):
     - §Its members: the new members, the constructor's form, the `this.#name` rule and the unreferenced field;
     - §The copy: the renaming, initializers and the constructor's body;
-    - §The emitted component: the order, the inserted blocks, the generated constructor and the component's `super(…)` rule;
+    - §The emitted component: the order, the inserted blocks, the generated constructor, the component's `super(…)` rule and its field-initializer rule;
     - §A trait module's own transform: initializers' and the constructor's bindings, and the application build;
     - §Trait IR: version 4;
-    - §Diagnostics: the changed rows, and the new `component-constructor`;
+    - §Diagnostics: the changed rows, and the new `component-constructor` and `component-field`;
     - §Verification: the new tests.
 
     The document also gets a change-record row that states what it said before. It is the documentation this feature owes, so it goes in this unit's pull request (`RD-32`).
@@ -260,6 +306,19 @@ The first lowering put each body in the initializer of a generated private field
 - a required property needs a change to `Composed`'s types or to a published package's public surface;
 - core's or material-x's build output differs from `main`'s;
 - the declarations typecheck fails for proof 7.
+
+## Re-checked against `main`
+
+**On 2026-11-21, against `origin/main` at `bd1dee7df`,** when the owner put `RD-33` in force. Nothing that this plan reads moved:
+
+- **`main` since `640658b5c`** changed only `packages/drag`, its tests and its record (#94). No file in `packages/vite-traits-plugin`, core's `traits/`, the plugin document or `packages/material-x/src` changed, so every count and quotation above still holds.
+- **`RD-33` is still the next free number.** `RD-32` is the highest on `main` and on every other branch on `origin`.
+
+**The open branches,** read at the commits named in decision 8. None changes the plugin, `composition.ts`, `focus-forwarding.ts` or the plugin document:
+
+- **`RF-69`,** `core/context-late-provider-1`, plans a change to core's `useContext` and so far changes only records. It doesn't meet this plan.
+- **`RD-31`,** `repo/list-sortable-1`, deletes core's `Reorderable` trait, adds `SortableList`, a seventeenth composition on `ControlledElement`, and composes `FocusForwarding` into `mx-list-item`. `FocusForwarding` keeps its `WeakMap`, and its `#brand!: true` isn't copied, so no trait in it has a constructor or a copied private member, and `trait-list`'s new refusal doesn't apply. It changes `traits-baseline.json` and material-x's output, so if it merges first, proof 12 compares against the `main` that includes it.
+- **`material-x/list-roles-1`** changes list tests and the accessibility document only.
 
 ## Proofs
 
@@ -297,13 +356,18 @@ Each is a node test of the plugin, unless it says otherwise.
     - a component whose base is a flattened component: each class's traits' bodies run after its own `super(…)`;
     - the emitted text: `super();` dropped, one block per body after the component's `super(…)` statement, and no generated field;
     - a list with no trait constructor leaves the component's constructor's text as it is;
-    - diagnostics, each with its position: in a trait, a parameter, a parameter property, a missing first `super();`, `super(x)`, a statement before `super();`, a second `super`, `arguments`, `new.target`, a bare `return` and `return x`, with a nested function's `return x` accepted; in a component, no `super(…)` call, two calls, one in each branch of an `if`, one in an arrow function, `super(), (this.x = 1);` and `const self = super();`; a body reading a name the component's constructor binds; a trait with a constructor that the base's chain already composes, from source and from a built base.
-11. **Build identity, against `main`.**
-    - Build `@ydinjs/core` and `@ydinjs/material-x` at `main` and at the branch.
+    - diagnostics, each with its position: in a trait, a parameter, a parameter property, a missing first `super();`, `super(x)`, a statement before `super();`, a second `super`, `arguments`, `new.target`, a bare `return` and `return x`, with a nested function's `return x` accepted; in a component, no `super(…)` call, two calls, one in each branch of an `if`, one in an arrow function, `super(), (this.x = 1);` and `const self = super();`; a body reading a name the component's constructor binds; a trait with a constructor that the base's chain already composes, from source and from a built base, and one with only `#brand!: true` that it composes, accepted.
+11. **The component's field initializers,** with a trait with a constructor in the list:
+    - `component-field`, at the token: `this.x` directly, `() => this.toggle()`, `[1].map(() => this.x)`, `this` in a nested `function` and in an object method, `super.method()`, and `this` in an `accessor` field's initializer;
+    - accepted: an initializer without `this` or `super`, such as `new Map()`; a static field that reads `this`; and the same initialization moved into the constructor after `super(…)`, which reads the trait body's state at runtime;
+    - accepted with no trait constructor in the list: the same `this` initializers, and their output is unchanged;
+    - accepted: a hand-written subclass of the component whose field reads the trait body's state, and reads it set up at runtime.
+12. **Build identity, against `main`.**
+    - Build `@ydinjs/core` and `@ydinjs/material-x` at the `main` last merged into the branch and at the branch.
     - Their JavaScript and declarations are byte-identical: compare the trees, and save the comparison under `checks/`.
     - The material-x build prints no `trait-member-conflict`.
     - The size rows are unchanged.
-12. **Gates:**
+13. **Gates:**
     - `fmt`, `lint` and `typecheck` in the plugin;
     - the root `aube exec just test`;
     - the plugin's `boundary` test.
