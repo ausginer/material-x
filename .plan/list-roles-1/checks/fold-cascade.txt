@@ -1,0 +1,469 @@
+# fold-cascade.ts on material-x/list-roles-1 at dd0067ec7, built with aube exec just build
+# node .plan/list-roles-1/probes/fold-cascade.ts <packages/material-x> <engine> <png dir>
+
+### reading, chromium
+# engine chromium 158.0.8127.18
+# block var(--cr) var(--cs) | lead var(--md-list-item-leading-space,var(--ct)) | trail var(--md-list-item-trailing-space,var(--cu))
+## reset
+### branch plain
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27 20 2 content 48 16 261.28125 24 trail 321.28125 20 22.71875 16
+item2 box 0 68 360 72 lead 16 103 20 2 content 48 82 261.28125 44 trail 321.28125 96 22.71875 16
+item3 box 0 152 360 88 lead 16 195 20 2 content 48 166 261.28125 60 trail 321.28125 188 22.71875 16
+butt1 box 0 252 360 56 lead 16 279 20 2 content 48 268 261.28125 24 trail 321.28125 272 22.71875 16
+butt2 box 0 320 360 72 lead 16 355 20 2 content 48 334 261.28125 44 trail 321.28125 348 22.71875 16
+butt3 box 0 404 360 88 lead 16 447 20 2 content 48 418 261.28125 60 trail 321.28125 440 22.71875 16
+link1 box 0 504 360 56 lead 16 531 20 2 content 48 520 261.28125 24 trail 321.28125 524 22.71875 16
+link2 box 0 572 360 72 lead 16 607 20 2 content 48 586 261.28125 44 trail 321.28125 600 22.71875 16
+link3 box 0 656 360 88 lead 16 699 20 2 content 48 670 261.28125 60 trail 321.28125 692 22.71875 16
+butt-disabled box 0 756 360 56 lead 16 783 20 2 content 48 772 261.28125 24 trail 321.28125 776 22.71875 16
+link-disabled box 0 824 360 56 lead 16 851 20 2 content 48 840 261.28125 24 trail 321.28125 844 22.71875 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987 20 2 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 293.28125 24 trail 321.28125 1048 22.71875 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 241.28125 24 trail 321.28125 1126 22.71875 16
+### branch reset
+list 0 0 360 1152
+item1 box 0 0 360 56 lead 0 27 20 2 content 32 16 293.28125 24 trail 337.28125 20 22.71875 16
+item2 box 0 68 360 72 lead 0 103 20 2 content 32 82 293.28125 44 trail 337.28125 96 22.71875 16
+item3 box 0 152 360 88 lead 0 195 20 2 content 32 166 293.28125 60 trail 337.28125 188 22.71875 16
+butt1 box 0 252 360 56 lead 16 279 20 2 content 48 268 261.28125 24 trail 321.28125 272 22.71875 16
+butt2 box 0 320 360 72 lead 16 355 20 2 content 48 334 261.28125 44 trail 321.28125 348 22.71875 16
+butt3 box 0 404 360 88 lead 16 447 20 2 content 48 418 261.28125 60 trail 321.28125 440 22.71875 16
+link1 box 0 504 360 56 lead 16 531 20 2 content 48 520 261.28125 24 trail 321.28125 524 22.71875 16
+link2 box 0 572 360 72 lead 16 607 20 2 content 48 586 261.28125 44 trail 321.28125 600 22.71875 16
+link3 box 0 656 360 88 lead 16 699 20 2 content 48 670 261.28125 60 trail 321.28125 692 22.71875 16
+butt-disabled box 0 756 360 56 lead 16 783 20 2 content 48 772 261.28125 24 trail 321.28125 776 22.71875 16
+link-disabled box 0 824 360 56 lead 16 851 20 2 content 48 840 261.28125 24 trail 321.28125 844 22.71875 16
+bare box 0 892 360 56 lead - content 0 908 360 24 trail -
+leadonly box 0 960 360 56 lead 0 987 20 2 content 32 976 328 24 trail -
+trailonly box 0 1028 360 56 lead - content 0 1044 325.28125 24 trail 337.28125 1048 22.71875 16
+large box 0 1096 360 56 lead 0 1096 56 56 content 68 1112 257.28125 24 trail 337.28125 1116 22.71875 16
+### spacing plain
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27 20 2 content 48 16 261.28125 24 trail 321.28125 20 22.71875 16
+item2 box 0 68 360 72 lead 16 103 20 2 content 48 82 261.28125 44 trail 321.28125 96 22.71875 16
+item3 box 0 152 360 88 lead 16 195 20 2 content 48 166 261.28125 60 trail 321.28125 188 22.71875 16
+butt1 box 0 252 360 56 lead 16 279 20 2 content 48 268 261.28125 24 trail 321.28125 272 22.71875 16
+butt2 box 0 320 360 72 lead 16 355 20 2 content 48 334 261.28125 44 trail 321.28125 348 22.71875 16
+butt3 box 0 404 360 88 lead 16 447 20 2 content 48 418 261.28125 60 trail 321.28125 440 22.71875 16
+link1 box 0 504 360 56 lead 16 531 20 2 content 48 520 261.28125 24 trail 321.28125 524 22.71875 16
+link2 box 0 572 360 72 lead 16 607 20 2 content 48 586 261.28125 44 trail 321.28125 600 22.71875 16
+link3 box 0 656 360 88 lead 16 699 20 2 content 48 670 261.28125 60 trail 321.28125 692 22.71875 16
+butt-disabled box 0 756 360 56 lead 16 783 20 2 content 48 772 261.28125 24 trail 321.28125 776 22.71875 16
+link-disabled box 0 824 360 56 lead 16 851 20 2 content 48 840 261.28125 24 trail 321.28125 844 22.71875 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987 20 2 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 293.28125 24 trail 321.28125 1048 22.71875 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 241.28125 24 trail 321.28125 1126 22.71875 16
+### spacing reset
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27 20 2 content 48 16 261.28125 24 trail 321.28125 20 22.71875 16
+item2 box 0 68 360 72 lead 16 103 20 2 content 48 82 261.28125 44 trail 321.28125 96 22.71875 16
+item3 box 0 152 360 88 lead 16 195 20 2 content 48 166 261.28125 60 trail 321.28125 188 22.71875 16
+butt1 box 0 252 360 56 lead 16 279 20 2 content 48 268 261.28125 24 trail 321.28125 272 22.71875 16
+butt2 box 0 320 360 72 lead 16 355 20 2 content 48 334 261.28125 44 trail 321.28125 348 22.71875 16
+butt3 box 0 404 360 88 lead 16 447 20 2 content 48 418 261.28125 60 trail 321.28125 440 22.71875 16
+link1 box 0 504 360 56 lead 16 531 20 2 content 48 520 261.28125 24 trail 321.28125 524 22.71875 16
+link2 box 0 572 360 72 lead 16 607 20 2 content 48 586 261.28125 44 trail 321.28125 600 22.71875 16
+link3 box 0 656 360 88 lead 16 699 20 2 content 48 670 261.28125 60 trail 321.28125 692 22.71875 16
+butt-disabled box 0 756 360 56 lead 16 783 20 2 content 48 772 261.28125 24 trail 321.28125 776 22.71875 16
+link-disabled box 0 824 360 56 lead 16 851 20 2 content 48 840 261.28125 24 trail 321.28125 844 22.71875 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987 20 2 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 293.28125 24 trail 321.28125 1048 22.71875 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 241.28125 24 trail 321.28125 1126 22.71875 16
+### consumer #item1 { padding-inline: 24px }
+branch  item1 box 0 0 360 56 lead 24 27 20 2 content 56 16 245.28125 24 trail 313.28125 20 22.71875 16
+spacing item1 box 0 0 360 56 lead 40 27 20 2 content 72 16 213.28125 24 trail 297.28125 20 22.71875 16
+## lift
+### branch none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### branch none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### branch popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 255) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### branch popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 392 88 padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 255) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### branch consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+### inline none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 16px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(247, 251, 234);"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### inline none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 0px; overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0);"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### inline popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 16px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(247, 251, 234);"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### inline popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 0px; overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0);"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### inline consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 24px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(0, 0, 255);"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+### important none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### important none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### important popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### important popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### important consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+
+### reading, firefox
+# engine firefox 159.0
+# block var(--cr) var(--cs) | lead var(--md-list-item-leading-space,var(--ct)) | trail var(--md-list-item-trailing-space,var(--cu))
+## reset
+### branch plain
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27.25 20 1.5 content 48 16 257.6000061035156 24 trail 317.6000061035156 20 26.399993896484375 16
+item2 box 0 68 360 72 lead 16 103.25 20 1.5 content 48 82 257.6000061035156 44 trail 317.6000061035156 96 26.399993896484375 16
+item3 box 0 152 360 88 lead 16 195.25 20 1.5 content 48 166 257.6000061035156 60 trail 317.6000061035156 188 26.399993896484375 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.6000061035156 24 trail 317.6000061035156 272 26.399993896484375 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.6000061035156 44 trail 317.6000061035156 348 26.399993896484375 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.6000061035156 60 trail 317.6000061035156 440 26.399993896484375 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.6000061035156 24 trail 317.6000061035156 524 26.399993896484375 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.6000061035156 44 trail 317.6000061035156 600 26.399993896484375 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.6000061035156 60 trail 317.6000061035156 692 26.399993896484375 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.6000061035156 24 trail 317.6000061035156 776 26.399993896484375 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.6000061035156 24 trail 317.6000061035156 844 26.399993896484375 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987.25 20 1.5 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 289.6000061035156 24 trail 317.6000061035156 1048 26.399993896484375 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 237.60000610351562 24 trail 317.6000061035156 1126 26.399993896484375 16
+### branch reset
+list 0 0 360 1152
+item1 box 0 0 360 56 lead 0 27.25 20 1.5 content 32 16 289.6000061035156 24 trail 333.6000061035156 20 26.399993896484375 16
+item2 box 0 68 360 72 lead 0 103.25 20 1.5 content 32 82 289.6000061035156 44 trail 333.6000061035156 96 26.399993896484375 16
+item3 box 0 152 360 88 lead 0 195.25 20 1.5 content 32 166 289.6000061035156 60 trail 333.6000061035156 188 26.399993896484375 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.6000061035156 24 trail 317.6000061035156 272 26.399993896484375 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.6000061035156 44 trail 317.6000061035156 348 26.399993896484375 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.6000061035156 60 trail 317.6000061035156 440 26.399993896484375 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.6000061035156 24 trail 317.6000061035156 524 26.399993896484375 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.6000061035156 44 trail 317.6000061035156 600 26.399993896484375 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.6000061035156 60 trail 317.6000061035156 692 26.399993896484375 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.6000061035156 24 trail 317.6000061035156 776 26.399993896484375 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.6000061035156 24 trail 317.6000061035156 844 26.399993896484375 16
+bare box 0 892 360 56 lead - content 0 908 360 24 trail -
+leadonly box 0 960 360 56 lead 0 987.25 20 1.5 content 32 976 328 24 trail -
+trailonly box 0 1028 360 56 lead - content 0 1044 321.6000061035156 24 trail 333.6000061035156 1048 26.399993896484375 16
+large box 0 1096 360 56 lead 0 1096 56 56 content 68 1112 253.60000610351562 24 trail 333.6000061035156 1116 26.399993896484375 16
+### spacing plain
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27.25 20 1.5 content 48 16 257.6000061035156 24 trail 317.6000061035156 20 26.399993896484375 16
+item2 box 0 68 360 72 lead 16 103.25 20 1.5 content 48 82 257.6000061035156 44 trail 317.6000061035156 96 26.399993896484375 16
+item3 box 0 152 360 88 lead 16 195.25 20 1.5 content 48 166 257.6000061035156 60 trail 317.6000061035156 188 26.399993896484375 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.6000061035156 24 trail 317.6000061035156 272 26.399993896484375 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.6000061035156 44 trail 317.6000061035156 348 26.399993896484375 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.6000061035156 60 trail 317.6000061035156 440 26.399993896484375 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.6000061035156 24 trail 317.6000061035156 524 26.399993896484375 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.6000061035156 44 trail 317.6000061035156 600 26.399993896484375 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.6000061035156 60 trail 317.6000061035156 692 26.399993896484375 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.6000061035156 24 trail 317.6000061035156 776 26.399993896484375 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.6000061035156 24 trail 317.6000061035156 844 26.399993896484375 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987.25 20 1.5 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 289.6000061035156 24 trail 317.6000061035156 1048 26.399993896484375 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 237.60000610351562 24 trail 317.6000061035156 1126 26.399993896484375 16
+### spacing reset
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27.25 20 1.5 content 48 16 257.6000061035156 24 trail 317.6000061035156 20 26.399993896484375 16
+item2 box 0 68 360 72 lead 16 103.25 20 1.5 content 48 82 257.6000061035156 44 trail 317.6000061035156 96 26.399993896484375 16
+item3 box 0 152 360 88 lead 16 195.25 20 1.5 content 48 166 257.6000061035156 60 trail 317.6000061035156 188 26.399993896484375 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.6000061035156 24 trail 317.6000061035156 272 26.399993896484375 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.6000061035156 44 trail 317.6000061035156 348 26.399993896484375 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.6000061035156 60 trail 317.6000061035156 440 26.399993896484375 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.6000061035156 24 trail 317.6000061035156 524 26.399993896484375 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.6000061035156 44 trail 317.6000061035156 600 26.399993896484375 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.6000061035156 60 trail 317.6000061035156 692 26.399993896484375 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.6000061035156 24 trail 317.6000061035156 776 26.399993896484375 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.6000061035156 24 trail 317.6000061035156 844 26.399993896484375 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987.25 20 1.5 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 289.6000061035156 24 trail 317.6000061035156 1048 26.399993896484375 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 237.60000610351562 24 trail 317.6000061035156 1126 26.399993896484375 16
+### consumer #item1 { padding-inline: 24px }
+branch  item1 box 0 0 360 56 lead 24 27.25 20 1.5 content 56 16 241.60000610351562 24 trail 309.6000061035156 20 26.399993896484375 16
+spacing item1 box 0 0 360 56 lead 40 27.25 20 1.5 content 72 16 209.60000610351562 24 trail 293.6000061035156 20 26.399993896484375 16
+## lift
+### branch none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### branch none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### branch popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 255) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### branch popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 392 88 padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 255) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### branch consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+### inline none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 16px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(247, 251, 234);"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### inline none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 0px; overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0);"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### inline popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 16px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(247, 251, 234);"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### inline popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 0px; overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0);"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### inline consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 24px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(0, 0, 255);"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+### important none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### important none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### important popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### important popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### important consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+
+### reading, webkit
+# engine webkit 27.2
+# block var(--cr) var(--cs) | lead var(--md-list-item-leading-space,var(--ct)) | trail var(--md-list-item-trailing-space,var(--cu))
+## reset
+### branch plain
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27.25 20 1.5 content 48 16 257.609375 24 trail 317.609375 20 26.390625 16
+item2 box 0 68 360 72 lead 16 103.25 20 1.5 content 48 82 257.609375 44 trail 317.609375 96 26.390625 16
+item3 box 0 152 360 88 lead 16 195.25 20 1.5 content 48 166 257.609375 60 trail 317.609375 188 26.390625 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.609375 24 trail 317.609375 272 26.390625 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.609375 44 trail 317.609375 348 26.390625 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.609375 60 trail 317.609375 440 26.390625 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.609375 24 trail 317.609375 524 26.390625 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.609375 44 trail 317.609375 600 26.390625 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.609375 60 trail 317.609375 692 26.390625 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.609375 24 trail 317.609375 776 26.390625 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.609375 24 trail 317.609375 844 26.390625 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987.25 20 1.5 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 289.609375 24 trail 317.609375 1048 26.390625 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 237.609375 24 trail 317.609375 1126 26.390625 16
+### branch reset
+list 0 0 360 1152
+item1 box 0 0 360 56 lead 0 27.25 20 1.5 content 32 16 289.609375 24 trail 333.609375 20 26.390625 16
+item2 box 0 68 360 72 lead 0 103.25 20 1.5 content 32 82 289.609375 44 trail 333.609375 96 26.390625 16
+item3 box 0 152 360 88 lead 0 195.25 20 1.5 content 32 166 289.609375 60 trail 333.609375 188 26.390625 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.609375 24 trail 317.609375 272 26.390625 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.609375 44 trail 317.609375 348 26.390625 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.609375 60 trail 317.609375 440 26.390625 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.609375 24 trail 317.609375 524 26.390625 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.609375 44 trail 317.609375 600 26.390625 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.609375 60 trail 317.609375 692 26.390625 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.609375 24 trail 317.609375 776 26.390625 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.609375 24 trail 317.609375 844 26.390625 16
+bare box 0 892 360 56 lead - content 0 908 360 24 trail -
+leadonly box 0 960 360 56 lead 0 987.25 20 1.5 content 32 976 328 24 trail -
+trailonly box 0 1028 360 56 lead - content 0 1044 321.609375 24 trail 333.609375 1048 26.390625 16
+large box 0 1096 360 56 lead 0 1096 56 56 content 68 1112 253.609375 24 trail 333.609375 1116 26.390625 16
+### spacing plain
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27.25 20 1.5 content 48 16 257.609375 24 trail 317.609375 20 26.390625 16
+item2 box 0 68 360 72 lead 16 103.25 20 1.5 content 48 82 257.609375 44 trail 317.609375 96 26.390625 16
+item3 box 0 152 360 88 lead 16 195.25 20 1.5 content 48 166 257.609375 60 trail 317.609375 188 26.390625 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.609375 24 trail 317.609375 272 26.390625 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.609375 44 trail 317.609375 348 26.390625 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.609375 60 trail 317.609375 440 26.390625 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.609375 24 trail 317.609375 524 26.390625 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.609375 44 trail 317.609375 600 26.390625 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.609375 60 trail 317.609375 692 26.390625 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.609375 24 trail 317.609375 776 26.390625 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.609375 24 trail 317.609375 844 26.390625 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987.25 20 1.5 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 289.609375 24 trail 317.609375 1048 26.390625 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 237.609375 24 trail 317.609375 1126 26.390625 16
+### spacing reset
+list 0 0 360 1172
+item1 box 0 0 360 56 lead 16 27.25 20 1.5 content 48 16 257.609375 24 trail 317.609375 20 26.390625 16
+item2 box 0 68 360 72 lead 16 103.25 20 1.5 content 48 82 257.609375 44 trail 317.609375 96 26.390625 16
+item3 box 0 152 360 88 lead 16 195.25 20 1.5 content 48 166 257.609375 60 trail 317.609375 188 26.390625 16
+butt1 box 0 252 360 56 lead 16 279.25 20 1.5 content 48 268 257.609375 24 trail 317.609375 272 26.390625 16
+butt2 box 0 320 360 72 lead 16 355.25 20 1.5 content 48 334 257.609375 44 trail 317.609375 348 26.390625 16
+butt3 box 0 404 360 88 lead 16 447.25 20 1.5 content 48 418 257.609375 60 trail 317.609375 440 26.390625 16
+link1 box 0 504 360 56 lead 16 531.25 20 1.5 content 48 520 257.609375 24 trail 317.609375 524 26.390625 16
+link2 box 0 572 360 72 lead 16 607.25 20 1.5 content 48 586 257.609375 44 trail 317.609375 600 26.390625 16
+link3 box 0 656 360 88 lead 16 699.25 20 1.5 content 48 670 257.609375 60 trail 317.609375 692 26.390625 16
+butt-disabled box 0 756 360 56 lead 16 783.25 20 1.5 content 48 772 257.609375 24 trail 317.609375 776 26.390625 16
+link-disabled box 0 824 360 56 lead 16 851.25 20 1.5 content 48 840 257.609375 24 trail 317.609375 844 26.390625 16
+bare box 0 892 360 56 lead - content 16 908 328 24 trail -
+leadonly box 0 960 360 56 lead 16 987.25 20 1.5 content 48 976 296 24 trail -
+trailonly box 0 1028 360 56 lead - content 16 1044 289.609375 24 trail 317.609375 1048 26.390625 16
+large box 0 1096 360 76 lead 0 1106 56 56 content 68 1122 237.609375 24 trail 317.609375 1126 26.390625 16
+### consumer #item1 { padding-inline: 24px }
+branch  item1 box 0 0 360 56 lead 24 27.25 20 1.5 content 56 16 241.609375 24 trail 309.609375 20 26.390625 16
+spacing item1 box 0 0 360 56 lead 40 27.25 20 1.5 content 72 16 209.609375 24 trail 293.609375 20 26.390625 16
+## lift
+### branch none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### branch none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### branch popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 255) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### branch popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 392 88 padding 16px overflow auto background rgb(255, 0, 0) color rgb(0, 0, 255) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### branch consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+### inline none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 16px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(247, 251, 234);"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### inline none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 0px; overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0);"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### inline popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 16px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(247, 251, 234);"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### inline popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow rgb(0, 255, 0) 0px 0px 0px 4px style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 0px; overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0);"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### inline consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px; padding: 10px 24px; overflow: visible; color: rgb(25, 29, 19); background-color: rgb(0, 0, 255);"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+### important none #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### important none #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### important popover #s
+before open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style=""
+### important popover #b
+before open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+lifted open true rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style="position: fixed; inset: 136px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 136 360 56 padding 0px overflow visible background rgba(0, 0, 0, 0) color rgb(0, 0, 0) shadow none style=""
+### important consumer #s
+before open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+lifted open true rect 0 68 360 56 padding 10px 16px overflow visible background rgb(247, 251, 234) color rgb(25, 29, 19) shadow none style="position: fixed; inset: 68px auto auto 0px; width: 360px; height: 56px; margin: 0px; border: 0px;"
+after open false rect 0 68 360 56 padding 10px 24px overflow visible background rgb(0, 0, 255) color rgb(25, 29, 19) shadow none style=""
+
+### cmp of the screenshots
+chromium reset level0 branch-plain vs spacing-plain: equal
+chromium reset level0 branch-plain vs spacing-reset: equal
+chromium reset level0 branch-plain vs branch-reset: differ
+chromium reset level6 branch-plain vs spacing-plain: equal
+chromium reset level6 branch-plain vs spacing-reset: equal
+chromium reset level6 branch-plain vs branch-reset: differ
+chromium lift #s branch-none vs inline-none: equal
+chromium lift #s branch-none vs important-none: equal
+chromium lift #s branch-none vs branch-popover: differ
+chromium lift #s branch-none vs inline-popover: differ
+chromium lift #s branch-none vs important-popover: equal
+chromium lift #b branch-none vs inline-none: equal
+chromium lift #b branch-none vs important-none: equal
+chromium lift #b branch-none vs branch-popover: differ
+chromium lift #b branch-none vs inline-popover: differ
+chromium lift #b branch-none vs important-popover: equal
+chromium lift #s branch-consumer vs inline-consumer: equal
+chromium lift #s branch-consumer vs important-consumer: differ
+firefox reset level0 branch-plain vs spacing-plain: equal
+firefox reset level0 branch-plain vs spacing-reset: equal
+firefox reset level0 branch-plain vs branch-reset: differ
+firefox reset level6 branch-plain vs spacing-plain: equal
+firefox reset level6 branch-plain vs spacing-reset: equal
+firefox reset level6 branch-plain vs branch-reset: differ
+firefox lift #s branch-none vs inline-none: equal
+firefox lift #s branch-none vs important-none: equal
+firefox lift #s branch-none vs branch-popover: differ
+firefox lift #s branch-none vs inline-popover: differ
+firefox lift #s branch-none vs important-popover: equal
+firefox lift #b branch-none vs inline-none: equal
+firefox lift #b branch-none vs important-none: equal
+firefox lift #b branch-none vs branch-popover: differ
+firefox lift #b branch-none vs inline-popover: differ
+firefox lift #b branch-none vs important-popover: equal
+firefox lift #s branch-consumer vs inline-consumer: equal
+firefox lift #s branch-consumer vs important-consumer: differ
+webkit reset level0 branch-plain vs spacing-plain: equal
+webkit reset level0 branch-plain vs spacing-reset: equal
+webkit reset level0 branch-plain vs branch-reset: differ
+webkit reset level6 branch-plain vs spacing-plain: equal
+webkit reset level6 branch-plain vs spacing-reset: equal
+webkit reset level6 branch-plain vs branch-reset: differ
+webkit lift #s branch-none vs inline-none: equal
+webkit lift #s branch-none vs important-none: equal
+webkit lift #s branch-none vs branch-popover: differ
+webkit lift #s branch-none vs inline-popover: differ
+webkit lift #s branch-none vs important-popover: equal
+webkit lift #b branch-none vs inline-none: equal
+webkit lift #b branch-none vs important-none: equal
+webkit lift #b branch-none vs branch-popover: differ
+webkit lift #b branch-none vs inline-popover: differ
+webkit lift #b branch-none vs important-popover: equal
+webkit lift #s branch-consumer vs inline-consumer: equal
+webkit lift #s branch-consumer vs important-consumer: differ

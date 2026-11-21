@@ -6,6 +6,8 @@
 
 **Re-ruled a second time 2026-11-21 by the architect,** at `4c727d25d`, on the owner's direction to fold `mx-list-item`'s inner `div` into its host in this unit, relayed by the coordinator. `mx-list-item` has no `.host`: its host is its box. Every item's drag lifts its host, so the `lifted` state goes. [What the second re-ruling replaces](#what-the-second-re-ruling-replaces) records the decision and the properties as they were at `4c727d25d`. The branch merges `main` at `555ab85bc` for `CONTRIBUTING.md`'s rules on hosts and shadow trees. The implementer's rework, from `001f8d833`, is to this decision.
 
+**Ruled on the fold's feature proof 2026-11-21 by the architect,** at `dd0067ec7`, on the coordinator's task: [`reviewer-2` and `reviewer-3`](#reviewer-2-and-reviewer-3-ruled). Both are defects of the fold, and both have a fix that adds no element. `mx-list-item`'s spacing moves from its host's padding into its shadow tree, and core's trait keeps a lifted visual's own padding, border, overflow, color and background color, as drag's lift does. So the items' lift resets go. Core's reorderable trait is now in scope. [What the ruling on the fold's proof replaces](#what-the-ruling-on-the-folds-proof-replaces) records the text as it was at `dd0067ec7`. The implementer's next change is [After the ruling on the fold's proof](#after-the-ruling-on-the-folds-proof).
+
 **Governing records:**
 
 - `RF-68` in [`../00-index.md`](../00-index.md): its required property and its datings. This branch carries the entry, as [Where `RF-68`'s record lives](#where-rf-68s-record-lives) explains;
@@ -55,7 +57,7 @@ The [probe](probes/list-roles.ts) reads each engine's own accessibility tree, no
 12. **What finding 7's rect difference was.** Core's trait writes only `position`, `inset`, `top`, `left`, `width`, `height`, `margin` and `border` inline. The UA's `[popover]` rule also sets `padding: 0.25em`, `overflow: auto`, `color: CanvasText` and `background-color: Canvas`. Each of these that the host's own rules don't set applies while the host is lifted.
     - **A box host around a button or a link** sets none of them. Lifted by core's trait, it gets 4 px of padding on each side. The trait's `width` and `height` set its content box, so the host grows by 8 px each way, and the button inside moves 4 px right and 4 px down, on a white (`Canvas`) frame. `overflow: auto` also clips the button's shadow layers. The pixels differ from `main`'s lift in all three engines.
     - **A folded static host** sets its own padding, color and background, so only `overflow: auto` applies. Its rect is kept, but the elevation's pseudo-element layers, which paint outside the box, are clipped. The pixels differ.
-    - **With the host's own values** for those properties, the lifted rect and the pixels of the item's area equal `main`'s lift of `.host`, in all three engines. That is `overflow: visible` on the folded host, and `padding: 0`, `overflow: visible`, `background: none` and `color: inherit` on a box host. A plain `:host` rule is enough, because author rules beat the UA's.
+    - **With the host's own values** for those properties, the lifted rect and the pixels of the item's area equal `main`'s lift of `.host`, in all three engines. That is `overflow: visible` on the folded host, and `padding: 0`, `overflow: visible`, `background: none` and `color: inherit` on a box host. A plain `:host` rule is enough, because author rules beat the UA's. **That holds against the UA only:** a page's own rule beats `:host` as well, which the ruling on [`reviewer-3`](#reviewer-2-and-reviewer-3-ruled) reads.
     - **Drag's lift needs none of them.** `lift.ts` writes the computed padding, border, overflow, color and background inline before it promotes the visual, so the UA's values never apply. Emulated as that code does it, both items keep their rect and their pixels without the resets.
 13. **Focus.** On a folded static host with `tabindex="0"`, `focus()` and Tab reach the host, and `:focus-visible` matches after Tab. Focus stays on the static host, and on the button inside a box host, through a lift of the host and its drop. This holds in all three engines.
 14. **The trees** ([reading](checks/list-roles-fold.txt), [probe](probes/list-roles.ts)'s new `hostbox-fold` variant). With the fold, each static item is a `listitem` whose slots are its direct children. Chromium's `generic` for the `div` goes. Firefox and WebKit read as with the box host alone. The static host with `tabindex` is a tab stop and a `listitem`, with no node of its own.
@@ -68,11 +70,12 @@ The [probe](probes/list-roles.ts) reads each engine's own accessibility tree, no
    - **The shared stylesheet doesn't need the `div`.** The fold costs a selector split: the item's box rule, today's `.host` block, and the elevation's pseudo-element layers style `:host` in `mx-list-item` and `.host` in the interactive items.
    - **Each item's stylesheets carry the box rule once, under its own selector, and none of them holds a rule that matches nothing in its tree.** The elevation stylesheet is shared with the buttons and the FAB and stays as it is. Its `.host` rules match nothing in `mx-list-item`, which adopts it for its tokens.
    - **Recommended:** the box rule leaves `main.styles.css` for one stylesheet per kind: a new one that `mx-list-item` adopts, on `:host`, and a new one that the interactive items adopt, on `.host`. The declarations are then written twice in source. That is two direct paths, not a mechanism (`CONTRIBUTING.md` Part II §2.2), and each bundle carries one copy. `interactive.styles.css` isn't that sheet: no module imports it on `main`, and adopting it would change the items' press and disabled styles ([seen, not registered](#seen-not-registered)).
+   - **The folded host declares no `padding`, `margin` or `border`.** Its block and inline spacing are margins of its shadow children, which no page rule reaches: the block space on each of `.lead`, `.content` and `.trail`, the leading space on the first of them shown, and the trailing space on the last. A page's universal reset then leaves the item as it is ([`reviewer-2`](#reviewer-2-and-reviewer-3-ruled)).
    - **The folded rule has no `all: unset`.** A custom element has no UA styles to remove, and `all` would reset the host's own transition of the elevation level. It has `box-shadow: none`, so the host draws the two layers that `main` draws (finding 10).
    - **This adds a case to the `.host` invariant:** _the host is the box_. The architect writes it into `architecture.md` with this re-ruling. In the list module, a lookup of `.host` then finds an interactive item's control, and code that handles `mx-list-item` uses its host.
 2. **The interactive items take the same host.** The host is the list item around the native `<button>` or `<a>`, which keeps its own logic: focus, `aria-*`, disabling, the ripple, the link attributes and `part="impl"`. That is the owner's principle: nothing native is merged into the host. It is also how `mx-checkbox`, `mx-radio` and `mx-text-field` wrap their `<input>` (finding 9). The rows of the first decision are gone, and so is `mx-list-item`'s `div`, so the owner's rule is met by three fewer elements than that decision had.
 3. **Each item's drag lifts its host.** `useListItemCore` registers the host as the item's visual with core's trait, which is `useReorderableItem`'s default. `RD-31`'s sortable list lifts the item itself ([below](#knock-on-for-rd-31-90-a-follow-up-on-its-branch)). A lifted host is out of the list's flow, so the list keeps its size with no state, listener or rule (finding 11).
-   - **While core's trait lifts a host, its padding, overflow, color and background are the item's, not the UA popover's** (finding 12). A box host's `:host` rule sets `padding: 0`, `overflow: visible`, `background: none` and `color: inherit`. `mx-list-item`'s, which sets the others itself, sets `overflow: visible`. These are initial or inherited values, so they change nothing outside a lift.
+   - **While core's trait lifts a host, its padding, border, overflow, color and background color are its own from before the lift,** not the UA popover's (finding 12) and not a page rule's ([`reviewer-3`](#reviewer-2-and-reviewer-3-ruled)). The trait reads them before it sets `popover`, writes them inline for the lift, and restores them with its other inline values, as drag's lift does. The items' stylesheets have no lift resets.
    - **During a drag, the consumer's element carries `popover`, the trait's inline styles, and the popover's `beforetoggle` and `toggle` events.** The owner accepts the item writing in the consumer's markup. Core's trait restores the inline values it overwrites.
 4. **The interactive items no longer compose `FocusForwarding`.** Their hosts have a box, so `delegatesFocus` reaches the control in Firefox (finding 8). `FocusForwarding`'s JSDoc says it exists because every adopter's host is `display: contents`, which these items' hosts no longer are. `@ydinjs/material-x` isn't published, so the obsolete composition is deleted (`CONTRIBUTING.md` Part II §8). The trait stays for the button family and the FAB.
 
@@ -92,11 +95,9 @@ The [probe](probes/list-roles.ts) reads each engine's own accessibility tree, no
 
 **Not adopted, for the second re-ruling:**
 
-- **Keeping `mx-list-item`'s `div`.** None of its three reasons holds. The shared stylesheet costs a selector split, not an element (decision 1). The lift writes in the consumer's markup, which the owner accepts, and the UA's styles are undone by four declarations with core's trait and by drag's own lift with `RD-31` (finding 12). Focus moves to the host in `RD-31`'s follow-up, which adapts to this unit.
+- **Keeping `mx-list-item`'s `div`.** None of its three reasons holds. The shared stylesheet costs a selector split, not an element (decision 1). The lift writes in the consumer's markup, which the owner accepts, and the lift keeps the item's own values, with core's trait and with drag's lift (decision 3). Focus moves to the host in `RD-31`'s follow-up, which adapts to this unit.
 - **The `lifted` state** of the ruling before: with the host lifted, no box remains in the list to take away.
 - **Lifting `.host` in the interactive items and the host in `mx-list-item`:** it keeps the state for two kinds, and with it the WebKit note on a lifted item ([`reviewer-1`](#reviewer-1-re-ruled)).
-- **The resets under `:host(:popover-open)`:** a plain `:host` rule is shorter. Nothing else sets these properties on the host.
-- **Core's trait writing the computed values, as drag's lift does:** `RD-31` deletes that trait, and the item needs only four declarations.
 - **The penumbra on the folded host:** it would change `main`'s pixels. It is [seen, not registered](#seen-not-registered).
 
 ## What the implementer changes
@@ -112,6 +113,19 @@ On this branch, from `001f8d833`, merged with `main`:
 - **`accessibility.md`:** as property 8 says. `architecture.md` already has the new case of the `.host` invariant.
 - **The report:** the proofs again, and the size table. The owner question is answered: (a).
 
+### After the ruling on the fold's proof
+
+On this branch, from `dd0067ec7`:
+
+- **`static-box.styles.css`:** the host's `padding-block` and `padding-inline` go, and so does `overflow: visible`. The same spacing goes on the shadow children as margins (decision 1): `margin-block` on `.lead`, `.content` and `.trail`, the leading space as `margin-inline-start` on `.lead` and on `.content` when `.lead` isn't shown, and the trailing space as `margin-inline-end` on `.trail` and on `.content` when `.trail` isn't shown. Which one is shown is `:has-slotted`, as `main.styles.css` writes it. The comment states why, in one sentence: a page rule beats `:host`, and none reaches the shadow tree.
+- **`interactive-box.styles.css`:** the `:host` lift resets and their comment go.
+- **Core's reorderable trait** (`packages/core/src/traits/reorderable.ts`): the lift keeps the visual's own computed padding, border, overflow, color and background color (decision 3). It reads them before `visual.popover` is set, writes them inline for the lift, and restores them with the other inline values it overwrites. That replaces its `border: 0`. The set is drag's `UA_PROPS`. The comments on `DRAGGING_PROPS` and the UA chrome follow. No signature changes.
+- **`mx-list`'s `reorderable` JSDoc** states what a page's popover rules do: during a drag, the item element carries `popover="manual"` and matches `[popover]` and `:popover-open`. The lift keeps the item's size, position, padding, border, overflow, color and background color. A page rule for popovers that sets other properties, such as `box-shadow`, applies to the item while it is lifted.
+- **`main.styles.css`'s comment on `--md-list-item-leading-space` and `--md-list-item-trailing-space`** says that they set an item's inline spacing. `mx-list-item` has no part.
+- **Tests:** proofs 2 and 5 as amended, and a row in core's `reorderable.browser.test.ts` for the kept values under a document `[popover]` rule.
+- **`reviewer-4`:** the report says what the probe's `item-lift` mode does: it copies the trait's steps in page script, and its last column is read before the footprint is removed. Or the mode runs the trait itself. The implementer chooses.
+- **The report:** proofs 2, 4, 5, 7 and 8 again, and the reruns that proof 4 names.
+
 ## Required properties
 
 1. **Each item of `mx-list` is exposed as a list item.** This holds in Chromium, Firefox and WebKit, for `mx-list-item`, `mx-list-button-item` and `mx-list-link-item`, enabled or disabled. In each engine's tree, the list has one `listitem` for each item, in DOM order. The nearest ancestor of each one that isn't `generic` is the list.
@@ -121,14 +135,14 @@ On this branch, from `001f8d833`, merged with `main`:
    - A disabled link item leaves the tab order as on `main`.
    - The host's `aria-*` attributes reach the control as on `main`.
 4. **This unit adds no focus behavior to `mx-list-item`.** In `mx-list` it takes no focus, as on `main`. One thing changes with the box: a consumer's `tabindex` on an `mx-list-item` host makes the host a tab stop, as on any element with a box. On `main` it does nothing. It stands: the owner answered the [owner question](#owner-question) with (a).
-5. **The layout and the pixels don't change.** In each engine, each item's box and the list's box are the same as on `main`. An item's box is its `.host` in the interactive items and its host in `mx-list-item`. That holds for one-, two- and three-line items, with lead and trail content, in a list with a `gap`. An interactive item's host draws nothing: no padding, border, margin, background or shape of its own. `mx-list-item`'s host draws what its `.host` drew: the list's pixels are `main`'s, at elevation level 0 and raised.
-6. **A lift doesn't change the layout or the visual.** Each item's drag lifts its host. While it is lifted, the list's size and the other items' boxes are the same as on `main`, and the host's rect, padding, overflow and background are what they were before the lift, in all three engines. Core's trait lifts the host: `useReorderableItem(host)`.
+5. **The layout and the pixels don't change.** In each engine, each item's box and the list's box are the same as on `main`. An item's box is its `.host` in the interactive items and its host in `mx-list-item`. That holds for one-, two- and three-line items, with lead and trail content, in a list with a `gap`. An interactive item's host draws nothing: no padding, border, margin, background or shape of its own. `mx-list-item`'s host draws what its `.host` drew: the list's pixels are `main`'s, at elevation level 0 and raised. **This holds with a page's universal reset** of `margin`, `padding`, `border` and `box-sizing` on `*`, `::before` and `::after`, as Tailwind v4's preflight writes it, as it does on `main`.
+6. **A lift doesn't change the layout or the visual.** Each item's drag lifts its host. While it is lifted, the list's size and the other items' boxes are the same as on `main`, and the host's rect, padding, border, overflow, color and background color are what they were before the lift, in all three engines. **This holds with a page rule on `[popover]` or `:popover-open`** that sets those properties, and with the consumer's own rule on the item. Core's trait lifts the host: `useReorderableItem(host)`.
 7. **No part, attribute, property, event, slot or export is added or removed, except `mx-list-item`'s part `impl`.** It goes with the `div`, and a consumer styles the item element, which now has a box. `@ydinjs/material-x` isn't published, so nothing deprecates it (`CONTRIBUTING.md` Part II §8). The interactive items keep `part="impl"` on their control.
    - **The interactive items' compositions lose `FocusForwarding`** (decision 4). `ListInteractiveItemCoreTraits` loses `typeof FocusForwarding`, and in `traits-baseline` only the two items' `FocusForwarding` entries change. `focus()` behaves as on `main` (property 3).
    - **Each item's host is now the list's flex item.** An interactive item's `::part(impl)` is inside it, so `order`, `flex` and `align-self` go on the item element itself, as on any element with a box. No other `@csspart` line changes ([`reviewer-1`, re-ruled](#reviewer-1-re-ruled)).
    - **No custom state is added.**
 8. **The accessibility guide states what holds.** Its list section says that each item's host is its `listitem`, through its internals, and has a box, and why, and that `mx-list-item` has no inner element. WebKit's split of slotted nodes is no longer a limit of the list items, and the entry on a host with `tabindex` is restated: the host takes focus, and its node is its `listitem`.
-9. **Comments state what holds, without finding ids.** The interactive host's resets say why, in one sentence.
+9. **Comments state what holds, without finding ids.** `mx-list-item`'s spacing margins say why, in one sentence.
 
 ## Scope and boundaries
 
@@ -136,7 +150,9 @@ On this branch, from `001f8d833`, merged with `main`:
 
 - the list item templates: the interactive items' back to `main`'s, and `mx-list-item`'s without its `div`;
 - `ListItemCore.ts`, for the role, the reorderable registration and where the shared content goes, `ListInteractiveItemCore.ts`, for `FocusForwarding`, and `list-item.ts`, for its part line;
-- the item styles, for `:host`'s `display`, the box rule of each kind and the resets;
+- the item styles, for `:host`'s `display`, the box rule of each kind and `mx-list-item`'s spacing;
+- core's reorderable trait, for the values a lift keeps, and its browser test;
+- `mx-list`'s `reorderable` JSDoc;
 - material-x tests, `traits-baseline` and the test command for the Chromium tree;
 - `focus-forwarding.browser.test.ts`'s list of adopters;
 - the list section of `accessibility.md`;
@@ -148,7 +164,7 @@ On this branch, from `001f8d833`, merged with `main`:
 - the elevation stylesheet, and the penumbra that the list items and the FAB don't draw;
 - `interactive.styles.css`;
 - the `FocusForwarding` trait itself, and its other adopters;
-- core's reorderable trait;
+- core's reorderable trait, apart from the values a lift keeps;
 - `@ydinjs/drag`;
 - everything `RD-31` plans, `mx-sortable-list` included.
 
@@ -156,7 +172,9 @@ On this branch, from `001f8d833`, merged with `main`:
 
 - a property needs a public surface change beyond property 7's;
 - an item's box, the list's box or the list's pixels differ from `main` in any engine;
-- a lifted host's rect, padding, overflow or background differs from its own before the lift;
+- a lifted host's rect, padding, border, overflow, color or background color differs from its own before the lift, with or without a page's popover rule;
+- an item's box, its content's box or the list's pixels differ with a page's universal reset from without it;
+- the trait's change needs a change to its signature, to drag, or to another adopter;
 - an engine doesn't expose an item as `listitem` with its control inside, in the committed probe's tree;
 - `focus()` doesn't reach an interactive item's control in Firefox without `FocusForwarding`.
 
@@ -172,12 +190,14 @@ Use the `test-component` skill for every material-x test.
 
    It also asserts property 6, for a static and an interactive item. With the host lifted by core's trait, the host matches `:popover-open`, the list's height and the next item's top are unchanged, and the host's rect and computed `padding`, `overflow` and `background-color` equal their values before the lift. After the lift ends, the host has no `popover` attribute.
 
+   **Amended by the ruling on the fold's proof.** The lift rows also run with a document rule `[popover] { padding: 16px; background: red; overflow: auto; color: blue }`, and for the static item with a document rule that sets its `padding-inline` and `background-color`. In each, the lifted host's rect and computed `padding`, `overflow`, `color` and `background-color` equal their values before the lift. A layout row reads, with a document `*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid }`, each static item's box and the boxes of its `.lead`, `.content` and `.trail`. They equal the reading without the rule, for one-, two- and three-line items, and for an item with only a label, only a lead and only a trail.
+
 3. **Three engines' trees, by the committed probe.** Rerun [`probes/list-roles.ts`](probes/list-roles.ts) against the branch's build, in its `main` variant, which reads the built package unchanged. Save the reading under `checks/`, and show properties 1 and 3 in Chromium, Firefox and WebKit, with the slotted nodes inside their items in WebKit. Also rerun [`probes/list-lift.ts`](probes/list-lift.ts)'s `none` mode, and save it.
-4. **The layout and pixel reading.** For the fixtures in property 5, read every item's box and the list's rect in all three engines, on `main`'s build and on the branch's, with [`probes/list-layout.ts`](probes/list-layout.ts). It reads an item without a `.host` by its host. The readings are equal. Save both under `checks/`. With `--png <dir>`, it also writes a screenshot per engine at elevation level 0 and 6. Each of the branch's screenshots is byte-equal to `main`'s (`cmp`); record the comparison in the report.
+4. **The layout and pixel reading.** For the fixtures in property 5, read every item's box and the list's rect in all three engines, on `main`'s build and on the branch's, with [`probes/list-layout.ts`](probes/list-layout.ts). It reads an item without a `.host` by its host. The readings are equal. Save both under `checks/`. With `--png <dir>`, it also writes a screenshot per engine at elevation level 0 and 6. Each of the branch's screenshots is byte-equal to `main`'s (`cmp`); record the comparison in the report. **Also rerun [`probes/fold-cascade.ts`](probes/fold-cascade.ts)** on the branch's build after the change, and save it. In its `branch` variant, `branch reset` reads as `branch plain`, its screenshots at level 0 and 6 are byte-equal to them, and every lift's `lifted` line keeps the `before` line's values, except the `popover` rule's `box-shadow`. Its other variants emulate the fixes, so they read as `branch`.
 5. **Mutations.** Each fails, and each is reverted:
    - with `{ role: 'listitem' }` removed from the `useCore` call, proofs 1 and 2 fail;
-   - with the interactive host's resets removed, proof 2's lift row for the interactive item fails;
-   - with `overflow: visible` removed from `mx-list-item`'s host, its lift row fails.
+   - with the trait's kept values removed, proof 2's lift rows fail for both items under the `[popover]` rule, and the interactive item's row fails without it;
+   - with `mx-list-item`'s spacing on its host's padding again, proof 2's reset row fails.
 6. **Safari, when it runs.** If the owner dispatches the Safari workflow on the branch, a row reads the computed roles through WebDriver (`getElementComputedRole`): `listitem` on each row, and `button` or `link` on each control. Otherwise the scheduled run reads it after merge. It doesn't gate the merge.
 7. **The existing gates.** Every existing test passes, including `list-item.browser.test.ts` and its focus rows in Firefox, `focus-forwarding.browser.test.ts` without the two list items among its adopters, core's reorderable rows and `traits-baseline` with property 7's change. So do `fmt`, `lint` and `typecheck`, and the root `aube exec just test`.
 8. **Sizes.** `aube exec just size` before and after. The readings at `7c2732d1d`'s source, in Brotli bytes:
@@ -199,6 +219,8 @@ Use the `test-component` skill for every material-x test.
 
    The rows have no limits (`RD-24`), so nothing can fail. Report each difference, and stop if a row grows by more than 150 B.
 
+   **Estimated for the ruling on the fold's proof, against the report's after:** every row with the list gains the trait's read and write of five properties and its longer restore list, about +40 to +90 B. `list/list-item` gains the spacing margins and loses its padding and `overflow`, about +30 to +70 B. The interactive rows lose the four resets. Stop if a row grows by more than 150 B over the report's after.
+
 ## `reviewer-1`, re-ruled
 
 **Re-ruled 2026-11-21 with the decision.** On `main`, an interactive item's `<button>` or `<a>` is a flex item of `mx-list`. Under the decision before, the row was. Now the host is, for all three kinds, and `mx-list-item` has no part `impl` any more (property 7). A consumer puts `order`, `flex` or `align-self` on the item element itself, as on any element with a box. On `main`, none of the three items took them on its own element, because its host was `display: contents`.
@@ -208,6 +230,45 @@ Use the `test-component` skill for every material-x test.
 
 **The WebKit note on a lifted item goes with the second re-ruling.** It said that WebKit may drop an item from its tree while its host is `display: contents` during a lift. Each drag now lifts the host, which keeps its box in the top layer.
 
+## `reviewer-2` and `reviewer-3`, ruled
+
+**Ruled 2026-11-21 by the architect,** on the [feature proof of the fold](../reviews/list-roles-1/feature-proof-fold-claude.md) at `dd0067ec7`. **Both are defects of the fold, and this unit fixes them.** Neither is an owner question: each fix adds no element, so the owner's direction holds, and what the host owes the page is a contract question. Read on the branch's build in Chromium 158, Firefox 159 and WebKit 27.2, with each fix emulated in the page ([probe](probes/fold-cascade.ts), [reading](checks/fold-cascade.txt)).
+
+**What a host owes the page's rules.**
+
+- **A page rule that names the item is the consumer's styling of its own element:** its tag, an id, a class or an attribute that the consumer wrote. It beats `:host` because the cascade is built that way, and the item doesn't resist it.
+- **A page rule that names no component reaches the host only because the host is an element of the page, or because the library made it match.** Two such rules come with correct integration. One is a universal reset of `margin`, `padding`, `border` and `box-sizing`, which a Tailwind v4 page has by default in its preflight. The other is a page's rule for its own popovers, while the library has made the host a popover. The consumer wrote nothing about the item, and the item's private tokens aren't theirs to restore it with. So the item's rendering doesn't depend on what those rules override. On `main`, neither rule reached the item.
+- **`!important` on `:host` is not the fix.** In the cascade, a shadow tree's `!important` beats every page declaration, the page's own `!important` and inline style included. So it would remove the consumer's styling of its own element, the first case. The probe's `important` variant shows it. Under `:host(:popover-open)`, it keeps the page's popover rule out, but it also puts back the item's own padding and background over the consumer's `#s { padding-inline: 24px; background-color: rgb(0, 0, 255) }` during the lift, in all three engines.
+
+**`reviewer-2`: `mx-list-item`'s spacing goes into its shadow tree** (decision 1, property 5). No page rule matches an element of the shadow tree, so its children's margins are out of a reset's reach. The `spacing` variant moves the host's padding to those margins. It reads as the build without the reset, with and without the reset, in every row: one-, two- and three-line items, a label alone, a lead alone, a trail alone and a large lead. Its screenshots at elevation level 0 and 6 are byte-equal to the build's in all three engines. The build with the reset differs, as the proof found.
+
+- **One consequence:** a consumer's `padding` on `mx-list-item` now adds to the item's spacing instead of replacing it. With `padding-inline: 24px`, the lead starts at 40 px instead of 24. Padding works that way on any element whose content has its own spacing. The item's inline spacing is set by `--md-list-item-leading-space` and `--md-list-item-trailing-space`, as on `main`. On `main`, padding on the host did nothing, because the host was `display: contents`, and `::part(impl)` replaced the spacing. The part goes by property 7.
+
+**`reviewer-3`: core's trait keeps the lifted visual's own values, as drag's lift does** (decision 3, property 6). The trait reads the visual's computed padding, border, overflow, color and background color before it sets `popover`, so neither the UA's rule nor a page's matches yet. It writes them inline, which beats both, and restores them with the inline values it already restores. The `inline` variant does this, with the items' `:host` resets removed:
+
+- with no page rule, both lifts read and draw as the build's: the resets aren't needed;
+- with the page's `[popover]` rule, both hosts keep 360 × 56 px and their own padding, overflow, color and background;
+- with the consumer's rule on `#s`, the lift keeps the consumer's padding and background.
+
+**Why the trait and not the item's CSS:**
+
+- **It keeps the values from before the lift, whoever set them.** CSS can only restate the item's own values, and those are wrong for a consumer who styled the item.
+- **It is one mechanism with drag's lift.** `RD-31`'s follow-up replaces the trait with drag's lift, which keeps the same set (`UA_PROPS`), so the lifted item behaves the same before and after `RD-31`.
+- **It removes CSS:** the four resets of the interactive hosts and `mx-list-item`'s `overflow: visible`.
+
+**What stays documented:** a page rule for popovers that sets a property outside that set, such as `box-shadow`, `border-radius`, `opacity` or a transform, applies to the lifted item. The probe's `box-shadow: 0 0 0 4px lime` draws around the lifted item in the `inline` variant. Drag's lift has the same limit. Keeping every property would mean copying the whole computed style, or lifting an element of the shadow tree, which brings back the element that the owner removed. `mx-list`'s `reorderable` JSDoc states it ([After the ruling on the fold's proof](#after-the-ruling-on-the-folds-proof)).
+
+**Not adopted:**
+
+- **Documenting the two rules as the consumer's styling:** the consumer wrote neither for the item, and a Tailwind page gets the reset by default.
+- **`!important` on `:host`, at rest or under `:host(:popover-open)`:** see above.
+- **Moving the spacing into grid tracks on the host:** it changes the layout model, and the margins keep the flex layout that property 5's pixels were read with.
+- **Bringing an element back for the spacing or the lift:** CSS and the trait cover both.
+
+**`reviewer-4`** stays with the implementer: [After the ruling on the fold's proof](#after-the-ruling-on-the-folds-proof).
+
+**Seen, not registered:** `button-group`'s standard variant puts `padding-inline` on `:host ::slotted(*)`, not on `:host` as the proof says. A page's universal reset beats a `::slotted` declaration too. The slotted buttons' hosts are `display: contents`, so whether that padding has any effect wasn't read. A rule in `CONTRIBUTING.md`'s [Shadow tree structure](../../CONTRIBUTING.md#shadow-tree-structure) that states what a host owes the page's rules would be project documentation, which has its own pull request (`RD-32`). It isn't written yet.
+
 ## Knock-on for `RD-31` (#90): a follow-up on its branch
 
 **Planned, not yet written into `RD-31`'s plan; restated with the second re-ruling.** `RD-31` is dated implemented on `repo/list-sortable-1` (`52d32b21e`). The architect amends `RD-31` there with what follows, and the implementer applies it there after this unit is on `main`. If `RD-31` merges first, this unit's implementer applies the same changes when merging `main`, because the fold removes the element that `RD-31`'s static writes and its `visual` callback target.
@@ -216,7 +277,7 @@ Use the `test-component` skill for every material-x test.
 
 - **Ruling item 6 goes.** `mx-list-item` composes neither `FocusForwarding` nor `delegatesFocus`. Its host is the element that takes focus, in every engine (finding 13). Its focus indicator draws on `:host(:focus-visible)`, because the shared focus stylesheet's rule is on `.host:focus-visible`. `list/list-item`'s estimate loses the trait.
 - **A static item's sortable writes go on its host.** A handle-less static item's `tabindex="0"` and `aria-description` are written on the host. They are recorded and kept as the handle's are: a value the consumer set stays, and only what the item wrote is removed. The owner accepts the item writing in the consumer's markup. `sortItem`'s test for a static item becomes the control being the host.
-- **The sortable list's `visual` callback goes.** Drag's `visual` defaults to the item, which is now what every item lifts. Drag's lift writes the computed padding, border, overflow, color and background inline (finding 12), so the interactive items' resets go too, with core's trait.
+- **The sortable list's `visual` callback goes.** Drag's `visual` defaults to the item, which is now what every item lifts. Drag's lift writes the computed padding, border, overflow, color and background inline (finding 12), as core's trait does after the ruling on the fold's proof, so nothing in the items changes for it.
 - **Ruling item 7 changes.** A consumer's `tabindex` on the host no longer does nothing: the host becomes a tab stop, in either list, and the item doesn't suppress it (the [owner question](#owner-question), answered (a)).
 - **_Not adopted_'s _"The host stops being `display: contents`"_ goes,** and so does the reason that the host must carry no `tabindex` or `aria-*`. Both were about a `display: contents` host's extra node.
 - **The focused element is the list item.** A handle-less static item's focus lands on its host, which is its `listitem`, so `RD-31`'s Q6 section holds as written: the focused item is announced with its role.
@@ -265,6 +326,18 @@ The full text before is this file at `4c727d25d`.
 - **The scope** had _"`mx-list-item`'s inner `.host`, which stays (decision 1)"_ out of scope. **Proof 2's lift rows** asserted `:state(lifted)`, and **proof 5** removed the `lifted` rule. **Proof 4** read every item's `.host` rect and no pixels. **Proof 8** estimated the listener, the state and one rule on every row.
 - **The ruling on `reviewer-1`** kept the WebKit note on a lifted item, inferred and not read.
 - **The knock-on for `RD-31`** listed the changes of the box host alone, with _"The focused element is no longer the list item"_, and made the fold its follow-up's main task.
+
+## What the ruling on the fold's proof replaces
+
+The full text before is this file at `dd0067ec7`.
+
+- **Decision 1** had no bullet on the folded host's spacing, which was its `padding`.
+- **Decision 3's first bullet** said: _"**While core's trait lifts a host, its padding, overflow, color and background are the item's, not the UA popover's** (finding 12). A box host's `:host` rule sets `padding: 0`, `overflow: visible`, `background: none` and `color: inherit`. `mx-list-item`'s, which sets the others itself, sets `overflow: visible`. These are initial or inherited values, so they change nothing outside a lift."_
+- **_Not adopted, for the second re-ruling_** held _"**The resets under `:host(:popover-open)`:** a plain `:host` rule is shorter. Nothing else sets these properties on the host."_ and _"**Core's trait writing the computed values, as drag's lift does:** `RD-31` deletes that trait, and the item needs only four declarations."_ Its bullet on keeping the `div` said that _"the UA's styles are undone by four declarations with core's trait"_.
+- **Property 5** was read without page styles, and **property 6** named the rect, padding, overflow and background, without a page's rules. **Property 9** asked for a comment on the interactive host's resets.
+- **The scope** had core's reorderable trait out of scope, and **the stops** named the lifted host's rect, padding, overflow or background only.
+- **Proof 5** removed the interactive host's resets, and `overflow: visible` from `mx-list-item`'s host.
+- **The knock-on for `RD-31`** said that the interactive items' resets go with core's trait.
 
 ## Seen, not registered
 
