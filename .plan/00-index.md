@@ -1857,6 +1857,30 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **Why.** A plan is part of its feature's implementation, so the owner reviews and merges them together. Project documentation isn't a feature's, so it has its own pull request.
 
+#### RD-33 — A trait may declare private instance fields, methods and accessors, which the flattener copies with each private name renamed per trait, and any initializer is allowed
+
+**Decided 2026-11-21 by the owner,** relayed by the coordinator, in translation: _"Let's relax the trait idea. I accept the cost of the new trait implementation: in the end it mostly affects the plugin, and that's acceptable."_ On initializers: _"A trait is, in essence, a closed data-and-methods system, so with the private name renamed we can allow any initialization. I would allow `new Map()`."_ On the order: _"It's a trait. It's not allowed to read the fields of whoever implements it, unless that is the bound, and the bound should already be initialized by then."_ Registered by the architect on `repo/trait-private-fields-1`, from `origin/main` at `640658b5c`. `RD-32` is the highest number on any branch on `origin`, so this is the next free number. The [plan](trait-private-fields-1/trait-private-fields-plan.md) holds the reasons, the properties and the proofs. **Unimplemented.**
+
+**It amends `RD-26`'s property 2,** which copies a trait's methods and accessors only. Until this entry, a trait's instance field was `trait-field`, a member that read a private name was `trait-member`, and only a private field with no initializer, such as `#brand!: true`, was skipped.
+
+**Properties:**
+
+1. **A trait may declare private instance members:** fields with any initializer or none, methods, getters and setters. The flattener copies them into each component that lists the trait.
+2. **Each private name is renamed per trait,** to `#<name>_<hash>`. The hash comes from the specifier the component reaches the trait through and the trait's class name. A renamed name that equals another private name in the component's class body is an error.
+3. **A private name is used only as `this.#name`,** where `this` is the member's or the initializer's own. `other.#name`, `#name in other` and a private name in a nested `function` are `trait-member`. After renaming, a private name belongs to one component class, so a cross-instance access would fail for another class that has the trait, although the trait's types accept it.
+4. **The order of initialization.** The traits' fields run after `super()` returns, in list order, and within a trait in declaration order, before the component's own fields. An initializer reads its own trait's private members, its bound's members, linked module bindings and globals. The bound is initialized by then: the base's fields run inside `super()`, and a supertrait's list is expanded before the trait, so its fields come earlier. A component's field isn't in the trait's type, so there is neither a precondition nor a diagnostic for it.
+5. **An initializer is linked and rewritten as a member's body is,** through the same walker and the same build-only exports.
+6. **Still forbidden:**
+   - a public instance field (`trait-field`): an own property would cover a prototype accessor of the base or an earlier trait;
+   - a static private member (`trait-member`): a static is linked, not copied, so the trait's module keeps one copy of each, which a per-component copy would split.
+7. **The expanded trait list keeps each trait's first occurrence,** so a supertrait shared by two traits is copied once, ahead of both. No composition in the tree repeats a trait.
+8. **A private field that nothing in its trait references isn't copied.**
+9. **Layer (b) and the declarations' form don't change.** The IR's version becomes 4.
+
+**Not adopted:** public instance fields and static private members, for property 6's reasons. A diagnostic for an initializer that reads a component's field isn't adopted either: the trait's types already exclude it.
+
+**The first adopter follows, in a unit of its own:** `FocusForwarding`'s control moves from a module-level `WeakMap` to a private field. Module code writes the control and `RD-31`'s sortable list reads it, and no module code can name a private field. So the trait needs a member that module code reaches, and which kind of member is the owner's question in the [plan](trait-private-fields-1/trait-private-fields-plan.md#owner-question). The architect recommends one keyed by a module-scope `Symbol`.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
