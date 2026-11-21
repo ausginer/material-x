@@ -132,3 +132,27 @@
 
 - **`RD-33` still says "Unimplemented."** The implementer's report leaves its dating to the architect.
 - **Open choice 1, judged:** `trait-binding-shadowed` fits a renamed-name collision. The code already means _"the component's class binds a name that copied source reads"_, the diagnostics row says so, and the check fails closed.
+
+## Re-check of reviewer-1, at `3f038c402`
+
+**Read at** `3f038c402`, the implementer's remediation, against the architect's ruling in `02fa8d70c`: `RD-33` property 8, and the plan's decision 3 and property 10. **The ruling:** a private field with an initializer is copied and checked whether or not anything references it. Only a field with no initializer that nothing names, such as `#brand!: true`, is skipped. No new diagnostic. **Scope:** reviewer-1 only, not a fresh full proof.
+
+**Verdict: reviewer-1 is closed, and the remediation matches the ruling.** No new finding.
+
+- **The code.** `normalizeTraitClass` keeps a private field when `element.value !== null` or a member or the constructor references it. That is the ruling's rule, and nothing else in the plugin changed. Kept fields stay in declaration order, and an initializer is checked by `normalizeField`, the same path as a referenced field's. `FieldIR`'s doc says the same.
+- **My original probe, rerun unchanged** from [`probes/`](probes/):
+  - `KE` now records `base field`, `base body`, `E unused field`, `E used field`, the same as the hand-written `KEHand`.
+  - The emitted class holds `#unused_7b9fa45c = …` before `#used_7b9fa45c`.
+  - The probe row `init this but field unreferenced` is now `trait-member`, at `this`. Before, it was accepted.
+  - Every other row of the diagnostics probe is unchanged, and so is `K`'s whole order.
+- **The mutation witness holds.** With the old filter, `.filter((element) => referenced.has(element.key.name))`, restored in a scratch edit, the suite fails exactly 3 tests and passes 251:
+  - `state.node.test.ts`: _should run its initializer as the hand-written class does, in the same order_;
+  - `state.node.test.ts`: _should be copied, renamed_;
+  - `diagnostics.node.test.ts`: the `trait-member` row _this in the initializer of a field that nothing references_.
+
+  With the filter at `3f038c402`, 254 of 254 pass. I restored the file afterwards, and the tree was clean.
+
+- **Build identity:** I accepted the implementer's reread against `dbf0ab8ae` without rebuilding. `3fdd3a829..3f038c402` changes no file under `packages/core` or `packages/material-x`. No trait source in `packages/*/src` declares a private field with an initializer, so the new filter keeps no field that the old one dropped.
+- **The document and the records.** `trait-flattener-plugin.md` §Its members, its `RD-33` change-record row, the plan's decision 3, properties 10 and proof 8, and `RD-33` property 8 now say the same thing. None of them says that an unreferenced field can't be observed. Each states the fields with no initializer that nothing names as the only skipped case.
+
+**Not re-run:** the root `aube exec just test`. Its 2,420 of 2,420 is the implementer's reading.
