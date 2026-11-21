@@ -1,0 +1,55 @@
+# P1-style runs, aube exec just test-engines [--reporter=verbose] tests/hot-path.browser.test.ts, at 5239af750 with a temporary console.log of the row's bytes after stopHeapSampling
+p1-1: Tests  9 passed (9)
+p1-2: Tests  9 passed (9)
+p1-3: Tests  9 passed (9)
+p1-4: Tests  9 passed (9)
+p1-5: Tests  9 passed (9)
+p1-6: Tests  9 passed (9)
+p1-7: Tests  9 passed (9)
+p1-8: Tests  9 passed (9)
+p1-9: Tests  9 passed (9)
+p1-10: Tests  9 passed (9)
+p1-11: Tests  9 passed (9)
+p1-12: Tests  9 passed (9)
+p1-13: Tests  9 passed (9)
+p1-14: Tests  9 passed (9)
+p1-15: Tests  9 passed (9)
+p1-extra-1 (unmutated; the P3 anchor matched twice and the script applied nothing): Tests  9 passed (9)
+p1-extra-2 (unmutated; the P3 anchor matched twice and the script applied nothing): Tests  9 passed (9)
+p1-extra-3 (unmutated; the P3 anchor matched twice and the script applied nothing): Tests  9 passed (9)
+p1-extra-4 (unmutated; the P3 anchor matched twice and the script applied nothing): Tests  9 passed (9)
+p1-extra-5 (unmutated; the P3 anchor matched twice and the script applied nothing): Tests  9 passed (9)
+
+# kernel B per move, kernel keys, lift.ts keys (runs 1-5 used the default reporter, which prints no stdout for a passing test)
+p1-6.log 5.25 {"kernel/session.ts:handleEvent":1576} lift: lift.ts:translate
+p1-7.log 8.88 {"kernel/session.ts:handleEvent":2664} lift: lift.ts:translate
+p1-8.log 3.51 {"kernel/session.ts:handleEvent":1052} lift: lift.ts:translate
+p1-9.log 6.37 {"kernel/session.ts:handleEvent":1912} lift: lift.ts:translate
+p1-10.log 7.76 {"kernel/session.ts:handleEvent":2328} lift: lift.ts:translate
+p1-11.log 6.37 {"kernel/session.ts:handleEvent":1912} lift: lift.ts:translate
+p1-12.log 5.09 {"kernel/session.ts:handleEvent":1528} lift: lift.ts:translate
+p1-13.log 6.13 {"kernel/session.ts:handleEvent":1840} lift: lift.ts:translate
+p1-14.log 7.09 {"kernel/session.ts:handleEvent":2128} lift: lift.ts:translate
+p1-15.log 8.24 {"kernel/session.ts:handleEvent":2472} lift: lift.ts:translate
+p1-extra-1.log 8.60 {"kernel/gesture.ts:enter":168,"kernel/session.ts:handleEvent":2412} lift: lift.ts:translate
+p1-extra-2.log 6.81 {"kernel/session.ts:handleEvent":2044} lift: lift.ts:translate
+p1-extra-3.log 5.25 {"kernel/session.ts:handleEvent":1576} lift: lift.ts:translate
+p1-extra-4.log 5.73 {"kernel/session.ts:handleEvent":1720} lift: lift.ts:translate
+p1-extra-5.log 7.09 {"kernel/session.ts:handleEvent":2128} lift: lift.ts:translate
+
+# P3: one escaping { x, y } per sample after this.#drag.y = event.clientY; in Session.#move (src/kernel/session.ts:374), reverted with git checkout
+p3-1: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 8 passed (9) | ❯ tests/hot-path.browser.test.ts:322:52
+p3-2: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 8 passed (9) | ❯ tests/hot-path.browser.test.ts:322:52
+p3-3: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 8 passed (9) | ❯ tests/hot-path.browser.test.ts:322:52
+p3-4: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 8 passed (9) | ❯ tests/hot-path.browser.test.ts:322:52
+p3-5: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 8 passed (9) | ❯ tests/hot-path.browser.test.ts:322:52
+p3-1.log 55.08 {"kernel/session.ts:handleEvent":1896,"kernel/session.ts:#move":14628} lift: lift.ts:translate
+p3-2.log 55.96 {"kernel/session.ts:handleEvent":1888,"kernel/session.ts:#move":14900} lift: lift.ts:translate
+p3-3.log 71.07 {"kernel/session.ts:stepTarget":168,"kernel/session.ts:handleEvent":2904,"kernel/session.ts:#move":18248} lift: lift.ts:translate
+p3-4.log 64.19 {"kernel/session.ts:handleEvent":2368,"kernel/session.ts:#move":16888} lift: lift.ts:translate
+p3-5.log 58.27 {"kernel/session.ts:handleEvent":2580,"kernel/session.ts:#move":14900} lift: lift.ts:translate
