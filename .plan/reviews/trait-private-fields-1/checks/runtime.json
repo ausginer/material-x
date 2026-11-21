@@ -15,28 +15,9 @@
     "C body sReady=true",
     "after super"
   ],
-  "K values": [
-    "s",
-    "a",
-    "b",
-    "c",
-    "k",
-    "A",
-    "S#m",
-    "A#m",
-    "B#m"
-  ],
-  "K after writes": [
-    "S2",
-    "A2",
-    "b",
-    "c",
-    "K2"
-  ],
-  "K own keys": [
-    "baseField",
-    "args"
-  ],
+  "K values": ["s", "a", "b", "c", "k", "A", "S#m", "A#m", "B#m"],
+  "K after writes": ["S2", "A2", "b", "c", "K2"],
+  "K own keys": ["baseField", "args"],
   "K proto keys": [
     "constructor",
     "sReady",
@@ -54,27 +35,11 @@
     null,
     null
   ],
-  "K instanceof": [
-    true,
-    true,
-    true,
-    true,
-    false
-  ],
-  "K observedAttributes": [
-    "data-rv"
-  ],
+  "K instanceof": [true, true, true, true, false],
+  "K observedAttributes": ["data-rv"],
   "K two instances separate": true,
-  "G order": [
-    "base field",
-    "base body",
-    "B field",
-    "B body private-binding"
-  ],
-  "G args": [
-    1,
-    2
-  ],
+  "G order": ["base field", "base body", "B field", "B body private-binding"],
+  "G args": [1, 2],
   "K3 order": [
     "before super",
     "super arg",
@@ -139,11 +104,7 @@
     "Asi after super"
   ],
   "asi": 1,
-  "KE order (flattened)": [
-    "base field",
-    "base body",
-    "E used field"
-  ],
+  "KE order (flattened)": ["base field", "base body", "E used field"],
   "KEHand order (hand-written)": [
     "base field",
     "base body",
