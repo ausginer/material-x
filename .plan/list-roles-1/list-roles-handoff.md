@@ -14,6 +14,8 @@
 
 **Ruled on the feature proof on `RD-31` 2026-11-21 by the architect,** at `8efe7c009`, on the coordinator's task: [The proof on `RD-31`: `reviewer-1`, ruled](#the-proof-on-rd-31-reviewer-1-ruled). A value that anyone but the item writes on an element the item claimed is no longer the item's, whenever it was written, so the item doesn't remove it. That holds for the handle, an interactive item's control and a static host. It blocks #99, and the owner isn't asked. Proof 5's first bullet is corrected. [What the ruling on `reviewer-1` replaces](#what-the-ruling-on-reviewer-1-replaces) records the text as it was at `8efe7c009`. **The implementer's next change is the fix,** under [What the implementer does](#what-the-implementer-does), then `reviewer-2` (Tier C, the report), and then a re-check of `reviewer-1`.
 
+**Corrected 2026-11-21 by the architect,** at `5c8e9ac64`, on the [re-check](../reviews/list-roles-1/feature-proof-rd31-recheck-claude.md) at `92c88069a`, relayed by the coordinator. The re-check closes `reviewer-1` and `reviewer-2`. Proof 5's bullet on the claim record now states what holds: six of the ruling's eight rows fail under the mutation, and the two that pass are sound. [What the ruling on `reviewer-1` replaces](#what-the-ruling-on-reviewer-1-replaces) has the bullet as it was.
+
 **Governing records:**
 
 - `RF-68` in [`../00-index.md`](../00-index.md): its required property and its datings. This branch carries the entry, as [Where `RF-68`'s record lives](#where-rf-68s-record-lives) explains;
@@ -282,7 +284,7 @@ Use the `test-component` skill for every material-x test.
 4. **The layout and pixel reading.** For the fixtures in property 5, read every item's box and the list's rect in all three engines, on `main`'s build and on the branch's, with [`probes/list-layout.ts`](probes/list-layout.ts). It reads an item without a `.host` by its host. The readings are equal. Save both under `checks/`. With `--png <dir>`, it also writes a screenshot per engine at elevation level 0 and 6. Each of the branch's screenshots is byte-equal to `main`'s (`cmp`); record the comparison in the report. **Also rerun [`probes/fold-cascade.ts`](probes/fold-cascade.ts)** on the branch's build after the change, and save it. In its `branch` variant, `branch reset` reads as `branch plain`, its screenshots at level 0 and 6 are byte-equal to them, and every lift's `lifted` line keeps the `before` line's values, except the `popover` rule's `box-shadow`. Its other variants emulate the fixes, so they read as `branch`.
 5. **Mutations.** Each fails, and each is reverted:
    - with `{ role: 'listitem' }` removed from the `useCore` call, proof 1's Chromium rows fail. Proof 2's rows read the template, `display` and the `role` attribute, and none of them observes a role set through the internals. In Firefox and WebKit the committed probe of proof 3 observes it;
-   - with the claim record's ownership removed, so that `release` removes every recorded name again, the rows of [`reviewer-1`'s ruling](#the-proof-on-rd-31-reviewer-1-ruled) fail in each engine;
+   - with the claim record's ownership removed, so that `release` removes every recorded name again, six of the eight rows of [`reviewer-1`'s ruling](#the-proof-on-rd-31-reviewer-1-ruled) fail in each engine. Two pass, and they are sound. The interactive item that leaves the list passes because `useARIA` copies the host's `aria-*` to its control again on reconnect, and the row's handle variant fails. The consumer's removal passes because removing an absent attribute changes nothing. Each of the record's two paths has a row of its own. With the pending records dropped instead of applied before the item's own writes, the same-task row fails. With the observer's callback applying nothing, the five rows whose consumer write is delivered before the next update fail;
    - with the trait's kept values removed, proof 2's lift rows fail for both items under the `[popover]` rule, and the interactive item's row fails without it. **Re-planned:** with drag's `UA_PROPS` emptied in the workspace build, and the build restored after;
    - with the lift's `transition` rule removed, the rise row fails, if step 2's reading added the rule;
    - with the style read in `onStart` removed, the rise row fails in WebKit ([The rise in WebKit, ruled](#the-rise-in-webkit-ruled));
@@ -506,6 +508,7 @@ The full text before is this file at `8efe7c009`.
 
 - **[On top of `RD-31` (#90)](#on-top-of-rd-31-90)'s _Not in this unit_** said: _"and `sortable-item.ts` by the static item's writes"_. **The scope** had `sortable-item.ts` _"for the static item's writes"_.
 - **Proof 5's first bullet** said: _"with `{ role: 'listitem' }` removed from the `useCore` call, proofs 1 and 2 fail"_. It had no mutation of the claim record.
+- **Corrected 2026-11-21, at `5c8e9ac64`:** proof 5's bullet on the claim record said that _"the rows of [`reviewer-1`'s ruling](#the-proof-on-rd-31-reviewer-1-ruled) fail in each engine"_.
 
 ## Seen, not registered
 
