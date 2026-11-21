@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
@@ -16,7 +15,7 @@ function createItem(
 }
 
 function getControl(element: HTMLElement): HTMLElement {
-  const control = $<HTMLElement>(element, '.host');
+  const control = element.shadowRoot!.querySelector<HTMLElement>('.host');
 
   if (!control) {
     throw new Error('Missing internal list item control');

@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import '../../../src/checkbox/checkbox.ts';
@@ -22,7 +21,7 @@ function createCheckable(testCase: CheckableSpecCase): HTMLElement {
 }
 
 function getIcon(element: HTMLElement, selector: string): HTMLElement {
-  const icon = $<HTMLElement>(element, selector);
+  const icon = element.shadowRoot!.querySelector<HTMLElement>(selector);
 
   if (!icon) {
     throw new Error(`Missing icon for selector ${selector}`);

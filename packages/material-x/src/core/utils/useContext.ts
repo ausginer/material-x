@@ -1,4 +1,4 @@
-import attribute, { type ConverterOf } from '@ydinjs/core/attribute.js';
+import type { ConverterOf } from '@ydinjs/core/attribute.js';
 import {
   useContext as _useContext,
   type Context,
@@ -35,7 +35,7 @@ export function useContext<
   _useContext(host, ctx, parents, (data) => {
     if (data) {
       for (const [attr, { from }] of Object.entries(attributes)) {
-        effect(attr, from(null), from(attribute.getRaw(data.provider, attr)));
+        effect(attr, from(null), from(data.provider.getAttribute(attr)));
       }
 
       return data.emitter.on((attr, oldValue, newValue) => {

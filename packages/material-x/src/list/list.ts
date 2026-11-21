@@ -4,7 +4,6 @@ import {
 } from '@ydinjs/core/controllers/useCSSProps.js';
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -68,7 +67,7 @@ export default class List extends ListConstructor {
   }
 }
 
-define('mx-list', List);
+customElements.define('mx-list', List);
 
 declare global {
   interface HTMLElementTagNameMap {

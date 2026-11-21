@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import '../../src/button-group/button-group.ts';
@@ -58,7 +57,7 @@ async function createSwitchGroup(
 }
 
 function getImplementation(element: HTMLElement): HTMLElement {
-  return $<HTMLElement>(element, '.host')!;
+  return element.shadowRoot!.querySelector<HTMLElement>('.host')!;
 }
 
 /**
@@ -153,7 +152,7 @@ describe.each(GROUP_SIZE_CASES)(
       // corners resolve to the group's inner-corner size — an independent
       // geometry observation of the token the group applies to its children.
       const middle = group.children[1] as HTMLElement;
-      const host = $<HTMLElement>(middle, '.host')!;
+      const host = middle.shadowRoot!.querySelector<HTMLElement>('.host')!;
 
       expect(pixels(getComputedStyle(host).borderTopLeftRadius)).toBe(
         pixels(expected.values['inner-corner.corner-size'] as string),

@@ -1,6 +1,5 @@
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -69,7 +68,7 @@ export default class IconButton extends IconButtonConstructor {
   }
 }
 
-define('mx-icon-button', IconButton);
+customElements.define('mx-icon-button', IconButton);
 
 declare global {
   interface HTMLElementTagNameMap {

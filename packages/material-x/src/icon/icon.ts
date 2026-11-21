@@ -1,4 +1,4 @@
-import { define, ControlledElement } from '@ydinjs/core/element.js';
+import { ControlledElement } from '@ydinjs/core/element.js';
 import type { EmptyObject } from 'type-fest';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './icon.tpl.html' with { type: 'html' };
@@ -28,7 +28,7 @@ export default class Icon extends ControlledElement {
   }
 }
 
-define('mx-icon', Icon);
+customElements.define('mx-icon', Icon);
 
 declare global {
   interface HTMLElementTagNameMap {

@@ -3,7 +3,6 @@ import {
   transfer,
   useAttributes,
 } from '@ydinjs/core/controllers/useAttributes.js';
-import { define } from '@ydinjs/core/element.js';
 import '../icon/icon.ts';
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 import { input, TextFieldCore } from './TextFieldCore.ts';
@@ -75,7 +74,7 @@ export default class TextField extends TextFieldCore {
   }
 }
 
-define('mx-text-field', TextField);
+customElements.define('mx-text-field', TextField);
 
 declare global {
   interface HTMLElementTagNameMap {

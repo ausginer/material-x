@@ -1,6 +1,5 @@
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -10,7 +9,6 @@ import {
   useLinkable,
   type LinkableProps,
 } from '@ydinjs/core/traits/linkable.js';
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject, Simplify } from 'type-fest';
 import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import {
@@ -76,13 +74,13 @@ export default class LinkButton extends LinkButtonConstructor {
       { delegatesFocus: true },
     );
 
-    const anchor = $<HTMLAnchorElement>(this, '.host')!;
+    const anchor = this.shadowRoot!.querySelector<HTMLAnchorElement>('.host')!;
     useLinkable(this, anchor);
     useDisableableLinkable(this, anchor);
   }
 }
 
-define('mx-link-button', LinkButton);
+customElements.define('mx-link-button', LinkButton);
 
 declare global {
   interface HTMLElementTagNameMap {
