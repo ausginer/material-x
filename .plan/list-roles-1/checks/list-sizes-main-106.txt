@@ -1,0 +1,24 @@
+# material-x size rows, Brotli bytes, after merging origin/main at 71a516e92 (#106) into the branch at 82b0bab46. main: aube exec just size-reading on 71a516e92. merge: the same on the merge. merge, main names: the merge built with main's node_modules/.cache/css/css-private-props.json (aube exec just build-lib), then aube exec size-limit --json in packages/material-x.
+# Read by the implementer on 2026-11-21. The two builds give the same 227 private custom properties, and 92 of them a different short name.
+
+row	main	merge	diff	merge, main names	diff
+button/button	4915	4913	-2	4915	+0
+button/icon-button	5151	5182	+31	5151	+0
+button/link-button	4876	4865	-11	4876	+0
+button/switch-button	5233	5261	+28	5233	+0
+button/switch-icon-button	5657	5658	+1	5657	+0
+button/split-button	7489	7496	+7	7489	+0
+button-group/button-group	3113	3118	+5	3113	+0
+button-group/connected-button-group	3870	3874	+4	3870	+0
+checkbox/checkbox	3980	3971	-9	3980	+0
+fab/fab	4178	4172	-6	4178	+0
+icon/icon	643	643	+0	643	+0
+list/list	658	662	+4	658	+0
+list/list-item	2846	2842	-4	2832	-14
+list/list-button-item	4643	4660	+17	4635	-8
+list/list-link-item	4842	4869	+27	4863	+21
+list/sortable-list	8592	8693	+101	8695	+103
+radio/radio	3526	3526	+0	3526	+0
+text-field/multiline-text-field	4392	4392	+0	4392	+0
+text-field/text-field	8210	8209	-1	8210	+0
+complete	22237	22483	+246	22447	+210

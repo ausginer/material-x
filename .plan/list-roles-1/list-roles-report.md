@@ -58,6 +58,19 @@ The earlier report, for the fold before #90, is this file at `709e9fb55`.
 - **`accessibility.md`, the list section:** in `mx-sortable-list`, a handle-less `mx-list-item` takes focus on its host, which is its `listitem`. The item writes `tabindex` and the description only where the consumer hasn't set them. The focus indicator draws on `:host(:focus-visible)`. The section links the rerun reading.
 - **Tests:** see proofs 2 and 7.
 
+## After merging `main` at `71a516e92` (#106)
+
+**Merged 2026-11-21 at `82b0bab46`.** #106 removes core's attribute operator, `$`, `$$` and `define()`. Each conflict is resolved to this unit's behavior, written with `main`'s API:
+
+- `ListItemCore.ts`: the optional template's `.host` is found with `host.shadowRoot!.querySelector`;
+- `sortable-list.ts`: no `visual` callback, as in step 2;
+- `focus-forwarding.browser.test.ts`: the single `mx-button` subclass row, with `shadowRoot.querySelector`;
+- `sortable-list.browser.test.ts`: `visualOf` falls back to the host with `shadowRoot.querySelector`.
+
+`list-roles.browser.test.ts`, which only this branch has, used `$`, and now uses `shadowRoot.querySelector`. `sortable-item.ts` uses only the DOM's own attribute methods. The gates pass: material-x in Chromium, Firefox and WebKit has 1,630 passed, 1 expected fail and 4 skipped, and the root `aube exec just test` has 2,508 passed. Root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations` pass too.
+
+**Sizes against `main`** ([reading](checks/list-sizes-main-106.txt)), Brotli, with `main`'s private-property names: every row outside the list, and `list/list`, equals `main`'s. `list/list-item` is −14, `list/list-button-item` −8, `list/list-link-item` +21, `list/sortable-list` +103 (8,695 B, under 9,600 B) and `complete` +210. With the merge's own names, rows outside the list move by −11 to +31 B, which is the renaming of 92 private properties.
+
 ## Proofs
 
 ### 1. The Chromium tree, in CI
