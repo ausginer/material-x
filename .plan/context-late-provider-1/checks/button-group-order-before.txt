@@ -1,0 +1,134 @@
+# The failing-before row, at f12db1ced (ce1544fed with origin/main bd1dee7df merged), before the fix, in Chromium, Firefox and WebKit: MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' tests/button-group/button-group-order (from packages/material-x)
+
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-worktrees-b/84159b63-6c4c-4ec8-b57f-59e324329c10/scratchpad/clp/packages/material-x
+
+ ❯ |browser (chromium)| tests/button-group/button-group-order.browser.test.ts (1 test | 1 failed) 269ms
+   ❯ mx-button-group defined after its buttons (1)
+     × should apply its disabled state and size to buttons that upgraded first 251ms
+ ❯ |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts (1 test | 1 failed) 234ms
+   ❯ mx-button-group defined after its buttons (1)
+     × should apply its disabled state and size to buttons that upgraded first 217ms
+ ❯ |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts (1 test | 1 failed) 250ms
+   ❯ mx-button-group defined after its buttons (1)
+     × should apply its disabled state and size to buttons that upgraded first 233ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    true,[22m
+[2m    [[22m
+[32m-     true,[39m
+[32m-     true,[39m
+[31m+     false,[39m
+[31m+     false,[39m
+[2m    ],[22m
+[2m    [[22m
+[32m-     true,[39m
+[32m-     true,[39m
+[31m+     false,[39m
+[31m+     false,[39m
+[2m    ],[22m
+[2m  ][22m
+
+ ❯ tests/button-group/button-group-order.browser.test.ts:28:8
+     26|       buttons.map((button) => nativeOf(button).disabled),
+     27|       buttons.map((button) => button.matches(':state(large)')),
+     28|     ]).toEqual([true, [true, true], [true, true]]);
+       |        ^
+     29|   });
+     30| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +4ms     113ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    true,[22m
+[2m    [[22m
+[32m-     true,[39m
+[32m-     true,[39m
+[31m+     false,[39m
+[31m+     false,[39m
+[2m    ],[22m
+[2m    [[22m
+[32m-     true,[39m
+[32m-     true,[39m
+[31m+     false,[39m
+[31m+     false,[39m
+[2m    ],[22m
+[2m  ][22m
+
+ ❯ tests/button-group/button-group-order.browser.test.ts:28:8
+     26|       buttons.map((button) => nativeOf(button).disabled),
+     27|       buttons.map((button) => button.matches(':state(large)')),
+     28|     ]).toEqual([true, [true, true], [true, true]]);
+       |        ^
+     29|   });
+     30| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms     123ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    true,[22m
+[2m    [[22m
+[32m-     true,[39m
+[32m-     true,[39m
+[31m+     false,[39m
+[31m+     false,[39m
+[2m    ],[22m
+[2m    [[22m
+[32m-     true,[39m
+[32m-     true,[39m
+[31m+     false,[39m
+[31m+     false,[39m
+[2m    ],[22m
+[2m  ][22m
+
+ ❯ tests/button-group/button-group-order.browser.test.ts:28:8
+     26|       buttons.map((button) => nativeOf(button).disabled),
+     27|       buttons.map((button) => button.matches(':state(large)')),
+     28|     ]).toEqual([true, [true, true], [true, true]]);
+       |        ^
+     29|   });
+     30| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +8ms     111ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed (3)
+   Start at  07:31:49
+   Duration  5.42s (worker 44%, tests 27%, import 23%, setup 6%)
+

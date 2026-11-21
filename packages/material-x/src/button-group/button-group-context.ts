@@ -24,6 +24,12 @@ export const BUTTON_GROUP_CTX: Context<
   >
 > = createContext();
 
+/** The elements that provide `BUTTON_GROUP_CTX` to their child buttons. */
+export const BUTTON_GROUP_ELEMENTS: readonly string[] = [
+  'mx-button-group',
+  'mx-connected-button-group',
+];
+
 export function useButtonGroupProvider<T extends ControlledElement>(
   host: T,
   ctx: Context<ContextData<T>>,

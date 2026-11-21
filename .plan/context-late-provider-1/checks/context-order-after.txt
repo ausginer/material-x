@@ -1,0 +1,18 @@
+# Does a context consumer that connects before its provider is defined resolve it: node .plan/context-late-provider-1/probes/context-order.ts packages/material-x <engine>
+# Read by the implementer on 2026-11-21 on the branch's build, at f12db1ced plus the unit's working tree, after the fix. Playwright's builds.
+# true: the button follows the disabled group. false: it doesn't.
+
+# engine chromium 158.0.8127.18
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+
+# engine firefox 159.0
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+
+# engine webkit 27.2
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true

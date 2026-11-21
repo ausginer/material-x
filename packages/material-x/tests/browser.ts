@@ -89,3 +89,12 @@ export async function settleAnimations(element: HTMLElement): Promise<void> {
     }),
   );
 }
+
+/**
+ * Lets a context consumer that connected under an already defined custom
+ * element parent resolve its provider. The lookup waits for the parent's
+ * definition, so it runs a microtask after the connect.
+ */
+export async function contextResolved(): Promise<void> {
+  await Promise.resolve();
+}
