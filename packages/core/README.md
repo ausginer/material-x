@@ -15,12 +15,7 @@ npm install @ydinjs/core
 `ControlledElement` is the base class for all custom elements. It forwards DOM lifecycle callbacks to registered controllers and exposes `ElementInternals`.
 
 ```ts
-import {
-  ControlledElement,
-  use,
-  getInternals,
-  define,
-} from '@ydinjs/core/element.js';
+import { ControlledElement, use, getInternals } from '@ydinjs/core/element.js';
 
 class MyElement extends ControlledElement {
   constructor() {
@@ -30,7 +25,7 @@ class MyElement extends ControlledElement {
   }
 }
 
-define('my-element', MyElement);
+customElements.define('my-element', MyElement);
 ```
 
 An `ElementController` is any object with optional lifecycle methods:
@@ -64,6 +59,8 @@ import { Bool, Num, Str } from '@ydinjs/core/attribute.js';
 | `Bool`    | presence / absence | `true` / `false`   |
 | `Num`     | `"42"`             | `42` / `null`      |
 | `Str`     | `"hello"`          | `"hello"` / `null` |
+
+`setAttribute(element, name, value)` sets an attribute, or removes it when `value` is `null`.
 
 ### Traits
 
@@ -138,15 +135,8 @@ All controllers are registered with `use(host, controller)` in the constructor.
 ### Utils
 
 ```ts
-import {
-  $,
-  $$,
-  createEventNotifier,
-  toggleState,
-} from '@ydinjs/core/utils/DOM.js';
+import { createEventNotifier, toggleState } from '@ydinjs/core/utils/DOM.js';
 
-$(host, selector); // host.shadowRoot?.querySelector(selector)
-$$(host, selector); // host.shadowRoot?.querySelectorAll(selector)
 const notify = createEventNotifier({
   input: { cancelable: false },
   change: { cancelable: false, composed: false },
@@ -158,7 +148,7 @@ toggleState(internals, 'checked', true); // add/remove a custom state from Eleme
 ## Building a Component
 
 ```ts
-import { ControlledElement, define } from '@ydinjs/core/element.js';
+import { ControlledElement } from '@ydinjs/core/element.js';
 import {
   AnyElement,
   attributes,
@@ -175,7 +165,6 @@ import {
   transfer,
 } from '@ydinjs/core/controllers/useAttributes.js';
 import { Str } from '@ydinjs/core/attribute.js';
-import { $ } from '@ydinjs/core/utils/DOM.js';
 
 @trait
 @attributes({ color: Str })
@@ -205,14 +194,14 @@ class MyButton extends MyButtonCore {
     super();
     useShadowDOM(this, [template], [styles]);
 
-    const button = $(this, 'button')!;
+    const button = this.shadowRoot!.querySelector('button')!;
     useAttributes(this, {
       disabled: transfer(button, 'disabled'),
     });
   }
 }
 
-define('my-button', MyButton);
+customElements.define('my-button', MyButton);
 ```
 
 ## License
