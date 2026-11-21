@@ -1,0 +1,306 @@
+# Size readings, repo/list-sortable-1 at be89be254, with origin/main 2b1d8276f merged. Its source differs from e4b0e475d only in packages/core/package.json ("sideEffects": false, RD-30). 2026-11-21T06:14:51Z. Brotli. Paths under <worktree>.
+
+## packages/core: aube exec just size
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  element
+  Package size is 28 B less than limit
+  Size limit: 340 B
+  Size:       312 B brotlied
+  
+  emitter
+  Package size is 12 B less than limit
+  Size limit: 210 B
+  Size:       198 B brotlied
+  
+  traits/reorderable
+  Size limit: 3.5 kB
+  Size:       3.11 kB brotlied
+  
+
+## packages/material-x: aube exec just size
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.84 kB brotlied
+  
+  button/icon-button
+  Size: 5.11 kB brotlied
+  
+  button/link-button
+  Size: 4.81 kB brotlied
+  
+  button/switch-button
+  Size: 5.19 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.6 kB brotlied
+  
+  button/split-button
+  Size: 7.41 kB brotlied
+  
+  button-group/button-group
+  Size: 3.13 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 3.89 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.02 kB brotlied
+  
+  fab/fab
+  Size: 4.23 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.67 kB brotlied
+  
+  list/list-item
+  Size: 2.57 kB brotlied
+  
+  list/list-button-item
+  Size: 4.58 kB brotlied
+  
+  list/list-link-item
+  Size: 4.75 kB brotlied
+  
+  radio/radio
+  Size: 3.59 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.44 kB brotlied
+  
+  text-field/text-field
+  Size: 8.11 kB brotlied
+  
+  complete
+  Size: 16.98 kB brotlied
+  
+
+## Modules and exact Brotli: node ../../.plan/list-sortable-1/probes/list-modules.ts list/list list/list-item list/list-button-item list/list-link-item complete (from packages/material-x, after its build)
+list/list: 3673 B brotli, 16 modules, 0 from drag or box-quad
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useConnected.js
+  packages/core/controllers/useCSSProps.js
+  packages/material-x/core/utils/fns.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list.tpl.html.js
+  packages/material-x/list/styles/default/main.css.js
+  packages/core/traits/composition.js
+  packages/core/attribute.js
+  packages/core/controllers/useEvents.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useSlot.js
+  packages/core/traits/reorderable.js
+  packages/material-x/list/list.js
+list/list-item: 2567 B brotli, 16 modules, 0 from drag or box-quad
+  packages/material-x/list/list-item.tpl.html.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useEvents.js
+  packages/core/controllers/useSlot.js
+  packages/material-x/core/utils/polyfills.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/core/traits/reorderable.js
+  packages/material-x/list/ListItemCore.js
+  packages/material-x/list/list-item.js
+list/list-button-item: 4575 B brotli, 31 modules, 0 from drag or box-quad
+  packages/core/traits/composition.js
+  packages/material-x/core/traits/focus-forwarding.js
+  packages/material-x/list/list-button-item.tpl.html.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useConnected.js
+  packages/core/controllers/useCSSProps.js
+  packages/material-x/core/utils/fns.js
+  packages/material-x/core/animations/ripple/styles/main.css.js
+  packages/core/controllers/useEvents.js
+  packages/material-x/core/animations/ripple/ripple.js
+  packages/material-x/core/styles/focus/focus.css.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useSlot.js
+  packages/material-x/core/utils/polyfills.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/core/attribute.js
+  packages/core/traits/reorderable.js
+  packages/material-x/list/ListItemCore.js
+  packages/core/controllers/useMutationObserver.js
+  packages/core/controllers/useARIA.js
+  packages/core/controllers/useAttributes.js
+  packages/core/traits/disableable.js
+  packages/material-x/list/ListInteractiveItemCore.js
+  packages/core/traits/selectable.js
+  packages/material-x/list/list-button-item.js
+list/list-link-item: 4746 B brotli, 32 modules, 0 from drag or box-quad
+  packages/core/traits/composition.js
+  packages/material-x/core/traits/focus-forwarding.js
+  packages/material-x/list/list-link-item.tpl.html.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useConnected.js
+  packages/core/controllers/useCSSProps.js
+  packages/material-x/core/utils/fns.js
+  packages/material-x/core/animations/ripple/styles/main.css.js
+  packages/core/controllers/useEvents.js
+  packages/material-x/core/animations/ripple/ripple.js
+  packages/material-x/core/styles/focus/focus.css.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/core/utils/DOM.js
+  packages/core/controllers/useSlot.js
+  packages/material-x/core/utils/polyfills.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/core/attribute.js
+  packages/core/traits/reorderable.js
+  packages/material-x/list/ListItemCore.js
+  packages/core/controllers/useMutationObserver.js
+  packages/core/controllers/useARIA.js
+  packages/core/controllers/useAttributes.js
+  packages/core/traits/disableable.js
+  packages/material-x/list/ListInteractiveItemCore.js
+  packages/core/traits/linkable.js
+  packages/core/traits/selectable.js
+  packages/material-x/list/list-link-item.js
+complete: 16975 B brotli, 120 modules, 0 from drag or box-quad
+  packages/core/attribute.js
+  packages/core/utils/runtime.js
+  packages/core/element.js
+  packages/core/controllers/useAttributes.js
+  packages/core/controllers/useEvents.js
+  packages/core/controllers/useContext.js
+  packages/core/emitter.js
+  packages/material-x/button-group/button-group-context.js
+  packages/core/controllers/useConnected.js
+  packages/core/controllers/useCSSProps.js
+  packages/material-x/core/utils/fns.js
+  packages/material-x/core/animations/ripple/styles/main.css.js
+  packages/material-x/core/animations/ripple/ripple.js
+  packages/material-x/core/styles/elevation/elevation.css.js
+  packages/material-x/core/styles/elevation/elevation.runtime.js
+  packages/material-x/core/styles/focus/focus.css.js
+  packages/core/traits/composition.js
+  packages/core/traits/attribute-traits.js
+  packages/material-x/core/traits/focus-forwarding.js
+  packages/material-x/core/utils/useContext.js
+  packages/core/controllers/useShadowDOM.js
+  packages/material-x/core/utils/useCore.js
+  packages/material-x/button/styles/default/disabled.css.js
+  packages/material-x/button/styles/default/main.css.js
+  packages/material-x/button/styles/shape/main.css.js
+  packages/material-x/button/styles/size/main.css.js
+  packages/core/controllers/useMutationObserver.js
+  packages/core/controllers/useARIA.js
+  packages/core/traits/disableable.js
+  packages/core/utils/DOM.js
+  packages/material-x/button/ButtonCore.js
+  packages/material-x/core/utils/events.js
+  packages/material-x/button/button.tpl.html.js
+  packages/material-x/button/styles/elevated/main.css.js
+  packages/material-x/button/styles/outlined/main.css.js
+  packages/material-x/button/styles/text/main.css.js
+  packages/material-x/button/styles/tonal/main.css.js
+  packages/core/traits/nameable.js
+  packages/core/traits/typeable.js
+  packages/material-x/button/button.js
+  packages/material-x/button/IconButtonCore.js
+  packages/material-x/button/icon-button.tpl.html.js
+  packages/material-x/button/styles/icon/main.css.js
+  packages/material-x/button/icon-button.js
+  packages/material-x/button/link-button.tpl.html.js
+  packages/core/traits/linkable.js
+  packages/material-x/button/link-button.js
+  packages/material-x/button/styles/default/switch.css.js
+  packages/material-x/button/styles/elevated/switch.css.js
+  packages/material-x/button/styles/outlined/switch.css.js
+  packages/material-x/button/styles/size/switch.css.js
+  packages/material-x/button/styles/tonal/switch.css.js
+  packages/material-x/button/switch-button.tpl.html.js
+  packages/core/traits/valuable.js
+  packages/material-x/button/SwitchCore.js
+  packages/core/traits/checkable.js
+  packages/material-x/button/switch-button.js
+  packages/material-x/button/styles/icon/switch.css.js
+  packages/material-x/button/switch-icon-button.tpl.html.js
+  packages/material-x/button/switch-icon-button.js
+  packages/material-x/button-group/ButtonGroupCore.js
+  packages/material-x/button-group/button-group.tpl.html.js
+  packages/material-x/button-group/styles/connected/main.css.js
+  packages/core/controllers/useKeyboard.js
+  packages/core/controllers/useSlot.js
+  packages/core/controllers/useRovingTabindex.js
+  packages/material-x/button-group/connected-button-group.js
+  packages/material-x/icon/icon.tpl.html.js
+  packages/material-x/icon/styles/icon.ctr.css.js
+  packages/material-x/icon/icon.js
+  packages/material-x/button/split-button.tpl.html.js
+  packages/material-x/button/styles/split/main.css.js
+  packages/material-x/button/split-button.js
+  packages/material-x/button-group/styles/standard/main.css.js
+  packages/material-x/button-group/utils.js
+  packages/material-x/button-group/button-group.js
+  packages/material-x/core/elements/styles/main.css.js
+  packages/material-x/core/elements/CheckableCore.js
+  packages/material-x/checkbox/checkbox.tpl.html.js
+  packages/material-x/checkbox/styles/default/main.css.js
+  packages/material-x/checkbox/checkbox.js
+  packages/material-x/fab/fab.tpl.html.js
+  packages/material-x/fab/styles/color/main.css.js
+  packages/material-x/fab/styles/default/main.css.js
+  packages/material-x/fab/styles/extended/main.css.js
+  packages/material-x/fab/styles/size/main.css.js
+  packages/material-x/fab/styles/tonal/main.css.js
+  packages/material-x/fab/fab.js
+  packages/material-x/list/list.tpl.html.js
+  packages/material-x/list/styles/default/main.css.js
+  packages/core/traits/reorderable.js
+  packages/material-x/list/list.js
+  packages/material-x/list/list-item.tpl.html.js
+  packages/material-x/core/utils/polyfills.js
+  packages/material-x/list/list-item-shared.tpl.html.js
+  packages/material-x/list/styles/item/main.css.js
+  packages/material-x/list/ListItemCore.js
+  packages/material-x/list/list-item.js
+  packages/material-x/list/list-button-item.tpl.html.js
+  packages/material-x/list/ListInteractiveItemCore.js
+  packages/core/traits/selectable.js
+  packages/material-x/list/list-button-item.js
+  packages/material-x/list/list-link-item.tpl.html.js
+  packages/material-x/list/list-link-item.js
+  packages/material-x/radio/radio.tpl.html.js
+  packages/material-x/radio/styles/default/main.css.js
+  packages/material-x/radio/radio.js
+  packages/material-x/text-field/multiline-text-field.tpl.html.js
+  packages/material-x/core/animations/notched-outline/notched-outline.ctr.css.js
+  packages/material-x/core/animations/notched-outline/notched-outline.tpl.html.js
+  packages/core/controllers/useResizeObserver.js
+  packages/material-x/core/animations/notched-outline/notched-outline.js
+  packages/material-x/text-field/styles/default/main.css.js
+  packages/material-x/text-field/styles/outlined/main.css.js
+  packages/material-x/text-field/text-field-core.tpl.html.js
+  packages/material-x/text-field/TextFieldCore.js
+  packages/material-x/text-field/multiline-text-field.js
+  packages/material-x/text-field/text-field.tpl.html.js
+  packages/material-x/text-field/text-field.js
+  packages/material-x/node_modules/.cache/size-limit/complete.js

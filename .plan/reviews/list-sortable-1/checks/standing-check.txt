@@ -1,0 +1,24 @@
+# The standing check, tests/package-entries.node.test.ts, run from packages/material-x with vitest run -c vitest.config.ts --project node, whose global setup builds the package. Each mutation adds import '@ydinjs/drag/sortable.js' at the top of one source file and is reverted with git checkout.
+
+## baseline
+      Tests  19 passed (19)
+## mutation: import '@ydinjs/drag/sortable.js' at the top of packages/material-x/src/list/ListItemCore.ts
+      Tests  3 failed | 16 passed (19)
+     × should not reach @ydinjs/drag from list/list-button-item 3ms
+     × should not reach @ydinjs/drag from list/list-item 5ms
+     × should not reach @ydinjs/drag from list/list-link-item 3ms
+ FAIL  |node| tests/package-entries.node.test.ts:68 > runtime entries > should not reach @ydinjs/drag from list/list-button-item
+ FAIL  |node| tests/package-entries.node.test.ts:68 > runtime entries > should not reach @ydinjs/drag from list/list-item
+ FAIL  |node| tests/package-entries.node.test.ts:68 > runtime entries > should not reach @ydinjs/drag from list/list-link-item
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+## mutation: import '@ydinjs/drag/sortable.js' at the top of packages/material-x/src/list/sortable-list-context.ts
+      Tests  3 failed | 16 passed (19)
+     × should not reach @ydinjs/drag from list/list-button-item 6ms
+     × should not reach @ydinjs/drag from list/list-item 4ms
+     × should not reach @ydinjs/drag from list/list-link-item 3ms
+ FAIL  |node| tests/package-entries.node.test.ts:68 > runtime entries > should not reach @ydinjs/drag from list/list-button-item
+ FAIL  |node| tests/package-entries.node.test.ts:68 > runtime entries > should not reach @ydinjs/drag from list/list-item
+ FAIL  |node| tests/package-entries.node.test.ts:68 > runtime entries > should not reach @ydinjs/drag from list/list-link-item
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+## reverted
+      Tests  19 passed (19)

@@ -1845,6 +1845,174 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **a test that reads the top level of core's source:** the claim is about the built modules, which the plugin and tsdown write.
 - **`RD-26` and `RD-27` don't change.** `RD-26`'s fourth amendment and this unit don't wait for each other. `RD-27`'s properties don't enumerate the checks, and its plan's step 7 gains one.
 
+#### RD-31 — The list's sortable items are a separate element on `@ydinjs/drag`, and core's `reorderable` trait is deleted
+
+**Decided 2026-11-20 by the architect,** on the owner's request relayed by the coordinator for issue #86: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. Registered on `repo/list-sortable-1`, from `origin/main` at `e4b0e475d`. `RD-30` (`core/side-effects-1`) is the highest decision number on any branch on `origin`, so this is the next free number. The [plan](list-sortable-1/list-sortable-plan.md) has the readings, the test map and the tasks.
+
+**Status: implemented on `repo/list-sortable-1`, pending the owner's acceptance and the merge of #90.**
+
+**Dated 2026-11-21 by the implementer: implemented** in `88801757e` and `e54578a20`, against the sixth amendment. The [report](list-sortable-1/list-sortable-report.md) has the readings. Every stop bound holds after task 3a: `list/list-button-item` reads 4,575 → 4,601 B and `list/list-link-item` 4,746 → 4,788 B, `list/list-item` reads 2,739 B, `list/sortable-list` 8,579 B, and `list/list` 3,673 → 685 B ([reading](list-sortable-1/checks/size-after.txt)). No plain list row reaches drag, box-quad or the items' writes. One row was `it.fails` until `RF-69` (#100) was on the branch's base: a static item that upgraded before its list was defined didn't become a tab stop. (Corrected on 2026-11-21 by the architect, in tense only: since `f354bbaf8` the row is `it` and passes, as the next paragraph says.)
+
+**Dated 2026-11-21 by the architect: implemented on `repo/list-sortable-1` at `6921f9aa9`** (#90, not yet merged), relayed by the coordinator. It applies to `main` when #90 merges.
+
+- **`RF-69` is on the branch.** `5194f5069` merges `main` at `87fc2d2db`, and in `f354bbaf8` the item's consumer waits for `mx-sortable-list`'s definition. The definition-order row is now `it`. It passes in Chromium, Firefox and WebKit, and fails in each with core's wait removed ([report](list-sortable-1/list-sortable-report.md#after-rf-69--2026-11-21)).
+- **The [feature proof](reviews/list-sortable-1/feature-proof-claude.md)** at `586a99e60`, committed at `db591498f`, finds that the unit implements this decision in the three engines, with one Tier A finding, `reviewer-1`: an item upgraded after its sortable list never joined the list's collection, so it became a tab stop and didn't move.
+- **`reviewer-1` is remediated in `6921f9aa9`.** When an item resolves the list's context and isn't in the collection yet, the list's writer reads the slot again. Four rows move an item by keyboard and by pointer in each evaluation order ([report](list-sortable-1/list-sortable-report.md#reviewer-1-of-the-feature-proof--2026-11-21)). The [re-check](reviews/list-sortable-1/feature-proof-recheck-claude.md) at `6ba689932`, committed at `7aa6157ff`, finds the finding closed and the witness holding, and has no new finding.
+- **Sizes after the remediation,** against `main` at `87fc2d2db`, Brotli ([reading](list-sortable-1/checks/size-after-reviewer-1.txt)): `list/list-item` 2,828 B (+261, bound ≤ 3,100), `list/list-button-item` 4,667 B (+92, ±150), `list/list-link-item` 4,885 B (+139, ±150), `list/sortable-list` 8,605 B (a new row, ≤ 9,600) and `list/list` 685 B (−2,988, doesn't grow). Every bound holds. The items grew under `RF-69`'s wait, and the remediation moves only `list/sortable-list`, by 26 B.
+- **Owed:** the owner's acceptance and the merge of #90. Safari wasn't run, and the accessibility probe wasn't rerun with `list/list-item.js` evaluated first.
+
+**Answered by the owner on 2026-11-20 and 2026-11-21,** relayed by the coordinator. The plan's [Owner's answers](list-sortable-1/list-sortable-plan.md#owners-answers) quotes them in full.
+
+- **Q1: (a), the separate element.** _"Я думаю, стоит сделать отдельный элемент 🤔 Не очень хочется, но это более правильно."_ ("I think a separate element is worth it. I don't much want to, but it's more correct.") Property 2 stands.
+- **Q2: a direction, then deferred by Q5.** He asked which model is more correct, and then asked for grab mode as an opt-in sortable feature that doesn't hurt the size. The plan's [Q2 section](list-sortable-1/list-sortable-plan.md#q2-the-keyboard-model) has the comparison. `drag:DRD-70` wrote the feature down, and Q5 deferred it.
+- **Q3: the handle isn't required by default, and a consumer can require it.** _"Нет, не обязательна; однако если человек хочет сделать её обязательной — это надо предусмотреть."_ ("No, not required; but if someone wants to make it required, that has to be provided for.")
+- **Q5: the grab feature is deferred.** _"Так, фичу с захватом откладываем. Мне не очень нравится направление, тут надо, наверное, посидеть и отдельно подумать 🤔 Особенно мне не нравится идея "операция живёт между нажатиями", это прям подножка текущей архитектуре"_ ("So, we're deferring the grab feature. I don't much like the direction; I probably need to sit down and think about it separately. I especially dislike the idea that 'an operation lives across key presses'. That really trips up the current architecture."). `drag:DRD-70` is marked deferred and isn't in force. No drag change is part of this decision.
+- **Q4: drag's ordinary mode, for now.** _"Соответственно, Q4 - пока что это будет обычный режим drag."_ ("Accordingly, Q4: for now it will be drag's ordinary mode.")
+- **Q6, answered on 2026-11-21,** relayed in English translation only: _"If we make everything draggable, we must give a choice. Either through a handle: then dragging, keyboard included, is by the handle. Or, if the author wants no handle, the items must *become* draggable and get a tabindex. List items must not be tab stops permanently, but must become one when the developer chooses 'no handle'."_
+- **Q6's follow-ups, the same day,** in translation: on the pointer with a handle, _"Yes, probably the handle's presence should switch on handle-only by itself"_, which retires `handle-only`. On the role, the missing `listitem` role (`RF-68`, #92) is a bug to fix in its own unit, outside this decision.
+
+**Amended 2026-11-20, before implementation,** for Q1 to Q3: the status, properties 4 and 9, the reasons about the handle and about drag, and the list of what isn't adopted. **Amended again the same day, before implementation,** for Q4 and Q5: the status, property 4's keyboard, handle and announcement items, property 9, the reasons, and the list of what isn't adopted. **Amended a third time on 2026-11-21, before implementation,** for Q6 and its follow-ups: the status, the answers, property 4's handle, Q6 and handle-semantics items, property 7, a reason, and the list of what isn't adopted. It was written from slot b in `745fccb8c`, and the main slot's architect confirmed it the same day and corrected this list of what it changed, which named the keyboard item. **Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading [`item-focus.txt`](list-sortable-1/checks/item-focus.txt) and `RF-68`'s [reading](https://github.com/ausginer/material-x/blob/45272694ce5d6792f9c7590f839614aa9dc88289/.plan/list-roles-1/checks/list-roles.txt) on `material-x/list-roles-1`: three sentences of property 4's (Q6) item and a clause of its item on handle semantics. Proposed from slot b in the plan at `9f90572fb`. **Amended a fifth time on 2026-11-21, before implementation,** for the context between the list and its items, on the owner's rule that a parent–child link uses context: three passages of property 4, in the (Q6) item, the item on handle semantics and the last item, and a reason. Proposed from slot b in the plan at `d875ceb25`. **Amended a sixth time on 2026-11-21, before implementation,** for where the items' sortable writes live, on Mx Architect B's ruling on the implementer's size stop at `88801757e` (the plan's [Where the sortable writes live](list-sortable-1/list-sortable-plan.md#where-the-sortable-writes-live)): a passage of property 4's item on handle semantics, property 7's last sentence, and a reason. Proposed from slot b in the plan at `6de14c896`. The main slot's architect registered it with the item on handle semantics reworded, so that it reads with the fifth amendment: the item applies the writes, the (Q6) tab stop included, and the code that writes is in the list's module. What each amendment replaced is at the end. The first amendment's new items in the list of what isn't adopted were a grab built in the list and `handle(item, event)`.
+
+**Properties.**
+
+1. **Core's `reorderable` trait is deleted:** `src/traits/reorderable.ts`, the `./traits/reorderable.js` export, the `files.json` entry, the size row, the README section and `tests/traits/reorderable.browser.test.ts`. Nothing replaces it in core. Only material-x used it, and core is on no registry, so no alias is kept (`CONTRIBUTING.md` §8).
+2. **Sorting is a separate element (Q1).** `@ydinjs/material-x/list/sortable-list.js` defines `mx-sortable-list`, whose class `SortableList` is the default export. It renders and styles like `mx-list`, and it takes the same items. `mx-list` doesn't sort, and has no `reorderable` attribute and no `reorder` event.
+3. **No runtime entry other than `list/sortable-list` reaches `@ydinjs/drag`,** directly or through other modules, the list items included. A test over the built package checks this, and a temporary drag import in `list.ts` makes the test fail. The published declarations of `list/sortable-list` and `react` name no drag type.
+4. **The sortable list runs drag's `sortable` with `y()` and `landing()`, as drag is today. No drag change.**
+   - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+   - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface. There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
+   - **(Q4) The keyboard is drag's ordinary model:** an arrow key moves the item one slot at once and proposes the move, inside the same `handle`. So an arrow key moves an item from its focused handle. If the item has no handle, an arrow key also moves it from any focused element inside it, such as an interactive item's own button or link. At the collection's edge the key keeps its meaning.
+   - **(Q6) A static item without a handle is a tab stop in a sortable list,** and moves from the keyboard while it has focus. `mx-sortable-list` provides a context, and each item consumes it through core's `useContext`, and is in the list while the provider is its parent element. While it is and has no `[data-handle]`, the item sets `tabIndex = 0` and the arrow-key description on its own inner `.host`, and removes them when it gains a handle or disconnects. The item resolves the context in whatever order the two are defined (`RF-69`). Nothing is written on the item's host: a `display: contents` host with a `tabindex` takes no focus, and has an accessibility node of its own, `group` in WebKit and a `generic` in Chromium that `role: 'none'` doesn't remove. The item composes `FocusForwarding`, so `item.focus()` works in Firefox too (`RF-33`), and it shows Material's list focus indicator. `mx-list-item` has no public way to take focus. Interactive items keep their own control as their only tab stop. No item is a tab stop in `mx-list`.
+   - **A control inside a handle-less item that uses the arrow keys itself,** such as a text field or a slider, carries `data-drag-ignore`, which drag already honors. Otherwise its arrow keys move the item. The JSDoc says so.
+   - In a sortable list only, a handle is made focusable, named _Reorder_, described with the arrow keys and given `touch-action: none`. A handle-less interactive item, on its button or link, and a static item while it is a tab stop, on its inner `.host`, get the same description, which is how a focused item says that it moves. The item applies these, and the (Q6) item's tab stop, to its own handle or control while it is in a sortable list, and never to its host. The code that writes them is in a module that only `list/sortable-list` imports, and reaches the item through the context's value, so a plain list's items don't contain it. That code runs only when the item calls the value with its own host and control, and it writes only on that item's elements. The list keeps no registry and queries no item. Values the consumer set are kept. The items' `listitem` role is `RF-68`'s fix, not this decision's.
+   - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`, one per move. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+   - A polite live region in the list's shadow root announces each accepted move by position, from the pointer or the keyboard.
+   - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+   - A disconnect destroys the list's drag controller and clears the lifted item's `drag` state, and a connect creates a new one, so a reconnected list sorts again.
+5. **`@ydinjs/drag` is an optional peer of material-x,** and a dev dependency in the workspace. Its range is set at material-x's release.
+6. **The list's behavior rows move to material-x,** against the real element with real input. Rows for drag's mechanics stay drag's, and rows for behavior that is gone are deleted, as the plan's [test map](list-sortable-1/list-sortable-plan.md#test-map) lists.
+7. **The size reading proves the separation:** material-x's and core's rows before and after, with the modules of each list row. No plain list row contains a module of drag or box-quad. `list/list` doesn't grow. The interactive items grow, if at all, only by the context consumer, and `list/list-item` only by the consumer, its focus indicator and `FocusForwarding`. The items' sortable writes are in `list/sortable-list`.
+8. **`RF-36` closes when property 1 is implemented,** with its cause unknown, because the code it is about is deleted. Its property doesn't carry over to the new rows.
+9. **Release order.** box-quad, then drag, unchanged. This decision changes no drag source, so drag's release (#57) doesn't wait for it. material-x's release comes after drag's (`RD-27` property 1). This work uses drag's workspace build and doesn't wait for drag's release.
+
+**Why.**
+
+- **An element, not an import that switches `mx-list` on.** `list.js` upgrades the lists already in the page when it is evaluated, which is before any module that imports it could add sorting. An attribute that needs an import also fails silently without it. A function call isn't declarative for HTML or React.
+- **drag covers the list's needs as it is today.** Announcements, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements.
+- **Drag's ordinary keyboard model is the owner's answer,** and with it an interactive item needs no handle. Grab mode's argument for a keyboard handle was Space and Enter, which this model doesn't use.
+- **The screen-reader limit isn't new.** In NVDA's and JAWS's reading mode, bare arrow keys on a button don't reach the page, so a screen-reader user must switch to focus mode first. Today's grab mode moved with bare arrows too, with no role that changes the mode, so the limit is the same as today. It belongs to the deferred keyboard design (`drag:DRD-70`), and to move controls, which the plan notes for later.
+- **A peer, because the package must share the consumer's copy:** `drag:DRD-17`'s nesting rule holds within one copy, so a sortable list inside a consumer's own drag sortable needs one copy. Only an optional entry imports drag (`CONTRIBUTING.md` §Dependencies of a published package).
+- **No drag type in the declarations,** because `react.d.ts` imports every element's types, including for consumers without drag.
+- **Pointer drops are announced too,** because drag's `onEnd` doesn't say what started the drag. Today only keyboard steps are announced.
+- **A static item takes focus only when it has no handle, in a sortable list,** because the owner's Q6 answer ties the tab stop to the developer's choice of no handle. A handle remains the item's only tab stop when it has one.
+- **Context for the list and its items,** on the owner's rule that a contextual parent–child link uses context, not a registry (CONTRIBUTING's _Parent and child components_, #96).
+- **The items' writes travel in the context's value,** because only a sortable list runs them, and an item in a plain list doesn't carry them (`CONTRIBUTING.md` §7). The item hands the value its own elements, so the link is still context alone.
+
+**Not adopted:** a side-effect import or a function, drag as a regular dependency, a `reorderable` attribute on `mx-sortable-list`, grab mode in this unit (deferred by the owner), `handle(item, event)`, `layoutAnimation`, copying core's synthetic-host rows, `handle-only` (retired after Q6), a list-level handle switch, and `aria-roledescription` or `aria-grabbed` to say that an item moves. The plan's [Not adopted](list-sortable-1/list-sortable-plan.md#not-adopted) gives the reasons.
+
+**What the sixth amendment, of 2026-11-21, replaced.**
+
+- **In property 4's item on handle semantics:**
+
+  > The item writes it on its own handle or control while it is in a sortable list, and never on its host. The list writes nothing on an item.
+
+- **In property 7:**
+
+  > `list/list` and the interactive items don't grow, and `list/list-item` grows, if at all, only by its focus indicator and what taking focus needs.
+
+**What the fifth amendment, of 2026-11-21, replaced.**
+
+- **In property 4's (Q6) item:**
+
+  > While the item is in its collection and has no `[data-handle]`, the list sets `tabIndex = 0` and the arrow-key description on the item's inner `.host`, and removes them when either stops being true. The item registers that element as its control, through `FocusForwarding`'s registry,
+
+- **In property 4's item on handle semantics:**
+
+  > get the same description, written on the item's control and never on its host, which is how a focused item says that it moves.
+
+- **Property 4's last item:**
+
+  > A disconnect cancels the operation, and a reconnected list sorts again.
+
+**What the fourth amendment, of 2026-11-21, replaced.**
+
+- **In property 4's (Q6) item,** two passages:
+
+  > The list sets `tabindex="0"` on the item while the item is in its collection and has no `[data-handle]`, and removes it when either stops being true. It never changes or removes a `tabindex` the consumer set.
+
+  > `mx-list-item` takes focus when its element has a `tabindex`, and shows Material's list focus indicator.
+
+- **In property 4's item on handle semantics:**
+
+  > A handle-less interactive item, and a static item while it is a tab stop, get the same description
+
+**What the third amendment, of 2026-11-21, replaced.**
+
+- **Status:**
+
+  > **Status: unimplemented, and waiting for the owner's answer to the plan's [Q6](list-sortable-1/list-sortable-plan.md#questions-for-the-owner).** Property 4 states the recommended answer (a).
+
+- **Property 4's items on the handle, on Q6 and on handle semantics:**
+
+  > - **(Q3) The handle is optional.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. With the boolean attribute `handle-only`, it is the item's `[data-handle]` or nothing, so an item without a handle isn't dragged.
+  >
+  > - **(Q6) A static item without a handle can't be moved from the keyboard,** because nothing in it takes focus. The JSDoc says so.
+  >
+  > - In a sortable list only, a handle is made focusable, named _Reorder_, described with the arrow keys and given `touch-action: none`. A handle-less interactive item gets the same description. Values the consumer set are kept.
+
+- **Property 7:**
+
+  > 7. **The size reading proves the separation:** material-x's and core's rows before and after, with the modules of each list row. No plain list row contains a module of drag or box-quad, and none grows.
+
+**What the second amendment of 2026-11-20 replaced.**
+
+- **Status:**
+
+  > **Status: unimplemented, and waiting for the owner's answers to the plan's [Q4 and Q5](list-sortable-1/list-sortable-plan.md#questions-for-the-owner).** Property 4 states the recommended answers (a). If an answer is (b), the architect records the change before implementation.
+
+- **Property 4:**
+
+  > 4. **The sortable list runs drag's `sortable` with `y()`, `landing()` and `grab()` (`drag:DRD-70`):**
+  >    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+  >    - **(Q3) The handle is optional.** A press on an item's `[data-handle]` drags the item, and an item with no handle drags by its whole surface. With the boolean attribute `handle-only`, an item is dragged only by its handle, and an item with no handle isn't dragged.
+  >    - **(Q2, Q4) The keyboard is grab mode,** always on a handle: Space or Enter grabs, the arrows move one slot, Space or Enter drops, and Escape, Tab or focus leaving cancels and returns the item. Arrow keys do nothing until a grab. Space and Enter on an interactive item keep activating it. A list without handles reorders by pointer only.
+  >    - In a sortable list only, a handle is made focusable, named and `touch-action: none`, and its description names the keys. It has `role="application"` during a grab. Values the consumer set are kept.
+  >    - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`, one per move. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+  >    - A polite live region in the list's shadow root announces the grab with the keys, each step, the drop and a cancel, by position. A pointer drop is announced too.
+  >    - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+  >    - A disconnect cancels the operation, and a reconnected list sorts again.
+
+- **Property 9:**
+
+  > 9. **Release order.** box-quad, then drag. drag's release (#57) waits for `drag:DRD-70`, which adds public API. material-x's release comes after drag's (`RD-27` property 1). The list uses drag's workspace build, once `DRD-70` is on `main` or on a branch the list's unit stacks on.
+
+- **Three reasons:**
+
+  > - **drag covers the list's needs once `DRD-70` adds grab mode.** Announcements, roles, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements.
+  > - **Grab mode for the list** is the established model in dnd-kit, react-beautiful-dnd, React Aria and GitHub. It keeps the arrow keys away from screen-reader navigation until a grab, and it announces the keys at the grab. Immediate arrows on a handle don't reach the page in NVDA's or JAWS's browse mode. The plan's Q2 section has the sources.
+  > - **The keyboard needs a handle, even when the pointer doesn't,** because Space and Enter activate an interactive item and `mx-list-item` can't take focus. `grab()`'s own keyboard handle (`DRD-70` property 3) keeps that apart from the pointer's whole-surface drag.
+
+**What the first amendment of 2026-11-20 replaced.**
+
+- **Status:** _"unimplemented, and waiting for the owner's answers to the plan's Q1 to Q3. Properties 2, 4 and 5 state the recommended answers (a)."_
+- **Property 4:**
+
+  > 4. **The sortable list runs drag's `sortable` with `y()` and `landing()`:**
+  >    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
+  >    - **(Q3)** An item is dragged by its `[data-handle]`, by pointer and keyboard. An item with no handle isn't dragged. In a sortable list only, the handle is made focusable, named, described and `touch-action: none`, and values the consumer set are kept.
+  >    - **(Q2)** The keyboard model is drag's: one arrow key press on the focused handle moves the item one slot. Focus stays on the handle.
+  >    - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
+  >    - Each accepted move is announced by position through a live region in the list's shadow root.
+  >    - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+  >    - A disconnect cancels the operation, and a reconnected list sorts again.
+
+- **Property 9:**
+
+  > 9. **Release order.** box-quad, then drag, unchanged: no drag source changes. material-x's release comes after drag's (`RD-27` property 1). This work uses drag's workspace build and doesn't wait for drag's release.
+
+- **The reason about the handle:** _"**The handle is required** because drag's `handle` gates pointer and keyboard together. Without a handle, arrow keys anywhere in an item, a text field included, would move the item."_
+- **The reason about drag:** _"**drag covers the list's needs** with the recommended answers. Announcements, the commit wait, handle semantics and state are the list's own, as drag's README gives the consumer `tabindex`, roles and announcements."_
+
 #### RD-32 — A unit's plan and its implementation share one branch and one pull request, and a change to project documentation has its own
 
 **Decided 2026-11-21 by the owner,** relayed by the coordinator: _"A change to project documentation (rules for agents, user-visible documentation, etc.) is a separate PR, that's right. But a plan is part of a feature's implementation, so they must go in one PR."_ (translated). Proposed by Mx Architect B in the description of [#93](https://github.com/ausginer/material-x/pull/93), from slot b, which doesn't mint. Registered by the architect on `repo/one-pr-rule-1`. `RD-31` is the highest number on any branch on `origin`, so this is the next free number. **Implemented** in `agent-workflow.md`, `AGENTS.md` and `work-queue.md` by #93 (`2f95645a6`), which the owner merged.
@@ -2267,6 +2435,10 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - It covers only the wait after `ue.pointer` returns. If `ue.pointer` doesn't return, as under candidate B or a stalled driver, the row fails at the test's timeout with no trace, its `finally` doesn't run, and the trace's listeners, observer and wrapper stay installed for the file's later rows. That is outside the plan's _"when the row's wait gives up"_, and no change is required for it.
 - **Owed when a weekly run fails in the third row:** the trace exists only in the failing job's log, which the weekly issue links and GitHub keeps for a limited time. The unit that takes the failure first saves the trace into `.plan/reorderable-safari-1/checks/`, and the architect reads it against candidates A to E.
 - **What doesn't change:** both Safari skips stay, `src/` doesn't change, and the required property stands. **The finding stays open.**
+
+**Dated 2026-11-20 by the architect: `RD-31` deletes the code this finding is about.** Core's `reorderable` trait and both skipped rows are deleted when `RD-31` property 1 is implemented, and the finding then closes with its cause unknown. Its required property doesn't carry over to the list's new rows. A Safari stall in one of those rows is `drag:DRF-49` or a new finding. **Until then the finding stays open,** and the rows and their diagnostic stay as they are.
+
+**Dated 2026-11-21 by the implementer: the code and both skipped rows are deleted** in `88801757e`, with core's `reorderable` trait (`RD-31` property 1), and so is the third row of 2026-11-17. The finding closes with its cause unknown when #90 merges, and #44 closes with it. No row of the sortable list carries its required property. A Safari stall in such a row is `drag:DRF-49` or a new finding.
 
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 

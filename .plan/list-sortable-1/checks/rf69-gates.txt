@@ -1,0 +1,16 @@
+# Gates after RF-69, at f354bbaf8.
+
+## packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project "browser*"
+ Test Files  45 passed (45)
+      Tests  848 passed | 1 expected fail (849)
+   Duration  62.94s (tests 87%, import 6%, worker 6%, setup 1%)
+exit 0
+
+## root: aube exec just test
+ Test Files  151 passed (151)
+      Tests  2467 passed (2467)
+   Duration  292.26s (tests 96%, worker 2%, import 2%)
+exit 0
+
+## packages/material-x: fmt, lint-fix, fmt, lint on src/list/ListItemCore.ts src/list/sortable-list-context.ts tests/list/sortable-list.browser.test.ts: exit 0, no diagnostics
+## packages/material-x: just typecheck (core built by _test-builds first): exit 0

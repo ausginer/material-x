@@ -1,0 +1,16 @@
+# Feature proof of RD-31 at 586a99e60: gates. Run by the reviewer on 2026-11-21 in a private detached worktree, after aube install and aube exec just _test-builds.
+
+## packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts tests/list
+ Test Files  6 passed (6)
+      Tests  207 passed (207)
+
+## packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project 'browser*'
+      Tests  848 passed | 1 expected fail (849)
+ Test Files  45 passed (45)
+exit=0
+
+## root: aube exec just test
+      Tests  2467 passed (2467)
+ Test Files  151 passed (151)
+Type Errors  no errors
+exit=0

@@ -113,7 +113,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": true,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": true,
       "Valuable": false,
@@ -316,7 +315,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -500,7 +498,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": true,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -693,7 +690,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -877,7 +873,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": false,
@@ -974,7 +969,6 @@
       "Disableable": false,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": false,
@@ -1127,7 +1121,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": true,
       "Valuable": false,
@@ -1347,7 +1340,6 @@
       "Disableable": true,
       "Linkable": true,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": false,
@@ -1447,33 +1439,13 @@
   {
     "tag": "mx-list",
     "className": "List",
-    "observedAttributes": [
-      "reorderable"
-    ],
-    "reflection": [
-      {
-        "name": "reorderable",
-        "property": {
-          "1": "",
-          "true": "",
-          "false": null,
-          "\"x\"": "",
-          "null": null
-        },
-        "attribute": {
-          "null": false,
-          "\"\"": true,
-          "\"x\"": true,
-          "\"1\"": true
-        }
-      }
-    ],
+    "observedAttributes": [],
+    "reflection": [],
     "instanceOf": {
       "Checkable": false,
       "Disableable": false,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": true,
       "Selectable": false,
       "Typeable": false,
       "Valuable": false,
@@ -1496,9 +1468,6 @@
         "value": "List"
       },
       {
-        "key": "observedAttributes"
-      },
-      {
         "key": "prototype"
       }
     ],
@@ -1509,16 +1478,6 @@
           {
             "key": "constructor",
             "kind": "function",
-            "enumerable": false
-          },
-          {
-            "key": "reorderable",
-            "kind": "get+set",
-            "enumerable": false
-          },
-          {
-            "key": "symbol:Reorderable",
-            "kind": "value",
             "enumerable": false
           }
         ]
@@ -1571,7 +1530,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": true,
       "Typeable": false,
       "Valuable": false,
@@ -1653,7 +1611,6 @@
       "Disableable": false,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": false,
@@ -1664,7 +1621,7 @@
       "ButtonGroupLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
-      "FocusForwarding": false
+      "FocusForwarding": true
     },
     "statics": [
       {
@@ -1686,6 +1643,16 @@
           {
             "key": "constructor",
             "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
             "enumerable": false
           }
         ]
@@ -1772,7 +1739,6 @@
       "Disableable": true,
       "Linkable": true,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": true,
       "Typeable": false,
       "Valuable": false,
@@ -1973,7 +1939,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": true,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -2176,7 +2141,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": true,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -2256,6 +2220,54 @@
           {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-sortable-list",
+    "className": "SortableList",
+    "observedAttributes": [],
+    "reflection": [],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "SortableList"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "SortableList",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
             "enumerable": false
           }
         ]
@@ -2359,7 +2371,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": false,
@@ -2559,7 +2570,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -2796,7 +2806,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": false,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,
@@ -3026,7 +3035,6 @@
       "Disableable": true,
       "Linkable": false,
       "Nameable": true,
-      "Reorderable": false,
       "Selectable": false,
       "Typeable": false,
       "Valuable": true,

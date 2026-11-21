@@ -1,13 +1,17 @@
+import { useContext } from '@ydinjs/core/controllers/useContext.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import { type ControlledElement, internals } from '@ydinjs/core/element.js';
 import type { Composed } from '@ydinjs/core/traits/composition.js';
-import { useReorderableItem } from '@ydinjs/core/traits/reorderable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
+import {
+  SORTABLE_LIST_CTX,
+  SORTABLE_LIST_ELEMENTS,
+} from './sortable-list-context.ts';
 import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export type ListItemCoreTraits = readonly [];
@@ -29,37 +33,6 @@ export type ListItemCoreCSSProperties = Readonly<{
   '--md-list-item-trailing-icon-size'?: string;
 }>;
 
-/**
- * Turns a slotted `[data-handle]` grip into a focusable, button-like control so
- * the reorder gesture is operable from the keyboard, not just the pointer: the
- * {@link useReorderable} keyboard path is armed by space/enter on this handle.
- * Consumer-supplied `role`, `tabindex`, and accessible name are left untouched.
- */
-function enhanceHandle(nodes: readonly Node[]): void {
-  const handle = nodes.find(
-    (n): n is HTMLElement => n instanceof HTMLElement && 'handle' in n.dataset,
-  );
-
-  if (!handle) {
-    return;
-  }
-
-  if (!handle.hasAttribute('tabindex')) {
-    handle.tabIndex = 0;
-  }
-  if (!handle.hasAttribute('role')) {
-    handle.setAttribute('role', 'button');
-  }
-  if (
-    !handle.hasAttribute('aria-label') &&
-    !handle.hasAttribute('aria-labelledby')
-  ) {
-    handle.setAttribute('aria-label', 'Reorder');
-  }
-  // A drag grip should claim touch gestures rather than let them scroll.
-  handle.style.touchAction = 'none';
-}
-
 export function useListItemCore(
   host: ListItemCore,
   template: HTMLTemplateElement,
@@ -79,7 +52,26 @@ export function useListItemCore(
   target.append(nestedTemplate.content.cloneNode(true));
 
   useHasSlottedPolyfill(host);
-  useReorderableItem(host, target);
+
+  // While a sortable list is the item's parent, the context's value applies
+  // the item's sortable semantics to its own elements, and returns the update
+  // that each slot change runs. A plain list's items carry none of that code.
+  let update: (() => void) | undefined;
+
+  useContext(host, SORTABLE_LIST_CTX, SORTABLE_LIST_ELEMENTS, (sort) => {
+    const item = sort?.(host, target);
+
+    if (!item) {
+      return undefined;
+    }
+
+    ({ update } = item);
+
+    return () => {
+      update = undefined;
+      item.release();
+    };
+  });
 
   useSlot(host, '.lead', (_, nodes) => {
     toggleState(
@@ -87,12 +79,10 @@ export function useListItemCore(
       'lead-large',
       nodes.some((n) => n instanceof HTMLElement && 'large' in n.dataset),
     );
-    enhanceHandle(nodes);
+    update?.();
   });
 
-  useSlot(host, '.trail', (_, nodes) => {
-    enhanceHandle(nodes);
-  });
+  useSlot(host, '.trail', () => update?.());
 
   return target;
 }

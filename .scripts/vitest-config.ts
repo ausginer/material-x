@@ -523,6 +523,8 @@ function createMaterialXTestProjects(
       name: scopedName('node', scope),
       root,
       include: ['tests/**/*.node.test.ts'],
+      globalSetup: ['tests/support/build-package.node.ts'],
+      setupFiles: ['tests/support/require-build.ts'],
     }),
   ];
 }

@@ -1,0 +1,58 @@
+// Scratch probe (reviewer, not committed): with the markup parsed first, does a
+// handle-less static item move by ArrowDown in either definition order?
+import { describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import { nextFrame } from '../browser.ts';
+
+async function parseThenDefine(modules: readonly string[]): Promise<Document> {
+  const frame = document.createElement('iframe');
+  const urls = modules.map((n) => new URL(`../../src/list/${n}`, import.meta.url).href);
+  frame.srcdoc = `<mx-sortable-list style="--_drag-duration:0s"><mx-list-item>A</mx-list-item><mx-list-item>B</mx-list-item><mx-list-item>C</mx-list-item></mx-sortable-list>
+<script type="module">
+for (const url of ${JSON.stringify(urls)}) await import(url);
+document.body.dataset.ready = '';
+</script>`;
+  document.body.append(frame);
+  await expect.poll(() => frame.contentDocument?.body.dataset['ready'], { timeout: 10_000 }).toBe('');
+  await nextFrame();
+  await nextFrame();
+  return frame.contentDocument!;
+}
+
+async function arrowDownOnFirst(doc: Document): Promise<readonly unknown[]> {
+  const list = doc.querySelector('mx-sortable-list')!;
+  const [a] = [...list.children] as HTMLElement[];
+  const events: number[][] = [];
+  list.addEventListener('reorder', (e) => {
+    const { from, to } = e as unknown as { from: number; to: number };
+    events.push([from, to]);
+  });
+  a!.focus();
+  const focused = a!.shadowRoot!.activeElement === a!.shadowRoot!.querySelector('.host');
+  await userEvent.keyboard('{ArrowDown}');
+  await new Promise((r) => setTimeout(r, 300));
+  return [focused, events];
+}
+
+describe('probe: definition order and the collection', () => {
+  it('sortable-list.ts first, then one slot change: ArrowDown proposes a move', async () => {
+    const doc = await parseThenDefine(['sortable-list.ts', 'list-item.ts']);
+    const list = doc.querySelector('mx-sortable-list')!;
+    const nudge = doc.createElement('span');
+    list.append(nudge);
+    await nextFrame();
+    nudge.remove();
+    await nextFrame();
+    expect(await arrowDownOnFirst(doc)).toEqual([true, [[0, 1]]]);
+  });
+
+  it('sortable-list.ts first: ArrowDown on a focused static item proposes a move', async () => {
+    const doc = await parseThenDefine(['sortable-list.ts', 'list-item.ts']);
+    expect(await arrowDownOnFirst(doc)).toEqual([true, [[0, 1]]]);
+  });
+
+  it('list-item.ts first: ArrowDown on a focused static item proposes a move', async () => {
+    const doc = await parseThenDefine(['list-item.ts', 'sortable-list.ts']);
+    expect(await arrowDownOnFirst(doc)).toEqual([true, [[0, 1]]]);
+  });
+});

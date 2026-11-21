@@ -13,6 +13,7 @@ import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
 import * as Stories from './list.stories';
 import './list-button-item.ts';
 import './list-link-item.ts';
+import './sortable-list.ts';
 
 export const TAG = 'mx-list';
 
@@ -20,6 +21,8 @@ export const declaration = getDeclarationByTag(TAG);
 export const summary = declaration?.summary?.trim();
 
 export const importSnippet = "import '@ydinjs/material-x/list/list.js';";
+export const sortableImportSnippet =
+  "import '@ydinjs/material-x/list/sortable-list.js';";
 export const usageSnippet = `<mx-list>
   <mx-list-button-item>
     <mx-icon slot="start">inbox</mx-icon>
@@ -59,6 +62,23 @@ export const usageSnippet = `<mx-list>
 
 <Canvas of={Stories.Media} />
 
+### Sortable lists
+
+`mx-sortable-list` renders and styles like `mx-list`, takes the same items, and lets the user reorder them by pointer and keyboard. Import it from its own entry, `@ydinjs/material-x/list/sortable-list.js`, and install `@ydinjs/drag`, an optional peer dependency. A list that doesn't sort carries no drag code.
+
+- An item with a `data-handle` child drags only by its handle, by pointer and keyboard. The list makes the handle a focusable _Reorder_ button.
+- An item without a handle drags by its whole surface. A static `mx-list-item` without a handle becomes a tab stop in the sortable list only.
+- An arrow key moves the focused item, or the item of the focused handle, one slot. Mark a nested control that uses arrow keys itself, such as a text field, with `data-drag-ignore`.
+- Each move fires a cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`. The list never moves an item: commit the move, for example with `list.insertBefore(event.item, event.next)`, in the handler or in a later render, or call `preventDefault()` to reject it.
+
+<Source code={sortableImportSnippet} language="ts" />
+
+<Canvas of={Stories.Draggable} />
+
+<Canvas of={Stories.DraggableButtons} />
+
+<Canvas of={Stories.DraggableMixedHandles} />
+
 ## Playground
 
 Use the live example below to inspect selected state, disabled state, and slotted content combinations.
@@ -70,6 +90,7 @@ Use the live example below to inspect selected state, disabled state, and slotte
 ## Anatomy
 
 - `mx-list`: container for list items.
+- `mx-sortable-list`: container whose items the user reorders.
 - `mx-list-item`: static content item.
 - `mx-list-button-item`: native button-backed action item.
 - `mx-list-link-item`: native anchor-backed navigation item.
@@ -85,6 +106,7 @@ Uses Material 3 Expressive list tokens and works with the global Storybook light
 ## API reference
 
 <ApiTables tag="mx-list" />
+<ApiTables tag="mx-sortable-list" />
 <ApiTables tag="mx-list-item" />
 <ApiTables tag="mx-list-button-item" />
 <ApiTables tag="mx-list-link-item" />
@@ -94,7 +116,8 @@ Uses Material 3 Expressive list tokens and works with the global Storybook light
 - Material 3 overview: [https://m3.material.io/components/lists/overview](https://m3.material.io/components/lists/overview)
 - Deltas:
   - One-line is the default; denser rows are inferred from slotted overline and supporting text.
-  - Reveal, reorder, expandable, segmented-list behavior, and dividers are not included in this first implementation.
+  - Reordering is a separate element, `mx-sortable-list`, rather than a mode of `mx-list`. Its keyboard moves an item one slot per arrow key press, with no grab mode.
+  - Reveal, expandable, segmented-list behavior, and dividers are not included in this first implementation.
 
 ## Changelog / stability
 

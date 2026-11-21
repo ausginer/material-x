@@ -1,0 +1,20 @@
+# Can an item whose host is display: contents take focus? Probe: ../probes/item-focus.browser.test.ts, at 08117f62f (repo/list-sortable-1), 2026-11-21T06:14:22Z.
+# Stand-ins: probe-a delegatesFocus + inner tabindex=-1; probe-b delegatesFocus + inner tabindex=0; probe-c no delegatesFocus + inner tabindex=0; probe-d no delegatesFocus + inner tabindex=-1. Every host has tabindex=0 until the last read.
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' --silent=false tests/zz-probe
+      Tests  15 passed (15)
+ Test Files  3 passed (3)
+PROBE Chrome/158.0.0.0 mx-list-item {"display":"contents","tabbed":false,"programmatic":false}
+PROBE Chrome/158.0.0.0 probe-a {"tabbed":false,"focusVisible":false,"hostMatchesFocus":false,"tabLeaves":false,"shiftTabReturns":false,"programmatic":true,"tabbedWithoutHostTabindex":false}
+PROBE Chrome/158.0.0.0 probe-b {"tabbed":true,"focusVisible":true,"hostMatchesFocus":true,"tabLeaves":true,"shiftTabReturns":true,"programmatic":true,"tabbedWithoutHostTabindex":true}
+PROBE Chrome/158.0.0.0 probe-c {"tabbed":true,"focusVisible":true,"hostMatchesFocus":true,"tabLeaves":true,"shiftTabReturns":true,"programmatic":false,"tabbedWithoutHostTabindex":true}
+PROBE Chrome/158.0.0.0 probe-d {"tabbed":false,"focusVisible":false,"hostMatchesFocus":false,"tabLeaves":false,"shiftTabReturns":false,"programmatic":false,"tabbedWithoutHostTabindex":false}
+PROBE Firefox/159.0 mx-list-item {"display":"contents","tabbed":false,"programmatic":false}
+PROBE Firefox/159.0 probe-a {"tabbed":false,"focusVisible":false,"hostMatchesFocus":false,"tabLeaves":true,"shiftTabReturns":false,"programmatic":false,"tabbedWithoutHostTabindex":false}
+PROBE Firefox/159.0 probe-b {"tabbed":true,"focusVisible":true,"hostMatchesFocus":true,"tabLeaves":true,"shiftTabReturns":true,"programmatic":false,"tabbedWithoutHostTabindex":true}
+PROBE Firefox/159.0 probe-c {"tabbed":true,"focusVisible":true,"hostMatchesFocus":true,"tabLeaves":true,"shiftTabReturns":true,"programmatic":false,"tabbedWithoutHostTabindex":true}
+PROBE Firefox/159.0 probe-d {"tabbed":false,"focusVisible":false,"hostMatchesFocus":false,"tabLeaves":false,"shiftTabReturns":false,"programmatic":false,"tabbedWithoutHostTabindex":false}
+PROBE Version/27.2 mx-list-item {"display":"contents","tabbed":false,"programmatic":false}
+PROBE Version/27.2 probe-a {"tabbed":false,"focusVisible":false,"hostMatchesFocus":false,"tabLeaves":false,"shiftTabReturns":false,"programmatic":true,"tabbedWithoutHostTabindex":false}
+PROBE Version/27.2 probe-b {"tabbed":true,"focusVisible":true,"hostMatchesFocus":true,"tabLeaves":true,"shiftTabReturns":true,"programmatic":true,"tabbedWithoutHostTabindex":true}
+PROBE Version/27.2 probe-c {"tabbed":true,"focusVisible":true,"hostMatchesFocus":true,"tabLeaves":true,"shiftTabReturns":true,"programmatic":false,"tabbedWithoutHostTabindex":true}
+PROBE Version/27.2 probe-d {"tabbed":false,"focusVisible":false,"hostMatchesFocus":false,"tabLeaves":false,"shiftTabReturns":false,"programmatic":false,"tabbedWithoutHostTabindex":false}
