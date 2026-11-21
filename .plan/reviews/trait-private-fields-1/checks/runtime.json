@@ -1,0 +1,155 @@
+{
+  "K order": [
+    "before super",
+    "super arg",
+    "base field",
+    "base body",
+    "S field",
+    "A field",
+    "B field",
+    "C field",
+    "K field",
+    "S body",
+    "A body sReady=true",
+    "B body private-binding",
+    "C body sReady=true",
+    "after super"
+  ],
+  "K values": [
+    "s",
+    "a",
+    "b",
+    "c",
+    "k",
+    "A",
+    "S#m",
+    "A#m",
+    "B#m"
+  ],
+  "K after writes": [
+    "S2",
+    "A2",
+    "b",
+    "c",
+    "K2"
+  ],
+  "K own keys": [
+    "baseField",
+    "args"
+  ],
+  "K proto keys": [
+    "constructor",
+    "sReady",
+    "sx",
+    "who",
+    "sm",
+    "ax",
+    "am",
+    "bx",
+    "bm",
+    "cx",
+    "kx",
+    null,
+    null,
+    null,
+    null
+  ],
+  "K instanceof": [
+    true,
+    true,
+    true,
+    true,
+    false
+  ],
+  "K observedAttributes": [
+    "data-rv"
+  ],
+  "K two instances separate": true,
+  "G order": [
+    "base field",
+    "base body",
+    "B field",
+    "B body private-binding"
+  ],
+  "G args": [
+    1,
+    2
+  ],
+  "K3 order": [
+    "before super",
+    "super arg",
+    "base field",
+    "base body",
+    "S field",
+    "A field",
+    "B field",
+    "C field",
+    "K field",
+    "S body",
+    "A body sReady=true",
+    "B body private-binding",
+    "C body sReady=true",
+    "after super",
+    "D field",
+    "K3 field",
+    "D body",
+    "K3 after super"
+  ],
+  "Sub order": [
+    "before super",
+    "super arg",
+    "base field",
+    "base body",
+    "S field",
+    "A field",
+    "B field",
+    "C field",
+    "K field",
+    "S body",
+    "A body sReady=true",
+    "B body private-binding",
+    "C body sReady=true",
+    "after super",
+    "Sub field",
+    "Sub body"
+  ],
+  "Later order": [
+    "base field",
+    "base body",
+    "S field",
+    "A field",
+    "S body",
+    "A body sReady=true"
+  ],
+  "Later who": "A",
+  "Earlier order": [
+    "base field",
+    "base body",
+    "S field",
+    "A field",
+    "S body",
+    "A body sReady=true"
+  ],
+  "Earlier who": "A",
+  "Asi order": [
+    "base field",
+    "base body",
+    "D field",
+    "D body",
+    "Asi after super"
+  ],
+  "asi": 1,
+  "KE order (flattened)": [
+    "base field",
+    "base body",
+    "E used field"
+  ],
+  "KEHand order (hand-written)": [
+    "base field",
+    "base body",
+    "E unused field",
+    "E used field"
+  ],
+  "KE code": "export class KE extends RvBase {\n  #used_7b9fa45c = __mxflat_lnk_43abf327('E used field', 'e');\n  get ex(): string { return this.#used_7b9fa45c; }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_024f2b60);\n  }\n}\n",
+  "code": "import { impl as __mxflat_impl } from \"@ydinjs/core/traits/composition.js\";\nimport { $s as __mxflat_lnk_be068fd0 } from \"./rv-traits.ts\";\nimport { rec as __mxflat_lnk_43abf327 } from \"./rv-log.ts\";\nimport { $a as __mxflat_lnk_dc832091 } from \"./rv-traits.ts\";\nimport { $b as __mxflat_lnk_a3dd5f05 } from \"./rv-traits.ts\";\nimport { __mxflat_tag_5e9b60f6 as __mxflat_lnk_363cf470 } from \"./rv-traits.ts\";\nimport { $c as __mxflat_lnk_17ee4d71 } from \"./rv-traits.ts\";\nimport { $d as __mxflat_lnk_6ff6756c } from \"./rv-traits.ts\";\nimport { $e as __mxflat_lnk_024f2b60 } from \"./rv-traits.ts\";\n// oxlint-disable max-classes-per-file\n\nimport { RvBase } from './rv-base.ts';\nimport { rec } from './rv-log.ts';\nimport type { A, B, C, D, E, S } from './rv-traits.ts';\n\n\nexport class K extends RvBase {\n  #x_85bdd65f = __mxflat_lnk_43abf327('S field', 's');\n  #ready_85bdd65f = false;\n  get sReady(): boolean { return this.#ready_85bdd65f; }\n  get sx(): string { return this.#x_85bdd65f; }\n  set sx(v: string) { this.#x_85bdd65f = v; }\n  who(): string { return 'S'; }\n  #m_85bdd65f(): string { return 'S#m'; }\n  get sm(): string { return this.#m_85bdd65f(); }\n  #x_7016854f = __mxflat_lnk_43abf327('A field', 'a');\n  get ax(): string { return this.#x_7016854f; }\n  set ax(v: string) { this.#x_7016854f = v; }\n  override who(): string { return 'A'; }\n  #m_7016854f(): string { return 'A#m'; }\n  get am(): string { return this.#m_7016854f(); }\n  #x_4aeec5e6 = __mxflat_lnk_43abf327('B field', 'b');\n  get bx(): string { return this.#x_4aeec5e6; }\n  set bx(v: string) { this.#x_4aeec5e6 = v; }\n  #m_4aeec5e6(): string { return 'B#m'; }\n  get bm(): string { return this.#m_4aeec5e6(); }\n  #x_252b742b = __mxflat_lnk_43abf327('C field', 'c');\n  get cx(): string { return this.#x_252b742b; }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_be068fd0, __mxflat_lnk_dc832091, __mxflat_lnk_a3dd5f05, __mxflat_lnk_17ee4d71);\n  }\n\n  #x = rec('K field', 'k');\n  constructor(value: string) {\n    rec('before super');\n    super(rec('super arg', value));\n    {\n    this.#ready_85bdd65f = true;\n    __mxflat_lnk_43abf327('S body');\n  }\n    {\n    __mxflat_lnk_43abf327(`A body sReady=${this.sReady}`);\n  }\n    {\n    const value = `${__mxflat_lnk_363cf470}`;\n    __mxflat_lnk_43abf327(`B body ${value}`);\n  }\n    {\n    __mxflat_lnk_43abf327(`C body sReady=${this.sReady}`);\n  }\n    rec('after super');\n  }\n  get kx(): string { return this.#x; }\n  set kx(v: string) { this.#x = v; }\n}\n\n// No constructor of its own.\n\nexport class G extends RvBase {\n  #x_4aeec5e6 = __mxflat_lnk_43abf327('B field', 'b');\n  get bx(): string { return this.#x_4aeec5e6; }\n  set bx(v: string) { this.#x_4aeec5e6 = v; }\n  #m_4aeec5e6(): string { return 'B#m'; }\n  get bm(): string { return this.#m_4aeec5e6(); }\n  constructor(...args) {\n    super(...args);\n    {\n    const value = `${__mxflat_lnk_363cf470}`;\n    __mxflat_lnk_43abf327(`B body ${value}`);\n  }\n  }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_a3dd5f05);\n  }\n}\n\n// A flattened base.\n\nexport class K3 extends K {\n  #d_9f637315 = __mxflat_lnk_43abf327('D field', 'd');\n  get dx(): string { return this.#d_9f637315; }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_6ff6756c);\n  }\n\n  readonly k3 = rec('K3 field');\n  constructor() {\n    super('k3');\n    {\n    __mxflat_lnk_43abf327('D body');\n  }\n    rec('K3 after super');\n  }\n}\n\n// A hand-written subclass.\nexport class Sub extends K {\n  readonly sub = rec('Sub field');\n  constructor() {\n    super('sub');\n    rec('Sub body');\n  }\n}\n\n// A supertrait listed again after its subtrait, and before.\n\nexport class Later extends RvBase {\n  #x_85bdd65f = __mxflat_lnk_43abf327('S field', 's');\n  #ready_85bdd65f = false;\n  get sReady(): boolean { return this.#ready_85bdd65f; }\n  get sx(): string { return this.#x_85bdd65f; }\n  set sx(v: string) { this.#x_85bdd65f = v; }\n  who(): string { return 'S'; }\n  #m_85bdd65f(): string { return 'S#m'; }\n  get sm(): string { return this.#m_85bdd65f(); }\n  #x_7016854f = __mxflat_lnk_43abf327('A field', 'a');\n  get ax(): string { return this.#x_7016854f; }\n  set ax(v: string) { this.#x_7016854f = v; }\n  override who(): string { return 'A'; }\n  #m_7016854f(): string { return 'A#m'; }\n  get am(): string { return this.#m_7016854f(); }\n  constructor(...args) {\n    super(...args);\n    {\n    this.#ready_85bdd65f = true;\n    __mxflat_lnk_43abf327('S body');\n  }\n    {\n    __mxflat_lnk_43abf327(`A body sReady=${this.sReady}`);\n  }\n  }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_be068fd0, __mxflat_lnk_dc832091);\n  }\n}\n\nexport class Earlier extends RvBase {\n  #x_85bdd65f = __mxflat_lnk_43abf327('S field', 's');\n  #ready_85bdd65f = false;\n  get sReady(): boolean { return this.#ready_85bdd65f; }\n  get sx(): string { return this.#x_85bdd65f; }\n  set sx(v: string) { this.#x_85bdd65f = v; }\n  who(): string { return 'S'; }\n  #m_85bdd65f(): string { return 'S#m'; }\n  get sm(): string { return this.#m_85bdd65f(); }\n  #x_7016854f = __mxflat_lnk_43abf327('A field', 'a');\n  get ax(): string { return this.#x_7016854f; }\n  set ax(v: string) { this.#x_7016854f = v; }\n  override who(): string { return 'A'; }\n  #m_7016854f(): string { return 'A#m'; }\n  get am(): string { return this.#m_7016854f(); }\n  constructor(...args) {\n    super(...args);\n    {\n    this.#ready_85bdd65f = true;\n    __mxflat_lnk_43abf327('S body');\n  }\n    {\n    __mxflat_lnk_43abf327(`A body sReady=${this.sReady}`);\n  }\n  }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_be068fd0, __mxflat_lnk_dc832091);\n  }\n}\n\n// super() without a semicolon, then a line that starts with (.\n\nexport class Asi extends RvBase {\n  #d_9f637315 = __mxflat_lnk_43abf327('D field', 'd');\n  get dx(): string { return this.#d_9f637315; }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_6ff6756c);\n  }\n\n  constructor() {\n    super()\n    ;\n    {\n    __mxflat_lnk_43abf327('D body');\n  }(globalThis as { asi?: number }).asi = 1\n    rec('Asi after super')\n  }\n}\n\n\nexport class KE extends RvBase {\n  #used_7b9fa45c = __mxflat_lnk_43abf327('E used field', 'e');\n  get ex(): string { return this.#used_7b9fa45c; }\n  static {\n    __mxflat_impl(this, __mxflat_lnk_024f2b60);\n  }\n}\n"
+}

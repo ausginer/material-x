@@ -1,0 +1,85 @@
+{"label":"init this direct","code":"trait-member","message":"T.#x: its initializer reads this; a trait's field initializer has none, so set the field up in the constructor","at":"\"this.constructor;\\n  get x() \""}
+{"label":"init this arrow","code":"trait-member","message":"T.#x: its initializer reads this; a trait's field initializer has none, so set the field up in the constructor","at":"\"this;\\n  get x() { return thi\""}
+{"label":"init this nested fn","code":"trait-member","message":"T.#x: its initializer reads this; a trait's field initializer has none, so set the field up in the constructor","at":"\"this; };\\n  get x() { return \""}
+{"label":"init this object method","code":"trait-member","message":"T.#x: its initializer reads this; a trait's field initializer has none, so set the field up in the constructor","at":"\"this; } };\\n  get x() { retur\""}
+{"label":"init super","code":"trait-member","message":"T.#x: its initializer reads super; a trait's field initializer has none, so set the field up in the constructor","at":"\"super.toString;\\n  get x() { \""}
+{"label":"init class expr","code":"trait-member","message":"T.#x: a member uses ClassExpression, which the analysis doesn't model","at":"\"class {};\\n  get x() { return\""}
+{"label":"init new.target","code":"trait-member","message":"T.#x: new.target means something else in the component","at":"\"new.target;\\n  get x() { retu\""}
+{"label":"init import.meta","code":"trait-member","message":"T.#x: import.meta means something else in the component","at":"\"import.meta.url;\\n  get x() {\""}
+{"label":"init this but field unreferenced (accepted?)","result":"accepted","warnings":[]}
+{"label":"! init links: new Map, exported, private","result":"accepted","warnings":[],"code":"import { impl as __mxflat_impl } from \"@ydinjs/core/traits/composition.js\";\nimport { bound, type Composed, type Bound } from '@ydinjs/core/traits/composition.js';\nimport { Base } from './base.ts';\nconst AnyBase: Bound<Base> = bound();\nexport const shared = 1;\nconst hidden = 2;\nexport const $t = Symbol(\"T\");\nexport class T extends AnyBase {\n  static [Symbol.hasInstance](o) {\n    return o != null && o[$t] === true;\n  }\n\n  #x = new Map([[shared, hidden]]);\n  get x() { return this.#x; }\n}\n\nexport class Foo extends Base {\n  #x_bb23c946 = new Map([[shared, hidden]]);\n  get x() { return this.#x_bb23c946; }\n  static {\n    __mxflat_impl(this, $t);\n  }\n\n\n}\n\nexport { hidden as __mxflat_hidden_99d72c7f, hidden };\n"}
+{"label":"other.#x","code":"trait-member","message":"T.eq: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x === this.#x; }\\n}\\nconst Fo\""}
+{"label":"#x in o","code":"trait-member","message":"T.is: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x in o; }\\n}\\nconst FooBase: \""}
+{"label":"#x in this","code":"trait-member","message":"T.is: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x in this; }\\n}\\nconst FooBas\""}
+{"label":"this.#x in nested function","code":"trait-member","message":"T.f: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x; }; }\\n}\\nconst FooBase: Co\""}
+{"label":"this.#x in object method","code":"trait-member","message":"T.f: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x; } }; }\\n}\\nconst FooBase: \""}
+{"label":"this.#x in arrow (accepted)","result":"accepted","warnings":[]}
+{"label":"this.#x compound/update/destructure (accepted)","result":"accepted","warnings":[]}
+{"label":"(this).#x","code":"trait-member","message":"T.f: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x; }\\n}\\nconst FooBase: Compo\""}
+{"label":"this?.#x","result":"accepted","warnings":[]}
+{"label":"static private field","code":"trait-member","message":"T.#s: a static private member would be copied into each component; keep state shared across components in a module binding","at":"\"static #s = 1;\\n}\\nconst FooBa\""}
+{"label":"static private method","code":"trait-member","message":"T.#m: a static private member would be copied into each component; keep state shared across components in a module binding","at":"\"static #m() { return 1; }\\n}\\n\""}
+{"label":"static method reads #x","code":"trait-member","message":"T.f: #x is read only as this.#x, on the member's own this; to test another object, use instanceof with the trait","at":"\"#x; }\\n}\\nconst FooBase: Compo\""}
+{"label":"accessor #x","code":"trait-member","message":"T: an accessor field; @attributes(TABLE) declares it","at":"\"accessor #x = 1;\\n}\\nconst Foo\""}
+{"label":"public field","code":"trait-field","message":"T: a public instance field can't be copied; make it private, declare it, or write an accessor","at":"\"y = 1;\\n}\\nconst FooBase: Comp\""}
+{"label":"private method + public same name (accepted)","result":"accepted","warnings":[]}
+{"label":"ctor param","code":"trait-member","message":"T.constructor: a trait's constructor takes no parameters: the component's arguments go to the base","at":"\"a: number) {\\n    super();\\n  \""}
+{"label":"ctor param property","code":"trait-member","message":"T.constructor: a trait's constructor takes no parameters: the component's arguments go to the base","at":"\"private a: number) {\\n    sup\""}
+{"label":"ctor no super","code":"trait-member","message":"T.constructor: the first statement is super();","at":"\"{\\n    shared;\\n  }\\n}\\nconst Fo\""}
+{"label":"ctor empty","code":"trait-member","message":"T.constructor: the first statement is super();","at":"\"{}\\n}\\nconst FooBase: Composed\""}
+{"label":"ctor super(x)","code":"trait-member","message":"T.constructor: super() takes no arguments: only the component's super(…) calls the base","at":"\"super(shared);\\n  }\\n}\\nconst F\""}
+{"label":"ctor statement before super","code":"trait-member","message":"T.constructor: a statement comes before super(); it would run before the base's constructor","at":"\"shared;\\n    super();\\n  }\\n}\\nc\""}
+{"label":"ctor second super()","code":"trait-member","message":"T.constructor: super is the component's base, not the trait's bound","at":"\"super();\\n  }\\n}\\nconst FooBase\""}
+{"label":"ctor super.method","code":"trait-member","message":"T.constructor: super is the component's base, not the trait's bound","at":"\"super.toString();\\n  }\\n}\\ncons\""}
+{"label":"ctor arguments","code":"trait-member","message":"T.constructor: a constructor reads arguments, which in the component's constructor are the component's","at":"\"arguments);\\n  }\\n}\\nconst FooB\""}
+{"label":"ctor arguments in arrow","code":"trait-member","message":"T.constructor: a constructor reads arguments, which in the component's constructor are the component's","at":"\"arguments)();\\n  }\\n}\\nconst Fo\""}
+{"label":"ctor arguments in nested function (accepted)","result":"accepted","warnings":[]}
+{"label":"ctor new.target","code":"trait-member","message":"T.constructor: new.target means something else in the component","at":"\"new.target;\\n  }\\n}\\nconst FooB\""}
+{"label":"ctor bare return","code":"trait-member","message":"T.constructor: a constructor returns, which would end the component's constructor","at":"\"return;\\n  }\\n}\\nconst FooBase:\""}
+{"label":"ctor return in if","code":"trait-member","message":"T.constructor: a constructor returns, which would end the component's constructor","at":"\"return; }\\n  }\\n}\\nconst FooBas\""}
+{"label":"ctor return x","code":"trait-member","message":"T.constructor: a constructor returns, which would end the component's constructor","at":"\"return {};\\n  }\\n}\\nconst FooBa\""}
+{"label":"ctor return in arrow/function (accepted)","result":"accepted","warnings":[]}
+{"label":"ctor var","code":"trait-member","message":"T.constructor: a member declares a var","at":"\"var v = 1;\\n  }\\n}\\nconst FooBa\""}
+{"label":"ctor function decl","code":"trait-member","message":"T.constructor: a member uses FunctionDeclaration, which the analysis doesn't model","at":"\"function f() {}\\n  }\\n}\\nconst \""}
+{"label":"ctor eval","code":"trait-member","message":"T.constructor: a member references eval","at":"\"eval(\\\"1\\\");\\n  }\\n}\\nconst FooBa\""}
+{"label":"ctor overload","code":"trait-member","message":"T.constructor: a trait has one constructor and no overload signature","at":"\"constructor();\\n  constructor\""}
+{"label":"ctor modifier","code":"trait-member","message":"T.constructor: a constructor has no modifier","at":"\"public constructor() {\\n    s\""}
+{"label":"ctor reads trait class name","code":"trait-member","message":"T.constructor: it reads T, the trait class","at":"\"T;\\n  }\\n}\\nconst FooBase: Comp\""}
+{"label":"comp no super","code":"component-constructor","message":"the component's constructor calls super(…) once, so the traits' constructors run after it","at":"\"constructor() {\\n    shared;\\n\""}
+{"label":"comp two super if/else","code":"component-constructor","message":"the component's constructor calls super(…) more than once; compute the arguments first and call super(…) once","at":"\"super();\\n  }\\n}\\n\""}
+{"label":"comp two super sequential","code":"component-constructor","message":"the component's constructor calls super(…) more than once; compute the arguments first and call super(…) once","at":"\"super();\\n  }\\n}\\n\""}
+{"label":"comp super in arrow","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super();\\n    f();\\n  }\\n}\\n\""}
+{"label":"comp super in block","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super();\\n    }\\n  }\\n}\\n\""}
+{"label":"comp super in try","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super();\\n    } finally {}\\n  \""}
+{"label":"comp super ternary","code":"component-constructor","message":"the component's constructor calls super(…) more than once; compute the arguments first and call super(…) once","at":"\"super();\\n  }\\n}\\n\""}
+{"label":"comp super, (this.x=1)","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super(), (this.x = 1);\\n  }\\n}\""}
+{"label":"comp const self = super()","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super();\\n  }\\n}\\n\""}
+{"label":"comp super(super-ish arg in arrow)","result":"accepted","warnings":[]}
+{"label":"comp (super())","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super());\\n  }\\n}\\n\""}
+{"label":"comp await-free super with label","code":"component-constructor","message":"super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it","at":"\"super();\\n  }\\n}\\n\""}
+{"label":"comp no super, no trait ctor (accepted)","result":"accepted","warnings":[]}
+{"label":"shadow: ctor param","code":"trait-binding-shadowed","message":"T's constructor reads shared, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: const after super","code":"trait-binding-shadowed","message":"T's constructor reads shared, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: const before super","code":"trait-binding-shadowed","message":"T's constructor reads shared, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: var nested","code":"trait-binding-shadowed","message":"T's constructor reads shared, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: function decl","code":"trait-binding-shadowed","message":"T's constructor reads shared, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: let in nested block (accepted)","result":"accepted","warnings":[]}
+{"label":"shadow: global read vs param","code":"trait-binding-shadowed","message":"T's constructor reads console, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: generated args","code":"trait-binding-shadowed","message":"T's constructor reads args, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: param property","code":"trait-binding-shadowed","message":"T's constructor reads shared, which the component's constructor binds","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"shadow: catch param at top level (accepted?)","result":"accepted","warnings":[]}
+{"label":"collide: component declares renamed","code":"trait-binding-shadowed","message":"T's #s is renamed #s_bb23c946, which the component already declares","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"collide: component private method = renamed","code":"trait-binding-shadowed","message":"T's #s is renamed #s_bb23c946, which the component already declares","at":"\"FooBase: Composed<typeof Bas\""}
+{"label":"collide: component private, different trait suffix (accepted)","result":"accepted","warnings":[]}
+{"label":"cfield this","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this.s;\\n}\\n\""}
+{"label":"cfield arrow this","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this.s;\\n}\\n\""}
+{"label":"cfield map arrow","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this.s);\\n}\\n\""}
+{"label":"cfield nested function","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this; };\\n}\\n\""}
+{"label":"cfield object method","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this; } };\\n}\\n\""}
+{"label":"cfield super","code":"component-field","message":"the component's field initializer reads super, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"super.toString();\\n}\\n\""}
+{"label":"cfield accessor","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this.s;\\n}\\n\""}
+{"label":"cfield private","code":"component-field","message":"the component's field initializer reads this, before the traits' constructors run; initialize the field in the constructor, after super(…)","at":"\"this.s;\\n}\\n\""}
+{"label":"cfield static this (accepted)","result":"accepted","warnings":[]}
+{"label":"cfield no this (accepted)","result":"accepted","warnings":[]}
+{"label":"cfield this without trait ctor (accepted)","result":"accepted","warnings":[]}
+{"label":"cfield in nested class decl? computed key this","result":"accepted","warnings":[]}
