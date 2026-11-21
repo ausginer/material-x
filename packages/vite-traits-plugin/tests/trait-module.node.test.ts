@@ -165,6 +165,26 @@ describe('transformTraitModule on each form of @trait', () => {
       `import { bound } from '@ydinjs/core/traits/composition.js';\n\nconst AnyObject = bound();\n\n${named('export class').replace('class Named', 'class Named extends AnyObject')}`,
     );
   });
+
+  it("should remove trait's import when only an inline type is left in it", () => {
+    expect(
+      transformTrait(
+        'typed.ts',
+        `import { trait, type Composed } from '@ydinjs/core/traits/composition.js';\n\n@trait\nexport class Named${BODY}`,
+      ),
+    ).toBe(`\n\n${named('export class')}`);
+  });
+
+  it('should keep an import of an inline type that it did not touch', () => {
+    expect(
+      transformTrait(
+        'untouched.ts',
+        `${IMPORT}import { type Props } from './props.ts';\n\n@trait\nexport class Named${BODY}`,
+      ),
+    ).toBe(
+      `\nimport { type Props } from './props.ts';\n\n${named('export class')}`,
+    );
+  });
 });
 
 describe('the brand of a built trait module', () => {

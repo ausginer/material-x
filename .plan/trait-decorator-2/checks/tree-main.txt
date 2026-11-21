@@ -1,0 +1,33 @@
+## base e4b0e475d, head fc5986185
+same 294 built files in each
+## files that differ (.js without sourceMappingURL)
+packages/material-x/button-group/ButtonGroupCore.js
+    4d3
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/button-group/ButtonGroupCore.js.map
+    field mappings differs
+packages/material-x/button/ButtonCore.js
+    13d12
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/button/ButtonCore.js.map
+    field mappings differs
+packages/material-x/list/list-item.js
+    3d2
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/list/list-item.js.map
+    field mappings differs
+## bare imports of @ydinjs packages in material-x's .js, e4b0e475d
+button-group/ButtonGroupCore.js:4:import "@ydinjs/core/traits/composition.js";
+button-group/ButtonGroupCore.js:7:import "@ydinjs/core/traits/attribute-traits.js";
+button/ButtonCore.js:13:import "@ydinjs/core/traits/composition.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+list/list-item.js:3:import "@ydinjs/core/traits/composition.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";
+## bare imports of @ydinjs packages in material-x's .js, fc5986185
+button-group/ButtonGroupCore.js:6:import "@ydinjs/core/traits/attribute-traits.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";

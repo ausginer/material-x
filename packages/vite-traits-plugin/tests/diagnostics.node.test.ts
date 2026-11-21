@@ -618,6 +618,21 @@ import { trait } from '@ydinjs/core/traits/composition.js';
       'extra.ts',
       '/** Doc. */\n@trait\n@attributes({ open: Bool, label: Str })\nexport class Extra extends AnyElement {\n  accessor open!: boolean;\n}\n',
     ],
+    [
+      'trait-decorator',
+      'defaulted.ts',
+      `const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@trait\n@sealed\nexport default class Defaulted extends AnyElement {}\n`,
+    ],
+    [
+      'trait-decorator',
+      'default-block.ts',
+      `const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@trait\n@sealed\nexport /* A note. */ default class Defaulted extends AnyElement {}\n`,
+    ],
+    [
+      'trait-decorator',
+      'default-line.ts',
+      `const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@trait\n@sealed\nexport // A note.\ndefault class Defaulted extends AnyElement {}\n`,
+    ],
   ];
   let dir: string;
 
@@ -668,7 +683,7 @@ import { trait } from '@ydinjs/core/traits/composition.js';
   };
 
   it.each(modules)(
-    'should report %s at the position it has without the stage',
+    'should report %s in %s at the position it has without the stage',
     async (code, file) => {
       const without = await failure(file, false);
 
@@ -676,6 +691,61 @@ import { trait } from '@ydinjs/core/traits/composition.js';
         code,
         without,
       ]);
+    },
+  );
+});
+
+describe('the load stage on a class that is not a trait', () => {
+  // A documented class with a decorator above `export` and a comment between
+  // `export` and `default`, in a module with no trait.
+  const modules: ReadonlyArray<readonly [string, string, string]> = [
+    [
+      'a block comment',
+      'sealed-block.ts',
+      'const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@sealed\nexport /* A note. */ default class Sealed {}\n',
+    ],
+    [
+      'a line comment',
+      'sealed-line.ts',
+      'const sealed = (_value: unknown, _context: unknown): void => {};\n\n/** Doc. */\n@sealed\nexport // A note.\ndefault class Sealed {}\n',
+    ],
+  ];
+  let dir: string;
+
+  beforeAll(async () => {
+    dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-plain-'));
+    await Promise.all(
+      modules.map(([, file, body]) => writeFile(join(dir, file), body)),
+    );
+  });
+
+  afterAll(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  /** A rolldown build's output of `file`, with the plugin or without it. */
+  const output = async (file: string, plugin: boolean): Promise<string> => {
+    const bundle = await rolldown({
+      input: join(dir, file),
+      plugins: plugin ? viteTraitsPlugin() : [],
+      logLevel: 'silent',
+    });
+    const { output: chunks } = await bundle.generate({});
+
+    return chunks[0].code;
+  };
+
+  // The stage moves `export default` for any documented class, so the build
+  // keeps the doc, which a build without the plugin drops. Nothing else in
+  // the output differs.
+  it.each(modules)(
+    'should build with %s between export and default, changed only by the kept doc',
+    async (_, file) => {
+      const without = await output(file, false);
+
+      expect(await output(file, true)).toBe(
+        without.replace('var Sealed', '/** Doc. */\nvar Sealed'),
+      );
     },
   );
 });

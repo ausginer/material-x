@@ -1,0 +1,28 @@
+# doc-forms.ts at 645410c12, tsdown 0.23.7, rolldown 1.3.2
+## with the plugin
+written: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+lineCommentBetween: LOST | export declare class X extends AnyElement {}
+lineCommentBeforeExportFirst: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+blockCommentBeforeExportFirst: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+twoDocs: KEPT | /** Doc. */ / /** Other. */ / export declare class X extends AnyElement {}
+docAfterDecorator: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+exportDefault: LOST | export default class X extends AnyElement {}
+exportDefaultFirst: KEPT | /** Doc. */ / export default class X extends AnyElement {}
+exportDefaultAnonymous: BUILD ERROR RolldownError: trait-flattener (trait-decorator): @trait decorates a module-scope class declaration
+abstract: KEPT | /** Doc. */ / export declare abstract class X extends AnyElement {}
+abstractExportFirst: KEPT | /** Doc. */ / export declare abstract class X extends AnyElement {}
+## without the plugin (raw)
+written: LOST | export declare class X extends AnyElement {}
+lineCommentBetween: LOST | export declare class X extends AnyElement {}
+lineCommentBeforeExportFirst: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+blockCommentBeforeExportFirst: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+twoDocs: LOST | export declare class X extends AnyElement {}
+docAfterDecorator: KEPT | /** Doc. */ / export declare class X extends AnyElement {}
+exportDefault: LOST | export default class X extends AnyElement {}
+exportDefaultFirst: KEPT | /** Doc. */ / export default class X extends AnyElement {}
+exportDefaultAnonymous: LOST | export default class export_default extends AnyElement {}
+abstract: LOST | export declare abstract class X extends AnyElement {}
+abstractExportFirst: KEPT | /** Doc. */ / export declare abstract class X extends AnyElement {}
+
+## the feature proof's test (edge-cases.ts) applied to the abstract case's .d.ts above
+regex /\/\*\* Doc of Abstract\. \*\/\n(export )?declare class/u on "/** Doc of Abstract. */\nexport declare abstract class Abstract extends AnyElement {}\n": LOST

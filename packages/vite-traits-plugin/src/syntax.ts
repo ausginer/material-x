@@ -81,29 +81,72 @@ export function walk(root: Node, visit: (node: Node) => void): void {
   }
 }
 
+/** One specifier of an import declaration. */
+export type ImportSpecifierNode = ImportDeclaration['specifiers'][number];
+
 /**
- * Removes some of an import's specifiers, each with the comma after it, or,
- * for the last one kept, the comma before it.
+ * The import specifiers that a module's transforms remove, per declaration.
+ * {@link removeImports} applies them once, after the transforms that add to
+ * it, so that a declaration two of them empty is still removed whole.
  */
-export function removeSpecifiers(
+export type ImportRemovals = Map<ImportDeclaration, Set<ImportSpecifierNode>>;
+
+/** Adds the specifiers of `node` whose local name is in `locals`. */
+export function addImportRemovals(
+  removals: ImportRemovals,
+  node: ImportDeclaration,
+  locals: ReadonlySet<string>,
+): void {
+  for (const spec of node.specifiers) {
+    if (locals.has(spec.local.name)) {
+      let removed = removals.get(node);
+      if (!removed) {
+        removed = new Set();
+        removals.set(node, removed);
+      }
+      removed.add(spec);
+    }
+  }
+}
+
+/**
+ * Removes the specifiers in `removals`. A declaration that keeps no value
+ * specifier goes whole: under `verbatimModuleSyntax`, `import { type X }`
+ * would be emitted as a bare import, which a bundler keeps for an external
+ * module. A specifier goes with the comma after it, or, after the last one
+ * kept, with the comma before it.
+ */
+export function removeImports(
   magic: RolldownMagicString,
   code: string,
-  node: ImportDeclaration,
-  unused: ReadonlySet<ImportDeclaration['specifiers'][number]>,
+  removals: ImportRemovals,
 ): void {
-  const { specifiers } = node;
-  const lastKept = specifiers.findLastIndex((spec) => !unused.has(spec));
-  specifiers.forEach((spec, index) => {
-    if (!unused.has(spec)) {
-      return;
+  for (const [node, removed] of removals) {
+    const { specifiers } = node;
+    const keepsValue =
+      node.importKind !== 'type' &&
+      specifiers.some(
+        (spec) =>
+          !removed.has(spec) &&
+          !(spec.type === 'ImportSpecifier' && spec.importKind === 'type'),
+      );
+    if (!keepsValue) {
+      magic.remove(node.start, node.end);
+      continue;
     }
-    if (index > lastKept) {
-      magic.remove(specifiers[index - 1]!.end, spec.end);
-    } else {
-      const [after] = /^\s*,\s*/u.exec(code.slice(spec.end)) ?? [''];
-      magic.remove(spec.start, spec.end + after.length);
-    }
-  });
+    const lastKept = specifiers.findLastIndex((spec) => !removed.has(spec));
+    specifiers.forEach((spec, index) => {
+      if (!removed.has(spec)) {
+        return;
+      }
+      if (index > lastKept) {
+        magic.remove(specifiers[index - 1]!.end, spec.end);
+      } else {
+        const [after] = /^\s*,\s*/u.exec(code.slice(spec.end)) ?? [''];
+        magic.remove(spec.start, spec.end + after.length);
+      }
+    });
+  }
 }
 
 /** An identifier-like node that reads a binding. */

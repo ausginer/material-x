@@ -8,7 +8,12 @@ import {
   lowerForAnalysis,
   type BuildKind,
 } from '../src/plugin.ts';
-import { parseModule, type ModuleLoader } from '../src/syntax.ts';
+import {
+  parseModule,
+  removeImports,
+  type ImportRemovals,
+  type ModuleLoader,
+} from '../src/syntax.ts';
 
 /** The fixtures' directory. */
 export const FIXTURES: URL = new URL('./fixtures/', import.meta.url);
@@ -102,14 +107,19 @@ export function transformTrait(
 ): string {
   const lowered =
     lowerAttributes(code, parseModule(id, code))?.toString() ?? code;
-
-  return (
-    transformTraitModule(
-      lowered,
-      parseModule(id, lowered),
-      applicationBuild,
-    )?.toString() ?? lowered
+  const removals: ImportRemovals = new Map();
+  const magic = transformTraitModule(
+    lowered,
+    parseModule(id, lowered),
+    applicationBuild,
+    removals,
   );
+  if (!magic) {
+    return lowered;
+  }
+  removeImports(magic, lowered, removals);
+
+  return magic.toString();
 }
 
 /** A transformed set of fixtures on disk, importable, then disposed. */

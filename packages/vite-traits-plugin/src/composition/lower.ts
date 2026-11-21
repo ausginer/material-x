@@ -10,14 +10,26 @@
  * - `static { impl(this, …brands); }`, when the list has a trait. An empty
  *   list brands nothing, so it gets neither the block nor the import.
  *
+ * `compose`'s import goes when nothing in the module references it after
+ * lowering, so a module whose compositions are all lowered doesn't import
+ * the module it came from unless it needs `impl`.
+ *
  * A trait's value and brand are linked, never copied, so its module stays the
  * one source of each.
  */
 import { createHash } from 'node:crypto';
-import type { Class } from '@oxc-project/types';
+import type { Class, Program } from '@oxc-project/types';
 import type { RolldownMagicString } from 'rolldown';
 import type { BindingRef, MemberIR, StaticKind, TraitIR } from '../ir.ts';
-import { staticKeyName, type Span } from '../syntax.ts';
+import {
+  addImportRemovals,
+  collectImports,
+  forEachValueReference,
+  staticKeyName,
+  type ImportRemovals,
+  type Span,
+} from '../syntax.ts';
+import { isCompositionModule } from './trait-module.ts';
 
 /** The local name the flattened module binds `impl` to. */
 const IMPL_LOCAL = '__mxflat_impl';
@@ -156,18 +168,61 @@ function compositionLinks(traits: readonly TraitIR[]): readonly BindingRef[] {
 }
 
 /**
+ * Adds `compose`'s import to `removals` when no reference to it is left
+ * outside the removed compositions. A supertrait's composition stays, and
+ * keeps it.
+ */
+function removeUnusedCompose(
+  removals: ImportRemovals,
+  program: Program,
+  composeLocals: ReadonlySet<string>,
+  compositions: readonly AnalyzedComposition[],
+): void {
+  let references = 0;
+  forEachValueReference(program.body, ({ name, start }) => {
+    if (
+      composeLocals.has(name) &&
+      !compositions.some(
+        ({ declarationSpan: [from, to] }) => start >= from && start < to,
+      )
+    ) {
+      references += 1;
+    }
+  });
+  if (references > 0) {
+    return;
+  }
+  for (const node of program.body) {
+    if (node.type === 'ImportDeclaration') {
+      addImportRemovals(removals, node, composeLocals);
+    }
+  }
+}
+
+/**
  * Rewrites a component module, flattening every analyzed composition, and
- * adds the imports their links need once at the top.
+ * adds the imports their links need once at the top. `impl` is imported from
+ * the specifier the module imports `compose` from.
  *
- * @param implSpecifier - The specifier `impl` is imported from: the one the
- *   module imports `compose` from.
+ * @param removals - Receives `compose`'s import when no reference to it is
+ *   left. The caller removes it with `removeImports`.
  */
 export function lowerCompositions(
   magic: RolldownMagicString,
   code: string,
+  program: Program,
   compositions: readonly AnalyzedComposition[],
-  implSpecifier: string,
+  removals: ImportRemovals,
 ): void {
+  const composeLocals = new Set<string>();
+  let implSpecifier = '';
+  for (const [local, { imported, specifier }] of collectImports(program)) {
+    if (imported === 'compose' && isCompositionModule(specifier)) {
+      composeLocals.add(local);
+      implSpecifier ||= specifier;
+    }
+  }
+  removeUnusedCompose(removals, program, composeLocals, compositions);
   const links = new Map<string, BindingRef>();
   let branded = false;
 

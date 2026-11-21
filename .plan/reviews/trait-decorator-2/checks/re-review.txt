@@ -1,0 +1,118 @@
+# Re-review of PR #88 at 9bbbc8c3f (fix fc5986185), baseline origin/main e4b0e475d
+
+## plugin suite at 9bbbc8c3f
+ Test Files  10 passed (10)
+      Tests  178 passed (178)
+
+## reviewer-1-before.sh at 9bbbc8c3f
+## the stage at 84ca8cd26, the tests at 9bbbc8c3f
+     × should report trait-decorator in default-block.ts at the position it has without the stage
+     × should report trait-decorator in default-line.ts at the position it has without the stage
+     × should build with a block comment between export and default, changed only by the kept doc
+     × should build with a line comment between export and default, changed only by the kept doc
+ FAIL  |node| tests/declarations.node.test.ts [ tests/declarations.node.test.ts ]
+TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/diagnostics.node.test.ts:685 > diagnostics through the load stage > should report trait-decorator in default-block.ts at the position it has without the stage
+ FAIL  |node| tests/diagnostics.node.test.ts:685 > diagnostics through the load stage > should report trait-decorator in default-line.ts at the position it has without the stage
+ FAIL  |node| tests/diagnostics.node.test.ts:741 > the load stage on a class that is not a trait > should build with a block comment between export and default, changed only by the kept doc
+ FAIL  |node| tests/diagnostics.node.test.ts:741 > the load stage on a class that is not a trait > should build with a line comment between export and default, changed only by the kept doc
+TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+ Test Files  2 failed (2)
+      Tests  4 failed | 76 passed | 12 skipped (92)
+## the stage at 9bbbc8c3f
+ Test Files  2 passed (2)
+      Tests  92 passed (92)
+
+## mutations.sh at 9bbbc8c3f, diffed against the committed transcript
+21d20
+<        × should remove the import whole
+22a22
+>        × should remove the import whole
+(only the order of one nested-describe line)
+mutations exit 0
+
+## builds: just build at e4b0e475d; just clean-build then just build at 9bbbc8c3f
+trait-member-conflict lines: main 0, head 0
+
+## tree.sh e4b0e475d 9bbbc8c3f
+## base e4b0e475d, head 9bbbc8c3f
+same 294 built files in each
+## files that differ (.js without sourceMappingURL)
+packages/material-x/button-group/ButtonGroupCore.js
+    4d3
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/button-group/ButtonGroupCore.js.map
+    field mappings differs
+packages/material-x/button/ButtonCore.js
+    13d12
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/button/ButtonCore.js.map
+    field mappings differs
+packages/material-x/list/list-item.js
+    3d2
+    < import "@ydinjs/core/traits/composition.js";
+packages/material-x/list/list-item.js.map
+    field mappings differs
+## bare imports of @ydinjs packages in material-x's .js, e4b0e475d
+button-group/ButtonGroupCore.js:4:import "@ydinjs/core/traits/composition.js";
+button-group/ButtonGroupCore.js:7:import "@ydinjs/core/traits/attribute-traits.js";
+button/ButtonCore.js:13:import "@ydinjs/core/traits/composition.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+list/list-item.js:3:import "@ydinjs/core/traits/composition.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";
+## bare imports of @ydinjs packages in material-x's .js, 9bbbc8c3f
+button-group/ButtonGroupCore.js:6:import "@ydinjs/core/traits/attribute-traits.js";
+button/IconButtonCore.js:1:import "@ydinjs/core/attribute.js";
+button/IconButtonCore.js:4:import "@ydinjs/core/traits/attribute-traits.js";
+core/traits/focus-forwarding.js:1:import "@ydinjs/core/traits/attribute-traits.js";
+text-field/TextFieldCore.js:13:import "@ydinjs/core/traits/attribute-traits.js";
+
+## trivia-shapes.ts at 9bbbc8c3f
+nested-looking block: "/** D. */\nexport /* a /* b */ default @trait\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+/*/ edge: "/** D. */\nexport /*/ x */ default @trait\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+/**/ empty: "/** D. */\nexport /**/ default @trait\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+JSDoc-looking between keywords: "/** D. */\nexport /** Not the doc. */ default @trait\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+line comment, CRLF: "/** D. */\r\nexport // c\r\ndefault @trait\r\nclass X {}\r\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+whole module CRLF, named: "/** D. */\r\nexport @trait\r\n@sealed\r\nclass X {}\r\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport declare class X {}\n"
+line comment ended by U+2028: "/** D. */\nexport // c default @trait\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+comment after last decorator: "/** D. */\nexport /* d */ default /* e */ @trait /* c */ class X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+line comment after last decorator: "/** D. */\nexport default @trait // c\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+comments between decorators: "/** D. */\nexport /* c */ default @trait /* a */ @sealed // b\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+decorator with */ in a string arg: "/** D. */\nexport /* c */ default @tag(\"*/\")\nclass X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class X {}\n"
+export default abstract: "/** D. */\nexport /* c */ default @trait\nabstract class X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default abstract class X {}\n"
+export abstract, comment: "/** D. */\nexport /* c */ @trait\nabstract class X {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport declare abstract class X {}\n"
+anonymous default, comment: "/** D. */\nexport /* c */ default @trait\nclass {}\n" | output parse errors 0 | mismapped none | .d.ts keeps doc true | .d.ts "/** D. */\nexport default class {}\n"
+unparseable: unclosed class: null (source parse errors: 1)
+unparseable: nested comment closes early: null (source parse errors: 2)
+unparseable: decorator then garbage: null (source parse errors: 2)
+
+## rolldown builds with build-crash.ts (plugin) and plain-build.ts (no plugin), at 9bbbc8c3f unless named
+# sealed.ts: /** Doc. */ @sealed export /* c */ default class Y {}; broken.ts: the same with an unclosed class body; named.ts: /** Doc. */ @sealed export class Z {}
+## sealed.ts, plugin
+built: "// ../../..$SCRATCH/probe-src/sealed.ts\n/** Doc. */\nvar Y = @sealed class {};\nfunction sealed(_v, _c) {}\nexport { Y as default };\n"
+## sealed.ts, no plugin
+built: "// ../../..$SCRATCH/probe-src/sealed.ts\nvar Y = @sealed class {};\nfunction sealed(_v, _c) {}\nexport { Y as default };\n"
+## broken.ts, plugin
+build FAILED: Build failed with 1 error: /  / [PARSE_ERROR] Expected `;` but found `Identifier`
+## broken.ts, no plugin
+build FAILED: Build failed with 1 error: /  / [PARSE_ERROR] Expected `;` but found `Identifier`
+## named.ts, plugin
+built: "// ../../..$SCRATCH/probe-src/named.ts\n/** Doc. */\nvar Z = @sealed class {};\nfunction sealed(_v, _c) {}\nexport { Z };\n"
+## named.ts, no plugin
+built: "// ../../..$SCRATCH/probe-src/named.ts\nvar Z = @sealed class {};\nfunction sealed(_v, _c) {}\nexport { Z };\n"
+## named.ts at e4b0e475d, plugin
+built: "// ../../../../..$SCRATCH/probe-src/named.ts\n/** Doc. */\nvar Z = @sealed class {};\nfunction sealed(_v, _c) {}\nexport { Z };\n"
+
+## mutation: the parse-error guard never returns
+      Tests  178 passed (178)
+## trivia-shapes.ts unparseable rows with the mutation
+unparseable: unclosed class: null (source parse errors: 1)
+unparseable: nested comment closes early: null (source parse errors: 2)
+unparseable: decorator then garbage: null (source parse errors: 2)
+## late-error.ts: a documented default trait, then a syntax error later
+guard on: null
+guard off: null

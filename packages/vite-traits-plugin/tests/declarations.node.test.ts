@@ -25,17 +25,56 @@ export class Opened extends AnyElement {
 /** An element that is only a trait. */
 @trait
 export class Plain extends AnyElement {}
+
+/** A trait whose doc a line comment follows. */
+// A note.
+@trait
+export class LineNoted extends AnyElement {}
+
+/** A trait whose doc a block comment follows. */
+/* A note. */
+@trait
+export class BlockNoted extends AnyElement {}
+
+/** An abstract trait. */
+@trait
+export abstract class Abstracted extends AnyElement {}
 `;
+
+/**
+ * A module that exports a trait as the default, with `keywords` between
+ * `@trait` and `class`.
+ */
+const defaultTrait = (keywords: string): string =>
+  `import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+
+/** A default trait. */
+@trait
+${keywords} class Defaulted extends AnyElement {}
+`;
+
+/** Each default trait's module, by file name. */
+const DEFAULT_TRAITS: Readonly<Record<string, string>> = {
+  'defaulted.ts': defaultTrait('export default'),
+  'default-block.ts': defaultTrait('export /* A note. */ default'),
+  'default-line.ts': defaultTrait('export // A note.\ndefault'),
+};
 
 let dir: string;
 let declarations: string;
+const defaultDeclarations = new Map<string, string>();
 
 beforeAll(async () => {
   dir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-dts-'));
   await writeFile(join(dir, 'opened.ts'), TRAIT);
+  const defaults = Object.keys(DEFAULT_TRAITS);
+  await Promise.all(
+    defaults.map((file) => writeFile(join(dir, file), DEFAULT_TRAITS[file]!)),
+  );
   await build({
     config: false,
-    entry: [join(dir, 'opened.ts')],
+    entry: [join(dir, 'opened.ts'), ...defaults.map((file) => join(dir, file))],
     outDir: join(dir, 'out'),
     format: 'esm',
     platform: 'neutral',
@@ -48,6 +87,13 @@ beforeAll(async () => {
     logLevel: 'silent',
   });
   declarations = await readFile(join(dir, 'out', 'opened.d.ts'), 'utf8');
+  for (const file of defaults) {
+    defaultDeclarations.set(
+      file,
+      // oxlint-disable-next-line no-await-in-loop
+      await readFile(join(dir, 'out', file.replace(/\.ts$/u, '.d.ts')), 'utf8'),
+    );
+  }
 }, 60_000);
 
 afterAll(async () => {
@@ -64,6 +110,40 @@ describe("a trait's declarations through tsdown", () => {
   it('should keep the JSDoc in front of @trait alone', () => {
     expect(declarations).toContain(
       '/** An element that is only a trait. */\nexport declare class Plain',
+    );
+  });
+
+  it('should keep the JSDoc that a line comment follows', () => {
+    expect(declarations).toContain(
+      '/** A trait whose doc a line comment follows. */\nexport declare class LineNoted',
+    );
+  });
+
+  it('should keep the JSDoc that a block comment follows', () => {
+    expect(declarations).toContain(
+      '/** A trait whose doc a block comment follows. */\nexport declare class BlockNoted',
+    );
+  });
+
+  it.each([
+    ['an export default class', 'defaulted.ts'],
+    [
+      'an export default class with a block comment after export',
+      'default-block.ts',
+    ],
+    [
+      'an export default class with a line comment after export',
+      'default-line.ts',
+    ],
+  ])('should keep the JSDoc of %s', (_, file) => {
+    expect(defaultDeclarations.get(file)).toContain(
+      '/** A default trait. */\nexport default class Defaulted',
+    );
+  });
+
+  it('should keep the JSDoc of an abstract class', () => {
+    expect(declarations).toContain(
+      '/** An abstract trait. */\nexport declare abstract class Abstracted',
     );
   });
 });

@@ -113,6 +113,16 @@ describe('lowerAttributes on each form of @attributes', () => {
     });
   });
 
+  describe('an import left with an inline type', () => {
+    const source = `${BOOL}import { attributes, type AttributeTable } from '@ydinjs/core/traits/attribute-traits.js';\n${TRAIT}\n@trait\n@attributes({ open: Bool })\nexport class Open {\n${ACCESSOR}`;
+
+    it('should remove the import whole', () => {
+      expect(lower(source)).toBe(
+        `${OPERATOR}${BOOL}\n${TRAIT}\n@trait\nexport class Open {\n${OBSERVED}${pair('Bool')}`,
+      );
+    });
+  });
+
   describe('aliased imports', () => {
     const source = `${BOOL}import { attributes as attrs } from '@ydinjs/core/traits/attribute-traits.js';\nimport { trait as brand } from '@ydinjs/core/traits/composition.js';\n\n@brand\n@attrs({ open: Bool })\nexport class Open {\n${ACCESSOR}`;
 
