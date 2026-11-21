@@ -23,7 +23,11 @@ export type SortableItemWriter = (
 
 /**
  * The context that `mx-sortable-list` provides to its items. Every list item
- * reads it, so this module holds no runtime code beyond the token, and the
- * writer that the value carries lives in the sortable list's own modules.
+ * reads it, so this module holds no runtime code beyond the token and the
+ * providing element's name. The writer that the value carries lives in the
+ * sortable list's own modules.
  */
 export const SORTABLE_LIST_CTX: Context<SortableItemWriter> = createContext();
+
+/** The element that provides `SORTABLE_LIST_CTX` to its child items. */
+export const SORTABLE_LIST_ELEMENTS: readonly string[] = ['mx-sortable-list'];

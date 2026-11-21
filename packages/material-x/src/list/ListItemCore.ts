@@ -8,7 +8,10 @@ import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { t
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
-import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
+import {
+  SORTABLE_LIST_CTX,
+  SORTABLE_LIST_ELEMENTS,
+} from './sortable-list-context.ts';
 import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export type ListItemCoreTraits = readonly [];
@@ -56,7 +59,7 @@ export function useListItemCore(
   // that each slot change runs. A plain list's items carry none of that code.
   let update: (() => void) | undefined;
 
-  useContext(host, SORTABLE_LIST_CTX, (sort) => {
+  useContext(host, SORTABLE_LIST_CTX, SORTABLE_LIST_ELEMENTS, (sort) => {
     const item = sort?.(host, target);
 
     if (!item) {

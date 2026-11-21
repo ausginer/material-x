@@ -1007,9 +1007,7 @@ document.body.dataset.ready = '';
     expect(visualOf(a).getAttribute('tabindex')).toBe('0');
   });
 
-  // A consumer that connects before its provider is defined doesn't resolve
-  // it yet (repo:RF-69). This row passes once it does.
-  it.fails('should make a static item a tab stop when list-item.js is evaluated first', async () => {
+  it('should make a static item a tab stop when list-item.js is evaluated first', async () => {
     const a = await parseThenDefine(['list-item.ts', 'sortable-list.ts']);
 
     expect(visualOf(a).getAttribute('tabindex')).toBe('0');
