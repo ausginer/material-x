@@ -1,79 +1,88 @@
 # Report: each list item is exposed as a list item (`RF-68`)
 
-**Input:** `material-x/list-roles-1` at `45272694c`, which carries the [handoff](list-roles-handoff.md), merged with `origin/main` at `640658b5c` in `afca2d68f`. **Governing records:** `RF-68` in [`../00-index.md`](../00-index.md), `RD-31`'s ruling, `RF-33`, `RD-24` and [`accessibility.md`](../../.agents/docs/accessibility.md#list), as the handoff lists them. All local readings are in Playwright 1.65.0's builds: Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2.
+**Input:** `material-x/list-roles-1` at `a52f3bbd8`: the [handoff](list-roles-handoff.md) as the second re-ruling left it, with the owner's answer (a) recorded. The implementation is reworked from `001f8d833`, as the handoff's _What the implementer changes_ says. **Governing records:** `RF-68` in [`../00-index.md`](../00-index.md), the handoff's decisions 1 to 4 and properties 1 to 9, `RF-33`, `RD-24`, [`accessibility.md`](../../.agents/docs/accessibility.md#list) and [the `.host` invariant](../../.agents/docs/architecture.md#components-ydinjsmaterial-x). All local readings are in Playwright 1.65.0's builds: Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2. `main`'s readings are on `origin/main` at `7cc702e1b`. Its material-x and core sources, and its lockfile, equal the branch's merge base `555ab85bc`.
 
-**Outcome: the decision is implemented, and no stop condition was met.** Proofs 1 to 5, 7 and 8 hold. Proof 6 waits for a Safari run. The only failure in any run is drag's `DRI-17` allocation row in the Chromium root run, which this branch doesn't touch (§Proof 7).
+**Outcome: the second re-ruling is implemented, and no stop condition was met.** Proofs 1 to 5, 7 and 8 hold. Proof 6 waits for a Safari run. Core's reorderable trait and `@ydinjs/drag` don't change.
 
-| Commit | Content |
-| --- | --- |
-| the commit carrying this report | The row in the templates and its rule, the Chromium tree command, the tests, the accessibility guide, the layout probe, the readings and this report |
+The earlier report, for the row, is this file at `001f8d833`.
 
 ## What changed
 
-- **`list-item.tpl.html`:** `role="listitem"` on the `.host`, which is the static item's row.
-- **`list-button-item.tpl.html` and `list-link-item.tpl.html`:** a `<div class="row" role="listitem">` around the `<button>` or `<a>` `.host`. The `.host` keeps `part="impl"` and every job it had. `ListItemCore.ts` and `ListInteractiveItemCore.ts` don't change, because `$(host, '.host')` still finds the control.
-- **`styles/item/main.styles.css`:** `.row:has(> .host:popover-open) { display: contents; }`, with one comment saying why. The row has no other rule, so it draws nothing: a `div`'s block box with no padding, border, margin or background.
-- **`tests/support/accessibility-commands.node.ts`:** `readAccessibilityTree(selector)`, a Playwright-only command that reads Chromium's tree through CDP `Accessibility.getFullAXTree`, for the frame that runs the test. It finds that frame by its URL in `DOM.getDocument` with `pierce: true`. Its node is `{ role, name, children }`, with ignored nodes left out and text nodes dropped. It is registered in `commands.node.ts` and declared in `browser-commands.ts`.
-- **`tests/list/list-roles.browser.test.ts`:** proofs 1 and 2, and a Tab row for property 3.
-- **`accessibility.md`, the list section:** where `listitem` sits and why, what the tests check, and WebKit's split of slotted nodes as a noted limit, read in Playwright's WebKit. The old _Missing requirements_ entry is resolved. The `tabindex` host's own node (handoff finding 3) is stated in its place.
+- **Templates:** `list-button-item.tpl.html` and `list-link-item.tpl.html` are `main`'s again. `list-item.tpl.html` is deleted: `mx-list-item` passes no template, and its shadow root holds the shared content (`list-item-shared.tpl.html`) directly.
+- **`ListItemCore.ts`:** `useCore` gets `{ role: 'listitem' }`. `useListItemCore(host, styles, template?, init?)`: with a template, the shared content goes into its `.host`, which the function returns, and without one into the shadow root. `useReorderableItem(host)` registers the host as the visual.
+- **`ListInteractiveItemCore.ts`:** `FocusForwarding` leaves `ListInteractiveItemCoreTraits`, its import and the `useFocusForwarding` call. The shadow root still delegates focus.
+- **`list-item.ts`:** adopts `static-box.css.ts`. The `@csspart impl` line goes.
+- **Styles:** in `styles/item/main.styles.css`, `:host` is `display: block`, and the `.host` block and the `.row` rule go. The box rule moves to one stylesheet per kind:
+  - `static-box.styles.css`, adopted by `mx-list-item`: the box rule on `:host`, without `all: unset`, with `box-shadow: none` and `overflow: visible`, and the elevation's two pseudo-element layers on `:host::before` and `:host::after`. The layers are flat selectors, not nested under `:host`, because a nested `&` would become `:is(:host)`.
+  - `interactive-box.styles.css`, adopted by the two interactive items: the box rule on `.host` as before, and `:host { padding: 0; overflow: visible; background: none; color: inherit }` with a one-sentence comment.
+  - Each has a `.css.ts` that exports the sheet. No module adopts both.
+- **Tests:** `list-roles.browser.test.ts`'s structure and lift rows follow proof 2. `list-item.browser.test.ts`'s line-height rows read `mx-list-item`'s host, its box. `focus-forwarding.browser.test.ts` drops the two list items and the `mx-list-button-item` subclass case. `traits-baseline.json` changes only in the two items' `FocusForwarding` entries: `instanceof` false, and no `focus` or `symbol:FocusForwarding` key on their prototype.
+- **`accessibility.md`, the list section:** each item's host is its `listitem`, through its internals, and has a box, and why. `mx-list-item` has no inner element. A consumer's `tabindex` on its host stands. WebKit's split is no longer a limit of the list items. Lines 53 and 58 of the earlier text are replaced.
+- **`probes/list-lift.ts`:** a new `item-lift` mode lifts the item's host with nothing added to the build, as the branch's trait does. An optional third argument selects modes. The emulation modes query a static `.host`, which the branch's build no longer has.
 
-No public surface changes: no part, attribute, property, event, slot, export or type (property 7). `traits-baseline` passes unchanged.
+The interactive items keep `part="impl"` on their control. No custom state is added.
 
 ## Proofs
 
 ### 1. The Chromium tree, in CI
 
-`list-roles.browser.test.ts` › _Chromium's accessibility tree_ reads a list with a static item, a button item, a disabled button item, a link item and a disabled link item.
+`list-roles.browser.test.ts` › _Chromium's accessibility tree_, for a static item, a button item, a disabled button item, a link item and a disabled link item:
 
-- _"should expose one listitem per item, in DOM order, below the list"_: the root is `list`, and there are 5 `listitem` nodes reached from it through `generic` nodes only.
-- _"should keep each item's content and control inside its listitem"_: each `listitem`'s children are `generic ""` for the static item, `button "Item 1"`, `button "Item 2"`, `link "Item 3"` and `link "Item 4"`.
+- the root is `list`, with 5 `listitem` nodes reached through `generic` nodes only;
+- each `listitem`'s children are `generic ""` for the static item, `button "Item 1"`, `button "Item 2"`, `link "Item 3"` and `link "Item 4"`.
 
-The block is `describe.runIf(server.browser === 'chromium')`, with the reason written above it: Playwright opens a CDP session only in Chromium, and the other engines' trees are read by the probe.
+The block runs only in Chromium, with the reason written above it.
 
-### 2. The structure, in every engine of the gate
+### 2. The structure and the lift, in every engine of the gate
 
-In Chromium, Firefox and WebKit, for `mx-list-item`, `mx-list-button-item` and `mx-list-link-item`, enabled and disabled:
+For each kind, enabled and disabled: no element in the shadow tree has a `role` attribute; the host has no `role` attribute; the host's computed `display` is `flex` for `mx-list-item` and `block` for the interactive items. `mx-list-item`'s shadow root's children are `slot.lead`, `div.content` and `slot.trail`, with no `.host`. Each interactive item's shadow root has one child, its `<button>` or `<a>`, which is its `.host`.
 
-- exactly one `[role="listitem"]` in the shadow tree;
-- it is a child of the shadow root and contains the `.host`, or is the `.host` for `mx-list-item`;
-- the host has no `role` attribute.
+**The lift rows,** for `mx-list-item` and `mx-list-button-item`. The item is in a list with a 12 px gap between two static items, and has a `[data-handle]` in its trail. With `reorderable` on the list, the handle is focused and Space is pressed. Core's trait then lifts the item from the keyboard: these rows run the trait itself, not a copy of its steps.
 
-**The lift row,** for the button item and the link item: in a list with a 12 px gap, the row applies the steps of core's reorderable trait to `.host`. It puts a footprint of the control's size before the item, pins the control at its rect, and shows it as a manual popover. The list's height and the next item's `.host` top are then unchanged: 192 px and 160 px.
+- the host matches `:popover-open`;
+- the list's height and the next item's top are unchanged;
+- the host's rect, and its computed `padding`, `overflow` and `background-color`, equal their values before the lift;
+- after Escape, the host has no `popover` attribute.
 
-**The Tab row** (property 3): with a button item, a disabled link item and a link item, followed by a button, three Tabs reach the button item's `<button>`, the enabled link item's `<a>` and the button, in that order.
+**The Tab row** (property 3) is unchanged: three Tabs reach the button item's `<button>`, then the enabled link item's `<a>` past the disabled one, then a button after the list.
 
-`MX_TEST_ENGINES=chromium,firefox,webkit vitest run --project 'browser*' tests/list/list-roles.browser.test.ts`: 56 passed and 4 skipped. The skipped rows are the two Chromium tree rows in Firefox and WebKit.
+`MX_TEST_ENGINES=chromium,firefox,webkit vitest run tests/list/list-roles.browser.test.ts`: 83 passed and 4 skipped. The skipped rows are the two Chromium tree rows in Firefox and WebKit.
 
 ### 3. Three engines' trees, by the committed probe
 
 [`probes/list-roles.ts`](probes/list-roles.ts), variant `main`, on the branch's build: [reading](checks/list-roles-branch.txt).
 
-| Engine | Each item | Its control |
+| Engine | Each item | Its content |
 | --- | --- | --- |
-| Chromium | `listitem` on `div.host` or `div.row`, under a `generic` host, under the list | `button "Button item"` and `link "Link item"` inside their `listitem` |
+| Chromium | `listitem` on the host, directly under the list | the slots, the handle's `button "Reorder"`, and `button "Button item"` or `link "Link item"`, inside it |
 | Firefox | `listitem` directly under the list, named from its content | the same |
-| WebKit | `listitem` on `div.host` or `div.row`, whose parent is the list | `button` and `link`, whose parent is `div.row` |
+| WebKit | `listitem` on the host, whose parent is the list | the same. Each slotted light-DOM node's parent is a slot inside its item: the label text and the handle `span` are no longer the list's children |
 
-- **Property 1 and property 3 hold in all three engines.**
-- **Tab order** is `span | #b > button | #a > a | #after | body | span` in each engine, as in the architect's `main` reading.
-- **WebKit, as recorded and not repaired:** the slotted label text and the handle `span` have the list as their parent, as on `main` (handoff finding 1). The host with `tabindex="0"` (`#s3`) has a `group` node under the list (finding 3).
+- **Properties 1 and 3 hold in all three engines.**
+- **The host with `tabindex="0"` (`#s3`)** is a `listitem` and a tab stop, with no node of its own, in each engine. Tab order is `span | #s3 | #b > button | #a > a | #after | body`. That is the owner's answer (a).
 
-[`probes/list-lift.ts`](probes/list-lift.ts) on the branch's build: [reading](checks/list-lift-branch.txt). Its `none` line reads the built package as it is, which now has the real row and its rule. In each engine, the list stays at 192 px and the link's top stays at 144 px while the button item's control is lifted. The probe's `wrapper` and `collapse` lines add its own wrapper inside the real row. That moves `.host` out of the row's direct children, so those two lines don't describe the branch.
+[`probes/list-lift.ts`](probes/list-lift.ts): [reading](checks/list-lift-branch.txt).
 
-### 4. The layout reading
+- **`item-lift`, the branch's lift:** the list stays 192 px and the link's top stays 144 px, for the button item and the static item, in each engine. `main`'s build in mode `none`, `main`'s own lift, reads the same.
+- **`none` on the branch's build** reads 192 → 204. It lifts the inner `.host`, which no code on the branch lifts: the host keeps its box. It is recorded as the handoff asks and doesn't describe the branch.
 
-[`probes/list-layout.ts`](probes/list-layout.ts) is new: a list with a 12 px gap and an inline size of 360 px, holding one-, two- and three-line items of each kind with lead and trail content, and a disabled button and link item. It prints the list's rect and each item's `.host` rect in each engine. The readings are on [`main`'s build](checks/list-layout-main.txt) (the source of `640658b5c`, at the merge) and on [the branch's build](checks/list-layout-branch.txt). **They are equal in all three engines**: `diff` of the two readings without their headers is empty. The list is `0 0 360 880` in each.
+### 4. The layout and the pixels
+
+[`probes/list-layout.ts`](probes/list-layout.ts) with `--png`, on [`main`'s build](checks/list-layout-main.txt) and [the branch's](checks/list-layout-branch.txt). On the branch, the probe reads `mx-list-item` by its host. **The two readings are equal in all three engines**: `diff` of the whole output is empty, and the list is `0 0 360 880` in each.
+
+**Each of the branch's six screenshots is byte-equal to `main`'s** (`cmp`), at elevation level 0 and 6 in each engine ([reading](checks/list-layout-pixels.txt)). In each engine, level 0 and level 6 differ, so the level does raise the items.
 
 ### 5. Mutations
 
-Each was run in the list-roles file and then reverted.
+Each was run in the three engines on `list-roles.browser.test.ts` and then reverted by the inverse edit. The clean file passes again.
 
 | Mutation | Result |
 | --- | --- |
-| `role="listitem"` removed from `list-button-item.tpl.html` | In Chromium, 6 rows failed: the two structure rows for the enabled and the disabled button item, twice each, and both tree rows (proof 1 and proof 2) |
-| The `display: contents` rule removed | Both lift rows failed in Chromium, Firefox and WebKit: `[204, 172]` against `[192, 160]`, one 12 px gap, as in handoff finding 4 |
+| `{ role: 'listitem' }` replaced by `{ }` in `useCore`'s call | Proof 1 fails: both Chromium tree rows. **Proof 2 doesn't fail:** no engine lets page script read a role set through `ElementInternals`. Proof 1 and the probe observe the role. |
+| The interactive host's `:host` resets removed | The button item's _rect, padding, overflow and background_ row fails in Chromium, Firefox and WebKit |
+| `overflow: visible` removed from `mx-list-item`'s host | The static item's same row fails in all three engines |
 
-**One slip, repaired:** the first mutation was reverted with `git checkout`, which restored the committed template without the row. The next run caught it, as 14 failures in the button item's structure rows. The template was rewritten, and the clean file then passed 53 of 53 in the three engines, with 4 skipped, before the second mutation ran. The first mutation's reading was taken before the revert, so it stands.
+The handoff expected the first mutation to fail proof 2 too. Proof 2 asserts property 2's structure, and the role itself is a property of the accessibility tree.
 
 ### 6. Safari
 
@@ -81,38 +90,37 @@ Not run. Safari runs only through the owner's dispatch or the scheduled workflow
 
 ### 7. The existing gates
 
-- The root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations`, the gate's `static` steps, passed.
-- In `packages/material-x`, on the changed `.ts` files: `just fmt`, `just lint-fix`, `just fmt` and `just lint` passed with no diagnostics. The HTML and CSS files get only ESLint's _"File ignored because no matching configuration was supplied"_ warnings, because no linter is configured for them. `just typecheck` passed. `oxfmt` formatted the guide and the probe. `git diff --check` is clean. Links were checked by resolving each relative path.
-- **Root `aube exec just test`, Chromium:** 2,362 passed and 1 failed of 2,363. The failure is `|shipped/drag (chromium)| tests/hot-path.browser.test.ts:261`, `DRI-17` › _"should allocate per sample only the CSS string a lifted write needs"_, at 24.99 B per move, with `kernel/session.ts:handleEvent` at 7,496 B. That is `drag:DRF-53`, which PR #94 repairs and which isn't on `main` yet. This branch has no change under `packages/drag`.
-- **Firefox,** as the gate runs it (`--project '*/firefox' --tags-filter '!measurement'`): 1,779 passed, 1 expected fail and 20 skipped.
-- **WebKit,** the same: 1,780 passed and 20 skipped.
-
-These runs include `list-item.browser.test.ts`, `focus-forwarding.browser.test.ts`, core's reorderable rows and `traits-baseline`. The root runs were taken before the Tab row was added. That row was then run alone in the three engines (§Proof 2).
+- **Material X, all browser, spec and node projects in Chromium, Firefox and WebKit** (`MX_TEST_ENGINES=chromium,firefox,webkit vitest run`): 61 files, 1,338 passed, 1 expected fail and 4 skipped. This includes `list-item.browser.test.ts`, whose focus rows pass in Firefox without `FocusForwarding`, `focus-forwarding.browser.test.ts`, and `traits-baseline` with property 7's change.
+- **Root `aube exec just test`** (Chromium): 148 files, 2,368 passed. This includes core's reorderable rows.
+- **Root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations`:** passed.
+- **In `packages/material-x`, on every changed file:** `just fmt`, `just lint-fix`, `just fmt` and `just lint` passed. The only output is ESLint's five _"File ignored"_ warnings for the HTML and CSS files, for which no linter is configured. `just typecheck` passed. `oxfmt` formatted the guide, the probe and this report. `git diff --check` is clean. Links were checked by resolving each relative path.
 
 ### 8. Sizes
 
-`aube exec size-limit --json` in `packages/material-x`, after `just build`, in Brotli bytes. The before figures are at `afca2d68f`, the branch after the merge with `main`, before any change. `complete` there is 16,975, not the handoff's 16,929, because `main` moved.
+Brotli bytes, from `aube exec just size-reading` on each build ([reading](checks/list-sizes.txt)).
 
-| Row                     | Before | After  | Difference |
-| ----------------------- | ------ | ------ | ---------- |
-| `list/list`             | 3,673  | 3,673  | 0          |
-| `list/list-item`        | 2,567  | 2,593  | +26        |
-| `list/list-button-item` | 4,575  | 4,610  | +35        |
-| `list/list-link-item`   | 4,746  | 4,803  | +57        |
-| `complete`              | 16,975 | 16,983 | +8         |
+**Two figures, because the build renames private custom properties in the order it finds them.** The branch and `main` have the same 227 properties, but the branch's two new stylesheets change the order, and 92 get a different short name. That moves rows the branch doesn't touch: `text-field/text-field` +27, `button/icon-button` +22. So the branch was also built with `main`'s name list, which isolates the change.
 
-- **No row grows by more than 150 B.** Every other row is unchanged.
-- `list/list-item` grows more than the estimated few bytes: +26 for one attribute. `list/list-link-item` grows a little near the top of the 30 to 60 B estimate.
+| Row | `main` | Branch | Difference | Branch, `main`'s names | Difference |
+| --- | --- | --- | --- | --- | --- |
+| `list/list` | 3,673 | 3,670 | −3 | 3,673 | 0 |
+| `list/list-item` | 2,567 | 2,586 | +19 | 2,601 | +34 |
+| `list/list-button-item` | 4,575 | 4,581 | +6 | 4,562 | −13 |
+| `list/list-link-item` | 4,746 | 4,757 | +11 | 4,778 | +32 |
+| `complete` | 16,975 | 17,050 | +75 | 17,060 | +85 |
+
+- **No row grows by more than 150 B,** in either figure.
+- **The control row holds:** with `main`'s names, `list/list` and every row outside the list are unchanged.
+- `list/list-item` is within the estimate of +30 to +100 B. `complete` is within its estimate of +50 to +150 B.
+- `list/list-button-item` ends below `main`, as estimated: it gains the four resets and loses `FocusForwarding`. `list/list-link-item` grows by 32 B on the same change. The reading doesn't say why the two differ.
 
 ## Focus in a static item
 
-**Nothing here changes it.** On this branch, as on `main`, a static item doesn't take focus. In the probe's tab order, the first stop is the handle `span` in the first static item's trail, not the item. A host with `tabindex="0"` takes no focus in any engine (handoff finding 3). The element that `RD-31`'s ruling makes take focus is the static item's `.host`. That `.host` is the row and carries `role="listitem"`, so once `RD-31` lands, a focused static item is a list item. Interactive items keep focus on their `.host`, the `<button>` or `<a>`, inside the row.
+**In `mx-list`, a static item takes no focus**, as on `main`. A consumer's `tabindex` on its host makes the host a tab stop. The owner answered (a), so the item doesn't suppress it, and the host is its `listitem` (proof 3). There is no `.host` in a static item any more. **Interactive items keep focus on their `.host`,** the `<button>` or `<a>`, reached through `delegatesFocus` in every engine.
 
 ## Stopping point
 
 The unit stops at the pull request. The architect dates `RF-68` from this report. Open:
 
 - proof 6, Safari, until a Safari run reads it;
-- drag's `DRI-17` row, which fails the local Chromium root run until PR #94 lands.
-
-**Scratch work:** the worktree, the run logs and the size readings are in this session's scratchpad. They are removed when the unit is handed off.
+- `RD-31`'s follow-up on #90, which adapts to this unit after it lands.

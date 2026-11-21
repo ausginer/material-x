@@ -50,16 +50,17 @@ None known.
 ### Accessibility test notes
 
 - `mx-list` exposes `role="list"` through `ElementInternals` (`src/list/list.ts`).
-- Each item's `listitem` role is a `role` attribute on its row: the outermost element of the item's shadow tree, which has a box and holds everything the item renders. For `mx-list-item`, the row is its `.host`. For `mx-list-button-item` and `mx-list-link-item`, the row is a `div` around the `<button>` or `<a>` `.host`, which keeps its own role (`src/list/list-item.tpl.html`, `src/list/list-button-item.tpl.html`, `src/list/list-link-item.tpl.html`). The host sets no role, and its `role` attribute stays the consumer's.
-- The role isn't on the host, because the host is `display: contents`: WebKit then parents an interactive item's button or link to the list, outside its `listitem`. On the row, each control is inside its item in Chromium, Firefox and WebKit.
-- The row draws nothing. While an interactive item's control is lifted into the top layer for a drag, the row is `display: contents`, so the list keeps no gap for it (`src/list/styles/item/main.styles.css`).
+- Each item's host is its `listitem`, through `ElementInternals`, and has a box (`src/list/ListItemCore.ts`). No template carries a `role`, and the host's `role` attribute stays the consumer's.
+- The host has a box because WebKit parents an item's shadow content by its box and its slotted light-DOM nodes by the DOM: past a `display: contents` host, the button, the link or the label text ends up outside its `listitem`. With a box, each item's content, control and slotted nodes are inside its `listitem` in Chromium, Firefox and WebKit.
+- `mx-list-item` has no inner element: its shadow root holds the slots and their `.content` wrapper directly, and its host is its box (`src/list/styles/item/static-box.styles.css`). `mx-list-button-item` and `mx-list-link-item` wrap their `<button>` or `<a>` `.host`, which keeps its own role, name and focus. Their shadow roots delegate focus, which reaches the control through a box host in every engine.
+- A consumer's `tabindex` on an `mx-list-item` host makes the host a tab stop, as on any element with a box, and the item doesn't suppress it. Its accessible node is its `listitem`, with no node of its own.
+- A drag lifts the item's host into the top layer, so the list keeps no gap for it.
 - `tests/list/list-roles.browser.test.ts` checks the structure in every engine of the gate, and Chromium's own accessibility tree through CDP: one `listitem` per item, below the list, with each button and link inside its item and keeping its role and name. Firefox's and WebKit's trees were read with the probe in `.plan/list-roles-1/probes/list-roles.ts`.
 - Interactive items keep their native control semantics: `mx-list-button-item` is operable and exposed as a button, and `mx-list-link-item` is exposed as a link, and is removed from the tab order when disabled (`src/list/list-button-item.ts`, `src/list/list-link-item.ts`).
 
 ### Missing requirements
 
-- **WebKit parents an item's slotted light-DOM content, such as its label text and a `data-handle` grip, to the list rather than to the item's `listitem`,** because the host is `display: contents`. The item's name is still computed from its content. This was read in Playwright's WebKit build, not in Safari with VoiceOver. Only a host with a box would remove it, and the list's layout depends on the host having none. [Docs]
-- A static item's host with its own `tabindex` gets an accessible node of its own: `generic` in Chromium and `group` in WebKit.
+- The trees were read in Playwright's builds of Chromium, Firefox and WebKit, not in Safari or with a screen reader.
 
 ## Drag (`@ydinjs/drag` sortable)
 

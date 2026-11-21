@@ -1,0 +1,47 @@
+/*
+ * A static item's host is its box. `box-shadow: none` keeps the elevation to
+ * the two pseudo-element layers, and `overflow: visible` overrides the UA's
+ * popover style while the host is lifted into the top layer.
+ */
+:host {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  inline-size: 100%;
+  min-block-size: var(--_container-height);
+  padding-block: var(--_top-space) var(--_bottom-space);
+  padding-inline: var(--md-list-item-leading-space, var(--_leading-space))
+    var(--md-list-item-trailing-space, var(--_trailing-space));
+  border-radius: var(
+    --md-list-item-container-shape,
+    var(--_container-expressive-shape)
+  );
+  background: var(--md-list-item-container-color, var(--_container-color));
+  color: var(--_label-text-color);
+  cursor: default;
+  text-decoration: none;
+  font: inherit;
+  text-align: start;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+/* For shadow */
+:host::before,
+:host::after {
+  content: '';
+  border-radius: inherit;
+  inset: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+:host::before {
+  box-shadow: var(--_elevation-umbra);
+}
+
+:host::after {
+  box-shadow: var(--_elevation-ambient);
+}

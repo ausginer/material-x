@@ -68,22 +68,10 @@ describe('mx-list item roles', () => {
   describe.each(ITEM_CASES)(
     '$tag, disabled: $disabled',
     ({ tag, disabled }) => {
-      it('should have exactly one listitem role in its shadow tree', () => {
+      it('should have no element with a role attribute in its shadow tree', () => {
         const [item] = createList([{ tag, disabled }]).children;
 
-        expect(
-          item!.shadowRoot!.querySelectorAll('[role="listitem"]'),
-        ).toHaveLength(1);
-      });
-
-      it('should put the role on the row that holds the control', () => {
-        const [item] = createList([{ tag, disabled }]).children;
-        const row = item!.shadowRoot!.querySelector('[role="listitem"]')!;
-        const control = getControl(item as HTMLElement);
-
-        // A static item's control is its row.
-        expect(row.contains(control)).toBe(true);
-        expect(row.parentNode).toBe(item!.shadowRoot);
+        expect(item!.shadowRoot!.querySelectorAll('[role]')).toHaveLength(0);
       });
 
       it('should leave the host without a role attribute', () => {
@@ -91,6 +79,43 @@ describe('mx-list item roles', () => {
 
         expect(item!.hasAttribute('role')).toBe(false);
       });
+
+      it('should give the host a box', () => {
+        const [item] = createList([{ tag, disabled }]).children;
+
+        expect(getComputedStyle(item!).display).toBe(
+          tag === 'mx-list-item' ? 'flex' : 'block',
+        );
+      });
+    },
+  );
+
+  it("should hold only the shared content in mx-list-item's shadow root", () => {
+    const [item] = createList([
+      { tag: 'mx-list-item', disabled: false },
+    ]).children;
+    const root = item!.shadowRoot!;
+
+    expect(
+      [...root.children].map(
+        (child) => `${child.localName}.${child.className}`,
+      ),
+    ).toEqual(['slot.lead', 'div.content', 'slot.trail']);
+    expect(root.querySelector('.host')).toBeNull();
+  });
+
+  it.each([
+    { tag: 'mx-list-button-item', control: 'button' },
+    { tag: 'mx-list-link-item', control: 'a' },
+  ] as const)(
+    "should hold only the native control in $tag's shadow root",
+    ({ tag, control }) => {
+      const [item] = createList([{ tag, disabled: false }]).children;
+
+      expect(
+        [...item!.shadowRoot!.children].map((child) => child.localName),
+      ).toEqual([control]);
+      expect(getControl(item as HTMLElement).localName).toBe(control);
     },
   );
 
@@ -116,50 +141,75 @@ describe('mx-list item roles', () => {
     expect(reached).toEqual([getControl(button!), getControl(link!), after]);
   });
 
-  describe.each(['mx-list-button-item', 'mx-list-link-item'] as const)(
-    '%s lifted',
+  describe.each(['mx-list-item', 'mx-list-button-item'] as const)(
+    '%s lifted by the list',
     (tag) => {
-      it('should keep the list and the next item where they were', async () => {
+      const LIFT_STYLES = ['padding', 'overflow', 'background-color'] as const;
+
+      // Grabs the item from the keyboard, which makes core's reorderable trait
+      // lift it into the top layer, and reads what the lift must keep.
+      const lift = async () => {
         const list = createList([
           { tag: 'mx-list-item', disabled: false },
           { tag, disabled: false },
           { tag: 'mx-list-item', disabled: false },
         ]);
         list.style.gap = '12px';
+        list.toggleAttribute('reorderable', true);
         const [, item, next] = list.children as unknown as HTMLElement[];
+        const handle = document.createElement('span');
+        handle.slot = 'trail';
+        handle.dataset['handle'] = '';
+        handle.textContent = 'Grip';
+        item!.append(handle);
 
         await nextFrame();
 
-        const read = () => [
-          list.getBoundingClientRect().height,
-          getControl(next!).getBoundingClientRect().top,
-        ];
+        const read = () => {
+          const style = getComputedStyle(item!);
+
+          return {
+            list: list.getBoundingClientRect().height,
+            next: next!.getBoundingClientRect().top,
+            rect: item!.getBoundingClientRect().toJSON() as unknown,
+            styles: LIFT_STYLES.map((name) => style.getPropertyValue(name)),
+          };
+        };
         const before = read();
 
-        // The steps of core's reorderable trait: a footprint of the control's
-        // size before the item, then the control pinned at its rect and shown
-        // in the top layer as a manual popover.
-        const visual = getControl(item!);
-        const rect = visual.getBoundingClientRect();
-        const footprint = document.createElement('div');
-        footprint.style.width = `${rect.width}px`;
-        footprint.style.height = `${rect.height}px`;
-        item!.before(footprint);
-        Object.assign(visual.style, {
-          position: 'fixed',
-          inset: 'auto',
-          top: `${rect.top}px`,
-          left: `${rect.left}px`,
-          width: `${rect.width}px`,
-          height: `${rect.height}px`,
-          margin: '0',
-          border: '0',
-        });
-        visual.popover = 'manual';
-        visual.showPopover();
+        handle.focus();
+        await userEvent.keyboard(' ');
 
-        expect(visual.matches(':popover-open')).toBe(true);
-        expect(read()).toEqual(before);
+        return { item: item!, before, lifted: read() };
+      };
+
+      it('should lift the host into the top layer', async () => {
+        const { item } = await lift();
+
+        expect(item.matches(':popover-open')).toBe(true);
+      });
+
+      it('should keep the list and the next item where they were', async () => {
+        const { before, lifted } = await lift();
+
+        expect([lifted.list, lifted.next]).toEqual([before.list, before.next]);
+      });
+
+      it("should keep the host's rect, padding, overflow and background", async () => {
+        const { before, lifted } = await lift();
+
+        expect([lifted.rect, lifted.styles]).toEqual([
+          before.rect,
+          before.styles,
+        ]);
+      });
+
+      it('should remove the popover attribute after the lift ends', async () => {
+        const { item } = await lift();
+
+        await userEvent.keyboard('{Escape}');
+
+        await expect.poll(() => item.hasAttribute('popover')).toBe(false);
       });
     },
   );

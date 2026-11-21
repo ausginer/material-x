@@ -94,8 +94,8 @@ describe('mx-list-item slotted content', () => {
 
       await nextFrame();
 
-      const control = getControl(element);
-      const empty = control.getBoundingClientRect().height;
+      // A static item's host is its box.
+      const empty = element.getBoundingClientRect().height;
       const contents = slots.map((slot) => {
         const content = document.createElement('span');
         content.slot = slot;
@@ -106,14 +106,14 @@ describe('mx-list-item slotted content', () => {
 
       await nextFrame();
 
-      expect(control.getBoundingClientRect().height).toBe(heights[token]);
+      expect(element.getBoundingClientRect().height).toBe(heights[token]);
 
       for (const content of contents) {
         content.remove();
       }
       await nextFrame();
 
-      expect(control.getBoundingClientRect().height).toBe(empty);
+      expect(element.getBoundingClientRect().height).toBe(empty);
     },
   );
 

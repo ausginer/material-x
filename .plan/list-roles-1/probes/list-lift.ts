@@ -26,13 +26,19 @@
 //               already styles the items in every engine
 //   host-lift   - the lifted visual is the item's host itself, not its `.host`
 // Each box-host mode lifts the button item, then the static item (`-static`).
+// Added by the implementer on 2026-11-21 for the fold, where each item's host
+// has its own box and core's trait lifts the host:
+//   item-lift   - the lifted visual is the item's host, with nothing added to
+//               the build (`-static` for the static item)
+// node list-lift.ts <packages/material-x> <engine> [mode,mode,...] runs only
+// the listed modes; a build without a static `.host` can't run the others.
 import { rolldown } from 'rolldown';
 import { chromium, firefox, webkit } from 'playwright';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const [MX, ENGINE] = process.argv.slice(2) as [string, string];
+const [MX, ENGINE, MODES] = process.argv.slice(2) as [string, string, string?];
 
 const dir = await mkdtemp(join(tmpdir(), 'list-lift-'));
 const entry = join(dir, 'entry.js');
@@ -70,7 +76,9 @@ for (const mode of [
   'hostbox-state-static',
   'host-lift',
   'host-lift-static',
-]) {
+  'item-lift',
+  'item-lift-static',
+].filter((mode) => !MODES || MODES.split(',').includes(mode))) {
   const page = await browser.newPage();
   await page.setContent(`<mx-list id="l" style="gap: 12px">
   <mx-list-item id="s">Static</mx-list-item>
@@ -109,7 +117,7 @@ for (const mode of [
         ];
       }
     }
-    if (mode !== 'none' && !box) {
+    if (mode !== 'none' && !box && !mode.startsWith('item-lift')) {
       for (const item of document.querySelectorAll(
         'mx-list-button-item, mx-list-link-item',
       )) {
@@ -139,7 +147,7 @@ for (const mode of [
       linkTop: link.getBoundingClientRect().top,
     };
     const item = document.getElementById(mode.endsWith('-static') ? 's' : 'b')!;
-    const visual = mode.startsWith('host-lift')
+    const visual = /^(host|item)-lift/.test(mode)
       ? item
       : item.shadowRoot!.querySelector<HTMLElement>('.host')!;
     const rect = visual.getBoundingClientRect();

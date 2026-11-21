@@ -60,27 +60,33 @@ function enhanceHandle(nodes: readonly Node[]): void {
   handle.style.touchAction = 'none';
 }
 
+/**
+ * Sets up a list item. With a `template`, the shared content goes into the
+ * template's `.host`, which the function returns. Without one, the shared
+ * content is the shadow root's, and the host is the item's box.
+ */
 export function useListItemCore(
   host: ListItemCore,
-  template: HTMLTemplateElement,
-  styles: ReadonlyArray<CSSStyleSheet | string> = [],
+  styles: ReadonlyArray<CSSStyleSheet | string>,
+  template?: HTMLTemplateElement,
   init?: Partial<ShadowRootInit>,
-): HTMLDivElement | HTMLButtonElement | HTMLAnchorElement {
+): HTMLButtonElement | HTMLAnchorElement | undefined {
   useCore(
     host,
-    [template],
-    {},
+    [template ?? nestedTemplate],
+    { role: 'listitem' },
     [elevationStyles, defaultStyles, ...styles],
     init,
   );
-  const target = $<HTMLDivElement | HTMLButtonElement | HTMLAnchorElement>(
-    host,
-    '.host',
-  )!;
-  target.append(nestedTemplate.content.cloneNode(true));
+
+  let target: HTMLButtonElement | HTMLAnchorElement | undefined;
+  if (template) {
+    target = $<HTMLButtonElement | HTMLAnchorElement>(host, '.host')!;
+    target.append(nestedTemplate.content.cloneNode(true));
+  }
 
   useHasSlottedPolyfill(host);
-  useReorderableItem(host, target);
+  useReorderableItem(host);
 
   useSlot(host, '.lead', (_, nodes) => {
     toggleState(

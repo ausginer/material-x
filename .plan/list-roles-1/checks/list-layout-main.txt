@@ -1,5 +1,5 @@
-# Every item's .host rect and the list's rect (x y width height, CSS pixels): node .plan/list-roles-1/probes/list-layout.ts $PWD/packages/material-x
-# Read by the implementer on 2026-11-21 on the build of origin/main's source at 640658b5c, merged into the branch at afca2d68f.
+# Every item's box and the list's rect (x y width height, CSS pixels): node .plan/list-roles-1/probes/list-layout.ts $PWD/packages/material-x --png <dir>
+# Read by the implementer on 2026-11-21 on the build of origin/main at 7cc702e1b, whose material-x and core sources equal the branch's merge base 555ab85bc.
 
 # engine chromium 158.0.8127.18
 list 0 0 360 880

@@ -1,0 +1,23 @@
+# material-x size rows, Brotli bytes. main: aube exec just size-reading on origin/main at 7cc702e1b. branch: the same on the branch. branch, main names: the branch built with main's css-private-props.json in place of its own, then aube exec size-limit --json in packages/material-x.
+# Read by the implementer on 2026-11-21. The two builds give the same 227 private custom properties, and 92 of them a different short name, because the collector finds them in file order and the branch adds two stylesheets.
+
+row	main	branch	diff	branch, main names	diff
+button/button	4843	4841	-2	4843	0
+button/icon-button	5108	5130	+22	5108	0
+button/link-button	4809	4823	+14	4809	0
+button/switch-button	5187	5204	+17	5187	0
+button/switch-icon-button	5598	5609	+11	5598	0
+button/split-button	7406	7425	+19	7406	0
+button-group/button-group	3126	3127	+1	3126	0
+button-group/connected-button-group	3888	3870	-18	3888	0
+checkbox/checkbox	4021	4025	+4	4021	0
+fab/fab	4234	4238	+4	4234	0
+icon/icon	661	661	0	661	0
+list/list	3673	3670	-3	3673	0
+list/list-item	2567	2586	+19	2601	+34
+list/list-button-item	4575	4581	+6	4562	-13
+list/list-link-item	4746	4757	+11	4778	+32
+radio/radio	3590	3590	0	3590	0
+text-field/multiline-text-field	4437	4437	0	4437	0
+text-field/text-field	8109	8136	+27	8109	0
+complete	16975	17050	+75	17060	+85

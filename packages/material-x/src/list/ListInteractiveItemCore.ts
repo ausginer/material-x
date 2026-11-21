@@ -16,15 +16,12 @@ import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
-  type FocusForwarding,
-  useFocusForwarding,
-} from '../core/traits/focus-forwarding.ts';
-import {
   type ListItemCoreTraits,
   useListItemCore,
   type ListItemCoreCSSProperties,
   type ListItemCoreProperties,
 } from './ListItemCore.ts';
+import interactiveBoxStyles from './styles/item/interactive-box.css.ts' with { type: 'css' };
 
 export type ListInteractiveItemCoreProperties = ListItemCoreProperties &
   SelectableProps &
@@ -39,7 +36,6 @@ export type ListInteractiveItemCoreTraits = readonly [
   ...ListItemCoreTraits,
   typeof Disableable,
   typeof Selectable,
-  typeof FocusForwarding,
 ];
 
 export type ListInteractiveItemCore = InstanceType<
@@ -50,13 +46,15 @@ export function useInteractiveListItemCore(
   host: ListInteractiveItemCore,
   template: HTMLTemplateElement,
 ): HTMLButtonElement | HTMLAnchorElement {
-  const target = useListItemCore(host, template, [focusStyles], {
-    delegatesFocus: true,
-  }) as HTMLButtonElement | HTMLAnchorElement;
+  const target = useListItemCore(
+    host,
+    [interactiveBoxStyles, focusStyles],
+    template,
+    { delegatesFocus: true },
+  )!;
 
   useDisableable(host, target);
   useARIA(host, target);
-  useFocusForwarding(host, target);
   useRipple(host, target, target);
   useAttributes(host, {
     selected: via(Bool, (_, newValue) => {

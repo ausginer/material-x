@@ -4,7 +4,6 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
-import template from './list-item.tpl.html' with { type: 'html' };
 import {
   type ListItemCoreTraits,
   useListItemCore,
@@ -12,6 +11,7 @@ import {
   type ListItemCoreEvents,
   type ListItemCoreProperties,
 } from './ListItemCore.ts';
+import staticBoxStyles from './styles/item/static-box.css.ts' with { type: 'css' };
 
 export type ListItemProperties = ListItemCoreProperties;
 export type ListItemEvents = ListItemCoreEvents;
@@ -33,13 +33,11 @@ const ListItemConstructor: Composed<
  * @slot overline - Overline text.
  * @slot supporting-text - Supporting text below the label.
  * @slot trailing-supporting-text - Trailing supporting text.
- *
- * @csspart impl - Internal list item container.
  */
 export default class ListItem extends ListItemConstructor {
   constructor() {
     super();
-    useListItemCore(this, template);
+    useListItemCore(this, [staticBoxStyles]);
   }
 }
 

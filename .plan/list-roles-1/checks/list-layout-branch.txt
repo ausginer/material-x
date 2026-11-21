@@ -1,5 +1,5 @@
-# Every item's .host rect and the list's rect (x y width height, CSS pixels): node .plan/list-roles-1/probes/list-layout.ts $PWD/packages/material-x
-# Read by the implementer on 2026-11-21 on the branch's build, with the row in the item templates.
+# Every item's box and the list's rect (x y width height, CSS pixels): node .plan/list-roles-1/probes/list-layout.ts $PWD/packages/material-x --png <dir>
+# Read by the implementer on 2026-11-21 on the branch's build for the second re-ruling. mx-list-item has no .host, so the probe reads it by its host.
 
 # engine chromium 158.0.8127.18
 list 0 0 360 880
