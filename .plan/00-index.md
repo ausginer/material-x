@@ -3241,6 +3241,23 @@ Tier B, **open**. Registered on 2026-11-20 by the architect, on `tproc/tokens-so
 
   - `RD-28` stops the data entering the tree, and `RD-29` removes it from the history.
 
+#### RF-69 — A context consumer that connects before its provider is defined never resolves it
+
+Tier A, **open**. Registered on 2026-11-21 by the architect, on `core/context-late-provider-1`, from Mx Architect B's proposal in `RD-31`'s [plan](https://github.com/ausginer/material-x/blob/6214e3b57/.plan/list-sortable-1/list-sortable-plan.md) at `6214e3b57`, which read the code and didn't run it. Relayed by the coordinator. `RF-68` (`material-x/list-roles-1`) is the highest `RF-` on any branch on `origin`, so this is the next free number. The proposal gave Tier B. A correctly integrated page sees the buttons ignore their group, so by consequence it is Tier A.
+
+- **What happens:** `useContext` (`packages/core/src/controllers/useContext.ts`) dispatches its request only in the consumer's `connected`, and a provider listens only once its host is upgraded. When a page parses `<mx-button-group><mx-button>` and evaluates the button's module before the group's, each button upgrades first, asks an element that isn't a provider yet, and never asks again. So a disabled group's buttons stay enabled, and none follows the group's size, color or shape.
+- **Read** in Chromium 158, Firefox 159 and WebKit 27.2 ([reading](context-late-provider-1/checks/context-order.txt), [probe](context-late-provider-1/probes/context-order.ts)). With the group's module first, both buttons follow it. With the button's first, both don't: right after the buttons upgrade, and 200 ms later through `import()`.
+- **Affected:** every consumer of core's `useContext`, which in material-x is the button family in `mx-button-group` and `mx-connected-button-group`. `RD-31`'s sortable list will be one too.
+- **Required property:** a consumer resolves its parent provider whatever order the two are defined and connected in, a lazy import included.
+
+**Dated 2026-11-21 by the architect: the repair is decided by the owner.** In translation, relayed by the coordinator: _"So let's do it this way from the start"_, the consumer waiting for its parent's definition. On the timing: _"Yes, 'always wait' is exactly what I meant. `whenDefined` resolves in any case if the definition exists, so we can just call it and wait. The only downside is an asynchronous event, but I think that's minor."_ He had first taken the behavior as intended, then said _"maybe I'm wrong here"_ and _"lazy import should probably be supported too"_. The [handoff](context-late-provider-1/context-late-provider-handoff.md) holds the decisions, the properties and the proofs. **Unimplemented.**
+
+- **The repair:** on every connect, a consumer whose parent is a custom element awaits that element's definition, through the registry that defines it, and then dispatches its request. A consumer with any other parent requests synchronously, as today. The effect runs at most once for each connection, and a disconnect or a move before the wait settles leaves nothing.
+- **What changes for consumers:** with a custom-element parent, the effect runs a microtask after the connect, even when the parent is already defined, still before the next frame. While the parent is undefined it doesn't run, where today it runs with `undefined`.
+- **Only the parent is waited for:** every context link in material-x is a direct parent–child link.
+- **Not adopted, by the owner:** the provider prompting its children to request again on connect, which `RD-31`'s plan had proposed for this entry, and the Context Community Protocol's document-level `ContextRoot`.
+- **Size:** _medium_. Core's controller, its tests and one material-x test, on its own branch, with nothing left to decide.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
