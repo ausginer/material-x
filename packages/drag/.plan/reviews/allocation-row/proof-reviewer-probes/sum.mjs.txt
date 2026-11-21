@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+for (const f of process.argv.slice(2)) {
+  const lines = fs.readFileSync(f, 'utf8').split('\n').filter(l => l.includes('ROWBYTES '));
+  for (const l of lines) {
+    const b = JSON.parse(l.slice(l.indexOf('ROWBYTES ') + 9));
+    const k = Object.entries(b).filter(([key]) => key.startsWith('kernel/') || key.startsWith('draggable.ts:'));
+    const per = k.reduce((s, [, v]) => s + v, 0) / 300;
+    console.log(f.split('/').pop(), per.toFixed(2), JSON.stringify(Object.fromEntries(k)), 'lift:', Object.keys(b).filter(x => x.startsWith('lift.ts:')).join(','));
+  }
+}

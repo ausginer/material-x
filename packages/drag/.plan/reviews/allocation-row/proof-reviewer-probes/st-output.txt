@@ -1,0 +1,7 @@
+# st.mjs at 205bb0d43 (before) and a4d6f03a8 (after), node --allow-natives-syntax; cmp: identical
+fresh 131073
+called once 65
+baseline 16385
+maglev 25
+turbofan 41
+deopted 1
