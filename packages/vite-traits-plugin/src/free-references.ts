@@ -7,8 +7,15 @@
  * `fail` on any other, so a construct it can't account for retains the trait
  * rather than being copied with a guessed meaning. `var`, function and class
  * declarations are outside the allowlist because they hoist past the blocks
- * that the analysis scopes; `super`, any `eval` reference and `import.meta` are outside
- * it because they mean something else in the consumer.
+ * that the analysis scopes; `super`, any `eval` reference, `new.target` and
+ * `import.meta` are outside it because they mean something else in the
+ * consumer.
+ *
+ * A private name is read only as `this.#name`, where `this` is the member's
+ * own, directly or inside an arrow function. Once copied, the name belongs to
+ * one component class, so `other.#name` would work only for an instance of
+ * that class, while the trait's type accepts an instance of any class with
+ * the trait.
  */
 
 /** The fields every oxc AST node carries. */
@@ -26,8 +33,35 @@ export type FreeReference = Readonly<{
   write: boolean;
 }>;
 
-/** Reports a construct the analysis doesn't model. */
-export type Fail = (detail: string) => never;
+/** A private name in the walked source, as `[start, end)` of `#name`. */
+export type PrivateNameReference = Readonly<{
+  /** The name without `#`. */
+  name: string;
+  start: number;
+  end: number;
+}>;
+
+/**
+ * Reports a construct the analysis doesn't model or refuses, at `at`, an
+ * offset in the origin source, when the construct has one.
+ */
+export type Fail = (detail: string, at?: number) => never;
+
+/**
+ * What the walked source is, which decides what it may contain beyond a
+ * method's subset: a constructor's body may not read `arguments`, which in
+ * the component's constructor are the component's, or `return` outside a
+ * nested function, which would end the component's constructor; and an
+ * initializer may not read `arguments`, which a field initializer has none
+ * of.
+ */
+export type SourceKind = 'member' | 'initializer' | 'constructor';
+
+/** What a walk collects. */
+export type References = Readonly<{
+  references: readonly FreeReference[];
+  privateNames: readonly PrivateNameReference[];
+}>;
 
 type Scope = Readonly<{ names: ReadonlySet<string>; parent: Scope | null }>;
 
@@ -39,7 +73,6 @@ type Scope = Readonly<{ names: ReadonlySet<string>; parent: Scope | null }>;
 const CHILDREN: Readonly<Record<string, readonly string[]>> = {
   ArrayExpression: ['elements'],
   AwaitExpression: ['argument'],
-  BinaryExpression: ['left', 'right'],
   BreakStatement: [],
   CallExpression: ['callee', 'arguments'],
   ChainExpression: ['expression'],
@@ -55,7 +88,6 @@ const CHILDREN: Readonly<Record<string, readonly string[]>> = {
   LogicalExpression: ['left', 'right'],
   NewExpression: ['callee', 'arguments'],
   ParenthesizedExpression: ['expression'],
-  ReturnStatement: ['argument'],
   SequenceExpression: ['expressions'],
   SpreadElement: ['argument'],
   TaggedTemplateExpression: ['tag', 'quasi'],
@@ -149,17 +181,51 @@ export function addPatternNames(
   }
 }
 
-/** Walks one member's function, collecting the names no inner scope binds. */
+/** Walks one member's source, collecting the names no inner scope binds. */
 class ReferenceCollector {
   readonly #references: FreeReference[] = [];
+  readonly #privateNames: PrivateNameReference[] = [];
   readonly #fail: Fail;
+  readonly #kind: SourceKind;
+  /** Nested functions around the current node, arrow functions included. */
+  #functions = 0;
+  /** Nested functions around the current node that bind their own `this`. */
+  #thisFunctions = 0;
 
-  constructor(fail: Fail) {
+  constructor(fail: Fail, kind: SourceKind) {
     this.#fail = fail;
+    this.#kind = kind;
   }
 
   get references(): readonly FreeReference[] {
     return this.#references;
+  }
+
+  get privateNames(): readonly PrivateNameReference[] {
+    return this.#privateNames;
+  }
+
+  /** Refuses a private name that isn't `this.#name` of the member's own `this`. */
+  #refusePrivateName(name: string, at: number): never {
+    return this.#fail(
+      `#${name} is read only as this.#${name}, on the member's own this; to test another object, use instanceof with the trait`,
+      at,
+    );
+  }
+
+  /** Records `this.#name`, or refuses another object's private name. */
+  #privateMember(node: AstNode, scope: Scope | null): void {
+    const object = child(node, 'object')!;
+    const property = child(node, 'property')!;
+    if (object.type !== 'ThisExpression' || this.#thisFunctions > 0) {
+      this.#refusePrivateName(nameOf(property), property.start);
+    }
+    this.#privateNames.push({
+      name: nameOf(property),
+      start: property.start,
+      end: property.end,
+    });
+    this.#visit(object, scope);
   }
 
   #reference(
@@ -173,7 +239,19 @@ class ReferenceCollector {
     // direct calls that read the consumer's scope. Strict code, which a class
     // body is, can't bind `eval`, so no scope lookup is needed.
     if (name === 'eval') {
-      this.#fail('a member references eval');
+      this.#fail('a member references eval', identifier.start);
+    }
+    if (
+      name === 'arguments' &&
+      this.#kind !== 'member' &&
+      this.#thisFunctions === 0
+    ) {
+      this.#fail(
+        this.#kind === 'constructor'
+          ? "a constructor reads arguments, which in the component's constructor are the component's"
+          : 'an initializer reads arguments, which a field initializer has none of',
+        identifier.start,
+      );
     }
     for (let current = scope; current; current = current.parent) {
       if (current.names.has(name)) {
@@ -291,6 +369,16 @@ class ReferenceCollector {
     }
   }
 
+  /** Visits a function nested in the walked source. */
+  #visitNestedFunction(node: AstNode, scope: Scope | null): void {
+    const ownThis = node.type !== 'ArrowFunctionExpression';
+    this.#functions += 1;
+    this.#thisFunctions += ownThis ? 1 : 0;
+    this.visitFunction(node, scope);
+    this.#functions -= 1;
+    this.#thisFunctions -= ownThis ? 1 : 0;
+  }
+
   visitFunction(node: AstNode, scope: Scope | null): void {
     const names = new Set<string>();
     const id = child(node, 'id');
@@ -311,13 +399,17 @@ class ReferenceCollector {
 
     const body = child(node, 'body');
     if (body?.type === 'BlockStatement') {
-      this.#visitStatements(nodes(field(body, 'body')), inner);
+      this.visitStatements(nodes(field(body, 'body')), inner);
     } else if (body) {
       this.#visit(body, inner);
     }
   }
 
-  #visitStatements(statements: readonly AstNode[], parent: Scope | null): void {
+  visitExpression(node: AstNode, scope: Scope | null): void {
+    this.#visit(node, scope);
+  }
+
+  visitStatements(statements: readonly AstNode[], parent: Scope | null): void {
     const scope = this.#lexicalScope(statements, parent);
     for (const statement of statements) {
       this.#visit(statement, scope);
@@ -358,6 +450,10 @@ class ReferenceCollector {
         this.#reference(node, scope, false, false);
         return;
       case 'MemberExpression':
+        if (child(node, 'property')?.type === 'PrivateIdentifier') {
+          this.#privateMember(node, scope);
+          return;
+        }
         this.#visitChildren(
           node,
           field(node, 'computed') === true
@@ -365,6 +461,35 @@ class ReferenceCollector {
             : ['object'],
           scope,
         );
+        return;
+      case 'BinaryExpression': {
+        const left = child(node, 'left')!;
+        if (left.type === 'PrivateIdentifier') {
+          this.#refusePrivateName(nameOf(left), left.start);
+        }
+        this.#visitChildren(node, ['left', 'right'], scope);
+        return;
+      }
+      case 'Super':
+        this.#fail(
+          "super is the component's base, not the trait's bound",
+          node.start,
+        );
+        return;
+      case 'MetaProperty':
+        this.#fail(
+          `${nameOf(child(node, 'meta')!)}.${nameOf(child(node, 'property')!)} means something else in the component`,
+          node.start,
+        );
+        return;
+      case 'ReturnStatement':
+        if (this.#kind === 'constructor' && this.#functions === 0) {
+          this.#fail(
+            "a constructor returns, which would end the component's constructor",
+            node.start,
+          );
+        }
+        this.#visitChildren(node, ['argument'], scope);
         return;
       case 'ObjectExpression':
         for (const property of nodes(field(node, 'properties'))) {
@@ -385,7 +510,7 @@ class ReferenceCollector {
         return;
       case 'ArrowFunctionExpression':
       case 'FunctionExpression':
-        this.visitFunction(node, scope);
+        this.#visitNestedFunction(node, scope);
         return;
       case 'AssignmentExpression':
         this.#visitTarget(child(node, 'left')!, scope);
@@ -395,11 +520,11 @@ class ReferenceCollector {
         this.#visitTarget(child(node, 'argument')!, scope);
         return;
       case 'BlockStatement':
-        this.#visitStatements(nodes(field(node, 'body')), scope);
+        this.visitStatements(nodes(field(node, 'body')), scope);
         return;
       case 'VariableDeclaration':
         if (field(node, 'kind') === 'var') {
-          this.#fail('a member declares a var');
+          this.#fail('a member declares a var', node.start);
         }
         for (const declarator of nodes(field(node, 'declarations'))) {
           this.#visitPattern(child(declarator, 'id')!, scope);
@@ -457,6 +582,7 @@ class ReferenceCollector {
         if (!keys) {
           this.#fail(
             `a member uses ${node.type}, which the analysis doesn't model`,
+            node.start,
           );
         }
         this.#visitChildren(node, keys, scope);
@@ -466,16 +592,31 @@ class ReferenceCollector {
 }
 
 /**
- * Collects the free references of `fn`, a method's function expression, in
- * the order the walk meets them. Calls `fail` on a construct the analysis
- * doesn't model.
+ * Collects the free references and the private names of copied source, in
+ * the order the walk meets them:
+ *
+ * - a `member`'s function expression;
+ * - an `initializer`, a field's value;
+ * - a `constructor`'s statements after its `super();`, as one block.
+ *
+ * Calls `fail` on a construct the analysis doesn't model or refuses.
  */
-export function collectFreeReferences(
-  fn: AstNode,
+export function collectReferences(
+  source: AstNode | readonly AstNode[],
+  kind: SourceKind,
   fail: Fail,
-): readonly FreeReference[] {
-  const collector = new ReferenceCollector(fail);
-  collector.visitFunction(fn, null);
+): References {
+  const collector = new ReferenceCollector(fail, kind);
+  if (Array.isArray(source)) {
+    collector.visitStatements(source as readonly AstNode[], null);
+  } else if (kind === 'member') {
+    collector.visitFunction(source as AstNode, null);
+  } else {
+    collector.visitExpression(source as AstNode, null);
+  }
 
-  return collector.references;
+  return {
+    references: collector.references,
+    privateNames: collector.privateNames,
+  };
 }

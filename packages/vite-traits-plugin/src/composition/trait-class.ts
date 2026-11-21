@@ -1,19 +1,30 @@
 /**
  * Normalizes a trait class into Trait IR: its brand, its methods and accessors
- * as copyable members, and its static value fields with their kinds. Every
- * name a member reads that crosses a module boundary becomes a link.
+ * as copyable members, its private fields and its constructor's body, and its
+ * static value fields with their kinds. Every name copied source reads that
+ * crosses a module boundary becomes a link, and every private name in it is
+ * recorded for renaming.
  */
+import { createHash } from 'node:crypto';
 import { dirname, join, relative } from 'node:path';
 import type {
-  ClassElement,
   Expression,
   MethodDefinition,
   Program,
+  PropertyDefinition,
+  Statement,
 } from '@oxc-project/types';
 import { CODE, fail } from '../diagnostics.ts';
-import { collectFreeReferences } from '../free-references.ts';
+import {
+  collectReferences,
+  type Fail,
+  type References,
+} from '../free-references.ts';
 import type {
   BindingRef,
+  ConstructorIR,
+  CopiedSourceIR,
+  FieldIR,
   MemberIR,
   MemberLinkIR,
   StaticIR,
@@ -267,61 +278,35 @@ export type TraitRef = Readonly<{
   cls: TopClass;
 }>;
 
-/** Whether a member's body reads a private name, which can't be copied. */
-function readsPrivateName(element: ClassElement): boolean {
-  let reads = false;
-  walk(element, (node) => {
-    if (node.type === 'PrivateIdentifier') {
-      reads = true;
-    }
-  });
-
-  return reads;
-}
-
-/** One copyable member: a method or an accessor half, static or not. */
-function normalizeMember(
+/**
+ * Copied source's links, globals and private names, from what the walk found
+ * in it, with offsets from `base`, the source's start in its module.
+ */
+function copiedSource(
   ref: TraitRef,
-  element: MethodDefinition,
   link: Linker,
   local: boolean,
-): MemberIR {
-  const where = `${ref.name}.${staticKeyName(element.key, element.computed) ?? '[computed]'}`;
-  const refuse = (detail: string): never =>
-    fail(CODE.TRAIT_MEMBER, `${where}: ${detail}`, element.start);
-
-  if (element.kind === 'constructor') {
-    refuse('a trait has no constructor');
-  }
-  if (element.decorators.length > 0) {
-    refuse('a member has a decorator');
-  }
-  const key =
-    element.key.type === 'PrivateIdentifier'
-      ? undefined
-      : staticKeyName(element.key, element.computed);
-  if (key === undefined) {
-    return refuse('its key is private or computed');
-  }
-  if (readsPrivateName(element)) {
-    refuse('it reads a private name');
-  }
-
-  const references = collectFreeReferences(element.value, refuse);
+  base: number,
+  found: References,
+  refuse: Fail,
+): CopiedSourceIR {
   const className = ref.cls.node.id?.name;
   const links = new Map<string, MemberLinkIR>();
   const globals = new Set<string>();
-  for (const reference of references) {
+  for (const reference of found.references) {
     const { name } = reference;
     if (name === className) {
-      refuse(`it reads ${name}, the trait class`);
+      refuse(`it reads ${name}, the trait class`, reference.start);
     }
     if (!ref.ctx.topLevel.has(name)) {
       globals.add(name);
       continue;
     }
     if (reference.write && !local) {
-      refuse(`it assigns ${name}, which an import can't assign`);
+      refuse(
+        `it assigns ${name}, which an import can't assign`,
+        reference.start,
+      );
     }
     const linked = links.get(name) ?? {
       name,
@@ -333,8 +318,8 @@ function normalizeMember(
       occurrences: [
         ...linked.occurrences,
         {
-          start: reference.start - element.start,
-          end: reference.end - element.start,
+          start: reference.start - base,
+          end: reference.end - base,
           shorthand: reference.shorthand,
         },
       ],
@@ -342,13 +327,208 @@ function normalizeMember(
   }
 
   return {
+    source: '',
+    links: [...links.values()],
+    globals: [...globals],
+    privateNames: found.privateNames.map(({ name, start, end }) => ({
+      name,
+      start: start - base,
+      end: end - base,
+    })),
+  };
+}
+
+/** A refusal of `trait-member` for the copied source `where` names. */
+function refusal(where: string, at: number): Fail {
+  return (detail, pos) =>
+    fail(CODE.TRAIT_MEMBER, `${where}: ${detail}`, pos ?? at);
+}
+
+/** One copyable member: a method or an accessor half, static or not. */
+function normalizeMember(
+  ref: TraitRef,
+  element: MethodDefinition,
+  link: Linker,
+  local: boolean,
+): MemberIR {
+  const privateKey =
+    element.key.type === 'PrivateIdentifier' ? element.key : null;
+  const isPrivate = privateKey !== null;
+  const key = privateKey
+    ? privateKey.name
+    : staticKeyName(element.key, element.computed);
+  const refuse = refusal(
+    `${ref.name}.${isPrivate ? '#' : ''}${key ?? '[computed]'}`,
+    element.start,
+  );
+
+  if (element.decorators.length > 0) {
+    refuse('a member has a decorator');
+  }
+  if (key === undefined) {
+    return refuse('its key is computed');
+  }
+  if (isPrivate && element.static) {
+    refuse(
+      'a static private member would be copied into each component; keep state shared across components in a module binding',
+    );
+  }
+
+  const found = collectReferences(element.value, 'member', refuse);
+  const [own] = found.privateNames;
+  if (element.static && own) {
+    refuse(
+      `a static member reads #${own.name}, which only an instance has`,
+      own.start,
+    );
+  }
+  const copied = copiedSource(ref, link, local, element.start, found, refuse);
+
+  return {
+    ...copied,
+    source: ref.ctx.code.slice(element.start, element.end),
+    privateNames: privateKey
+      ? [
+          {
+            name: key,
+            start: privateKey.start - element.start,
+            end: privateKey.end - element.start,
+          },
+          ...copied.privateNames,
+        ]
+      : copied.privateNames,
     key,
     kind: element.kind as MemberIR['kind'],
     static: element.static,
-    source: ref.ctx.code.slice(element.start, element.end),
-    links: [...links.values()],
-    globals: [...globals],
+    private: isPrivate,
   };
+}
+
+/**
+ * A private instance field. Its initializer reads no `this`, in an arrow
+ * function or a nested function either, so its value can't depend on a field
+ * or a constructor.
+ */
+function normalizeField(
+  ref: TraitRef,
+  element: PropertyDefinition & { key: { type: 'PrivateIdentifier' } },
+  link: Linker,
+  local: boolean,
+): FieldIR {
+  const { name } = element.key;
+  const refuse = refusal(`${ref.name}.#${name}`, element.start);
+
+  if (element.decorators.length > 0) {
+    refuse('a field has a decorator');
+  }
+  let found: References = { references: [], privateNames: [] };
+  if (element.value) {
+    walk(element.value, (node) => {
+      if (node.type === 'ThisExpression' || node.type === 'Super') {
+        refuse(
+          `its initializer reads ${node.type === 'Super' ? 'super' : 'this'}; a trait's field initializer has none, so set the field up in the constructor`,
+          node.start,
+        );
+      }
+    });
+    found = collectReferences(element.value, 'initializer', refuse);
+  }
+  const copied = copiedSource(ref, link, local, element.start, found, refuse);
+
+  return {
+    ...copied,
+    source: ref.ctx.code.slice(element.start, element.end),
+    privateNames: [
+      {
+        name,
+        start: element.key.start - element.start,
+        end: element.key.end - element.start,
+      },
+      ...copied.privateNames,
+    ],
+    name,
+  };
+}
+
+/** Whether `statement` is `super(…);`. */
+function isSuperStatement(statement: Statement | undefined): boolean {
+  return (
+    statement?.type === 'ExpressionStatement' &&
+    statement.expression.type === 'CallExpression' &&
+    statement.expression.callee.type === 'Super'
+  );
+}
+
+/**
+ * The trait's `constructor() { super(); … }`. Its body, without `super();`,
+ * runs in the component's constructor after the component's `super(…)`.
+ */
+function normalizeConstructor(
+  ref: TraitRef,
+  element: MethodDefinition,
+  link: Linker,
+  local: boolean,
+): ConstructorIR {
+  const refuse = refusal(`${ref.name}.constructor`, element.start);
+  const { value } = element;
+  const { body } = value;
+
+  if (value.type === 'TSEmptyBodyFunctionExpression' || !body) {
+    return refuse('a trait has one constructor and no overload signature');
+  }
+  if (element.decorators.length > 0 || element.accessibility) {
+    refuse('a constructor has no modifier');
+  }
+  const [param] = value.params;
+  if (param) {
+    refuse(
+      "a trait's constructor takes no parameters: the component's arguments go to the base",
+      param.start,
+    );
+  }
+  const [first, ...rest] = body.body;
+  if (!isSuperStatement(first)) {
+    if (rest.some((statement) => isSuperStatement(statement))) {
+      refuse(
+        "a statement comes before super(); it would run before the base's constructor",
+        first!.start,
+      );
+    }
+    refuse('the first statement is super();', body.start);
+  }
+  const call = (first as Statement & { expression: { arguments: unknown[] } })
+    .expression;
+  if (call.arguments.length > 0) {
+    refuse(
+      "super() takes no arguments: only the component's super(…) calls the base",
+      first!.start,
+    );
+  }
+
+  const found = collectReferences(rest, 'constructor', refuse);
+  const copied = copiedSource(ref, link, local, body.start, found, refuse);
+
+  return {
+    ...copied,
+    source: ref.ctx.code.slice(body.start, body.end),
+    superCall: [first!.start - body.start, first!.end - body.start],
+  };
+}
+
+/**
+ * What each private name a trait declares is renamed with: `_` and a hash of
+ * the specifier the component reaches the trait's module through and the
+ * class name, so the output doesn't depend on the checkout.
+ */
+function privateSuffix(ref: TraitRef): string {
+  const hash = createHash('sha1')
+    .update(ref.specifier)
+    .update('\0')
+    .update(ref.cls.node.id?.name ?? ref.name)
+    .digest('hex')
+    .slice(0, 8);
+
+  return `_${hash}`;
 }
 
 /** The value a static field's kind is read from when nothing declares it. */
@@ -379,6 +559,10 @@ export async function normalizeTraitClass(
   const link = linker(ctx, ref.specifier, await rebases(r, ctx), name);
   const members: MemberIR[] = [];
   const statics: StaticIR[] = [];
+  const privateFields: Array<
+    PropertyDefinition & { key: { type: 'PrivateIdentifier' } }
+  > = [];
+  let constructorBody: ConstructorIR | null = null;
   let scope: DeclarationScope | null | undefined;
 
   for (const element of cls.node.body.body) {
@@ -390,6 +574,17 @@ export async function normalizeTraitClass(
           element.start,
         );
       case 'MethodDefinition':
+        if (element.kind === 'constructor') {
+          if (constructorBody) {
+            fail(
+              CODE.TRAIT_MEMBER,
+              `${name}.constructor: a trait has one constructor and no overload signature`,
+              element.start,
+            );
+          }
+          constructorBody = normalizeConstructor(ref, element, link, local);
+          break;
+        }
         // The generated brand install is neither copied nor merged.
         if (
           element !==
@@ -404,15 +599,17 @@ export async function normalizeTraitClass(
           break;
         }
         if (!element.static) {
-          if (
-            element.key.type === 'PrivateIdentifier' &&
-            element.value === null
-          ) {
+          if (element.key.type === 'PrivateIdentifier') {
+            privateFields.push(
+              element as PropertyDefinition & {
+                key: { type: 'PrivateIdentifier' };
+              },
+            );
             break;
           }
           fail(
             CODE.TRAIT_FIELD,
-            `${name}: an instance field can't be copied; declare it, or write an accessor`,
+            `${name}: a public instance field can't be copied; make it private, declare it, or write an accessor`,
             element.start,
           );
         }
@@ -420,10 +617,17 @@ export async function normalizeTraitClass(
           break;
         }
         const key = staticKeyName(element.key, element.computed);
-        if (key === undefined || element.key.type === 'PrivateIdentifier') {
+        if (element.key.type === 'PrivateIdentifier') {
           fail(
             CODE.TRAIT_MEMBER,
-            `${name}: a static field's key is private or computed`,
+            `${name}.#${element.key.name}: a static private member would be copied into each component; keep state shared across components in a module binding`,
+            element.start,
+          );
+        }
+        if (key === undefined) {
+          fail(
+            CODE.TRAIT_MEMBER,
+            `${name}: a static field's key is computed`,
             element.start,
           );
         }
@@ -476,11 +680,25 @@ export async function normalizeTraitClass(
       : { specifier: ref.specifier, exportName };
   }
 
+  // A private field that nothing of its trait references can't be observed,
+  // so it isn't copied: `#brand!: true` stays a type-only brand.
+  const referenced = new Set(
+    [...members, ...(constructorBody ? [constructorBody] : [])].flatMap(
+      ({ privateNames }) => privateNames.map((each) => each.name),
+    ),
+  );
+  const fields = privateFields
+    .filter((element) => referenced.has(element.key.name))
+    .map((element) => normalizeField(ref, element, link, local));
+
   return {
     name,
     brand,
     members,
     statics,
+    fields,
+    constructorBody,
+    privateSuffix: privateSuffix(ref),
   };
 }
 

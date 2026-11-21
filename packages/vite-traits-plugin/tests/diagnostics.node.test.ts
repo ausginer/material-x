@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -78,19 +79,9 @@ describe('build errors', () => {
       `class Plain {}\n${component('typeof Plain')}`,
     ],
     [
-      'a trait with a constructor',
-      CODE.TRAIT_MEMBER,
-      `${traitClass('Made', '  constructor() { super(); }')}${component('typeof Made')}`,
-    ],
-    [
       'a trait member that uses super',
       CODE.TRAIT_MEMBER,
       `${traitClass('Calls', '  run(): unknown { return super.toString(); }')}${component('typeof Calls')}`,
-    ],
-    [
-      'a trait member that reads a private name',
-      CODE.TRAIT_MEMBER,
-      `${traitClass('Private', '  #secret!: number;\n  run(): number { return this.#secret; }')}${component('typeof Private')}`,
     ],
     [
       'an empty trait static block',
@@ -390,6 +381,397 @@ describe('build errors', () => {
         },
       ),
     ).rejects.toMatchObject({ code: CODE.TRAIT_BINDING_SHADOWED });
+  });
+});
+
+/** A trait with a constructor, which turns on the component's rules. */
+const MADE = traitClass('Made', '  constructor() {\n    super();\n  }');
+
+/**
+ * The cases of `code`, each a body after the header and the marker the
+ * diagnostic's position is at: its first occurrence, or its last when the
+ * case says so.
+ */
+type PositionCase = readonly [string, string, string, 'last'?];
+
+/** Each case fails the build with `code` at its marker. */
+function itFailsAt(code: string, cases: readonly PositionCase[]): void {
+  const positioned = cases.map(
+    ([name, body, marker, which]): readonly [string, string, number] => [
+      name,
+      body,
+      which === 'last' ? body.lastIndexOf(marker) : body.indexOf(marker),
+    ],
+  );
+
+  it.each(positioned)(
+    'should fail the build at the token for %s',
+    async (_, body, offset) => {
+      await expect(run(body)).rejects.toMatchObject({
+        code,
+        pos: HEADER.length + offset,
+      });
+    },
+  );
+}
+
+describe("a trait's private members", () => {
+  describe('trait-field', () => {
+    itFailsAt(CODE.TRAIT_FIELD, [
+      [
+        'a public instance field',
+        `${traitClass('Counted', '  count = 0;')}${component('typeof Counted')}`,
+        'count = 0',
+      ],
+    ]);
+  });
+
+  describe('trait-member', () => {
+    const reads = (body: string): string =>
+      `${traitClass('Private', `  #x = 1;\n${body}`)}${component('typeof Private')}`;
+    const initialized = (value: string): string =>
+      `${traitClass('Private', `  #x = ${value};\n  get x(): unknown { return this.#x; }`)}${component('typeof Private')}`;
+
+    itFailsAt(CODE.TRAIT_MEMBER, [
+      [
+        'a static private field',
+        `${traitClass('Registry', '  static #registry = new Map();')}${component('typeof Registry')}`,
+        'static #registry',
+      ],
+      [
+        'a static private method',
+        `${traitClass('Maker', '  static #make(): number { return 1; }')}${component('typeof Maker')}`,
+        'static #make',
+      ],
+      [
+        "another object's private name",
+        reads(
+          '  same(other: Private): boolean { return other.#x === this.#x; }',
+        ),
+        '#x ===',
+      ],
+      [
+        'a private name in an in test',
+        reads('  has(o: object): boolean { return #x in o; }'),
+        '#x in o',
+      ],
+      [
+        'this.#x in a nested function',
+        reads(
+          '  run(): unknown { return [1].map(function (this: Private) { return this.#x; }); }',
+        ),
+        '#x; }',
+      ],
+      ['super in an initializer', initialized('super.toString()'), 'super'],
+      [
+        'arguments in an initializer',
+        initialized('arguments.length'),
+        'arguments',
+      ],
+      ['this in an initializer', initialized('this.constructor'), 'this'],
+      [
+        'this in an arrow function in an initializer',
+        initialized('() => this'),
+        'this',
+      ],
+      [
+        'this in a nested function in an initializer',
+        initialized('function (this: unknown) { return this; }'),
+        'this;',
+      ],
+      [
+        'an initializer the walker does not model',
+        initialized('class {}'),
+        'class {}',
+      ],
+      [
+        'this.#x in a static member',
+        reads('  static peek(o: Private): unknown { return this.#x; }'),
+        '#x; }',
+      ],
+    ]);
+  });
+
+  it('should fail the build for a renamed name that the component already declares', async () => {
+    const hash = createHash('sha1')
+      .update('')
+      .update('\0')
+      .update('Private')
+      .digest('hex')
+      .slice(0, 8);
+
+    await expect(
+      run(
+        `${traitClass('Private', '  #x = 1;\n  get x(): number { return this.#x; }')}${component('typeof Private', `  #x_${hash} = 2;`)}`,
+      ),
+    ).rejects.toMatchObject({ code: CODE.TRAIT_BINDING_SHADOWED });
+  });
+
+  it('should leave an unreferenced private field out of the component', async () => {
+    const { code } = await run(
+      `${traitClass('Branded', '  #brand!: true;\n  get on(): boolean {\n    return true;\n  }')}${component('typeof Branded')}`,
+    );
+
+    expect(code.slice(code.indexOf('export class Foo'))).toBe(
+      'export class Foo extends Base {\n  get on(): boolean {\n    return true;\n  }\n  static {\n    __mxflat_impl(this, $branded);\n  }\n\n\n}\n',
+    );
+  });
+});
+
+describe("a trait's constructor", () => {
+  const made = (body: string): string =>
+    `${traitClass('Made', `  ${body}`)}${component('typeof Made')}`;
+
+  describe('trait-member', () => {
+    itFailsAt(CODE.TRAIT_MEMBER, [
+      ['a parameter', made('constructor(x: number) { super(); }'), 'x: number'],
+      [
+        'a parameter property',
+        made('constructor(readonly x: number) { super(); }'),
+        'readonly x',
+      ],
+      [
+        'no first super()',
+        made('constructor() { console.log(1); }'),
+        '{ console',
+      ],
+      [
+        'super() with an argument',
+        made('constructor() { super(1); }'),
+        'super(1)',
+      ],
+      [
+        'a statement before super()',
+        made('constructor() { console.log(1); super(); }'),
+        'console.log(1); super',
+      ],
+      [
+        'a second super',
+        made('constructor() { super(); super(); }'),
+        'super',
+        'last',
+      ],
+      [
+        'arguments',
+        made('constructor() { super(); console.log(arguments); }'),
+        'arguments',
+      ],
+      [
+        'new.target',
+        made('constructor() { super(); console.log(new.target); }'),
+        'new.target',
+      ],
+      ['a bare return', made('constructor() { super(); return; }'), 'return;'],
+      [
+        'return with a value',
+        made('constructor() { super(); return {}; }'),
+        'return {}',
+      ],
+    ]);
+  });
+
+  it("should accept a return in a nested function of a trait's constructor", async () => {
+    await expect(
+      run(
+        made(
+          'constructor() { super(); const f = (): number => { return 1; }; const g = function (): number { return 2; }; f(); g(); }',
+        ),
+      ),
+    ).resolves.toBeDefined();
+  });
+
+  describe('component-constructor', () => {
+    const over = (body: string): string =>
+      `${MADE}${component('typeof Made', `  ${body}`)}`;
+
+    itFailsAt(CODE.COMPONENT_CONSTRUCTOR, [
+      ['no super() call', over('constructor() {}'), 'constructor() {}', 'last'],
+      [
+        'two super() calls',
+        over('constructor() { super(); super(); }'),
+        'super()',
+        'last',
+      ],
+      [
+        'a super() call in each branch of an if',
+        over(
+          'constructor(flag: boolean) { if (flag) { super(); } else { super(); } }',
+        ),
+        'super()',
+        'last',
+      ],
+      [
+        'a super() call in an arrow function',
+        over('constructor() { const f = () => super(); f(); }'),
+        'super()',
+        'last',
+      ],
+      [
+        'a super() call in a sequence',
+        over('constructor() { super(), (this.x = 1); }'),
+        'super()',
+        'last',
+      ],
+      [
+        'a super() call in a declaration',
+        over('constructor() { const self = super(); }'),
+        'super()',
+        'last',
+      ],
+    ]);
+  });
+
+  it("should fail the build for a body that reads a name the component's constructor binds", async () => {
+    await expect(
+      run(
+        `${traitClass('Queued', '  constructor() {\n    super();\n    queueMicrotask(() => {});\n  }')}${component('typeof Queued', '  constructor(queueMicrotask: unknown) {\n    super();\n  }')}`,
+      ),
+    ).rejects.toMatchObject({ code: CODE.TRAIT_BINDING_SHADOWED });
+  });
+
+  describe('trait-list', () => {
+    it('should fail the build for a trait with a constructor that a source base already composes', async () => {
+      await expect(
+        run(
+          `${MADE}const InnerBase: Composed<typeof Base, [typeof Made]> = compose(Base);\nexport class Inner extends InnerBase {}\nconst FooBase: Composed<typeof Inner, [typeof Made]> = compose(Inner);\nexport class Foo extends FooBase {}\n`,
+        ),
+      ).rejects.toMatchObject({ code: CODE.TRAIT_LIST });
+    });
+
+    it('should fail the build for a trait with a constructor that a built base already composes', async () => {
+      await expect(
+        run(
+          `import type { Stateful } from '@fixture/forwarding/stateful.mjs';\nimport { BuiltBase } from '@fixture/forwarding/built-base.mjs';\nconst FooBase: Composed<typeof BuiltBase, [typeof Stateful]> = compose(BuiltBase);\nexport class Foo extends FooBase {}\n`,
+          {
+            // A flattened component as its package's build emits it.
+            'packages/forwarding/built-base.mjs': [
+              "import { impl as __mxflat_impl } from '@ydinjs/core/traits/composition.js';",
+              "import { $stateful as __mxflat_lnk_35ace9d8 } from './stateful.mjs';",
+              'class BuiltBase {',
+              '  static {',
+              '    __mxflat_impl(this, __mxflat_lnk_35ace9d8);',
+              '  }',
+              '}',
+              'export { BuiltBase };',
+            ].join('\n'),
+          },
+        ),
+      ).rejects.toMatchObject({ code: CODE.TRAIT_LIST });
+    });
+
+    it("should fail the build for a trait with a constructor over a chain it can't read", async () => {
+      await expect(
+        run(
+          `${MADE}const Mixed = ((base: typeof Base) => base)(Base);\nconst FooBase: Composed<typeof Mixed, [typeof Made]> = compose(Mixed);\nexport class Foo extends FooBase {}\n`,
+        ),
+      ).rejects.toMatchObject({ code: CODE.TRAIT_LIST });
+    });
+
+    it('should accept a trait with only an unreferenced private field that the base composes', async () => {
+      const branded = traitClass(
+        'Branded',
+        '  #brand!: true;\n  get on(): boolean {\n    return true;\n  }',
+      );
+
+      await expect(
+        run(
+          `${branded}const InnerBase: Composed<typeof Base, [typeof Branded]> = compose(Base);\nexport class Inner extends InnerBase {}\nconst FooBase: Composed<typeof Inner, [typeof Branded]> = compose(Inner);\nexport class Foo extends FooBase {}\n`,
+        ),
+      ).resolves.toBeDefined();
+    });
+  });
+
+  it("should drop super() and put one block per body after the component's super()", async () => {
+    const { code } = await run(
+      `${MADE}${traitClass('Other', "  constructor() {\n    super();\n    console.log('other');\n  }")}${component('typeof Made, typeof Other', "  constructor() {\n    super();\n    console.log('own');\n  }")}`,
+    );
+
+    expect(code.slice(code.indexOf('export class Foo'))).toBe(
+      "export class Foo extends Base {\n  static {\n    __mxflat_impl(this, $made, $other);\n  }\n\n  constructor() {\n    super();\n    {\n    }\n    {\n    console.log('other');\n  }\n    console.log('own');\n  }\n}\n",
+    );
+  });
+
+  it("should leave the component's constructor as it is when no trait has a constructor", async () => {
+    const own = '  constructor() {\n    super();\n    console.log(this);\n  }';
+    const { code } = await run(
+      `${traitClass('Private', '  #x = 1;\n  get x(): number { return this.#x; }')}${component('typeof Private', own)}`,
+    );
+
+    expect(code).toContain(`\n${own}\n}`);
+  });
+});
+
+describe("a component's field initializers", () => {
+  const over = (traits: string, body: string): string =>
+    `${MADE}${component(traits, `  ${body}`)}`;
+
+  describe('component-field', () => {
+    itFailsAt(CODE.COMPONENT_FIELD, [
+      [
+        'this directly',
+        over('typeof Made', 'readonly x = this.constructor;'),
+        'this',
+        'last',
+      ],
+      [
+        'this in an arrow function',
+        over('typeof Made', 'readonly onClick = () => this.toString();'),
+        'this',
+        'last',
+      ],
+      [
+        'this in an arrow function that a callee calls',
+        over('typeof Made', 'readonly names = [1].map(() => this.toString());'),
+        'this',
+        'last',
+      ],
+      [
+        'this in a nested function',
+        over(
+          'typeof Made',
+          'readonly f = function (this: unknown) { return this; };',
+        ),
+        'this;',
+      ],
+      [
+        'this in an object method',
+        over('typeof Made', 'readonly o = { m(): unknown { return this; } };'),
+        'this;',
+      ],
+      [
+        'super.method()',
+        over('typeof Made', 'readonly s = super.toString();'),
+        'super.toString',
+      ],
+      [
+        "this in an accessor field's initializer",
+        over('typeof Made', 'accessor a = this.toString();'),
+        'this',
+        'last',
+      ],
+    ]);
+  });
+
+  it('should accept an initializer without this or super, and a static field that reads this', async () => {
+    await expect(
+      run(
+        over(
+          'typeof Made',
+          'readonly cache = new Map();\n  static self = this;',
+        ),
+      ),
+    ).resolves.toBeDefined();
+  });
+
+  it('should keep a this initializer as it is when no trait has a constructor', async () => {
+    const { code } = await run(
+      component(
+        'typeof Checkable',
+        '  readonly onClick = () => this.toString();',
+      ),
+    );
+
+    expect(code).toContain('  readonly onClick = () => this.toString();');
   });
 });
 
