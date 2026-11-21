@@ -111,13 +111,6 @@ export default class SortableList extends SortableListConstructor {
   constructor() {
     super();
     useListCore(this);
-    // Each item that resolves this list as its parent applies its sortable
-    // semantics to its own elements, with the writer the value carries. The
-    // list keeps no registry and queries no item.
-    useProvider(this, SORTABLE_LIST_CTX, (host, control) =>
-      sortItem(this, host, control),
-    );
-
     const live = document.createElement('div');
     live.setAttribute('aria-live', 'polite');
     // Visually hidden and exposed to assistive technology. No stylesheet of
@@ -198,7 +191,7 @@ export default class SortableList extends SortableListConstructor {
       },
     };
 
-    useSlot(this, slot, () => {
+    const refresh = (): void => {
       const current = read();
 
       if (
@@ -208,7 +201,23 @@ export default class SortableList extends SortableListConstructor {
         items = current;
         controller?.invalidate();
       }
+    };
 
+    // Each item that resolves this list as its parent applies its sortable
+    // semantics to its own elements, with the writer the value carries. The
+    // list keeps no registry and queries no item. An item that upgrades after
+    // the list's last slot change isn't in the collection yet, because an
+    // upgrade fires no `slotchange`, so its lookup reads the slot again.
+    useProvider(this, SORTABLE_LIST_CTX, (host, control) => {
+      if (!items.includes(host as ControlledElement)) {
+        refresh();
+      }
+
+      return sortItem(this, host, control);
+    });
+
+    useSlot(this, slot, () => {
+      refresh();
       commit?.();
     });
 

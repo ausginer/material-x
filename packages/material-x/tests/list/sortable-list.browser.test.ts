@@ -1,5 +1,5 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
@@ -981,35 +981,124 @@ describe('mx-sortable-list definition order', () => {
    */
   async function parseThenDefine(
     modules: readonly string[],
-  ): Promise<HTMLElement> {
+    labels: readonly string[] = ['A'],
+  ): Promise<readonly [HTMLIFrameElement, HTMLElement]> {
     const frame = document.createElement('iframe');
+    frame.style.height = '400px';
     const urls = modules.map(
       (name) => new URL(`../../src/list/${name}`, import.meta.url).href,
     );
-    frame.srcdoc = `<mx-sortable-list><mx-list-item>A</mx-list-item></mx-sortable-list>
+    const items = labels
+      .map((label) => `<mx-list-item>${label}</mx-list-item>`)
+      .join('');
+    frame.srcdoc = `<mx-sortable-list style="--_drag-duration:0s">${items}</mx-sortable-list>
 <script type="module">
 for (const url of ${JSON.stringify(urls)}) await import(url);
 document.body.dataset.ready = '';
 </script>`;
     document.body.append(frame);
+    onTestFinished(() => frame.remove());
     await expect
       .poll(() => frame.contentDocument?.body.dataset['ready'], {
         timeout: 10_000,
       })
       .toBe('');
     await nextFrame();
-    return frame.contentDocument!.querySelector('mx-list-item')!;
+    return [frame, frame.contentDocument!.querySelector('mx-sortable-list')!];
+  }
+
+  /** Records each proposed move as `[from, to]` and commits it. */
+  function recordMoves(list: HTMLElement): Array<readonly [number, number]> {
+    const moves: Array<readonly [number, number]> = [];
+    list.addEventListener('reorder', (event) => {
+      const { item, next, from, to } = event as ReorderEvent;
+      moves.push([from, to]);
+      list.insertBefore(item, next);
+    });
+    return moves;
+  }
+
+  /** The center of `element` inside `frame`, in the test page's viewport. */
+  function centerIn(
+    frame: HTMLIFrameElement,
+    element: HTMLElement,
+  ): readonly [number, number] {
+    const { left, top } = frame.getBoundingClientRect();
+    const [x, y] = centerOf(element);
+    return [left + frame.clientLeft + x, top + frame.clientTop + y];
+  }
+
+  async function moveByKeyboard(
+    modules: readonly string[],
+  ): Promise<ReadonlyArray<readonly [number, number]>> {
+    const [, list] = await parseThenDefine(modules, ['A', 'B']);
+    const moves = recordMoves(list);
+    (list.firstElementChild as HTMLElement).focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => moves.length).toBe(1);
+    return moves;
+  }
+
+  async function moveByPointer(
+    modules: readonly string[],
+  ): Promise<ReadonlyArray<readonly [number, number]>> {
+    const [frame, list] = await parseThenDefine(modules, ['A', 'B']);
+    const moves = recordMoves(list);
+    const [a, b] = [...list.children].map((item) =>
+      visualOf(item as HTMLElement),
+    );
+    const [x, y] = centerIn(frame, a!);
+    await commands.pointerPress(x, y);
+    await commands.pointerMove(x, y + 12, 3);
+    await commands.pointerMove(x, centerIn(frame, b!)[1] + 10, 8);
+    await commands.pointerRelease();
+    await expect.poll(() => moves.length).toBe(1);
+    return moves;
   }
 
   it('should make a static item a tab stop when sortable-list.js is evaluated first', async () => {
-    const a = await parseThenDefine(['sortable-list.ts', 'list-item.ts']);
+    const [, list] = await parseThenDefine([
+      'sortable-list.ts',
+      'list-item.ts',
+    ]);
 
-    expect(visualOf(a).getAttribute('tabindex')).toBe('0');
+    expect(
+      visualOf(list.firstElementChild as HTMLElement).getAttribute('tabindex'),
+    ).toBe('0');
   });
 
   it('should make a static item a tab stop when list-item.js is evaluated first', async () => {
-    const a = await parseThenDefine(['list-item.ts', 'sortable-list.ts']);
+    const [, list] = await parseThenDefine([
+      'list-item.ts',
+      'sortable-list.ts',
+    ]);
 
-    expect(visualOf(a).getAttribute('tabindex')).toBe('0');
+    expect(
+      visualOf(list.firstElementChild as HTMLElement).getAttribute('tabindex'),
+    ).toBe('0');
+  });
+
+  it('should move a static item by keyboard when sortable-list.js is evaluated first', async () => {
+    expect(await moveByKeyboard(['sortable-list.ts', 'list-item.ts'])).toEqual([
+      [0, 1],
+    ]);
+  });
+
+  it('should move a static item by keyboard when list-item.js is evaluated first', async () => {
+    expect(await moveByKeyboard(['list-item.ts', 'sortable-list.ts'])).toEqual([
+      [0, 1],
+    ]);
+  });
+
+  it('should move a static item by pointer when sortable-list.js is evaluated first', async () => {
+    expect(await moveByPointer(['sortable-list.ts', 'list-item.ts'])).toEqual([
+      [0, 1],
+    ]);
+  });
+
+  it('should move a static item by pointer when list-item.js is evaluated first', async () => {
+    expect(await moveByPointer(['list-item.ts', 'sortable-list.ts'])).toEqual([
+      [0, 1],
+    ]);
   });
 });
