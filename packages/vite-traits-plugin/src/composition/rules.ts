@@ -8,11 +8,25 @@
  * takes the later trait's member, as object assignment does; the warning
  * names the pair unless the component declares the key itself.
  */
-import type { Class, Program } from '@oxc-project/types';
+import type {
+  Class,
+  MethodDefinition,
+  Node,
+  Program,
+  Statement,
+} from '@oxc-project/types';
 import { CODE, fail, type FlattenerWarning } from '../diagnostics.ts';
-import type { MemberIR, StaticKind, TraitIR } from '../ir.ts';
+import { addPatternNames } from '../free-references.ts';
+import type {
+  ConstructorIR,
+  CopiedSourceIR,
+  MemberIR,
+  StaticKind,
+  TraitIR,
+} from '../ir.ts';
 import { staticKeyName, unwrapTS, walk } from '../syntax.ts';
 import { canCopy } from './copy.ts';
+import { linkLocal, type ConstructorSite } from './lower.ts';
 import type { ModuleCtx, TraitRef } from './trait-class.ts';
 
 type Slot = 'accessor' | 'method' | 'value';
@@ -82,6 +96,20 @@ export function componentLayer(consumer: Class): Readonly<{
   return { members, declared };
 }
 
+/** A trait's members with a public key: a renamed private name never conflicts. */
+function publicMembers(trait: TraitIR): readonly MemberIR[] {
+  return trait.members.filter((member) => !member.private);
+}
+
+/** Every piece of source a trait's copy carries. */
+function copiedSources(trait: TraitIR): readonly CopiedSourceIR[] {
+  return [
+    ...trait.members,
+    ...trait.fields,
+    ...(trait.constructorBody ? [trait.constructorBody] : []),
+  ];
+}
+
 /** The warning for a key that two traits supply. */
 function conflict(
   earlier: string,
@@ -136,7 +164,7 @@ export function checkLayers(
 
   const simple = new Map<string, string>();
   for (const trait of traits) {
-    enter(layer(trait.members), trait.name);
+    enter(layer(publicMembers(trait)), trait.name);
     for (const value of trait.statics) {
       const slot = slotKey({ key: value.key, static: true });
       if (value.kind !== 'simple') {
@@ -153,7 +181,7 @@ export function checkLayers(
 
   const traitKeys = new Set(
     traits.flatMap((trait) => [
-      ...trait.members.map((member) => member.key),
+      ...publicMembers(trait).map((member) => member.key),
       ...trait.statics.map((value) => value.key),
     ]),
   );
@@ -265,7 +293,7 @@ export function checkMemberScope(
 ): void {
   const globals = new Set<string>();
   const kept = new Set<string>();
-  for (const member of traits.flatMap((trait) => trait.members)) {
+  for (const member of traits.flatMap(copiedSources)) {
     for (const name of member.globals) {
       globals.add(name);
       kept.add(name);
@@ -313,14 +341,290 @@ export function checkLanguages(
 ): void {
   traits.forEach((trait, index) => {
     const originId = refs[index]!.ctx.id;
-    for (const member of trait.members) {
-      if (!canCopy(member.source, originId, consumerId)) {
+    const copied = [
+      ...trait.members.map(
+        (member) =>
+          [`${member.private ? '#' : ''}${member.key}`, member.source] as const,
+      ),
+      ...trait.fields.map((field) => [`#${field.name}`, field.source] as const),
+      ...(trait.constructorBody
+        ? [
+            [
+              'constructor',
+              `constructor() ${withoutSuperCall(trait.constructorBody)}`,
+            ] as const,
+          ]
+        : []),
+    ];
+    for (const [key, source] of copied) {
+      if (!canCopy(source, originId, consumerId)) {
         fail(
           CODE.TRAIT_SOURCE_LANGUAGE,
-          `${trait.name}.${member.key} doesn't parse to the same tree in ${originId.split('.').at(-1)} and ${consumerId.split('.').at(-1)}`,
+          `${trait.name}.${key} doesn't parse to the same tree in ${originId.split('.').at(-1)} and ${consumerId.split('.').at(-1)}`,
           pos,
         );
       }
     }
   });
+}
+
+/** A constructor's body without its `super();`, as the component runs it. */
+function withoutSuperCall(body: ConstructorIR): string {
+  const [start, end] = body.superCall;
+
+  return body.source.slice(0, start) + body.source.slice(end);
+}
+
+/**
+ * Whether a second copy of `trait` in one instance would break it: it has a
+ * constructor, whose body would run twice, or private instance members, which
+ * a second set would duplicate.
+ */
+export function copiesInstanceState(trait: TraitIR): boolean {
+  return (
+    trait.constructorBody !== null ||
+    trait.fields.length > 0 ||
+    trait.members.some((member) => member.private)
+  );
+}
+
+/**
+ * Fails when a trait's renamed private name equals another private name the
+ * component's class body declares: the component's own, or another trait's.
+ */
+export function checkPrivateNames(
+  consumer: Class,
+  traits: readonly TraitIR[],
+  pos: number,
+): void {
+  const declared = new Map<string, string>();
+  for (const element of consumer.body.body) {
+    if ('key' in element && element.key.type === 'PrivateIdentifier') {
+      declared.set(element.key.name, 'the component');
+    }
+  }
+  for (const trait of traits) {
+    const names = new Set([
+      ...trait.fields.map((field) => field.name),
+      ...trait.members
+        .filter((member) => member.private)
+        .map((member) => member.key),
+    ]);
+    for (const name of names) {
+      const renamed = `${name}${trait.privateSuffix}`;
+      const other = declared.get(renamed);
+      if (other !== undefined) {
+        fail(
+          CODE.TRAIT_BINDING_SHADOWED,
+          `${trait.name}'s #${name} is renamed #${renamed}, which ${other} already declares`,
+          pos,
+        );
+      }
+      declared.set(renamed, `trait ${trait.name}`);
+    }
+  }
+}
+
+/** Whether any trait of the list has a constructor. */
+function hasTraitConstructor(traits: readonly TraitIR[]): boolean {
+  return traits.some((trait) => trait.constructorBody !== null);
+}
+
+/**
+ * Fails when an instance field initializer of the component references `this`
+ * or `super` while the list has a trait with a constructor: the initializer
+ * runs before every trait's constructor body, so what it reads isn't set up
+ * yet. An arrow function and a nested function count, because a callee can
+ * call one at once.
+ */
+export function checkComponentFields(
+  consumer: Class,
+  traits: readonly TraitIR[],
+): void {
+  if (!hasTraitConstructor(traits)) {
+    return;
+  }
+  for (const element of consumer.body.body) {
+    if (
+      (element.type !== 'PropertyDefinition' &&
+        element.type !== 'AccessorProperty') ||
+      element.static ||
+      !element.value
+    ) {
+      continue;
+    }
+    walk(element.value, (node) => {
+      if (node.type === 'ThisExpression' || node.type === 'Super') {
+        fail(
+          CODE.COMPONENT_FIELD,
+          `the component's field initializer reads ${node.type === 'Super' ? 'super' : 'this'}, before the traits' constructors run; initialize the field in the constructor, after super(…)`,
+          node.start,
+        );
+      }
+    });
+  }
+}
+
+/** Whether `statement` is `super(…);`. */
+function isSuperStatement(statement: Statement): boolean {
+  return (
+    statement.type === 'ExpressionStatement' &&
+    statement.expression.type === 'CallExpression' &&
+    statement.expression.callee.type === 'Super'
+  );
+}
+
+/** Adds each name a `var` declares inside `root`, outside nested functions. */
+function addVarNames(root: Node, into: Set<string>): void {
+  const refuse = (): never => {
+    throw new Error('unreachable');
+  };
+  const visit = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    if (!node || typeof node !== 'object') {
+      return;
+    }
+    const { type } = node as { type?: unknown };
+    if (
+      type === 'FunctionDeclaration' ||
+      type === 'FunctionExpression' ||
+      type === 'ArrowFunctionExpression'
+    ) {
+      return;
+    }
+    if (
+      type === 'VariableDeclaration' &&
+      (node as { kind: string }).kind === 'var'
+    ) {
+      for (const declarator of (node as { declarations: Array<{ id: Node }> })
+        .declarations) {
+        addPatternNames(declarator.id, into, refuse);
+      }
+    }
+    for (const [key, value] of Object.entries(node)) {
+      if (key !== 'type' && key !== 'start' && key !== 'end') {
+        visit(value);
+      }
+    }
+  };
+  visit(root);
+}
+
+/** The names the component's constructor binds that a block inside it sees. */
+function constructorBindings(constructor: MethodDefinition): Set<string> {
+  const names = new Set<string>();
+  const refuse = (): never => {
+    throw new Error('unreachable');
+  };
+  for (const param of constructor.value.params) {
+    addPatternNames(
+      param.type === 'TSParameterProperty' ? param.parameter : param,
+      names,
+      refuse,
+    );
+  }
+  for (const statement of constructor.value.body?.body ?? []) {
+    if (statement.type === 'VariableDeclaration') {
+      for (const declarator of statement.declarations) {
+        addPatternNames(declarator.id, names, refuse);
+      }
+    } else if (
+      (statement.type === 'FunctionDeclaration' ||
+        statement.type === 'ClassDeclaration') &&
+      statement.id
+    ) {
+      names.add(statement.id.name);
+    }
+  }
+  addVarNames(constructor.value.body as Node, names);
+
+  return names;
+}
+
+/**
+ * Where the traits' constructor bodies go, when the list has a trait with a
+ * constructor: right after the component's `super(…)` statement, or in a
+ * generated constructor when the component has none. The component's
+ * constructor has exactly one `super(…)` call, counting nested functions, as
+ * the whole expression of a statement at its top level; otherwise no single
+ * point follows every path, and it is a `component-constructor` error. A name
+ * a body reads, with its link's generated alias, may not be one the
+ * component's constructor binds: `trait-binding-shadowed`.
+ */
+export function constructorSite(
+  consumer: Class,
+  traits: readonly TraitIR[],
+  pos: number,
+): ConstructorSite | null {
+  if (!hasTraitConstructor(traits)) {
+    return null;
+  }
+  const constructor = consumer.body.body.find(
+    (element): element is MethodDefinition =>
+      element.type === 'MethodDefinition' &&
+      element.kind === 'constructor' &&
+      element.value.body !== null,
+  );
+  let site: ConstructorSite;
+  let bound: Set<string>;
+  if (constructor) {
+    const calls: number[] = [];
+    walk(constructor.value.body as Node, (node) => {
+      if (node.type === 'CallExpression' && node.callee.type === 'Super') {
+        calls.push(node.start);
+      }
+    });
+    calls.sort((a, b) => a - b);
+    if (calls.length === 0) {
+      fail(
+        CODE.COMPONENT_CONSTRUCTOR,
+        "the component's constructor calls super(…) once, so the traits' constructors run after it",
+        constructor.start,
+      );
+    }
+    if (calls.length > 1) {
+      fail(
+        CODE.COMPONENT_CONSTRUCTOR,
+        "the component's constructor calls super(…) more than once; compute the arguments first and call super(…) once",
+        calls[1],
+      );
+    }
+    const statement = constructor.value.body!.body.find(isSuperStatement);
+    if (!statement) {
+      fail(
+        CODE.COMPONENT_CONSTRUCTOR,
+        "super(…) is the whole expression of a statement at the top level of the component's constructor, so the traits' constructors run after it",
+        calls[0],
+      );
+    }
+    site = { at: statement.end };
+    bound = constructorBindings(constructor);
+  } else {
+    site = { at: null };
+    bound = new Set(['args']);
+  }
+
+  for (const trait of traits) {
+    const body = trait.constructorBody;
+    if (!body) {
+      continue;
+    }
+    const reads = [
+      ...body.globals,
+      ...body.links.map(({ name, ref }) => (ref.local ? name : linkLocal(ref))),
+    ];
+    const shadowed = reads.find((name) => bound.has(name));
+    if (shadowed !== undefined) {
+      fail(
+        CODE.TRAIT_BINDING_SHADOWED,
+        `${trait.name}'s constructor reads ${shadowed}, which the component's constructor binds`,
+        pos,
+      );
+    }
+  }
+
+  return site;
 }

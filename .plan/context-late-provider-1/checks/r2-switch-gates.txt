@@ -1,0 +1,10 @@
+# RF-69 revision 2, amendment A: gates on 76ff2d724 plus the switch order row, from packages/material-x.
+
+## MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project "browser*"
+ Test Files  42 passed (42)
+      Tests  662 passed | 1 expected fail (663)
+exit 0
+
+## just typecheck
+tsc -p tsconfig.json --noEmit
+exit 0

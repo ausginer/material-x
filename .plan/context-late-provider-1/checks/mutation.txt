@@ -1,0 +1,27 @@
+# Mutation: useContext.ts with the wait removed (the custom-element test replaced by `false`), core rebuilt, on f12db1ced plus the unit's working tree. Reverted afterwards.
+
+## packages/core: aube exec vitest run --project browser tests/controllers/useContext
+     × should resolve a provider defined after the consumer connected 50ms
+     × should not run the effect synchronously under a defined provider 14ms
+     × should wait for the host of the shadow root it is at the top level of 3ms
+     × should do nothing for a connection that ended before the definition 3ms
+     × should resolve only the provider it moved to before either was defined 3ms
+     × should not run the effect while the parent is never defined 13ms
+     × should run each cleanup once over connections that end before and after the lookup 3ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed (1)
+      Tests  7 failed | 17 passed (24)
+
+## packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' tests/button-group/button-group-order
+     × should apply its disabled state and size to buttons that upgraded first 198ms
+     × should apply its disabled state and size to buttons that upgraded first 203ms
+     × should apply its disabled state and size to buttons that upgraded first 203ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first
+AssertionError: expected [ true, [ false, false ], …(1) ] to deeply equal [ Array(3) ]
+ Test Files  3 failed (3)
+      Tests  3 failed (3)
