@@ -50,13 +50,12 @@ function release(element: HTMLElement | null, owned: string[]): void {
 /**
  * The sortable semantics of one item of `list`, on the item's own elements:
  * its handle's, or else its control's description, and a static item's tab
- * stop on its inner element. Nothing goes on the host, whose
- * `display: contents` box takes no focus and gains an accessibility node of
- * its own with a `tabindex`.
+ * stop. A static item's control is its host, whose box takes focus and is its
+ * `listitem`. An interactive item writes nothing on its host.
  *
- * The handle is the consumer's element, and an interactive item's control
- * receives the host's `aria-*`, so what the item wrote on either is recorded,
- * and only that is removed. A static item's inner element has no other writer.
+ * The handle and a static item's host are the consumer's elements, and an
+ * interactive item's control receives the host's `aria-*`, so what the item
+ * wrote on each is recorded, and only that is removed.
  */
 export function sortItem(
   list: HTMLElement,
@@ -69,19 +68,9 @@ export function sortItem(
     return undefined;
   }
 
-  const isStatic = control.localName === 'div';
   const handleOwned: string[] = [];
   const controlOwned: string[] = [];
   let handle: HTMLElement | null = null;
-
-  const releaseControl = (): void => {
-    if (isStatic) {
-      control.removeAttribute('tabindex');
-      control.removeAttribute('aria-description');
-    } else {
-      release(control, controlOwned);
-    }
-  };
 
   const update = (): void => {
     const next = handleOf(host);
@@ -101,11 +90,12 @@ export function sortItem(
 
       claim(handle, handleOwned, 'aria-description', DESCRIPTION);
       claim(handle, handleOwned, 'touch-action', 'none');
-      releaseControl();
-    } else if (isStatic) {
-      control.tabIndex = 0;
-      control.setAttribute('aria-description', DESCRIPTION);
+      release(control, controlOwned);
     } else {
+      if (control === host) {
+        claim(control, controlOwned, 'tabindex', '0');
+      }
+
       claim(control, controlOwned, 'aria-description', DESCRIPTION);
     }
   };
@@ -116,7 +106,7 @@ export function sortItem(
     update,
     release: () => {
       release(handle, handleOwned);
-      releaseControl();
+      release(control, controlOwned);
     },
   };
 }

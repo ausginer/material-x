@@ -61,8 +61,9 @@ async function createList(
   return [list, items];
 }
 
+/** The item's box: an interactive item's control, or a static item's host. */
 function visualOf(item: HTMLElement): HTMLElement {
-  return $<HTMLElement>(item, '.host')!;
+  return $<HTMLElement>(item, '.host') ?? item;
 }
 
 function handleOf(item: HTMLElement): HTMLElement {
@@ -673,7 +674,7 @@ describe('mx-sortable-list static item focus', () => {
 
     await userEvent.tab();
 
-    expect(a!.shadowRoot!.activeElement).toBe(visualOf(a!));
+    expect(document.activeElement).toBe(a);
   });
 
   it('should move a focused static item on ArrowDown', async () => {
@@ -688,7 +689,7 @@ describe('mx-sortable-list static item focus', () => {
     expect(order(list)).toEqual(['B', 'A', 'C']);
   });
 
-  it('should keep focus on the inner element and move again after a keyboard move', async () => {
+  it('should keep focus on the host and move again after a keyboard move', async () => {
     const [list, [a]] = await createList(['A', 'B', 'C']);
     commitOnReorder(list);
     startBefore(list);
@@ -696,7 +697,7 @@ describe('mx-sortable-list static item focus', () => {
 
     await userEvent.keyboard('{ArrowDown}');
     await whenSettled(list, a!);
-    const focused = a!.shadowRoot!.activeElement === visualOf(a!);
+    const focused = document.activeElement === a;
     await userEvent.keyboard('{ArrowDown}');
     await whenSettled(list, a!);
 
@@ -715,12 +716,12 @@ describe('mx-sortable-list static item focus', () => {
   });
 
   it('should describe a focused static item with the arrow keys', async () => {
-    const [list, [a]] = await createList(['A']);
+    const [list] = await createList(['A']);
     startBefore(list);
 
     await userEvent.tab();
 
-    expect(a!.shadowRoot!.activeElement!.getAttribute('aria-description')).toBe(
+    expect(document.activeElement!.getAttribute('aria-description')).toBe(
       DESCRIPTION,
     );
   });
@@ -764,21 +765,67 @@ describe('mx-sortable-list static item focus', () => {
     ]).toEqual([false, false]);
   });
 
-  it('should write no attribute on the item host', async () => {
+  it('should remove the tab stop once the item moves into mx-list', async () => {
     const [, [a]] = await createList(['A']);
-    const names = [a!.getAttributeNames()];
-    const handle = createHandle();
-    a!.prepend(handle);
+    const plain = document.createElement('mx-list');
+    document.body.append(plain);
+    plain.append(a!);
     await nextFrame();
-    names.push(a!.getAttributeNames());
+
+    expect([
+      a!.hasAttribute('tabindex'),
+      a!.hasAttribute('aria-description'),
+    ]).toEqual([false, false]);
+  });
+
+  it('should write only the tab stop and the description on the host', async () => {
+    const [, [a]] = await createList(['A']);
+
+    expect(a!.getAttributeNames().toSorted()).toEqual([
+      'aria-description',
+      'tabindex',
+    ]);
+  });
+
+  it("should keep the consumer's tabindex and description on the host", async () => {
+    const [list] = await createList([]);
+    const a = createItem('mx-list-item', 'A', false);
+    a.setAttribute('tabindex', '-1');
+    a.setAttribute('aria-description', 'Mine');
+    const read = (): readonly string[] => [
+      ...a.getAttributeNames().toSorted(),
+      a.getAttribute('tabindex')!,
+      a.getAttribute('aria-description')!,
+    ];
+    const consumer = ['aria-description', 'tabindex', '-1', 'Mine'];
+    list.append(a);
+    await nextFrame();
+    const readings = [read()];
+    const handle = createHandle();
+    a.prepend(handle);
+    await nextFrame();
+    readings.push(read());
     handle.remove();
     await nextFrame();
-    names.push(a!.getAttributeNames());
-    document.body.append(a!);
+    readings.push(read());
+    document.body.append(a);
     await nextFrame();
-    names.push(a!.getAttributeNames());
+    readings.push(read());
+    list.append(a);
+    await nextFrame();
+    const plain = document.createElement('mx-list');
+    document.body.append(plain);
+    plain.append(a);
+    await nextFrame();
+    readings.push(read());
 
-    expect(names).toEqual([[], [], [], []]);
+    expect(readings).toEqual([
+      consumer,
+      consumer,
+      consumer,
+      consumer,
+      consumer,
+    ]);
   });
 
   it('should add no tab stop to a button item', async () => {
@@ -896,7 +943,7 @@ describe('mx-sortable-list handle semantics', () => {
     expect([
       visualOf(inner).getAttributeNames(),
       written(handleOf(handled)),
-    ]).toEqual([['class', 'part'], []]);
+    ]).toEqual([[], []]);
   });
 });
 
@@ -917,13 +964,13 @@ describe('mx-list-item focus', () => {
     return [before, after];
   }
 
-  it('should take focus on its inner element by Tab in mx-sortable-list', async () => {
+  it('should take focus on its host by Tab in mx-sortable-list', async () => {
     const a = await createStatic('mx-sortable-list');
     surround(a);
 
     await userEvent.tab();
 
-    expect(a.shadowRoot!.activeElement).toBe(visualOf(a));
+    expect(document.activeElement).toBe(a);
   });
 
   it('should leave by Tab after one stop', async () => {
@@ -944,7 +991,7 @@ describe('mx-list-item focus', () => {
     await userEvent.tab();
     await userEvent.tab({ shift: true });
 
-    expect(a.shadowRoot!.activeElement).toBe(visualOf(a));
+    expect(document.activeElement).toBe(a);
   });
 
   it('should take focus by focus() in mx-sortable-list', async () => {
@@ -952,7 +999,7 @@ describe('mx-list-item focus', () => {
 
     a.focus();
 
-    expect(a.shadowRoot!.activeElement).toBe(visualOf(a));
+    expect(document.activeElement).toBe(a);
   });
 
   it('should not take focus by Tab in mx-list', async () => {

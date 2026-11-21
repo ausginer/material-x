@@ -83,13 +83,19 @@ const SortableListConstructor: Composed<
  *   without a handle drags by its whole surface.
  * - **Static items.** An `mx-list-item` without a handle is a tab stop while it
  *   is in this list, and stops being one when it gets a handle or leaves the
- *   list. The other items keep their own button or link as their tab stop.
+ *   list. A `tabindex` the consumer set on it stands. The other items keep
+ *   their own button or link as their tab stop.
  * - **Keyboard.** An arrow key moves the focused item one slot and proposes the
  *   move. It works from a focused handle, or from any focused element inside an
  *   item without a handle, such as the button of an `mx-list-button-item`. At
  *   the start or end of the list the key keeps its native meaning. Focus stays
  *   where it was, so the next press moves the item again. A focused handle, or
  *   item without one, is described as _Use the arrow keys to move_.
+ * - **Lift.** During a drag, the item element carries `popover="manual"` and
+ *   matches `[popover]` and `:popover-open`. The lift keeps the item's size,
+ *   position, padding, border, overflow, color and background color. A page's
+ *   popover rule that sets other properties, such as `box-shadow`, applies to
+ *   the item while it is lifted.
  * - **Nested controls.** A control inside an item without a handle that uses
  *   the arrow keys itself, such as a text field or a slider, needs a
  *   `data-drag-ignore` attribute. Otherwise its arrow keys move the item.
@@ -137,7 +143,6 @@ export default class SortableList extends SortableListConstructor {
       items: () => items,
       axis: y(),
       handle: (item) => handleOf(item) ?? item,
-      visual: (item) => $<HTMLElement>(item, '.host')!,
       landing: {
         ...landing(),
         timing: () => {
@@ -155,6 +160,10 @@ export default class SortableList extends SortableListConstructor {
       },
       onStart: (item) => {
         dragged = item as ControlledElement;
+        // WebKit starts no transition when the lift's top-layer entry and the
+        // state change share one style update, so the item's style is computed
+        // once in the top layer before the state raises it.
+        getComputedStyle(dragged).getPropertyValue('--_level');
         toggleState(internals(dragged), DRAG_STATE, true);
       },
       onEnd: (result) => {

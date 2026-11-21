@@ -1,7 +1,6 @@
 /*
  * A static item's host is its box. `box-shadow: none` keeps the elevation to
- * the two pseudo-element layers, and `overflow: visible` overrides the UA's
- * popover style while the host is lifted into the top layer.
+ * the two pseudo-element layers.
  */
 :host {
   position: relative;
@@ -10,9 +9,6 @@
   align-items: center;
   inline-size: 100%;
   min-block-size: var(--_container-height);
-  padding-block: var(--_top-space) var(--_bottom-space);
-  padding-inline: var(--md-list-item-leading-space, var(--_leading-space))
-    var(--md-list-item-trailing-space, var(--_trailing-space));
   border-radius: var(
     --md-list-item-container-shape,
     var(--_container-expressive-shape)
@@ -25,7 +21,43 @@
   text-align: start;
   -webkit-tap-highlight-color: transparent;
   box-shadow: none;
-  overflow: visible;
+}
+
+:host(:focus-visible) {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
+}
+
+/*
+ * The item's spacing is margins of its shadow children rather than the host's
+ * padding, because a page rule such as a universal reset beats `:host` and
+ * none reaches the shadow tree.
+ */
+.lead,
+.content,
+.trail {
+  margin-block: var(--_top-space) var(--_bottom-space);
+}
+
+.lead {
+  margin-inline-start: var(--md-list-item-leading-space, var(--_leading-space));
+}
+
+.trail {
+  margin-inline-end: var(--md-list-item-trailing-space, var(--_trailing-space));
+}
+
+.content {
+  margin-inline: var(--md-list-item-leading-space, var(--_leading-space))
+    var(--md-list-item-trailing-space, var(--_trailing-space));
+}
+
+.lead:has-slotted + .content {
+  margin-inline-start: 0;
+}
+
+.content:has(+ .trail:has-slotted) {
+  margin-inline-end: 0;
 }
 
 /* For shadow */

@@ -1,0 +1,39 @@
+# Size rows, Brotli bytes. base: aube exec just size-reading on origin/main at 73f081dc4, the merge's parent from main (proof 8's before). branch: the same on RF-68's step-2 source over 709e9fb55. branch, base names: the branch built with the base's node_modules/.cache/css/css-private-props.json in place of its own (aube exec just build-lib), then aube exec size-limit --json in packages/material-x.
+# Read by the implementer on 2026-11-21. Both builds give the same 227 private custom properties, and 92 of them a different short name.
+
+row	base	branch	diff	branch, base names	diff
+button/button	4926	4929	+3	4926	+0
+button/icon-button	5203	5216	+13	5203	+0
+button/link-button	4900	4900	+0	4900	+0
+button/switch-button	5291	5297	+6	5291	+0
+button/switch-icon-button	5682	5694	+12	5682	+0
+button/split-button	7492	7507	+15	7492	+0
+button-group/button-group	3126	3113	-13	3126	+0
+button-group/connected-button-group	3888	3898	+10	3888	+0
+checkbox/checkbox	4021	4025	+4	4021	+0
+fab/fab	4234	4236	+2	4234	+0
+icon/icon	661	661	+0	661	+0
+list/list	685	686	+1	685	+0
+list/list-item	2828	2789	-39	2803	-25
+list/list-button-item	4667	4664	-3	4654	-13
+list/list-link-item	4885	4883	-2	4865	-20
+list/sortable-list	8605	8548	-57	8549	-56
+radio/radio	3590	3590	+0	3590	+0
+text-field/multiline-text-field	4437	4437	+0	4437	+0
+text-field/text-field	8188	8253	+65	8188	+0
+complete	22092	22198	+106	22192	+100
+
+package	row	base	branch	diff
+box-quad	index	1182	1182	+0
+core	element	312	312	+0
+core	emitter	198	198	+0
+drag	draggable alone	2189	2189	+0
+drag	draggable + lift	3932	3932	+0
+drag	example: resize handle	3265	3265	+0
+drag	example: drop zone	4570	4570	+0
+drag	example: canvas group	3261	3261	+0
+drag	freeDrag	4984	4984	+0
+drag	freeDrag + bounds + landing	5465	5465	+0
+drag	sortable + y	6533	6533	+0
+drag	sortable + xy	6484	6484	+0
+drag	complete	7143	7143	+0

@@ -1,0 +1,14 @@
+# The lift probe's none mode on the branch's build on top of RD-31: node .plan/list-roles-1/probes/list-lift.ts $PWD/packages/material-x <engine> none
+# Read by the implementer on 2026-11-21 on RF-68's step-2 source over 709e9fb55. 'none' lifts an interactive item's inner .host, which nothing lifts on the branch: drag lifts the host.
+
+## chromium
+# engine chromium 158.0.8127.18
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+
+## firefox
+# engine firefox 159.0
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+
+## webkit
+# engine webkit 27.2
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204

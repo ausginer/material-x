@@ -1,0 +1,82 @@
+# Proof 5's mutations after RF-68's step 2, each applied, run and reverted: MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test tests/list/list-roles.browser.test.ts (packages/material-x)
+# Run by the implementer on 2026-11-21 on the step-2 source over 709e9fb55, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2. The drag mutation rebuilds packages/drag before the run and after the revert.
+
+## unmutated
+      Tests  119 passed | 4 skipped (123)
+
+## role listitem removed from useCore
+ ❯ |browser (chromium)| tests/list/list-roles.browser.test.ts (41 tests | 2 failed)
+       × should expose one listitem per item, in DOM order, below the list
+       × should keep each item's content and control inside its listitem
+      Tests  2 failed | 117 passed | 4 skipped (123)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+## drag's UA_PROPS emptied in the workspace build
+ ❯ |browser (chromium)| tests/list/list-roles.browser.test.ts (41 tests | 5 failed)
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+       × should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ ❯ |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts (41 tests | 5 failed | 2 skipped)
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+       × should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+ ❯ |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts (41 tests | 5 failed | 2 skipped)
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+       × should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+       × should keep the host's rect, padding, overflow, color and background with no page rule
+       × should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+      Tests  15 failed | 104 passed | 4 skipped (123)
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+## the lift's transition rule removed
+ ❯ |browser (chromium)| tests/list/list-roles.browser.test.ts (41 tests | 2 failed)
+     × should raise the lifted mx-list-item's elevation over the drag's duration
+     × should raise the lifted mx-list-button-item's elevation over the drag's duration
+ ❯ |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts (41 tests | 2 failed | 2 skipped)
+     × should raise the lifted mx-list-item's elevation over the drag's duration
+     × should raise the lifted mx-list-button-item's elevation over the drag's duration
+ ❯ |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts (41 tests | 2 failed | 2 skipped)
+     × should raise the lifted mx-list-item's elevation over the drag's duration
+     × should raise the lifted mx-list-button-item's elevation over the drag's duration
+      Tests  6 failed | 113 passed | 4 skipped (123)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+## onStart's style read removed
+ ❯ |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts (41 tests | 2 failed | 2 skipped)
+     × should raise the lifted mx-list-item's elevation over the drag's duration
+     × should raise the lifted mx-list-button-item's elevation over the drag's duration
+      Tests  2 failed | 117 passed | 4 skipped (123)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+## mx-list-item's spacing on its host's padding again
+ ❯ |browser (chromium)| tests/list/list-roles.browser.test.ts (41 tests | 6 failed)
+       × should keep the boxes of an item with one line
+       × should keep the boxes of an item with two lines
+       × should keep the boxes of an item with three lines
+       × should keep the boxes of an item with a label only
+       × should keep the boxes of an item with a lead only
+       × should keep the boxes of an item with a trail only
+ ❯ |browser/firefox (firefox)| tests/list/list-roles.browser.test.ts (41 tests | 6 failed | 2 skipped)
+       × should keep the boxes of an item with one line
+       × should keep the boxes of an item with two lines
+       × should keep the boxes of an item with three lines
+       × should keep the boxes of an item with a label only
+       × should keep the boxes of an item with a lead only
+       × should keep the boxes of an item with a trail only
+ ❯ |browser/webkit (webkit)| tests/list/list-roles.browser.test.ts (41 tests | 6 failed | 2 skipped)
+       × should keep the boxes of an item with one line
+       × should keep the boxes of an item with two lines
+       × should keep the boxes of an item with three lines
+       × should keep the boxes of an item with a label only
+       × should keep the boxes of an item with a lead only
+       × should keep the boxes of an item with a trail only
+      Tests  18 failed | 101 passed | 4 skipped (123)
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+## after every revert
+      Tests  119 passed | 4 skipped (123)

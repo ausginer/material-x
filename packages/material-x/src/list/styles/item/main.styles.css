@@ -5,7 +5,7 @@
  *   Overrides the resolved one-, two-, or three-line container height.
  *
  * `--md-list-item-leading-space` and `--md-list-item-trailing-space`
- *   Override inline spacing that is not reachable via ::part.
+ *   Set an item's inline spacing.
  *
  * `--md-list-item-leading-icon-size` and `--md-list-item-trailing-icon-size`
  *   Override slotted icon sizing for leading/trailing affordances.
@@ -21,6 +21,14 @@
 
   display: block;
   transition: --_level var(--_drag-duration) var(--_drag-easing);
+}
+
+/*
+ * Drag's lift writes `transition: none` inline on the lifted host, so the
+ * elevation's own transition is restored while the host is lifted.
+ */
+:host(:popover-open) {
+  transition: --_level var(--_drag-duration) var(--_drag-easing) !important;
 }
 
 slot {

@@ -1,10 +1,11 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
+import '../../src/list/sortable-list.ts';
 import { nextFrame } from '../browser.ts';
 import type { AccessibilityNode } from '../support/accessibility-commands.node.ts';
 
@@ -52,6 +53,19 @@ function createList(
 function getControl(item: HTMLElement): HTMLElement {
   return $<HTMLElement>(item, '.host')!;
 }
+
+/** Adds a document stylesheet for the current test. */
+function addPageRule(css: string): void {
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.append(style);
+  onTestFinished(() => style.remove());
+}
+
+afterEach(async () => {
+  // A row that fails mid-gesture leaves the button down.
+  await commands.pointerRelease().catch(() => {});
+});
 
 /** The `listitem` nodes reached from `node` through `generic` nodes only. */
 function listItemsBelow(node: AccessibilityNode): AccessibilityNode[] {
@@ -141,46 +155,137 @@ describe('mx-list item roles', () => {
     expect(reached).toEqual([getControl(button!), getControl(link!), after]);
   });
 
+  it("should make an mx-list-item with a consumer's tabindex a tab stop in mx-list", async () => {
+    const list = createList([{ tag: 'mx-list-item', disabled: false }]);
+    const [item] = list.children as unknown as HTMLElement[];
+    item!.tabIndex = 0;
+    const before = document.createElement('button');
+    list.before(before);
+    before.focus();
+
+    await userEvent.keyboard(TAB);
+
+    expect(document.activeElement).toBe(item);
+  });
+
+  describe("mx-list-item's spacing under a page's universal reset", () => {
+    const RESET =
+      '*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid; }';
+
+    const slotted = (slot: string, text: string): HTMLElement => {
+      const span = document.createElement('span');
+      span.slot = slot;
+      span.textContent = text;
+      return span;
+    };
+
+    const FIXTURES: Record<string, () => Array<Node | string>> = {
+      'one line': () => [slotted('lead', 'L'), 'Label', slotted('trail', 'T')],
+      'two lines': () => [
+        slotted('lead', 'L'),
+        'Label',
+        slotted('support', 'Support'),
+        slotted('trail', 'T'),
+      ],
+      'three lines': () => [
+        slotted('lead', 'L'),
+        slotted('overline', 'Overline'),
+        'Label',
+        slotted('support', 'Support'),
+        slotted('trail', 'T'),
+      ],
+      'a label only': () => ['Label'],
+      'a lead only': () => [slotted('lead', 'L')],
+      'a trail only': () => [slotted('trail', 'T')],
+    };
+
+    /** The item's box in the list, and its shadow children's boxes in the item. */
+    const read = async (content: () => Array<Node | string>) => {
+      const list = document.createElement('mx-list');
+      list.style.width = '360px';
+      const item = document.createElement('mx-list-item');
+      item.append(...content());
+      list.append(item);
+      document.body.append(list);
+      await nextFrame();
+      const origin = list.getBoundingClientRect();
+      const box = item.getBoundingClientRect();
+      const relative = (rect: DOMRect, to: DOMRect) => [
+        rect.left - to.left,
+        rect.top - to.top,
+        rect.width,
+        rect.height,
+      ];
+      const reading = [
+        relative(box, origin),
+        ...['.lead', '.content', '.trail'].map((selector) =>
+          relative(
+            $<HTMLElement>(item, selector)!.getBoundingClientRect(),
+            box,
+          ),
+        ),
+      ];
+      list.remove();
+      return reading;
+    };
+
+    it.each(Object.keys(FIXTURES))(
+      'should keep the boxes of an item with %s',
+      async (name) => {
+        const plain = await read(FIXTURES[name]!);
+        addPageRule(RESET);
+
+        expect(await read(FIXTURES[name]!)).toEqual(plain);
+      },
+    );
+  });
+
   describe.each(['mx-list-item', 'mx-list-button-item'] as const)(
-    '%s lifted by the list',
+    '%s lifted by mx-sortable-list',
     (tag) => {
-      const LIFT_STYLES = ['padding', 'overflow', 'background-color'] as const;
+      const LIFT_STYLES = [
+        'padding',
+        'overflow',
+        'color',
+        'background-color',
+      ] as const;
+      const POPOVER_RULE =
+        '[popover] { padding: 16px; background: red; overflow: auto; color: blue; }';
 
-      // Grabs the item from the keyboard, which makes core's reorderable trait
-      // lift it into the top layer, and reads what the lift must keep.
+      // Lifts the item with drag's lift, through real pointer input held past
+      // the threshold and back to the grab point, and reads what the lift must
+      // keep.
       const lift = async () => {
-        const list = createList([
-          { tag: 'mx-list-item', disabled: false },
-          { tag, disabled: false },
-          { tag: 'mx-list-item', disabled: false },
-        ]);
+        const list = document.createElement('mx-sortable-list');
         list.style.gap = '12px';
-        list.toggleAttribute('reorderable', true);
-        const [, item, next] = list.children as unknown as HTMLElement[];
-        const handle = document.createElement('span');
-        handle.slot = 'trail';
-        handle.dataset['handle'] = '';
-        handle.textContent = 'Grip';
-        item!.append(handle);
-
+        list.style.setProperty('--_drag-duration', '0s');
+        const item = createItem(tag, 'Item 1');
+        item.id = 's';
+        const next = createItem('mx-list-item', 'Item 2');
+        list.append(createItem('mx-list-item', 'Item 0'), item, next);
+        document.body.append(list);
         await nextFrame();
 
         const read = () => {
-          const style = getComputedStyle(item!);
+          const style = getComputedStyle(item);
 
           return {
             list: list.getBoundingClientRect().height,
-            next: next!.getBoundingClientRect().top,
-            rect: item!.getBoundingClientRect().toJSON() as unknown,
+            next: next.getBoundingClientRect().top,
+            rect: item.getBoundingClientRect().toJSON() as unknown,
             styles: LIFT_STYLES.map((name) => style.getPropertyValue(name)),
           };
         };
         const before = read();
+        const { left, top, width, height } = item.getBoundingClientRect();
+        const [x, y] = [left + width / 2, top + height / 2];
 
-        handle.focus();
-        await userEvent.keyboard(' ');
+        await commands.pointerPress(x, y);
+        await commands.pointerMove(x, y + 12, 3);
+        await commands.pointerMove(x, y, 3);
+        await nextFrame();
 
-        return { item: item!, before, lifted: read() };
+        return { item, before, lifted: read() };
       };
 
       it('should lift the host into the top layer', async () => {
@@ -195,22 +300,70 @@ describe('mx-list item roles', () => {
         expect([lifted.list, lifted.next]).toEqual([before.list, before.next]);
       });
 
-      it("should keep the host's rect, padding, overflow and background", async () => {
-        const { before, lifted } = await lift();
+      const RULE_CASES: ReadonlyArray<readonly [string, string]> = [
+        ['no page rule', ''],
+        ['a page rule for popovers', POPOVER_RULE],
+        ...(tag === 'mx-list-item'
+          ? ([
+              [
+                "the consumer's rule on the item",
+                '#s { padding-inline: 24px; background-color: rgb(0, 0, 255); }',
+              ],
+            ] as const)
+          : []),
+      ];
 
-        expect([lifted.rect, lifted.styles]).toEqual([
-          before.rect,
-          before.styles,
-        ]);
-      });
+      it.each(RULE_CASES)(
+        "should keep the host's rect, padding, overflow, color and background with %s",
+        async (_, rule) => {
+          if (rule) {
+            addPageRule(rule);
+          }
+          const { before, lifted } = await lift();
+
+          expect([lifted.rect, lifted.styles]).toEqual([
+            before.rect,
+            before.styles,
+          ]);
+        },
+      );
 
       it('should remove the popover attribute after the lift ends', async () => {
         const { item } = await lift();
 
-        await userEvent.keyboard('{Escape}');
+        await commands.pointerRelease();
 
         await expect.poll(() => item.hasAttribute('popover')).toBe(false);
       });
+    },
+  );
+
+  it.each(['mx-list-item', 'mx-list-button-item'] as const)(
+    "should raise the lifted %s's elevation over the drag's duration",
+    async (tag) => {
+      const list = document.createElement('mx-sortable-list');
+      const item = createItem(tag, 'Item 0');
+      list.append(item, createItem('mx-list-item', 'Item 1'));
+      document.body.append(list);
+      await nextFrame();
+      const level = (): number =>
+        Number(getComputedStyle(item).getPropertyValue('--_level'));
+      const rest = level();
+      const { left, top, width, height } = item.getBoundingClientRect();
+      const [x, y] = [left + width / 2, top + height / 2];
+
+      await commands.pointerPress(x, y);
+      await commands.pointerMove(x, y + 12, 3);
+      await expect.poll(() => item.matches(':state(drag)')).toBe(true);
+      const raised = Number(
+        getComputedStyle(item).getPropertyValue('--_container-elevation'),
+      );
+      // The first reading that has left the rest level is still below the
+      // raised one, unless the level jumped.
+      await expect.poll(level).toBeGreaterThan(rest);
+      const rising = level();
+
+      expect([rest, raised, rising < raised]).toEqual([0, 8, true]);
     },
   );
 

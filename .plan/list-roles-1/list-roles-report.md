@@ -1,88 +1,78 @@
 # Report: each list item is exposed as a list item (`RF-68`)
 
-**Input:** `material-x/list-roles-1` at `a52f3bbd8`: the [handoff](list-roles-handoff.md) as the second re-ruling left it, with the owner's answer (a) recorded. The implementation is reworked from `001f8d833`, as the handoff's _What the implementer changes_ says. **Governing records:** `RF-68` in [`../00-index.md`](../00-index.md), the handoff's decisions 1 to 4 and properties 1 to 9, `RF-33`, `RD-24`, [`accessibility.md`](../../.agents/docs/accessibility.md#list) and [the `.host` invariant](../../.agents/docs/architecture.md#components-ydinjsmaterial-x). All local readings are in Playwright 1.65.0's builds: Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2. `main`'s readings are on `origin/main` at `7cc702e1b`. Its material-x and core sources, and its lockfile, equal the branch's merge base `555ab85bc`.
+**Input:** `material-x/list-roles-1` at `709e9fb55`. That is the [handoff](list-roles-handoff.md)'s [On top of `RD-31` (#90)](list-roles-handoff.md#on-top-of-rd-31-90) and its ruling [The rise in WebKit, ruled](list-roles-handoff.md#the-rise-in-webkit-ruled), over the step-1 merge `7b90a846f` of `origin/main` at `73f081dc4`. **Governing records:** `RF-68` in [`../00-index.md`](../00-index.md), the handoff's decisions 1 to 4 and properties 1 to 9 as re-planned, `RD-31` with its seventh amendment (`75ba6bf5b`), `RD-24`, [`accessibility.md`](../../.agents/docs/accessibility.md#list) and [the `.host` invariant](../../.agents/docs/architecture.md#components-ydinjsmaterial-x). All local readings are in Playwright 1.65.0's builds: Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2.
 
-**Outcome: the second re-ruling is implemented, and no stop condition was met.** Proofs 1 to 5, 7 and 8 hold. Proof 6 waits for a Safari run. Core's reorderable trait and `@ydinjs/drag` don't change.
+**Outcome: the unit is implemented on top of `RD-31`.** Step 2 stopped once: the lift's rise stayed instant in WebKit with the `transition` rule. The architect ruled the stop at `709e9fb55`, and the ruling is implemented. Proofs 1, 2, 3, 5, 7 and 8 hold. Proof 4 holds for the layout and the pixels, but its `fold-cascade.ts` rerun can't run on this build ([below](#4-the-layout-and-the-pixels)). Proof 6 waits for a Safari run. `@ydinjs/drag` and `@ydinjs/core` don't change.
 
-The earlier report, for the row, is this file at `001f8d833`.
+The earlier report, for the fold before #90, is this file at `709e9fb55`.
 
 ## What changed
 
-- **Templates:** `list-button-item.tpl.html` and `list-link-item.tpl.html` are `main`'s again. `list-item.tpl.html` is deleted: `mx-list-item` passes no template, and its shadow root holds the shared content (`list-item-shared.tpl.html`) directly.
-- **`ListItemCore.ts`:** `useCore` gets `{ role: 'listitem' }`. `useListItemCore(host, styles, template?, init?)`: with a template, the shared content goes into its `.host`, which the function returns, and without one into the shadow root. `useReorderableItem(host)` registers the host as the visual.
-- **`ListInteractiveItemCore.ts`:** `FocusForwarding` leaves `ListInteractiveItemCoreTraits`, its import and the `useFocusForwarding` call. The shadow root still delegates focus.
-- **`list-item.ts`:** adopts `static-box.css.ts`. The `@csspart impl` line goes.
-- **Styles:** in `styles/item/main.styles.css`, `:host` is `display: block`, and the `.host` block and the `.row` rule go. The box rule moves to one stylesheet per kind:
-  - `static-box.styles.css`, adopted by `mx-list-item`: the box rule on `:host`, without `all: unset`, with `box-shadow: none` and `overflow: visible`, and the elevation's two pseudo-element layers on `:host::before` and `:host::after`. The layers are flat selectors, not nested under `:host`, because a nested `&` would become `:is(:host)`.
-  - `interactive-box.styles.css`, adopted by the two interactive items: the box rule on `.host` as before, and `:host { padding: 0; overflow: visible; background: none; color: inherit }` with a one-sentence comment.
-  - Each has a `.css.ts` that exports the sheet. No module adopts both.
-- **Tests:** `list-roles.browser.test.ts`'s structure and lift rows follow proof 2. `list-item.browser.test.ts`'s line-height rows read `mx-list-item`'s host, its box. `focus-forwarding.browser.test.ts` drops the two list items and the `mx-list-button-item` subclass case. `traits-baseline.json` changes only in the two items' `FocusForwarding` entries: `instanceof` false, and no `focus` or `symbol:FocusForwarding` key on their prototype.
-- **`accessibility.md`, the list section:** each item's host is its `listitem`, through its internals, and has a box, and why. `mx-list-item` has no inner element. A consumer's `tabindex` on its host stands. WebKit's split is no longer a limit of the list items. Lines 53 and 58 of the earlier text are replaced.
-- **`probes/list-lift.ts`:** a new `item-lift` mode lifts the item's host with nothing added to the build, as the branch's trait does. An optional third argument selects modes. The emulation modes query a static `.host`, which the branch's build no longer has.
+**Step 1, the merge `7b90a846f`** of `origin/main` (`73f081dc4`), resolved to the handoff:
 
-The interactive items keep `part="impl"` on their control. No custom state is added.
+- `ListItemCore.ts` has `RD-31`'s body, its context consumer and its slot observers. It also has this unit's role, optional template and shared content. The context's value gets the item's host and its control: the template's `.host` in an interactive item, and the host itself in `mx-list-item`.
+- `list-item.ts` keeps this unit's version, with no `FocusForwarding`, no `delegatesFocus` and no `impl` part. It adopts the focus stylesheet after `static-box.css.ts`. Its JSDoc says that a `tabindex` set on the item stands, in either list.
+- `traits-baseline.json` is regenerated. Against `73f081dc4`, only the three list items' `FocusForwarding` entries change.
+- `00-index.md` has both sides, with `RF-68` before `RF-69`. `.plan/list-sortable-1/probes/list-a11y.ts` is `main`'s copy.
+
+**Step 2:**
+
+- **`sortable-list.ts`:** the `visual` callback goes, so drag lifts the item itself. `onStart` reads the item's computed `--_level` before it sets the `drag` state. This is one style read per activation, with a one-sentence comment, as [the ruling](list-roles-handoff.md#the-rise-in-webkit-ruled) says. The JSDoc states what a drag does to the item element. It carries `popover="manual"` and matches `[popover]` and `:popover-open`. The lift keeps the item's size, position, padding, border, overflow, color and background color. A page's popover rule that sets other properties applies while the item is lifted. A consumer's `tabindex` on a static item stands.
+- **`sortable-item.ts`:** a static item's tab stop and description go on its host, through the same claim record as a handle and an interactive item's control. A value the consumer set stays, and only what the item wrote is removed. A static item is recognized by its control being its host. The module's comment says that a static item's host is its control, and that an interactive item writes nothing on its host.
+- **`static-box.styles.css`:** the host's padding and `overflow: visible` go. The spacing is now margins of `.lead`, `.content` and `.trail`. Each takes the block space. The leading space goes on `.lead`, and on `.content` when `.lead` isn't slotted. The trailing space goes on `.trail`, and on `.content` when `.trail` isn't slotted. A one-sentence comment says why. `:host(:focus-visible)` has the shared focus rule's declarations.
+- **`interactive-box.styles.css`:** the four `:host` lift resets and their comment go.
+- **`main.styles.css`:** `:host(:popover-open) { transition: --_level … !important }`, with a comment. The comment on `--md-list-item-leading-space` and `--md-list-item-trailing-space` says that they set an item's inline spacing.
+- **`accessibility.md`, the list section:** in `mx-sortable-list`, a handle-less `mx-list-item` takes focus on its host, which is its `listitem`. The item writes `tabindex` and the description only where the consumer hasn't set them. The focus indicator draws on `:host(:focus-visible)`. The section links the rerun reading.
+- **Tests:** see proofs 2 and 7.
 
 ## Proofs
 
 ### 1. The Chromium tree, in CI
 
-`list-roles.browser.test.ts` › _Chromium's accessibility tree_, for a static item, a button item, a disabled button item, a link item and a disabled link item:
-
-- the root is `list`, with 5 `listitem` nodes reached through `generic` nodes only;
-- each `listitem`'s children are `generic ""` for the static item, `button "Item 1"`, `button "Item 2"`, `link "Item 3"` and `link "Item 4"`.
-
-The block runs only in Chromium, with the reason written above it.
+`list-roles.browser.test.ts` › _Chromium's accessibility tree_ is unchanged and passes. The root is `list`, with 5 `listitem` nodes below it, and each button and link is inside its item with its role and name.
 
 ### 2. The structure and the lift, in every engine of the gate
 
-For each kind, enabled and disabled: no element in the shadow tree has a `role` attribute; the host has no `role` attribute; the host's computed `display` is `flex` for `mx-list-item` and `block` for the interactive items. `mx-list-item`'s shadow root's children are `slot.lead`, `div.content` and `slot.trail`, with no `.host`. Each interactive item's shadow root has one child, its `<button>` or `<a>`, which is its `.host`.
+The structure rows are unchanged and pass. Every row below passes in Chromium, Firefox and WebKit (`MX_TEST_ENGINES=chromium,firefox,webkit`, 119 passed and 4 skipped in `list-roles.browser.test.ts`).
 
-**The lift rows,** for `mx-list-item` and `mx-list-button-item`. The item is in a list with a 12 px gap between two static items, and has a `[data-handle]` in its trail. With `reorderable` on the list, the handle is focused and Space is pressed. Core's trait then lifts the item from the keyboard: these rows run the trait itself, not a copy of its steps.
+**The lift rows,** for `mx-list-item` and `mx-list-button-item`, now run in `mx-sortable-list`. Real pointer input presses the item's center, moves 12 px past the threshold, and moves back to the grab point while the button stays down. Drag's lift then holds the host.
 
 - the host matches `:popover-open`;
 - the list's height and the next item's top are unchanged;
-- the host's rect, and its computed `padding`, `overflow` and `background-color`, equal their values before the lift;
-- after Escape, the host has no `popover` attribute.
+- the host's rect and its computed `padding`, `overflow`, `color` and `background-color` equal their values before the lift. This holds with no page rule, and with `[popover] { padding: 16px; background: red; overflow: auto; color: blue }`. For the static item it also holds with the consumer's `#s { padding-inline: 24px; background-color: rgb(0, 0, 255) }`;
+- after the pointer is released, the host has no `popover` attribute.
 
-**The Tab row** (property 3) is unchanged: three Tabs reach the button item's `<button>`, then the enabled link item's `<a>` past the disabled one, then a button after the list.
+**The reset row:** `*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid }`. It covers an item with one, two or three lines, and an item with only a label, only a lead or only a trail. For each, the item's box in a 360 px list and the boxes of its `.lead`, `.content` and `.trail` in the item equal the reading without the rule.
 
-`MX_TEST_ENGINES=chromium,firefox,webkit vitest run tests/list/list-roles.browser.test.ts`: 83 passed and 4 skipped. The skipped rows are the two Chromium tree rows in Firefox and WebKit.
+**The rise row,** for `mx-list-item` and `mx-list-button-item` in `mx-sortable-list`. Rest is 0, the raised value read from `--_container-elevation` is 8, and the first `--_level` reading above rest is below 8. The ruling asks for the value one frame after `onStart`. In WebKit that value can still be 0, before the transition's first tick (see the [reading](checks/lift-rise.txt)). So the row waits for the first frame that has left rest and asserts that the level hasn't jumped.
+
+**The new tab stop row:** an `mx-list-item` with a consumer's `tabindex="0"` in `mx-list` is reached by Tab.
 
 ### 3. Three engines' trees, by the committed probe
 
-[`probes/list-roles.ts`](probes/list-roles.ts), variant `main`, on the branch's build: [reading](checks/list-roles-branch.txt).
+[`probes/list-roles.ts`](probes/list-roles.ts), variant `main`, on this build: [reading](checks/list-roles-on-rd31.txt). In Chromium, Firefox and WebKit, each of the five items is a `listitem` whose parent is the list, and each button and link is inside its item. In WebKit, each slotted node's parent is a slot inside its item. The host with `tabindex="0"` is a `listitem` and a tab stop, with no node of its own. **Properties 1 and 3 hold.**
 
-| Engine | Each item | Its content |
-| --- | --- | --- |
-| Chromium | `listitem` on the host, directly under the list | the slots, the handle's `button "Reorder"`, and `button "Button item"` or `link "Link item"`, inside it |
-| Firefox | `listitem` directly under the list, named from its content | the same |
-| WebKit | `listitem` on the host, whose parent is the list | the same. Each slotted light-DOM node's parent is a slot inside its item: the label text and the handle `span` are no longer the list's children |
+[`probes/list-lift.ts`](probes/list-lift.ts), mode `none`: [reading](checks/list-lift-on-rd31.txt). 192 → 204 in each engine. The mode lifts an interactive item's inner `.host`, which nothing on the branch lifts, because drag lifts the host. Proof 2's lift rows read the branch's lift.
 
-- **Properties 1 and 3 hold in all three engines.**
-- **The host with `tabindex="0"` (`#s3`)** is a `listitem` and a tab stop, with no node of its own, in each engine. Tab order is `span | #s3 | #b > button | #a > a | #after | body`. That is the owner's answer (a).
-
-[`probes/list-lift.ts`](probes/list-lift.ts): [reading](checks/list-lift-branch.txt).
-
-- **`item-lift`, the branch's lift:** the list stays 192 px and the link's top stays 144 px, for the button item and the static item, in each engine. `main`'s build in mode `none`, `main`'s own lift, reads the same.
-- **`none` on the branch's build** reads 192 → 204. It lifts the inner `.host`, which no code on the branch lifts: the host keeps its box. It is recorded as the handoff asks and doesn't describe the branch.
+**`RD-31`'s accessibility probe,** rerun on this build: [`../list-sortable-1/checks/list-a11y-roles.txt`](../list-sortable-1/checks/list-a11y-roles.txt). In Chromium, the focused handle-less static item is `MX-LIST-ITEM`: role `listitem`, name _"Sortable static without handle"_, description _"Use the arrow keys to move"_. The CDP tree has one `listitem` per item and no node around it.
 
 ### 4. The layout and the pixels
 
-[`probes/list-layout.ts`](probes/list-layout.ts) with `--png`, on [`main`'s build](checks/list-layout-main.txt) and [the branch's](checks/list-layout-branch.txt). On the branch, the probe reads `mx-list-item` by its host. **The two readings are equal in all three engines**: `diff` of the whole output is empty, and the list is `0 0 360 880` in each.
+[`probes/list-layout.ts`](probes/list-layout.ts) with `--png`, on [`73f081dc4`'s build](checks/list-layout-on-rd31-main.txt) and [this one](checks/list-layout-on-rd31-branch.txt). **The readings are equal in all three engines:** `diff` of everything after the headers is empty. **The six screenshots are byte-equal** (`cmp`) at elevation level 0 and 6 in each engine.
 
-**Each of the branch's six screenshots is byte-equal to `main`'s** (`cmp`), at elevation level 0 and 6 in each engine ([reading](checks/list-layout-pixels.txt)). In each engine, level 0 and level 6 differ, so the level does raise the items.
+**`probes/fold-cascade.ts` doesn't run on this build.** It reads `padding-block` from the built `static-box.css.js` to emulate the spacing fix, which this build has, so the read throws before any page opens. Its lift section also drives core's reorderable trait, which #90 deleted. Two parts of its reading are now proof 2's rows, in every engine: the reset section's boxes, and the lift section's kept values under the popover rule and the consumer's rule. **The reset section's screenshots under the universal reset have no rerun.** The reset row reads the boxes, not the pixels.
 
 ### 5. Mutations
 
-Each was run in the three engines on `list-roles.browser.test.ts` and then reverted by the inverse edit. The clean file passes again.
+Each mutation was applied, run on `list-roles.browser.test.ts` in Chromium, Firefox and WebKit, and reverted. The unmutated file and the file after every revert pass ([output](checks/mutations-on-rd31.txt)).
 
-| Mutation | Result |
+| Mutation | Fails |
 | --- | --- |
-| `{ role: 'listitem' }` replaced by `{ }` in `useCore`'s call | Proof 1 fails: both Chromium tree rows. **Proof 2 doesn't fail:** no engine lets page script read a role set through `ElementInternals`. Proof 1 and the probe observe the role. |
-| The interactive host's `:host` resets removed | The button item's _rect, padding, overflow and background_ row fails in Chromium, Firefox and WebKit |
-| `overflow: visible` removed from `mx-list-item`'s host | The static item's same row fails in all three engines |
-
-The handoff expected the first mutation to fail proof 2 too. Proof 2 asserts property 2's structure, and the role itself is a property of the accessibility tree.
+| `{ role: 'listitem' }` replaced by `{}` in `useCore`'s call | Proof 1's two Chromium tree rows. Proof 2's rows don't observe the role, as the earlier report found. |
+| Drag's `UA_PROPS` emptied in `packages/drag/src/lift.ts`, with drag rebuilt, then restored and rebuilt | The kept-values rows in each engine: the static item under each rule, the button item under no rule and under the popover rule. The static item also fails with no page rule, because its host no longer sets `overflow: visible`, so the UA's `overflow: auto` applies |
+| The `:host(:popover-open)` transition rule removed | Both rise rows in each engine |
+| `onStart`'s style read removed | Both rise rows in WebKit only |
+| `mx-list-item`'s spacing on its host's padding again, with the margins zeroed | The six reset rows in each engine |
 
 ### 6. Safari
 
@@ -90,37 +80,48 @@ Not run. Safari runs only through the owner's dispatch or the scheduled workflow
 
 ### 7. The existing gates
 
-- **Material X, all browser, spec and node projects in Chromium, Firefox and WebKit** (`MX_TEST_ENGINES=chromium,firefox,webkit vitest run`): 61 files, 1,338 passed, 1 expected fail and 4 skipped. This includes `list-item.browser.test.ts`, whose focus rows pass in Firefox without `FocusForwarding`, `focus-forwarding.browser.test.ts`, and `traits-baseline` with property 7's change.
-- **Root `aube exec just test`** (Chromium): 148 files, 2,368 passed. This includes core's reorderable rows.
+- **Material X, every project in Chromium, Firefox and WebKit** (`MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test` in `packages/material-x`): 71 files, 1,606 passed, 1 expected fail and 4 skipped. This includes #90's `sortable-list.browser.test.ts` with the static-item rows on the host, `package-entries.node.test.ts`, and `traits-baseline`.
+- **`sortable-list.browser.test.ts`'s static rows,** amended. Tab, Shift+Tab, `item.focus()`, and the focus after a keyboard move are on the host. The host has `tabindex="0"` and the description, and loses both when the item gains a handle, leaves the list or moves into `mx-list`. In a sortable list the host carries those two attributes and nothing else. A consumer's `tabindex="-1"` and `aria-description` stay through every one of those changes. The nested `mx-list`'s static item has no attribute.
+- **Root `aube exec just test`** (Chromium): 152 files, 2,509 passed, and no type errors.
 - **Root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations`:** passed.
-- **In `packages/material-x`, on every changed file:** `just fmt`, `just lint-fix`, `just fmt` and `just lint` passed. The only output is ESLint's five _"File ignored"_ warnings for the HTML and CSS files, for which no linter is configured. `just typecheck` passed. `oxfmt` formatted the guide, the probe and this report. `git diff --check` is clean. Links were checked by resolving each relative path.
+- **In `packages/material-x`, on every changed file:** `just fmt`, `just lint-fix`, `just fmt` and `just lint` passed. The only output is ESLint's _"File ignored"_ warnings for the three CSS files, for which no linter is configured. `just typecheck` passed.
 
 ### 8. Sizes
 
-Brotli bytes, from `aube exec just size-reading` on each build ([reading](checks/list-sizes.txt)).
+Brotli bytes. The base is `aube exec just size-reading` on `73f081dc4`, the merge's parent from `main`, read before any step-2 change ([reading](checks/list-sizes-on-rd31.txt)). As in the earlier report, the branch's new stylesheets change the order of the 227 private custom properties, and 92 get a different short name. So the branch is also measured with the base's name list.
 
-**Two figures, because the build renames private custom properties in the order it finds them.** The branch and `main` have the same 227 properties, but the branch's two new stylesheets change the order, and 92 get a different short name. That moves rows the branch doesn't touch: `text-field/text-field` +27, `button/icon-button` +22. So the branch was also built with `main`'s name list, which isolates the change.
-
-| Row | `main` | Branch | Difference | Branch, `main`'s names | Difference |
+| Row | Base | Branch | Difference | Branch, base names | Difference |
 | --- | --- | --- | --- | --- | --- |
-| `list/list` | 3,673 | 3,670 | −3 | 3,673 | 0 |
-| `list/list-item` | 2,567 | 2,586 | +19 | 2,601 | +34 |
-| `list/list-button-item` | 4,575 | 4,581 | +6 | 4,562 | −13 |
-| `list/list-link-item` | 4,746 | 4,757 | +11 | 4,778 | +32 |
-| `complete` | 16,975 | 17,050 | +75 | 17,060 | +85 |
+| `list/list` | 685 | 686 | +1 | 685 | 0 |
+| `list/list-item` | 2,828 | 2,789 | −39 | 2,803 | −25 |
+| `list/list-button-item` | 4,667 | 4,664 | −3 | 4,654 | −13 |
+| `list/list-link-item` | 4,885 | 4,883 | −2 | 4,865 | −20 |
+| `list/sortable-list` | 8,605 | 8,548 | −57 | 8,549 | −56 |
+| `complete` | 22,092 | 22,198 | +106 | 22,192 | +100 |
 
-- **No row grows by more than 150 B,** in either figure.
-- **The control row holds:** with `main`'s names, `list/list` and every row outside the list are unchanged.
-- `list/list-item` is within the estimate of +30 to +100 B. `complete` is within its estimate of +50 to +150 B.
-- `list/list-button-item` ends below `main`, as estimated: it gains the four resets and loses `FocusForwarding`. `list/list-link-item` grows by 32 B on the same change. The reading doesn't say why the two differ.
+- **No row grows by more than 150 B.** `list/list-item` reads 2,803 B, under 3.1 kB, and `list/sortable-list` reads 8,549 B, under 9.6 kB. `list/list` gains no module.
+- **The control rows hold:** with the base's names, `list/list` and every row outside the list are unchanged. The drag, core and box-quad rows are unchanged in both figures.
+- Each list row is within its estimate. `complete` is at the top of its estimate of −150 to +100 B. It carries the box rule twice, under `:host` and under `.host`, and the spacing margins, while each item row carries only its own stylesheet. The reading doesn't break the +100 B down further.
+
+### The lift's rise
+
+The handoff asked for the rise to be read first, in each engine. The host's computed `--_level` is read per frame after the `drag` state, for `mx-list-item` and `mx-list-button-item`, with a duration of .65s ([reading](checks/lift-rise.txt), [probe](probes/lift-rise.browser.test.ts)):
+
+|  | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- |
+| No rule, no read | 8 at once | 8 at once | 8 at once |
+| The rule, no read | 0, 0.67, 1.35, 2.0 … | 0, 0.65, 1.35, 1.99 … | 8 at once |
+| The rule and the read (the branch) | 0, 0.67, 1.35, 2.01 … | 0, 0.66, 1.35, 1.99 … | 0.24, 1.17, 2.01, 2.36 … (static), 0, 0.65, 1.49, 2.05 … (button) |
+
+So the rule was added, and the stop and its ruling added the read. On `73f081dc4` the host isn't lifted, and the rise runs over the duration in each engine.
 
 ## Focus in a static item
 
-**In `mx-list`, a static item takes no focus**, as on `main`. A consumer's `tabindex` on its host makes the host a tab stop. The owner answered (a), so the item doesn't suppress it, and the host is its `listitem` (proof 3). There is no `.host` in a static item any more. **Interactive items keep focus on their `.host`,** the `<button>` or `<a>`, reached through `delegatesFocus` in every engine.
+**In `mx-sortable-list`, a handle-less `mx-list-item` takes focus on its host,** which is its `listitem`. It has no `.host`. In `mx-list` it takes no focus unless the consumer gives it a `tabindex`, which stands in either list. **Interactive items keep focus on their `.host`,** the `<button>` or `<a>`, reached through `delegatesFocus` in every engine, and nothing is written on their host.
 
 ## Stopping point
 
-The unit stops at the pull request. The architect dates `RF-68` from this report. Open:
+The unit is finalized with the pull request, #99. The architect dates `RF-68` from this report. Open:
 
 - proof 6, Safari, until a Safari run reads it;
-- `RD-31`'s follow-up on #90, which adapts to this unit after it lands.
+- the reset section's screenshots under a universal reset, which `fold-cascade.ts` read and which have no rerun on this build (proof 4).
