@@ -1,0 +1,139 @@
+diff --git a/.scripts/vitest-config.ts b/.scripts/vitest-config.ts
+index 5f310c0b6..526738335 100644
+--- a/.scripts/vitest-config.ts
++++ b/.scripts/vitest-config.ts
+@@ -571,7 +571,7 @@ function createDragBrowserTestProjects(
+     // settle it before a sample, and precise `performance.memory` rather than
+     // the 100kB-quantized figure Chrome reports by default. Both are inert for
+     // every other test in the project.
+-    launchArgs: ['--js-flags=--expose-gc', '--enable-precise-memory-info'],
++    launchArgs: [`--js-flags=--expose-gc --allow-natives-syntax ${process.env.PROBE_JS_FLAGS ?? ''}`, '--enable-precise-memory-info'],
+     viteConfig: mergeConfig(createCoreViteConfig(root), {
+       // The React fixtures (`tests/**/react*.browser.test.ts`) need exactly
+       // one copy of React: without deduping, the optimizer gives `react-dom`
+diff --git a/packages/drag/tests/hot-path.browser.test.ts b/packages/drag/tests/hot-path.browser.test.ts
+index 2267c0b6f..9a4922fc8 100644
+--- a/packages/drag/tests/hot-path.browser.test.ts
++++ b/packages/drag/tests/hot-path.browser.test.ts
+@@ -5,6 +5,9 @@
+  */
+ import { describe, expect, it } from 'vitest';
+ import { Lifter } from '../src/lift.ts';
++import { Session } from '../src/kernel/session.ts';
++const probeMark = (m: string): void => { try { (new Function('s', '%GlobalPrint(s)') as (s: string) => void)(`\n[PROBE-MARK ${m}]\n`); } catch {} };
++const probeStatus = (): unknown => { try { return (new Function('f', 'return %GetOptimizationStatus(f)') as (f: unknown) => number)(Session.prototype.handleEvent); } catch (e) { return String(e); } };
+ import { landing } from '../src/sortable/landing.ts';
+ import { ReorderResolution } from '../src/sortable.ts';
+ import {
+@@ -259,7 +262,7 @@ describe('drag:DRI-17 hot path', () => {
+ 
+   it.runIf(isChromium)(
+     'should allocate per sample only the CSS string a lifted write needs',
+-    { tags: ['measurement'] },
++    { tags: ['measurement'], timeout: 300_000 },
+     async () => {
+       const list = makeList(20);
+ 
+@@ -273,23 +276,31 @@ describe('drag:DRI-17 hot path', () => {
+       // This first pass is not sampled. It lets the kernel's code reach its
+       // optimized form, so the test bounds what warm code allocates. What the
+       // earlier tiers allocate depends on what ran before the test.
+-      for (let i = 0; i < 300; i += 1) {
++      const warm = Number(import.meta.env.VITE_PROBE_WARM ?? 300);
++      const statusStart = probeStatus();
++      probeMark('warm-start');
++      for (let i = 0; i < warm; i += 1) {
+         // oxlint-disable-next-line no-await-in-loop -- one sample per step
+-        await commands.pointerMove(start.x + (i % 40), start.y + 12);
++        await (import.meta.env.VITE_PROBE_RAW === '1' ? commands.pointerMoveRaw(start.x + (i % 40), start.y + 12) : commands.pointerMove(start.x + (i % 40), start.y + 12));
+       }
+ 
+       await frames();
++      const statusBefore = probeStatus();
++      probeMark('window-start');
+       await commands.startHeapSampling(64);
+ 
+       for (let i = 0; i < 300; i += 1) {
+         // Inside one slot, so that only samples and warm frames run.
+         // oxlint-disable-next-line no-await-in-loop -- one sample per step
+-        await commands.pointerMove(start.x + (i % 40), start.y + 12);
++        await (import.meta.env.VITE_PROBE_RAW === '1' ? commands.pointerMoveRaw(start.x + (i % 40), start.y + 12) : commands.pointerMove(start.x + (i % 40), start.y + 12));
+       }
+ 
+       // The server's root is this package, so a url path that starts with `/src/`
+       // is this package's source, and a key is `<path under src>:<function>`.
+       const bytes = await commands.stopHeapSampling('/src/');
++      probeMark('window-end');
++      // eslint-disable-next-line no-console
++      console.log('PROBE ' + JSON.stringify({ warm, statusStart, statusBefore, statusAfter: probeStatus(), bytes }));
+ 
+       await commands.keyPress('Escape');
+ 
+@@ -343,6 +354,8 @@ describe('drag:DRI-17 hot path', () => {
+ 
+       await commands.pointerMove(start.x, start.y + 10, 2);
+       await frames();
++      const drf2Before = probeStatus();
++      probeMark('drf2-start');
+       await commands.startHeapSampling(16);
+ 
+       for (let i = 0; i < 300; i += 1) {
+@@ -351,6 +364,9 @@ describe('drag:DRI-17 hot path', () => {
+       }
+ 
+       const bytes = await commands.stopHeapSampling('/src/');
++      probeMark('drf2-end');
++      // eslint-disable-next-line no-console
++      console.log('DRF2PROBE ' + JSON.stringify({ drf2Before, drf2After: probeStatus(), bytes }));
+ 
+       await commands.keyPress('Escape');
+ 
+diff --git a/packages/drag/tests/support/browser-commands.ts b/packages/drag/tests/support/browser-commands.ts
+index 633a43d17..60e527934 100644
+--- a/packages/drag/tests/support/browser-commands.ts
++++ b/packages/drag/tests/support/browser-commands.ts
+@@ -12,6 +12,7 @@ declare module 'vitest/browser' {
+     ): Promise<void>;
+     forceGarbageCollection(): Promise<void>;
+     countHeapObjects(name: string): Promise<number>;
++    pointerMoveRaw(x: number, y: number): Promise<void>;
+     startHeapSampling(interval: number): Promise<void>;
+     stopHeapSampling(urlPart: string): Promise<Record<string, number>>;
+   }
+diff --git a/packages/drag/tests/support/commands.node.ts b/packages/drag/tests/support/commands.node.ts
+index 4e369f00e..d3d6322d5 100644
+--- a/packages/drag/tests/support/commands.node.ts
++++ b/packages/drag/tests/support/commands.node.ts
+@@ -215,6 +215,22 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
+       });
+     },
+   ),
++  pointerMoveRaw: playwrightOnly<[number, number]>(
++    'pointerMoveRaw',
++    async (context, x, y): Promise<void> => {
++      const cdp = await cdpOf(context);
++
++      await cdp.send('Input.dispatchMouseEvent', {
++        type: 'mouseMoved',
++        button: 'left',
++        buttons: 1,
++        x,
++        y,
++        modifiers: 0,
++        force: 0.5,
++      });
++    },
++  ),
+   forceGarbageCollection: playwrightOnly<[]>(
+     'forceGarbageCollection',
+     async (context): Promise<void> => {
+@@ -280,6 +296,9 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
+       const { profile } = (await cdp.send('HeapProfiler.stopSampling')) as {
+         profile: { head: HeapNode };
+       };
++      if (process.env.PROBE_PROFILE_DIR) {
++        (await import('node:fs')).writeFileSync(`${process.env.PROBE_PROFILE_DIR}/${Date.now()}-${urlPart.replaceAll('/', '_')}.json`, JSON.stringify(profile));
++      }
+       const bytes: Record<string, number> = {};
+       // A built-in such as `push` has no url, and its bytes belong to its caller.
+       const visit = (node: HeapNode, caller: string | null): void => {
