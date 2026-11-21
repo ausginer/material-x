@@ -2,6 +2,8 @@
 
 **Status: the owner answered Q1 to Q5 on 2026-11-20 and Q6, with its two follow-ups, on 2026-11-21 ([Owner's answers](#owners-answers)). No question is open, and the plan is ready for implementation.** The architect wrote this plan on 2026-11-20 at `e4b0e475d` (`origin/main`), on `repo/list-sortable-1`, for the coordinator's task on issue #86. It was revised twice the same day for the answers, and on 2026-11-21 for Q6 ([what Q6 changes](#q6-a-handle-less-item-takes-focus)).
 
+**Revised 2026-11-21 on the implementer's size stop at `88801757e`:** the items' sortable writes move into a module that only `list/sortable-list` imports, and reach the item through the context's value. The stop bounds don't change. [Where the sortable writes live](#where-the-sortable-writes-live) has the ruling, and task 3a the work.
+
 The owner asked for it in these words: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. The decision is [`repo:RD-31`](../00-index.md). Where the entry and this plan differ, the entry governs. Grab mode was proposed as [`drag:DRD-70`](../../packages/drag/.plan/00-index.md), and the owner deferred it, so it isn't part of this plan. **This plan changes no drag source.**
 
 The plan is repository-level because the work changes three packages: it deletes code from `core`, adds code to `material-x`, and makes `material-x` depend on `drag`.
@@ -292,9 +294,9 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
    - **with a handle,** it gives the handle the semantics of section 4, and writes nothing on its control;
    - **without a handle,** it writes the description on its control: the inner `.host` of `mx-list-item`, or the button or link of an interactive item. `mx-list-item` also sets `tabIndex = 0` on its inner `.host`.
 
-   Nothing is written on the host. The list writes nothing on an item, a handle or a shadow tree.
+   Nothing is written on the host. The list writes nothing on an item, a handle or a shadow tree. The code that writes lives in the sortable list's module and reaches the item through the context's value, and the item runs it on its own elements ([Where the sortable writes live](#where-the-sortable-writes-live)).
 
-3. **The item detects its own handle,** from the nodes assigned to its `start` and `end` slots, as `enhanceHandle` did. A handle is a child element of the item with `data-handle`, in either slot. The JSDoc says so, and drag's `handle(item)` in the list uses the same rule at each press and command. So the item and the list can't disagree.
+3. **The item detects its own handle,** from the nodes assigned to its `start` and `end` slots, as `enhanceHandle` did. A handle is a child element of the item with `data-handle`, in either slot. The JSDoc says so, and drag's `handle(item)` in the list uses the same rule at each press and command. So the item and the list can't disagree. The item observes its slots, and the rule, `handleOf`, runs in the context's value ([Where the sortable writes live](#where-the-sortable-writes-live)).
 4. **When the tab stop goes.** When the item gains a handle, its slot change moves the semantics to the handle and removes the tab stop and the description from the control. When the handle goes, the reverse. When the item leaves the list, its disconnect runs the context effect's cleanup, which removes everything the item wrote. A reconnect resolves the context again, so an item moved into `mx-list` takes nothing, and one moved into another sortable list takes it again. The item removes only values it wrote.
 5. **An item resolves the list's context in whatever order the two are defined.** That is `RF-69`'s repair in core, which this unit depends on ([below](#the-context-repair-is-cores-unit-rf-69)). The items resolve through the same `useContext` as `button-group`'s buttons, so the list adds no repair of its own.
 6. **The item composes `FocusForwarding`,** as the interactive items do, and its root delegates focus. So `item.focus()` reaches the inner `.host` in every engine, Firefox included. The Firefox gap isn't documented as a limit. `FocusForwarding`'s registry maps an element to its own control, which the owner's rule doesn't cover, and nothing else reads it.
@@ -309,11 +311,11 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 - **The late-provider repair is core's (`RF-69`),** because the gap is the controller's, and `button-group` has it too. Doing it in the list alone would leave the button group broken and give context two behaviors.
 - **The Firefox gap would be a correctness failure under valid use,** caused by the platform (`CONTRIBUTING.md` §1.1), and the package already has its fix.
 
-**What it costs.** Estimates, which task 6 replaces with readings.
+**What it costs.** Estimates, which task 6 replaces with readings. Revised for [where the sortable writes live](#where-the-sortable-writes-live).
 
-- **`list/list-item`:** it loses `useReorderableItem`. It keeps the handle code, now gated, and gains `useContext`'s consumer, `FocusForwarding`, the description and tab-stop writes and the focus indicator's styles. About 2,600 to 3,100 B.
-- **The interactive items:** they keep the handle code, gated, and gain the consumer and the description write. About the same as today, within 150 B either way.
-- **`list/sortable-list`:** it loses the handle semantics and the registry read, and gains `useProvider`. About 8,500 to 9,500 B.
+- **`list/list-item`:** it loses `useReorderableItem` and the handle code. It gains `useContext`'s consumer, its call into the context's value, `FocusForwarding` and the focus indicator's styles. About 2,600 to 3,100 B.
+- **The interactive items:** they lose the handle code and gain the consumer and its call. About the same as today, within 150 B either way.
+- **`list/sortable-list`:** it loses the registry read, and gains `useProvider` and the items' writes. About 8,500 to 9,500 B.
 - **`complete`:** the consumer in `ListItemCore` once and the provider once. `list/list` doesn't change.
 - **Run time:** one context event per item connect, which the owner accepted.
 
@@ -336,6 +338,61 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 - **At `5bf743235`:** the host's `tabindex` was the item's public switch, for the sortable list and for a consumer, and the inner `.host`'s `tabindex` followed it. `mx-list-item` ran `useARIA`, so the description that the list wrote on the host reached the focused element. The item observed `tabindex`, and `traits-baseline` expected it in the observed attributes. A consumer's `tabindex` in `mx-list` was a supported way to focus the item.
 - **At `9f90572fb`:** the item registered its inner `.host` through `useFocusForwarding`, and the list read the control from that registry and wrote `tabIndex` and the description on it. The list wrote the handle semantics. `FocusForwarding`'s JSDoc was to say that its registry outlives the trait.
 - **At `6214e3b57`:** item 5 had core's `useProvider` tell the provider's child elements to resolve the context again when it connects, as task 5's second part. On the owner's direction, `RF-69`'s unit repairs the gap instead, with the consumer's wait for its parent's definition.
+- **At `88801757e`:** the writes and the record of what the item wrote were in `ListItemCore`, so every item carried them, in a plain list too. [The next section](#where-the-sortable-writes-live) moves them.
+
+### Where the sortable writes live
+
+Ruled on 2026-11-21 on Mx Implementer B's size stop at `88801757e`, relayed by the coordinator.
+
+**What the reading shows** ([`size-after.txt`](checks/size-after.txt), [report](list-sortable-report.md#the-readings-task-6)):
+
+- `list/list-button-item` reads 4,575 → 4,841 B (+266), and `list/list-link-item` 4,746 → 5,048 B (+302). The bound is 150 B either way.
+- By ablation, the items without any sortable code read 4,451 and 4,646 B. The context consumer adds 110 and 129 B, and the writes 280 and 273 B. So the reading before held about 100 to 125 B of ungated handle code, which is gone, and the growth is the writes.
+- **The writes run only under `mx-sortable-list`, and every user of an item pays for them,** in `mx-list` too. `CONTRIBUTING.md` §7 says that an optional feature pays for itself, and task 6's required property says that an interactive item grows, if at all, only by the context consumer. The estimate in [What it costs](#how-a-static-item-takes-focus) counted the writes in the item, which contradicted that property. The estimate was wrong, not the bound.
+
+**The ruling: the shape changes (option b), and the bounds stay.**
+
+1. **The writes move into a module that only `list/sortable-list` imports:** the handle semantics, the description, the static item's tab stop, the record of what the item wrote, and the handle rule `handleOf`, which drag's `handle(item)` also uses. No module that `list/list`, `list/list-item`, `list/list-button-item` or `list/list-link-item` reaches contains them. The size reading proves it (task 3a).
+2. **The context's value carries them.** When the context resolves, the item calls the value with its host and its control. If the providing list isn't the item's parent, the call writes nothing and the item stays plain, so the parent check moves with the writes. Otherwise the call writes, and gives the item an update to run on each `lead` and `trail` slot change, and a cleanup that the context effect's cleanup runs. The value's form, a function or an object, is the implementer's.
+3. **The item keeps what only it can do:** it consumes the context, observes its own slots (`CONTRIBUTING.md` §6), and hands over its own control, as it does to `useFocusForwarding`. It holds no description text, attribute name or record.
+4. **Nothing else changes.** The elements written, their values and their removal are as ruling items 1 to 7 state. The writes still run only in the item's context resolution, its slot changes and its disconnect, so their timing doesn't change. The public API, the events, `traits-baseline` and every row of `tests/list` stay as they are.
+
+**Against the owner's parent–child rule.** The list and its items are still linked only through context. The list keeps no registry, queries no item, and observes no item's children or shadow tree. The item passes its control to the value itself. A behavior that a provider passes to its consumers through the context's value is what context is for.
+
+**Against `RF-69`.** `RF-69` changes when the consumer dispatches its request, not what the value is. An item still resolves the value in a microtask after it connects, a connection that ends before the wait settles writes nothing, and an item of an `mx-list` nested in a sortable item waits for `mx-list`, resolves the outer list, and is refused by the value's parent check. Until `RF-69` is on the base, the definition-order row stays `it.fails`, as now.
+
+**The bounds stay as task 6 and the stop conditions give them.** From the ablation, the items should read about 4,560 to 4,620 B and 4,780 to 4,830 B, within 150 B of the reading before, `list/list-item` about 2,720 to 2,780 B, under 3.1 kB, and `list/sortable-list` about 8,600 B, under 9.6 kB. These are estimates. If an interactive item still grows by more than 150 B, the unit stops again with the ablation.
+
+**The record of what the item wrote is needed, but only for two of its three elements.** The other writer isn't the list: it is the consumer, or `useARIA` on the consumer's behalf. Keeping its values is property 4's _"Values the consumer set are kept"_, for valid input, so this isn't a check against misuse (`CONTRIBUTING.md` §1.1).
+
+- **The handle** is the consumer's own light-DOM element. Its `aria-label`, `aria-labelledby`, `role` or `tabindex` is valid markup. When the item leaves the list, it removes what it wrote and keeps the consumer's values, so it must know which values are its own. Without the record, an item moved into `mx-list` either keeps a tab stop on its handle or loses the consumer's label. A test row checks this.
+- **An interactive item's button or link** receives the host's `aria-*` through `useARIA`. So a consumer's `aria-description` on the item's host is on the control, and the item mustn't remove it when it disconnects.
+- **`mx-list-item`'s inner `.host`** has no other writer: it is in the item's shadow root, and `mx-list-item` runs no `useARIA`. Its tab stop and description are written and removed without a record.
+- **Its form is the implementer's.** An item has at most one handle and one control, so a map keyed by element isn't needed. Its bytes now count in `list/sortable-list`.
+
+**No owner question.** No byte is traded for API or behavior: the change moves code between internal modules, and neither the context nor its value is a package export.
+
+**Not adopted.**
+
+- **Accepting the bytes, with a wider bound (option a).** Every user of a button or link item would carry about 280 B that runs only under a sortable list. That is against `CONTRIBUTING.md` §7, task 6's required property, and `RD-31`'s separate import for sorting, and no behavior or API needs it.
+- **The smaller write variant in the item:** owned pairs, and `touch-action` from a `::slotted([data-handle])` rule. It saves about 30 B, which doesn't clear the bound, and the slotted rule would apply `touch-action: none` to a handle in `mx-list` too.
+- **An `import()` of the writes from the item:** a second request and an asynchronous step for each consumer's bundle.
+- **A hook that `sortable-list.js` installs in `ListItemCore` when it's evaluated:** a module-level channel between the list and its items, which the owner's rule excludes as it excludes a registry, and which depends on evaluation order, as section 2 rejected.
+- **The list running the writes on its slotted items:** it would need an observer of every item's children for a handle added later (above).
+
+#### Proposed sixth amendment of `RD-31`, for the main slot's architect
+
+This slot doesn't amend record entries, so the text is proposed here.
+
+In property 4's item on handle semantics, replace _"The item writes it on its own handle or control while it is in a sortable list, and never on its host. The list writes nothing on an item."_ with:
+
+> The item applies it to its own handle or control while it is in a sortable list, and never to its host. The code that writes it is in a module that only `list/sortable-list` imports, and reaches the item through the context's value, so a plain list's items don't contain it. The list writes nothing on an item.
+
+In property 7, replace _"`list/list` and the interactive items don't grow, and `list/list-item` grows, if at all, only by its focus indicator and what taking focus needs."_ with:
+
+> `list/list` doesn't grow. The interactive items grow, if at all, only by the context consumer, and `list/list-item` only by the consumer, its focus indicator and `FocusForwarding`. The items' sortable writes are in `list/sortable-list`.
+
+Add to the reasons: _"**The items' writes travel in the context's value,** because only a sortable list runs them, and an item in a plain list doesn't carry them (`CONTRIBUTING.md` §7)."_ Add the replaced passages to the end of the entry, and a dated line under the status, as for the fifth amendment.
 
 ### Proposed fifth amendment of `RD-31`, for the main slot's architect
 
@@ -422,12 +479,12 @@ Read rows are in [Readings](#readings). The rest are **estimates**, and task 6 r
 | --- | --: | --: |
 | drag, every composition | 2,189 to 7,143 | unchanged: no drag source changes |
 | `mx-list` | 3,670 | about 1,000 to 1,500 (estimate): it loses core's trait |
-| The interactive items | 4,580 to 4,750 | about the same (estimate): they keep the handle code, gated by the context, and gain its consumer |
-| `mx-list-item` | 2,570 | about 2,600 to 3,100 (estimate): it keeps the handle code, gated, and gains the context consumer, the focus indicator and `FocusForwarding` (Q6) |
+| The interactive items | 4,580 to 4,750 | about the same (estimate): they lose the handle code and gain the context consumer, whose value carries the writes |
+| `mx-list-item` | 2,570 | about 2,600 to 3,100 (estimate): it loses the handle code, and gains the context consumer, the focus indicator and `FocusForwarding` (Q6) |
 | `mx-sortable-list` | — | about 8,500 to 9,500 (estimate) |
 
 - **The plain list gets about 2 to 2.5 kB smaller.** It no longer carries core's 3.11 kB trait, minus the modules it shares with it.
-- **Q6 and the context move bytes from the list to the items.** The items write their own handle semantics, description and tab stop, gated by the context ([What it costs](#how-a-static-item-takes-focus)), and the list only provides. `mx-list-item` also gains Material's focus indicator, whose source styles are under 1 kB before compression, and `FocusForwarding`. `RF-68`'s role is that unit's bytes, not this one's.
+- **The items' writes are the sortable list's bytes.** Each item applies its own handle semantics, description and tab stop, with code that the context's value carries from `list/sortable-list` ([Where the sortable writes live](#where-the-sortable-writes-live)), so a plain list's items carry only the consumer. `mx-list-item` also gains Material's focus indicator, whose source styles are under 1 kB before compression, and `FocusForwarding`. `RF-68`'s role is that unit's bytes, not this one's.
 - **A sortable list costs about 5 kB more than today's reorderable list** (3.67 kB). drag's sortable with landing is 6.87 kB, against core's trait at 3.11 kB. That is the cost of moving to drag, which the owner chose. Task 6 checks it by reading.
 
 ## Owner's answers
@@ -475,9 +532,17 @@ One unit, on this plan's branch, `repo/list-sortable-1`: the implementer continu
 - Add the tag to `src/react.ts` with its `reorder` event, and check that the custom-element manifest lists it. The element has no attribute of its own.
 - Check that the built `list/sortable-list.d.ts` and `react.d.ts` contain no `@ydinjs/drag` specifier.
 - Check that the root `build` and `typecheck` build drag before material-x.
-- The list provides its context and writes nothing on its items. On disconnect it calls `requestDestroy()` and clears the lifted item's `drag` state, and on connect it creates a new controller ([section 4](#4-the-sortable-lists-behavior), Lifecycle).
+- The list provides its context, whose value carries the items' writes (task 3a), and writes nothing on its items. On disconnect it calls `requestDestroy()` and clears the lifted item's `drag` state, and on connect it creates a new controller ([section 4](#4-the-sortable-lists-behavior), Lifecycle).
 
-**Task 3. The plain list and the items.** Remove `Reorderable`, `useReorderable`, `ReorderEvent` and the landing's CSS props from `list.ts`. Remove `useReorderableItem` and `enhanceHandle` from `ListItemCore.ts`. Move the items' sortable behavior into `ListItemCore`, gated by the list's context, as [How a static item takes focus](#how-a-static-item-takes-focus) rules: the item consumes the context with a parent check, detects its handle from its `start` and `end` slots, writes the handle semantics or its control's description, and, for `mx-list-item`, the tab stop on its inner `.host`. `mx-list-item`'s root delegates focus, and it composes `FocusForwarding`. `RF-69`'s unit lands first ([above](#the-context-repair-is-cores-unit-rf-69)). Those are the only additions to an item, and none imports a drag module. If an engine in the gate doesn't then give one tab stop on the inner `.host`, with `item.focus()` reaching it, stop and report. Move the `Draggable` story to `mx-sortable-list`, and add one story with button items and no handles, and one with static items, some with handles and some without. A story's handler may stay a React state update, which the commit wait allows.
+**Task 3. The plain list and the items.** Remove `Reorderable`, `useReorderable`, `ReorderEvent` and the landing's CSS props from `list.ts`. Remove `useReorderableItem` and `enhanceHandle` from `ListItemCore.ts`. Move the items' sortable behavior into `ListItemCore`, gated by the list's context, as [How a static item takes focus](#how-a-static-item-takes-focus) rules: the item consumes the context with a parent check, detects its handle from its `start` and `end` slots, writes the handle semantics or its control's description, and, for `mx-list-item`, the tab stop on its inner `.host`. `mx-list-item`'s root delegates focus, and it composes `FocusForwarding`. `RF-69`'s unit lands first ([above](#the-context-repair-is-cores-unit-rf-69)). Those are the only additions to an item, and none imports a drag module. If an engine in the gate doesn't then give one tab stop on the inner `.host`, with `item.focus()` reaching it, stop and report. Move the `Draggable` story to `mx-sortable-list`, and add one story with button items and no handles, and one with static items, some with handles and some without. A story's handler may stay a React state update, which the commit wait allows. Task 3a moves the writes out of `ListItemCore`.
+
+**Task 3a. The writes leave the items,** on top of `88801757e`, as [Where the sortable writes live](#where-the-sortable-writes-live) rules.
+
+- Move the handle semantics, the description, the static item's tab stop, the record of what the item wrote and `handleOf` into a module that only `list/sortable-list` imports. The context's value carries them, with the parent check. `ListItemCore` keeps the consumer, its slot observers and its call into the value, and holds no description text or record.
+- The record covers the handle and an interactive item's control. `mx-list-item`'s inner `.host` needs none.
+- Every row of `tests/list` passes unchanged, and `traits-baseline` doesn't change. A row that needs a change is a stop, because no behavior changes.
+- Read task 6's sizes and module lists again, with the ablation's _no sortable code_ column, and replace the table in `checks/size-after.txt`. Show that the description text is in no module of a plain item's row. Run the accessibility probe again, and confirm that `checks/list-a11y-after.txt` reads the same.
+- Then task 7's dated lines, naming the final commit.
 
 **Task 4. Tests.** Write the material-x rows in the [test map](#test-map), in `tests/list/`.
 
