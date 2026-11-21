@@ -1,0 +1,11 @@
+# The same row after the fix, on f12db1ced plus the unit's working tree, in Chromium, Firefox and WebKit: MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' tests/button-group/button-group-order (from packages/material-x)
+
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-worktrees-b/84159b63-6c4c-4ec8-b57f-59e324329c10/scratchpad/clp/packages/material-x
+
+
+ Test Files  3 passed (3)
+      Tests  3 passed (3)
+   Start at  07:36:34
+   Duration  4.09s (worker 48%, import 23%, tests 23%, setup 6%)
+

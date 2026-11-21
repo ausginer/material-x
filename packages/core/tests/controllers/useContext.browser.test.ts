@@ -98,6 +98,14 @@ function captureContextEvent(): Event {
   return lookupEvent;
 }
 
+/**
+ * Lets a lookup that waits for an already defined parent run: its reaction is
+ * queued at the connect, before this one.
+ */
+async function lookup(): Promise<void> {
+  await Promise.resolve();
+}
+
 describe('createContext', () => {
   it('should create distinct string tokens where crypto.randomUUID is unavailable', () => {
     // An insecure page, such as plain HTTP from a LAN address, has no
@@ -152,7 +160,7 @@ describe('useContext', () => {
     expect(effectMock).toHaveBeenCalledWith(undefined);
   });
 
-  it('should resolve provider value synchronously on connect', () => {
+  it('should resolve the provider value on connect', async () => {
     const ctx = createContext<ContextValue>();
     const value = {
       emitter: new EventEmitter<[string]>(),
@@ -171,11 +179,12 @@ describe('useContext', () => {
 
     provider.append(consumer);
     document.body.append(provider);
+    await lookup();
 
     expect(effectMock).toHaveBeenCalledWith(value);
   });
 
-  it('should resolve the nearest provider when providers are nested', () => {
+  it('should resolve the nearest provider when providers are nested', async () => {
     const ctx = createContext<ContextValue>();
     const outerValue = {
       emitter: new EventEmitter<[string]>(),
@@ -203,12 +212,13 @@ describe('useContext', () => {
     innerProvider.append(consumer);
     outerProvider.append(innerProvider);
     document.body.append(outerProvider);
+    await lookup();
 
     expect(effectMock).toHaveBeenCalledOnce();
     expect(effectMock).toHaveBeenCalledWith(innerValue);
   });
 
-  it('should ignore providers registered for another context', () => {
+  it('should ignore providers registered for another context', async () => {
     const providerCtx = createContext<ContextValue>();
     const consumerCtx = createContext<ContextValue>();
     const Provider = createProvider(providerCtx, {
@@ -228,12 +238,13 @@ describe('useContext', () => {
 
     provider.append(consumer);
     document.body.append(provider);
+    await lookup();
 
     expect(effectMock).toHaveBeenCalledOnce();
     expect(effectMock).toHaveBeenCalledWith(undefined);
   });
 
-  it('should rerun provider lookup synchronously after reconnect', () => {
+  it('should rerun provider lookup after reconnect', async () => {
     const ctx = createContext<ContextValue>();
 
     const firstValue = {
@@ -265,13 +276,15 @@ describe('useContext', () => {
 
     firstProvider.append(consumer);
     document.body.append(firstProvider, secondProvider);
+    await lookup();
     secondProvider.append(consumer);
+    await lookup();
 
     expect(effectMock).toHaveBeenNthCalledWith(1, firstValue);
     expect(effectMock).toHaveBeenNthCalledWith(2, secondValue);
   });
 
-  it('should dispose previous subscription before rerunning effect after reconnect', () => {
+  it('should dispose previous subscription before rerunning effect after reconnect', async () => {
     const ctx = createContext<ContextValue>();
     const firstValue = {
       emitter: new EventEmitter<[string]>(),
@@ -304,18 +317,20 @@ describe('useContext', () => {
 
     firstProvider.append(consumer);
     document.body.append(firstProvider, secondProvider);
+    await lookup();
 
     expect(effectMock).toHaveBeenNthCalledWith(1, firstValue);
     expect(firstCleanup).not.toHaveBeenCalled();
 
     secondProvider.append(consumer);
+    await lookup();
 
     expect(firstCleanup).toHaveBeenCalledOnce();
     expect(effectMock).toHaveBeenNthCalledWith(2, secondValue);
     expect(secondCleanup).not.toHaveBeenCalled();
   });
 
-  it('should rely on manual subscriptions inside the provided value', () => {
+  it('should rely on manual subscriptions inside the provided value', async () => {
     const ctx = createContext<ContextValue>();
     const emitter = new EventEmitter<[string]>();
     const Provider = createProvider(ctx, {
@@ -334,6 +349,7 @@ describe('useContext', () => {
 
     provider.append(consumer);
     document.body.append(provider);
+    await lookup();
     emitter.emit('first-update');
 
     expect(updateMock).toHaveBeenCalledWith('first-update');
@@ -344,7 +360,7 @@ describe('useContext', () => {
     expect(updateMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should unsubscribe from the previous provider after moving to another provider', () => {
+  it('should unsubscribe from the previous provider after moving to another provider', async () => {
     const ctx = createContext<ContextValue>();
     const firstEmitter = new EventEmitter<[string]>();
     const secondEmitter = new EventEmitter<[string]>();
@@ -371,12 +387,14 @@ describe('useContext', () => {
 
     firstProvider.append(consumer);
     document.body.append(firstProvider, secondProvider);
+    await lookup();
 
     firstEmitter.emit('first-update');
 
     expect(updateMock).toHaveBeenCalledWith('first-update');
 
     secondProvider.append(consumer);
+    await lookup();
     firstEmitter.emit('stale-update');
     secondEmitter.emit('second-update');
 
@@ -384,7 +402,7 @@ describe('useContext', () => {
     expect(updateMock).toHaveBeenNthCalledWith(2, 'second-update');
   });
 
-  it('should call effect with undefined after reconnect without any provider', () => {
+  it('should call effect with undefined after reconnect without any provider', async () => {
     const ctx = createContext<ContextValue>();
     const value = {
       emitter: new EventEmitter<[string]>(),
@@ -404,13 +422,14 @@ describe('useContext', () => {
 
     provider.append(consumer);
     document.body.append(provider);
+    await lookup();
     document.body.append(consumer);
 
     expect(effectMock).toHaveBeenNthCalledWith(1, value);
     expect(effectMock).toHaveBeenNthCalledWith(2, undefined);
   });
 
-  it('should not react to provider value replacement without reconnect', () => {
+  it('should not react to provider value replacement without reconnect', async () => {
     const ctx = createContext<ContextValue>();
     const firstEmitter = new EventEmitter<[string]>();
     const secondEmitter = new EventEmitter<[string]>();
@@ -435,6 +454,7 @@ describe('useContext', () => {
 
     provider.append(consumer);
     document.body.append(provider);
+    await lookup();
 
     expect(effectMock).toHaveBeenCalledOnce();
     expect(effectMock).toHaveBeenCalledWith(firstValue);
@@ -448,7 +468,7 @@ describe('useContext', () => {
     expect(updateMock).toHaveBeenCalledWith('first-update');
   });
 
-  it('should keep multiple consumers isolated when one disconnects', () => {
+  it('should keep multiple consumers isolated when one disconnects', async () => {
     const ctx = createContext<ContextValue>();
     const emitter = new EventEmitter<[string]>();
     const Provider = createProvider(ctx, {
@@ -471,6 +491,7 @@ describe('useContext', () => {
 
     provider.append(firstConsumer, secondConsumer);
     document.body.append(provider);
+    await lookup();
     emitter.emit('first-update');
 
     expect(firstUpdateMock).toHaveBeenCalledWith('first-update');
@@ -482,5 +503,181 @@ describe('useContext', () => {
     expect(firstUpdateMock).toHaveBeenCalledTimes(1);
     expect(secondUpdateMock).toHaveBeenCalledTimes(2);
     expect(secondUpdateMock).toHaveBeenNthCalledWith(2, 'second-update');
+  });
+});
+
+describe('useContext with a custom-element parent', () => {
+  function createValue(name: string): ContextValue {
+    return { emitter: new EventEmitter<[string]>(), name };
+  }
+
+  /** An element of a provider name that isn't defined yet. */
+  function createPending(): readonly [tag: string, element: HTMLElement] {
+    const tag = nameCE();
+    return [tag, document.createElement(tag)];
+  }
+
+  async function tasks(count: number): Promise<void> {
+    for (let index = 0; index < count; index++) {
+      // oxlint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+    }
+  }
+
+  it('should resolve a provider defined after the consumer connected', async () => {
+    const ctx = createContext<ContextValue>();
+    const value = createValue('late');
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    const [providerTag, provider] = createPending();
+    defineCE(nameCE(), Consumer);
+    provider.append(new Consumer());
+    document.body.append(provider);
+    await tasks(1);
+
+    defineCE(providerTag, createProvider(ctx, value));
+    await lookup();
+
+    expect(effectMock.mock.calls).toEqual([[value]]);
+  });
+
+  it('should not run the effect synchronously under a defined provider', () => {
+    const ctx = createContext<ContextValue>();
+    const Provider = createProvider(ctx, createValue('provider'));
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    defineCE(nameCE(), Provider);
+    defineCE(nameCE(), Consumer);
+    const provider = new Provider();
+    provider.append(new Consumer());
+
+    document.body.append(provider);
+
+    expect(effectMock).not.toHaveBeenCalled();
+  });
+
+  it('should run the effect after one microtask under a defined provider', async () => {
+    const ctx = createContext<ContextValue>();
+    const value = createValue('provider');
+    const Provider = createProvider(ctx, value);
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    defineCE(nameCE(), Provider);
+    defineCE(nameCE(), Consumer);
+    const provider = new Provider();
+    provider.append(new Consumer());
+
+    document.body.append(provider);
+    await lookup();
+
+    expect(effectMock.mock.calls).toEqual([[value]]);
+  });
+
+  it('should run the effect synchronously under a parent that is not a custom element', () => {
+    const ctx = createContext<ContextValue>();
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    defineCE(nameCE(), Consumer);
+    const parent = document.createElement('div');
+    parent.append(new Consumer());
+
+    document.body.append(parent);
+
+    expect(effectMock.mock.calls).toEqual([[undefined]]);
+  });
+
+  it('should wait for the host of the shadow root it is at the top level of', async () => {
+    const ctx = createContext<ContextValue>();
+    const value = createValue('shadow');
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    const [providerTag, provider] = createPending();
+    defineCE(nameCE(), Consumer);
+    provider.attachShadow({ mode: 'open' }).append(new Consumer());
+    document.body.append(provider);
+    await tasks(1);
+
+    defineCE(providerTag, createProvider(ctx, value));
+    await lookup();
+
+    expect(effectMock.mock.calls).toEqual([[value]]);
+  });
+
+  it('should do nothing for a connection that ended before the definition', async () => {
+    const ctx = createContext<ContextValue>();
+    const value = createValue('late');
+    const [effectMock, updateMock, Consumer] = createConsumer(ctx);
+    const [providerTag, provider] = createPending();
+    defineCE(nameCE(), Consumer);
+    const consumer = new Consumer();
+    provider.append(consumer);
+    document.body.append(provider);
+    consumer.remove();
+
+    defineCE(providerTag, createProvider(ctx, value));
+    await tasks(1);
+    value.emitter.emit('update');
+
+    expect([effectMock.mock.calls, updateMock.mock.calls]).toEqual([[], []]);
+  });
+
+  it('should resolve only the provider it moved to before either was defined', async () => {
+    const ctx = createContext<ContextValue>();
+    const firstValue = createValue('first');
+    const secondValue = createValue('second');
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    const [firstTag, first] = createPending();
+    const [secondTag, second] = createPending();
+    defineCE(nameCE(), Consumer);
+    const consumer = new Consumer();
+    first.append(consumer);
+    document.body.append(first, second);
+    second.append(consumer);
+
+    defineCE(firstTag, createProvider(ctx, firstValue));
+    await tasks(1);
+    const afterFirst = [...effectMock.mock.calls];
+    defineCE(secondTag, createProvider(ctx, secondValue));
+    await tasks(1);
+
+    expect([afterFirst, effectMock.mock.calls]).toEqual([[], [[secondValue]]]);
+  });
+
+  it('should not run the effect while the parent is never defined', async () => {
+    const ctx = createContext<ContextValue>();
+    const [effectMock, , Consumer] = createConsumer(ctx);
+    const [, provider] = createPending();
+    defineCE(nameCE(), Consumer);
+    provider.append(new Consumer());
+    document.body.append(provider);
+
+    await tasks(3);
+
+    expect(effectMock).not.toHaveBeenCalled();
+  });
+
+  it('should run each cleanup once over connections that end before and after the lookup', async () => {
+    const ctx = createContext<ContextValue>();
+    const cleanup: Mock<Unsubscribe> = vi.fn();
+    const effectMock = vi
+      .fn<ContextEffect<ContextValue>>()
+      .mockReturnValue(cleanup);
+    const Consumer = createConsumerWithEffect(ctx, effectMock);
+    const Provider = createProvider(ctx, createValue('provider'));
+    const [pendingTag, pending] = createPending();
+    defineCE(nameCE(), Provider);
+    defineCE(nameCE(), Consumer);
+    const provider = new Provider();
+    const consumer = new Consumer();
+    document.body.append(provider, pending);
+
+    provider.append(consumer);
+    await lookup();
+    consumer.remove();
+    pending.append(consumer);
+    consumer.remove();
+    defineCE(pendingTag, createProvider(ctx, createValue('pending')));
+    await tasks(1);
+
+    expect([effectMock.mock.calls.length, cleanup.mock.calls.length]).toEqual([
+      1, 1,
+    ]);
   });
 });
