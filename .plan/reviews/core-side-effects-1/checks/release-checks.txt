@@ -1,0 +1,52 @@
+# Proofs 2 and 3, rerun by the feature proof at 42999d4a3
+
+## just release-check core (problems by check)
+     56 ::error title=release-check pack-excluded
+     93 ::error title=release-check pack-files
+      1 ::error title=release-check pack-required
+      1 ::error title=release-check repository-directory
+      1 ::error title=release-check repository-url
+exit 1
+
+## scratch effect: 'globalThis.ydinProbe = 1;' appended to packages/core/src/utils/runtime.ts (reverted after)
+### core's size script (aube run size in packages/core)
+  
+  emitter
+  Package size limit has exceeded by 2 B
+  Size limit: 210 B
+### core built, packed with aube pack --ignore-scripts, then node .scripts/release-check.ts package --directory packages/core --tarball <tgz>
+     56 ::error title=release-check pack-excluded
+     93 ::error title=release-check pack-files
+      1 ::error title=release-check pack-required
+      1 ::error title=release-check repository-directory
+      1 ::error title=release-check repository-url
+     22 ::error title=release-check side-effects
+### the side-effects problems
+a bare import of @ydinjs/core/controllers/useARIA.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useAttributes.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useConnected.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useContext.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useCSSProps.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useEvents.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useKeyboard.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useMutationObserver.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useResizeObserver.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useRovingTabindex.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/controllers/useSlot.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/element.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/emitter.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/checkable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/disableable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/linkable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/nameable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/reorderable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/selectable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/typeable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/traits/valuable.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+a bare import of @ydinjs/core/utils/runtime.js keeps 23 bytes: remove the effect, or list the module in sideEffects
+### the other problems, compared with the run without the effect
+identical: 152 problems
+
+## just release-check box-quad
+problems: 0
+exit 0

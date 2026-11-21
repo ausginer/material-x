@@ -1,0 +1,14 @@
+# edges.ts at 5a16e410b, rolldown 1.3.2
+exports: pure, pure-call, uninstalled, opaque-call, multibyte-style, missing
+side-effects | a bare import of p/uninstalled.js reaches p/uninstalled.js, whose import of q doesn't resolve: publish the module, or declare its package in dependencies
+side-effects | a bare import of p/opaque-call.js keeps 18 bytes: remove the effect, or list the module in sideEffects
+side-effects | a bare import of p/multibyte-style.js keeps 35 bytes: remove the effect, or list the module in sideEffects
+side-effects | p/missing.js doesn't resolve: publish the file that its export names
+multibyte.css: 35 bytes, 29 UTF-16 units
+
+# without-dependencies.sh at 5a16e410b
+## as committed: rolldown imported in checkSideEffects
+usage: release-check.ts
+## rolldown imported at the module's top
+Cannot find package 'rolldown'
+ERR_MODULE_NOT_FOUND

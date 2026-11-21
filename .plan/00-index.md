@@ -1293,6 +1293,8 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 
 **Why.** The owner approved every request to open a pull request, so asking cost a round trip and decided nothing. Merging is where his decision lies, and it stays his.
 
+**Amended 2026-11-21 by `RD-32`: a plan alone doesn't finalize a unit that implements it.** The rule above still holds once a unit is finalized and pushed. A plan and its implementation now share one branch and one pull request, so the pull request opens after the implementation. Until then, the rule let an architect's pushed plan have a pull request of its own, as #90 has.
+
 #### RD-26 — Traits are plain classes in two layers, a component names its traits in a `Composed` annotation, and the flattener is a required build step
 
 **Decided 2026-11-19 by the owner,** relayed by the coordinator, on Architect B's [feasibility study](trait-decorators-1/trait-decorators-plan.md) and [migration plan](trait-decorators-1/trait-migration-plan.md) at `250b55f96`. The plan's [owner's decisions](trait-decorators-1/trait-migration-plan.md#the-owners-decisions-2026-11-19) section lists his answers. Registered by the architect on `repo/traits-migration-1`, which merged `repo/trait-decorators-1` into `origin/main` at `24c6672ce` (`e49b67e24`, `RD-17`). `RD-25` is the highest number on any branch on `origin`, so this is the next free number. **Unimplemented:** the plan's [seven commits](trait-decorators-1/trait-migration-plan.md#commits) implement it on this branch, and its pull request opens after the plan's [proofs](trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request) hold.
@@ -1808,6 +1810,52 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **Why the rewrite changes so much.** It changes every commit hash, because `--sensitive-data-removal` also removes every commit's signature. The map keeps the record's citations readable without rewriting the record.
 - **Why Support is needed.** Without it, GitHub keeps the old commits reachable through the 55 `refs/pull/N/head` refs and by hash. Only Support can remove those.
 - **Why nothing else on GitHub needs removing.** The scan of the pull requests' and issues' text, the artifacts, the deployed site and the run logs found no copy ([reading](tokens-source-1/checks/history-scan.txt)).
+
+#### RD-30 — `@ydinjs/core` declares `"sideEffects": false`, and the release check bundles a bare import of each export to prove the claim of every package that makes it
+
+**Decided 2026-11-20 by the owner,** relayed by the coordinator, answering question 1 of the [`@trait` follow-ups plan](https://github.com/ausginer/material-x/blob/repo/trait-decorator-2/.plan/trait-decorator-2/trait-decorator-2-plan.md#questions-for-the-owner) as recommended: _"Да, давай по обоим пунктам"_ ("Yes, go on both"). `RD-26`'s fourth amendment, on `repo/trait-decorator-2`, records the answer. The check's design is the architect's. Registered on `core/side-effects-1`, from `origin/main` at `e4b0e475d`. `RD-29` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number. The [plan](core-side-effects-1/core-side-effects-plan.md) holds the readings, the tasks, the proofs and the probes. It must be in before core's first release.
+
+**Implemented 2026-11-20 by the implementer** on `core/side-effects-1` ([report](core-side-effects-1/core-side-effects-report.md)). Until then this said _"Unimplemented."_
+
+- core declares the field, and step 7 runs the `side-effects` check. Proofs 1–7 hold. `just release-check core` lists no `side-effects` problem, and lists `@ydinjs/core/utils/runtime.js` with a scratch top-level effect. box-quad passes.
+- rolldown 1.3.2 doesn't bundle CSS, so the check emits an imported stylesheet as an asset itself, and property 4 holds as written. For that reason the `moduleSideEffects: true` mutation fails the two effect rows and not the CSS row.
+- rolldown is imported when step 7 runs, not at the module's top, because a release run's first step runs `release-check.ts release` before `aube ci`, so evaluating the module must need only Node's built-in modules. With a static import, that step fails with `ERR_MODULE_NOT_FOUND` ([probe](reviews/core-side-effects-1/checks/without-dependencies.txt)). Separately, with a static import the root `just test` failed `drag:DRI-17`'s hot-path row, which passes alone. That is an observation for #70, not a reason for the import's position.
+- An import that rolldown doesn't resolve, such as an export whose file is missing or a module's import of an undeclared package, is reported as that import, with a repair that applies to it, and not as an effect. Before the feature proof's `reviewer-2`, such an export was reported as keeping bytes, and an unresolved relative import made the check throw.
+- **Corrected 2026-11-20** after the [feature proof](reviews/core-side-effects-1/feature-proof-claude.md) (`reviewer-1`, `reviewer-2`). This line explained the lazy import only by DRI-17, and didn't name unresolved imports.
+
+1. **The claim.** core's `package.json` declares `"sideEffects": false`.
+   - **It is true of the 27 modules at `e4b0e475d`.** Their top levels only import other core modules, bind functions, classes and values, and call `Symbol`, `bound()` (which returns `null`) and `createEventNotifier` (which returns a closure). `element.js`'s static block assigns its own module's bindings. No module writes a global, defines an element, adopts a stylesheet or adds a listener, and core imports no CSS ([reading](core-side-effects-1/checks/top-level.txt)).
+   - **The one observable thing is a throw:** `element.js` and the modules that extend `Event` throw where the global doesn't exist. Leaving the module out removes only that failure.
+   - **rolldown agrees without the field:** told that every module has effects unless it proves otherwise, it keeps nothing of a bare import of any of the 27 ([reading](core-side-effects-1/checks/consumer-drop.txt)).
+2. **The check.** The release workflow's step 7 checks the claim of every packed manifest whose `sideEffects` is `false`, box-quad's included:
+   - for each export, it bundles a bare import of the specifier from the consumer project with the repository's rolldown, with `treeshake.moduleSideEffects` a function that returns `true`. Only a function overrides the package's field ([reading](core-side-effects-1/checks/oracle.txt));
+   - each bundle must emit no code and no asset. Otherwise it reports a `side-effects` problem that names the specifier and the bytes kept;
+   - a manifest whose field has another value, such as an array, is reported until the check reads that form.
+3. **A module that gains an effect** fails the next release's check run. Its author removes the effect, marks the call `/* @__PURE__ */`, or changes the field to an array of the modules that have effects and extends the check to read it.
+
+- **Why `false` and not an array:** an empty array means the same, and neither form keeps out a module that nobody listed. The check does, in either form.
+- **Why rolldown judges it:** it is the repository's bundler, and it keeps what it can't prove free of effects. When it is wrong, the release fails on an effect that isn't one, which is the safe side.
+- **Why at release:** the field is a contract once the package is published, and step 7 already installs the tarball that is published, in every check run, release run and `just release-check`.
+- **What it changes** ([plan](core-side-effects-1/core-side-effects-plan.md#the-size-reading)):
+  - **No size row,** of 33, because size-limit bundles with rolldown, which already drops these modules. The five bare imports of core that rolldown keeps in material-x's built `IconButtonCore.js`, `TextFieldCore.js`, `ButtonGroupCore.js` and `focus-forwarding.js` cost 0 bytes in a rolldown bundle, with or without the field ([reading](core-side-effects-1/checks/size-reading.txt));
+  - **No built file** of core or material-x. material-x's build treats core as external, so its published files keep the five imports ([reading](core-side-effects-1/checks/build-identity.txt));
+  - **An esbuild consumer's bundle:** 14 of material-x's 18 runtime entries lose 42 to 51 minified bytes, which are `attribute-traits.js`'s `bound` and its two calls. A bare import of a core module keeps up to 959 bytes without the field, and nothing with it ([reading](core-side-effects-1/checks/consumer-entries.txt)).
+- **Not adopted:**
+  - **the check in the pull-request workflow as well:** no job there packs a package, and nothing is published between a pull request and the check run before the next release;
+  - **a test that reads the top level of core's source:** the claim is about the built modules, which the plugin and tsdown write.
+- **`RD-26` and `RD-27` don't change.** `RD-26`'s fourth amendment and this unit don't wait for each other. `RD-27`'s properties don't enumerate the checks, and its plan's step 7 gains one.
+
+#### RD-32 — A unit's plan and its implementation share one branch and one pull request, and a change to project documentation has its own
+
+**Decided 2026-11-21 by the owner,** relayed by the coordinator: _"A change to project documentation (rules for agents, user-visible documentation, etc.) is a separate PR, that's right. But a plan is part of a feature's implementation, so they must go in one PR."_ (translated). Proposed by Mx Architect B in the description of [#93](https://github.com/ausginer/material-x/pull/93), from slot b, which doesn't mint. Registered by the architect on `repo/one-pr-rule-1`. `RD-31` is the highest number on any branch on `origin`, so this is the next free number. **Implemented** in `agent-workflow.md`, `AGENTS.md` and `work-queue.md` by #93 (`2f95645a6`), which the owner merged.
+
+- **The rule:** [`agent-workflow.md` §One branch and one pull request per unit](../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit).
+- **It amends `RD-25`'s rule.** An agent still opens a pull request without being asked once the unit is finalized and pushed. A plan alone no longer finalizes a unit that implements it. Merging stays with the owner.
+- **What the documents said before.** `AGENTS.md` allowed a pull request _"once a unit is finalized and pushed"_, and an architect's pushed plan counted, as for #90. `work-queue.md` said that an issue moves to _In progress_ with its pull request.
+- **A unit with nothing to implement,** such as a decision that only records an answer, has its own pull request. This entry is one.
+- **Not settled: a feature's own user documentation.** The owner's words put user-visible documentation in a separate pull request. The rule as written keeps a feature's JSDoc and its component page with the feature, as `implementer.md` makes the documentation a task needs part of its implementation. Only documentation that no feature owes has its own pull request. If the owner meant a feature's documentation too, the section's last bullet and `implementer.md` change, and this entry is amended.
+
+**Why.** A plan is part of its feature's implementation, so the owner reviews and merges them together. Project documentation isn't a feature's, so it has its own pull request.
 
 ## Findings
 
