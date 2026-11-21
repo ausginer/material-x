@@ -1847,7 +1847,9 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 **Decided 2026-11-20 by the architect,** on the owner's request relayed by the coordinator for issue #86: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. Registered on `repo/list-sortable-1`, from `origin/main` at `e4b0e475d`. `RD-30` (`core/side-effects-1`) is the highest decision number on any branch on `origin`, so this is the next free number. The [plan](list-sortable-1/list-sortable-plan.md) has the readings, the test map and the tasks.
 
-**Status: unimplemented. Every question is answered, and the plan is ready for implementation.**
+**Status: implemented on `repo/list-sortable-1`, pending the owner's acceptance and the merge of #90.**
+
+**Dated 2026-11-21 by the implementer: implemented** in `88801757e` and `e54578a20`, against the sixth amendment. The [report](list-sortable-1/list-sortable-report.md) has the readings. Every stop bound holds after task 3a: `list/list-button-item` reads 4,575 → 4,601 B and `list/list-link-item` 4,746 → 4,788 B, `list/list-item` reads 2,739 B, `list/sortable-list` 8,579 B, and `list/list` 3,673 → 685 B ([reading](list-sortable-1/checks/size-after.txt)). No plain list row reaches drag, box-quad or the items' writes. One row is `it.fails` until `RF-69` (#100) is on the branch's base: a static item that upgrades before its list is defined doesn't become a tab stop.
 
 **Answered by the owner on 2026-11-20 and 2026-11-21,** relayed by the coordinator. The plan's [Owner's answers](list-sortable-1/list-sortable-plan.md#owners-answers) quotes them in full.
 
@@ -2365,6 +2367,8 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **What doesn't change:** both Safari skips stay, `src/` doesn't change, and the required property stands. **The finding stays open.**
 
 **Dated 2026-11-20 by the architect: `RD-31` deletes the code this finding is about.** Core's `reorderable` trait and both skipped rows are deleted when `RD-31` property 1 is implemented, and the finding then closes with its cause unknown. Its required property doesn't carry over to the list's new rows. A Safari stall in one of those rows is `drag:DRF-49` or a new finding. **Until then the finding stays open,** and the rows and their diagnostic stay as they are.
+
+**Dated 2026-11-21 by the implementer: the code and both skipped rows are deleted** in `88801757e`, with core's `reorderable` trait (`RD-31` property 1), and so is the third row of 2026-11-17. The finding closes with its cause unknown when #90 merges, and #44 closes with it. No row of the sortable list carries its required property. A Safari stall in such a row is `drag:DRF-49` or a new finding.
 
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 
