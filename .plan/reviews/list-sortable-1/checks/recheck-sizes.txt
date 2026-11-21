@@ -1,0 +1,25 @@
+# Re-check of reviewer-1: the complete row's change. Run in a private detached worktree at 6ba689932, from packages/material-x after aube exec just build-prepare and just build-lib, once as committed (fix) and once with src/list/sortable-list.ts at db591498f (prefix).
+
+## size-limit --json (Brotli bytes)
+prefix  list/sortable-list   8579
+prefix  complete             22144
+fix     list/sortable-list   8605
+fix     complete             22092
+
+## complete.js bundled as size-limit-preset-rolldown does (rolldown, platform neutral, format es, minify), then compressed by node:zlib
+prefix  minified 105321 | brotli q5 23956 q9 23492 q11 22144 | gzip -9 26053
+fix     minified 105354 | brotli q5 23972 q9 23509 q11 22092 | gzip -9 26066
+
+## The minified bundles split on ';' and diffed (prefix < , fix >): the only difference is mx-sortable-list's constructor
+1239c1239
+< i(`mx-sortable-list`,class extends s{constructor(){super(),en(this),h(this,on,(e,t)=>bn(this,e,t))
+---
+> i(`mx-sortable-list`,class extends s{constructor(){super(),en(this)
+1249,1251c1249,1251
+< c=()=>{n().indexOf(e.item)===e.to&&i()},t.addEventListener(`abort`,i,{once:!0}),c()}):Pn.reject()}
+< Z(this,t,()=>{let e=n()
+< (e.length!==r.length||e.some((e,t)=>e!==r[t]))&&(r=e,l?.invalidate()),c?.()}),a(this,{connected:()=>{l=Cr(this,u)},disconnected:()=>{l.requestDestroy(),l=null,i&&=(F(o(i),wr,!1),null)}})}})
+---
+> c=()=>{n().indexOf(e.item)===e.to&&i()},t.addEventListener(`abort`,i,{once:!0}),c()}):Pn.reject()},d=()=>{let e=n()
+> (e.length!==r.length||e.some((e,t)=>e!==r[t]))&&(r=e,l?.invalidate())}
+> h(this,on,(e,t)=>(r.includes(e)||d(),bn(this,e,t))),Z(this,t,()=>{d(),c?.()}),a(this,{connected:()=>{l=Cr(this,u)},disconnected:()=>{l.requestDestroy(),l=null,i&&=(F(o(i),wr,!1),null)}})}})

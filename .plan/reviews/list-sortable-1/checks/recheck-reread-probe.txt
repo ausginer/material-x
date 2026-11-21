@@ -1,0 +1,52 @@
+# Re-check of reviewer-1: how often mx-sortable-list reads its slot. The probe (recheck-reread-probe.browser.test.ts.txt) ran from packages/material-x/tests/list in three engines, each row reporting through a deliberately failing assertion, and was then removed.
+# Instrumentation, applied to sortable-list.ts for the run only: read() increments globalThis.__reads, and the writer's branch for an item not in the collection increments globalThis.__miss.
+#   fix:      sortable-list.ts at 6ba689932, instrumented
+#   reverted: sortable-list.ts at db591498f, instrumented (no writer branch, so misses stays 0)
+# Scenarios, N = 1000 handle-less mx-list-items:
+#   A  a connected list; N items appended one by one in one synchronous loop
+#   B  the same, with two awaited microtasks after each append
+#   C  innerHTML of N items on a connected list
+#   D  N items parsed in an iframe, then sortable-list.ts and list-item.ts imported in that order
+#   E  the same, list-item.ts first
+#   F  three items; a pointer drag of the first onto the second; one item appended mid-drag, and the reorder handler commits the move and appends one more item
+# ms is wall time from the first append to two frames after the last; it is noisy and not a benchmark.
+# No unhandled error or DragFault in either run.
+
+## fix
+browser (chromium)	PROBE A N=1000 reads=1 misses=0 ms=83.5
+browser (chromium)	PROBE B N=1000 reads=1000 misses=0 ms=116.5
+browser (chromium)	PROBE C N=1000 reads=1 misses=0 ms=85.5
+browser (chromium)	PROBE D N=1000 reads=2 misses=1
+browser (chromium)	PROBE E N=1000 reads=2 misses=1
+browser (chromium)	PROBE F moves=["0->1"] midDrag[reads=2 misses=0] end[reads=6 misses=0] order=B,A,C,mid-drag,late dragState=0
+browser/firefox (firefox)	PROBE A N=1000 reads=1 misses=0 ms=83.0
+browser/firefox (firefox)	PROBE B N=1000 reads=1000 misses=0 ms=149.0
+browser/firefox (firefox)	PROBE C N=1000 reads=1 misses=0 ms=151.0
+browser/firefox (firefox)	PROBE D N=1000 reads=2 misses=1
+browser/firefox (firefox)	PROBE E N=1000 reads=2 misses=1
+browser/firefox (firefox)	PROBE F moves=["0->1"] midDrag[reads=2 misses=0] end[reads=6 misses=0] order=B,A,C,mid-drag,late dragState=0
+browser/webkit (webkit)	PROBE A N=1000 reads=1 misses=0 ms=467.0
+browser/webkit (webkit)	PROBE B N=1000 reads=1000 misses=0 ms=435.0
+browser/webkit (webkit)	PROBE C N=1000 reads=1 misses=0 ms=177.0
+browser/webkit (webkit)	PROBE D N=1000 reads=2 misses=1
+browser/webkit (webkit)	PROBE E N=1000 reads=2 misses=1
+browser/webkit (webkit)	PROBE F moves=["0->1"] midDrag[reads=2 misses=0] end[reads=6 misses=0] order=B,A,C,mid-drag,late dragState=0
+## reverted
+browser (chromium)	PROBE A N=1000 reads=1 misses=0 ms=66.7
+browser (chromium)	PROBE B N=1000 reads=1000 misses=0 ms=116.3
+browser (chromium)	PROBE C N=1000 reads=1 misses=0 ms=101.9
+browser (chromium)	PROBE D N=1000 reads=1 misses=0
+browser (chromium)	PROBE E N=1000 reads=1 misses=0
+browser (chromium)	PROBE F moves=["0->1"] midDrag[reads=2 misses=0] end[reads=6 misses=0] order=B,A,C,mid-drag,late dragState=0
+browser/firefox (firefox)	PROBE A N=1000 reads=1 misses=0 ms=83.0
+browser/firefox (firefox)	PROBE B N=1000 reads=1000 misses=0 ms=200.0
+browser/firefox (firefox)	PROBE C N=1000 reads=1 misses=0 ms=117.0
+browser/firefox (firefox)	PROBE D N=1000 reads=1 misses=0
+browser/firefox (firefox)	PROBE E N=1000 reads=1 misses=0
+browser/firefox (firefox)	PROBE F moves=["0->1"] midDrag[reads=2 misses=0] end[reads=6 misses=0] order=B,A,C,mid-drag,late dragState=0
+browser/webkit (webkit)	PROBE A N=1000 reads=1 misses=0 ms=531.0
+browser/webkit (webkit)	PROBE B N=1000 reads=1000 misses=0 ms=547.0
+browser/webkit (webkit)	PROBE C N=1000 reads=1 misses=0 ms=273.0
+browser/webkit (webkit)	PROBE D N=1000 reads=1 misses=0
+browser/webkit (webkit)	PROBE E N=1000 reads=1 misses=0
+browser/webkit (webkit)	PROBE F moves=["0->1"] midDrag[reads=2 misses=0] end[reads=6 misses=0] order=B,A,C,mid-drag,late dragState=0

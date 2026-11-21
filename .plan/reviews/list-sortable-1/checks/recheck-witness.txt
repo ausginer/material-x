@@ -1,0 +1,41 @@
+# Re-check of reviewer-1 at 6ba689932: the definition-order block under mutation. Run by the reviewer on 2026-11-21 in a private detached worktree, after aube install. Each mutation applied to the working tree, then aube exec just _test-builds, then from packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project 'browser*' tests/list/sortable-list.browser.test.ts -t 'definition order'; then reverted and rebuilt (scratch script, not committed).
+#   fix-reverted:          packages/material-x/src/list/sortable-list.ts at db591498f
+#   wait-removed:          packages/core/src/controllers/useContext.ts, if (name && parents.includes(name)) { -> if (false) {
+#   slot-refresh-removed:  sortable-list.ts, the slot callback calls commit only, not refresh(); the writer's read stays
+#   none:                  the tree as committed
+# The unmutated sortable-list.browser.test.ts in three engines: 198 rows pass, 3 files.
+
+## mutation fix-reverted
+      Tests  6 failed | 12 passed | 180 skipped (198)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1081 > mx-sortable-list definition order > should move a static item by keyboard when sortable-list.js is evaluated first
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1093 > mx-sortable-list definition order > should move a static item by pointer when sortable-list.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1081 > mx-sortable-list definition order > should move a static item by keyboard when sortable-list.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1093 > mx-sortable-list definition order > should move a static item by pointer when sortable-list.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1081 > mx-sortable-list definition order > should move a static item by keyboard when sortable-list.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1093 > mx-sortable-list definition order > should move a static item by pointer when sortable-list.js is evaluated first
+ Test Files  3 failed (3)
+## mutation wait-removed
+      Tests  6 failed | 12 passed | 180 skipped (198)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1070 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:1087 > mx-sortable-list definition order > should move a static item by keyboard when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1070 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1087 > mx-sortable-list definition order > should move a static item by keyboard when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1070 > mx-sortable-list definition order > should make a static item a tab stop when list-item.js is evaluated first
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1087 > mx-sortable-list definition order > should move a static item by keyboard when list-item.js is evaluated first
+ Test Files  3 failed (3)
+## mutation slot-refresh-removed
+      Tests  18 passed | 180 skipped (198)
+ Test Files  3 passed (3)
+## mutation none
+      Tests  18 passed | 180 skipped (198)
+ Test Files  3 passed (3)
+
+## slot-refresh-removed, all of tests/list in three engines
+      Tests  6 failed | 213 passed (219)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:584 > mx-sortable-list keyboard > should keep focus on the handle and move again on a second ArrowDown
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:691 > mx-sortable-list static item focus > should keep focus on the inner element and move again after a keyboard move
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:584 > mx-sortable-list keyboard > should keep focus on the handle and move again on a second ArrowDown
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:691 > mx-sortable-list static item focus > should keep focus on the inner element and move again after a keyboard move
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:584 > mx-sortable-list keyboard > should keep focus on the handle and move again on a second ArrowDown
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:691 > mx-sortable-list static item focus > should keep focus on the inner element and move again after a keyboard move
+ Test Files  3 failed | 3 passed (6)

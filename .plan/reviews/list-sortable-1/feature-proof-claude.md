@@ -91,6 +91,7 @@
   - The plan's own accessibility probe evaluates `list/sortable-list.js` first.
   - Both definition-order rows (`sortable-list.browser.test.ts:1004`, `:1010`) assert only `tabindex`, so they pass while the move fails. Every other row defines the list and the items before they connect.
 - **Required property.** With the markup parsed first, a handle-less static item of `mx-sortable-list` moves by keyboard and by pointer, whichever of `list/sortable-list.js` and `list/list-item.js` is evaluated first. A row observes the move, not only the tab stop, in each order.
+- **Re-checked at `6ba689932`: closed by `6921f9aa9`.** See the [re-check](feature-proof-recheck-claude.md).
 
 ## Observations, not findings
 
