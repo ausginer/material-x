@@ -1,0 +1,15 @@
+# Does an interactive item's listitem wrapper leave a box in the list's flow while its control is lifted: node .plan/list-roles-1/probes/list-lift.ts packages/material-x <engine>
+# Read by the architect on 2026-11-21, on the same build and browsers as list-roles.txt. Heights and tops are CSS pixels; the list has a 12 px gap.
+
+# engine chromium 158.0.8127.18
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 192, link top 144 -> 144, lifted=true
+# engine firefox 159.0
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 192, link top 144 -> 144, lifted=true
+# engine webkit 27.2
+none     list 192 -> 192, link top 144 -> 144, lifted=true
+wrapper  list 192 -> 204, link top 144 -> 156, lifted=true
+collapse list 192 -> 192, link top 144 -> 144, lifted=true

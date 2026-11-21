@@ -3193,6 +3193,26 @@ Tier B, **open**. Registered on 2026-11-20 by the architect, on `tproc/tokens-so
 
   - `RD-28` stops the data entering the tree, and `RD-29` removes it from the history.
 
+#### RF-68 — `mx-list` is exposed as a list whose items aren't list items
+
+Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sortable-1`, while answering the owner's question about focus for `RD-31`. `RF-67` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **What happens:** `mx-list` sets `role="list"` through its internals (`src/list/list.ts`). No list item sets a role: `mx-list-item`, `mx-list-button-item` and `mx-list-link-item` set none, and their hosts are `display: contents`. In Chromium 158, the list is `list`, and each item is `generic`, with its text, `button` or `link` inside ([reading](list-sortable-1/checks/list-a11y.txt), [probe](list-sortable-1/probes/list-a11y.ts)). WAI-ARIA requires a `list` to contain `listitem` elements. A screen reader that counts the items of a list, or moves from item to item, gets nothing from this one.
+- **What is established:** the roles in Chromium's tree, by that reading. Firefox, WebKit and the screen readers themselves aren't read.
+- **Required property:** each item of `mx-list`, and of `mx-sortable-list` once `RD-31` adds it, is exposed as a list item. The button and the link inside an interactive item keep their roles, names and focus.
+- **Not in `RD-31`'s scope.** `RD-31` doesn't change item roles, and its sortable list has the same items.
+
+**Dated 2026-11-21 by the architect:** the owner calls the missing role a bug to fix, in its own unit outside `RD-31`, relayed by the coordinator. #92 tracks it. `RD-31`'s third amendment makes a static item without a handle a tab stop in `mx-sortable-list`, so the fix also gives that focused item its role. Neither unit waits for the other.
+
+**Dated 2026-11-21 by the architect: the repair is decided, and the entry moves to the fix's branch.** The [handoff](list-roles-1/list-roles-handoff.md) holds the readings, the decision, the properties and the proofs. The repair is **Unimplemented**.
+
+- **Read in three engines** ([reading](list-roles-1/checks/list-roles.txt), [probe](list-roles-1/probes/list-roles.ts)): Chromium 158, Firefox 159 and WebKit 27.2, through each engine's own accessibility tree. In WebKit the list is `group`, not `list`, and no item has a node. Screen readers still aren't read.
+- **Decided:** `listitem` goes on the item's row, the outermost element of its shadow tree that has a box. For `mx-list-item` that is its `.host`, which `RD-31` makes take focus. Each interactive item gains a row element around its button or link, and the row has no box while its control is in the top layer. The host keeps `display: contents` and sets no role. The required property is unchanged.
+- **Not adopted:** the role on the host. WebKit then puts each interactive item's button or link outside its item, because it parents shadow content by its box past a `display: contents` host.
+- **Seen, not registered:** WebKit parents an item's slotted light-DOM nodes by the DOM, past the host, so the label text and a handle are the list's children in WebKit, with the role anywhere but on a host with a box. It is on `main` already, it isn't this entry's property, and it has been read only in Playwright's WebKit build.
+- **The record lives on `material-x/list-roles-1`,** because the repair lands there and #90's merge date isn't known. That branch carries this entry and byte-identical copies of the reading and the probe registered with it. #90 removes its copy of the entry, and further datings are made on the fix's branch.
+- **Size:** _small_. A few tens of bytes on three list rows, and no row has a limit (`RD-24`).
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
