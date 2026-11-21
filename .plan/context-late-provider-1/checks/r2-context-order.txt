@@ -1,0 +1,17 @@
+# node .plan/context-late-provider-1/probes/context-order.ts packages/material-x <engine>, on the branch's build of revision 2 (fb19feaf7 plus the unit's working tree). Playwright's builds.
+# true: the button follows the disabled group. false: it doesn't.
+
+# engine chromium 158.0.8127.18
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+
+# engine firefox 159.0
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+
+# engine webkit 27.2
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true

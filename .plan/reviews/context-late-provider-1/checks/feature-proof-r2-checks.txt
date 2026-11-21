@@ -1,0 +1,148 @@
+# Feature proof of PR #100 (RF-69), revision 2, reviewer checks. Tree: 3fc90ba36 (core/context-late-provider-1), clean, equal to origin.
+# Core is rebuilt (tsdown, packages/core) before every material-x run, because material-x resolves @ydinjs/core through its built files. Core's own tests import src.
+# Engines: Playwright's Chromium 158, Firefox 159 and WebKit 27.2 (MX_TEST_ENGINES=chromium,firefox,webkit). Safari not run (deferred by the owner).
+# Each mutation is one exact text replacement, applied by a scratch script that refuses text not found exactly once, and reverted with git checkout. The tree was clean after every run.
+
+## 1. Baseline at 3fc90ba36
+core, tests/controllers/useContext: Tests  75 passed (75)
+material-x, tests/button-group/ tests/button/SwitchCore.browser tests/button/button.browser tests/button/split-button: Tests  284 passed | 1 expected fail (285)
+
+## 2. Core mutations of packages/core/src/controllers/useContext.ts. Core rows (packages/core: vitest run -c vitest.config.ts --project 'browser*' tests/controllers/useContext), then the order rows (packages/material-x: ... tests/button-group/button-group-order)
+# wait:   'if (name && parents.includes(name)) {' -> 'if (false) {'
+# hyphen: 'if (name && parents.includes(name)) {' -> "if (name?.includes('-')) {"
+# first:  'if (name && parents.includes(name)) {' -> 'if (name && parents[0] === name) {'
+# conn:   'if (current === connection) {' -> 'if (true) {'
+# disp:   '      disposer = undefined;' deleted
+### mutation=wait (core rows)
+  tests/controllers/useContext.browser.test.ts:555 > useContext with a named parent > should resolve a provider defined after the consumer connected [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:571 > useContext with a named parent > should not run the effect synchronously under a defined provider [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:691 > useContext with a named parent > should not run the effect while the parent is never defined [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup [chromium, firefox, webkit]
+Tests  21 failed | 54 passed (75)
+### mutation=wait (order rows, core rebuilt)
+  tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [chromium, firefox, webkit]
+  tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [chromium, firefox, webkit]
+Tests  6 failed (6)
+### mutation=hyphen (core rows)
+  tests/controllers/useContext.browser.test.ts:615 > useContext with a named parent > should run the effect synchronously under a defined provider that is not named [chromium, firefox, webkit]
+Tests  3 failed | 72 passed (75)
+### mutation=hyphen (order rows, core rebuilt)
+Tests  6 passed (6)
+### mutation=first (core rows)
+  tests/controllers/useContext.browser.test.ts:630 > useContext with a named parent > should resolve the second named provider while the first is never defined [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup [chromium, firefox, webkit]
+Tests  9 failed | 66 passed (75)
+### mutation=first (order rows, core rebuilt)
+  tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [chromium, firefox, webkit]
+Tests  3 failed | 3 passed (6)
+### mutation=conn (core rows)
+  tests/controllers/useContext.browser.test.ts:649 > useContext with a named parent > should do nothing for a connection that ended before the definition [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:669 > useContext with a named parent > should resolve only the provider it moved to before either was defined [chromium, firefox, webkit]
+  tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup [chromium, firefox, webkit]
+Tests  9 failed | 66 passed (75)
+### mutation=conn (order rows, core rebuilt)
+Tests  6 passed (6)
+### mutation=disp (core rows)
+  tests/controllers/useContext.browser.test.ts:704 > useContext with a named parent > should run each cleanup once over connections that end before and after the lookup [chromium, firefox, webkit]
+Tests  3 failed | 72 passed (75)
+### mutation=disp (order rows, core rebuilt)
+Tests  6 passed (6)
+
+## 3. material-x mutations, the whole material-x browser suite (vitest run -c vitest.config.ts --project 'browser*'), each with core at 3fc90ba36
+# A: ButtonCore.ts 'target.disabled = host.disabled || (newValue as boolean);' -> 'target.disabled ||= newValue as boolean;' (the group never re-enables)
+# B: SwitchCore.ts, the '} else if (oldValue != null && oldValue === host.value) { host.checked = false; }' branch deleted (removing the group's value unchecks nothing)
+# C: SwitchCore.ts, a join with no group value unchecks: 'if (newValue == null && oldValue == null) { host.checked = false; } else if (newValue != null) {'
+# onlyStd:  button-group-context.ts, BUTTON_GROUP_ELEMENTS = ['mx-button-group']
+# onlyConn: button-group-context.ts, BUTTON_GROUP_ELEMENTS = ['mx-connected-button-group']
+# wrapperEmpty: src/core/utils/useContext.ts '_useContext(host, ctx, parents, (data) => {' -> '_useContext(host, ctx, [], (data) => {'
+### mutation=A, the whole material-x browser suite
+  tests/button/button.browser.test.ts:213 > mx-button in a button group > should re-enable when the group context clears disabled [chromium, firefox, webkit]
+  tests/button-group/button-group.browser.test.ts:120 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled [chromium, firefox, webkit]
+Tests  6 failed | 653 passed | 1 expected fail (660)
+### mutation=B, the whole material-x browser suite
+  tests/button/SwitchCore.browser.test.ts:375 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed [chromium, firefox, webkit]
+Tests  3 failed | 656 passed | 1 expected fail (660)
+### mutation=C, the whole material-x browser suite
+  tests/button/SwitchCore.browser.test.ts:397 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value [chromium, firefox, webkit]
+Tests  3 failed | 656 passed | 1 expected fail (660)
+### mutation=onlyStd, the whole material-x browser suite
+  tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [chromium, firefox, webkit]
+Tests  3 failed | 656 passed | 1 expected fail (660)
+### mutation=onlyConn, the whole material-x browser suite
+  tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [firefox, chromium, webkit]
+Tests  3 failed | 656 passed | 1 expected fail (660)
+### mutation=wrapperEmpty, the whole material-x browser suite
+  tests/button-group/button-group-order.browser.test.ts:14 > mx-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [chromium, firefox, webkit]
+  tests/button-group/button-group-order.browser.test.ts:33 > mx-connected-button-group defined after its buttons > should apply its disabled state and size to buttons that upgraded first [chromium, firefox, webkit]
+Tests  6 failed | 653 passed | 1 expected fail (660)
+
+## 4. SwitchCore's names: a scratch row and a mutation (reviewer-3)
+# Scratch file tests/button-group/zz-switch-order-probe.browser.test.ts, removed after the run. It imports only src/button/switch-button.ts, asserts
+# customElements.get('mx-connected-button-group') is undefined, sets document.body.innerHTML =
+#   '<mx-connected-button-group value="b"><mx-switch-button value="a" checked></mx-switch-button><mx-switch-button value="b"></mx-switch-button></mx-connected-button-group>',
+# imports src/button-group/connected-button-group.ts, awaits nextFrame, and expects [undefinedBefore, checked] to equal [true, [false, true]].
+# Mutation: SwitchCore.ts '    BUTTON_GROUP_ELEMENTS,\n    VALUABLE_ATTRS,' -> '    [],\n    VALUABLE_ATTRS,'
+### scratch row at 3fc90ba36
+      Tests  3 passed (3)
+### SwitchCore passes [] : scratch row
+the scratch row fails in chromium, firefox and webkit:
+AssertionError: expected [ true, [ true, false ] ] to deeply equal [ true, [ false, true ] ]
+      Tests  3 failed (3)
+### SwitchCore passes [] : the whole material-x browser suite, scratch row removed
+      Tests  659 passed | 1 expected fail (660)
+
+## 5. Sizes: node ../../.plan/context-late-provider-1/probes/size-rows.ts <rows>, from packages/material-x after core's and material-x's tsdown builds; complete.js regenerated by node .size-limit.ts first. Brotli bytes. A second private worktree; each older state is packages/core/src and packages/material-x/src checked out from that commit, rebuilt, then restored.
+| Row | f12db1ced | 13d64e449 | 3fc90ba36 | ablation |
+| button/button | 4843 | 4946 | 4926 | 4926 |
+| button/icon-button | 5108 | 5205 | 5203 | 5203 |
+| button/link-button | 4809 | 4919 | 4900 | 4900 |
+| button/switch-button | 5187 | 5301 | 5291 | 5291 |
+| button/switch-icon-button | 5598 | 5702 | 5682 | 5682 |
+| button/split-button | 7406 | 7524 | 7492 | 7485 |
+| button-group/button-group | 3126 | 3126 | 3126 | 3126 |
+| button-group/connected-button-group | 3888 | 3888 | 3888 | 3888 |
+| complete | 16975 | 17069 | 17079 | 17043 |
+# ablation: 3fc90ba36 with the BUTTON_GROUP_ELEMENTS declaration and its JSDoc moved, unchanged, from after BUTTON_GROUP_CTX to the end of button-group-context.ts. Reverted.
+# Minified bundles, dumped with the size probe's rolldown options (platform neutral, minified ESM), split at ';':
+#   complete: 13d64e449 88579 B, 3fc90ba36 88542 B (-37 B). 266 of 3fc90ba36's 1331 lines differ from 13d64e449's: the consumer, the constant 'y=[`mx-button-group`,`mx-connected-button-group`]' after 'const v=m()', and identifier renames in the rest (y->b, b->x, x->S, S->ee, w->te, ...).
+#   button/button: 13d64e449 17319 B, 3fc90ba36 17278 B (-41 B).
+#   3fc90ba36's consumer, as bundled: r=e.parentElement?.localName; r&&n.includes(r)?customElements.whenDefined(r).then(()=>{t===o&&s()}):s()   (no void)
+
+## 6. Probe: node .plan/context-late-provider-1/probes/context-order.ts packages/material-x <engine>, on 3fc90ba36's build
+# engine chromium 158.0.8127.18
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+# engine firefox 159.0
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+# engine webkit 27.2
+group-first   inner disabled: true, true
+button-first  inner disabled: true, true
+lazy          inner disabled: true, true
+
+## 7. The connected order row with whitespace: a scratch copy of button-group-order.browser.test.ts whose connected-group markup has a newline and two spaces before each button and a newline before the closing tag. Removed after the run.
+Tests  6 passed (6); Errors  3 errors (one unhandled error in each engine):
+TypeError: Cannot convert undefined or null to object                                 (chromium) at connected-button-group.ts:67:26 < :66:21
+TypeError: can't access property "first", element.dataset is undefined              (firefox)  at connected-button-group.ts:67 < :66
+TypeError: undefined is not an object (evaluating 'delete element.dataset["first"]') (webkit)   at connected-button-group.ts:67:34 < :66:21
+git blame: connected-button-group.ts:66-69 from 0f0770391 (2026-07-12); useSlot.ts:52 'callback(slot, slot.assignedNodes() as T[])' from e4a04385f (2026-05-04).
+
+## 8. The void marker: with 'void ' removed from useContext.ts:136, just lint src/controllers/useContext.ts (packages/core) reports
+src/controllers/useContext.ts:136:9: error typescript(no-floating-promises): Promises must be awaited, add void operator to ignore.
+Reverted.
+
+## 9. Gates at 3fc90ba36
+# core browser*
+ Test Files  66 passed (66)
+      Tests  786 passed (786)
+# material-x browser*
+ Test Files  39 passed (39)
+      Tests  659 passed | 1 expected fail (660)
+typecheck in core, then in material-x after core's build: exit 0. lint and oxfmt --check on the eight changed material-x .ts files and the two changed core .ts files: clean.
+root, aube exec just test, in the second private worktree at 3fc90ba36, clean: Test Files  148 passed (148), Tests  2356 passed (2356), Type Errors  no errors, exit 0

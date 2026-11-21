@@ -10,7 +10,7 @@
  * Bumped whenever the serialized shape changes. Persisted caches and snapshots
  * compare against this before trusting a stored IR.
  */
-export const TRAIT_IR_VERSION = 3;
+export const TRAIT_IR_VERSION = 4;
 
 /**
  * A value that lives in some module and that the flattened component imports
@@ -45,18 +45,60 @@ export type MemberLinkIR = Readonly<{
   >;
 }>;
 
-/** A method, getter or setter, copied as its origin source. */
-export type MemberIR = Readonly<{
-  key: string;
-  kind: 'method' | 'get' | 'set';
-  static: boolean;
-  /** The member's origin source, modifiers included. */
-  source: string;
-  /** Origin module bindings the member reads, in first-reference order. */
-  links: readonly MemberLinkIR[];
-  /** Names the member reads that no origin scope binds: globals. */
-  globals: readonly string[];
+/**
+ * A private name in copied source, as `[start, end)` offsets of `#name`. The
+ * component renames it per trait.
+ */
+export type PrivateNameIR = Readonly<{
+  /** The name without `#`. */
+  name: string;
+  start: number;
+  end: number;
 }>;
+
+/** Origin source that the component copies, and every name in it it rewrites. */
+export type CopiedSourceIR = Readonly<{
+  /** The origin source: a member or a field with its modifiers, or a body. */
+  source: string;
+  /** Origin module bindings the source reads, in first-reference order. */
+  links: readonly MemberLinkIR[];
+  /** Names the source reads that no origin scope binds: globals. */
+  globals: readonly string[];
+  /** Each private name in the source, its declaring key included. */
+  privateNames: readonly PrivateNameIR[];
+}>;
+
+/** A method, getter or setter, copied as its origin source. */
+export type MemberIR = CopiedSourceIR &
+  Readonly<{
+    /** The key; for a private member, its name without `#`. */
+    key: string;
+    kind: 'method' | 'get' | 'set';
+    static: boolean;
+    /** The key is a private name, which the layer rules don't see. */
+    private: boolean;
+  }>;
+
+/**
+ * A copied private instance field: one with an initializer, or one that a
+ * member or the constructor references.
+ */
+export type FieldIR = CopiedSourceIR &
+  Readonly<{
+    /** The name without `#`. */
+    name: string;
+  }>;
+
+/**
+ * A trait's `constructor() { super(); … }`, whose body the component's
+ * constructor runs after its `super(…)`. The source is the body, braces
+ * included.
+ */
+export type ConstructorIR = CopiedSourceIR &
+  Readonly<{
+    /** The `super();` statement, as `[start, end)` in the source, dropped. */
+    superCall: readonly [number, number];
+  }>;
 
 /** How a static's values combine across the base, the traits and the component. */
 export type StaticKind = 'array' | 'object' | 'simple';
@@ -75,15 +117,28 @@ export type TraitIR = Readonly<{
   name: string;
   /** The brand symbol installed on the component's prototype. */
   brand: BindingRef;
-  /** Methods and accessors, instance and static, in declaration order. */
+  /**
+   * Methods and accessors, instance and static, private ones included, in
+   * declaration order.
+   */
   members: readonly MemberIR[];
   /** Static value fields, in declaration order. */
   statics: readonly StaticIR[];
+  /** Copied private instance fields, in declaration order. */
+  fields: readonly FieldIR[];
+  /** The constructor's body, or `null` when the trait has none. */
+  constructorBody: ConstructorIR | null;
+  /**
+   * What each private name the trait declares is renamed with in the
+   * component: `#<name><suffix>`. It is derived from the specifier the
+   * component reaches the trait's module through and the class name.
+   */
+  privateSuffix: string;
 }>;
 
 /** A resolved composition, ready for lowering. */
 export type CompositionIR = Readonly<{
   version: typeof TRAIT_IR_VERSION;
-  /** Traits in list order, supertraits expanded. */
+  /** Traits in list order, supertraits expanded, each first occurrence kept. */
   traits: readonly TraitIR[];
 }>;

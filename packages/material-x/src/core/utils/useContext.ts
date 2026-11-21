@@ -28,10 +28,11 @@ export function useContext<
 >(
   host: ControlledElement,
   ctx: Context<ContextData<T>>,
+  parents: readonly string[],
   attributes: Readonly<Record<A, ConverterOf<any>>>,
   effect: ContextEffect<T, A>,
 ): void {
-  _useContext(host, ctx, (data) => {
+  _useContext(host, ctx, parents, (data) => {
     if (data) {
       for (const [attr, { from }] of Object.entries(attributes)) {
         effect(attr, from(null), from(attribute.getRaw(data.provider, attr)));

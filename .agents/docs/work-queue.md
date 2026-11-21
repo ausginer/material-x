@@ -107,7 +107,7 @@ One organization project, `Work queue`, owned by `ausginer` and linked to `mater
 - **Everything else on a card is the issue's own field,** shown and not copied: the title, labels, linked pull requests and _blocked by_. The project has no custom field other than `Status`: none for package, tier, release or priority.
 - **_Done_ follows the issue.** The project's built-in workflows set _Done_ when an item is closed and when a pull request is merged, and set _Queued_ when an item is reopened. Nobody sets _Done_ by hand. To finish an item, close its issue ([Closing](#closing)). The workflow that closes an issue when its card reaches _Done_ is off.
 - **Items are added by hand.** Auto-add is off. An issue from another account, a `safari` issue or a `tokens-release` issue reaches the board only when the coordinator adds it after triage.
-- **An open pull request is an item too.** A unit's pull request goes on the board in _In progress_. Its issue moves to _In progress_ with it, and a comment on the issue names the slot, branch and base. A unit starts from an issue.
+- **An open pull request is an item too.** A unit's pull request goes on the board in _In progress_ when it opens. Its issue is in _In progress_ from the unit's start, which for a planned unit is its plan, before any pull request exists. A comment on the issue names the slot, branch and base, and a new comment names the new slot when the implementer takes the branch. A unit starts from an issue.
 
 ## Labels
 

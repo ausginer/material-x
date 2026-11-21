@@ -1,0 +1,206 @@
+--- library
+// oxlint-disable max-classes-per-file, class-methods-use-this
+import { bound, compose, type Bound, type Composed } from '@ydinjs/core/traits/composition.js';
+import type { RvBase } from './rv-base.ts';
+import { rec } from './rv-log.ts';
+
+const B0: Bound<RvBase> = bound();
+const tag = 'private-binding';
+
+export const $s = Symbol("S");
+export class S extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$s] === true;
+  }
+
+  #x = rec('S field', 's');
+  #ready = false;
+  constructor() {
+    super();
+    this.#ready = true;
+    rec('S body');
+  }
+  get sReady(): boolean { return this.#ready; }
+  get sx(): string { return this.#x; }
+  set sx(v: string) { this.#x = v; }
+  who(): string { return 'S'; }
+  #m(): string { return 'S#m'; }
+  get sm(): string { return this.#m(); }
+}
+
+const SB: Composed<typeof B0, [typeof S]> = compose(B0);
+
+export const $a = Symbol("A");
+export class A extends SB {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$a] === true;
+  }
+
+  #x = rec('A field', 'a');
+  constructor() {
+    super();
+    rec(`A body sReady=${this.sReady}`);
+  }
+  get ax(): string { return this.#x; }
+  set ax(v: string) { this.#x = v; }
+  override who(): string { return 'A'; }
+  #m(): string { return 'A#m'; }
+  get am(): string { return this.#m(); }
+}
+
+export const $b = Symbol("B");
+export class B extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$b] === true;
+  }
+
+  #x = rec('B field', 'b');
+  constructor() {
+    super();
+    const value = `${tag}`;
+    rec(`B body ${value}`);
+  }
+  get bx(): string { return this.#x; }
+  set bx(v: string) { this.#x = v; }
+  #m(): string { return 'B#m'; }
+  get bm(): string { return this.#m(); }
+}
+
+const CB: Composed<typeof B0, [typeof S]> = compose(B0);
+
+export const $c = Symbol("C");
+export class C extends CB {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$c] === true;
+  }
+
+  #x = rec('C field', 'c');
+  constructor() {
+    super();
+    rec(`C body sReady=${this.sReady}`);
+  }
+  get cx(): string { return this.#x; }
+}
+
+export const $d = Symbol("D");
+export class D extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$d] === true;
+  }
+
+  #d = rec('D field', 'd');
+  constructor() {
+    super();
+    rec('D body');
+  }
+  get dx(): string { return this.#d; }
+}
+
+// A private field that nothing reads, whose initializer has an effect.
+export const $e = Symbol("E");
+export class E extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$e] === true;
+  }
+
+  #unused = rec('E unused field');
+  #used = rec('E used field', 'e');
+  get ex(): string { return this.#used; }
+}
+
+export { tag as __mxflat_tag_5e9b60f6, tag };
+
+--- application
+// oxlint-disable max-classes-per-file, class-methods-use-this
+import { bound, compose, type Bound, type Composed } from '@ydinjs/core/traits/composition.js';
+import type { RvBase } from './rv-base.ts';
+import { rec } from './rv-log.ts';
+
+const B0: Bound<RvBase> = bound();
+const tag = 'private-binding';
+
+export const $s = Symbol("S");
+export class S extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$s] === true;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+}
+
+const SB: Composed<typeof B0, [typeof S]> = compose(B0);
+
+export const $a = Symbol("A");
+export class A extends SB {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$a] === true;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+}
+
+export const $b = Symbol("B");
+export class B extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$b] === true;
+  }
+
+  
+  
+  
+  
+  
+  
+}
+
+const CB: Composed<typeof B0, [typeof S]> = compose(B0);
+
+export const $c = Symbol("C");
+export class C extends CB {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$c] === true;
+  }
+
+  
+  
+  
+}
+
+export const $d = Symbol("D");
+export class D extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$d] === true;
+  }
+
+  
+  
+  
+}
+
+// A private field that nothing reads, whose initializer has an effect.
+export const $e = Symbol("E");
+export class E extends B0 {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$e] === true;
+  }
+
+  
+  
+  
+}
+
+export { tag as __mxflat_tag_5e9b60f6, tag };

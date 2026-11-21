@@ -6,9 +6,15 @@
  * - each merged static: an array concatenates the base's value, each trait's
  *   and the component's own, in that order; an object spreads them; any other
  *   kind takes the last trait's value unless the component declares the key;
- * - each trait's members, in list order;
+ * - each trait's private fields and members, in list order, with each private
+ *   name the trait declares renamed `#<name>_<hash>`;
  * - `static { impl(this, …brands); }`, when the list has a trait. An empty
  *   list brands nothing, so it gets neither the block nor the import.
+ *
+ * Each trait's constructor body, without its `super();`, becomes a block right
+ * after the component's `super(…)` statement, in list order, so it runs after
+ * every field and before the component's own statements. A component with no
+ * constructor gets `constructor(...args) { super(...args); … }`.
  *
  * `compose`'s import goes when nothing in the module references it after
  * lowering, so a module whose compositions are all lowered doesn't import
@@ -20,7 +26,7 @@
 import { createHash } from 'node:crypto';
 import type { Class, Program } from '@oxc-project/types';
 import type { RolldownMagicString } from 'rolldown';
-import type { BindingRef, MemberIR, StaticKind, TraitIR } from '../ir.ts';
+import type { BindingRef, CopiedSourceIR, StaticKind, TraitIR } from '../ir.ts';
 import {
   addImportRemovals,
   collectImports,
@@ -34,9 +40,18 @@ import { isCompositionModule } from './trait-module.ts';
 /** The local name the flattened module binds `impl` to. */
 const IMPL_LOCAL = '__mxflat_impl';
 
+/**
+ * Where the traits' constructor bodies go: after the component's `super(…)`
+ * statement, which ends at `at`, or, when `at` is `null`, in a generated
+ * constructor.
+ */
+export type ConstructorSite = Readonly<{ at: number | null }>;
+
 /** A composition, analyzed and ready to emit. */
 export type AnalyzedComposition = Readonly<{
   traits: readonly TraitIR[];
+  /** `null` when no trait of the list has a constructor. */
+  constructorSite: ConstructorSite | null;
   kinds: ReadonlyMap<string, StaticKind>;
   /** The source of the base expression, `compose`'s argument. */
   baseSource: string;
@@ -52,7 +67,7 @@ export type AnalyzedComposition = Readonly<{
  * module's own scope keeps its name, and any other gets an import alias,
  * unique per specifier and export.
  */
-function linkLocal(ref: BindingRef): string {
+export function linkLocal(ref: BindingRef): string {
   if (ref.local) {
     return ref.exportName;
   }
@@ -66,25 +81,66 @@ function linkLocal(ref: BindingRef): string {
   return `__mxflat_lnk_${hash}`;
 }
 
-/** A member's source, each linked name rewritten to its local name. */
-function memberSource(member: MemberIR): string {
-  const edits = member.links
-    .filter(({ ref }) => !ref.local)
-    .flatMap(({ name, ref, occurrences }) =>
-      occurrences.map(({ start, end, shorthand }) => ({
-        start,
-        end,
-        text: shorthand ? `${name}: ${linkLocal(ref)}` : linkLocal(ref),
-      })),
-    )
-    .sort((a, b) => b.start - a.start);
+/**
+ * Copied source, each linked name rewritten to its local name and each
+ * private name renamed with `suffix`, without the span `drop`.
+ */
+function copiedText(
+  copied: CopiedSourceIR,
+  suffix: string,
+  drop?: Span,
+): string {
+  const edits = [
+    ...copied.links
+      .filter(({ ref }) => !ref.local)
+      .flatMap(({ name, ref, occurrences }) =>
+        occurrences.map(({ start, end, shorthand }) => ({
+          start,
+          end,
+          text: shorthand ? `${name}: ${linkLocal(ref)}` : linkLocal(ref),
+        })),
+      ),
+    ...copied.privateNames.map(({ name, start, end }) => ({
+      start,
+      end,
+      text: `#${name}${suffix}`,
+    })),
+    ...(drop ? [{ start: drop[0], end: drop[1], text: '' }] : []),
+  ].sort((a, b) => b.start - a.start);
 
-  let { source } = member;
+  let { source } = copied;
   for (const { start, end, text } of edits) {
     source = source.slice(0, start) + text + source.slice(end);
   }
 
-  return `  ${source}`;
+  return source;
+}
+
+/** A trait's private fields and members, as the class body holds them. */
+function traitMembers(trait: TraitIR): string[] {
+  return [
+    ...trait.fields.map((field) => {
+      const text = copiedText(field, trait.privateSuffix);
+      return `  ${text}${text.endsWith(';') ? '' : ';'}`;
+    }),
+    ...trait.members.map(
+      (member) => `  ${copiedText(member, trait.privateSuffix)}`,
+    ),
+  ];
+}
+
+/** Each trait's constructor body as a block, without its `super();`. */
+function constructorBlocks(traits: readonly TraitIR[]): string[] {
+  return traits.flatMap((trait) => {
+    const body = trait.constructorBody;
+    if (!body) {
+      return [];
+    }
+    const [start, end] = body.superCall;
+    const [space] = /^\s*/u.exec(body.source.slice(end))!;
+
+    return [copiedText(body, trait.privateSuffix, [start, end + space.length])];
+  });
 }
 
 /** The component's own static fields with a value, by key. */
@@ -163,7 +219,11 @@ function compositionLinks(traits: readonly TraitIR[]): readonly BindingRef[] {
   return traits.flatMap((trait) => [
     trait.brand,
     ...trait.statics.map((value) => value.value),
-    ...trait.members.flatMap((member) => member.links.map(({ ref }) => ref)),
+    ...[
+      ...trait.members,
+      ...trait.fields,
+      ...(trait.constructorBody ? [trait.constructorBody] : []),
+    ].flatMap((copied) => copied.links.map(({ ref }) => ref)),
   ]);
 }
 
@@ -228,9 +288,16 @@ export function lowerCompositions(
 
   for (const analyzed of compositions) {
     const { fields, folded } = mergedStatics(code, analyzed);
-    const members = analyzed.traits.flatMap((trait) =>
-      trait.members.map(memberSource),
-    );
+    const members = analyzed.traits.flatMap(traitMembers);
+    const blocks = constructorBlocks(analyzed.traits);
+    const site = analyzed.constructorSite;
+    if (site?.at === null) {
+      members.push(
+        `  constructor(...args) {\n    super(...args);\n    ${blocks.join('\n    ')}\n  }`,
+      );
+    } else if (site) {
+      magic.appendLeft(site.at, `\n    ${blocks.join('\n    ')}`);
+    }
     const brands = analyzed.traits.map((trait) => linkLocal(trait.brand));
     const install =
       brands.length > 0

@@ -1,0 +1,26 @@
+# RF-69 revision 2, amendment A: mutations witnessing the switch order row. Each applied to the working tree on 76ff2d724, run with MX_TEST_ENGINES=chromium,firefox,webkit and vitest run -c vitest.config.ts --project 'browser*' tests/button-group/button-group-switch-order.browser.test.ts from packages/material-x, then reverted with git checkout (scratch commands, not committed).
+#   switch-core-no-names:  SwitchCore.ts, useContext's names argument BUTTON_GROUP_ELEMENTS -> []
+#   connected-name-absent: button-group-context.ts, 'mx-connected-button-group', deleted from BUTTON_GROUP_ELEMENTS
+
+## mutation switch-core-no-names
+-    BUTTON_GROUP_ELEMENTS,
++    [],
+      Tests  3 failed (3)
+     × should select the switch whose value equals the group value 304ms
+     × should select the switch whose value equals the group value 316ms
+     × should select the switch whose value equals the group value 345ms
+ FAIL  |browser (chromium)| tests/button-group/button-group-switch-order.browser.test.ts:9 > mx-connected-button-group defined after its switches > should select the switch whose value equals the group value
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group-switch-order.browser.test.ts:9 > mx-connected-button-group defined after its switches > should select the switch whose value equals the group value
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group-switch-order.browser.test.ts:9 > mx-connected-button-group defined after its switches > should select the switch whose value equals the group value
+ Test Files  3 failed (3)
+
+## mutation connected-name-absent
+-  'mx-connected-button-group',
+      Tests  3 failed (3)
+     × should select the switch whose value equals the group value 270ms
+     × should select the switch whose value equals the group value 283ms
+     × should select the switch whose value equals the group value 401ms
+ FAIL  |browser (chromium)| tests/button-group/button-group-switch-order.browser.test.ts:9 > mx-connected-button-group defined after its switches > should select the switch whose value equals the group value
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group-switch-order.browser.test.ts:9 > mx-connected-button-group defined after its switches > should select the switch whose value equals the group value
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group-switch-order.browser.test.ts:9 > mx-connected-button-group defined after its switches > should select the switch whose value equals the group value
+ Test Files  3 failed (3)

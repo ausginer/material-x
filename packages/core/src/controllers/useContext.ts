@@ -69,7 +69,8 @@ export function useProvider<T>(
 /**
  * Effect invoked with the currently resolved provider value.
  *
- * The returned cleanup function is called when the consumer is disconnected.
+ * It runs at most once for each connection of the consumer. The returned
+ * cleanup function is called once, when that connection ends.
  *
  * @typeParam T - The stable value shape exposed through this context.
  * @param value - The currently resolved provider value, if any.
@@ -80,37 +81,71 @@ export type ContextEffect<T> = (
 ) => Unsubscribe | undefined;
 
 /**
- * Resolves the nearest provider value when the host connects or reconnects.
+ * Resolves the nearest provider value each time the host connects.
  *
- * This controller performs context lookup on connection boundaries only. It
- * does not react to provider value replacement after connection, so consumers
- * should treat the resolved value as a long-lived object and subscribe to
- * updates inside it, for example through a nested `EventEmitter`.
+ * `parents` names the custom elements that provide `ctx` to the host as its
+ * parent. When the host's parent element is one of them, the lookup waits for
+ * that name's definition in the global `customElements` registry and then
+ * runs. So the provider is found in whatever order the two elements are
+ * defined, and the effect runs asynchronously, in a microtask after the
+ * connect at the earliest, even when the parent is already defined. While the
+ * parent's name stays undefined, the effect doesn't run. With any other parent,
+ * or none, the lookup runs synchronously on connect.
  *
- * The effect may return a cleanup function for manual subscriptions.
+ * The effect runs at most once for each connection, with the value or with
+ * `undefined` when no provider answers. A connection that ends before its
+ * lookup runs does nothing. The lookup doesn't react to provider value
+ * replacement after it, so consumers should treat the resolved value as a
+ * long-lived object and subscribe to updates inside it, for example through a
+ * nested `EventEmitter`. The effect may return a cleanup function for manual
+ * subscriptions.
  *
  * @typeParam T - The stable value shape exposed through this context.
  * @param host - The consumer host element.
  * @param ctx - The context channel to resolve.
+ * @param parents - The local names of the custom elements that provide `ctx`
+ * as the host's parent.
  * @param effect - Callback invoked with the resolved provider value.
  */
 export function useContext<T>(
   host: ControlledElement,
   ctx: Context<T>,
+  parents: readonly string[],
   effect: ContextEffect<T>,
 ): void {
   let disposer: Unsubscribe | undefined;
+  // Each connect and each disconnect advances the count, so a lookup that
+  // settles after its connection ended does nothing.
+  let connection = 0;
+
+  const resolve = (): void => {
+    const event = new ContextEvent(ctx, CONTEXT_EVENT_INIT);
+    host.dispatchEvent(event);
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    disposer = effect(event.value as T | undefined);
+  };
 
   use(host, {
     connected() {
-      const event = new ContextEvent(ctx, CONTEXT_EVENT_INIT);
-      host.dispatchEvent(event);
+      connection += 1;
+      const current = connection;
+      const name = host.parentElement?.localName;
 
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      disposer = effect(event.value as T | undefined);
+      if (name && parents.includes(name)) {
+        void customElements.whenDefined(name).then(() => {
+          if (current === connection) {
+            resolve();
+          }
+        });
+      } else {
+        resolve();
+      }
     },
     disconnected() {
+      connection += 1;
       disposer?.();
+      disposer = undefined;
     },
   });
 }

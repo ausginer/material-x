@@ -1,0 +1,3 @@
+{"label":"cross-module source base composes T, list [T]","code":"trait-list","message":"T has a constructor or private members, and the base's chain already composes it"}
+{"label":"through a hand-written subclass, list [T]","code":"trait-list","message":"T has a constructor or private members, and the base's chain already composes it"}
+{"label":"cross-module base composes T, list [U] (accepted)","result":"accepted"}

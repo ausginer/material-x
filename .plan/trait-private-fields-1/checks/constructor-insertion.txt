@@ -1,0 +1,35 @@
+$ node constructor-insertion.ts
+base field
+base constructor
+Super field
+Sub field
+component field
+Super constructor
+Sub constructor sees Super: 1
+component constructor, value 7
+subclass field
+subclass constructor
+refused: class A extends Object { constructor(value) { super(); const value = 1; } }: Identifier 'value' has already been declared
+parses: class A extends Object { constructor(value) { super(); { const value = 1; } } }
+
+$ tsc --ignoreConfig --noEmit --strict <options> component-super.ts   # Version 7.0.2
+== --target es2020
+component-super.ts(20,3): error TS2377: Constructors for derived classes must contain a 'super' call.
+component-super.ts(21,24): error TS2337: Super calls are not permitted outside constructors or in nested functions inside constructors.
+component-super.ts(31,7): error TS2401: A 'super' call must be a root-level statement within a constructor of a derived class that contains initialized properties, parameter properties, or private identifiers.
+component-super.ts(43,7): error TS2401: A 'super' call must be a root-level statement within a constructor of a derived class that contains initialized properties, parameter properties, or private identifiers.
+exit 1
+== --target es2022
+component-super.ts(20,3): error TS2377: Constructors for derived classes must contain a 'super' call.
+component-super.ts(21,24): error TS2337: Super calls are not permitted outside constructors or in nested functions inside constructors.
+exit 1
+== --target esnext --useDefineForClassFields true
+component-super.ts(20,3): error TS2377: Constructors for derived classes must contain a 'super' call.
+component-super.ts(21,24): error TS2337: Super calls are not permitted outside constructors or in nested functions inside constructors.
+exit 1
+== --target es2022 --useDefineForClassFields false
+component-super.ts(20,3): error TS2377: Constructors for derived classes must contain a 'super' call.
+component-super.ts(21,24): error TS2337: Super calls are not permitted outside constructors or in nested functions inside constructors.
+component-super.ts(31,7): error TS2401: A 'super' call must be a root-level statement within a constructor of a derived class that contains initialized properties, parameter properties, or private identifiers.
+component-super.ts(43,7): error TS2401: A 'super' call must be a root-level statement within a constructor of a derived class that contains initialized properties, parameter properties, or private identifiers.
+exit 1
