@@ -1,4 +1,4 @@
-import attr, { Str, type ConverterOf } from '../attribute.ts';
+import { setAttribute, Str, type ConverterOf } from '../attribute.ts';
 import { useAttributes } from '../controllers/useAttributes.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ControlledElement } from '../element.ts';
@@ -43,7 +43,7 @@ export function useLinkable(
       target.target = value ?? '';
     },
     href(_, value) {
-      attr.setRaw(target, 'href', value);
+      setAttribute(target, 'href', value);
     },
   });
 }
@@ -67,18 +67,18 @@ export function useDisableableLinkable(
   useAttributes(host, {
     href() {
       if (host.hasAttribute('disabled')) {
-        attr.setRaw(target, 'href', null);
+        setAttribute(target, 'href', null);
       }
     },
     disabled(_, value) {
       if (value != null) {
         target.ariaDisabled = 'true';
         target.tabIndex = -1;
-        attr.setRaw(target, 'href', null);
+        setAttribute(target, 'href', null);
       } else {
-        target.ariaDisabled = attr.getRaw(host, 'aria-disabled');
-        attr.setRaw(target, 'tabindex', attr.getRaw(host, 'tabindex'));
-        attr.setRaw(target, 'href', attr.getRaw(host, 'href'));
+        target.ariaDisabled = host.getAttribute('aria-disabled');
+        setAttribute(target, 'tabindex', host.getAttribute('tabindex'));
+        setAttribute(target, 'href', host.getAttribute('href'));
       }
     },
   });

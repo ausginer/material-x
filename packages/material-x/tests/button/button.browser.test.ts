@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 import { server } from 'vitest/browser';
 import '../../src/button-group/button-group.ts';
@@ -26,7 +25,7 @@ function createElement<Tag extends keyof HTMLElementTagNameMap>(
 }
 
 function getNativeButton(element: HTMLElement): HTMLButtonElement {
-  const button = $<HTMLButtonElement>(element, '.host');
+  const button = element.shadowRoot!.querySelector<HTMLButtonElement>('.host');
 
   if (!button) {
     throw new Error('Missing internal native button');
@@ -36,7 +35,7 @@ function getNativeButton(element: HTMLElement): HTMLButtonElement {
 }
 
 function getNativeAnchor(element: HTMLElement): HTMLAnchorElement {
-  const anchor = $<HTMLAnchorElement>(element, '.host');
+  const anchor = element.shadowRoot!.querySelector<HTMLAnchorElement>('.host');
 
   if (!anchor) {
     throw new Error('Missing internal native anchor');

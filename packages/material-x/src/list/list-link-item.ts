@@ -2,7 +2,6 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -71,7 +70,7 @@ export default class ListLinkItem extends ListLinkItemConstructor {
   }
 }
 
-define('mx-list-link-item', ListLinkItem);
+customElements.define('mx-list-link-item', ListLinkItem);
 
 declare global {
   interface HTMLElementTagNameMap {

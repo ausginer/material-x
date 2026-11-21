@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import type Radio from '../../src/radio/radio.ts';
 import '../../src/radio/radio.ts';
@@ -20,7 +19,7 @@ function createRadio(name?: string): Radio {
 }
 
 function getControl(element: Radio): HTMLInputElement {
-  const control = $<HTMLInputElement>(element, '#input');
+  const control = element.shadowRoot!.querySelector<HTMLInputElement>('#input');
 
   if (!control) {
     throw new Error('Missing internal control');

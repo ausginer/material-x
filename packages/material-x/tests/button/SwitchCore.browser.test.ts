@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { server, userEvent } from 'vitest/browser';
 import '../../src/button-group/connected-button-group.ts';
@@ -29,7 +28,7 @@ function createSwitch(tag: SwitchTag): SwitchElement {
 }
 
 function getHost(element: HTMLElement): HTMLButtonElement {
-  const host = $<HTMLButtonElement>(element, '.host');
+  const host = element.shadowRoot!.querySelector<HTMLButtonElement>('.host');
 
   if (!host) {
     throw new Error('Missing internal switch button');

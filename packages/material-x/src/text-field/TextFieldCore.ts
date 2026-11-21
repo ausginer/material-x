@@ -1,5 +1,10 @@
 // oxlint-disable import/no-mutable-exports
-import ATTR, { Bool, Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import {
+  Bool,
+  setAttribute,
+  Str,
+  type ConverterOf,
+} from '@ydinjs/core/attribute.js';
 import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import {
   transfer,
@@ -30,7 +35,7 @@ import {
 } from '@ydinjs/core/traits/disableable.js';
 import { type Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
 import type { Valuable, ValuableProps } from '@ydinjs/core/traits/valuable.js';
-import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { notify } from '../core/utils/events.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
@@ -128,7 +133,10 @@ function useTextFieldARIA(host: ControlledElement, input: InputElement): void {
   const ariaParams = Object.fromEntries(
     Object.entries(ARIA_PARAMS).map(([attr, ids]) => [
       attr,
-      ids.map((id) => ({ id, slot: $<HTMLSlotElement>(host, `#${id} slot`)! })),
+      ids.map((id) => ({
+        id,
+        slot: host.shadowRoot!.querySelector<HTMLSlotElement>(`#${id} slot`)!,
+      })),
     ]),
   );
 
@@ -142,8 +150,8 @@ function useTextFieldARIA(host: ControlledElement, input: InputElement): void {
   for (const [attr, slots] of Object.entries(ariaParams)) {
     for (const { slot } of slots) {
       useSlot(host, slot, () => {
-        if (ATTR.getRaw(host, attr) == null) {
-          ATTR.setRaw(input, attr, getFallback(slots));
+        if (host.getAttribute(attr) == null) {
+          setAttribute(input, attr, getFallback(slots));
         }
       });
     }
@@ -172,8 +180,8 @@ export class TextFieldCore extends TextFieldCoreConstructor {
       },
     );
 
-    const field = $<InputElement>(this, '.input')!;
-    const label = $<HTMLLabelElement>(this, '.label')!;
+    const field = this.shadowRoot!.querySelector<InputElement>('.input')!;
+    const label = this.shadowRoot!.querySelector<HTMLLabelElement>('.label')!;
 
     const innards = internals(this);
 

@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import '../../src/button-group/button-group.ts';
@@ -45,7 +44,9 @@ function createConnected(values: readonly string[]): HTMLElement {
 }
 
 function getNativeButton(element: Element): HTMLButtonElement {
-  const button = $<HTMLButtonElement>(element as HTMLElement, '.host');
+  const button = (
+    element as HTMLElement
+  ).shadowRoot!.querySelector<HTMLButtonElement>('.host');
 
   if (!button) {
     throw new Error('Missing internal native button');

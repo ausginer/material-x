@@ -127,69 +127,14 @@ export type ConverterWriteValue<C extends ConverterOf<any>> = C extends {
   ? T
   : never;
 
-/**
- * Typed helpers for reading and writing DOM attributes through converters.
- *
- * `get` and `set` work with typed values, while `getRaw` and `setRaw` expose
- * the underlying string-based DOM API directly.
- */
-export interface AttributeOperator {
-  /**
-   * Reads an attribute and converts it to a typed JavaScript value.
-   */
-  get<C extends ConverterOf<any>>(
-    host: HTMLElement,
-    name: string,
-    converter: C,
-  ): ConverterReadValue<C>;
-
-  /**
-   * Converts a typed JavaScript value and writes it back to the DOM attribute.
-   */
-  set<C extends ConverterOf<any>>(
-    host: HTMLElement,
-    name: string,
-    value: ConverterWriteValue<C>,
-    converter: C,
-  ): void;
-
-  /**
-   * Reads the raw serialized string value of an attribute.
-   */
-  getRaw(host: HTMLElement, name: string): string | null;
-
-  /**
-   * Writes the raw serialized string value of an attribute.
-   *
-   * Passing `null` removes the attribute from the element.
-   */
-  setRaw(host: HTMLElement, name: string, value: string | null): void;
+export function setAttribute(
+  element: Element,
+  qualifiedName: string,
+  value: string | null,
+): void {
+  if (value == null) {
+    element.removeAttribute(qualifiedName);
+  } else {
+    element.setAttribute(qualifiedName, value);
+  }
 }
-
-/**
- * Default attribute operator for typed DOM attribute access.
- *
- * This is the main entrypoint for reading and writing attributes with the
- * built-in converter tuples. Raw string access remains available through
- * `getRaw` and `setRaw`.
- */
-export const operator: AttributeOperator = {
-  get(host, name, { from }) {
-    return from(operator.getRaw(host, name));
-  },
-  set(host, name, value, { to }) {
-    operator.setRaw(host, name, to(value));
-  },
-  getRaw(host, name) {
-    return host.getAttribute(name);
-  },
-  setRaw(host, name, value): void {
-    if (value != null) {
-      host.setAttribute(name, value);
-    } else {
-      host.removeAttribute(name);
-    }
-  },
-} as const;
-
-export default operator;

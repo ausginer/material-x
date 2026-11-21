@@ -1,6 +1,5 @@
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -93,7 +92,7 @@ export default class SwitchButton extends SwitchButtonConstructor {
   }
 }
 
-define('mx-switch-button', SwitchButton);
+customElements.define('mx-switch-button', SwitchButton);
 
 declare global {
   interface HTMLElementTagNameMap {

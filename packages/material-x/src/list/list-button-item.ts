@@ -1,6 +1,5 @@
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
@@ -50,7 +49,7 @@ export default class ListButtonItem extends ListButtonItemConstructor {
   }
 }
 
-define('mx-list-button-item', ListButtonItem);
+customElements.define('mx-list-button-item', ListButtonItem);
 
 declare global {
   interface HTMLElementTagNameMap {

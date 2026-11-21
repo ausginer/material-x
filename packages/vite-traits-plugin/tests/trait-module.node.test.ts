@@ -173,7 +173,7 @@ describe('transformTraitModule on each form of @trait', () => {
 
     expect(transformTrait('open.ts', source)).toBe(
       [
-        'import __mxflat_attr from "@ydinjs/core/attribute.js";',
+        'import { setAttribute as __mxflat_setAttribute } from "@ydinjs/core/attribute.js";',
         '',
         "import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';",
         "import { Bool } from '@ydinjs/core/attribute.js';",
@@ -186,8 +186,8 @@ describe('transformTraitModule on each form of @trait', () => {
         '    return o != null && o[$open] === true;',
         '  }',
         '',
-        '  get open() { return __mxflat_attr.get(this, "open", Bool); }',
-        '  set open(value) { __mxflat_attr.set(this, "open", value, Bool); }',
+        '  get open() { return Bool.from(this.getAttribute("open")); }',
+        '  set open(value) { __mxflat_setAttribute(this, "open", Bool.to(value)); }',
         '}',
         '',
         `export { ${hoisted} };`,

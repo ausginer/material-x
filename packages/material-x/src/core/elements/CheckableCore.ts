@@ -23,7 +23,7 @@ import {
   type Valuable,
   type ValuableProps,
 } from '@ydinjs/core/traits/valuable.js';
-import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../animations/ripple/ripple.ts';
 import { notify, useClickActivation } from '../utils/events.ts';
 import { useCore } from '../utils/useCore.ts';
@@ -55,7 +55,7 @@ export function useCheckableCore(
 ): HTMLInputElement {
   useCore(host, templates, aria, [...styles, css], init);
 
-  const input = $<HTMLInputElement>(host, '#input')!;
+  const input = host.shadowRoot!.querySelector<HTMLInputElement>('#input')!;
   const innards = internals(host);
 
   useCheckable(host, input);

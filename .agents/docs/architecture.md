@@ -13,7 +13,7 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 ├── packages/
 │   ├── core/                         # @ydinjs/core runtime primitives
 │   │   └── src/
-│   │       ├── element.ts            # ControlledElement, define(), use()
+│   │       ├── element.ts            # ControlledElement, use()
 │   │       ├── attribute.ts          # Bool, Num, Str converters
 │   │       ├── controllers/          # lifecycle and platform behavior
 │   │       ├── traits/               # composition, attribute traits, shared traits
@@ -40,7 +40,6 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 
 - `use(host, controller)` registers lifecycle controllers.
 - `internals(host)` exposes `ElementInternals` for ARIA and custom states.
-- `define(name, class)` centralizes `customElements.define`.
 
 ### Traits and attributes
 
@@ -72,7 +71,7 @@ Each component combines the core runtime and token processor:
 2. Define the public custom-element class that extends the core.
 3. Wire its template, shadow DOM, ARIA, and component behavior with `useCore()` or a component-specific helper.
 4. Import `@ydinjs/tproc` token packages from the component's styles.
-5. Register the element with `define('mx-*', Class)`.
+5. Register the element with `customElements.define('mx-*', Class)`.
 
 **`.host` is the root, and it takes focus.** In every material-x component, the shadow root's root element has the class `host`. In a component that takes focus, `.host` is the element that takes it. Shared styles and helpers depend on this. The button family's focus indicator and focus layer draw on `.host:focus-visible`. `useButtonCore`, FAB, the link button and the list items find their control as `.host`. Delegated and forwarded focus lands on it. If a template wraps `.host`, or puts the focusable element beside it, these break without an error. `.host` carries the part `impl`. The owner stated the invariant on 2026-11-17 and decided its exceptions on 2026-11-18 ([`repo:RF-43`](../../.plan/00-index.md)). A component in an exception has no `.host` that takes focus, so the shared rules keyed on `.host` don't apply to it:
 
