@@ -59,9 +59,36 @@ On the final source, after task 3a:
 - The accessibility probe and the standing check's mutation proof: run again, above.
 - Not run: Safari.
 
+## After `RF-69` — 2026-11-21
+
+**By the implementer,** on the coordinator's request once #100 merged into `main` at `87fc2d2db`. This is the first part of the follow-up that the RF-69 bullet under _Open_ names. `RF-68`'s knock-on (#99) isn't part of it.
+
+- **The merge,** `5194f5069`, takes `origin/main` into this branch. Its one conflict was in `.plan/00-index.md`, where this branch's `RD-31` and `main`'s `RD-32` and `RD-33` were added at the same place. All three entries are kept, in that order.
+- **The consumer,** `f354bbaf8`. `ListItemCore` passes `SORTABLE_LIST_ELEMENTS`, `['mx-sortable-list']`, to `useContext`, as [revision 2's decision 6](../context-late-provider-1/context-late-provider-handoff-r2.md#6-the-callers) says. The constant is beside `SORTABLE_LIST_CTX` in `sortable-list-context.ts`, and that module's JSDoc now names it. An item whose parent is anything else, `mx-list` included, still requests synchronously.
+- **The definition-order row** _"should make a static item a tab stop when list-item.js is evaluated first"_ is now `it`, and its comment about `RF-69` is gone. It passes in Chromium, Firefox and WebKit. With the wait removed from core's `useContext`, or with `SORTABLE_LIST_ELEMENTS` empty, it fails in each engine, while the row that evaluates `sortable-list.js` first still passes ([output](checks/rf69-order-mutations.txt)). Both mutations were reverted.
+- **Sizes** against `main` at `87fc2d2db` ([reading](checks/size-after-rf69.txt)), Brotli bytes:
+
+  | Row | `main` | Before this merge | After | Against `main` | Bound |
+  | --- | --: | --: | --: | --: | --- |
+  | `list/list` | 3,673 | 685 | 685 | −2,988 | doesn't grow |
+  | `list/list-item` | 2,567 | 2,739 | 2,828 | +261 | ≤ 3,100 |
+  | `list/list-button-item` | 4,575 | 4,601 | 4,667 | +92 | ±150 |
+  | `list/list-link-item` | 4,746 | 4,788 | 4,885 | +139 | ±150 |
+  | `list/sortable-list` | — | 8,579 | 8,579 | new row | ≤ 9,600 |
+  | `complete` | 17,079 | 22,004 | 22,144 | +5,065 | — |
+  - Every bound holds. `list/list-link-item` is 11 B inside its bound.
+  - The items grow by 66 to 97 B over the branch's reading before the merge, because their consumer now carries `RF-69`'s wait and the name. The button rows grew by a similar amount under `RF-69`. `list/list` and `list/sortable-list` don't move. Every row outside the list reads as on `main`.
+  - _Before this merge_ is the [earlier reading](checks/size-after.txt), on `main` before `RF-69`. Its `main` column read `complete` as 16,975.
+
+- **Gates** ([output](checks/rf69-gates.txt)):
+  - material-x's browser suite with `MX_TEST_ENGINES=chromium,firefox,webkit`: 848 rows pass, and the one expected failure fails as expected. That row is `button.browser.test.ts`'s Firefox row (`RF-33`), not this branch's.
+  - The root `aube exec just test`: 151 files and 2,467 rows pass. These include the standing check over the built entries.
+  - `fmt`, `lint-fix`, `fmt` and `lint` on the three changed files, and material-x's `typecheck`: clean.
+- **Not rerun:** the accessibility probe, which still evaluates `list/sortable-list.js` first, and Safari.
+
 ## Open
 
-- **`RF-69` (#100):** once it is on `main`, this branch merges `main`, the definition-order row's `it.fails` becomes `it`, and the accessibility probe's import order no longer matters.
+- **`RF-69` (#100):** merged and taken in, as _After `RF-69`_ says. The definition-order row passes. The accessibility probe wasn't rerun in the other import order.
 - **The disconnect departure** is in the fifth amendment and `drag:DRF-54`'s proposal.
 - **A pre-existing mismatch, not changed:** `mx-list-item`'s JSDoc names its slots `start` and `end`, and its template names them `lead` and `trail`. The plan's ruling says `start` and `end`. The code and the JSDoc of `mx-sortable-list` use the template's names.
 - `RF-36` closes with this unit, as property 8 says. Its rows and the code they tested are deleted.
