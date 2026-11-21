@@ -218,3 +218,25 @@ Append a dated _Revision 2_ section to [`context-late-provider-report.md`](conte
 - the sizes in the three columns.
 
 The architect dates `RF-69` when #100 merges.
+
+## Amendment: a switch row for proof 2
+
+**Amended 2026-11-21 by the architect,** on `reviewer-3` of the [feature proof of revision 2](../reviews/context-late-provider-1/feature-proof-r2-claude.md#reviewer-3) at `73b835b51`, relayed by the coordinator. **Recipient:** the implementer, on this branch. Proof 2 asked for a witness of `ButtonCore`'s names only. Nothing else in the handoff changes.
+
+**Why the row is owed in this unit.** Decision 6 makes `SwitchCore` pass the same names, and property 7 covers both groups' buttons. Selecting a switch by the group's `value` is the connected group's main use. Today no row fails when `SwitchCore` passes `[]`: every switch row defines the group before the switches connect, and then a synchronous request finds the provider too. The row costs one test file and changes no source, so it belongs in the unit that adds the argument.
+
+**The row,** in a new file, `packages/material-x/tests/button-group/button-group-switch-order.browser.test.ts`:
+
+- **Its own file,** because its precondition is that `mx-connected-button-group` is undefined, and the connected row in `button-group-order.browser.test.ts` needs the same precondition. Two rows in one file would depend on their order. Like that file, it imports no group module statically and says so at the top, and it imports `src/button/switch-button.ts` statically.
+- **The fixture** is parsed markup: `<mx-connected-button-group value="b">` around two `mx-switch-button`, the first `value="a" checked`, the second `value="b"`. It has no whitespace between the children, with the same comment as the connected order row, for the same defect.
+- **The steps:** read whether `mx-connected-button-group` is undefined, set the markup, `import()` `src/button-group/connected-button-group.ts`, and await `nextFrame`.
+- **One assertion:** `[undefinedBefore, the switches' checked]` equals `[true, [false, true]]`.
+
+**Witness.** Each mutation fails the row in Chromium, Firefox and WebKit, and is reverted after the run:
+
+- `SwitchCore` passes `[]` in place of `BUTTON_GROUP_ELEMENTS`;
+- `BUTTON_GROUP_ELEMENTS` holds only `'mx-button-group'`.
+
+**Gates:** material-x's browser suite in the three engines, and `fmt`, `lint-fix`, `fmt`, `lint` on the new file, and material-x's `typecheck`.
+
+**The report:** add the row, the two mutations' saved output under `checks/`, and the gates to the _Revision 2_ section, in a dated paragraph of its own.

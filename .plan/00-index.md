@@ -3266,7 +3266,13 @@ Tier A, **open**. Registered on 2026-11-21 by the architect, on `core/context-la
 - **Kept:** the connection count, so a stale or moved connection does nothing, and the cleared disposer, so each cleanup runs once.
 - **Kept, and why:** the comparison with the parent. With no comparison, a wait on two names can't settle correctly, and on a page that never loads a group every button that connected stays in memory.
 - **Owed with it:** `reviewer-1`'s four rows, each with an awaited resolution.
-- **Size, read from a scratch sketch:** 9 to 22 B smaller than revision 1 on the button rows, and 50 B smaller on `complete`.
+- **Size, measured at `3fc90ba36`** ([report](context-late-provider-1/context-late-provider-report.md), [feature proof](reviews/context-late-provider-1/checks/feature-proof-r2-checks.txt) §5), Brotli: against revision 1, the button rows are 2 to 32 B smaller and `complete` is 10 B larger. Against _before_, the button rows are +83 to +104 B and `complete` is +104 B. The group rows don't move.
+
+**Dated 2026-11-21 by the architect,** on `reviewer-3` and `reviewer-4` of the [feature proof of revision 2](reviews/context-late-provider-1/feature-proof-r2-claude.md) at `73b835b51`, relayed by the coordinator. **Implemented at `3fc90ba36`** on `core/context-late-provider-1` (#100, not yet merged), and the feature proof finds that it meets revision 2: properties 1 to 8 hold, and proofs 1 to 7 reproduce in Chromium, Firefox and WebKit. **Not closed:** one row is owed first.
+
+- **`reviewer-3`: the row is owed in this unit.** No row fails when `SwitchCore` passes `[]`, though decision 6 names it as a caller and property 7 covers the switch buttons. The handoff's [amendment](context-late-provider-1/context-late-provider-handoff-r2.md#amendment-a-switch-row-for-proof-2) specifies the row, a parsed connected group defined after its switches, and its two mutations. `RF-69` closes on that row's witness.
+- **`reviewer-4`: corrected.** The size line above now states the measurement. The constant's placement explains the difference from the sketch (the feature proof's question 1): the minified `complete` is 37 B smaller than revision 1's, but the constant comes before other top-level bindings, so they get new short names, and Brotli doesn't keep the saving. **Not adopted:** moving the constant to the end of `button-group-context.ts`, which the ablation reads at 36 B less on `complete`. The saving comes from the minifier's naming, not from the code, so a later edit can undo it, and every row is under the 200 B stop as it is.
+- **Changed 2026-11-21 by the architect,** on `reviewer-4`. Until then, the re-plan's last bullet read: _"**Size, read from a scratch sketch:** 9 to 22 B smaller than revision 1 on the button rows, and 50 B smaller on `complete`."_
 
 ## Questions
 
