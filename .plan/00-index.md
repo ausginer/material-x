@@ -1293,6 +1293,8 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 
 **Why.** The owner approved every request to open a pull request, so asking cost a round trip and decided nothing. Merging is where his decision lies, and it stays his.
 
+**Amended 2026-11-21 by `RD-32`: a plan alone doesn't finalize a unit that implements it.** The rule above still holds once a unit is finalized and pushed. A plan and its implementation now share one branch and one pull request, so the pull request opens after the implementation. Until then, the rule let an architect's pushed plan have a pull request of its own, as #90 has.
+
 #### RD-26 — Traits are plain classes in two layers, a component names its traits in a `Composed` annotation, and the flattener is a required build step
 
 **Decided 2026-11-19 by the owner,** relayed by the coordinator, on Architect B's [feasibility study](trait-decorators-1/trait-decorators-plan.md) and [migration plan](trait-decorators-1/trait-migration-plan.md) at `250b55f96`. The plan's [owner's decisions](trait-decorators-1/trait-migration-plan.md#the-owners-decisions-2026-11-19) section lists his answers. Registered by the architect on `repo/traits-migration-1`, which merged `repo/trait-decorators-1` into `origin/main` at `24c6672ce` (`e49b67e24`, `RD-17`). `RD-25` is the highest number on any branch on `origin`, so this is the next free number. **Unimplemented:** the plan's [seven commits](trait-decorators-1/trait-migration-plan.md#commits) implement it on this branch, and its pull request opens after the plan's [proofs](trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request) hold.
@@ -1842,6 +1844,18 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **the check in the pull-request workflow as well:** no job there packs a package, and nothing is published between a pull request and the check run before the next release;
   - **a test that reads the top level of core's source:** the claim is about the built modules, which the plugin and tsdown write.
 - **`RD-26` and `RD-27` don't change.** `RD-26`'s fourth amendment and this unit don't wait for each other. `RD-27`'s properties don't enumerate the checks, and its plan's step 7 gains one.
+
+#### RD-32 — A unit's plan and its implementation share one branch and one pull request, and a change to project documentation has its own
+
+**Decided 2026-11-21 by the owner,** relayed by the coordinator: _"A change to project documentation (rules for agents, user-visible documentation, etc.) is a separate PR, that's right. But a plan is part of a feature's implementation, so they must go in one PR."_ (translated). Proposed by Mx Architect B in the description of [#93](https://github.com/ausginer/material-x/pull/93), from slot b, which doesn't mint. Registered by the architect on `repo/one-pr-rule-1`. `RD-31` is the highest number on any branch on `origin`, so this is the next free number. **Implemented** in `agent-workflow.md`, `AGENTS.md` and `work-queue.md` by #93 (`2f95645a6`), which the owner merged.
+
+- **The rule:** [`agent-workflow.md` §One branch and one pull request per unit](../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit).
+- **It amends `RD-25`'s rule.** An agent still opens a pull request without being asked once the unit is finalized and pushed. A plan alone no longer finalizes a unit that implements it. Merging stays with the owner.
+- **What the documents said before.** `AGENTS.md` allowed a pull request _"once a unit is finalized and pushed"_, and an architect's pushed plan counted, as for #90. `work-queue.md` said that an issue moves to _In progress_ with its pull request.
+- **A unit with nothing to implement,** such as a decision that only records an answer, has its own pull request. This entry is one.
+- **Not settled: a feature's own user documentation.** The owner's words put user-visible documentation in a separate pull request. The rule as written keeps a feature's JSDoc and its component page with the feature, as `implementer.md` makes the documentation a task needs part of its implementation. Only documentation that no feature owes has its own pull request. If the owner meant a feature's documentation too, the section's last bullet and `implementer.md` change, and this entry is amended.
+
+**Why.** A plan is part of its feature's implementation, so the owner reviews and merges them together. Project documentation isn't a feature's, so it has its own pull request.
 
 ## Findings
 
