@@ -14,6 +14,18 @@
 //   none     - no wrapper (the built package as it is)
 //   wrapper  - the wrapper, with no rule
 //   collapse - the wrapper, with `.wrap:has(> :popover-open) { display: contents }`
+// Added by the architect on 2026-11-21 for the box host, with no wrapper. Each
+// item's shadow root adopts `:host { display: block }`, which comes after the
+// item's own `:host { display: contents }`:
+//   hostbox     - nothing else
+//   hostbox-has - and `:host:has(.host:popover-open) { display: contents }`
+//   hostbox-state - and `:host(.lifted) { display: contents }`, with the class
+//               toggled on the host by a `beforetoggle` listener on its
+//               `.host`. It stands in for a custom state on the item's
+//               internals, which the probe can't reach; `:host(:state(…))`
+//               already styles the items in every engine
+//   host-lift   - the lifted visual is the item's host itself, not its `.host`
+// Each box-host mode lifts the button item, then the static item (`-static`).
 import { rolldown } from 'rolldown';
 import { chromium, firefox, webkit } from 'playwright';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -46,10 +58,22 @@ const code = output
 const type = { chromium, firefox, webkit }[ENGINE]!;
 const browser = await type.launch();
 console.log(`# engine ${ENGINE} ${browser.version()}`);
-for (const mode of ['none', 'wrapper', 'collapse']) {
+for (const mode of [
+  'none',
+  'wrapper',
+  'collapse',
+  'hostbox',
+  'hostbox-static',
+  'hostbox-has',
+  'hostbox-has-static',
+  'hostbox-state',
+  'hostbox-state-static',
+  'host-lift',
+  'host-lift-static',
+]) {
   const page = await browser.newPage();
   await page.setContent(`<mx-list id="l" style="gap: 12px">
-  <mx-list-item>Static</mx-list-item>
+  <mx-list-item id="s">Static</mx-list-item>
   <mx-list-button-item id="b">Button item</mx-list-button-item>
   <mx-list-link-item id="a" href="#x">Link item</mx-list-link-item>
 </mx-list>`);
@@ -58,7 +82,34 @@ for (const mode of ['none', 'wrapper', 'collapse']) {
   await page.waitForTimeout(100);
   const r = await page.evaluate((mode) => {
     const list = document.getElementById('l')!;
-    if (mode !== 'none') {
+    const box = mode.startsWith('host');
+    if (box) {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(
+        mode.startsWith('hostbox-has')
+          ? ':host { display: block; } :host:has(.host:popover-open) { display: contents; }'
+          : mode.startsWith('hostbox-state')
+            ? ':host { display: block; } :host(.lifted) { display: contents; }'
+            : ':host { display: block; }',
+      );
+      for (const item of list.children) {
+        if (mode.startsWith('hostbox-state')) {
+          item
+            .shadowRoot!.querySelector('.host')!
+            .addEventListener('beforetoggle', (event) => {
+              item.classList.toggle(
+                'lifted',
+                (event as ToggleEvent).newState === 'open',
+              );
+            });
+        }
+        item.shadowRoot!.adoptedStyleSheets = [
+          ...item.shadowRoot!.adoptedStyleSheets,
+          sheet,
+        ];
+      }
+    }
+    if (mode !== 'none' && !box) {
       for (const item of document.querySelectorAll(
         'mx-list-button-item, mx-list-link-item',
       )) {
@@ -87,8 +138,10 @@ for (const mode of ['none', 'wrapper', 'collapse']) {
       list: list.getBoundingClientRect().height,
       linkTop: link.getBoundingClientRect().top,
     };
-    const item = document.getElementById('b')!;
-    const visual = item.shadowRoot!.querySelector<HTMLElement>('.host')!;
+    const item = document.getElementById(mode.endsWith('-static') ? 's' : 'b')!;
+    const visual = mode.startsWith('host-lift')
+      ? item
+      : item.shadowRoot!.querySelector<HTMLElement>('.host')!;
     const rect = visual.getBoundingClientRect();
     const footprint = document.createElement('div');
     footprint.style.width = `${rect.width}px`;
@@ -108,10 +161,16 @@ for (const mode of ['none', 'wrapper', 'collapse']) {
       list: list.getBoundingClientRect().height,
       linkTop: link.getBoundingClientRect().top,
     };
-    return { before, during, open: visual.matches(':popover-open') };
+    const lifted = visual.getBoundingClientRect();
+    visual.hidePopover();
+    const after = list.getBoundingClientRect().height;
+    const same = ['x', 'y', 'width', 'height'].every(
+      (k) => lifted[k as 'x'] === rect[k as 'x'],
+    );
+    return { before, during, open: true, same, after };
   }, mode);
   console.log(
-    `${mode.padEnd(8)} list ${r.before.list} -> ${r.during.list}, link top ${r.before.linkTop} -> ${r.during.linkTop}, lifted=${r.open}`,
+    `${mode.padEnd(18)} list ${r.before.list} -> ${r.during.list}, link top ${r.before.linkTop} -> ${r.during.linkTop}, visual rect kept=${r.same}, list after hidePopover ${r.after}`,
   );
   await page.close();
 }

@@ -1,7 +1,10 @@
 // Probe for RF-68's property 5: every item's `.host` rect and the list's rect,
 // in Chromium, Firefox and WebKit, on the built package.
 //
-// node list-layout.ts <packages/material-x>
+// node list-layout.ts <packages/material-x> [hostbox]
+//   hostbox - added by the architect on 2026-11-21: each item's shadow root
+//             adopts `:host { display: block }` after its own styles, as a
+//             box host would have it
 //
 // The fixture is a list with a 12 px gap holding one-, two- and three-line
 // items of each kind, with lead and trail content, and a disabled button and
@@ -13,7 +16,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const [MX] = process.argv.slice(2) as [string];
+const [MX, MODE] = process.argv.slice(2) as [string, string | undefined];
 
 const dir = await mkdtemp(join(tmpdir(), 'list-layout-'));
 const entry = join(dir, 'entry.js');
@@ -63,6 +66,18 @@ for (const [name, type] of Object.entries({ chromium, firefox, webkit })) {
   await page.addScriptTag({ content: code });
   await page.waitForFunction(() => customElements.get('mx-list-link-item'));
   await page.evaluate(() => document.fonts.ready);
+  if (MODE === 'hostbox') {
+    await page.evaluate(() => {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(':host { display: block; }');
+      for (const item of document.getElementById('l')!.children) {
+        item.shadowRoot!.adoptedStyleSheets = [
+          ...item.shadowRoot!.adoptedStyleSheets,
+          sheet,
+        ];
+      }
+    });
+  }
   await page.waitForTimeout(100);
   const rects = await page.evaluate(() => {
     const show = (r: DOMRect) => `${r.x} ${r.y} ${r.width} ${r.height}`;

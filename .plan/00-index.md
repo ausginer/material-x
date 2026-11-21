@@ -3261,6 +3261,12 @@ Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sorta
 - **The record lives on `material-x/list-roles-1`,** because the repair lands there and #90's merge date isn't known. That branch carries this entry and byte-identical copies of the reading and the probe registered with it. #90 removes its copy of the entry, and further datings are made on the fix's branch.
 - **Size:** _small_. A few tens of bytes on three list rows, and no row has a limit (`RD-24`).
 
+**Dated again 2026-11-21 by the architect: the repair is re-ruled,** at `001f8d833`, on the owner's principle for hosts and his rule on shadow-tree elements, relayed by the coordinator. The [handoff](list-roles-1/list-roles-handoff.md#the-decision) holds the new decision, the readings and what it replaces. The repair is **Unimplemented** in its new form.
+
+- **Decided:** each item's host takes a box (`display: block`) and `listitem` through its internals, and the row element goes. Read in three engines: the layout is `main`'s, and every control and slotted node is inside its item, WebKit included. While an item's `.host` is lifted, a state toggled from its `beforetoggle` takes the host's box away. The interactive items drop `FocusForwarding`, because Firefox delegates focus through a box host.
+- **This replaces the _Decided_, _Not adopted_ and _Seen, not registered_ items of the dating before.** They said: _"`listitem` goes on the item's row, the outermost element of its shadow tree that has a box. [...] The host keeps `display: contents` and sets no role."_; _"the role on the host. WebKit then puts each interactive item's button or link outside its item, because it parents shadow content by its box past a `display: contents` host."_; and that WebKit's split of slotted nodes stays, which the box host now repairs for the list items.
+- **Owner question,** in the handoff: whether a consumer's `tabindex` on an `mx-list-item` host stands as a tab stop. `RD-31` gets a follow-up on its branch.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

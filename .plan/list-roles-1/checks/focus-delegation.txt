@@ -1,0 +1,6 @@
+# node probes/focus-delegation.ts
+# run 2026-11-21 by the architect, Playwright 1.65.0's Chromium 158, Firefox 159 and WebKit 27.2; plain custom elements, no package code
+# active: document.activeElement after host.focus(); inner: the shadow root's activeElement
+chromium 158.0.8127.18 c(contents): active=c inner=button | k(block): active=k inner=button | d(block): active=d inner=a
+firefox 159.0 c(contents): active=body inner=- | k(block): active=k inner=button | d(block): active=d inner=a
+webkit 27.2 c(contents): active=c inner=button | k(block): active=k inner=button | d(block): active=d inner=a
