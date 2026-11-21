@@ -1,0 +1,3 @@
+P5PROBE {"byPlaywright":[{"type":"pointermove","clientX":150.5,"clientY":120.25,"buttons":1,"pointerType":"mouse","isTrusted":true,"pressure":0.5}],"byCdp":[{"type":"pointermove","clientX":150.5,"clientY":120.25,"buttons":1,"pointerType":"mouse","isTrusted":true,"pressure":0.5}],"upWithoutSync":[{"type":"pointerup","clientX":100,"clientY":100,"buttons":0,"pointerType":"mouse","isTrusted":true,"pressure":0}],"upWithSync":[{"type":"pointerup","clientX":170,"clientY":130,"buttons":0,"pointerType":"mouse","isTrusted":true,"pressure":0}]}
+ ✓ |browser (chromium)| tests/probe-input.browser.test.ts:15 > should probe the two held moves 422ms
+      Tests  1 passed (1)
