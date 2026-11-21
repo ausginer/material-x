@@ -67,6 +67,12 @@ The [feature proof](../reviews/core-side-effects-1/feature-proof-claude.md) at `
   - Root `just typecheck`, `just lint` and `just fmt-check` exit 0 ([gates](checks/remediation-gates.txt)).
   - Root `just test`, two runs with the fix: the first failed only `drag:DRI-17`'s hot-path row, at 23.89 per move against the ceiling of 16, and the second passed, 146 files and 2,309 tests. The row passes alone. A control run with the two scripts at `f2556af8a` passed, 2,307 tests. One failure in two runs doesn't show whether the new rows move the row. It is more data for #70, not a diagnosis.
 
+## Re-review of the remediation
+
+The [re-review](../reviews/core-side-effects-1/re-review-claude.md) at `5a16e410b` found `reviewer-1` and `reviewer-2` resolved, and the lazy import holds.
+
+- **`reviewer-3`, Tier C, open, doesn't block:** an import of a `node:` built-in is reported with the repair _"publish the module, or declare its package in dependencies"_, and neither repair applies. No package that declares the field imports a built-in, so no release is affected today. Whether the check accepts a built-in import from a package that declares `"sideEffects": false` is a scope question, routed to the architect. It isn't fixed in this unit.
+
 ## Not done
 
 - No tag, dispatch or publish.
