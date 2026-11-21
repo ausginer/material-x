@@ -268,7 +268,7 @@ No owner question is needed for this. The description is section 4's existing ru
 
 ## How a static item takes focus
 
-Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the same day on Mx Architect's reading for `RF-68`, and **revised again the same day on the owner's direction**. [What the revisions changed](#what-the-revisions-changed) lists both.
+Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the same day on Mx Architect's reading for `RF-68`, and **revised again the same day on the owner's direction**. [What the revisions changed](#what-the-revisions-changed) lists them.
 
 **The owner's direction,** relayed by the coordinator in translation, on the registry that the list read at `9f90572fb`: _"Isn't that a re-implementation of context?"_, and _"That context works through an event that costs something is true. But Justin Fagnani explained to me that you mustn't use registries for DOM: it tests and carries over very badly."_ The coordinator then narrowed it: the rule is **no registry for a contextual parent–child link**. A parent component and its children are linked through context. A registry that maps an element to its own parts, such as `FocusForwarding`'s, isn't covered.
 
@@ -283,7 +283,7 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 - **Mx Architect's reading for `RF-68`,** `.plan/list-roles-1/checks/list-roles.txt` on `material-x/list-roles-1` at `45272694c`, from each engine's own accessibility tree:
   - **A `display: contents` host with a `tabindex` gets a node of its own:** `generic` in Chromium, around its item, and `group` in WebKit, beside its item and holding the item's slotted text. It still takes no focus.
   - `RF-68`'s fix puts `listitem` on the item's row, which for `mx-list-item` is its inner `.host`. So the element that takes focus here is the list item.
-- **Core's context, read in `packages/core/src/controllers/useContext.ts` at `5295713b5`, not run:** `useContext` dispatches its request only in the consumer's `connected`, and `useProvider` answers only once the provider is upgraded. So a consumer that connects before its provider is defined never resolves it. An item that `list/list-item.js` upgrades before `list/sortable-list.js` defines the list, in a page whose markup was parsed first, would stay unsortable. Section 2 rejected a side-effect import for this ordering. `button-group` has the same gap today (the [proposed finding](#proposed-finding-a-context-consumer-that-connects-before-its-provider-never-resolves-it)).
+- **Core's context, read in `packages/core/src/controllers/useContext.ts` at `5295713b5`, not run:** `useContext` dispatches its request only in the consumer's `connected`, and `useProvider` answers only once the provider is upgraded. So a consumer that connects before its provider is defined never resolves it. An item that `list/list-item.js` upgrades before `list/sortable-list.js` defines the list, in a page whose markup was parsed first, would stay unsortable. Section 2 rejected a side-effect import for this ordering. `button-group` has the same gap today. It is [`RF-69`](#the-context-repair-is-cores-unit-rf-69).
 
 **The ruling, as revised.**
 
@@ -296,7 +296,7 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 
 3. **The item detects its own handle,** from the nodes assigned to its `start` and `end` slots, as `enhanceHandle` did. A handle is a child element of the item with `data-handle`, in either slot. The JSDoc says so, and drag's `handle(item)` in the list uses the same rule at each press and command. So the item and the list can't disagree.
 4. **When the tab stop goes.** When the item gains a handle, its slot change moves the semantics to the handle and removes the tab stop and the description from the control. When the handle goes, the reverse. When the item leaves the list, its disconnect runs the context effect's cleanup, which removes everything the item wrote. A reconnect resolves the context again, so an item moved into `mx-list` takes nothing, and one moved into another sortable list takes it again. The item removes only values it wrote.
-5. **A provider that connects after its consumers still reaches them.** Core's `useProvider`, on its host's connect, tells the provider's child elements to resolve the context again, and `useContext` resolves again when told, disposing the earlier effect first. That is one non-bubbling event per child, and one listener on each consumer's own host. It changes core's controller, so `button-group` gets the same repair. It is task 5's second part, and it lands before task 3's focus part.
+5. **An item resolves the list's context in whatever order the two are defined.** That is `RF-69`'s repair in core, which this unit depends on ([below](#the-context-repair-is-cores-unit-rf-69)). The items resolve through the same `useContext` as `button-group`'s buttons, so the list adds no repair of its own.
 6. **The item composes `FocusForwarding`,** as the interactive items do, and its root delegates focus. So `item.focus()` reaches the inner `.host` in every engine, Firefox included. The Firefox gap isn't documented as a limit. `FocusForwarding`'s registry maps an element to its own control, which the owner's rule doesn't cover, and nothing else reads it.
 7. **`mx-list-item` has no public way to take focus.** A consumer's `tabindex` on its host does nothing, in either list, as the owner's Q6 rule wants.
 
@@ -306,7 +306,7 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 - **The item writes, and the list provides.** Each element writes only on elements it owns, so no shadow tree is reached into, and the host stays free of `tabindex` and `aria-*`, which the `RF-68` reading rules out for a `display: contents` host.
 - **One observer of the handle** (`CONTRIBUTING.md` §6). The item already watches its `start` and `end` slots, and it needs the handle for its own tab stop. A handle added to an item later is a slot change of the item, not of the list, so the list could see it only with an observer of its own.
 - **The parent check** keeps a nested plain list's items out of an outer sortable list's behavior. It is a comparison, with no extra context on `mx-list`.
-- **The late-provider repair is in core,** because the gap is the controller's, and `button-group` has it too. Doing it in the list alone would leave the button group broken and give context two behaviors.
+- **The late-provider repair is core's (`RF-69`),** because the gap is the controller's, and `button-group` has it too. Doing it in the list alone would leave the button group broken and give context two behaviors.
 - **The Firefox gap would be a correctness failure under valid use,** caused by the platform (`CONTRIBUTING.md` §1.1), and the package already has its fix.
 
 **What it costs.** Estimates, which task 6 replaces with readings.
@@ -314,9 +314,10 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 - **`list/list-item`:** it loses `useReorderableItem`. It keeps the handle code, now gated, and gains `useContext`'s consumer, `FocusForwarding`, the description and tab-stop writes and the focus indicator's styles. About 2,600 to 3,100 B.
 - **The interactive items:** they keep the handle code, gated, and gain the consumer and the description write. About the same as today, within 150 B either way.
 - **`list/sortable-list`:** it loses the handle semantics and the registry read, and gains `useProvider`. About 8,500 to 9,500 B.
-- **`complete`:** the consumer in `ListItemCore` once, the provider once, and core's re-resolution. `list/list` doesn't change.
-- **Core's re-resolution:** a few tens of bytes in every entry that uses context, `button-group` and the buttons included.
-- **Run time:** one context event per item connect, which the owner accepted, and one event per child when a sortable list or a button group connects.
+- **`complete`:** the consumer in `ListItemCore` once and the provider once. `list/list` doesn't change.
+- **Run time:** one context event per item connect, which the owner accepted.
+
+`RF-69`'s repair is that unit's bytes, not this one's. That unit reads them before and after.
 
 **Not adopted.**
 
@@ -325,7 +326,8 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 - **A new public attribute on `mx-list-item`,** such as `focusable`: `CONTRIBUTING.md` §4 and §12, and no consumer needs it.
 - **The list writing handle semantics:** it would need an observer of every item's children to see a handle added later.
 - **`mx-list` providing the context too,** with a "not sortable" value, to stop nested items: the parent check does it without a listener on every plain list.
-- **The re-resolution in the list alone:** above.
+- **A late-provider repair in the list alone:** above.
+- **The provider telling its child elements to resolve again when it connects,** which this plan proposed at `6214e3b57`: the owner chose the consumer's wait for its parent's definition, in `RF-69`'s unit.
 - **`useARIA` for the description:** it copies from the host, which mustn't carry the attribute.
 - **The host stops being `display: contents`:** the list's flex layout and the item's styling depend on it, and the plan's stop condition excludes it.
 
@@ -333,6 +335,7 @@ Ruled on 2026-11-21 on Mx Implementer B's finding during task 3, revised the sam
 
 - **At `5bf743235`:** the host's `tabindex` was the item's public switch, for the sortable list and for a consumer, and the inner `.host`'s `tabindex` followed it. `mx-list-item` ran `useARIA`, so the description that the list wrote on the host reached the focused element. The item observed `tabindex`, and `traits-baseline` expected it in the observed attributes. A consumer's `tabindex` in `mx-list` was a supported way to focus the item.
 - **At `9f90572fb`:** the item registered its inner `.host` through `useFocusForwarding`, and the list read the control from that registry and wrote `tabIndex` and the description on it. The list wrote the handle semantics. `FocusForwarding`'s JSDoc was to say that its registry outlives the trait.
+- **At `6214e3b57`:** item 5 had core's `useProvider` tell the provider's child elements to resolve the context again when it connects, as task 5's second part. On the owner's direction, `RF-69`'s unit repairs the gap instead, with the consumer's wait for its parent's definition.
 
 ### Proposed fifth amendment of `RD-31`, for the main slot's architect
 
@@ -340,7 +343,7 @@ This slot doesn't amend record entries, so the text is proposed here.
 
 In property 4's (Q6) item, replace from _"While the item is in its collection and has no `[data-handle]`, the list sets"_ to _"through `FocusForwarding`'s registry,"_ with:
 
-> `mx-sortable-list` provides a context, and each item consumes it through core's `useContext`, and is in the list while the provider is its parent element. While it is and has no `[data-handle]`, the item sets `tabIndex = 0` and the arrow-key description on its own inner `.host`, and removes them when it gains a handle or disconnects. A provider that connects after its consumers still reaches them, because core's `useProvider` makes its child elements resolve again on connect, which also repairs `button-group`.
+> `mx-sortable-list` provides a context, and each item consumes it through core's `useContext`, and is in the list while the provider is its parent element. While it is and has no `[data-handle]`, the item sets `tabIndex = 0` and the arrow-key description on its own inner `.host`, and removes them when it gains a handle or disconnects. The item resolves the context in whatever order the two are defined (`RF-69`).
 
 and keep the rest of the item from _"and nothing is written on the item's host"_.
 
@@ -350,17 +353,16 @@ In property 4's last item, replace _"A disconnect cancels the operation, and a r
 
 Add to the reasons: _"**Context for the list and its items,** on the owner's rule that a contextual parent–child link uses context, not a registry."_ Add the replaced passages to the end of the entry, and a dated line under the status, as for the fourth amendment.
 
-### Proposed finding: a context consumer that connects before its provider never resolves it
+### The context repair is core's unit (RF-69)
 
-For Mx Architect to register in `.plan/00-index.md`, as the next free `RF-` (the highest on `origin` is `RF-68`):
+**`RF-69` is registered** in [`00-index.md`](https://github.com/ausginer/material-x/blob/ce1544fed/.plan/00-index.md) on `core/context-late-provider-1`, at `ce1544fed`, with its [handoff](https://github.com/ausginer/material-x/blob/ce1544fed/.plan/context-late-provider-1/context-late-provider-handoff.md). On the owner's direction, a consumer whose parent is a custom element waits, on every connect, for `customElements.whenDefined` of its parent's name, and then dispatches its request. The provider doesn't change. The text that this plan proposed for the finding is at `6214e3b57`.
 
-> #### RF-69 — A context consumer that connects before its provider is defined never resolves it
->
-> Tier B, **open**. Read in `packages/core/src/controllers/useContext.ts` at `5295713b5`, not run, while ruling `RD-31`'s focus mechanism.
->
-> - **What happens:** `useContext` dispatches its request only in the consumer's `connected`. `useProvider` listens only once its host is upgraded. A page that parses `<mx-button-group><mx-button>` before its scripts run, and evaluates the button's module before the group's, upgrades each button first. Its request reaches an element that isn't a provider yet, and it never asks again. So the button doesn't follow the group.
-> - **Required property:** a consumer resolves its nearest provider whatever order the two elements are defined and connected in.
-> - **Repair:** decided in `RD-31`'s fifth amendment, in core: a provider makes its child elements resolve again when it connects. It lands with `RD-31`, which depends on it. A test row in core defines a provider after its consumer, and a material-x row does the same for `mx-button-group`.
+**What this unit takes from it:**
+
+- **It merges first.** Task 3's focus part starts once the repair is on this branch's base.
+- **The items' writes are asynchronous.** A sortable list is a custom element, so an item applies its tab stop, description and handle semantics in a microtask after it connects, even when the list is already defined. A test that reads them in the task of the insertion awaits the resolution first.
+- **Only the parent is waited for,** which matches ruling item 1's parent check.
+- **A connection that ends before the wait settles writes nothing,** and runs no cleanup.
 
 ### Proposed drag finding: a cancel after the root left the document
 
@@ -425,7 +427,7 @@ Read rows are in [Readings](#readings). The rest are **estimates**, and task 6 r
 | `mx-sortable-list` | — | about 8,500 to 9,500 (estimate) |
 
 - **The plain list gets about 2 to 2.5 kB smaller.** It no longer carries core's 3.11 kB trait, minus the modules it shares with it.
-- **Q6 and the context move bytes from the list to the items.** The items write their own handle semantics, description and tab stop, gated by the context ([What it costs](#how-a-static-item-takes-focus)), and the list only provides. `mx-list-item` also gains Material's focus indicator, whose source styles are under 1 kB before compression, and `FocusForwarding`. Core's re-resolution adds a few tens of bytes wherever context is used. `RF-68`'s role is that unit's bytes, not this one's.
+- **Q6 and the context move bytes from the list to the items.** The items write their own handle semantics, description and tab stop, gated by the context ([What it costs](#how-a-static-item-takes-focus)), and the list only provides. `mx-list-item` also gains Material's focus indicator, whose source styles are under 1 kB before compression, and `FocusForwarding`. `RF-68`'s role is that unit's bytes, not this one's.
 - **A sortable list costs about 5 kB more than today's reorderable list** (3.67 kB). drag's sortable with landing is 6.87 kB, against core's trait at 3.11 kB. That is the cost of moving to drag, which the owner chose. Task 6 checks it by reading.
 
 ## Owner's answers
@@ -475,7 +477,7 @@ One unit, on this plan's branch, `repo/list-sortable-1`: the implementer continu
 - Check that the root `build` and `typecheck` build drag before material-x.
 - The list provides its context and writes nothing on its items. On disconnect it calls `requestDestroy()` and clears the lifted item's `drag` state, and on connect it creates a new controller ([section 4](#4-the-sortable-lists-behavior), Lifecycle).
 
-**Task 3. The plain list and the items.** Remove `Reorderable`, `useReorderable`, `ReorderEvent` and the landing's CSS props from `list.ts`. Remove `useReorderableItem` and `enhanceHandle` from `ListItemCore.ts`. Move the items' sortable behavior into `ListItemCore`, gated by the list's context, as [How a static item takes focus](#how-a-static-item-takes-focus) rules: the item consumes the context with a parent check, detects its handle from its `start` and `end` slots, writes the handle semantics or its control's description, and, for `mx-list-item`, the tab stop on its inner `.host`. `mx-list-item`'s root delegates focus, and it composes `FocusForwarding`. Task 5's context repair lands first. Those are the only additions to an item, and none imports a drag module. If an engine in the gate doesn't then give one tab stop on the inner `.host`, with `item.focus()` reaching it, stop and report. Move the `Draggable` story to `mx-sortable-list`, and add one story with button items and no handles, and one with static items, some with handles and some without. A story's handler may stay a React state update, which the commit wait allows.
+**Task 3. The plain list and the items.** Remove `Reorderable`, `useReorderable`, `ReorderEvent` and the landing's CSS props from `list.ts`. Remove `useReorderableItem` and `enhanceHandle` from `ListItemCore.ts`. Move the items' sortable behavior into `ListItemCore`, gated by the list's context, as [How a static item takes focus](#how-a-static-item-takes-focus) rules: the item consumes the context with a parent check, detects its handle from its `start` and `end` slots, writes the handle semantics or its control's description, and, for `mx-list-item`, the tab stop on its inner `.host`. `mx-list-item`'s root delegates focus, and it composes `FocusForwarding`. `RF-69`'s unit lands first ([above](#the-context-repair-is-cores-unit-rf-69)). Those are the only additions to an item, and none imports a drag module. If an engine in the gate doesn't then give one tab stop on the inner `.host`, with `item.focus()` reaching it, stop and report. Move the `Draggable` story to `mx-sortable-list`, and add one story with button items and no handles, and one with static items, some with handles and some without. A story's handler may stay a React state update, which the commit wait allows.
 
 **Task 4. Tests.** Write the material-x rows in the [test map](#test-map), in `tests/list/`.
 
@@ -483,8 +485,6 @@ One unit, on this plan's branch, `repo/list-sortable-1`: the implementer continu
 - Update `traits-baseline` in exactly four ways: `Reorderable` leaves `TRAITS`, `mx-list` loses `reorderable`, `mx-sortable-list` is added with the same attributes as `mx-list`, none, and `mx-list-item` gains `FocusForwarding` (its `instanceOf` flag, and `focus` and the trait's symbol on the prototype). Its observed attributes don't change.
 
 **Task 5. Remove core's trait.** Delete `src/traits/reorderable.ts`, `tests/traits/reorderable.browser.test.ts`, the `./traits/reorderable.js` export, the `files.json` entry, the `.size-limit.json` row and the README section. Rebuild core before typechecking material-x.
-
-**Task 5, second part: context reaches consumers that connected first.** Do this before task 3's focus part. In `packages/core/src/controllers/useContext.ts`, make `useProvider` tell its host's child elements to resolve the context again when the host connects, and make `useContext` resolve again when told, disposing its earlier effect first ([ruling](#how-a-static-item-takes-focus) item 5). Update both JSDoc comments, which say that lookup happens on the consumer's connect only. Add a core row in which a provider is defined after its consumer connected, and a material-x row for `mx-button-group` defined after its buttons. Report the size change of every context row, the buttons included.
 
 **Task 6. The reading after, and the standing check.**
 
