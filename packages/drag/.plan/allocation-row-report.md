@@ -7,7 +7,8 @@
 | Commit | Content |
 | --- | --- |
 | `3bbd506f6` | The command `pointerMoveHeldByCdp` and the row's moves, comments and closing move |
-| the commit carrying this report | This report and the P5 probe, [`probes/allocation-row/input-probe.ts`](probes/allocation-row/input-probe.ts) |
+| `360ece230` | This report and the P5 probe, [`probes/allocation-row/input-probe.ts`](probes/allocation-row/input-probe.ts) |
+| the commit carrying this row | `oxfmt` on [`probes/allocation-row/st.mjs`](probes/allocation-row/st.mjs), and P6 and P7 in this report |
 
 ## What changed
 
@@ -80,6 +81,8 @@ The probe's equality assertion passed. Its second half is §Property 3's reading
 ### P6. Gates
 
 On the three changed `.ts` files, in `packages/drag`: `just fmt`, `just lint-fix`, `just fmt` and `just lint` passed with no diagnostics. `aube exec just typecheck` passed. `git diff --check` is clean. This report is formatted with `just fmt`, and its links were checked by resolving each relative path. A Markdown lint doesn't apply. After the temporary print was removed, the file passed once more, 9 of 9.
+
+**One failure outside the changed files.** The pull request's first `static` job (run 44874810393, job 136757147667) failed at `fmt-check` on `probes/allocation-row/st.mjs`, which the base commit `205bb0d43` added unformatted. `oxfmt` puts one statement on each line, and the script's output is unchanged (`node --allow-natives-syntax st.mjs`). After that, the root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations`, the `static` job's steps, passed locally.
 
 ### P7. CI
 
