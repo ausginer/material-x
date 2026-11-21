@@ -12,6 +12,9 @@
 //             through its internals
 //     hostbox - as host, and a document style gives each item host
 //             `display: block` in place of `display: contents`
+//     inner-contents - as inner, with `display: contents` on each
+//             interactive item's wrapper, so its control is again the
+//             list's flex item (added by the architect for reviewer-1)
 //   engine: chromium | firefox | webkit
 //
 // Each engine is read through its own accessibility tree, not Playwright's
@@ -101,6 +104,7 @@ for (const item of document.querySelectorAll('mx-list-button-item, mx-list-link-
   const wrap = document.createElement('div');
   wrap.setAttribute('role', 'listitem');
   wrap.className = 'wrap';
+  if (CONTENTS) wrap.style.display = 'contents';
   target.before(wrap);
   wrap.append(target);
 }`;
@@ -112,7 +116,7 @@ async function page(code: string): Promise<string> {
     file,
     `<!doctype html><html><head><meta charset="utf-8">${VARIANT === 'hostbox' ? '<style>#l > * { display: block; }</style>' : ''}</head><body>${BODY}
 <script>${code}</script>
-<script>${VARIANT === 'inner' || VARIANT === 'host-none' ? INNER : ''}</script></body></html>`,
+<script>${VARIANT.startsWith('inner') || VARIANT === 'host-none' ? `const CONTENTS = ${VARIANT === 'inner-contents'};\n${INNER}` : ''}</script></body></html>`,
   );
   return pathToFileURL(file).href;
 }

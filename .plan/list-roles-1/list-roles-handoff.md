@@ -60,7 +60,7 @@ The [probe](probes/list-roles.ts) reads each engine's own accessibility tree, no
 4. **Nothing changes about focus.** This unit adds no focus behavior to `mx-list-item`. Its row is `.host`, so `RD-31`'s ruling holds unchanged: the inner `.host` takes focus, its `tabindex` follows the host's, and `useARIA` places the description on it.
 5. **The layout doesn't change.** In each engine, each item's `.host` box and the list's box are the same as on `main`. That holds for one-, two- and three-line items, with lead and trail content, in a list with a `gap`. The row draws nothing: no padding, border, margin, background or shape of its own.
 6. **A lift doesn't change the layout.** While an interactive item's `.host` is in the top layer, the row has no box, so the list's size and the other items' boxes are the same as on `main`. Core's trait still lifts `.host`: the `useReorderableItem(host, target)` call doesn't change.
-7. **No public surface changes.** No part, attribute, property, event, slot, export or type is added or removed. `part="impl"` stays on the same elements. `traits-baseline` doesn't change.
+7. **No public surface is added or removed.** No part, attribute, property, event, slot, export or type is added or removed. `part="impl"` stays on the same elements. `traits-baseline` doesn't change. **An interactive item's `impl` part is no longer a flex item of `mx-list`,** because its row is. So `order`, `flex` and `align-self` on `::part(impl)` no longer move or size the item. The part's `@csspart` line in `list-button-item.ts` and `list-link-item.ts` says so ([ruling on `reviewer-1`](#ruling-on-reviewer-1-the-impl-parts-layout-context)).
 8. **The accessibility guide states what holds.** Its list section says where `listitem` sits and why, and keeps WebKit's split as a noted limit, read in Playwright's WebKit. Its _Missing requirements_ entry is resolved or restated.
 9. **Comments state what holds, without finding ids.** The template or the style that gives the row `display: contents` during a lift says why, in one sentence.
 
@@ -127,6 +127,31 @@ Use the `test-component` skill for every material-x test.
    - `list/list` doesn't import the items and doesn't change.
 
    The rows have no limits (`RD-24`), so nothing can fail. Report each difference, and stop if a row grows by more than 150 B.
+
+## Ruling on `reviewer-1`: the `impl` part's layout context
+
+**Ruled 2026-11-21 by the architect,** on the [feature proof](../reviews/list-roles-1/feature-proof-claude.md) at `1deacdc54`: **the change is accepted and documented on the part.** The row stays a box, and `part="impl"` stays on the control.
+
+**What changed.** On `main`, an interactive item's `<button>` or `<a>` is a flex item of `mx-list`, because the host is `display: contents`. On this branch the row is, and the part is the row's child. A consumer's `#x::part(impl) { order: -1 }` moves the item first on `main` and does nothing here, in all three engines ([reading](../reviews/list-roles-1/checks/part-layout.txt)). `mx-list-item` is unaffected, because its part is its row.
+
+**Why the change is accepted:**
+
+- **Keeping `main`'s context loses the item in WebKit.** With the row `display: contents`, as the coordinator's option (a) suggests, WebKit's tree under the list has no node for either interactive item: no `listitem`, no `button` and no `link`. Chromium's and Firefox's trees don't change ([reading](checks/list-roles-inner-contents.txt), the probe's new `inner-contents` variant). That fails properties 1 and 3, and it is worse than `main`, where the control is at least the list's child.
+- **Moving `part="impl"` to the row changes what the part is.** It is documented as the native button or anchor. On the row, `::part(impl):focus-visible` and `::part(impl):disabled` would stop matching, and the part's padding and shape would land on a wrapper, not the control. That breaks more than the flex-item properties it would keep.
+- **No compatibility is owed.** `@ydinjs/material-x` isn't published (the npm registry has no `@ydinjs/material-x`), so `CONTRIBUTING.md` Part II §8 applies. No guide, story or test of the package uses a flex-item property on `::part(impl)`.
+- **What is lost is small.** `order` on a list item shows the items in a different order from the one that the accessibility tree and Tab use. Nothing in the repository sets `flex` or `align-self` on a list item.
+
+So it isn't an owner question: it is unreleased surface, and both ways of keeping `main`'s context are worse. Adding a `row` part to restore the capability is outside this unit (property 7) and has no user.
+
+**What the implementer changes:**
+
+- The `@csspart impl` line of `list-button-item.ts` and of `list-link-item.ts` adds one sentence, such as: _"It is inside the item's list-item row, so it isn't a flex item of `mx-list`."_ That JSDoc reaches the declarations, which is where the part is documented.
+- `list-item.ts`'s `@csspart` line doesn't change.
+- No source, style, test or size changes. The declarations of the two items change by that sentence only. The report states it under property 7.
+
+**Inferred, not read, and not registered:** the row is `display: contents` while its control is lifted (property 6), so by the same reading WebKit may have no node for the item under the list during a drag. No tree was read in that state, the control is then in the top layer, and the drag's announcements are `RD-31`'s.
+
+**Property 7 said, before this ruling:** _"**No public surface changes.** No part, attribute, property, event, slot, export or type is added or removed. `part="impl"` stays on the same elements. `traits-baseline` doesn't change."_
 
 ## Where `RF-68`'s record lives
 
