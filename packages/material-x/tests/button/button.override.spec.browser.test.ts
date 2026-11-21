@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import '../../src/button/button.ts';
 
@@ -28,7 +27,7 @@ function createButton(
 }
 
 function getImplementation(button: HTMLElement): HTMLElement {
-  const implementation = $<HTMLElement>(button, '.host');
+  const implementation = button.shadowRoot!.querySelector<HTMLElement>('.host');
 
   if (!implementation) {
     throw new Error('Missing button implementation');

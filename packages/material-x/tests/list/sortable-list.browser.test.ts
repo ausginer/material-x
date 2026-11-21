@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
@@ -63,7 +62,7 @@ async function createList(
 
 /** The item's box: an interactive item's control, or a static item's host. */
 function visualOf(item: HTMLElement): HTMLElement {
-  return $<HTMLElement>(item, '.host') ?? item;
+  return item.shadowRoot!.querySelector<HTMLElement>('.host') ?? item;
 }
 
 function handleOf(item: HTMLElement): HTMLElement {

@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 import '../../src/button/split-button.ts';
 
@@ -9,8 +8,9 @@ function createSplitButton(): HTMLElement {
 }
 
 function getTrailingButton(splitButton: HTMLElement): HTMLButtonElement {
-  const trailing = $(splitButton, 'mx-icon-button');
-  const button = trailing && $<HTMLButtonElement>(trailing, '.host');
+  const button = splitButton
+    .shadowRoot!.querySelector('mx-icon-button')
+    ?.shadowRoot?.querySelector<HTMLButtonElement>('.host');
 
   if (!button) {
     throw new Error('Missing trailing split button action');

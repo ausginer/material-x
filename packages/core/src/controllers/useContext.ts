@@ -33,8 +33,10 @@ class ContextEvent extends Event {
  * @returns A unique opaque context token.
  */
 export function createContext<T>(): Context<T> {
+  const arr = new Uint32Array(2);
+  self.crypto.getRandomValues(arr);
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return `ydin-context-${Math.random()}` as Context<T>;
+  return `ydin-ctx-${arr[0]}-${arr[1]}` as Context<T>;
 }
 
 /**

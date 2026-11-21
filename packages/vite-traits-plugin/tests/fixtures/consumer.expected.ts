@@ -1,5 +1,5 @@
 // oxlint-disable typescript/no-unsafe-call, typescript/no-unsafe-member-access -- the build-only export has no declaration
-import attr, { Str } from '@ydinjs/core/attribute.js';
+import { setAttribute, Str } from '@ydinjs/core/attribute.js';
 import { impl } from '@ydinjs/core/traits/composition.js';
 import { Base } from './base.ts';
 import { $checkable, CHECKABLE_ATTRS } from './checkable.ts';
@@ -24,19 +24,19 @@ export default class Foo extends Base {
   ];
 
   get checked(): boolean {
-    return attr.get(this, 'checked', CHECKABLE_ATTRS.checked);
+    return CHECKABLE_ATTRS.checked.from(this.getAttribute('checked'));
   }
 
   set checked(value: boolean) {
-    attr.set(this, 'checked', value, CHECKABLE_ATTRS.checked);
+    setAttribute(this, 'checked', CHECKABLE_ATTRS.checked.to(value));
   }
 
   get name(): string | null {
-    return attr.get(this, 'name', Str);
+    return Str.from(this.getAttribute('name'));
   }
 
   set name(value: string | null) {
-    attr.set(this, 'name', value, Str);
+    setAttribute(this, 'name', Str.to(value));
   }
 
   focus(options?: unknown): string {

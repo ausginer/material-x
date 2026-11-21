@@ -1,4 +1,5 @@
-import attr, {
+import {
+  setAttribute,
   type AttributePrimitive,
   type ConverterOf,
   type NullablePrimitive,
@@ -31,7 +32,7 @@ export function transfer(
   attribute: string,
   transform: (value: string | null) => string | null = (value) => value,
 ): UpdateCallback {
-  return (_, value) => attr.setRaw(target, attribute, transform(value));
+  return (_, value) => setAttribute(target, attribute, transform(value));
 }
 
 export type ConvertedUpdateCallback<

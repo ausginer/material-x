@@ -2,7 +2,6 @@ import { useRovingTabindex } from '@ydinjs/core/controllers/useRovingTabindex.js
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
-  define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import type { Checkable } from '@ydinjs/core/traits/checkable.js';
@@ -80,7 +79,7 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
   }
 }
 
-define('mx-connected-button-group', ConnectedButtonGroup);
+customElements.define('mx-connected-button-group', ConnectedButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {

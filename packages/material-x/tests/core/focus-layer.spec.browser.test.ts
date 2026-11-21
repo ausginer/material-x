@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/button/button.ts';
@@ -58,8 +57,10 @@ const SWITCH_CASES: readonly Case[] = (
     contract: `${tag.slice(3)}.color.filled`,
     focused: { color: `${selection}.focused`, opacity: 'focused' },
     hovered: { color: `${selection}.hovered`, opacity: 'hovered' },
-    target: (element) => $<HTMLElement>(element, '.host')!,
-    indicator: (element) => $<HTMLElement>(element, '.host')!,
+    target: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.host')!,
+    indicator: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.host')!,
     control: '.host',
   })),
 );
@@ -72,8 +73,10 @@ const CASES: readonly Case[] = [
     contract: 'button.color.filled',
     focused: 'focused',
     hovered: 'hovered',
-    target: (element) => $<HTMLElement>(element, '.host')!,
-    indicator: (element) => $<HTMLElement>(element, '.host')!,
+    target: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.host')!,
+    indicator: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.host')!,
     control: '.host',
   },
   ...SWITCH_CASES,
@@ -85,7 +88,8 @@ const CASES: readonly Case[] = [
     focused: 'unselected.focus',
     hovered: 'unselected.hover',
     target: (element) => element,
-    indicator: (element) => $<HTMLElement>(element, '.indicator')!,
+    indicator: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.indicator')!,
     control: '.input',
   },
   {
@@ -96,7 +100,8 @@ const CASES: readonly Case[] = [
     focused: 'unselected.focus',
     hovered: 'unselected.hover',
     target: (element) => element,
-    indicator: (element) => $<HTMLElement>(element, '.off')!,
+    indicator: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.off')!,
     control: '.input',
   },
 ];
@@ -196,11 +201,16 @@ async function tabTo(element: HTMLElement, control: string): Promise<void> {
   await userEvent.keyboard(TAB);
 
   expect(document.activeElement).toBe(element);
-  expect(element.shadowRoot?.activeElement).toBe($(element, control));
+  expect(element.shadowRoot?.activeElement).toBe(
+    element.shadowRoot!.querySelector(control),
+  );
 }
 
 function layer(element: HTMLElement): CSSStyleDeclaration {
-  return getComputedStyle($<HTMLElement>(element, '.ripple')!, '::before');
+  return getComputedStyle(
+    element.shadowRoot!.querySelector<HTMLElement>('.ripple')!,
+    '::before',
+  );
 }
 
 async function resolve(contract: string, state: string, token: string) {

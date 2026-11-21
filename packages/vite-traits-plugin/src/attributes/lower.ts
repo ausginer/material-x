@@ -4,9 +4,9 @@
  * `attributes` imported from core's `traits/attribute-traits` and `trait` from
  * its `traits/composition`:
  *
- * - each `accessor name!: T` line becomes a getter and a setter that read and
- *   write the attribute through core's attribute operator and the table's
- *   converter;
+ * - each `accessor name!: T` line becomes a getter that reads the attribute
+ *   through the table's converter, and a setter that writes it through the
+ *   converter and core's `setAttribute`;
  * - the `@attributes(TABLE)` decorator is removed, and `@trait` stays for the
  *   trait module's transform;
  * - a static `observedAttributes` lists the table's keys.
@@ -44,16 +44,16 @@ import {
 /** The specifier of core's layer (b), `traits/attribute-traits`. */
 const ATTRIBUTE_TRAITS_MODULE = /(?:^|\/)attribute-traits(?:\.[cm]?[jt]sx?)?$/u;
 
-/** The local name the lowered module binds core's attribute operator to. */
-const OPERATOR_LOCAL = '__mxflat_attr';
+/** The local name the lowered module binds core's `setAttribute` to. */
+const SET_ATTRIBUTE_LOCAL = '__mxflat_setAttribute';
 
 /**
- * The specifier of core's attribute operator, beside the module that
+ * The specifier of core's `attribute` module, beside the module that
  * `attributes` is imported from: `…/traits/attribute-traits.js` gives
  * `…/attribute.js`, and core's own `./attribute-traits.ts` gives
  * `../attribute.ts`.
  */
-export function operatorSpecifier(attributesSpecifier: string): string {
+export function attributeModuleSpecifier(attributesSpecifier: string): string {
   const inPackage = /^(.*)traits\/attribute-traits(\.[cm]?[jt]sx?)?$/u.exec(
     attributesSpecifier,
   );
@@ -319,7 +319,7 @@ export function lowerAttributes(
       magic.overwrite(
         element.start,
         element.end,
-        `get ${name}() { return ${OPERATOR_LOCAL}.get(this, ${attribute}, ${converter}); }\n  set ${name}(value) { ${OPERATOR_LOCAL}.set(this, ${attribute}, value, ${converter}); }`,
+        `get ${name}() { return ${converter}.from(this.getAttribute(${attribute})); }\n  set ${name}(value) { ${SET_ATTRIBUTE_LOCAL}(this, ${attribute}, ${converter}.to(value)); }`,
       );
     }
     for (const key of converters.keys()) {
@@ -353,7 +353,7 @@ export function lowerAttributes(
       imported === 'attributes' && ATTRIBUTE_TRAITS_MODULE.test(from),
   )!;
   magic.prepend(
-    `import ${OPERATOR_LOCAL} from ${JSON.stringify(operatorSpecifier(specifier))};\n`,
+    `import { setAttribute as ${SET_ATTRIBUTE_LOCAL} } from ${JSON.stringify(attributeModuleSpecifier(specifier))};\n`,
   );
 
   return magic;

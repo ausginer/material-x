@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { beforeEach, describe, expect, it } from 'vitest';
 import Button from '../../../src/button/button.ts';
 import '../../../src/button/icon-button.ts';
@@ -75,7 +74,9 @@ describe('FocusForwarding', () => {
     element.focus();
 
     expect(document.activeElement).toBe(element);
-    expect(element.shadowRoot?.activeElement).toBe($(element, '.host'));
+    expect(element.shadowRoot?.activeElement).toBe(
+      element.shadowRoot!.querySelector('.host'),
+    );
   });
 
   it("should call an mx-button subclass's own focus() and reach the control through super", () => {
@@ -86,6 +87,8 @@ describe('FocusForwarding', () => {
     expect(Object.hasOwn(element, 'focus')).toBe(false);
     expect(subclassFocusCalls).toBe(1);
     expect(document.activeElement).toBe(element);
-    expect(element.shadowRoot?.activeElement).toBe($(element, '.host'));
+    expect(element.shadowRoot?.activeElement).toBe(
+      element.shadowRoot!.querySelector('.host'),
+    );
   });
 });

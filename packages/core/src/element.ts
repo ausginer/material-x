@@ -1,9 +1,5 @@
 // oxlint-disable import/no-mutable-exports
-import type { Constructor } from 'type-fest';
-import {
-  forEachMaybePromise,
-  type ForEachMaybePromiseCallback,
-} from './utils/runtime.ts';
+import { forEachMaybePromise } from './utils/runtime.ts';
 
 /**
  * Controls a `ControlledElement` through optional lifecycle and attribute
@@ -67,19 +63,6 @@ export interface ElementController {
    * browser autofill.
    */
   formStateRestore?(): void | Promise<void>;
-}
-
-/**
- * Defines a custom element.
- *
- * @param name - The custom element tag name.
- * @param component - The element constructor to register.
- */
-export function define(
-  name: string,
-  component: Constructor<HTMLElement>,
-): void {
-  customElements.define(name, component);
 }
 
 /**
@@ -208,43 +191,57 @@ export class ControlledElement extends HTMLElement implements CustomElement {
   attributeChangedCallback(
     ...args: Readonly<Parameters<NonNullable<ElementController['attrChanged']>>>
   ): void {
-    this.#exec((controller) => controller.attrChanged?.(...args));
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.attrChanged?.(...args),
+    );
   }
 
   connectedCallback(): void {
-    this.#exec((controller) => controller.connected?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.connected?.(),
+    );
   }
 
   disconnectedCallback(): void {
-    this.#exec((controller) => controller.disconnected?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.disconnected?.(),
+    );
   }
 
   adoptedCallback(): void {
-    this.#exec((controller) => controller.adopted?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.adopted?.(),
+    );
   }
 
   movedCallback(): void {
-    this.#exec((controller) => controller.moved?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.moved?.(),
+    );
   }
 
   formAssociatedCallback(): void {
-    this.#exec((controller) => controller.formAssociated?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.formAssociated?.(),
+    );
   }
 
   formDisabledCallback(): void {
-    this.#exec((controller) => controller.formDisabled?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.formDisabled?.(),
+    );
   }
 
   formResetCallback(): void {
-    this.#exec((controller) => controller.formReset?.());
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.formReset?.(),
+    );
   }
 
   formStateRestoreCallback(): void {
-    this.#exec((controller) => controller.formStateRestore?.());
-  }
-
-  #exec(callback: ForEachMaybePromiseCallback<ElementController>) {
-    forEachMaybePromise(this.#controllers, callback);
+    forEachMaybePromise(this.#controllers, (controller) =>
+      controller.formStateRestore?.(),
+    );
   }
 }
 

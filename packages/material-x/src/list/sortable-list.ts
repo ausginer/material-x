@@ -2,13 +2,12 @@ import { useProvider } from '@ydinjs/core/controllers/useContext.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
-  define,
   internals,
   use,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
-import { $, DEFAULT_EVENT_INIT, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { DEFAULT_EVENT_INIT, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { landing } from '@ydinjs/drag/sortable/landing.js';
 import { y } from '@ydinjs/drag/sortable/y.js';
 import {
@@ -125,7 +124,7 @@ export default class SortableList extends SortableListConstructor {
       'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap';
     this.shadowRoot!.append(live);
 
-    const slot = $<HTMLSlotElement>(this, 'slot')!;
+    const slot = this.shadowRoot!.querySelector<HTMLSlotElement>('slot')!;
     const read = (): readonly ControlledElement[] =>
       slot
         .assignedElements()
@@ -250,7 +249,7 @@ export default class SortableList extends SortableListConstructor {
   }
 }
 
-define('mx-sortable-list', SortableList);
+customElements.define('mx-sortable-list', SortableList);
 
 declare global {
   interface HTMLElementTagNameMap {

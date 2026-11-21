@@ -1,4 +1,3 @@
-import { $ } from '@ydinjs/core/utils/DOM.js';
 import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
@@ -51,7 +50,7 @@ function createList(
 }
 
 function getControl(item: HTMLElement): HTMLElement {
-  return $<HTMLElement>(item, '.host')!;
+  return item.shadowRoot!.querySelector<HTMLElement>('.host')!;
 }
 
 /** Adds a document stylesheet for the current test. */
@@ -220,7 +219,9 @@ describe('mx-list item roles', () => {
         relative(box, origin),
         ...['.lead', '.content', '.trail'].map((selector) =>
           relative(
-            $<HTMLElement>(item, selector)!.getBoundingClientRect(),
+            item
+              .shadowRoot!.querySelector<HTMLElement>(selector)!
+              .getBoundingClientRect(),
             box,
           ),
         ),

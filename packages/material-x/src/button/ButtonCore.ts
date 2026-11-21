@@ -14,7 +14,7 @@ import {
   useDisableable,
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
-import { $, switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
 import {
   BUTTON_GROUP_CTX,
   BUTTON_GROUP_ELEMENTS,
@@ -103,7 +103,7 @@ export function useButtonCore(
     shadowInit,
   );
 
-  const target = $<HTMLButtonElement>(host, '.host')!;
+  const target = host.shadowRoot!.querySelector<HTMLButtonElement>('.host')!;
 
   useDisableable(host, target);
 

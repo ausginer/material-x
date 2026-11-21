@@ -54,18 +54,17 @@ export function useCSSProps<
   props: T,
   target: HTMLElement = host,
 ): () => CSSPropsResult<T> {
-  let result: CSSPropsResult<T>;
+  let result: Partial<Record<keyof T, string>>;
 
   useConnected(host, () => {
     const styles = getComputedStyle(host);
 
-    result = Object.fromEntries(
-      Object.entries(props).map(([key, [name, parse]]) => {
-        const value = styles.getPropertyValue(name).trim();
-        return [key, parse(value, target, name)];
-      }),
-    ) as CSSPropsResult<T>;
+    result = {};
+
+    for (const [key, [name, parse]] of Object.entries(props)) {
+      result[key] = parse(styles.getPropertyValue(name).trim(), target, name);
+    }
   });
 
-  return () => result;
+  return () => result as CSSPropsResult<T>;
 }

@@ -2,7 +2,7 @@ import { useContext } from '@ydinjs/core/controllers/useContext.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import { type ControlledElement, internals } from '@ydinjs/core/element.js';
 import type { Composed } from '@ydinjs/core/traits/composition.js';
-import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
@@ -54,7 +54,9 @@ export function useListItemCore(
 
   let target: HTMLButtonElement | HTMLAnchorElement | undefined;
   if (template) {
-    target = $<HTMLButtonElement | HTMLAnchorElement>(host, '.host')!;
+    target = host.shadowRoot!.querySelector<
+      HTMLButtonElement | HTMLAnchorElement
+    >('.host')!;
     target.append(nestedTemplate.content.cloneNode(true));
   }
 

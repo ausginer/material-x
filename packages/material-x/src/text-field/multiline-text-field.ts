@@ -1,4 +1,3 @@
-import { define } from '@ydinjs/core/element.js';
 import { useFieldSizingContentPolyfill } from '../core/utils/polyfills.ts';
 import multilineTextFieldTemplate from './multiline-text-field.tpl.html' with { type: 'html' };
 import { input, TextFieldCore } from './TextFieldCore.ts';
@@ -68,7 +67,7 @@ export default class MultilineTextField extends TextFieldCore {
   }
 }
 
-define('mx-multiline-text-field', MultilineTextField);
+customElements.define('mx-multiline-text-field', MultilineTextField);
 
 declare global {
   interface HTMLElementTagNameMap {

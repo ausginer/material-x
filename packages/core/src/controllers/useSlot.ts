@@ -1,5 +1,4 @@
 import type { ControlledElement } from '../element.ts';
-import { $ } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
 /**
@@ -41,7 +40,7 @@ export function useSlot<T extends Node = Node>(
 ): void {
   const slot =
     typeof slotOrSelector === 'string'
-      ? $<HTMLSlotElement>(host, slotOrSelector)!
+      ? host.shadowRoot!.querySelector<HTMLSlotElement>(slotOrSelector)!
       : slotOrSelector;
 
   useEvents(
