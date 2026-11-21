@@ -1,6 +1,6 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 import '../../src/text-field/multiline-text-field.ts';
 import '../../src/text-field/text-field.ts';
 import { nextFrame, pixels } from '../browser.ts';
@@ -399,5 +399,28 @@ describe.each(FIELD_TAGS)('%s', (tag) => {
     expect(event?.bubbles).toBeTruthy();
     expect(event?.composed).toBeFalsy();
     expect(event?.cancelable).toBeFalsy();
+  });
+});
+
+describe('mx-multiline-text-field', () => {
+  it('should grow the textarea by one line for each line typed', async () => {
+    const field = createField('mx-multiline-text-field');
+
+    document.body.append(field);
+
+    await nextFrame();
+
+    const textarea = getInput(field);
+    const lineHeight = pixels(getComputedStyle(textarea).lineHeight);
+    const oneLine = textarea.getBoundingClientRect().height;
+
+    await userEvent.click(textarea);
+    await userEvent.keyboard('first{Enter}second{Enter}third');
+    await nextFrame();
+
+    expect([textarea.value, textarea.getBoundingClientRect().height]).toEqual([
+      'first\nsecond\nthird',
+      oneLine + 2 * lineHeight,
+    ]);
   });
 });

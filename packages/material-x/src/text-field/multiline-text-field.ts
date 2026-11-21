@@ -1,7 +1,6 @@
 import { define } from '@ydinjs/core/element.js';
-import { useFieldSizingContentPolyfill } from '../core/utils/polyfills.ts';
 import multilineTextFieldTemplate from './multiline-text-field.tpl.html' with { type: 'html' };
-import { input, TextFieldCore } from './TextFieldCore.ts';
+import { TextFieldCore } from './TextFieldCore.ts';
 
 export type {
   TextFieldProperties,
@@ -61,10 +60,6 @@ export default class MultilineTextField extends TextFieldCore {
 
   constructor() {
     super(multilineTextFieldTemplate);
-
-    // TODO: Remove when `field-sizing: content;` is baseline.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    useFieldSizingContentPolyfill(this, input(this) as HTMLTextAreaElement);
   }
 }
 
