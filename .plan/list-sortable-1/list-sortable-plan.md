@@ -91,7 +91,7 @@ The last drag row is a probe ([`probes/list-compositions.ts`](probes/list-compos
 - `repo:RF-36`: in Safari, two rows of core's trait sometimes keep the visual in the top layer after the drop. Both rows are skipped in Safari, the cause isn't established, and #44 tracks it.
 - `drag:DRF-49`: in Safari, the `y()` sweep through `box` with a `visual` sometimes stalls until its timeout. The row is skipped in Safari. That is the configuration the sortable list uses.
 - `repo:RF-68`: `mx-list`'s items aren't exposed as list items. `RD-31` doesn't change it. The owner has it fixed in a separate unit (#92).
-- `RD-30`, on `core/side-effects-1` and not yet on `main`, counts the 27 core modules at `e4b0e475d`, and `traits/reorderable` is one of them. Whichever branch merges second updates the count.
+- `RD-30` counts the 27 core modules at `e4b0e475d`, and `traits/reorderable` is one of them. **Dated 2026-11-21:** `RD-30` reached `main` first, in #91 at `2b1d8276f`. Its count names the commit it was read at, so it stays true when task 5 deletes the module, and neither record needs a change.
 
 ## What drag covers, and what the list adds
 
