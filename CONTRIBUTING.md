@@ -85,7 +85,7 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 
 ## Parent and child components
 
-A parent component and the components it contains are linked through context: the parent calls `useProvider` and each child calls `useContext`. Don't link them through a module-level registry that maps a child to its parent or a parent to its children. A child resolves the context through the DOM tree when it connects, so the link keeps no module state.
+A parent component and the components it contains are linked through context: the parent calls `useProvider` and each child calls `useContext`. Don't link them through a module-level registry that maps a child to its parent or a parent to its children. A child resolves the context through the DOM tree when it connects, once its parent is defined. So the link keeps no module state, and it works in whichever order the two are defined.
 
 The rule covers only that link. A map from an element to its own parts, such as an item's inner control, isn't a parent–child link.
 
