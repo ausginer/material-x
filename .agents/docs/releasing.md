@@ -85,6 +85,7 @@ gh workflow run release.yml --ref main -f tag=@ydinjs/<name>@<version>
    - every `@ydinjs/*` dependency is an exact version that is on the registry;
    - `CHANGELOG.md` has a heading that names the version.
 7. **A consumer's use:** the tarball is installed with aube into an empty project outside the checkout, so its `@ydinjs` dependencies come from the registry. A module that imports every export type-checks with `skipLibCheck` off and the DOM library.
+   - **`"sideEffects": false`** (`repo:RD-30`): when the manifest declares it, a bare import of each export, bundled from that project by rolldown with `treeshake.moduleSideEffects` a function that returns `true`, emits no code and no asset. An imported stylesheet counts as an asset. A manifest whose field has another value, such as an array, fails, because the check reads only `false`. A module that gains an effect fails the check under `side-effects`: remove the effect, mark the call `/* @__PURE__ */`, or list the module in an array and extend the check to read it. An import that doesn't resolve, such as an export whose file is missing or an undeclared package, fails under `side-effects` too, naming the import.
 8. **The artifact:** the tarball and its sha256, uploaded as `release`. The summary lists the files, the dist-tag, and the tarball's `shasum` (SHA-1, hex) and `integrity` (`sha512-` and base64), which are the digests npm shows, with the sha256.
 
 Steps 1, 2, 6 and 7 are [`.scripts/release-check.ts`](../../.scripts/release-check.ts).

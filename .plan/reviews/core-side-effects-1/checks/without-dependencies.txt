@@ -1,0 +1,7 @@
+# without-dependencies.sh at 42999d4a3
+# release.yml, job prepare: 'The script needs only Node's built-in modules, git and gh, so it runs first.' — the step runs before 'aube ci'.
+## as committed: rolldown imported in checkSideEffects
+usage: release-check.ts
+## rolldown imported at the module's top
+Cannot find package 'rolldown'
+ERR_MODULE_NOT_FOUND

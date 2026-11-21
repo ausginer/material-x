@@ -619,6 +619,118 @@ describe('checkConsumer', () => {
           join(root, 'consumer'),
         ),
       ),
-    ).toEqual(['consumer']);
+    ).toEqual(['consumer', 'side-effects']);
+  });
+
+  it('should report the bare import of a missing export as an import that does not resolve', async () => {
+    const manifest = {
+      ...BOX_QUAD_MANIFEST,
+      exports: {
+        ...BOX_QUAD_MANIFEST.exports,
+        './extra.js': { types: './extra.d.ts', default: './extra.js' },
+      },
+    };
+    const tarball = await packBoxQuad(manifest);
+
+    expect(
+      (
+        await checkConsumer(
+          tarball,
+          manifest as Manifest,
+          join(root, 'consumer'),
+        )
+      )
+        .filter(({ check }) => check === 'side-effects')
+        .map(({ message }) => message),
+    ).toEqual([
+      "@ydinjs/box-quad/extra.js doesn't resolve: publish the file that its export names",
+    ]);
+  });
+
+  describe('side effects', () => {
+    /** A pure module and three with an effect at import. */
+    const EFFECTS: Readonly<Record<string, string>> = {
+      pure: 'export const value = 1;\n',
+      global: 'globalThis.effect = 1;\nexport const value = 1;\n',
+      define:
+        'export class Element extends HTMLElement {}\ncustomElements.define("x-element", Element);\n',
+      style: 'import "./style.css";\nexport const value = 1;\n',
+    };
+
+    /** A package that exports each of `modules`. */
+    async function packEffects(
+      sideEffects: unknown,
+      modules: Readonly<Record<string, string>>,
+    ): Promise<string> {
+      const manifest = {
+        name: 'effects',
+        version: '1.0.0',
+        type: 'module',
+        ...(sideEffects !== undefined && { sideEffects }),
+        exports: Object.fromEntries(
+          Object.keys(modules).map((name) => [
+            `./${name}.js`,
+            { types: `./${name}.d.ts`, default: `./${name}.js` },
+          ]),
+        ),
+      };
+      await writeFiles(join(root, 'pack'), {
+        'package/package.json': `${JSON.stringify(manifest)}\n`,
+        'package/style.css': 'body { color: red; }\n',
+        ...Object.fromEntries(
+          Object.entries(modules).flatMap(([name, code]) => [
+            [`package/${name}.js`, code],
+            [`package/${name}.d.ts`, 'export {};\n'],
+          ]),
+        ),
+      });
+
+      const tarball = join(root, 'effects-1.0.0.tgz');
+      await run('tar', ['-czf', tarball, '-C', join(root, 'pack'), 'package']);
+
+      return tarball;
+    }
+
+    async function sideEffectsProblems(
+      sideEffects?: unknown,
+      modules = EFFECTS,
+    ): Promise<string[]> {
+      const tarball = await packEffects(sideEffects, modules);
+      const { manifest } = await readPack(tarball);
+
+      return (await checkConsumer(tarball, manifest, join(root, 'consumer')))
+        .filter(({ check }) => check === 'side-effects')
+        .map(({ message }) => message);
+    }
+
+    it('should name each export whose bare import keeps code or an asset', async () => {
+      expect(
+        (await sideEffectsProblems(false)).map(
+          (message) => /of (\S+) keeps/u.exec(message)?.[1],
+        ),
+      ).toEqual(['effects/global.js', 'effects/define.js', 'effects/style.js']);
+    });
+
+    it('should name an import that does not resolve instead of an effect', async () => {
+      expect(
+        await sideEffectsProblems(false, {
+          undeclared: 'import "undeclared-package";\nexport const value = 1;\n',
+          relative: 'import "./missing.js";\nexport const value = 1;\n',
+        }),
+      ).toEqual([
+        "a bare import of effects/undeclared.js reaches effects/undeclared.js, whose import of undeclared-package doesn't resolve: publish the module, or declare its package in dependencies",
+        "a bare import of effects/relative.js reaches effects/relative.js, whose import of ./missing.js doesn't resolve: publish the module, or declare its package in dependencies",
+      ]);
+    });
+
+    it('should not check a manifest without the field', async () => {
+      expect(await sideEffectsProblems()).toEqual([]);
+    });
+
+    it('should report a field that is an array', async () => {
+      expect(await sideEffectsProblems(['./global.js'])).toEqual([
+        'sideEffects is ["./global.js"], and the check reads only false',
+      ]);
+    });
   });
 });
