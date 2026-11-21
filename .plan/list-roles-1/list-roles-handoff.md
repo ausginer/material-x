@@ -10,6 +10,8 @@
 
 **Re-planned 2026-11-21 by the architect for the merge order,** at `f977899e8`, on the owner's direction relayed by the coordinator: `RD-31` (#90) merges first, and this unit follows on top of it, reusing drag's lift rather than changing core's trait, which #90 deletes. Verbatim: _"а если это уже сделано в drag, можем ли мы использовать сам код drag … чтобы не дублировать?"_ and _"А давай тогда закроем 90 перед 99, чтобы не писать временное состояние? 🤔"_ ("if drag already does it, can we use drag's own code, so as not to duplicate it?"; "Then let's close 90 before 99, so we don't write a temporary state?"). Core's trait leaves this unit's scope, the lift is drag's, and `RD-31`'s knock-on is done here. [On top of `RD-31` (#90)](#on-top-of-rd-31-90) has the work, and [What the re-plan replaces](#what-the-re-plan-replaces) records the text as it was at `f977899e8`. **The implementer's next change is [On top of `RD-31` (#90)](#on-top-of-rd-31-90),** once #90 is on `main`. It replaces the items of [After the ruling on the fold's proof](#after-the-ruling-on-the-folds-proof) that name core's trait or `mx-list`.
 
+**Ruled on step 2's stop 2026-11-21 by the architect,** at `11331a545`, on the implementer's reading that the lift's rise is instant in WebKit with the lift's `transition` rule, relayed by the coordinator: [The rise in WebKit, ruled](#the-rise-in-webkit-ruled). `onStart` reads one computed style value of the item before it sets the `drag` state, and the rule stays. Property 6 is unchanged, and the owner isn't asked. [What the ruling on the rise replaces](#what-the-ruling-on-the-rise-replaces) records the text as it was at `11331a545`.
+
 **Governing records:**
 
 - `RF-68` in [`../00-index.md`](../00-index.md): its required property and its datings. This branch carries the entry, as [Where `RF-68`'s record lives](#where-rf-68s-record-lives) explains;
@@ -153,6 +155,7 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
   - **Read in the code, not run:** drag's `activate` acquires the lift first (`sortable/behavior.ts`), and the lift writes `transition: none` inline on the visual (`lift.ts`). `onStart`, which sets the `drag` state, runs later (`sortable/operation.ts`). The `--_level` transition is on `:host` (`styles/item/main.styles.css`). On #90 the visual is the inner `.host`, so the host's transition is untouched. With the host as the visual, the rise would be instant. The fall animates, because the lift is released before `onEnd` clears the state.
   - **The rule:** `:host(:popover-open) { transition: --_level var(--_drag-duration) var(--_drag-easing) !important; }` in `main.styles.css`, with a one-sentence comment that drag's lift writes `transition: none` inline. While the host is lifted, drag's inline `transition: none` already overrides any `transition` the consumer gave the item, so this rule removes nothing the consumer had. It names only `--_level`, so none of the properties that drag writes is transitioned. That is why `!important` is right here and not for `reviewer-3`, whose rules beat the consumer's styling at rest. `:host(:popover-open)` matches in all three engines (the `important` variant of [the probe](probes/fold-cascade.ts)).
   - **Read the rise first, on the merged build:** the host's computed `--_level` one frame after `onStart`, in each engine. If it is already between its rest and its raised value without the rule, the rule isn't added, and the report says so.
+  - **WebKit, ruled:** with the rule, WebKit's rise is still instant, and `onStart` reads one computed style value of the item before it sets the `drag` state ([The rise in WebKit, ruled](#the-rise-in-webkit-ruled)).
 - **`mx-sortable-list`'s JSDoc** states what `mx-list`'s `reorderable` JSDoc was to state: during a drag the item element carries `popover="manual"` and matches `[popover]` and `:popover-open`. The lift keeps the item's size, position, padding, border, overflow, color and background color. A page's popover rule that sets other properties, such as `box-shadow`, applies to the item while it is lifted.
 - **The items' lift resets go:** the interactive host's four and their comment, and `mx-list-item`'s `overflow: visible`. Drag's lift keeps the values (decision 3).
 - **Tests.**
@@ -162,7 +165,7 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
   - A row reads the rise of the lift's `transition`, as above.
 - **Docs and record:** `accessibility.md`'s list section says that a handle-less static item in a sortable list takes focus on its host, which is its `listitem`. Rerun `RD-31`'s [accessibility probe](../list-sortable-1/probes/list-a11y.ts) on the build after step 2, and save it beside its reading on this branch, as `checks/list-a11y-roles.txt`. In Chromium, the focused handle-less static item is a `listitem` with its name and the arrow-key description, and has no node of its own around it.
 
-**Not in this unit:** core's reorderable trait, which `main` no longer has, and every drag source. `sortable-list.ts` changes by the `visual` callback and its JSDoc alone, and `sortable-item.ts` by the static item's writes.
+**Not in this unit:** core's reorderable trait, which `main` no longer has, and every drag source. `sortable-list.ts` changes by the `visual` callback, its JSDoc and the style read in `onStart` alone, and `sortable-item.ts` by the static item's writes.
 
 #### Proposed seventh amendment of `RD-31`
 
@@ -177,6 +180,30 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
 - **In property 7,** replace _"and `list/list-item` only by the consumer, its focus indicator and `FocusForwarding`."_ with _"and `list/list-item` only by the consumer and its focus indicator."_
 - **Add to the reasons:** _"**A static item's host is its control,** because `RF-68` folds its inner element into the host, which then has a box and takes focus."_
 - **Add the replaced passages** to the end of the entry, and a dated line under the status naming `RF-68`'s re-plan.
+
+#### The rise in WebKit, ruled
+
+**Ruled 2026-11-21 by the architect,** on the implementer's stop in step 2 (_"with the lift's `transition` rule, the elevation doesn't rise over the drag's duration in an engine"_), relayed by the coordinator. **The implementer's reading,** from the host's computed `--_level` per frame after `onStart`, for `mx-list-item` and `mx-list-button-item` in `mx-sortable-list`, with real pointer input and a duration of .65s:
+
+- without the rule, the rise is instant (0 → 8) in Chromium, Firefox and WebKit, because drag's inline `transition: none` wins;
+- with the rule, Chromium and Firefox rise over the duration. WebKit still jumps to 8, although the lifted host's computed `transition` is the rule's and `:popover-open` matches;
+- one computed-style read in `onStart`, before the `drag` state is set, makes WebKit rise over the duration. The implementer reads it as WebKit applying the top-layer entry and the state in one style update and starting no transition. A standalone page with the same inline writes, `showPopover()` and the state in one task does transition in WebKit, so the cause is read in the real flow and not reduced;
+- on #90 (`73f081dc4`) the host isn't lifted, and WebKit rises.
+
+**The ruling: the list reads the item's style before it raises it.** The implementer's option 1.
+
+- **Property 6 is unchanged:** the elevation rises and falls over `--_drag-duration` with `--_drag-easing` in Chromium, Firefox and WebKit, for every item kind.
+- **`onStart` in `sortable-list.ts` reads one computed style value of the item before it sets the `drag` state.** It's a style read, not a layout read: nothing that needs layout, such as `offsetWidth` or `getBoundingClientRect()`. So the host's style is computed once in the top layer at its rest level, and the state raises it in a later style update, from which the transition starts. One read per activation, and nothing on pointer move or in the landing.
+- **Its comment says why in one sentence,** with no finding id. It may name WebKit.
+- **The `:host(:popover-open)` rule stays.** The rule gives the lifted host its transition, and the read gives WebKit a style update to start it from. Each is needed.
+- **Tests and proofs.** The rise row reads the host's `--_level` one frame after `onStart`, strictly between its rest and its raised value, in each engine, for `mx-list-item` and an interactive item. Proof 5 adds a mutation: without the read, the row fails in WebKit. The report has the per-frame readings in each engine, with and without the read.
+
+**Why.**
+
+- **The read keeps property 6 for one style recalculation per drag,** at its start, where drag's acquisition has just read the item's computed style and box. `CONTRIBUTING.md` Part II §0 guards hot paths, pointer moves and animation frames, and an activation is none of them. The read is the list's own, in the callback that sets the state it serves. It holds under either cause, because it separates the top-layer entry from the state change.
+- **Not adopted: a change in drag's lift** (option 2). The lift's inline `transition: none` is drag's on purpose: a visual's own transitions don't animate the lift's writes. A style update before `onStart` in drag would put the cost on every consumer for one consumer's state, and no drag source is in this unit's scope.
+- **Not adopted: an instant rise in WebKit** (option 3). It would break property 6 in one engine, a visible difference from `main` in Safari, which the read avoids at a small fixed cost. So it isn't a trade-off for the owner.
+- **Not adopted: `@starting-style`.** It helps only if WebKit gives the host no style from before the lift, which isn't established. Its rule would also have to name the item's rest level, which depends on the item's state at the press.
 
 ## Required properties
 
@@ -204,7 +231,7 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
 - the list item templates: the interactive items' back to `main`'s, and `mx-list-item`'s without its `div`;
 - `ListItemCore.ts`, for the role, the reorderable registration and where the shared content goes, `ListInteractiveItemCore.ts`, for `FocusForwarding`, and `list-item.ts`, for its part line;
 - the item styles, for `:host`'s `display`, the box rule of each kind and `mx-list-item`'s spacing;
-- after the merge of #90 (re-planned): `sortable-list.ts`, for its `visual` callback and its JSDoc, `sortable-item.ts`, for the static item's writes, and #90's static-item rows in `sortable-list.browser.test.ts`;
+- after the merge of #90 (re-planned): `sortable-list.ts`, for its `visual` callback, its JSDoc and the style read in `onStart`, `sortable-item.ts`, for the static item's writes, and #90's static-item rows in `sortable-list.browser.test.ts`;
 - the lift's `transition` rule in `main.styles.css`;
 - material-x tests, `traits-baseline` and the test command for the Chromium tree;
 - `focus-forwarding.browser.test.ts`'s list of adopters;
@@ -229,7 +256,7 @@ Read `aube exec just size-reading` on the merge's parent from `main` before any 
 - an item's box, its content's box or the list's pixels differ with a page's universal reset from without it;
 - #90 isn't on `origin/main` when the work starts: merge `main`, never `repo/list-sortable-1`;
 - anything needs a drag source change;
-- with the lift's `transition` rule, the elevation doesn't rise over the drag's duration in an engine;
+- with the lift's `transition` rule and the style read in `onStart`, the elevation doesn't rise over the drag's duration in an engine;
 - a handle-less `mx-list-item` in `mx-sortable-list` isn't one tab stop on its host in an engine, or `item.focus()` doesn't reach it there;
 - #90's standing import check fails, or `traits-baseline` changes in any other way than property 7 states;
 - an engine doesn't expose an item as `listitem` with its control inside, in the committed probe's tree;
@@ -255,6 +282,7 @@ Use the `test-component` skill for every material-x test.
    - with `{ role: 'listitem' }` removed from the `useCore` call, proofs 1 and 2 fail;
    - with the trait's kept values removed, proof 2's lift rows fail for both items under the `[popover]` rule, and the interactive item's row fails without it. **Re-planned:** with drag's `UA_PROPS` emptied in the workspace build, and the build restored after;
    - with the lift's `transition` rule removed, the rise row fails, if step 2's reading added the rule;
+   - with the style read in `onStart` removed, the rise row fails in WebKit ([The rise in WebKit, ruled](#the-rise-in-webkit-ruled));
    - with `mx-list-item`'s spacing on its host's padding again, proof 2's reset row fails.
 6. **Safari, when it runs.** If the owner dispatches the Safari workflow on the branch, a row reads the computed roles through WebDriver (`getElementComputedRole`): `listitem` on each row, and `button` or `link` on each control. Otherwise the scheduled run reads it after merge. It doesn't gate the merge.
 7. **The existing gates.** Every existing test passes, including `list-item.browser.test.ts` and its focus rows in Firefox, `focus-forwarding.browser.test.ts` without the two list items among its adopters, core's reorderable rows and `traits-baseline` with property 7's change. **Re-planned:** core's reorderable rows are gone with #90, and #90's `sortable-list.browser.test.ts`, `package-entries.node.test.ts` and its standing import check pass, with the static-item rows as step 2 amends them. `focus-forwarding.browser.test.ts` has none of the three list items among its adopters. So do `fmt`, `lint` and `typecheck`, and the root `aube exec just test`.
@@ -420,6 +448,15 @@ The full text before is this file at `f977899e8`.
 - **Proofs 2, 5, 7 and 8** lifted with core's trait, mutated the trait's kept values, ran core's reorderable rows, and estimated the trait's read and write on every row with the list.
 - **The knock-on for `RD-31`** was a follow-up on #90's branch, applied there after this unit, or here if #90 merged first.
 - **`reviewer-2`'s consequence** was an open owner question, now answered.
+
+## What the ruling on the rise replaces
+
+The full text before is this file at `11331a545`.
+
+- **[On top of `RD-31` (#90)](#on-top-of-rd-31-90)'s _Not in this unit_** said: _"`sortable-list.ts` changes by the `visual` callback and its JSDoc alone"_. **The lift's `transition` item** had no bullet on WebKit.
+- **The scope** had `sortable-list.ts` _"for its `visual` callback and its JSDoc"_.
+- **A stop** was _"with the lift's `transition` rule, the elevation doesn't rise over the drag's duration in an engine"_.
+- **Proof 5** had no mutation of the style read.
 
 ## Seen, not registered
 
