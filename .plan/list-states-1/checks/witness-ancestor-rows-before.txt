@@ -1,0 +1,29 @@
+# The new list-item.browser rows against 7271c5b9f's interactive-box.styles.css (the pointer-events rule restored), on f2c5da332 plus this repair's tests.
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test --project 'browser*' tests/list/list-item.browser.test.ts
+     × should dispatch no click to an ancestor of the list 237ms
+     × should target the item with the press 135ms
+     × should dispatch no click to an ancestor of the list 137ms
+     × should target the item with the press 134ms
+     × should dispatch no click to an ancestor of the list 301ms
+     × should target the item with the press 502ms
+     × should dispatch no click to an ancestor of the list 141ms
+     × should target the item with the press 372ms
+     × should dispatch no click to an ancestor of the list 202ms
+     × should target the item with the press 136ms
+     × should dispatch no click to an ancestor of the list 119ms
+     × should target the item with the press 129ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:250 > mx-list-button-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:250 > mx-list-link-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:264 > mx-list-button-item disabled pointer input > should target the item with the press
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:264 > mx-list-link-item disabled pointer input > should target the item with the press
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:250 > mx-list-button-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:250 > mx-list-link-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:264 > mx-list-button-item disabled pointer input > should target the item with the press
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:264 > mx-list-link-item disabled pointer input > should target the item with the press
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:250 > mx-list-button-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:250 > mx-list-link-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:264 > mx-list-button-item disabled pointer input > should target the item with the press
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:264 > mx-list-link-item disabled pointer input > should target the item with the press
+ Test Files  3 failed (3)
+      Tests  12 failed | 45 passed (57)

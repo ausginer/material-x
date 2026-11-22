@@ -1,0 +1,55 @@
+# probes/clickthrough.browser.test.ts.txt, copied to packages/material-x/tests/list/ for each run and removed after it.
+# --project 'browser*' --silent=false --reporter=verbose, three engines. 'seen' lists the events a wrapper <div> around the mx-list receives, as type@target.
+# native-button: a disabled <button> in the same place. native-a: an <a aria-disabled=true>, which no browser disables.
+
+## head 7271c5b9f
+PROBE clickthrough mx-list-button-item {"hit":"mx-list","seen":["pointerdown@mx-list","mousedown@mx-list","click@mx-list"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-button-item
+PROBE clickthrough native-button {"hit":"button","seen":["pointerdown@button"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-link-item {"hit":"mx-list","seen":["pointerdown@mx-list","mousedown@mx-list","click@mx-list"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-link-item
+PROBE clickthrough native-a {"hit":"a","seen":["pointerdown@a","mousedown@a","click@a"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-button-item {"hit":"mx-list","seen":["pointerdown@mx-list","mousedown@mx-list","click@mx-list"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-button-item
+PROBE clickthrough native-button {"hit":"button","seen":["pointerdown@button"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-link-item {"hit":"mx-list","seen":["pointerdown@mx-list","mousedown@mx-list","click@mx-list"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-link-item
+PROBE clickthrough native-a {"hit":"a","seen":["pointerdown@a","mousedown@a","click@a"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-button-item {"hit":"mx-list","seen":["pointerdown@mx-list","mousedown@mx-list","click@mx-list"]}
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-button-item
+PROBE clickthrough native-button {"hit":"button","seen":["pointerdown@button"]}
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-link-item {"hit":"mx-list","seen":["pointerdown@mx-list","mousedown@mx-list","click@mx-list"]}
+PROBE clickthrough native-a {"hit":"a","seen":["pointerdown@a","mousedown@a","click@a"]}
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-link-item
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+
+## base: packages/material-x/src/list at f1387729d
+PROBE clickthrough mx-list-button-item {"hit":"mx-list-button-item","seen":["pointerdown@mx-list-button-item"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-button-item
+PROBE clickthrough native-button {"hit":"button","seen":["pointerdown@button"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-link-item {"hit":"mx-list-link-item","seen":["pointerdown@mx-list-link-item","mousedown@mx-list-link-item"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-link-item
+PROBE clickthrough native-a {"hit":"a","seen":["pointerdown@a","mousedown@a","click@a"]}
+ ✓ |browser (chromium)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-button-item {"hit":"mx-list-button-item","seen":["pointerdown@mx-list-button-item"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-button-item
+PROBE clickthrough native-button {"hit":"button","seen":["pointerdown@button"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-link-item {"hit":"mx-list-link-item","seen":["pointerdown@mx-list-link-item","mousedown@mx-list-link-item"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-link-item
+PROBE clickthrough native-a {"hit":"a","seen":["pointerdown@a","mousedown@a","click@a"]}
+ ✓ |browser/firefox (firefox)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-button-item {"hit":"mx-list-button-item","seen":["pointerdown@mx-list-button-item"]}
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-button-item
+PROBE clickthrough native-button {"hit":"button","seen":["pointerdown@button"]}
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native
+PROBE clickthrough mx-list-link-item {"hit":"mx-list-link-item","seen":["pointerdown@mx-list-link-item","mousedown@mx-list-link-item"]}
+PROBE clickthrough native-a {"hit":"a","seen":["pointerdown@a","mousedown@a","click@a"]}
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > mx-list-link-item
+ ✓ |browser/webkit (webkit)| tests/list/rf71-clickthrough-probe.browser.test.ts:24 > click-through > native

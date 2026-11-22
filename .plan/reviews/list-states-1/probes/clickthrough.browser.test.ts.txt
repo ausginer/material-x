@@ -1,0 +1,60 @@
+// Feature-proof probe for RF-71 (#151): where does a pointer press on a disabled
+// interactive item go, and does an ancestor see a click? Scratch: copied into
+// tests/list/ for its run, removed after it.
+import { afterEach, describe, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
+import { nextFrame } from '../browser.ts';
+
+function log(name: string, value: unknown): void {
+  // oxlint-disable-next-line no-console
+  console.log(`PROBE ${name} ${JSON.stringify(value)}`);
+}
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  document.body.replaceChildren();
+});
+
+describe('click-through', () => {
+  for (const tag of ['mx-list-button-item', 'mx-list-link-item']) {
+    for (const native of [false, true]) {
+      it(`${native ? 'native' : tag}`, async () => {
+        const wrapper = document.createElement('div');
+        wrapper.style.padding = '8px';
+        const list = document.createElement('mx-list');
+        let item: HTMLElement;
+        if (native) {
+          item = document.createElement(tag === 'mx-list-button-item' ? 'button' : 'a');
+          item.textContent = 'native';
+          item.style.display = 'block';
+          item.style.inlineSize = '200px';
+          if (item instanceof HTMLButtonElement) item.disabled = true;
+          else item.setAttribute('aria-disabled', 'true');
+        } else {
+          item = document.createElement(tag);
+          item.setAttribute('href', '#t');
+          item.append('label');
+          item.toggleAttribute('disabled', true);
+        }
+        list.append(item);
+        wrapper.append(list);
+        document.body.append(wrapper);
+        await nextFrame();
+        const seen: string[] = [];
+        for (const type of ['pointerdown', 'mousedown', 'click']) {
+          wrapper.addEventListener(type, (e) => seen.push(`${type}@${(e.target as Element).localName}`));
+        }
+        const r = item.getBoundingClientRect();
+        const [x, y] = [r.left + r.width / 2, r.top + r.height / 2];
+        const hit = document.elementFromPoint(x, y)?.localName ?? null;
+        await commands.pointerPress(x, y);
+        await commands.pointerRelease();
+        await nextFrame();
+        log(`clickthrough ${native ? `native-${tag === 'mx-list-button-item' ? 'button' : 'a'}` : tag}`, { hit, seen });
+      });
+    }
+  }
+});
