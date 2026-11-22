@@ -1,0 +1,4 @@
+const I = new WeakMap();
+export const internals = (e) => I.get(e);
+export class El extends HTMLElement { static observedAttributes = ['checked']; constructor(){ super(); I.set(this, this.attachInternals()); } attributeChangedCallback(n,o,v){ this.onAttr?.(n,o,v); } }
+export class A extends El { static formAssociated = true; get checked(){return this.hasAttribute('checked')} set checked(v){this.toggleAttribute('checked', !!v)} }
