@@ -1,0 +1,36 @@
+What aube add writes to package-lock.json on 2.10.0 and on 2.10.1. Read 2026-11-22 by the architect in slot b, at
+7dbef17bb, after rf48-reading.txt and rf48-repair.txt, with the same 2.10.1 binary and override (see
+rf48-reading.txt's header). 2.10.1's release notes say that an unrelated aube add on 2.10.0 drops locked
+optional-peer bindings (aube #1941). This reads whether that reaches this repository's lockfile.
+
+Each version ran `aube add -D -W left-pad@1.3.0` from the committed tree, then `git diff package-lock.json` was
+saved, then the manifests were reverted and `aube install --frozen-lockfile --force` (2.10.0) restored the tree.
+`diff` of the two saved diffs printed nothing: they are byte-identical. The diff, verbatim:
+
+diff --git a/package-lock.json b/package-lock.json
+index 12711cbbf..10da8a57d 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -45,6 +45,7 @@
+         "just-kebab-case": "4.2.0",
+         "just-safe-get": "4.2.0",
+         "just-safe-set": "4.2.1",
++        "left-pad": "1.3.0",
+         "lightningcss": "1.33.0",
+         "nx": "24.0.6",
+         "oxc-transform": "0.158.0",
+@@ -13781,6 +13782,14 @@
+         "safe-buffer": "~5.1.0"
+       }
+     },
++    "node_modules/left-pad": {
++      "version": "1.3.0",
++      "resolved": "https://registry.npmjs.org/left-pad/-/left-pad-1.3.0.tgz",
++      "integrity": "sha512-XI5MPzVNApjAyhQzphX8BkmKsKUxD4LdyK24iZeQGinBN9yTQT3bFlCBy/aVx2HrNcqQGsdot8ghrjyrvMCoEA==",
++      "deprecated": "use String.prototype.padStart()",
++      "dev": true,
++      "license": "WTFPL"
++    },
+     "node_modules/levn": {
+       "version": "0.4.1",
+       "resolved": "https://registry.npmjs.org/levn/-/levn-0.4.1.tgz",
