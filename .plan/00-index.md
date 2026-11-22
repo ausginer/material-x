@@ -3709,7 +3709,7 @@ Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-o
 
 #### RF-73 — WebKit collapses a multiline text field's line breaks when the value is set from script
 
-Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#109](https://github.com/ausginer/material-x/issues/109), relayed by the coordinator. The feature proof of #108 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/drop-field-sizing-polyfill-1/feature-proof-claude.md#reviewer-1) at `fed89b779`, and the review reached `main` unchanged in #108's squash. `RF-72` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect read the review's probes and `.input`'s rule at `b46b840d8` and ran nothing.
+Tier A, **fixed, pending merge** (below), pre-existing. Before the fix: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#109](https://github.com/ausginer/material-x/issues/109), relayed by the coordinator. The feature proof of #108 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/drop-field-sizing-polyfill-1/feature-proof-claude.md#reviewer-1) at `fed89b779`, and the review reached `main` unchanged in #108's squash. `RF-72` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect read the review's probes and `.input`'s rule at `b46b840d8` and ran nothing.
 
 - **What happens:** after `field.value = 'x\ny\nz\nw'` on `mx-multiline-text-field`, Chromium 158 and Firefox 159 show four lines, and Playwright's WebKit 27.2 shows one, both in the textarea's height and in its `scrollHeight`. Typed lines still show in WebKit.
 - **Cause, as the review observed it:** `.input` in `src/text-field/styles/default/main.styles.css` starts with `all: unset`, which resets the textarea's UA `white-space: pre-wrap`. The computed value is `white-space-collapse: collapse` in all three engines. Chromium and Firefox keep a textarea's newlines anyway, and WebKit collapses them. With `white-space: pre-wrap` on the textarea, WebKit shows four lines, and a plain textarea with `field-sizing: content` shows one as soon as `all: unset` is added ([`isolate` probe](reviews/drop-field-sizing-polyfill-1/probes/isolate.browser.test.ts.txt)). The issue says _likely_. The review's isolation makes it the established cause in WebKit 27.2.
@@ -3717,6 +3717,55 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Required property:** the review's, which this entry adopts. A multiline text field shows a value's line breaks, and is as many lines tall as the value, however the value was set: by typing, through the host's `value`, or by a form reset. It holds in each engine at `RD-20`'s floor, and a row observes it in each engine.
 - **Not established:** real Safari, which the review didn't run.
 - **Size:** _small_. One declaration in material-x's text field stylesheet, and the row.
+- **Fixed 2026-11-22 by the implementer** on `material-x/textfield-white-space-1`, for [#109](https://github.com/ausginer/material-x/issues/109). A `textarea.input` rule after `.input` restores `white-space: pre-wrap`. It selects only the textarea, so the single-line field's `<input>` keeps the style it had ([readings](textfield-white-space-1/checks/rf73-readings.txt)).
+  - **The row:** _"should grow the textarea by one line for each line of a value set through the host"_ in `packages/material-x/tests/text-field/text-field.browser.test.ts`. It sets a four-line value through the host's `value` and asserts the textarea's height grows by three lines and its `scrollHeight` is four. Before the fix it fails in WebKit 27.2 (24 px for 96 px, both readings) and passes in Chromium and Firefox. After the fix, the text-field file passes in all three engines (28 of 28 in each).
+  - **Size:** `text-field/multiline-text-field` +41 B, `text-field/text-field` +24 B, `complete` +39 B (Brotli). Every other row reads 0, which is the expected result because no other runtime entry imports the text field stylesheet. The comment doesn't ship.
+  - **Still not established:** real Safari. The pull request's `verify` doesn't run it, and `safari.yml` runs weekly. Form reset isn't observed: `mx-multiline-text-field` has no form reset path of its own today.
+  - **`overflow-wrap`, added 2026-11-22 by the implementer** on the same branch, at the owner's decision, relayed by the coordinator. `all: unset` also drops the textarea's UA `overflow-wrap: break-word`, so a line with no break opportunity stayed one line and overflowed the field in each engine: `scrollWidth` 1609 against 300. The feature proof found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/textfield-white-space-1/feature-proof-claude.md) at `37f1eda29`. The same `textarea.input` rule now restores `overflow-wrap: break-word` ([readings](textfield-white-space-1/checks/rf73-readings.txt)).
+    - **The row:** _"should wrap a line that has no break opportunity within the field"_ in the same file. It sets 200 `x` through the host's `value` in a 300 px host and asserts the textarea's `scrollWidth` equals its `clientWidth` and the textarea is taller than one line. Before the change it fails in Chromium 158, Firefox 159 and WebKit 27.2 (`scrollWidth` 1609, 1610 and 1609 against 300, one line). After it, the text-field file passes in all three engines (29 of 29 in each).
+    - **Size:** against the head before it, `text-field/multiline-text-field` −1 B, `text-field/text-field` −26 B, `complete` +19 B (Brotli), and every other row 0. Against the base `242654011`, the whole fix is +40 B, −2 B and +58 B. Two readings agree, and the comment doesn't ship.
+    - **Not in scope:** the review's `reviewer-2`, form reset, which goes to the architect separately.
+
+#### RF-74 — Text fields ignore a form reset and their `value` attribute
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#118](https://github.com/ausginer/material-x/issues/118), relayed by the coordinator. The feature proof of #116 found it as `reviewer-2` in [`feature-proof-claude.md`](https://github.com/ausginer/material-x/blob/182b5ef04/.plan/reviews/textfield-white-space-1/feature-proof-claude.md#reviewer-2), on `material-x/textfield-white-space-1` at `182b5ef04`, not yet on `main`. `RF-73` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect probed both fields at `cbb06d265` in Chromium 158, Firefox 159 and Playwright's WebKit 27.2 ([reading](observations-2/checks/text-field-reset.txt), [probe](observations-2/probes/text-field-reset.browser.test.ts.txt)).
+
+- **What happens:** `mx-text-field` and `mx-multiline-text-field` set `formAssociated`, and `TextFieldCore` registers no `formReset`. So after `form.reset()`, a value set through the host's `value` or typed by the user stays, in the field and in the form's data, in each of the three engines. A native `<input>` or `<textarea>` returns to its default value.
+- **The `value` attribute does nothing.** The `Valuable` trait observes it, and `TextFieldCore` overrides `value` with the internal field's value, so nothing reads the attribute. A parsed `<mx-text-field value="initial">` reads `''` through `value` and shows nothing, and a later `setAttribute('value', …)` changes nothing. Neither element documents the attribute.
+- **The form value starts unset.** The form value is set on input and through `value`, and not at upgrade. So a field that is never edited is absent from the form's data, where an empty native field submits `''`.
+- **Affected:** both text fields, inside a `<form>`.
+- **Required property:** below, as the decision states it. Rows observe it in each engine at `RD-20`'s floor, for both fields.
+- **Not established:** real Safari. Whether the checkable controls reset is outside this entry (the closing message names it).
+
+**Decided 2026-11-22 by the architect: the default value is the host's `value` attribute,** as the review left to the architect. The field follows a native `<input>`.
+
+1. **The default value** is the host's `value` attribute, or `''` when there is none, for both fields.
+2. **At upgrade,** the field's value is the default value, and the form value is the field's value from then on.
+3. **While the value is clean,** a change to the `value` attribute sets the value. The value is clean until the user edits it or a script sets `value`. Upgrade and reset make it clean.
+4. **A form reset** sets the value to the default value and makes it clean. The field then shows it as it shows a value set in any other way: the populated state, the form value, and `RF-73`'s line breaks.
+5. **Setting `value` doesn't write the attribute,** as today and as on a native `<input>`.
+6. Both elements document the `value` attribute as the default value.
+
+- **Why the attribute:** it is the default a reader of HTML expects, a page or a framework can declare it, and `Valuable` already observes it.
+- **Not adopted:** always `''`, which a form that declares its values can't reset to. A snapshot of the value at first connection, which no markup can declare and which drops later attribute changes. A multiline field's child text, as a native `<textarea>` has, because the host's children are its slotted label and supporting content, and one rule serves both fields through `TextFieldCore`. A `defaultValue` property, which no supported use needs while the attribute exists.
+- **Outside this entry:** form state restore.
+- **Size:** _medium_. `TextFieldCore`, the two elements' documentation, and rows for both fields, with nothing left to decide.
+
+#### RF-75 — Core's `useSlot` lets a caller type a slot's text and comment nodes as elements
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#119](https://github.com/ausginer/material-x/issues/119), relayed by the coordinator. The feature proof of #117 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/button-group-whitespace-1/feature-proof-claude.md#reviewer-1) at `aa7831ae4`, and the review reached `main` in #117. `RF-74` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `cbb06d265`.
+
+- **The contract:** `useSlot<T extends Node = Node>(host, slotOrSelector, callback)`, exported as `@ydinjs/core/controllers/useSlot.js`, passes the callback `slot.assignedNodes() as T[]` behind a lint suppression. So `useSlot<HTMLElement>` compiles, and its callback receives text and comment nodes typed as `HTMLElement`. `SlotControllerUpdateCallback<T>` is exported with the same parameter.
+- **Why it is a problem:** the type tells an integrator something the runtime contradicts, and the compiler can't see it at the call site. Both callers that passed a type argument were `RF-72`. Since #117 no caller in the repository passes one: the groups read `slot.assignedElements()`, `useRovingTabindex` narrows with a type guard, `ListItemCore` checks `instanceof HTMLElement`, and the slot polyfill counts the nodes.
+- **Required property:** the review's, which this entry adopts. The type that `useSlot` gives its callback's nodes is one that every node it passes has.
+
+**Decided 2026-11-22 by the architect: core's signature changes.** `@ydinjs/core` is 0.1.0 and has never been released, so CONTRIBUTING §8 applies, and the old shape is deleted with no alias.
+
+- **`useSlot` and `SlotControllerUpdateCallback` lose their type parameter.** The callback's `nodes` is `readonly Node[]`, which is what `assignedNodes()` returns, so the assertion and its lint suppression go. The doc comments drop the `@typeParam` lines and keep saying that the nodes include text and other non-element nodes.
+- **A caller that wants elements** reads `slot.assignedElements()` from the callback's first argument, as the groups do, or narrows the nodes with a type guard.
+- **Not adopted:** an element mode or a second controller, since the slot argument already gives the elements and no caller needs more. Passing only elements, because the slot polyfill mirrors `:has-slotted`, which counts every assigned node, text included. Keeping a constrained type parameter, because no constraint narrower than `Node` holds for what `assignedNodes()` returns.
+- **What changes for callers:** an explicit type argument no longer compiles. No caller in the repository passes one. Core's `useSlot` test writes `SlotControllerUpdateCallback<Node>`, which becomes `SlotControllerUpdateCallback`. The emitted JavaScript doesn't change, so no size row moves.
+- **Size:** _small_. One core module, its test's type, and core's typecheck with material-x's after core is rebuilt.
 
 #### RF-74 — Text fields ignore a form reset and their `value` attribute
 

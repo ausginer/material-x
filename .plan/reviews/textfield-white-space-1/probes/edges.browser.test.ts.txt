@@ -1,0 +1,142 @@
+// Reviewer scratch probe for RF-73; run from
+// packages/material-x/tests/text-field/zz-rf73-probe.browser.test.ts, then removed.
+// It throws its readings so the reporter prints them in each engine.
+import { describe, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import '../../src/text-field/text-field.ts';
+import { nextFrame, pixels } from '../browser.ts';
+
+type F = HTMLElement & { value: string | null };
+
+function inner(field: HTMLElement): HTMLInputElement | HTMLTextAreaElement {
+  return field.shadowRoot!.querySelector('.input')!;
+}
+
+async function mount(tag: string, width = 300): Promise<F> {
+  const field = document.createElement(tag) as F;
+  field.style.display = 'block';
+  field.style.inlineSize = `${width}px`;
+  document.body.append(field);
+  await nextFrame();
+  return field;
+}
+
+function lines(el: Element): [number, number] {
+  const lh = pixels(getComputedStyle(el).lineHeight);
+  return [
+    Math.round((el.getBoundingClientRect().height / lh) * 100) / 100,
+    Math.round(((el as HTMLElement).scrollHeight / lh) * 100) / 100,
+  ];
+}
+
+const out: Record<string, unknown> = {};
+
+describe('rf73 probe', () => {
+  it('reads', async () => {
+    for (const tag of ['mx-text-field', 'mx-multiline-text-field']) {
+      const f = await mount(tag);
+      const cs = getComputedStyle(inner(f));
+      out[`${tag} computed`] = {
+        whiteSpace: cs.whiteSpace,
+        collapse: cs.getPropertyValue('white-space-collapse'),
+        wrapMode: cs.getPropertyValue('text-wrap-mode'),
+        overflowWrap: cs.overflowWrap,
+        wordBreak: cs.wordBreak,
+      };
+    }
+
+    let f = await mount('mx-multiline-text-field');
+    f.value = 'first\nsecond\nthird\nfourth';
+    await nextFrame();
+    out['script 4 lines [h, scrollH]'] = lines(inner(f));
+    out['script value round-trips'] =
+      f.value === 'first\nsecond\nthird\nfourth';
+
+    await userEvent.click(inner(f));
+    await userEvent.keyboard('{Enter}fifth');
+    await nextFrame();
+    out['script 4 + typed Enter+line'] = lines(inner(f));
+
+    f = await mount('mx-multiline-text-field');
+    await userEvent.click(inner(f));
+    await userEvent.keyboard('a{Enter}b{Enter}c');
+    await nextFrame();
+    out['typed 3 lines'] = lines(inner(f));
+    for (let i = 0; i < 4; i += 1) {
+      await userEvent.keyboard('{Backspace}');
+    }
+    await nextFrame();
+    out['typed then 4 Backspace'] = lines(inner(f));
+
+    f = await mount('mx-multiline-text-field');
+    f.value = '\n\n';
+    await nextFrame();
+    out['script "\\n\\n" (3 empty lines)'] = lines(inner(f));
+
+    f = await mount('mx-multiline-text-field');
+    f.value = 'a\nb';
+    await nextFrame();
+    f.value = '';
+    await nextFrame();
+    out['script 2 lines then cleared'] = lines(inner(f));
+
+    f = await mount('mx-multiline-text-field');
+    inner(f).setAttribute('placeholder', 'placeholder text');
+    await nextFrame();
+    out['empty + internal placeholder'] = lines(inner(f));
+    inner(f).setAttribute('placeholder', 'p1\np2');
+    await nextFrame();
+    out['empty + internal two-line placeholder'] = lines(inner(f));
+
+    f = await mount('mx-multiline-text-field');
+    f.value = 'x'.repeat(200);
+    await nextFrame();
+    const ta = inner(f);
+    out['long unbroken 200 x'] = {
+      lines: lines(ta),
+      clientWidth: ta.clientWidth,
+      scrollWidth: ta.scrollWidth,
+    };
+
+    f = await mount('mx-multiline-text-field');
+    f.value = 'word '.repeat(60).trim();
+    await nextFrame();
+    out['soft wrap 60 words'] = lines(inner(f));
+
+    f = await mount('mx-multiline-text-field');
+    await userEvent.click(inner(f));
+    await userEvent.keyboard('x'.repeat(80));
+    await nextFrame();
+    out['typed unbroken 80 x'] = {
+      lines: lines(inner(f)),
+      clientWidth: inner(f).clientWidth,
+      scrollWidth: inner(f).scrollWidth,
+    };
+
+    f = await mount('mx-text-field');
+    f.value = 'a\nb';
+    await nextFrame();
+    const inp = inner(f);
+    out['single-line value a\\nb'] = {
+      value: JSON.stringify(f.value),
+      height: inp.getBoundingClientRect().height,
+    };
+
+    const form = document.createElement('form');
+    f = document.createElement('mx-multiline-text-field') as F;
+    f.setAttribute('name', 'n');
+    form.append(f);
+    document.body.append(form);
+    await nextFrame();
+    f.value = 'a\nb';
+    form.reset();
+    await nextFrame();
+    out['form.reset() after script a\\nb'] = {
+      value: JSON.stringify(f.value),
+      lines: lines(inner(f)),
+    };
+
+    throw new Error(`RF73 ${navigator.userAgent}\n${JSON.stringify(out, null, 1)}`);
+  });
+});
