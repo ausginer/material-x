@@ -204,6 +204,10 @@ function matching(source: string, local: string): string[] {
  * once, and prints each such address with every `<path>:<line>` that claims it.
  */
 async function checkDuplicates(commit: string | undefined): Promise<void> {
+  if (commit !== undefined && !(await holds(commit))) {
+    fail(`cannot read ${commit}: this clone does not hold it as a commit`);
+  }
+
   const current = [...SCOPES].filter(([, scope]) => scope.commit === undefined);
   const reports = await Promise.all(
     current.map(async ([name, scope]) => {

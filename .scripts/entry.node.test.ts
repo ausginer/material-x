@@ -322,13 +322,53 @@ describe('entry.sh --duplicates', () => {
       run(root, ['--duplicates']),
     ]);
 
-    expect([atHead.code, tree.code]).toEqual([1, 0]);
+    expect([atHead, tree]).toEqual([
+      {
+        code: 1,
+        out: '',
+        err: expect.stringContaining(
+          'repo:RD-1\n  .plan/00-index.md:1\n  .plan/00-index.md:3',
+        ) as string,
+      },
+      { code: 0, out: 'no duplicated address in drag, repo\n', err: '' },
+    ]);
   });
 
-  it('should name the duplicates that the merge 1cf222c32 left', async () => {
-    const { code, err } = await run(REPOSITORY, ['--duplicates', '1cf222c32']);
+  it('should refuse a commit the clone does not hold as a failed read', async () => {
+    const root = await fixture({});
+
+    const { code, err } = await run(root, ['--duplicates', '0000000']);
 
     expect(code).toBe(1);
-    expect(err.match(/^repo:\S+$/gmu)).toEqual(['repo:RF-74', 'repo:RF-75']);
+    expect(err).toContain('cannot read 0000000');
+    expect(err).not.toContain('duplicated');
+  });
+
+  /**
+   * The span of `.plan/00-index.md` at `1cf222c32`, a merge of `main` into a
+   * stacked branch that kept both sides of a conflict, from `RF-73` to the end
+   * of the second `RF-75`. No ref on `origin` holds that commit, so the span is
+   * committed as a fixture.
+   */
+  it('should name the duplicates that the merge 1cf222c32 left', async () => {
+    const root = await fixture({
+      '.plan/00-index.md': await readFile(
+        join(import.meta.dirname, 'fixtures/entry-duplicates-1cf222c32.txt'),
+        'utf8',
+      ),
+    });
+
+    const { code, err } = await run(root, ['--duplicates']);
+
+    expect(code).toBe(1);
+    expect(err.split('\n').slice(1)).toEqual([
+      'repo:RF-74',
+      '  .plan/00-index.md:20',
+      '  .plan/00-index.md:61',
+      'repo:RF-75',
+      '  .plan/00-index.md:45',
+      '  .plan/00-index.md:86',
+      '',
+    ]);
   });
 });
