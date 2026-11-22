@@ -1,0 +1,179 @@
+# The WebKit ResizeObserver loop error on the box-quad stories (the feature proof's reviewer-1), before and after 3765d39df.
+# Before: the stories at 6e89a6c7d. After: the stories at 3765d39df. .docs was built from each with aube exec just docs-build, and every command runs from the repository root. Node v26.13.1.
+
+## The cause: node packages/box-quad/.plan/probes/storybook-demo/resize-observer-diagnosis.ts
+
+### Before
+
+WebKit 27.2, width 1000
+
+## live-demo
+  observer 1 created by iframe
+  observer 2 created by iframe
+  observer 2 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+  observer 3 created by box-quad.stories
+  observer 4 created by iframe
+  observer 3 (box-quad.stories) delivers div: its callback makes 3 childList and 0 characterData records
+  observer 5 created by iframe
+  page error: ResizeObserver loop completed with undelivered notifications.
+  observer 5 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+
+## nested-spaces
+  observer 1 created by iframe
+  observer 2 created by iframe
+  observer 2 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+  observer 3 created by box-quad.stories
+  observer 4 created by iframe
+  observer 3 (box-quad.stories) delivers div: its callback makes 3 childList and 0 characterData records
+  observer 5 created by iframe
+  page error: ResizeObserver loop completed with undelivered notifications.
+  observer 5 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+
+## failed-reads
+  observer 1 created by iframe
+  observer 2 created by iframe
+  observer 2 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+  observer 3 created by box-quad.stories
+  observer 4 created by box-quad.stories
+  observer 5 created by box-quad.stories
+  observer 6 created by box-quad.stories
+  observer 7 created by iframe
+  observer 3 (box-quad.stories) delivers div: its callback makes 1 childList and 0 characterData records
+  observer 8 created by iframe
+  observer 4 (box-quad.stories) delivers div: its callback makes 1 childList and 0 characterData records
+  observer 9 created by iframe
+  observer 5 (box-quad.stories) delivers div: its callback makes 1 childList and 0 characterData records
+  observer 10 created by iframe
+  observer 6 (box-quad.stories) delivers div: its callback makes 1 childList and 0 characterData records
+  observer 11 created by iframe
+  page error: ResizeObserver loop completed with undelivered notifications.
+  observer 11 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+
+### After
+
+WebKit 27.2, width 1000
+
+## live-demo
+  observer 1 created by iframe
+  observer 2 created by iframe
+  observer 3 created by box-quad.stories
+  observer 4 created by iframe
+  observer 3 (box-quad.stories) delivers div: its callback makes 0 childList and 3 characterData records
+  observer 4 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+
+## nested-spaces
+  observer 1 created by iframe
+  observer 2 created by iframe
+  observer 2 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+  observer 3 created by box-quad.stories
+  observer 4 created by iframe
+  observer 3 (box-quad.stories) delivers div: its callback makes 0 childList and 3 characterData records
+  observer 4 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+
+## failed-reads
+  observer 1 created by iframe
+  observer 2 created by iframe
+  observer 2 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+  observer 3 created by box-quad.stories
+  observer 4 created by box-quad.stories
+  observer 5 created by box-quad.stories
+  observer 6 created by box-quad.stories
+  observer 7 created by iframe
+  observer 3 (box-quad.stories) delivers div: its callback makes 0 childList and 1 characterData records
+  observer 4 (box-quad.stories) delivers div: its callback makes 0 childList and 1 characterData records
+  observer 5 (box-quad.stories) delivers div: its callback makes 0 childList and 1 characterData records
+  observer 6 (box-quad.stories) delivers div: its callback makes 0 childList and 1 characterData records
+  observer 7 (iframe) delivers body: its callback makes 0 childList and 0 characterData records
+
+## The reviewer's probes: node packages/box-quad/.plan/reviews/storybook-1/probes/resize-observer-errors.ts, then webkit-errors-all-stories.ts
+
+### Before
+
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 1000 nested-spaces  page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 375 nested-spaces  page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+WebKit 27.2: 89 stories, 3 raise a page error
+  box-quad--live-demo: ResizeObserver loop completed with undelivered notifications.
+  box-quad--nested-spaces: ResizeObserver loop completed with undelivered notifications.
+  box-quad--failed-reads: ResizeObserver loop completed with undelivered notifications.
+
+### After
+
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+WebKit 27.2: 89 stories, 0 raise a page error
+
+## The BQ-18 reading after the fix: node packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts
+
+Its output equals stories-reading.txt line for line, apart from that file's three header lines. Each of three runs rewrote two or three of the four dark screenshots, a different set each time, Pointer Delta's included. Every pixel of the two compared (nested-spaces-dark, pointer-delta-dark) is within 1 of the committed screenshot in every channel. Pointer Delta's first render doesn't depend on the change, so the dark captures vary by themselves, and the committed screenshots are kept. All four light screenshots were byte-equal in every run.
+
+## docs-smoke after the fix: aube exec just docs-smoke
+
+112 of 112 pages passed.
