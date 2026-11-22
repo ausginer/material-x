@@ -1,0 +1,13 @@
+Size rows, aube exec just size --json in packages/material-x, Brotli bytes, slot f, 2026-11-22.
+head = 37f1eda29. base = 37f1eda29 with main.styles.css at 682639048 (only the textarea.input rule differs).
+A second head reading after the base build is identical in all 20 rows.
+
+Rows whose value differs (name, base, head, delta):
+text-field/multiline-text-field          4055 4096 +41
+text-field/text-field                    8181 8205 +24
+complete                                 22158 22197 +39
+rows 20 zero-delta rows 17
+
+Shipped rule in the head build, text-field/styles/default/main.css.js:
+textarea.input{white-space:pre-wrap}
+Matches for the source comment's word 'collapses' under packages/material-x/text-field/: 0

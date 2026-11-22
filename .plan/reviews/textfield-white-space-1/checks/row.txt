@@ -1,0 +1,14 @@
+Text-field file, three engines, head 37f1eda29, slot f, 2026-11-22.
+MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project browser --project browser/firefox --project browser/webkit tests/text-field/text-field.browser.test.ts
+
+== head
+ Test Files  3 passed (3)
+      Tests  84 passed (84)
+
+== mutation: src/text-field/styles/default/main.styles.css replaced by its 682639048 text (the textarea.input rule removed), restored after the run
+     × should grow the textarea by one line for each line of a value set through the host 200ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should grow the textarea by one line for each line of a value set through the host
+AssertionError: expected [ 24, 24 ] to deeply equal [ 96, 96 ]
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 83 passed (84)

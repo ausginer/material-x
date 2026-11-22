@@ -1,0 +1,66 @@
+RF-73 readings, 2026-11-22, by the implementer, in /workspaces/worktrees/f.
+Engines: Playwright's Chromium 158.0.8127.18, Firefox 159.0, WebKit 27.2.
+
+Row: packages/material-x/tests/text-field/text-field.browser.test.ts
+  "should grow the textarea by one line for each line of a value set through the host"
+  Asserts [height, scrollHeight] = [oneLine + 3 * lineHeight, 4 * lineHeight]
+  after field.value = 'first\nsecond\nthird\nfourth'.
+
+Before the fix (base 242654011 plus the new row):
+  MX_TEST_ENGINES=webkit vitest run --project browser/webkit tests/text-field/text-field.browser.test.ts
+    x the row: expected [96, 96], received [24, 24]
+    Tests  1 failed | 27 passed (28)
+  MX_TEST_ENGINES=firefox ... --project browser/firefox ...   Tests  28 passed (28)
+  --project browser (chromium)                                 Tests  28 passed (28)
+
+After the fix (textarea.input { white-space: pre-wrap; }), merged with origin/main 682639048:
+  --project browser (chromium)  tests/text-field   Tests  28 passed (28)
+  --project browser/firefox     tests/text-field   Tests  28 passed (28)
+  --project browser/webkit      tests/text-field   Tests  28 passed (28)
+
+Size rows, `aube exec just size --json` in packages/material-x, Brotli bytes.
+Before: 242654011. After: the fix on 14165ff60 (origin/main merged; no file under
+packages/ differs between 242654011 and 682639048).
+  row                               before  after  delta
+  text-field/multiline-text-field     4055   4096    +41
+  text-field/text-field               8181   8205    +24
+  complete                           22158  22197    +39
+  every other row (17 rows)                            0
+The source comment is not in the built output (no match for "collapses" under
+packages/material-x/text-field/).
+
+overflow-wrap, 2026-11-22, by the implementer, in /workspaces/worktrees/f, on 8ea79c66f.
+From the feature proof's reviewer-1
+(.plan/reviews/textfield-white-space-1/feature-proof-claude.md).
+Fix: `overflow-wrap: break-word;` added to the `textarea.input` rule.
+
+Row: packages/material-x/tests/text-field/text-field.browser.test.ts
+  "should wrap a line that has no break opportunity within the field"
+  Host display: block, inline-size: 300px. field.value = 'x'.repeat(200).
+  Asserts [scrollWidth, height > one line] = [clientWidth, true].
+
+Before the fix (8ea79c66f plus the new row):
+  --project browser (chromium)  expected [1609, false] to deeply equal [300, true]
+                                Tests  1 failed | 28 passed (29)
+  --project browser/firefox     expected [1610, false] to deeply equal [300, true]
+                                Tests  1 failed | 28 passed (29)
+  --project browser/webkit      expected [1609, false] to deeply equal [300, true]
+                                Tests  1 failed | 28 passed (29)
+
+After the fix:
+  --project browser (chromium)  tests/text-field   Tests  29 passed (29)
+  --project browser/firefox     tests/text-field   Tests  29 passed (29)
+  --project browser/webkit      tests/text-field   Tests  29 passed (29)
+
+Size rows, `aube exec just size --json` in packages/material-x, Brotli bytes.
+Before: main.styles.css at 8ea79c66f. After: the fix. Same tree, read in turn;
+a second after-reading is identical in all 20 rows.
+  row                               before  after  delta  vs 242654011
+  text-field/multiline-text-field     4096   4095     -1           +40
+  text-field/text-field               8205   8179    -26            -2
+  complete                           22197  22216    +19           +58
+  every other row (17 rows)                            0             0
+The "before" column equals the earlier "after" column above, byte for byte.
+Built: text-field/styles/default/main.css.js carries
+  textarea.input{white-space:pre-wrap;overflow-wrap:break-word}
+and no comment text (no match for "opportunity").
