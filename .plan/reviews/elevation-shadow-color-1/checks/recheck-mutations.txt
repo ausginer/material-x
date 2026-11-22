@@ -1,0 +1,146 @@
+Recheck of the remediation at 75f36c32c in slot e. Each run: probes/recheck-mutate.sh <mutation>, which applies the mutation, runs tests/core/elevation.spec.browser.test.ts (17 rows) in Chromium, Firefox and WebKit with MX_TEST_ENGINES=chromium,firefox,webkit --project 'spec*', and restores every touched file from HEAD.
+
+# mutation: head
+      Tests  51 passed (51)
+
+# mutation: m1-default-only
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..ab52aead5 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -14,10 +14,7 @@ function multiply(multiplier: number): string {
+  * stylesheets are adopted in.
+  */
+ function mix(percent: number): string {
+-  const color = CSSVariable.ref(
+-    'shadow-color',
+-    CSSVariable.ref('default-shadow-color'),
+-  );
++  const color = CSSVariable.ref('shadow-color');
+ 
+   return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
+ }
+@@ -41,7 +38,7 @@ const ambient = createShadowColor(1.5, 2, 12);
+ function createPackage() {
+   return t
+     .set({
+-      'default-shadow-color': 'md.sys.color.shadow',
++      'shadow-color': 'md.sys.color.shadow',
+       'elevation.umbra': umbra,
+       'elevation.penumbra': penumbra,
+       'elevation.ambient': ambient,
+      Tests  3 failed | 48 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+
+# mutation: mF-fab-no-own-colour
+diff --git a/packages/material-x/src/fab/styles/default/tokens.ts b/packages/material-x/src/fab/styles/default/tokens.ts
+index 775deb0de..34c8d0e1a 100644
+--- a/packages/material-x/src/fab/styles/default/tokens.ts
++++ b/packages/material-x/src/fab/styles/default/tokens.ts
+@@ -16,7 +16,6 @@ const specialTokens = {
+   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
+   'unfold.duration': motionEffects['expressive.fast-spatial.duration'],
+   'unfold.easing': motionEffects['expressive.fast-spatial'],
+-  'shadow.color': CSSVariable.ref('container.shadow-color'),
+ };
+ 
+ const renderer = createFABScopedDeclarationRenderer();
+      Tests  3 failed | 48 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:170 > mx-fab elevation layers > should draw its layers in its own shadow colour, before the elevation stylesheet
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:170 > mx-fab elevation layers > should draw its layers in its own shadow colour, before the elevation stylesheet
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:170 > mx-fab elevation layers > should draw its layers in its own shadow colour, before the elevation stylesheet
+
+# mutation: mB-button-no-own-colour
+diff --git a/packages/material-x/src/button/styles/default/tokens.ts b/packages/material-x/src/button/styles/default/tokens.ts
+index d4d440e59..d587277d3 100644
+--- a/packages/material-x/src/button/styles/default/tokens.ts
++++ b/packages/material-x/src/button/styles/default/tokens.ts
+@@ -32,7 +32,6 @@ const specialTokens = {
+   'press.duration': motionEffects['expressive.fast-spatial.duration'],
+   'ripple.color': CSSVariable.ref('state-layer.color'),
+   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
+-  'shadow.color': CSSVariable.ref('container.shadow-color'),
+ };
+ 
+ const specialUnselectedTokens = {
+      Tests  3 failed | 48 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+
+# mutation: m1-plus-fab-adopts-elevation-last
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..ab52aead5 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -14,10 +14,7 @@ function multiply(multiplier: number): string {
+  * stylesheets are adopted in.
+  */
+ function mix(percent: number): string {
+-  const color = CSSVariable.ref(
+-    'shadow-color',
+-    CSSVariable.ref('default-shadow-color'),
+-  );
++  const color = CSSVariable.ref('shadow-color');
+ 
+   return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
+ }
+@@ -41,7 +38,7 @@ const ambient = createShadowColor(1.5, 2, 12);
+ function createPackage() {
+   return t
+     .set({
+-      'default-shadow-color': 'md.sys.color.shadow',
++      'shadow-color': 'md.sys.color.shadow',
+       'elevation.umbra': umbra,
+       'elevation.penumbra': penumbra,
+       'elevation.ambient': ambient,
+diff --git a/packages/material-x/src/fab/fab.ts b/packages/material-x/src/fab/fab.ts
+index 8e2fe8610..b575b6757 100644
+--- a/packages/material-x/src/fab/fab.ts
++++ b/packages/material-x/src/fab/fab.ts
+@@ -114,13 +114,13 @@ export default class FAB extends FABConstructor {
+       [template],
+       {},
+       [
+-        elevationStyles,
+         focusStyles,
+         defaultStyles,
+         colorStyles,
+         sizeStyles,
+         tonalStyles,
+         extendedStyles,
++        elevationStyles,
+       ],
+       { delegatesFocus: true },
+     );
+      Tests  6 failed | 45 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:170 > mx-fab elevation layers > should draw its layers in its own shadow colour, before the elevation stylesheet
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:170 > mx-fab elevation layers > should draw its layers in its own shadow colour, before the elevation stylesheet
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:170 > mx-fab elevation layers > should draw its layers in its own shadow colour, before the elevation stylesheet
+
+# mutation: mL-link-item-red
+diff --git a/packages/material-x/tests/core/elevation.spec.browser.test.ts b/packages/material-x/tests/core/elevation.spec.browser.test.ts
+index cda98a84b..4ee0433c8 100644
+--- a/packages/material-x/tests/core/elevation.spec.browser.test.ts
++++ b/packages/material-x/tests/core/elevation.spec.browser.test.ts
+@@ -241,6 +241,7 @@ describe('mx-list items elevation layers', () => {
+     item.setAttribute('href', '#');
+     item.textContent = 'A';
+     item.style.setProperty('--_level', '1');
++    item.style.setProperty('--_shadow-color', 'rgb(255, 0, 0)');
+     item.style.setProperty('transition', 'none');
+     const list = document.createElement('mx-list');
+     list.append(item);
+      Tests  3 failed | 48 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:239 > mx-list items elevation layers > should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:239 > mx-list items elevation layers > should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:239 > mx-list items elevation layers > should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)
+
+# Other readings
+origin/main is 4936e77b9; git merge-tree --write-tree origin/main 75f36c32c: a3557d057e0f30d41b4dbf29c7f3fa263c846224, no conflict.
+node /workspaces/worktrees/d/.scripts/entry.ts --duplicates 75f36c32c (PR #156's resolver, reading this commit from the shared object store): no duplicated address in drag, repo

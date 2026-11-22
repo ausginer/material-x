@@ -95,3 +95,33 @@ The PR's `verify` gate fails on six stale button baselines. The record doesn't m
 
 - **The order and inheritance of `--_shadow-color`.** Each component that adopts the elevation sheet declares its own `--_shadow-color` on its host: the buttons through `button/styles/default/tokens.ts`, the FAB through `fab/styles/default/tokens.ts`, and the list items through the new token. So an ancestor's value doesn't reach a nested component's layers through that property, and every value resolves to `md.sys.color.shadow` in any case.
 - **The source comment** in `core/styles/elevation/tokens.ts` gives the reason for the scaling and the fallback, and names no finding id.
+
+## Recheck, 2026-11-22: the remediation at 75f36c32c
+
+**Read at** `75f36c32c`, which is the remediation commit. It comes after `76d227f3d`, the merge of `main` at `6a67badfd`. The rulings are `RF-77`'s _"Ruled 2026-11-22 by the architect"_ and the implementer's dated remediation paragraph after it. This is a targeted recheck of this report's five findings, not a fresh proof, on the coordinator's task. It ran in slot `e`, which is clean again.
+
+- **Rerun:** the elevation rows on the head and under six mutations, in Chromium, Firefox and WebKit ([reading](checks/recheck-mutations.txt), [script](probes/recheck-mutate.sh)). A merge check against today's `main`, and PR #156's duplicate-address check, read at this commit.
+- **Taken from the record, not rerun:** the full material-x browser and spec run, with 1765 passed, 1 expected fail and 4 skipped. The remediation changes only `tests/core/elevation.spec.browser.test.ts` and the record, and no source.
+
+| Finding | Resolved | Evidence |
+| --- | --- | --- |
+| `reviewer-1`: the stale baselines and _"all pass"_ | Yes, as a record correction | The dated paragraphs name the six rows of `button.visual.browser.test.ts` and why they differ. They say the visual project doesn't pass, and they no longer say that every row passes. The PR description says the same. Re-recording the baselines is the owner's, and isn't checked here |
+| `reviewer-2`: the rows can't see the cascade | Yes | Under `m1`, the default-only alternative, the button's new row fails in three engines and nothing else fails, the same as the implementer's witness |
+| `reviewer-3`: the link item's colour row reads level 0 | Yes | The row reads the item in `mx-list` at `--_level: 1` with `transition: none`. A red `--_shadow-color` on the item (`mL`) fails it in three engines, and nothing else fails |
+| `reviewer-4`: the conflict with `main` | Yes | `main` is merged with no rewrite. Each dated paragraph is under its own entry, and the ruling is under `RF-77`. `origin/main` has moved on to `4936e77b9`, and the branch still merges with no conflict. #156's `--duplicates`, read at `75f36c32c`, finds no duplicated address |
+| `reviewer-5`: the size wording | Yes | `RF-78`'s size paragraph names `list/list`, `icon/icon` and `button-group/button-group` |
+
+**On the head:** 51 of 51 elevation rows pass, 17 per engine.
+
+### Does the FAB's row earn its place?
+
+**Yes, though for a narrower reason than _"the two rows cover both orders"_ suggests.** The FAB adopts the elevation stylesheet first, so under `m1` its own colour wins anyway, and its row passes, as the ruling expected. On its own, the row can't tell the decided cascade from the rejected one. That is the button's row's job, and only the button's row fails under `m1`.
+
+What the FAB's row does guard, and no other row does:
+
+- **The FAB's own shadow-colour wiring.** `mF` removes `'shadow.color'` from `fab/styles/default/tokens.ts`, and the FAB's new row fails in three engines and nothing else does. The FAB's two token-colour rows pass, because the FAB then falls back to the elevation package's default, which equals its token. The button's row guards the button's wiring in the same way (`mB`).
+- **The adopted-first order.** `m1` combined with the FAB adopting the elevation stylesheet last fails the FAB's row as well as the button's. So at the head, each row observes one adoption order drawing the component's own colour. That is the half of _"whatever order"_ that the button's row can't observe.
+
+The record's phrase is accurate as a description of what the two rows observe at the head. The discrimination against the rejected alternative comes from the button's row alone, and the ruling's witness bullet says so. No finding.
+
+**Result:** all five findings are resolved. The new rows discriminate what the ruling asks of them. No new finding. #152's gate still waits on the six baselines, which are the owner's.
