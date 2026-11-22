@@ -81,6 +81,14 @@ function centerOf(element: HTMLElement): readonly [number, number] {
   return [left + width / 2, top + height / 2];
 }
 
+/**
+ * A shadow colour other than `md.sys.color.shadow`, which every component's
+ * token and the elevation package's default resolve to. Set on a component's
+ * own `--_container-shadow-color`, it tells the component's colour apart from
+ * the elevation package's.
+ */
+const OWN_SHADOW_COLOR = 'rgb(255, 0, 0)';
+
 afterEach(async () => {
   // A row that fails mid-gesture leaves the button down.
   await commands.pointerRelease().catch(() => {});
@@ -104,6 +112,25 @@ describe('mx-button elevation layers', () => {
         values['container.elevation']!,
         values['container.shadow-color']!,
       ),
+    );
+  });
+
+  // The button adopts the elevation stylesheet after its own.
+  it('should draw its layers in its own shadow colour, after the elevation stylesheet', async () => {
+    const button = document.createElement('mx-button');
+    button.setAttribute('color', 'elevated');
+    button.textContent = 'Button';
+    button.style.setProperty('--_container-shadow-color', OWN_SHADOW_COLOR);
+    document.body.append(button);
+    await nextFrame();
+    const { values } = await commands.resolveTokenContract({
+      contract: 'button.color.elevated',
+      state: 'default',
+      tokens: ['container.elevation'],
+    });
+
+    expect(renderedLayers(boxOf(button))).toEqual(
+      await expectedLayers(values['container.elevation']!, OWN_SHADOW_COLOR),
     );
   });
 });
@@ -138,6 +165,23 @@ describe('mx-fab elevation layers', () => {
       );
     },
   );
+
+  // The FAB adopts the elevation stylesheet before its own.
+  it('should draw its layers in its own shadow colour, before the elevation stylesheet', async () => {
+    const fab = document.createElement('mx-fab');
+    fab.style.setProperty('--_container-shadow-color', OWN_SHADOW_COLOR);
+    document.body.append(fab);
+    await nextFrame();
+    const { values } = await commands.resolveTokenContract({
+      contract: 'fab.color.default',
+      state: 'default',
+      tokens: ['elevation.default'],
+    });
+
+    expect(renderedLayers(boxOf(fab))).toEqual(
+      await expectedLayers(values['elevation.default']!, OWN_SHADOW_COLOR),
+    );
+  });
 });
 
 function createSortableList(tag: string): readonly HTMLElement[] {
@@ -189,29 +233,22 @@ describe('mx-list items elevation layers', () => {
     },
   );
 
-  // A link item shares the button item's box stylesheet. It is read at rest,
-  // because a pointer drag doesn't lift it in Chromium or Firefox. At level 0
-  // the layers are zero-size, so the row reads the penumbra's declaration.
-  it('should draw the three elevation layers of the resting level (mx-list-link-item)', async () => {
+  // A pointer drag doesn't lift a link item in Chromium or Firefox, and at
+  // level 0 every shadow colour serializes the same. So the row sets the level
+  // the other items are read at, and no transition, on the item in `mx-list`.
+  it('should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)', async () => {
     const item = document.createElement('mx-list-link-item');
     item.setAttribute('href', '#');
     item.textContent = 'A';
+    item.style.setProperty('--_level', '1');
+    item.style.setProperty('transition', 'none');
     const list = document.createElement('mx-list');
     list.append(item);
     document.body.append(list);
     await nextFrame();
-    const box = boxOf(item);
-    const { values } = await commands.resolveTokenContract({
-      contract: 'list-item.default',
-      state: 'default',
-      tokens: ['container.elevation'],
-    });
 
-    expect(renderedLayers(box)).toEqual(
-      await expectedLayers(
-        values['container.elevation']!,
-        await listShadowColor(),
-      ),
+    expect(renderedLayers(boxOf(item))).toEqual(
+      await expectedLayers(1, await listShadowColor()),
     );
   });
 });
