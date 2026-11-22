@@ -1,0 +1,40 @@
+// Architect scratch probe for repo:RF-80; run from
+// packages/material-x/tests/button-group/zz-rf80-probe.browser.test.ts with
+// `aube exec just test-behavior <file>` (Chromium), then removed.
+// It sets the custom properties that the group's press sets, and throws its
+// readings so that the reporter prints them.
+import { describe, it } from 'vitest';
+import '../../src/button-group/button-group.ts';
+import '../../src/button/button.ts';
+import { nextFrame } from '../browser.ts';
+
+describe('rf80', () => {
+  it('reads widths', async () => {
+    const group = document.createElement('mx-button-group');
+    for (let i = 0; i < 3; i++) {
+      const b = document.createElement('mx-button');
+      b.textContent = `Button ${i}`;
+      group.append(b);
+    }
+    document.body.append(group);
+    await nextFrame();
+    const [first, middle] = [...group.children] as HTMLElement[];
+    const inner = (h: HTMLElement) => h.shadowRoot!.querySelector('.host')!;
+    const w = (h: HTMLElement) => inner(h).getBoundingClientRect().width;
+    const out: Record<string, unknown> = {
+      hostDisplay: getComputedStyle(first!).display,
+      hostPadding: getComputedStyle(first!).paddingInline,
+      firstRest: w(first!),
+      middleRest: w(middle!),
+    };
+    first!.style.setProperty('--_interaction-direction-trailing', '-1');
+    middle!.style.setProperty('--_interaction-direction-leading', '1');
+    middle!.style.setProperty('--_interaction-direction-trailing', '1');
+    await nextFrame();
+    out.firstHostPaddingSqueezed = getComputedStyle(first!).paddingInline;
+    out.firstSqueezed = w(first!);
+    out.middleHostPaddingGrown = getComputedStyle(middle!).paddingInline;
+    out.middleGrown = w(middle!);
+    throw new Error('RF80 ' + JSON.stringify(out));
+  });
+});
