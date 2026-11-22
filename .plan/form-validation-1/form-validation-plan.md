@@ -345,6 +345,18 @@ Playwright's ARIA snapshot isn't used: it computes roles in page script and repo
 - **This unit's rows** (`FV-D10`, row 11) pin layer 1 in Chromium. That is all this unit does for screen readers, by the owner's choice.
 - **Layers 2 and 3 are deferred together:** AT-SPI2, Orca and Guidepup. The owner wants one active accessibility-testing unit after the main material-x work ends, and their readings belong to it.
 
+## 11. Implementation
+
+Implemented on this branch by the implementer in slot `d`, after `git merge origin/main` at `836d72d99`. [`checks/implementation-readings.txt`](checks/implementation-readings.txt) holds the rows, the mutations and the size readings.
+
+- **Core:** [`validatable.ts`](../../packages/core/src/traits/validatable.ts) holds `Validatable` and `useValidatable` as `FV-D1` states, exported at `@ydinjs/core/traits/validatable.js` through core's `files.json`. `setCustomValidity` passes `{ customError: message !== '' }`, so an empty message clears every flag. The anchor is a module `WeakMap`, as `FocusForwarding`'s is. The hook writes `aria-invalid` and `aria-required` to the target through `transfer`.
+- **One change to core's types that the plan doesn't name:** `AttributeKeys` in `attribute-traits.ts` now leaves out read-only keys. Without it, `Props<typeof Validatable>` holds `validity`, `validationMessage`, `willValidate`, `form` and `labels`, because a getter isn't a method. A getter with no setter was never an attribute, so no existing trait's props change. Two declaration rows pin it.
+- **material-x:** `TextFieldCore`, `useCheckableCore` and `useSwitchCore` compose `Validatable`, call `useValidatable` with `FV-D1`'s target, and set `:state(error)` from `error`. `TextFieldLike` gains `readonly`, transferred to the internal field. `setValidity` and the two overrides are deleted. Each `*Events` gains `invalid`, and each `*Properties` gains `ValidatableProps` through its core's props.
+- **Rows:** `FV-D10`'s rows 1 to 10 are in `packages/material-x/tests/validatable.browser.test.ts`, for the six elements, in three engines. Row 11 needed the CDP reader to report each node's properties: `AccessibilityNode` gains `properties`, which `list-roles` doesn't read.
+- **Mutations:** fifteen, one per property, run by [`probes/mutations.py.txt`](probes/mutations.py.txt). Each fails at least one row. `willValidate` is caught by material-x's disabled rows only, and `reportValidity`'s result by core's row only.
+- **Size:** against §4's estimate of about +230 B Brotli per entry, the six entries read +184 B to +260 B and `complete` +214 B. The other thirteen rows and core's two rows don't move, which is the control.
+- **Docs:** the six elements' JSDoc and component pages carry `FV-D10`'s text, `FV-D3`'s recipe and `FV-D6`'s reset note. The project documentation unit (`repo:RD-32`) is prepared as [`checks/docs-unit.patch.txt`](checks/docs-unit.patch.txt), which applies to this branch with `git apply`. It updates the switch, radio and text field sections of `accessibility.md` and `architecture.md`'s list of shared traits. `accessibility.md` has no checkbox section, so the patch adds none.
+
 ## 10. Revisions
 
 - **2026-11-22, `e39b43ec8`:** the first plan, with `FV-D1` to `FV-D10` and `FV-Q1` to `FV-Q3`.
@@ -358,3 +370,4 @@ Playwright's ARIA snapshot isn't used: it computes roles in page script and repo
   - `FV-F1` and `FV-F2` confirmed as a unit of their own (§5);
   - screen readers limited to §9's layer 1 with row 11, and layers 2 and 3 deferred to one accessibility-testing unit after the main material-x work (`FV-D12`, §7, §9);
   - #126's merge recorded in §5.
+- **2026-11-22, the implementation:** §11 added.

@@ -76,6 +76,32 @@ Use the live example below to inspect interaction states:
   Playground
 </LinkTo>
 
+## Validation
+
+The element has no native validators: its validity and its error display are both yours to set.
+
+- **Validity:** `setCustomValidity(message)` makes the element invalid with a non-empty message, and valid with `''`. An invalid element blocks form submission and fires `invalid` at the host, which doesn't bubble. `validity`, `validationMessage`, `willValidate`, `checkValidity()` and `reportValidity()` behave as a native control's.
+- **Error display:** the `error` attribute. While it is set, the field draws Material's error appearance, matches `:state(error)` and its input is announced as invalid. No method, event, submission or reset sets or clears it.
+- **`required`:** announces the control as required and does nothing else. It doesn't block submission and doesn't make `:required` match: validate in your own code, and select `[required]` in styles.
+- **`type` doesn't validate.** It sets the keyboard, autofill and the native sanitization of the text. `type="email"` accepts any text until your validator says otherwise.
+- **`readonly`** makes the field read-only and removes it from validation.
+- **Error text:** put the message in the `support` slot while `error` is set. It describes the field.
+- **Form reset** leaves custom validity and `error` as they are. Clear them in the form's `reset` listener.
+- Set `error` and `required` rather than `aria-invalid` and `aria-required` on the host.
+
+To show the error once the user has tried to submit, as a native control does:
+
+```js
+field.addEventListener('invalid', () => {
+  field.error = true;
+});
+field.addEventListener('input', () => {
+  const message = validate(field);
+  field.setCustomValidity(message);
+  if (field.error) field.error = message !== '';
+});
+```
+
 ## Accessibility
 
 - **Labeling:** Provide a visible label slot for accessible naming.

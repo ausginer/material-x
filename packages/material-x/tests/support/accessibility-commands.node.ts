@@ -39,14 +39,21 @@ type AxNode = Readonly<{
   ignored: boolean;
   role?: Readonly<{ value: string }>;
   name?: Readonly<{ value: string }>;
+  properties?: ReadonlyArray<
+    Readonly<{ name: string; value: Readonly<{ value?: unknown }> }>
+  >;
   childIds?: readonly string[];
   backendDOMNodeId?: number;
 }>;
 
-/** One node of the tree that the command returns. */
+/**
+ * One node of the tree that the command returns. `properties` holds the
+ * node's CDP properties by name, such as `invalid` and `required`.
+ */
 export type AccessibilityNode = Readonly<{
   role: string;
   name: string;
+  properties: Readonly<Record<string, unknown>>;
   children: readonly AccessibilityNode[];
 }>;
 
@@ -145,6 +152,9 @@ export const accessibilityBrowserCommands: Readonly<
       const toTree = (node: AxNode): AccessibilityNode => ({
         role: node.role?.value ?? '',
         name: node.name?.value ?? '',
+        properties: Object.fromEntries(
+          (node.properties ?? []).map(({ name, value }) => [name, value.value]),
+        ),
         children: childrenOf(node),
       });
 

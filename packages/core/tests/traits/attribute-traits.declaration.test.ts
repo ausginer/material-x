@@ -105,6 +105,21 @@ describe('attributes', () => {
     expectTypeOf<MethodKey>().toExtend<HTMLElement>();
   });
 
+  it('should reject a key that names a getter', () => {
+    @trait
+    // @ts-expect-error: a getter with no setter isn't an attribute
+    @attributes({ disabled: Bool, active: Bool })
+    class GetterKey extends AnyElement {
+      declare disabled: boolean;
+
+      get active(): boolean {
+        return this.isConnected;
+      }
+    }
+
+    expectTypeOf<GetterKey>().toExtend<HTMLElement>();
+  });
+
   it("should reject a key that names the base's member", () => {
     @trait
     // @ts-expect-error: `hidden` is HTMLElement's
@@ -198,6 +213,22 @@ describe('Props', () => {
 
   it('should give no props for a trait without attribute members', () => {
     expectTypeOf<keyof Props<typeof Focusing>>().toBeNever();
+  });
+
+  it('should give no props for a getter', () => {
+    @trait
+    @attributes({ disabled: Bool })
+    class WithGetter extends AnyElement {
+      declare disabled: boolean;
+
+      get active(): boolean {
+        return this.isConnected;
+      }
+    }
+
+    expectTypeOf<Props<typeof WithGetter>>().toEqualTypeOf<{
+      disabled?: boolean;
+    }>();
   });
 
   it('should combine the props of a tuple of traits', () => {

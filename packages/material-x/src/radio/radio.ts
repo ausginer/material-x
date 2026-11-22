@@ -17,6 +17,7 @@ export type RadioProperties = CheckableCoreProps;
 export type RadioEvents = {
   change: Event;
   input: Event;
+  invalid: Event;
 };
 export type RadioCSSProperties = EmptyObject;
 
@@ -35,6 +36,11 @@ const RadioConstructor: Composed<
  * application is responsible for updating `checked` in response to
  * `change`/`input` events.
  *
+ * **Validation.** The element has no native validators. `setCustomValidity()`
+ * sets its validity and the `error` attribute sets its error display. Nothing
+ * else changes either, a form reset included. Set `error` and `required`
+ * rather than `aria-invalid` and `aria-required` on the host.
+ *
  * **Form participation.** The element is form-associated and submits its
  * `value` when `checked`. It can be associated with an external `<label>`
  * via the standard `for`/`id` mechanism.
@@ -49,6 +55,12 @@ const RadioConstructor: Composed<
  * @attr {boolean} disabled - Disables interaction and form participation.
  * @attr {string} name - The form-data key submitted with `value`, shared by the
  *   radios of a group. Does not by itself enforce single selection.
+ * @attr {boolean} error - Shows the error display: `:state(error)`, and the
+ *   control announced as invalid. Material defines no error appearance for
+ *   it, so it draws nothing.
+ *   Set by the consumer only.
+ * @attr {boolean} required - Announces the control as required. It doesn't
+ *   change validity, block submission or make `:required` match.
  * @attr {string} value - The value submitted with a form when checked.
  *   Defaults to `"on"`.
  *
@@ -60,6 +72,8 @@ const RadioConstructor: Composed<
  * @event change - Fired after `input` when the user activates an unchecked
  * radio.
  * Activation doesn't change `checked`.
+ * @event invalid - Fired at the host when a validity check finds it invalid.
+ *   It doesn't bubble and is cancelable.
  * @event input - Fired after `click` when the user activates an unchecked radio.
  */
 export default class Radio extends RadioConstructor {

@@ -43,6 +43,7 @@ export type CheckboxProperties = CheckableCoreProps & IndeterminatableProps;
 export type CheckboxEvents = Readonly<{
   change: Event;
   input: Event;
+  invalid: Event;
 }>;
 
 export type CheckboxCSSProperties = EmptyObject;
@@ -68,6 +69,11 @@ const CheckboxConstructor: Composed<
  * To reflect a definite checked/unchecked state, the controller must first
  * clear `indeterminate`.
  *
+ * **Validation.** The element has no native validators. `setCustomValidity()`
+ * sets its validity and the `error` attribute sets its error display. Nothing
+ * else changes either, a form reset included. Set `error` and `required`
+ * rather than `aria-invalid` and `aria-required` on the host.
+ *
  * **Form participation.** The element is form-associated and submits its
  * `value` (defaults to `"on"`) when `checked`. It can be associated with an
  * external `<label>` via the standard `for`/`id` mechanism.
@@ -78,6 +84,11 @@ const CheckboxConstructor: Composed<
  *   the checked/unchecked icon.
  * @attr {boolean} disabled - Disables interaction and form participation.
  * @attr {string} name - Name submitted with form data.
+ * @attr {boolean} error - Shows the error display: `:state(error)`, and the
+ *   input announced as invalid. It draws no error appearance yet.
+ *   Set by the consumer only.
+ * @attr {boolean} required - Announces the control as required. It doesn't
+ *   change validity, block submission or make `:required` match.
  * @attr {string} value - The value submitted with a form when checked.
  *   Defaults to `"on"`.
  *
@@ -90,6 +101,8 @@ const CheckboxConstructor: Composed<
  *
  * @event change - Fired after `input` when the user activates the checkbox.
  * Activation doesn't change `checked` or `indeterminate`.
+ * @event invalid - Fired at the host when a validity check finds it invalid.
+ *   It doesn't bubble and is cancelable.
  * @event input - Fired after `click` when the user activates the checkbox.
  */
 export default class Checkbox extends CheckboxConstructor {
