@@ -65,3 +65,55 @@
 - **Why it matters.** Only to a reader of the record. The second half of the sentence is the mechanism, and the record's _"which name moves each row isn't read"_ is now answered: the non-list rows change only by these 8 names (_Sizes_, under _Scope_).
 - **Required property.** The record attributes the size movement to the cause that the readings establish.
 - **Routing.** To the implementer, as a record correction on #151's branch.
+
+## Recheck of the repairs, 2026-11-22
+
+**Files were read at:** `54168b0b1`, the implementer's repair commit, on the architect's ruling `f2c5da332`, in slot `c`. The subject is the ruling paragraph in `RF-71` (_"Ruled 2026-11-22 by the architect"_) and the implementer's dated paragraph after it. This is a targeted recheck of the three findings above, not a second proof. Each probe was copied into `packages/material-x/tests/list/` for its run and removed after it. The comparison readings replaced `packages/material-x/src/list` with its text at `7271c5b9f` or `f1387729d`, and the head was restored afterwards. Readings: [`recheck.txt`](checks/recheck.txt).
+
+**Verdict: the three repairs meet the ruling, and every claim in the implementer's paragraph reproduces.** I have two new findings, `recheck-1` and `recheck-2`, both tier A and both **pre-existing**: `main` reads the same. Neither is introduced by #151, and neither blocks it.
+
+### What was rechecked
+
+- **`reviewer-1`, repaired.**
+  - **The deletion.** Between `7271c5b9f` and the head, `src/` changes only by the deletion of `:host(:state(disabled)) { pointer-events: none; }` and its comment. Nothing replaces them. The remaining `pointer-events: none` rules in the list, ripple and elevation sheets sit on `mx-list-item`'s static box, the ripple and the elevation layers, never on an interactive item's host.
+  - **The new rows.** _"should dispatch no click to an ancestor of the list"_ and _"should target the item with the press"_ pass for both items in the three engines. With `7271c5b9f`'s `interactive-box.styles.css` restored, exactly those two rows fail for both items in each engine, 12 in all, and the file's other 45 pass. This is the implementer's witness.
+  - **The property, read at the wrapper of an `mx-list`,** in both listener phases ([probe](probes/recheck-boundary.browser.test.ts.txt)):
+    - no bubbling `click` reaches the wrapper from either item, selected or not, in the three engines;
+    - `pointerdown` targets the item;
+    - the head reads the same as `main` for every event, and `7271c5b9f` sent every event to `mx-list`.
+  - **The out-of-scope cases are as ruled.** The link item's `mousedown` reaches the wrapper in both phases, with the item as its target, and its `click` reaches a capture-phase listener with the item as its target. The button item gives the wrapper only `pointerdown`.
+  - **Hover and press, without the rule.** The host now matches `:hover` and `:active` again. A disabled item's shape, container colour, label colour, leading icon colour and label opacity don't change while hovered or pressed, selected or not, in each engine. For a selected item, `selected.disabled` comes after `selected.hovered` and `selected.pressed` in the same sheet, at the same specificity, and sets every property they set.
+- **`reviewer-2`, repaired.**
+  - **The `node` row** reads the eleven tokens the ruling names from tproc's store and compares each with `disabled.label-text.opacity`. It passes all eleven.
+  - **My own witness** ([probe](probes/recheck-opacity.node.test.ts.txt)): the row's file, with `disabled.state-layer.opacity` (0.1) and a token that doesn't exist added to the list, fails exactly those two cases, _"expected { opacity: 0.1 } to deeply equal { opacity: 0.38 }"_ and _"expected undefined …"_. The other eleven pass. So the row fails for a differing value and for a missing token.
+  - **The selected, disabled opacity row** runs for each slot of `CONTENT_SLOTS`. The spec file goes from 28 to 36 rows per engine.
+- **`reviewer-3`, corrected.** The _Size_ bullet now gives the cause [`names-and-sizes.txt`](checks/names-and-sizes.txt) establishes, and the sentence on which name moves each row is gone.
+- **The whole run and the size reading.**
+  - The material-x browser, spec and node projects pass in the three engines: 1911 passed, 1 expected fail, 4 skipped. That is the implementer's figure.
+  - `just size-reading` at the head equals the implementer's [`size-after-repair.json`](../../list-states-1/checks/size-after-repair.json) in all 33 rows. Against `7271c5b9f`, `list/list-button-item` −2, `list/list-link-item` −4 and `complete` −6, and every other row is unchanged.
+
+**Not covered:** Safari, the visual project, and the implementer's own substitution probe, which my witness replaces.
+
+### recheck-1
+
+**Tier A, pre-existing.** A pointer press focuses a disabled `mx-list-link-item`, whose `disabled` is documented as _"Disables navigation and focus"_.
+
+- **Current behaviour.** After a press and release on a disabled link item, selected or not, `document.activeElement` is the item, its shadow root's active element is the internal `<a>`, and `focusin` fires. This happens in Chromium, Firefox and WebKit ([`recheck.txt`](checks/recheck.txt), the `boundary` and `link-focus` readings). The item doesn't match `:focus-visible`. A disabled button item isn't focused.
+- **Cause, by reading.** `useDisableableLinkable` in `packages/core/src/traits/linkable.ts` sets the disabled anchor's `tabIndex` to −1 and removes its `href`. That takes it out of the tab order and leaves it focusable by a pointer.
+- **Why it is not this change's defect.** `main` (`f1387729d`) reads the same in each engine. `7271c5b9f` hid it, because the host's `pointer-events: none` kept the press from reaching the anchor. The repair returns to `main`'s behaviour, as the ruling intends.
+- **Why it is a problem.** The element says `disabled` disables focus, and a disabled native control can't be focused. A consumer's `focus` and `focusin` handlers run for a disabled item. Focus also leaves where it was, so the next `Tab` starts from the disabled item.
+- **`mx-link-button`,** which uses the same trait, isn't focused by a press. Its press never reaches its anchor (`recheck-2`).
+- **Required property.** A pointer press on a disabled `mx-list-link-item` doesn't move focus, in each engine at `RD-20`'s floor, and a row observes it.
+- **Routing.** To the architect, for registration. It needs no decision before #151 merges.
+
+### recheck-2
+
+**Tier A, pre-existing, outside `RF-71`.** A press on a disabled `mx-button` or `mx-link-button` dispatches `pointerdown` and `click` on the element beneath it.
+
+- **Current behaviour.** Each is disabled, in a wrapper `<div>`, and pressed at the centre of its internal `.host`. `document.elementFromPoint()` there returns the `<div>`, and the `<div>` receives `pointerdown` and `click` targeted at itself, in Chromium, Firefox and WebKit ([`recheck.txt`](checks/recheck.txt), the `button-clickthrough` reading, [probe](probes/recheck-button-clickthrough.browser.test.ts.txt)).
+- **Cause, by reading.** The host computes `display: contents`. `button/styles/default/disabled.styles.css` gives the disabled `.host` `pointer-events: none`. So the element has no box of its own that takes the press. This is `reviewer-1`'s mechanism in the button family.
+- **Why it is not this change's defect.** #151 doesn't touch the button stylesheets, and `main` carries the same rule.
+- **Why it is a problem.** The ruling's measure for the list items applies here too: a press on a disabled native button gives no element a `click`. A consumer with a click handler on a container, a card or a row acts on a press of a disabled button.
+- **Not read:** the other elements built on `ButtonCore`, which adopts `disabled.styles.css`: the icon buttons, the split button and the switches.
+- **Required property.** A pointer press on a disabled button-family element dispatches no `click` to any element, in each engine at `RD-20`'s floor, and a row observes it at an ancestor.
+- **Routing.** To the architect, for registration as a finding of its own.
