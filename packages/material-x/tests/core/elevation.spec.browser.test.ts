@@ -172,7 +172,8 @@ describe('mx-list items elevation layers', () => {
   );
 
   // A link item shares the button item's box stylesheet. It is read at rest,
-  // because a pointer drag doesn't lift it.
+  // because a pointer drag doesn't lift it in Chromium or Firefox. At level 0
+  // the layers are zero-size, so the row reads the penumbra's declaration.
   it('should draw the three elevation layers of the resting level (mx-list-link-item)', async () => {
     const item = document.createElement('mx-list-link-item');
     item.setAttribute('href', '#');
