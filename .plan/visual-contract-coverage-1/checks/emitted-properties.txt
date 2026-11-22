@@ -1,0 +1,237 @@
+button-group/styles/connected/tokens.ts :: connectedTokens[0] | :host(:state(xsmall)) ::slotted(:state(checked)) | inner-corner-corner-size outer-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[0] | :host(:state(xsmall)) ::slotted(:active) | inner-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[0] | :host(:state(xsmall)) | inner-corner-corner-size between-space
+button-group/styles/connected/tokens.ts :: connectedTokens[1] | :host ::slotted(:state(checked)) | inner-corner-corner-size outer-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[1] | :host ::slotted(:active) | inner-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[1] | :host | inner-corner-corner-size between-space container-shape
+button-group/styles/connected/tokens.ts :: connectedTokens[2] | :host(:state(medium)) ::slotted(:state(checked)) | inner-corner-corner-size outer-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[2] | :host(:state(medium)) ::slotted(:active) | inner-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[2] | :host(:state(medium)) | inner-corner-corner-size between-space
+button-group/styles/connected/tokens.ts :: connectedTokens[3] | :host(:state(large)) ::slotted(:active) | inner-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[3] | :host(:state(large)) ::slotted(:state(checked)) | inner-corner-corner-size outer-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[3] | :host(:state(large)) | inner-corner-corner-size between-space
+button-group/styles/connected/tokens.ts :: connectedTokens[4] | :host(:state(xlarge)) ::slotted(:state(checked)) | inner-corner-corner-size outer-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[4] | :host(:state(xlarge)) ::slotted(:active) | inner-corner-corner-size
+button-group/styles/connected/tokens.ts :: connectedTokens[4] | :host(:state(xlarge)) | inner-corner-corner-size between-space
+button-group/styles/standard/tokens.ts :: standardTokens[0] | :host(:state(xsmall)) | between-space
+button-group/styles/standard/tokens.ts :: standardTokens[1] | :host | between-space interaction-easing interaction-duration interaction-width-multiplier
+button-group/styles/standard/tokens.ts :: standardTokens[2] | :host(:state(medium)) | between-space
+button-group/styles/standard/tokens.ts :: standardTokens[3] | :host(:state(large)) | between-space
+button-group/styles/standard/tokens.ts :: standardTokens[4] | :host(:state(xlarge)) | between-space
+button/styles/default/tokens.ts :: defaultSwitchFilledTokens | :host | label-text-color container-color icon-color focus-layer-color
+button/styles/default/tokens.ts :: defaultSwitchFilledTokens | :host(:state(checked)) | label-text-color container-color icon-color focus-layer-color
+button/styles/default/tokens.ts :: defaultSwitchFilledTokens | :host(:hover) | state-layer-color label-text-color icon-color
+button/styles/default/tokens.ts :: defaultSwitchFilledTokens | :host(:focus-within) | state-layer-color label-text-color icon-color
+button/styles/default/tokens.ts :: defaultSwitchFilledTokens | :host(:active) | state-layer-color label-text-color icon-color
+button/styles/default/tokens.ts :: defaultSwitchTokens | :host | container-color label-text-color icon-color state-layer-color focus-layer-color focus-layer-opacity container-color-reverse label-text-color-reverse
+button/styles/default/tokens.ts :: defaultSwitchTokens | :host(:state(checked)) | container-color label-text-color icon-color state-layer-color focus-layer-color
+button/styles/default/tokens.ts :: defaultTokens | :host | icon-label-space container-color container-shadow-color label-text-color icon-color container-elevation container-shape-square container-shape-round icon-size label-text-font-name label-text-font-weight label-text-font-size label-text-font-tracking label-text-line-height label-text-variation-axes container-height state-layer-opacity state-layer-color focus-layer-opacity focus-layer-color press-easing press-duration ripple-color ripple-opacity shadow-color
+button/styles/default/tokens.ts :: defaultTokens | :host(:active) | container-shape
+button/styles/default/tokens.ts :: defaultTokens | :host(:hover) | state-layer-opacity container-elevation
+button/styles/default/tokens.ts :: disabledTokens | :host(:disabled), :host(:state(disabled)) | container-color container-opacity label-text-color label-text-opacity icon-color icon-opacity
+button/styles/elevated/tokens.ts :: elevatedSwitchTokens | :host(:state(elevated)) | label-text-color container-color icon-color focus-layer-color
+button/styles/elevated/tokens.ts :: elevatedSwitchTokens | :host(:state(elevated):state(checked)) | label-text-color container-color icon-color focus-layer-color
+button/styles/elevated/tokens.ts :: elevatedSwitchTokens | :host(:state(elevated):hover) | state-layer-color label-text-color icon-color
+button/styles/elevated/tokens.ts :: elevatedSwitchTokens | :host(:state(elevated):active) | state-layer-color label-text-color icon-color
+button/styles/elevated/tokens.ts :: elevatedSwitchTokens | :host(:state(elevated):focus-within) | state-layer-color label-text-color icon-color
+button/styles/elevated/tokens.ts :: elevatedTokens | :host(:state(elevated)) | container-color container-elevation label-text-color icon-color level state-layer-color focus-layer-color
+button/styles/elevated/tokens.ts :: elevatedTokens | :host(:state(elevated):hover) | container-elevation state-layer-color label-text-color icon-color
+button/styles/elevated/tokens.ts :: elevatedTokens | :host(:state(elevated):disabled), :host(:state(elevated):state(disabled)) | container-color container-opacity label-text-color label-text-opacity icon-color icon-opacity
+button/styles/elevated/tokens.ts :: elevatedTokens | :host(:state(elevated):active) | state-layer-color container-elevation label-text-color icon-color
+button/styles/elevated/tokens.ts :: elevatedTokens | :host(:state(elevated):focus-within) | state-layer-color container-elevation label-text-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[1] | :host | container-color icon-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[1] | :host(:state(checked)) | container-color icon-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[1] | :host(:hover) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[1] | :host(:focus-within) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[1] | :host(:active) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[2] | :host(:state(tonal)) | container-color icon-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[2] | :host(:state(tonal):state(checked)) | container-color icon-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[2] | :host(:state(tonal):hover) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[2] | :host(:state(tonal):focus-within) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[2] | :host(:state(tonal):active) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[3] | :host(:state(standard)) | icon-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[3] | :host(:state(standard):hover) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[3] | :host(:state(standard):focus-within) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[3] | :host(:state(standard):active) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantSwitchTokens[3] | :host(:state(standard):state(checked)) | icon-color container-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantTokens[0] | :host | trailing-space leading-space icon-size
+button/styles/icon/tokens.ts :: variantTokens[1] | :host(:disabled), :host(:state(disabled)) | container-color container-opacity icon-color icon-opacity
+button/styles/icon/tokens.ts :: variantTokens[2] | :host(:state(tonal)) | container-color icon-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantTokens[2] | :host(:state(tonal):active) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantTokens[2] | :host(:state(tonal):focus-within) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantTokens[2] | :host(:state(tonal):hover) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantTokens[2] | :host(:state(tonal):disabled), :host(:state(tonal):state(disabled)) | icon-opacity icon-color container-opacity container-color
+button/styles/icon/tokens.ts :: variantTokens[3] | :host(:state(standard)) | icon-color container-color state-layer-color focus-layer-color
+button/styles/icon/tokens.ts :: variantTokens[3] | :host(:state(standard):disabled), :host(:state(standard):state(disabled)) | icon-color icon-opacity
+button/styles/icon/tokens.ts :: variantTokens[3] | :host(:state(standard):hover) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantTokens[3] | :host(:state(standard):focus-within) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantTokens[3] | :host(:state(standard):active) | state-layer-color icon-color
+button/styles/icon/tokens.ts :: variantTokens[4] | :host(:state(xsmall)) | leading-space trailing-space container-height
+button/styles/icon/tokens.ts :: variantTokens[5] | :host(:state(medium)) | trailing-space leading-space container-height icon-size container-shape-square
+button/styles/icon/tokens.ts :: variantTokens[5] | :host(:state(medium):active) | container-shape
+button/styles/icon/tokens.ts :: variantTokens[6] | :host(:state(large)) | trailing-space leading-space container-height icon-size container-shape-square
+button/styles/icon/tokens.ts :: variantTokens[6] | :host(:state(large):active) | container-shape
+button/styles/icon/tokens.ts :: variantTokens[7] | :host(:state(xlarge)) | trailing-space leading-space container-height icon-size container-shape-square
+button/styles/icon/tokens.ts :: variantTokens[7] | :host(:state(xlarge):active) | container-shape
+button/styles/icon/tokens.ts :: widthTokens[0] | :host(:state(wide)), :host ::slotted(:state(wide)) | leading-space trailing-space
+button/styles/icon/tokens.ts :: widthTokens[1] | :host(:state(xsmall):state(wide)), :host(:state(xsmall)) ::slotted(:state(wide)) | trailing-space leading-space
+button/styles/icon/tokens.ts :: widthTokens[2] | :host(:state(medium):state(wide)), :host(:state(medium)) ::slotted(:state(wide)) | leading-space trailing-space
+button/styles/icon/tokens.ts :: widthTokens[3] | :host(:state(large):state(wide)), :host(:state(large)) ::slotted(:state(wide)) | leading-space trailing-space
+button/styles/icon/tokens.ts :: widthTokens[4] | :host(:state(xlarge):state(wide)), :host(:state(xlarge)) ::slotted(:state(wide)) | leading-space trailing-space
+button/styles/icon/tokens.ts :: widthTokens[5] | :host(:state(narrow)), :host ::slotted(:state(narrow)) | leading-space trailing-space
+button/styles/icon/tokens.ts :: widthTokens[6] | :host(:state(xsmall):state(narrow)), :host(:state(xsmall)) ::slotted(:state(narrow)) | trailing-space leading-space
+button/styles/icon/tokens.ts :: widthTokens[7] | :host(:state(medium):state(narrow)), :host(:state(medium)) ::slotted(:state(narrow)) | trailing-space leading-space
+button/styles/icon/tokens.ts :: widthTokens[8] | :host(:state(large):state(narrow)), :host(:state(large)) ::slotted(:state(narrow)) | leading-space trailing-space
+button/styles/icon/tokens.ts :: widthTokens[9] | :host(:state(xlarge):state(narrow)), :host(:state(xlarge)) ::slotted(:state(narrow)) | leading-space trailing-space
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined):disabled), :host(:state(outlined):state(disabled)) | outline-color
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined):state(checked):disabled), :host(:state(outlined):state(checked):state(disabled)) | container-color
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined)) | label-text-color icon-color focus-layer-color
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined):state(checked)) | container-color label-text-color icon-color state-layer-color focus-layer-color
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined):hover) | state-layer-color outline-color label-text-color icon-color
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined):focus-within) | state-layer-color outline-color label-text-color icon-color
+button/styles/outlined/tokens.ts :: outlinedSwitchTokens | :host(:state(outlined):active) | state-layer-color outline-color label-text-color icon-color
+button/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined)) | outline-color label-text-color icon-color container-color outline-width state-layer-color focus-layer-color
+button/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):disabled), :host(:state(outlined):state(disabled)) | icon-opacity container-opacity label-text-opacity icon-color label-text-color
+button/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):hover) | state-layer-color label-text-color icon-color
+button/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):focus-within) | state-layer-color label-text-color icon-color
+button/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):active) | state-layer-color label-text-color icon-color
+button/styles/shape/tokens.ts :: shapeTokens[0] | :host, :host(:state(square):state(checked)) | container-shape
+button/styles/shape/tokens.ts :: shapeTokens[1] | :host(:state(square)), :host(:state(checked)) | container-shape
+button/styles/size/tokens.ts :: defaultSizeMainTokens | :host | leading-space trailing-space
+button/styles/size/tokens.ts :: mainTokens[0] | :host(:state(xsmall)) | container-height leading-space icon-label-space trailing-space
+button/styles/size/tokens.ts :: mainTokens[1] | :host(:state(medium)) | container-height label-text-font-size label-text-line-height label-text-variation-axes icon-size leading-space trailing-space container-shape-square
+button/styles/size/tokens.ts :: mainTokens[1] | :host(:state(medium):active) | container-shape
+button/styles/size/tokens.ts :: mainTokens[2] | :host(:state(large)) | container-height label-text-font-name label-text-font-weight label-text-font-size label-text-line-height label-text-variation-axes icon-size leading-space icon-label-space trailing-space container-shape-square
+button/styles/size/tokens.ts :: mainTokens[2] | :host(:state(large):active) | container-shape
+button/styles/size/tokens.ts :: mainTokens[3] | :host(:state(xlarge)) | container-height label-text-font-name label-text-font-weight label-text-font-size label-text-line-height label-text-variation-axes icon-size leading-space icon-label-space trailing-space container-shape-square
+button/styles/size/tokens.ts :: mainTokens[3] | :host(:state(xlarge):active) | container-shape
+button/styles/split/tokens.ts :: sizeTokens[0] | :host | inner-corner-corner-size leading-button-leading-space leading-button-trailing-space trailing-button-icon-size trailing-button-leading-space trailing-button-trailing-space
+button/styles/split/tokens.ts :: sizeTokens[0] | :host(:active) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[0] | :host(:hover) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[1] | :host(:state(xsmall)) | inner-corner-corner-size leading-button-leading-space leading-button-trailing-space trailing-button-icon-size trailing-button-trailing-space trailing-button-leading-space
+button/styles/split/tokens.ts :: sizeTokens[1] | :host(:state(xsmall):active) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[1] | :host(:state(xsmall):hover) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[2] | :host(:state(medium)) | inner-corner-corner-size leading-button-leading-space leading-button-trailing-space trailing-button-icon-size trailing-button-leading-space trailing-button-trailing-space
+button/styles/split/tokens.ts :: sizeTokens[2] | :host(:state(medium):active) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[2] | :host(:state(medium):hover) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[3] | :host(:state(large)) | inner-corner-corner-size leading-button-leading-space leading-button-trailing-space trailing-button-icon-size trailing-button-leading-space trailing-button-trailing-space
+button/styles/split/tokens.ts :: sizeTokens[3] | :host(:state(large):active) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[3] | :host(:state(large):hover) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[4] | :host(:state(xlarge)) | inner-corner-corner-size leading-button-leading-space leading-button-trailing-space trailing-button-icon-size trailing-button-leading-space trailing-button-trailing-space
+button/styles/split/tokens.ts :: sizeTokens[4] | :host(:state(xlarge):hover) | inner-corner-corner-size
+button/styles/split/tokens.ts :: sizeTokens[4] | :host(:state(xlarge):active) | inner-corner-corner-size
+button/styles/split/tokens.ts :: splitDefaultTokens | :host | menu-button-press-easing menu-button-press-duration
+button/styles/text/tokens.ts :: textTokens | :host(:state(text)) | label-text-color icon-color container-color state-layer-color focus-layer-color
+button/styles/text/tokens.ts :: textTokens | :host(:state(text):hover) | state-layer-color label-text-color icon-color
+button/styles/text/tokens.ts :: textTokens | :host(:state(text):focus-within) | state-layer-color label-text-color icon-color
+button/styles/text/tokens.ts :: textTokens | :host(:state(text):active) | state-layer-color label-text-color icon-color
+button/styles/text/tokens.ts :: textTokens | :host(:state(text):disabled), :host(:state(text):state(disabled)) | label-text-color label-text-opacity icon-color icon-opacity container-color container-opacity
+button/styles/tonal/tokens.ts :: tonalSwitchTokens | :host(:state(tonal)) | container-color label-text-color icon-color focus-layer-color
+button/styles/tonal/tokens.ts :: tonalSwitchTokens | :host(:state(tonal):state(checked)) | container-color label-text-color icon-color state-layer-color focus-layer-color
+button/styles/tonal/tokens.ts :: tonalSwitchTokens | :host(:state(tonal):hover) | state-layer-color label-text-color icon-color
+button/styles/tonal/tokens.ts :: tonalSwitchTokens | :host(:state(tonal):focus-within) | state-layer-color label-text-color icon-color
+button/styles/tonal/tokens.ts :: tonalSwitchTokens | :host(:state(tonal):active) | state-layer-color label-text-color icon-color
+button/styles/tonal/tokens.ts :: tonalTokens | :host(:state(tonal)) | container-color label-text-color icon-color state-layer-color focus-layer-color
+button/styles/tonal/tokens.ts :: tonalTokens | :host(:state(tonal):hover) | state-layer-color label-text-color icon-color
+button/styles/tonal/tokens.ts :: tonalTokens | :host(:state(tonal):disabled), :host(:state(tonal):state(disabled)) | container-color container-opacity label-text-color icon-color icon-opacity label-text-opacity
+button/styles/tonal/tokens.ts :: tonalTokens | :host(:state(tonal):focus-within) | state-layer-color label-text-color icon-color
+button/styles/tonal/tokens.ts :: tonalTokens | :host(:state(tonal):active) | state-layer-color label-text-color icon-color
+checkbox/styles/default/tokens.ts :: defaultTokens | :host | container-shape container-size state-layer-shape state-layer-size icon-size outline-width outline-color state-layer-color state-layer-opacity ripple-color ripple-opacity icon-color check-easing check-duration
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:state(checked):disabled), :host(:state(indeterminate):disabled) | container-opacity container-color
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:disabled) | container-opacity
+checkbox/styles/default/tokens.ts :: defaultTokens | :host | focus-layer-color focus-layer-opacity
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:state(checked)), :host(:state(indeterminate)) | container-color focus-layer-color
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:state(checked):active), :host(:state(indeterminate):active) | state-layer-color
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:state(checked):hover), :host(:state(indeterminate):hover) | state-layer-opacity
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:focus-within) | state-layer-color
+checkbox/styles/default/tokens.ts :: defaultTokens | :host(:hover) | state-layer-opacity state-layer-color
+core/styles/elevation/tokens.ts :: elevationTokens | :host | shadow-color elevation-umbra elevation-penumbra elevation-ambient
+core/styles/focus/tokens.ts :: focusTokens | :host | focus-indicator-outline-offset focus-indicator-thickness focus-indicator-color
+fab/styles/color/tokens.ts :: colorTokens[0] | :host(:state(primary)) | container-color icon-color state-layer-color
+fab/styles/color/tokens.ts :: colorTokens[0] | :host(:state(primary):active) | icon-color
+fab/styles/color/tokens.ts :: colorTokens[0] | :host(:state(primary):hover) | icon-color
+fab/styles/color/tokens.ts :: colorTokens[0] | :host(:state(primary):focus-within) | icon-color
+fab/styles/color/tokens.ts :: colorTokens[1] | :host(:state(secondary)) | container-color icon-color state-layer-color
+fab/styles/color/tokens.ts :: colorTokens[1] | :host(:state(secondary):active) | icon-color
+fab/styles/color/tokens.ts :: colorTokens[1] | :host(:state(secondary):focus-within) | icon-color
+fab/styles/color/tokens.ts :: colorTokens[1] | :host(:state(secondary):hover) | icon-color
+fab/styles/color/tokens.ts :: defaultColorTokens | :host | container-color container-shadow-color icon-color state-layer-color elevation-default elevation-hovered state-layer-opacity
+fab/styles/default/tokens.ts :: defaultTokens | :host | container-height container-width icon-size container-shape ripple-color ripple-opacity unfold-duration unfold-easing shadow-color
+fab/styles/extended/tokens.ts :: extendedTokens[0] | :host(:state(extended)) | label-text-font-name label-text-font-weight label-text-font-size label-text-font-tracking label-text-line-height label-text-variation-axes icon-label-space
+fab/styles/extended/tokens.ts :: extendedTokens[1] | :host(:state(extended):state(tonal)) | container-color label-text-color icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[1] | :host(:state(extended):state(tonal):hover) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[1] | :host(:state(extended):state(tonal):focus-within) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[1] | :host(:state(extended):state(tonal):active) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[2] | :host(:state(extended)) | label-text-color label-text-line-height container-width
+fab/styles/extended/tokens.ts :: extendedTokens[3] | :host(:state(primary):state(extended)) | container-color label-text-color icon-color label-text-line-height
+fab/styles/extended/tokens.ts :: extendedTokens[3] | :host(:state(primary):state(extended):hover) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[3] | :host(:state(primary):state(extended):focus-within) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[3] | :host(:state(primary):state(extended):active) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[4] | :host(:state(secondary):state(extended)) | container-color label-text-color icon-color label-text-line-height
+fab/styles/extended/tokens.ts :: extendedTokens[4] | :host(:state(secondary):state(extended):active) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[4] | :host(:state(secondary):state(extended):hover) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[4] | :host(:state(secondary):state(extended):focus-within) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[5] | :host(:state(primary):state(extended):state(tonal)) | container-color label-text-color icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[5] | :host(:state(primary):state(extended):state(tonal):hover) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[5] | :host(:state(primary):state(extended):state(tonal):active) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[5] | :host(:state(primary):state(extended):state(tonal):focus-within) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[6] | :host(:state(secondary):state(extended):state(tonal)) | container-color label-text-color icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[6] | :host(:state(secondary):state(extended):state(tonal):hover) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[6] | :host(:state(secondary):state(extended):state(tonal):focus-within) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[6] | :host(:state(secondary):state(extended):state(tonal):active) | icon-color
+fab/styles/extended/tokens.ts :: extendedTokens[7] | :host(:state(large):state(extended)) | container-height label-text-font-name label-text-font-weight label-text-font-size label-text-font-tracking label-text-line-height label-text-variation-axes icon-size container-shape icon-label-space
+fab/styles/extended/tokens.ts :: extendedTokens[8] | :host(:state(medium):state(extended)) | container-height label-text-font-name label-text-font-weight label-text-font-size label-text-font-tracking label-text-line-height label-text-variation-axes icon-size container-shape icon-label-space
+fab/styles/size/tokens.ts :: sizeTokens[0] | :host(:state(large)) | container-height container-width container-shape icon-size
+fab/styles/size/tokens.ts :: sizeTokens[1] | :host(:state(medium)) | container-height container-width container-shape icon-size
+fab/styles/tonal/tokens.ts :: tonalTokens[0] | :host(:state(tonal)) | container-color icon-color state-layer-color
+fab/styles/tonal/tokens.ts :: tonalTokens[0] | :host(:state(tonal):hover) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[0] | :host(:state(tonal):focus-within) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[0] | :host(:state(tonal):active) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[1] | :host(:state(primary):state(tonal)) | container-color icon-color state-layer-color
+fab/styles/tonal/tokens.ts :: tonalTokens[1] | :host(:state(primary):state(tonal):hover) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[1] | :host(:state(primary):state(tonal):focus-within) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[1] | :host(:state(primary):state(tonal):active) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[2] | :host(:state(secondary):state(tonal)) | container-color icon-color state-layer-color
+fab/styles/tonal/tokens.ts :: tonalTokens[2] | :host(:state(secondary):state(tonal):hover) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[2] | :host(:state(secondary):state(tonal):focus-within) | icon-color
+fab/styles/tonal/tokens.ts :: tonalTokens[2] | :host(:state(secondary):state(tonal):active) | icon-color
+list/styles/default/tokens.ts :: listTokens | :host | container-shape segmented-gap drag-duration drag-easing footprint-color footprint-opacity
+list/styles/item/tokens.ts :: listItemTokens | :host(:state(drag)) | container-expressive-shape leading-icon-color trailing-icon-color label-text-color
+list/styles/item/tokens.ts :: listItemTokens | :host(:active) | container-expressive-shape leading-icon-color trailing-icon-color label-text-color
+list/styles/item/tokens.ts :: listItemTokens | :host(:focus-within), :host(:state(selected)) | container-expressive-shape
+list/styles/item/tokens.ts :: listItemTokens | :host(:hover) | container-expressive-shape
+list/styles/item/tokens.ts :: listItemTokens | :host(:state(disabled)) | container-expressive-shape container-opacity trailing-icon-color leading-icon-color overline-color trailing-supporting-text-color supporting-text-color label-text-color container-color
+list/styles/item/tokens.ts :: listItemTokens | :host | container-expressive-shape overline-color trailing-icon-color leading-icon-color supporting-text-color trailing-supporting-text-color label-text-color container-color
+list/styles/item/tokens.ts :: listItemTokens | :host(:state(drag)) | container-expressive-shape label-text-color container-elevation
+list/styles/item/tokens.ts :: listItemTokens | :host(:active) | container-expressive-shape label-text-color
+list/styles/item/tokens.ts :: listItemTokens | :host(:focus-within), :host(:state(selected)) | container-expressive-shape
+list/styles/item/tokens.ts :: listItemTokens | :host(:hover) | container-expressive-shape
+list/styles/item/tokens.ts :: listItemTokens | :host(:state(disabled)) | container-expressive-shape trailing-icon-color supporting-text-color overline-color leading-icon-color label-text-color opacity
+list/styles/item/tokens.ts :: listItemTokens | :host | leading-avatar-shape leading-image-expressive-shape leading-video-shape leading-avatar-size trailing-icon-expressive-size leading-avatar-label-type-font-name leading-avatar-label-type-font-weight leading-avatar-label-type-font-size leading-avatar-label-type-font-tracking leading-avatar-label-type-line-height leading-avatar-label-font leading-avatar-label-weight leading-avatar-label-size leading-avatar-label-line-height leading-avatar-label-tracking two-line-container-height label-text-weight label-text-size label-text-tracking label-text-line-height label-text-font trailing-supporting-text-weight trailing-supporting-text-tracking supporting-text-type-font-name supporting-text-type-font-weight supporting-text-type-font-size supporting-text-type-font-tracking supporting-text-type-line-height supporting-text-font supporting-text-weight supporting-text-size supporting-text-line-height supporting-text-tracking overline-tracking overline-type-font-name overline-type-font-weight overline-type-font-size overline-type-font-tracking overline-type-line-height overline-font overline-weight overline-size overline-line-height trailing-supporting-text-size trailing-supporting-text-line-height trailing-supporting-text-font trailing-supporting-text-type-font-name trailing-supporting-text-type-font-weight trailing-supporting-text-type-font-size trailing-supporting-text-type-font-tracking trailing-supporting-text-type-line-height label-text-type-font-name label-text-type-font-weight label-text-type-font-size label-text-type-font-tracking label-text-type-line-height small-leading-video-height leading-image-height large-leading-video-width large-leading-video-height small-leading-video-width leading-video-width leading-image-width leading-icon-expressive-size three-line-container-height one-line-container-height container-expressive-shape between-space bottom-space top-space trailing-supporting-text-color container-elevation trailing-icon-color leading-icon-color overline-color label-text-color supporting-text-color leading-avatar-color trailing-space leading-space container-height leading-avatar-label-color container-color state-layer-color state-layer-opacity press-duration press-easing ripple-color ripple-opacity
+list/styles/item/tokens.ts :: listItemTokens | :host | trailing-icon-color
+radio/styles/default/tokens.ts :: defaultTokens | :host | state-layer-size icon-size state-layer-color state-layer-opacity ripple-color ripple-opacity check-easing check-duration
+radio/styles/default/tokens.ts :: defaultTokens | :host | icon-color focus-layer-color focus-layer-opacity
+radio/styles/default/tokens.ts :: defaultTokens | :host(:focus-within) | icon-color
+radio/styles/default/tokens.ts :: defaultTokens | :host(:hover) | icon-color state-layer-opacity
+radio/styles/default/tokens.ts :: defaultTokens | :host(:state(checked)) | icon-color focus-layer-color
+radio/styles/default/tokens.ts :: defaultTokens | :host(:state(checked):focus-within) | state-layer-color
+radio/styles/default/tokens.ts :: defaultTokens | :host(:state(checked):hover) | state-layer-opacity state-layer-color
+radio/styles/default/tokens.ts :: defaultTokens | :host(:active) | icon-color state-layer-color
+radio/styles/default/tokens.ts :: defaultTokens | :host(:disabled) | icon-opacity icon-color
+radio/styles/default/tokens.ts :: defaultTokens | :host(:state(checked):disabled) | icon-opacity icon-color
+text-field/styles/default/tokens.ts :: defaultDisabledTokens | :host(:disabled) | label-text-opacity label-text-color container-opacity container-color
+text-field/styles/default/tokens.ts :: defaultErrorTokens | :host(:state(error)) | trailing-icon-color leading-icon-color supporting-text-color input-text-color label-text-color active-indicator-color
+text-field/styles/default/tokens.ts :: defaultErrorTokens | :host(:state(error):hover) | state-layer-opacity trailing-icon-color supporting-text-color label-text-color active-indicator-color
+text-field/styles/default/tokens.ts :: defaultErrorTokens | :host(:state(error):focus-within) | caret-color trailing-icon-color supporting-text-color label-text-color active-indicator-color
+text-field/styles/default/tokens.ts :: defaultTokens | :host | supporting-text-font supporting-text-weight supporting-text-size supporting-text-line-height supporting-text-tracking container-height input-text-placeholder-color input-text-suffix-color input-text-prefix-color label-text-font label-text-weight label-text-size label-text-line-height label-text-tracking label-text-color caret-color trailing-icon-size trailing-icon-color leading-icon-size leading-icon-color supporting-text-color label-text-populated-size label-text-populated-line-height input-text-font input-text-weight input-text-size input-text-line-height input-text-tracking input-text-color active-indicator-color active-indicator-thickness container-shape-top-left container-shape-top-right container-shape-bottom-right container-shape-bottom-left container-color container-icon-padding-inline container-padding-inline supporting-text-row-gap supporting-text-column-gap supporting-text-padding-inline container-focus-padding-block input-text-prefix-gap input-text-suffix-gap focus-easing focus-duration state-layer-color label-text-populated-scale
+text-field/styles/default/tokens.ts :: defaultTokens | :host(:focus-within) | active-indicator-thickness label-text-color active-indicator-color
+text-field/styles/default/tokens.ts :: defaultTokens | :host(:hover) | state-layer-opacity active-indicator-color
+text-field/styles/default/tokens.ts :: defaultTokens | :host(:disabled) | trailing-icon-opacity trailing-icon-color leading-icon-opacity leading-icon-color supporting-text-opacity supporting-text-color input-text-opacity active-indicator-opacity active-indicator-color
+text-field/styles/outlined/tokens.ts :: outlinedDisabledTokens | :host(:state(outlined):disabled) | label-text-opacity label-text-color
+text-field/styles/outlined/tokens.ts :: outlinedErrorTokens | :host(:state(outlined):state(error)) | trailing-icon-color leading-icon-color supporting-text-color input-text-color label-text-color outline-color
+text-field/styles/outlined/tokens.ts :: outlinedErrorTokens | :host(:state(outlined):state(error):hover) | trailing-icon-color supporting-text-color label-text-color outline-color
+text-field/styles/outlined/tokens.ts :: outlinedErrorTokens | :host(:state(outlined):state(error):focus-within) | caret-color trailing-icon-color supporting-text-color label-text-color outline-color
+text-field/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined)) | outline-color outline-width container-shape label-populated-padding outline-width-max outline-transition-easing outline-transition-duration
+text-field/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):hover) | label-text-color outline-color
+text-field/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):focus-within) | outline-color outline-width
+text-field/styles/outlined/tokens.ts :: outlinedTokens | :host(:state(outlined):disabled) | outline-color

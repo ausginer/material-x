@@ -2155,6 +2155,24 @@ _"**The first adopter follows, in a unit of its own:** `FocusForwarding`'s contr
 
 **Amended a fourth time 2026-11-21 by the architect, after the implementation,** on `reviewer-1` of the [feature proof](reviews/trait-private-fields-1/feature-proof-claude.md) at `3fdd3a829`, relayed by the coordinator. Property 8 changed. Its reason was that an unreferenced private field can't be observed, which is false for an initializer with an effect: the hand-written class runs `#unused = rec(…)`, and the component didn't. The implementation's second open choice, that such a field isn't checked, made the loss silent. **Ruled: a field with an initializer is copied and checked,** so the component behaves as the hand-written class (the plan's property 2) with no new code, and only a field that runs nothing and that nothing names is left out. **Not adopted:** reporting an unreferenced initializer, which would refuse valid code that has a plain meaning; and copying `#brand!: true` too, which would give each instance a slot that nothing can observe. No trait in the tree has an unreferenced initializer, so no output changes. Property 8 said: _"**A private field that nothing in its trait references isn't copied.**"_
 
+#### RD-34 — Every token that a material-x component renders has a visual contract, and one coverage map is the inventory
+
+**Decided 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`,** from [#122](https://github.com/ausginer/material-x/issues/122), relayed by the coordinator. `RD-33` is the highest `RD-` on any branch on `origin`, so this is the next free number. The owner treats these contracts as very important, because he couldn't tell where material-x differs from the specification (the coordinator's relay).
+
+- **The inventory** is the [coverage map](visual-contract-coverage-1/coverage-map.md), a reviewer's reading at `c08dbd7fc`, which this entry adopts. On `main`, the contracts cover the button family at rest and little else. The FAB, the split button, the outlined text field, the icon buttons' sizes and the list's visual properties have none.
+- **Required property:** for each component, and each token package it renders, a tproc-backed `spec` row observes each rendered property in the browser and compares it with the value that tproc selects. There is a row for each state that the package renders: rest, hover, focus, pressed, selected, disabled, error or dragged, where they apply. The rows run in each engine at `RD-20`'s floor. A token that no rule reads is read, or a ruling excludes it (`RF-81`).
+- **A gap is a finding.** Each gap group of the map is one entry, `RF-82` to `RF-92`, so that each can be a work item of its own (`RD-22`). They are Tier B. No program behaviour changes, but the instrument that the repository relies on for conformance, the second layer of `test-architecture.md`, doesn't observe these properties, so a passing suite says nothing about them. `RF-77` and `RF-79` are differences that such gaps hid.
+- **No row compares tproc's output with a literal, or a generated private property with the tokens.** Rulings on the four cases in the map:
+  1. `button.color.spec`'s _"should resolve elevation 1 by default and 0 when disabled"_ reads no browser value, so it isn't a contract. `RF-86`'s level rows replace it, and it is deleted then.
+  2. The colour half of `elevation.spec`, on `main` through #120, reads the box's own `--_shadow-color`. `RF-77`'s rows replace it.
+  3. `button-group.spec`'s `expect([inner, outer]).toEqual([full, full])` holds by construction while the token is `var(--_shape-full)`: `expectedRadius` resolves it on the same element whose height gives `full`. `RF-91` deletes it. The `readCorners` assertion beside it is the observation, and it stays.
+  4. `button.color.spec`'s other elevation rows compare the shadow with the filled button's, or with the resting shadow. They are relational and not circular. `RF-86`'s level rows replace them.
+- **Shared helpers:** the map lists four local helpers that a second test will need: the focus layer's state-layer observation, the button group's `readCorners` and full radius, the elevation row's layered shadow, and the inline colour mix for a disabled opacity. The unit that first needs one in a second file moves it to `tests/support/`.
+- **Adapters:** the map lists letter-spacing (`normal` against `0px`), the pressed ripple on `::after`, which animates and so has to settle, and the focus indicator's width, offset and colour. The unit that first needs one writes it. `font-variation-settings` isn't needed (`RF-81`).
+- **A unit changes tests and the bridge's registrations, and source only where its entry says so.** A row that fails on `main` and isn't an entry's witness is a new difference from the tokens. The unit reports it, the architect registers it, and the unit doesn't change source to make the row pass.
+- **The order:** the reviewer ranked the tasks by likelihood × visibility, and the map keeps that ranking. The queue order is the owner's (`RD-22`). The architect's reading of consequence: `RF-82` has a visible difference behind it (`RF-79`), and `RF-83` and `RF-86`'s level rows need #120's elevation row and contracts, which are on `main` since #120 merged as `0128548ff`.
+- **Readiness:** each entry says whether it is ready for an implementer, and what it waits for.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -3653,7 +3671,7 @@ Tier A, **closed 2026-11-21** (below). Before closure: open. Registered on 2026-
 
 #### RF-70 — The list items and the FAB draw no elevation penumbra
 
-Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#103](https://github.com/ausginer/material-x/issues/103), relayed by the coordinator. The architect saw it while re-ruling the list item for `RF-68` (the [handoff](list-roles-1/list-roles-handoff.md#seen-not-registered)'s first item). `RF-69` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `b46b840d8`, not run.
+Tier A, **closed 2026-11-22** (below). Before closure: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#103](https://github.com/ausginer/material-x/issues/103), relayed by the coordinator. The architect saw it while re-ruling the list item for `RF-68` (the [handoff](list-roles-1/list-roles-handoff.md#seen-not-registered)'s first item). `RF-69` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `b46b840d8`, not run.
 
 - **What happens:** the elevation stylesheet (`src/core/styles/elevation/elevation.styles.css`) draws three layers: the penumbra as `.host`'s own `box-shadow`, and the umbra and the ambient on `.host::before` and `::after`. `mx-fab` adopts it before `fab/styles/default/main.styles.css`, and the interactive list items adopt it before `list/styles/item/interactive-box.styles.css`. Each of those starts its `.host` rule with `all: unset`, which resets the penumbra to `none`. `mx-list-item` has no `.host`. Its `static-box.styles.css` draws the two pseudo-element layers on `:host` and sets `box-shadow: none`, which `RF-68`'s fold wrote to keep `main`'s pixels. The buttons adopt the elevation stylesheet after their own, so at one level a button draws three layers and a FAB or a list item two.
 - **Affected:** `mx-fab` and its extended form, `mx-list-item`, `mx-list-button-item` and `mx-list-link-item`, at any level above 0. The FAB rests at a level above 0, and a list item rises while it is dragged.
@@ -3671,6 +3689,8 @@ Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-o
 **Dated 2026-11-22 by the implementer:** the architect registered the two items above as `repo:RF-77` and `repo:RF-76` in #127 (`repo/register-observations-3` at `4b4fd8b50`, not yet on `main`), relayed by the coordinator.
 
 **Corrected 2026-11-22 by the implementer,** for `reviewer-4` and `reviewer-5` of the [feature proof](reviews/elevation-penumbra-1/feature-proof-claude.md) at `a2663c481`, relayed by the coordinator. The size cause named the FAB's stylesheet as the first mention, and the link item's drag was said to fail in all three engines. The resting row's scope was unstated.
+
+**Closed 2026-11-22 by the architect** on `main` through #120 (merged as `0128548ff`), relayed by the coordinator, on the [feature proof](reviews/elevation-penumbra-1/feature-proof-claude.md) read at `966ec0354`. The required property holds: at one level, the FAB in its default and extended forms and the three list items draw the elevation stylesheet's three layers, as the elevated button does, in Chromium, Firefox and WebKit. The row fails when any one of the three declarations is removed. After the proof, #120 changed the record and one comment in the row's file, and no source. The proof's `reviewer-1` to `reviewer-3` are `RF-76` to `RF-78`, on `main` through #127 (merged as `4fd8b9a67`), and `reviewer-4` and `reviewer-5` are the correction above. `mx-list-link-item` is read at rest until `RF-76` lets a pointer drag lift it. Not run: Safari. `safari.yml` last ran on 2026-11-18, before the merge.
 
 #### RF-71 — The interactive list items' selected, disabled and press styles are built but adopted by no item
 
@@ -3701,12 +3721,12 @@ Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-o
   - Disabled: the content shows 0.38. Hovering and pressing change neither the shape nor the ripple, and a pointer press dispatches no `click` on the item.
   - The press: `.host`'s `border-radius` transitions over the press duration and easing.
   - **Witness:** the selection, opacity and press rows fail on `main`'s sheets. By reading, the pointer rows already hold on `main`, because a native disabled button dispatches no `click`, the ripple checks `disabled`, and the main sheet's `disabled` block outranks its `hovered` and `pressed` blocks by order. They are there so that the new rule can't break them.
-- **Order with #120:** both units change `interactive-box.styles.css`'s `.host` rule, so this unit starts from `main` after #120 merges.
+- **Order with #120:** both units change `interactive-box.styles.css`'s `.host` rule, so this unit starts from `main` after #120 merges. #120 merged on 2026-11-22 as `0128548ff`.
 - **Size:** _medium_, as before.
 
 #### RF-72 — The button groups treat every slotted node as a button, so whitespace between buttons throws
 
-Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#105](https://github.com/ausginer/material-x/issues/105), relayed by the coordinator. The implementer of #100 saw it while writing the connected group's order row. `RF-71` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `b46b840d8`. The connected group was observed by that implementer, and the standard group is read and not run.
+Tier A, **closed 2026-11-22** (below). Before closure: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#105](https://github.com/ausginer/material-x/issues/105), relayed by the coordinator. The implementer of #100 saw it while writing the connected group's order row. `RF-71` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `b46b840d8`. The connected group was observed by that implementer, and the standard group is read and not run.
 
 - **What happens:** core's `useSlot` passes `slot.assignedNodes()`, text nodes included, as its doc comment says, and its type parameter casts them to the caller's type. `mx-connected-button-group`'s callback deletes `dataset['first']` and `dataset['last']` on each node. A text node has no `dataset`, so a group whose markup has whitespace or a line break between its buttons throws on each `slotchange`, and no button gets `data-first` or `data-last`. Its usage snippet in `connected-button-group.mdx` is such markup.
 - **The standard group has the same cause.** `mx-button-group` keeps the assigned nodes as its buttons. On `pointerdown` it writes a style property on the pressed button's neighbours, and on `pointerup` and `pointercancel` it removes them from every node. With whitespace, a neighbour or a node is a text node, whose `style` is `undefined`, so the handler throws and the neighbours don't move. Its usage snippet in `button-group.mdx` has line breaks too.
@@ -3720,9 +3740,11 @@ Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-o
 - **Witness:** before the fix the four rows fail in Chromium, Firefox and WebKit (12 failed, 69 passed), and after it all 81 rows of the button-group behaviour files pass ([before](button-group-whitespace-1/checks/tests-before-fix.txt), [after](button-group-whitespace-1/checks/tests-after-fix.txt)). The spec project's button-group files pass in the three engines (150 rows). Safari isn't run: it needs macOS.
 - **Size,** Brotli bytes, read with `just size-reading` before and after the fix on the same tree ([before](button-group-whitespace-1/checks/size-before-fix.json), [after](button-group-whitespace-1/checks/size-after-fix.json)). `button-group/button-group` 3113 → 3118 (+5). `button-group/connected-button-group` 3864 → 3884 (+20). `button/split-button` 7496 → 7516 (+20), because it imports the connected group. `complete` 22158 → 22205 (+47). The other rows don't move, `button/button` included, which imports neither group. None of these rows has a limit. The bytes are the two `assignedElements()` calls replacing the callbacks' node parameter.
 
+**Closed 2026-11-22 by the architect** on `main` through #117 (merged as `cbb06d265`), relayed by the coordinator, on the [feature proof](reviews/button-group-whitespace-1/feature-proof-claude.md) read at `aa7831ae4`. That is the code that merged: the pull request's only later commit is the proof. The required property holds: both groups work with line breaks, indentation and a comment between their buttons in Chromium, Firefox and WebKit, and the four new rows, whose markup has all three, fail with the base's source. Roving tabindex, the edge marks, selection and pointer handling read the same with and without them. The proof's one finding, on core's `useSlot`, is `RF-75`. Not run: Safari. `safari.yml` last ran on 2026-11-18, before the merge.
+
 #### RF-73 — WebKit collapses a multiline text field's line breaks when the value is set from script
 
-Tier A, **fixed, pending merge** (below), pre-existing. Before the fix: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#109](https://github.com/ausginer/material-x/issues/109), relayed by the coordinator. The feature proof of #108 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/drop-field-sizing-polyfill-1/feature-proof-claude.md#reviewer-1) at `fed89b779`, and the review reached `main` unchanged in #108's squash. `RF-72` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect read the review's probes and `.input`'s rule at `b46b840d8` and ran nothing.
+Tier A, **closed 2026-11-22** (below), pre-existing. Before closure: fixed, pending merge. Before the fix: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#109](https://github.com/ausginer/material-x/issues/109), relayed by the coordinator. The feature proof of #108 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/drop-field-sizing-polyfill-1/feature-proof-claude.md#reviewer-1) at `fed89b779`, and the review reached `main` unchanged in #108's squash. `RF-72` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect read the review's probes and `.input`'s rule at `b46b840d8` and ran nothing.
 
 - **What happens:** after `field.value = 'x\ny\nz\nw'` on `mx-multiline-text-field`, Chromium 158 and Firefox 159 show four lines, and Playwright's WebKit 27.2 shows one, both in the textarea's height and in its `scrollHeight`. Typed lines still show in WebKit.
 - **Cause, as the review observed it:** `.input` in `src/text-field/styles/default/main.styles.css` starts with `all: unset`, which resets the textarea's UA `white-space: pre-wrap`. The computed value is `white-space-collapse: collapse` in all three engines. Chromium and Firefox keep a textarea's newlines anyway, and WebKit collapses them. With `white-space: pre-wrap` on the textarea, WebKit shows four lines, and a plain textarea with `field-sizing: content` shows one as soon as `all: unset` is added ([`isolate` probe](reviews/drop-field-sizing-polyfill-1/probes/isolate.browser.test.ts.txt)). The issue says _likely_. The review's isolation makes it the established cause in WebKit 27.2.
@@ -3739,9 +3761,11 @@ Tier A, **fixed, pending merge** (below), pre-existing. Before the fix: open. Re
     - **Size:** against the head before it, `text-field/multiline-text-field` −1 B, `text-field/text-field` −26 B, `complete` +19 B (Brotli), and every other row 0. Against the base `242654011`, the whole fix is +40 B, −2 B and +58 B. Two readings agree, and the comment doesn't ship.
     - **Not in scope:** the review's `reviewer-2`, form reset, which goes to the architect separately.
 
+**Closed 2026-11-22 by the architect** on `main` through #116 (merged as `1d88bcba5`), relayed by the coordinator, on the [feature proof](reviews/textfield-white-space-1/feature-proof-claude.md) read at `37f1eda29` and its [recheck](reviews/textfield-white-space-1/feature-proof-recheck-claude.md) read at `d2b5d3235`. That is the code that merged: the pull request's only later commit is the recheck. The required property holds in Chromium, Firefox and WebKit for a typed value and for one set through the host's `value`, and the row fails in WebKit without the rule. The third path, a form reset, is observed since #126 (merged as `2f18fb47a`), whose row _"should show the value attribute's line breaks after a form reset"_ reads it for `RF-74`. The proof's `reviewer-1` is the `overflow-wrap` rule above, which the recheck resolves, and its `reviewer-2` is `RF-74`. Not run: Safari. `safari.yml` last ran on 2026-11-18, before the merge.
+
 #### RF-74 — Text fields ignore a form reset and their `value` attribute
 
-Tier A, **fixed, pending merge** (below), pre-existing. Before the fix: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#118](https://github.com/ausginer/material-x/issues/118), relayed by the coordinator. The feature proof of #116 found it as `reviewer-2` in [`feature-proof-claude.md`](https://github.com/ausginer/material-x/blob/182b5ef04/.plan/reviews/textfield-white-space-1/feature-proof-claude.md#reviewer-2), on `material-x/textfield-white-space-1` at `182b5ef04`, not yet on `main`. `RF-73` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect probed both fields at `cbb06d265` in Chromium 158, Firefox 159 and Playwright's WebKit 27.2 ([reading](observations-2/checks/text-field-reset.txt), [probe](observations-2/probes/text-field-reset.browser.test.ts.txt)).
+Tier A, **closed 2026-11-22** (below), pre-existing. Before closure: fixed, pending merge. Before the fix: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#118](https://github.com/ausginer/material-x/issues/118), relayed by the coordinator. The feature proof of #116 found it as `reviewer-2` in [`feature-proof-claude.md`](https://github.com/ausginer/material-x/blob/182b5ef04/.plan/reviews/textfield-white-space-1/feature-proof-claude.md#reviewer-2), on `material-x/textfield-white-space-1` at `182b5ef04`, not yet on `main`. `RF-73` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect probed both fields at `cbb06d265` in Chromium 158, Firefox 159 and Playwright's WebKit 27.2 ([reading](observations-2/checks/text-field-reset.txt), [probe](observations-2/probes/text-field-reset.browser.test.ts.txt)).
 
 - **What happens:** `mx-text-field` and `mx-multiline-text-field` set `formAssociated`, and `TextFieldCore` registers no `formReset`. So after `form.reset()`, a value set through the host's `value` or typed by the user stays, in the field and in the form's data, in each of the three engines. A native `<input>` or `<textarea>` returns to its default value.
 - **The `value` attribute does nothing.** The `Valuable` trait observes it, and `TextFieldCore` overrides `value` with the internal field's value, so nothing reads the attribute. A parsed `<mx-text-field value="initial">` reads `''` through `value` and shows nothing, and a later `setAttribute('value', …)` changes nothing. Neither element documents the attribute.
@@ -3773,9 +3797,11 @@ Tier A, **fixed, pending merge** (below), pre-existing. Before the fix: open. Re
 
 **Ruled 2026-11-22 by the architect: a clone takes the default value, as a known difference from a native control,** on `reviewer-1` of the [feature proof](reviews/text-field-reset-1/feature-proof-claude.md#reviewer-1) at `0210343ed`, relayed by the coordinator. `cloneNode()` creates a new element and copies its attributes. A native `<input>` or `<textarea>` also copies its value and its dirty flag in its cloning steps, and a custom element has no such hook. So a clone of either field is a new field under property 2: it reads the `value` attribute, or `''`, and is clean. A caller that needs the edited value sets it on the clone: `clone.value = field.value`. **Not adopted:** writing the attribute when `value` is set, which property 5 rules out, and any link from a clone to its source, which the platform doesn't give. The decision's six properties are unchanged.
 
+**Closed 2026-11-22 by the architect** on `main` through #126 (merged as `2f18fb47a`), relayed by the coordinator, on the [feature proof](reviews/text-field-reset-1/feature-proof-claude.md) read at `eeb3ff814`. The required property holds: the decision's six properties hold in Chromium, Firefox and WebKit for both fields, and each of the mechanism's three mutations fails its row. After the proof, #126 added the rows for `reviewer-2` and for the clone ruling, and changed the two elements' doc comments, with no other source change. No second review read those rows. The pull request's `chromium`, `firefox` and `webkit` checks passed them at `961a7e37d`. The proof's `reviewer-1` is the clone ruling above, a known difference from a native control. Not run: Safari. `safari.yml` last ran on 2026-11-18, before the merge. Form state restore and the checkables' reset (#124) are outside this entry.
+
 #### RF-75 — Core's `useSlot` lets a caller type a slot's text and comment nodes as elements
 
-Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#119](https://github.com/ausginer/material-x/issues/119), relayed by the coordinator. The feature proof of #117 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/button-group-whitespace-1/feature-proof-claude.md#reviewer-1) at `aa7831ae4`, and the review reached `main` in #117. `RF-74` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `cbb06d265`.
+Tier B, **closed 2026-11-22** (below), pre-existing. Before closure: open. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#119](https://github.com/ausginer/material-x/issues/119), relayed by the coordinator. The feature proof of #117 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/button-group-whitespace-1/feature-proof-claude.md#reviewer-1) at `aa7831ae4`, and the review reached `main` in #117. `RF-74` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `cbb06d265`.
 
 - **The contract:** `useSlot<T extends Node = Node>(host, slotOrSelector, callback)`, exported as `@ydinjs/core/controllers/useSlot.js`, passes the callback `slot.assignedNodes() as T[]` behind a lint suppression. So `useSlot<HTMLElement>` compiles, and its callback receives text and comment nodes typed as `HTMLElement`. `SlotControllerUpdateCallback<T>` is exported with the same parameter.
 - **Why it is a problem:** the type tells an integrator something the runtime contradicts, and the compiler can't see it at the call site. Both callers that passed a type argument were `RF-72`. Since #117 no caller in the repository passes one: the groups read `slot.assignedElements()`, `useRovingTabindex` narrows with a type guard, `ListItemCore` checks `instanceof HTMLElement`, and the slot polyfill counts the nodes.
@@ -3796,6 +3822,8 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Built output:** core's `controllers/useSlot.js` differs from the build before the change only by the deleted `@typeParam` comment line, which the build keeps from the JSDoc. The code is the same. `useSlot.d.ts` and the source map differ as the signature does, and no other built file of core differs ([diff](use-slot-nodes-1/checks/built-output.txt)). A size row reads minified bundles, which hold no comments, so the decision's _no size row moves_ is reasoned from that and not measured.
 
 **Dated 2026-11-22 by the implementer,** for `reviewer-1` of the [feature proof](reviews/use-slot-nodes-1/feature-proof-claude.md) at `e3fce2b4e`, relayed by the coordinator. The two type-argument rows passed `HTMLElement`, so a type parameter that `HTMLElement` doesn't satisfy, such as `<T extends Text = Text>`, turned the line's error into a constraint error that `@ts-expect-error` absorbed. Both rows now pass `never`, which satisfies any constraint: a one-parameter mutation of either declaration leaves the directive unused, and the row fails. Each of `useSlot<T extends Text = Text>`, `useSlot<T extends Node = Node>`, `SlotControllerUpdateCallback<T extends Text = Text>` and `SlotControllerUpdateCallback<T extends Node = Node>` fails its row, and the head passes all four ([mutations](use-slot-nodes-1/checks/type-argument-mutations.txt)). **Not caught:** two or more type parameters without defaults, because one argument is then an arity error, which the directive absorbs.
+
+**Closed 2026-11-22 by the architect** on `main` through #125 (merged as `a5ea94c10`), relayed by the coordinator, on the [feature proof](reviews/use-slot-nodes-1/feature-proof-claude.md) read at `65152f4f0`. The required property holds: `useSlot` gives its callback's nodes `readonly Node[]`, a type that every node it passes has. Every caller in the workspace compiles, and no size row moves. After the proof, #125 merged `main` and changed only the two type-argument rows, to `never`, for `reviewer-1`. No second review read them. The implementer's [mutations](use-slot-nodes-1/checks/type-argument-mutations.txt) fail each row with one type parameter of either bound, and that follows from the rule the rows rely on: `never` satisfies any constraint, so one type parameter accepts it and leaves the directive unused. The pull request's checks passed at `6bd55dbc7`. The rows still miss two or more type parameters without defaults, as the dated paragraph says. That limits the rows, not the property, and it is accepted rather than registered: such a signature would have to be written on purpose.
 
 #### RF-76 — A pointer drag doesn't lift `mx-list-link-item` in `mx-sortable-list` in Chromium and Firefox
 
@@ -3838,6 +3866,150 @@ Tier A, **open**, pre-existing. #120 adds the penumbra's share on the list items
 - **A repair that the probe reads:** a layer whose colour is transparent at level 0, such as a mix percentage scaled by `min(var(--_level), 1)`. It paints nothing at level 0 in the three engines, and is the current layer at level 1 and above. `--_level` is registered as a `<number>`, so the transition interpolates it. The implementer chooses the mechanism, and the rows decide.
 - **Rows,** in each engine at `RD-20`'s floor: at level 0, each of a resting list item's and a filled button's layers is `none` or fully transparent. `RF-70`'s row keeps the layers above 0. **Witness:** the review's comparison in Firefox, of the resting list and a filled button against the same with their layers set to `none` in the same run, differs on `main` and is byte-equal after the fix. No visual baseline can be the witness, because the visual project runs Chromium.
 - **Size:** _small_. The layer colour in the elevation package, and the rows. It changes the same package as `RF-77`.
+
+#### RF-79 — A disabled text field draws its input text at full opacity, and its active indicator at the container's opacity
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#candidate-differences-from-static-reading-not-rendered-not-in-the-queue)'s candidates (`RD-34`), relayed by the coordinator. `RF-78` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the stylesheets and in the token store at `00fd35592` ([reading](visual-contract-coverage-1/checks/text-field-tokens.txt), [probe](visual-contract-coverage-1/probes/text-field-tokens.ts)), not run.
+
+- **What happens:** under `:host(:disabled)`, the field's tokens emit `--_input-text-opacity`, `--_active-indicator-opacity`, `--_supporting-text-opacity`, `--_leading-icon-opacity` and `--_trailing-icon-opacity`, and no rule reads any of them.
+  - **The input text** keeps `color: var(--_input-text-color)` and has no opacity. `disabled.styles.css` dims the lead, the trail, the support row, the label and the counter, and not `.input`. So a disabled field draws its value as an enabled field does.
+  - **The active indicator** is the `border-block-end` of `.notched-outline`. That element also draws the container, and takes `opacity: var(--_container-opacity)`. So the indicator is drawn at the container's 0.04, and not at its own 0.38.
+  - **The supporting text and the icons** take the label's opacity, which is 0.38, like their own. That is latent.
+  - **The outlined field:** no package renders its `outline.opacity` (0.12). Whether its outline takes the container's opacity isn't established.
+- **Required property:** a disabled text field draws each part at its own disabled tokens. The input text is `on-surface` at `input-text.opacity`, the active indicator is at `active-indicator.opacity`, the container is at `container.opacity`, and the outlined field's outline is at `outline.opacity`. The supporting text and the icons are at their own opacities. The container's opacity reaches no other part.
+- **Rows:** `RF-82`'s disabled rows are this entry's witness. They fail on `main` for the input text and the active indicator.
+- **Size:** _small_. The disabled rules, and an opacity for the indicator of its own. It goes with `RF-82`.
+
+#### RF-80 — A press in a standard button group changes no button's width
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, relayed by the coordinator. The [coverage map](visual-contract-coverage-1/coverage-map.md#candidate-differences-from-static-reading-not-rendered-not-in-the-queue) listed the group's `interaction-duration` and `interaction-easing` as unread (`RD-34`). The architect read why, and ran a probe in Chromium 158 at `00fd35592` ([reading](visual-contract-coverage-1/checks/rf80-press-width.txt), [probe](visual-contract-coverage-1/probes/rf80-press-width.browser.test.ts.txt)). `RF-79` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **What happens:** the group's stylesheet gives each slotted button a `padding-inline` from its leading and trailing space, scaled by `--_interaction-direction-*` and the width multiplier. A press sets the directions: +1 on the pressed button, from `::slotted(:active)`, and −1 on its neighbours, from `button-group.ts`. The button's host is `display: contents`, so it has no box, and its padding draws nothing. In the probe, the host's computed padding changes from 16 px to 13.6 px and to 18.4 px, and the width of each button's `.host` stays 85.33 px. Nothing reads the duration and the easing that would animate the change.
+- **What says otherwise:** `src/button-group/spec-consistency.md`, section _Standard group — press interaction (verified in source)_, says that the implementation matches the spec. The group's behaviour rows read the custom properties, and not a width.
+- **Required property:** in each engine at `RD-20`'s floor, pressing a button in a standard group widens it, and narrows its neighbours, by the width multiplier of their leading and trailing space, over the group's interaction duration and easing. Releasing restores them. A `browser` row reads the rendered widths under a real press.
+- **The unit corrects** that section of `spec-consistency.md`.
+- **Not established:** Firefox and WebKit, which aren't run. A box with `display: contents` has no padding in any engine.
+- **Size:** _medium_. The group's padding has to reach the button's box, with its transition, the rows and the document.
+
+#### RF-81 — Material-x renders tokens that no rule reads
+
+Tier C, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#candidate-differences-from-static-reading-not-rendered-not-in-the-queue)'s candidates (`RD-34`), relayed by the coordinator. `RF-80` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in `src/` and in the rendered packages ([reading](visual-contract-coverage-1/checks/rendered-token-packages.css.txt)) at `00fd35592`. No consumer sees a difference today, which is why it is Tier C. A token update that changes one of these values would be ignored.
+
+**Decided 2026-11-22 by the architect,** for each property:
+
+- **Tracking is read.** The button's and the FAB's `label-text.font-tracking`, and the text field's `input-text.tracking`, render as `letter-spacing`. Every value is 0 px today, so nothing changes now. A token update that changes a tracking must reach the rendering, as every other typescale value does. `RF-92` makes this change with its rows.
+- **The prefix and the suffix read their own tokens.** Their colour is `input-text.prefix.color` and `input-text.suffix.color`, and their typography is the input text's, because they are part of the input's line and M3 gives them no typography of their own. Today they take the label's typography and the placeholder colour, whose values are the same. This goes with `RF-82`.
+- **The populated label's line height is observed, not read.** The populated label is the resting label scaled by `label-text.populated.scale`. So its size is the token's, 16 px × 0.75 = 12 px, and its line box is 24 px × 0.75 = 18 px, where `label-text.populated.line-height` gives 16 px. The scale stays, because it animates without layout. `RF-82`'s row compares the populated label's text position with the tokens, and a failure there is a new difference (`RD-34`).
+- **The switch buttons' `container.color.reverse` and `label-text.color.reverse` are deleted.** `button/styles/default/tokens.ts` writes them as aliases of the selected colours. They aren't M3 tokens, and no rule reads them.
+- **The list's `*-type-*` properties are no longer emitted.** Each composite `type` token is emitted beside the separate font tokens that the list reads, so the copies cost bytes and nothing reads them.
+- **The variation axes aren't adopted, and are no longer emitted.** In every package, `opsz` equals the label's font size, `wght` equals its weight token, and every other axis is at its default. `font-weight` and automatic optical sizing already render that. A token update that sets an axis to another value reopens this ruling. The update's report lists the changed token.
+- **The button group's interaction duration and easing** are `RF-80`'s.
+- **Required property:** every private property that a token package emits is read by a rule, or this entry excludes it.
+- **Size:** _small_ for what stays here: the reverse colours, the list's copies and the axes. Material-x's size rows may move. Tracking goes with `RF-92`, and the prefix and the suffix with `RF-82`.
+
+#### RF-82 — No visual contract covers the text fields beyond their spacing
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#text-fields)'s reviewer's task 1 (`RD-34`), relayed by the coordinator. `RF-81` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** the filled fields, `mx-text-field` and `mx-multiline-text-field`, have rows for the lead, trail, prefix and suffix spacing and the support row's gap. Nothing else is covered. The outlined field has no row. The outlined, error and disabled packages aren't registered with the bridge.
+- **Rows,** for the filled and the outlined field, at rest, hover, focus, error and disabled: the container's height and colour, its corner shapes, the typography of the label, the input, the supporting text and the populated label, the active indicator's thickness and colour, and the outlined field's outline width and colour. The packages are registered.
+- **Carried with it:** `RF-79`'s fix, whose witness is the disabled rows, and `RF-81`'s ruling on the prefix and the suffix.
+- **Ready** for an implementer.
+- **Size:** _medium_.
+
+#### RF-83 — No visual contract covers the FAB
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-fab-defaultprimarysecondary--tonal--defaultmediumlarge--extended)'s reviewer's task 2 (`RD-34`), relayed by the coordinator. `RF-82` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** on `main`, the only FAB package registered is `fab.color.default`, and the only row that reads a FAB is #120's elevation row, for the resting layers of the default and the extended FAB.
+- **Rows,** for each colour, the tonal form, each size and the extended form: the container's size, shape and colour, the icon's colour and size, the extended label's typography and the extended width, and the hovered elevation level. The size, colour, tonal and extended packages are registered.
+- **Not here:** the layers' colour, which is `RF-77`'s.
+- **Ready** for an implementer. It waited for #120, which merged on 2026-11-22 as `0128548ff` and brings the `fab.color.default` contract and the elevation row's helpers, `expectedLayers` and `renderedLayers` in `tests/core/elevation.spec.browser.test.ts`. They are local to that file, so the unit that first reads them from a second file moves them to `tests/support/` (`RD-34`).
+- **Size:** _medium_.
+
+#### RF-84 — No visual contract covers the list items' colours, typography, spacing or shapes
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#lists)'s reviewer's task 3 (`RD-34`), relayed by the coordinator. `RF-83` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** rows cover the two-line and three-line heights and the leading video's sizes, inside a behaviour test. Nothing else is covered, and `listTokens` isn't registered.
+- **Rows:** the colours of the label, the supporting text, the overline, the icons and the container; their typography; the leading, trailing, top, bottom and between spaces; the one-line height; the avatar, image and icon sizes; the shape in each state (hover, focus, pressed and dragged); and the hover and pressed layers. For `mx-list`: its container shape, its segmented gap and its footprint colour, with `listTokens` registered.
+- **Not here:** the selected and disabled states, which are `RF-71`'s rows. The dragged level is #120's elevation row, and its colour is `RF-77`'s.
+- **Ready** for an implementer. `RF-71` changes the item's sheets and the focused shape's mapping, so whichever unit merges second rebases its focus rows.
+- **Size:** _medium_.
+
+#### RF-85 — No visual contract covers the icon buttons
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-icon-button-filled--tonal--standard-and-mx-switch-icon-button)'s reviewer's task 4 (`RD-34`), relayed by the coordinator. `RF-84` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** `mx-icon-button` and `mx-switch-icon-button` have the focus layer's rows, and the switch icon button's filled hover layer. Nothing else is covered, and the size and width packages aren't registered.
+- **Rows,** for the filled, tonal and standard forms of both: the colours; the height, padding and icon size of each of the five sizes; the wide and narrow widths; the round, square and pressed shapes; and the disabled state. The size and width packages are registered.
+- **Ready** for an implementer.
+- **Size:** _medium_.
+
+#### RF-86 — No visual contract covers the button family's hover, pressed and disabled states, or the elevated button's levels
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-button-filled--elevated--tonal--outlined--text)'s reviewer's task 5 (`RD-34`), relayed by the coordinator. `RF-85` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** `mx-button`'s five colours are covered at rest. The filled button has a hover layer. Every colour has a focus layer, and the elevated button has its disabled label colour. The other states aren't covered, `disabledTokens` isn't registered, and `mx-link-button` has no spec file.
+- **Rows,** for each of the five colours: the hover layer and the hover label and icon colours; the pressed state's ripple colour and opacity, once the ripple has settled; the `:active` shape morph; the pressed label colour; and the disabled state, with `disabledTokens` registered. For the elevated button, the level at rest and in hover, focus, pressed and disabled, read as layers with #120's elevation row helper. These replace `button.color.spec`'s literal and relational elevation rows (`RD-34`), which are then deleted. For `mx-link-button`, a row for each colour at rest, because it renders the same packages.
+- **Ready** for an implementer, the level rows included. They waited for #120's elevation row, on `main` since #120 merged as `0128548ff`.
+- **Size:** _medium_.
+
+#### RF-87 — No visual contract covers the switch buttons' selected colours, shape morph, sizes, pressed or disabled states
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-switch-button-filled--elevated--tonal--outlined)'s reviewer's task 6 (`RD-34`), relayed by the coordinator. `RF-86` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** `mx-switch-button`'s four colours have focus layer rows, unselected and selected, and the filled one has a hover layer. Their colour contracts are registered, and only the focus layer reads them. `shapeTokens`, `switchTokens` and `defaultSizeSwitchTokens` aren't registered.
+- **Rows,** for each of the four colours: the unselected and selected container, label and icon colours; the hover layers; the checked shape morph; the sizes; the pressed state; and the disabled state, including the outlined button's disabled outline colour and the checked, disabled container. The three packages are registered.
+- **Ready** for an implementer.
+- **Size:** _medium_.
+
+#### RF-88 — No visual contract covers the checkbox's and the radio's selected, pressed or disabled states
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-checkbox)'s reviewer's task 7 (`RD-34`), relayed by the coordinator. `RF-87` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** the checkbox's container, outline and state layer are covered, and the radio's state layer. Their focus and unselected hover layers are covered. The rest isn't. `checkbox.spec`'s glyph row reads `icon.color` at rest, while the glyph is hidden. There is no radio spec file, though `checkbox.spec`'s header names one.
+- **Rows:** for the checkbox, the checked container colour, the glyph colour while the glyph shows, the selected hover, pressed and disabled. For the radio, in a radio spec file: the unselected and selected icon colours, hover, checked hover, pressed and disabled.
+- **Ready** for an implementer.
+- **Size:** _medium_.
+
+#### RF-89 — No visual contract covers the split button
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-split-button)'s reviewer's task 8 (`RD-34`), relayed by the coordinator. `RF-88` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** no split button package is registered, and no row reads it.
+- **Rows,** for each size: the inner corners and their hover and pressed morph, the leading and trailing spaces, and the trailing icon's size. Its packages are registered.
+- **Ready** for an implementer.
+- **Size:** _medium_.
+
+#### RF-90 — No visual contract covers the focus indicator's thickness, offset or colour
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#core)'s reviewer's task 9 (`RD-34`), relayed by the coordinator. `RF-89` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** `focus-layer.spec` checks that each button's focus outline is `solid`, and nothing else of it. `focusTokens` isn't registered.
+- **Rows,** for every focusable component: the focus indicator's thickness, offset and colour, compared with `focusTokens`, with an adapter for the outline's width, offset and colour (`RD-34`). The package is registered.
+- **Ready** for an implementer.
+- **Size:** _medium_.
+
+#### RF-91 — No visual contract covers the connected button group's between space or its outer corners
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#button-groups)'s reviewer's task 10 (`RD-34`), relayed by the coordinator. `RF-90` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** the standard group's between space is covered for the five sizes. The connected group's selected pill, pressed inner corners and the selected button's neighbour are covered. Its between space isn't. Its outer corners at rest are read only through the selected pill, and its inner corner only on one corner of the middle button.
+- **Rows:** the connected group's between space for each size, and all four corners of the first, middle and last buttons at rest. The selected-pill row's tautological assertion is deleted (`RD-34`).
+- **Not here:** the standard group's press, which is `RF-80`'s.
+- **Ready** for an implementer.
+- **Size:** _small_.
+
+#### RF-92 — No visual contract covers letter-spacing, and three packages' tracking isn't read
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#ordered-tasks-likelihood--visibility)'s reviewer's task 11 (`RD-34`), relayed by the coordinator. `RF-91` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **The gap:** no row reads a `letter-spacing`. The button, the FAB and the text field's input don't read their tracking tokens (`RF-81`).
+- **Rows:** the letter-spacing of the button's and the FAB's labels, the text field's label and input, and the list item's texts, compared with their tracking tokens, with the `normal` against `0px` adapter (`RD-34`).
+- **Carried with it:** `RF-81`'s ruling on tracking. The button, the FAB and the text field read it.
+- **Ready** for an implementer. The reviewer's task 11 was waiting for a ruling first, and `RF-81` is that ruling. The other half of that task, replacing `button.color.spec`'s literal elevation row, is `RF-86`'s.
+- **Size:** _small_.
 
 ## Questions
 

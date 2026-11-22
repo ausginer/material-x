@@ -1,0 +1,1690 @@
+
+#### button-group/styles/connected/tokens.ts :: connectedTokens[0]
+:host(:state(xsmall)) ::slotted(:state(checked)) {
+  --_inner-corner-corner-size: var(--_shape-full);
+  --_outer-corner-corner-size: var(--_shape-full);
+}
+
+:host(:state(xsmall)) ::slotted(:active) {
+  --_inner-corner-corner-size: 4px;
+}
+
+:host(:state(xsmall)) {
+  --_inner-corner-corner-size: 8px;
+  --_between-space: 2px;
+}
+
+#### button-group/styles/connected/tokens.ts :: connectedTokens[1]
+:host ::slotted(:state(checked)) {
+  --_inner-corner-corner-size: var(--_shape-full);
+  --_outer-corner-corner-size: var(--_shape-full);
+}
+
+:host ::slotted(:active) {
+  --_inner-corner-corner-size: 4px;
+}
+
+:host {
+  --_inner-corner-corner-size: 8px;
+  --_between-space: 2px;
+  --_container-shape: var(--_shape-full);
+}
+
+#### button-group/styles/connected/tokens.ts :: connectedTokens[2]
+:host(:state(medium)) ::slotted(:state(checked)) {
+  --_inner-corner-corner-size: var(--_shape-full);
+  --_outer-corner-corner-size: var(--_shape-full);
+}
+
+:host(:state(medium)) ::slotted(:active) {
+  --_inner-corner-corner-size: 4px;
+}
+
+:host(:state(medium)) {
+  --_inner-corner-corner-size: 8px;
+  --_between-space: 2px;
+}
+
+#### button-group/styles/connected/tokens.ts :: connectedTokens[3]
+:host(:state(large)) ::slotted(:active) {
+  --_inner-corner-corner-size: 12px;
+}
+
+:host(:state(large)) ::slotted(:state(checked)) {
+  --_inner-corner-corner-size: var(--_shape-full);
+  --_outer-corner-corner-size: var(--_shape-full);
+}
+
+:host(:state(large)) {
+  --_inner-corner-corner-size: 16px;
+  --_between-space: 2px;
+}
+
+#### button-group/styles/connected/tokens.ts :: connectedTokens[4]
+:host(:state(xlarge)) ::slotted(:state(checked)) {
+  --_inner-corner-corner-size: var(--_shape-full);
+  --_outer-corner-corner-size: var(--_shape-full);
+}
+
+:host(:state(xlarge)) ::slotted(:active) {
+  --_inner-corner-corner-size: 16px;
+}
+
+:host(:state(xlarge)) {
+  --_inner-corner-corner-size: 20px;
+  --_between-space: 2px;
+}
+
+#### button-group/styles/standard/tokens.ts :: standardTokens[0]
+:host(:state(xsmall)) {
+  --_between-space: 18px;
+}
+
+#### button-group/styles/standard/tokens.ts :: standardTokens[1]
+:host {
+  --_between-space: 12px;
+  --_interaction-easing: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --_interaction-duration: 350ms;
+  --_interaction-width-multiplier: 0.15;
+}
+
+#### button-group/styles/standard/tokens.ts :: standardTokens[2]
+:host(:state(medium)) {
+  --_between-space: 8px;
+}
+
+#### button-group/styles/standard/tokens.ts :: standardTokens[3]
+:host(:state(large)) {
+  --_between-space: 8px;
+}
+
+#### button-group/styles/standard/tokens.ts :: standardTokens[4]
+:host(:state(xlarge)) {
+  --_between-space: 8px;
+}
+
+#### button/styles/default/tokens.ts :: defaultFilledTokens
+
+
+#### button/styles/default/tokens.ts :: defaultSwitchFilledTokens
+:host {
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_container-color: var(--md-sys-color-surface-container, #ECF0DF);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(checked)) {
+  --_label-text-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_focus-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:hover) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:active) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+#### button/styles/default/tokens.ts :: defaultSwitchTokens
+:host {
+  --_container-color: var(--md-sys-color-surface-container, #ECF0DF);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-opacity: 0.1;
+  --_container-color-reverse: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color-reverse: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(checked)) {
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_focus-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+#### button/styles/default/tokens.ts :: defaultTokens
+:host {
+  --_icon-label-space: 8px;
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_container-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_label-text-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_container-elevation: 0;
+  --_container-shape-square: 12px;
+  --_container-shape-round: var(--_shape-full);
+  --_icon-size: 20px;
+  --_label-text-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+  --_label-text-font-size: 14px;
+  --_label-text-font-tracking: 0px;
+  --_label-text-line-height: 20px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 700, "slnt" 0, "opsz" 14, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_container-height: 40px;
+  --_state-layer-opacity: 0.1;
+  --_state-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_focus-layer-opacity: 0.1;
+  --_focus-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_press-easing: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --_press-duration: 350ms;
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+  --_shadow-color: var(--_container-shadow-color);
+}
+
+:host(:active) {
+  --_container-shape: 8px;
+}
+
+:host(:hover) {
+  --_state-layer-opacity: 0.08;
+  --_container-elevation: 1;
+}
+
+#### button/styles/default/tokens.ts :: disabledTokens
+:host(:disabled), :host(:state(disabled)) {
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.1;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-opacity: 0.38;
+}
+
+#### button/styles/elevated/tokens.ts :: elevatedSwitchTokens
+:host(:state(elevated)) {
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_container-color: var(--md-sys-color-surface-container-low, #F2F5E5);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(elevated):state(checked)) {
+  --_label-text-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_focus-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(elevated):hover) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(elevated):active) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(elevated):focus-within) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+#### button/styles/elevated/tokens.ts :: elevatedTokens
+:host(:state(elevated)) {
+  --_container-color: var(--md-sys-color-surface-container-low, #F2F5E5);
+  --_container-elevation: 1;
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+  --_level: var(--_container-elevation);
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(elevated):hover) {
+  --_container-elevation: 3;
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(elevated):disabled), :host(:state(elevated):state(disabled)) {
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.1;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-opacity: 0.38;
+}
+
+:host(:state(elevated):active) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_container-elevation: 1;
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(elevated):focus-within) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_container-elevation: 1;
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[0]
+
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[1]
+:host {
+  --_container-color: var(--md-sys-color-surface-container, #ECF0DF);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(checked)) {
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_focus-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:hover) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:active) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[2]
+:host(:state(tonal)) {
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_focus-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):state(checked)) {
+  --_container-color: var(--md-sys-color-secondary, #4B662A);
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_focus-layer-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(tonal):hover) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):active) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[3]
+:host(:state(standard)) {
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):hover) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):active) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):state(checked)) {
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+  --_container-color: transparent;
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[4]
+
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[5]
+
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[6]
+
+
+#### button/styles/icon/tokens.ts :: variantSwitchTokens[7]
+
+
+#### button/styles/icon/tokens.ts :: variantTokens[0]
+:host {
+  --_trailing-space: 8px;
+  --_leading-space: 8px;
+  --_icon-size: 24px;
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[1]
+:host(:disabled), :host(:state(disabled)) {
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.1;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-opacity: 0.38;
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[2]
+:host(:state(tonal)) {
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_focus-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):active) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):hover) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):disabled), :host(:state(tonal):state(disabled)) {
+  --_icon-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.1;
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[3]
+:host(:state(standard)) {
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_container-color: transparent;
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):disabled), :host(:state(standard):state(disabled)) {
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-opacity: 0.38;
+}
+
+:host(:state(standard):hover) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(standard):active) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[4]
+:host(:state(xsmall)) {
+  --_leading-space: 6px;
+  --_trailing-space: 6px;
+  --_container-height: 32px;
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[5]
+:host(:state(medium)) {
+  --_trailing-space: 16px;
+  --_leading-space: 16px;
+  --_container-height: 56px;
+  --_icon-size: 24px;
+  --_container-shape-square: 16px;
+}
+
+:host(:state(medium):active) {
+  --_container-shape: 12px;
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[6]
+:host(:state(large)) {
+  --_trailing-space: 32px;
+  --_leading-space: 32px;
+  --_container-height: 96px;
+  --_icon-size: 32px;
+  --_container-shape-square: 28px;
+}
+
+:host(:state(large):active) {
+  --_container-shape: 16px;
+}
+
+#### button/styles/icon/tokens.ts :: variantTokens[7]
+:host(:state(xlarge)) {
+  --_trailing-space: 48px;
+  --_leading-space: 48px;
+  --_container-height: 136px;
+  --_icon-size: 40px;
+  --_container-shape-square: 28px;
+}
+
+:host(:state(xlarge):active) {
+  --_container-shape: 16px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[0]
+:host(:state(wide)), :host ::slotted(:state(wide)) {
+  --_leading-space: 14px;
+  --_trailing-space: 14px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[1]
+:host(:state(xsmall):state(wide)), :host(:state(xsmall)) ::slotted(:state(wide)) {
+  --_trailing-space: 10px;
+  --_leading-space: 10px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[2]
+:host(:state(medium):state(wide)), :host(:state(medium)) ::slotted(:state(wide)) {
+  --_leading-space: 24px;
+  --_trailing-space: 24px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[3]
+:host(:state(large):state(wide)), :host(:state(large)) ::slotted(:state(wide)) {
+  --_leading-space: 48px;
+  --_trailing-space: 48px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[4]
+:host(:state(xlarge):state(wide)), :host(:state(xlarge)) ::slotted(:state(wide)) {
+  --_leading-space: 72px;
+  --_trailing-space: 72px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[5]
+:host(:state(narrow)), :host ::slotted(:state(narrow)) {
+  --_leading-space: 4px;
+  --_trailing-space: 4px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[6]
+:host(:state(xsmall):state(narrow)), :host(:state(xsmall)) ::slotted(:state(narrow)) {
+  --_trailing-space: 4px;
+  --_leading-space: 4px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[7]
+:host(:state(medium):state(narrow)), :host(:state(medium)) ::slotted(:state(narrow)) {
+  --_trailing-space: 12px;
+  --_leading-space: 12px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[8]
+:host(:state(large):state(narrow)), :host(:state(large)) ::slotted(:state(narrow)) {
+  --_leading-space: 16px;
+  --_trailing-space: 16px;
+}
+
+#### button/styles/icon/tokens.ts :: widthTokens[9]
+:host(:state(xlarge):state(narrow)), :host(:state(xlarge)) ::slotted(:state(narrow)) {
+  --_leading-space: 32px;
+  --_trailing-space: 32px;
+}
+
+#### button/styles/outlined/tokens.ts :: outlinedSwitchTokens
+:host(:state(outlined):disabled), :host(:state(outlined):state(disabled)) {
+  --_outline-color: var(--md-sys-color-outline-variant, #C2CAB2);
+}
+
+:host(:state(outlined):state(checked):disabled), :host(:state(outlined):state(checked):state(disabled)) {
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:state(outlined)) {
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(outlined):state(checked)) {
+  --_container-color: var(--md-sys-color-inverse-surface, #2E3227);
+  --_label-text-color: var(--md-sys-color-inverse-on-surface, #EFF3E2);
+  --_icon-color: var(--md-sys-color-inverse-on-surface, #EFF3E2);
+  --_state-layer-color: var(--md-sys-color-inverse-on-surface, #EFF3E2);
+  --_focus-layer-color: var(--md-sys-color-inverse-on-surface, #EFF3E2);
+}
+
+:host(:state(outlined):hover) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_outline-color: var(--md-sys-color-outline-variant, #C2CAB2);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(outlined):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_outline-color: var(--md-sys-color-outline-variant, #C2CAB2);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(outlined):active) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_outline-color: var(--md-sys-color-outline-variant, #C2CAB2);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+#### button/styles/outlined/tokens.ts :: outlinedTokens
+:host(:state(outlined)) {
+  --_outline-color: var(--md-sys-color-outline-variant, #C2CAB2);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_container-color: transparent;
+  --_outline-width: 1px;
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(outlined):disabled), :host(:state(outlined):state(disabled)) {
+  --_icon-opacity: 0.38;
+  --_container-opacity: 0.1;
+  --_label-text-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:state(outlined):hover) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(outlined):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+:host(:state(outlined):active) {
+  --_state-layer-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+}
+
+#### button/styles/shape/tokens.ts :: shapeTokens[0]
+:host, :host(:state(square):state(checked)) {
+  --_container-shape: var(--_container-shape-round);
+}
+
+#### button/styles/shape/tokens.ts :: shapeTokens[1]
+:host(:state(square)), :host(:state(checked)) {
+  --_container-shape: var(--_container-shape-square);
+}
+
+#### button/styles/size/tokens.ts :: defaultSizeMainTokens
+:host {
+  --_leading-space: 16px;
+  --_trailing-space: 16px;
+}
+
+#### button/styles/size/tokens.ts :: defaultSizeSwitchTokens
+
+
+#### button/styles/size/tokens.ts :: mainTokens[0]
+:host(:state(xsmall)) {
+  --_container-height: 32px;
+  --_leading-space: 12px;
+  --_icon-label-space: 4px;
+  --_trailing-space: 12px;
+}
+
+#### button/styles/size/tokens.ts :: mainTokens[1]
+:host(:state(medium)) {
+  --_container-height: 56px;
+  --_label-text-font-size: 16px;
+  --_label-text-line-height: 24px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 500, "slnt" 0, "opsz" 16, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_icon-size: 24px;
+  --_leading-space: 24px;
+  --_trailing-space: 24px;
+  --_container-shape-square: 16px;
+}
+
+:host(:state(medium):active) {
+  --_container-shape: 12px;
+}
+
+#### button/styles/size/tokens.ts :: mainTokens[2]
+:host(:state(large)) {
+  --_container-height: 96px;
+  --_label-text-font-name: var(--md-ref-typeface-brand, "Roboto Flex");
+  --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_label-text-font-size: 24px;
+  --_label-text-line-height: 32px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 500, "slnt" 0, "opsz" 24, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_icon-size: 32px;
+  --_leading-space: 48px;
+  --_icon-label-space: 12px;
+  --_trailing-space: 48px;
+  --_container-shape-square: 28px;
+}
+
+:host(:state(large):active) {
+  --_container-shape: 16px;
+}
+
+#### button/styles/size/tokens.ts :: mainTokens[3]
+:host(:state(xlarge)) {
+  --_container-height: 136px;
+  --_label-text-font-name: var(--md-ref-typeface-brand, "Roboto Flex");
+  --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_label-text-font-size: 32px;
+  --_label-text-line-height: 40px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 500, "slnt" 0, "opsz" 32, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_icon-size: 40px;
+  --_leading-space: 64px;
+  --_icon-label-space: 16px;
+  --_trailing-space: 64px;
+  --_container-shape-square: 28px;
+}
+
+:host(:state(xlarge):active) {
+  --_container-shape: 16px;
+}
+
+#### button/styles/size/tokens.ts :: switchTokens[0]
+
+
+#### button/styles/size/tokens.ts :: switchTokens[1]
+
+
+#### button/styles/size/tokens.ts :: switchTokens[2]
+
+
+#### button/styles/size/tokens.ts :: switchTokens[3]
+
+
+#### button/styles/split/tokens.ts :: sizeTokens[0]
+:host {
+  --_inner-corner-corner-size: 4px;
+  --_leading-button-leading-space: 16px;
+  --_leading-button-trailing-space: 12px;
+  --_trailing-button-icon-size: 22px;
+  --_trailing-button-leading-space: 13px;
+  --_trailing-button-trailing-space: 13px;
+}
+
+:host(:active) {
+  --_inner-corner-corner-size: 12px;
+}
+
+:host(:hover) {
+  --_inner-corner-corner-size: 12px;
+}
+
+#### button/styles/split/tokens.ts :: sizeTokens[1]
+:host(:state(xsmall)) {
+  --_inner-corner-corner-size: 4px;
+  --_leading-button-leading-space: 12px;
+  --_leading-button-trailing-space: 10px;
+  --_trailing-button-icon-size: 22px;
+  --_trailing-button-trailing-space: 13px;
+  --_trailing-button-leading-space: 13px;
+}
+
+:host(:state(xsmall):active) {
+  --_inner-corner-corner-size: 8px;
+}
+
+:host(:state(xsmall):hover) {
+  --_inner-corner-corner-size: 8px;
+}
+
+#### button/styles/split/tokens.ts :: sizeTokens[2]
+:host(:state(medium)) {
+  --_inner-corner-corner-size: 4px;
+  --_leading-button-leading-space: 24px;
+  --_leading-button-trailing-space: 24px;
+  --_trailing-button-icon-size: 26px;
+  --_trailing-button-leading-space: 15px;
+  --_trailing-button-trailing-space: 15px;
+}
+
+:host(:state(medium):active) {
+  --_inner-corner-corner-size: 12px;
+}
+
+:host(:state(medium):hover) {
+  --_inner-corner-corner-size: 12px;
+}
+
+#### button/styles/split/tokens.ts :: sizeTokens[3]
+:host(:state(large)) {
+  --_inner-corner-corner-size: 8px;
+  --_leading-button-leading-space: 48px;
+  --_leading-button-trailing-space: 48px;
+  --_trailing-button-icon-size: 38px;
+  --_trailing-button-leading-space: 29px;
+  --_trailing-button-trailing-space: 29px;
+}
+
+:host(:state(large):active) {
+  --_inner-corner-corner-size: 20px;
+}
+
+:host(:state(large):hover) {
+  --_inner-corner-corner-size: 20px;
+}
+
+#### button/styles/split/tokens.ts :: sizeTokens[4]
+:host(:state(xlarge)) {
+  --_inner-corner-corner-size: 12px;
+  --_leading-button-leading-space: 64px;
+  --_leading-button-trailing-space: 64px;
+  --_trailing-button-icon-size: 50px;
+  --_trailing-button-leading-space: 43px;
+  --_trailing-button-trailing-space: 43px;
+}
+
+:host(:state(xlarge):hover) {
+  --_inner-corner-corner-size: 20px;
+}
+
+:host(:state(xlarge):active) {
+  --_inner-corner-corner-size: 20px;
+}
+
+#### button/styles/split/tokens.ts :: splitDefaultTokens
+:host {
+  --_menu-button-press-easing: cubic-bezier(0.27, 1.06, 0.18, 1);
+  --_menu-button-press-duration: 350ms;
+}
+
+#### button/styles/text/tokens.ts :: textTokens
+:host(:state(text)) {
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+  --_container-color: transparent;
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(text):hover) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(text):focus-within) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(text):active) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(text):disabled), :host(:state(text):state(disabled)) {
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-opacity: 0.38;
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.1;
+}
+
+#### button/styles/tonal/tokens.ts :: tonalSwitchTokens
+:host(:state(tonal)) {
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_focus-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):state(checked)) {
+  --_container-color: var(--md-sys-color-secondary, #4B662A);
+  --_label-text-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_focus-layer-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(tonal):hover) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):active) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+#### button/styles/tonal/tokens.ts :: tonalTokens
+:host(:state(tonal)) {
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_focus-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):hover) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):disabled), :host(:state(tonal):state(disabled)) {
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.1;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_icon-opacity: 0.38;
+  --_label-text-opacity: 0.38;
+}
+
+:host(:state(tonal):focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(tonal):active) {
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+#### checkbox/styles/default/tokens.ts :: defaultTokens
+:host {
+  --_container-shape: 2px;
+  --_container-size: 18px;
+  --_state-layer-shape: var(--_shape-full);
+  --_state-layer-size: 40px;
+  --_icon-size: 24px;
+  --_outline-width: 2px;
+  --_outline-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_state-layer-opacity: 0.1;
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_check-easing: cubic-bezier(0.34, 0.8, 0.34, 1);
+  --_check-duration: 200ms;
+}
+
+:host(:state(checked):disabled), :host(:state(indeterminate):disabled) {
+  --_container-opacity: 0.38;
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:disabled) {
+  --_container-opacity: 0.38;
+}
+
+:host {
+  --_focus-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_focus-layer-opacity: 0.1;
+}
+
+:host(:state(checked)), :host(:state(indeterminate)) {
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(checked):active), :host(:state(indeterminate):active) {
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:state(checked):hover), :host(:state(indeterminate):hover) {
+  --_state-layer-opacity: 0.08;
+}
+
+:host(:focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:hover) {
+  --_state-layer-opacity: 0.08;
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### core/styles/elevation/tokens.ts :: elevationTokens
+:host {
+  --_shadow-color: var(--md-sys-color-surface-tint, #3F6900);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color) 20%, transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color) 14%, transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color) 12%, transparent);;
+}
+
+#### core/styles/focus/tokens.ts :: focusTokens
+:host {
+  --_focus-indicator-outline-offset: 2px;
+  --_focus-indicator-thickness: 3px;
+  --_focus-indicator-color: var(--md-sys-color-secondary, #4B662A);
+}
+
+#### fab/styles/color/tokens.ts :: colorTokens[0]
+:host(:state(primary)) {
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(primary):active) {
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(primary):hover) {
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(primary):focus-within) {
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+#### fab/styles/color/tokens.ts :: colorTokens[1]
+:host(:state(secondary)) {
+  --_container-color: var(--md-sys-color-secondary, #4B662A);
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(secondary):active) {
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(secondary):focus-within) {
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(secondary):hover) {
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+#### fab/styles/color/tokens.ts :: defaultColorTokens
+:host {
+  --_container-color: var(--md-sys-color-tertiary, #00694E);
+  --_container-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_icon-color: var(--md-sys-color-on-tertiary, #FFFFFF);
+  --_state-layer-color: var(--md-sys-color-on-tertiary, #FFFFFF);
+  --_elevation-default: 6;
+  --_elevation-hovered: 8;
+  --_state-layer-opacity: 0.1;
+}
+
+#### fab/styles/default/tokens.ts :: defaultTokens
+:host {
+  --_container-height: 56px;
+  --_container-width: 56px;
+  --_icon-size: 24px;
+  --_container-shape: 16px;
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+  --_unfold-duration: 350ms;
+  --_unfold-easing: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --_shadow-color: var(--_container-shadow-color);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[0]
+:host(:state(extended)) {
+  --_label-text-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+  --_label-text-font-size: 16px;
+  --_label-text-font-tracking: 0px;
+  --_label-text-line-height: 24px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 500, "slnt" 0, "opsz" 16, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_icon-label-space: 8px;
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[1]
+:host(:state(extended):state(tonal)) {
+  --_container-color: var(--md-sys-color-tertiary-container, #008564);
+  --_label-text-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+:host(:state(extended):state(tonal):hover) {
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+:host(:state(extended):state(tonal):focus-within) {
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+:host(:state(extended):state(tonal):active) {
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[2]
+:host(:state(extended)) {
+  --_label-text-color: var(--md-sys-color-on-tertiary, #FFFFFF);
+  --_label-text-line-height: 20px;
+  --_container-width: var(--_container-height);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[3]
+:host(:state(primary):state(extended)) {
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_label-text-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_label-text-line-height: 20px;
+}
+
+:host(:state(primary):state(extended):hover) {
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(primary):state(extended):focus-within) {
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+:host(:state(primary):state(extended):active) {
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[4]
+:host(:state(secondary):state(extended)) {
+  --_container-color: var(--md-sys-color-secondary, #4B662A);
+  --_label-text-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+  --_label-text-line-height: 20px;
+}
+
+:host(:state(secondary):state(extended):active) {
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(secondary):state(extended):hover) {
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+:host(:state(secondary):state(extended):focus-within) {
+  --_icon-color: var(--md-sys-color-on-secondary, #FFFFFF);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[5]
+:host(:state(primary):state(extended):state(tonal)) {
+  --_container-color: var(--md-sys-color-primary-container, #4F8200);
+  --_label-text-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+:host(:state(primary):state(extended):state(tonal):hover) {
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+:host(:state(primary):state(extended):state(tonal):active) {
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+:host(:state(primary):state(extended):state(tonal):focus-within) {
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[6]
+:host(:state(secondary):state(extended):state(tonal)) {
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(secondary):state(extended):state(tonal):hover) {
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(secondary):state(extended):state(tonal):focus-within) {
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(secondary):state(extended):state(tonal):active) {
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[7]
+:host(:state(large):state(extended)) {
+  --_container-height: 96px;
+  --_label-text-font-name: var(--md-ref-typeface-brand, "Roboto Flex");
+  --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_label-text-font-size: 24px;
+  --_label-text-font-tracking: 0px;
+  --_label-text-line-height: 32px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 500, "slnt" 0, "opsz" 24, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_icon-size: 36px;
+  --_container-shape: 28px;
+  --_icon-label-space: 16px;
+}
+
+#### fab/styles/extended/tokens.ts :: extendedTokens[8]
+:host(:state(medium):state(extended)) {
+  --_container-height: 80px;
+  --_label-text-font-name: var(--md-ref-typeface-brand, "Roboto Flex");
+  --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_label-text-font-size: 22px;
+  --_label-text-font-tracking: 0px;
+  --_label-text-line-height: 28px;
+  --_label-text-variation-axes: "wdth" 100, "wght" 500, "slnt" 0, "opsz" 22, "GRAD" 0, "ROND" 0, "CRSV" 0, "HEXP" 0, "FILL" 0;
+  --_icon-size: 28px;
+  --_container-shape: 20px;
+  --_icon-label-space: 12px;
+}
+
+#### fab/styles/size/tokens.ts :: sizeTokens[0]
+:host(:state(large)) {
+  --_container-height: 96px;
+  --_container-width: 96px;
+  --_container-shape: 28px;
+  --_icon-size: 36px;
+}
+
+#### fab/styles/size/tokens.ts :: sizeTokens[1]
+:host(:state(medium)) {
+  --_container-height: 80px;
+  --_container-width: 80px;
+  --_container-shape: 20px;
+  --_icon-size: 28px;
+}
+
+#### fab/styles/tonal/tokens.ts :: tonalTokens[0]
+:host(:state(tonal)) {
+  --_container-color: var(--md-sys-color-tertiary-container, #008564);
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+  --_state-layer-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+:host(:state(tonal):hover) {
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+:host(:state(tonal):focus-within) {
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+:host(:state(tonal):active) {
+  --_icon-color: var(--md-sys-color-on-tertiary-container, #F5FFF8);
+}
+
+#### fab/styles/tonal/tokens.ts :: tonalTokens[1]
+:host(:state(primary):state(tonal)) {
+  --_container-color: var(--md-sys-color-primary-container, #4F8200);
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+  --_state-layer-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+:host(:state(primary):state(tonal):hover) {
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+:host(:state(primary):state(tonal):focus-within) {
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+:host(:state(primary):state(tonal):active) {
+  --_icon-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+}
+
+#### fab/styles/tonal/tokens.ts :: tonalTokens[2]
+:host(:state(secondary):state(tonal)) {
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_state-layer-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(secondary):state(tonal):hover) {
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(secondary):state(tonal):focus-within) {
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(secondary):state(tonal):active) {
+  --_icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+#### list/styles/default/tokens.ts :: listTokens
+:host {
+  --_container-shape: 16px;
+  --_segmented-gap: 2px;
+  --_drag-duration: 650ms;
+  --_drag-easing: cubic-bezier(0.39, 1.29, 0.35, 0.98);
+  --_footprint-color: var(--md-sys-color-on-surface, #191D13);
+  --_footprint-opacity: 0.16;
+}
+
+#### list/styles/item/tokens.ts :: listItemTokens
+:host(:state(drag)) {
+  --_container-expressive-shape: 16px;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:active) {
+  --_container-expressive-shape: 16px;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:focus-within), :host(:state(selected)) {
+  --_container-expressive-shape: 16px;
+}
+
+:host(:hover) {
+  --_container-expressive-shape: 16px;
+}
+
+:host(:state(disabled)) {
+  --_container-expressive-shape: 16px;
+  --_container-opacity: 0.38;
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_overline-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host {
+  --_container-expressive-shape: 16px;
+  --_overline-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_trailing-icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_leading-icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_supporting-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_trailing-supporting-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+}
+
+:host(:state(drag)) {
+  --_container-expressive-shape: 16px;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-elevation: 8;
+}
+
+:host(:active) {
+  --_container-expressive-shape: 16px;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:focus-within), :host(:state(selected)) {
+  --_container-expressive-shape: 16px;
+}
+
+:host(:hover) {
+  --_container-expressive-shape: 12px;
+}
+
+:host(:state(disabled)) {
+  --_container-expressive-shape: 4px;
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_overline-color: var(--md-sys-color-on-surface, #191D13);
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_opacity: 0.38;
+}
+
+:host {
+  --_leading-avatar-shape: var(--_shape-full);
+  --_leading-image-expressive-shape: 8px;
+  --_leading-video-shape: 8px;
+  --_leading-avatar-size: 40px;
+  --_trailing-icon-expressive-size: 20px;
+  --_leading-avatar-label-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_leading-avatar-label-type-font-weight: var(--md-ref-typeface-weight-bold, 700);
+  --_leading-avatar-label-type-font-size: 16px;
+  --_leading-avatar-label-type-font-tracking: 0px;
+  --_leading-avatar-label-type-line-height: 24px;
+  --_leading-avatar-label-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_leading-avatar-label-weight: var(--md-ref-typeface-weight-bold, 700);
+  --_leading-avatar-label-size: 16px;
+  --_leading-avatar-label-line-height: 24px;
+  --_leading-avatar-label-tracking: 0px;
+  --_two-line-container-height: 72px;
+  --_label-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_label-text-size: 16px;
+  --_label-text-tracking: 0px;
+  --_label-text-line-height: 24px;
+  --_label-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_trailing-supporting-text-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_trailing-supporting-text-tracking: 0px;
+  --_supporting-text-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_supporting-text-type-font-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_supporting-text-type-font-size: 14px;
+  --_supporting-text-type-font-tracking: 0px;
+  --_supporting-text-type-line-height: 20px;
+  --_supporting-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_supporting-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_supporting-text-size: 14px;
+  --_supporting-text-line-height: 20px;
+  --_supporting-text-tracking: 0px;
+  --_overline-tracking: 0px;
+  --_overline-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_overline-type-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_overline-type-font-size: 11px;
+  --_overline-type-font-tracking: 0px;
+  --_overline-type-line-height: 16px;
+  --_overline-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_overline-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_overline-size: 11px;
+  --_overline-line-height: 16px;
+  --_trailing-supporting-text-size: 11px;
+  --_trailing-supporting-text-line-height: 16px;
+  --_trailing-supporting-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_trailing-supporting-text-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_trailing-supporting-text-type-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_trailing-supporting-text-type-font-size: 11px;
+  --_trailing-supporting-text-type-font-tracking: 0px;
+  --_trailing-supporting-text-type-line-height: 16px;
+  --_label-text-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_label-text-type-font-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_label-text-type-font-size: 16px;
+  --_label-text-type-font-tracking: 0px;
+  --_label-text-type-line-height: 24px;
+  --_small-leading-video-height: 56px;
+  --_leading-image-height: 56px;
+  --_large-leading-video-width: 114px;
+  --_large-leading-video-height: 64px;
+  --_small-leading-video-width: 100px;
+  --_leading-video-width: 100px;
+  --_leading-image-width: 56px;
+  --_leading-icon-expressive-size: 20px;
+  --_three-line-container-height: 88px;
+  --_one-line-container-height: 56px;
+  --_container-expressive-shape: 4px;
+  --_between-space: 12px;
+  --_bottom-space: 10px;
+  --_top-space: 10px;
+  --_trailing-supporting-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_container-elevation: 0;
+  --_trailing-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_leading-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_overline-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_leading-avatar-color: var(--md-sys-color-primary-container, #4F8200);
+  --_trailing-space: 16px;
+  --_leading-space: 16px;
+  --_container-height: 56px;
+  --_leading-avatar-label-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+  --_container-color: var(--md-sys-color-surface, #F7FBEA);
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_state-layer-opacity: 0.1;
+  --_press-duration: 350ms;
+  --_press-easing: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+}
+
+:host {
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### radio/styles/default/tokens.ts :: defaultTokens
+:host {
+  --_state-layer-size: 40px;
+  --_icon-size: 20px;
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_state-layer-opacity: 0.1;
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+  --_check-easing: cubic-bezier(0.34, 0.8, 0.34, 1);
+  --_check-duration: 200ms;
+}
+
+:host {
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_focus-layer-opacity: 0.1;
+}
+
+:host(:focus-within) {
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:hover) {
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_state-layer-opacity: 0.08;
+}
+
+:host(:state(checked)) {
+  --_icon-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(checked):focus-within) {
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:state(checked):hover) {
+  --_state-layer-opacity: 0.08;
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:active) {
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:disabled) {
+  --_icon-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:state(checked):disabled) {
+  --_icon-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### text-field/styles/default/tokens.ts :: defaultDisabledTokens
+:host(:disabled) {
+  --_label-text-opacity: 0.38;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-opacity: 0.04;
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### text-field/styles/default/tokens.ts :: defaultErrorTokens
+:host(:state(error)) {
+  --_trailing-icon-color: var(--md-sys-color-error, #BA1A1A);
+  --_leading-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_supporting-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_input-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_active-indicator-color: var(--md-sys-color-error, #BA1A1A);
+}
+
+:host(:state(error):hover) {
+  --_state-layer-opacity: 0.08;
+  --_trailing-icon-color: var(--md-sys-color-on-error-container, #93000A);
+  --_supporting-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_label-text-color: var(--md-sys-color-on-error-container, #93000A);
+  --_active-indicator-color: var(--md-sys-color-on-error-container, #93000A);
+}
+
+:host(:state(error):focus-within) {
+  --_caret-color: var(--md-sys-color-error, #BA1A1A);
+  --_trailing-icon-color: var(--md-sys-color-error, #BA1A1A);
+  --_supporting-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_label-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_active-indicator-color: var(--md-sys-color-error, #BA1A1A);
+}
+
+#### text-field/styles/default/tokens.ts :: defaultTokens
+:host {
+  --_supporting-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_supporting-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_supporting-text-size: 12px;
+  --_supporting-text-line-height: 16px;
+  --_supporting-text-tracking: 0px;
+  --_container-height: 56px;
+  --_input-text-placeholder-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_input-text-suffix-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_input-text-prefix-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_label-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_label-text-size: 16px;
+  --_label-text-line-height: 24px;
+  --_label-text-tracking: 0px;
+  --_label-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_caret-color: var(--md-sys-color-primary, #3E6700);
+  --_trailing-icon-size: 24px;
+  --_trailing-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_leading-icon-size: 24px;
+  --_leading-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_supporting-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-populated-size: 12px;
+  --_label-text-populated-line-height: 16px;
+  --_input-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_input-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_input-text-size: 16px;
+  --_input-text-line-height: 24px;
+  --_input-text-tracking: 0px;
+  --_input-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_active-indicator-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_active-indicator-thickness: 1px;
+  --_container-shape-top-left: 4px;
+  --_container-shape-top-right: 4px;
+  --_container-shape-bottom-right: 0px;
+  --_container-shape-bottom-left: 0px;
+  --_container-color: var(--md-sys-color-surface-container-highest, #E0E4D4);
+  --_container-icon-padding-inline: 12px;
+  --_container-padding-inline: 16px;
+  --_supporting-text-row-gap: 4px;
+  --_supporting-text-column-gap: 16px;
+  --_supporting-text-padding-inline: 16px;
+  --_container-focus-padding-block: 8px;
+  --_input-text-prefix-gap: 2px;
+  --_input-text-suffix-gap: 2px;
+  --_focus-easing: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --_focus-duration: 350ms;
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-populated-scale: 0.75;
+}
+
+:host(:focus-within) {
+  --_active-indicator-thickness: 2px;
+  --_label-text-color: var(--md-sys-color-primary, #3E6700);
+  --_active-indicator-color: var(--md-sys-color-primary, #3E6700);
+}
+
+:host(:hover) {
+  --_state-layer-opacity: 0.08;
+  --_active-indicator-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:disabled) {
+  --_trailing-icon-opacity: 0.38;
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_leading-icon-opacity: 0.38;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-opacity: 0.38;
+  --_supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_input-text-opacity: 0.38;
+  --_active-indicator-opacity: 0.38;
+  --_active-indicator-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### text-field/styles/outlined/tokens.ts :: outlinedDisabledTokens
+:host(:state(outlined):disabled) {
+  --_label-text-opacity: 0.38;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+#### text-field/styles/outlined/tokens.ts :: outlinedErrorTokens
+:host(:state(outlined):state(error)) {
+  --_trailing-icon-color: var(--md-sys-color-error, #BA1A1A);
+  --_leading-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_supporting-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_input-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_outline-color: var(--md-sys-color-error, #BA1A1A);
+}
+
+:host(:state(outlined):state(error):hover) {
+  --_trailing-icon-color: var(--md-sys-color-on-error-container, #93000A);
+  --_supporting-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_label-text-color: var(--md-sys-color-on-error-container, #93000A);
+  --_outline-color: var(--md-sys-color-on-error-container, #93000A);
+}
+
+:host(:state(outlined):state(error):focus-within) {
+  --_caret-color: var(--md-sys-color-error, #BA1A1A);
+  --_trailing-icon-color: var(--md-sys-color-error, #BA1A1A);
+  --_supporting-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_label-text-color: var(--md-sys-color-error, #BA1A1A);
+  --_outline-color: var(--md-sys-color-error, #BA1A1A);
+}
+
+#### text-field/styles/outlined/tokens.ts :: outlinedTokens
+:host(:state(outlined)) {
+  --_outline-color: var(--md-sys-color-outline, #727A66);
+  --_outline-width: 1px;
+  --_container-shape: 4px;
+  --_label-populated-padding: 4px;
+  --_outline-width-max: 3px;
+  --_outline-transition-easing: cubic-bezier(0.31, 0.94, 0.34, 1);
+  --_outline-transition-duration: 150ms;
+}
+
+:host(:state(outlined):hover) {
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_outline-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host(:state(outlined):focus-within) {
+  --_outline-color: var(--md-sys-color-primary, #3E6700);
+  --_outline-width: 3px;
+}
+
+:host(:state(outlined):disabled) {
+  --_outline-color: var(--md-sys-color-on-surface, #191D13);
+}
