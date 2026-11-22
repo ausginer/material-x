@@ -26,10 +26,12 @@ describe('useSlot types', () => {
     expectTypeOf(observe).toBeFunction();
   });
 
+  // Both type-argument rows pass `never`. It satisfies any constraint, so a
+  // type parameter of any bound would accept it and leave the directive unused.
   it('should reject a type argument', () => {
     const observe = (): void => {
       // @ts-expect-error: TS2558, `useSlot` takes no type argument
-      useSlot<HTMLElement>(host, 'slot', () => {});
+      useSlot<never>(host, 'slot', () => {});
     };
 
     expectTypeOf(observe).toBeFunction();
@@ -37,6 +39,6 @@ describe('useSlot types', () => {
 
   it('should reject a type argument on the callback type', () => {
     // @ts-expect-error: TS2315, `SlotControllerUpdateCallback` is not generic
-    expectTypeOf<SlotControllerUpdateCallback<HTMLElement>>().toBeFunction();
+    expectTypeOf<SlotControllerUpdateCallback<never>>().toBeFunction();
   });
 });
