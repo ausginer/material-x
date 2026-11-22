@@ -516,6 +516,74 @@ describe.each(FIELD_TAGS)('%s default value', (tag) => {
 
     expect(field.getAttribute('value')).toBe('initial');
   });
+
+  it('should empty the value when the value attribute is removed while the value is clean', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.removeAttribute('value');
+
+    expect([field.value, new FormData(form).get('f')]).toEqual(['', '']);
+  });
+
+  it('should submit an empty value when a script sets the value to null', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = null;
+    const data = new FormData(form);
+
+    expect([field.value, data.has('f'), data.get('f')]).toEqual(['', true, '']);
+  });
+
+  it('should restore the value attribute on form reset while disabled', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+    field.toggleAttribute('disabled', true);
+    form.reset();
+    const whileDisabled = [field.value, new FormData(form).has('f')];
+
+    field.toggleAttribute('disabled', false);
+
+    expect([...whileDisabled, new FormData(form).get('f')]).toEqual([
+      'initial',
+      false,
+      'initial',
+    ]);
+  });
+
+  it('should fire no input or change event on form reset', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+    const events: string[] = [];
+
+    field.value = 'scripted';
+
+    for (const type of ['input', 'change']) {
+      field.addEventListener(type, () => {
+        events.push(type);
+      });
+    }
+
+    form.reset();
+    await nextFrame();
+
+    expect(events).toEqual([]);
+  });
+
+  it('should give a clone the value attribute and a clean value, not the edited value', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    const clone = field.cloneNode(true) as FieldElement;
+    form.append(clone);
+    await nextFrame();
+    const cloned = clone.value;
+
+    clone.setAttribute('value', 'changed');
+
+    expect([cloned, clone.value]).toEqual(['initial', 'changed']);
+  });
 });
 
 describe('mx-multiline-text-field', () => {

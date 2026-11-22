@@ -79,3 +79,38 @@ a second after-reading is identical in all 20 rows.
   text-field/text-field                  8179   8249 +70
   complete                              22222  22233 +11
   other rows at 0: 17
+
+Remediation, 2026-11-22, by the implementer, in /workspaces/worktrees/f, on 0210343ed.
+From the feature proof's reviewer-2 (four rows) and the architect's ruling on reviewer-1 (the clone row),
+in .plan/reviews/text-field-reset-1/feature-proof-claude.md. Expected values are the native readings of
+the review's probe (checks/probe.txt there), which match both fields in each engine.
+
+New rows under '%s default value', each run for mx-text-field and mx-multiline-text-field:
+  - should empty the value when the value attribute is removed while the value is clean   ['', '']
+  - should submit an empty value when a script sets the value to null                    ['', has: true, '']
+  - should restore the value attribute on form reset while disabled                       ['initial', has: false, then 'initial']
+  - should fire no input or change event on form reset                                    []
+  - should give a clone the value attribute and a clean value, not the edited value       ['initial', then 'changed']
+
+At the head, with the rows: text-field file 58 of 58 in each engine.
+  chromium: Tests  58 passed (58)
+  firefox: Tests  58 passed (58)
+  webkit: Tests  58 passed (58)
+
+Mutations of TextFieldCore.ts, one at a time, source restored after each. Each fails its row for both fields in each engine:
+  attr-removal    the value attribute's handler keeps the value when the attribute is removed (newValue ?? field.value)
+                  fails only: should empty the value when the value attribute is removed ...   (2 failed | 54 passed of 56, each engine)
+  null-entry      the setter calls setFormValue(null) when value is null
+                  fails only: should submit an empty value when a script sets the value to null (2 | 54 of 56)
+  disabled-reset  formReset returns early when the host matches :disabled
+                  fails only: should restore the value attribute on form reset while disabled  (2 | 54 of 56)
+  reset-event     formReset calls notify(this, 'change')
+                  fails only: should fire no input or change event on form reset               (2 | 54 of 56)
+  These four ran before the clone row was added, on the 56-row file.
+  clone-copies    the setter writes the value attribute; the clone row fails with [ 'scripted', 'scripted' ] for [ 'initial', 'initial' ].
+                  11 failed | 47 passed of 58 in each engine: the clone row, property 5's row, and the reset rows that depend on the attribute.
+  clone-dirty     the attribute handler sets the dirty flag; the clone row fails with [ 'initial', 'initial' ] for [ 'initial', 'changed' ].
+                  6 failed | 52 passed of 58 in each engine: the clone row and the two attribute-following rows.
+
+Size: text-field/multiline-text-field 4153, text-field/text-field 8249, complete 22233 Brotli bytes, the same as
+the reading above: the added JSDoc sentence doesn't ship.

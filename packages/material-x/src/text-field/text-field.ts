@@ -28,7 +28,7 @@ export type {
  * @attr {string} value - Default value. The field takes it at upgrade and on a
  * form reset, and follows changes to it until the user edits the value or a
  * script sets the `value` property. Setting the property doesn't change the
- * attribute.
+ * attribute. A clone takes the default value, not the edited value.
  *
  * @slot label - Label content.
  * @slot support - Supporting text content.
