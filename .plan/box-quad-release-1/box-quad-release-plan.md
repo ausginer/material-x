@@ -273,6 +273,8 @@ The implementer's task, which the coordinator sends. It carries task 5, the proo
   6. **`verify` passes** on the pull request.
 - **The pull request:** opened by the implementer after the push, with `Refs #56`. #56 closes on the reading after the publish ([Release procedure](#release-procedure)).
 
+**Done 2026-11-22** by the implementer in slot `b` ([transcript](checks/implementation.txt)). Task 5 is `e6bee2a9e`: the build is byte-identical, the pack lists the seven files, and `just release-check box-quad` passes. The mutation run [44998336728](https://github.com/ausginer/material-x/actions/runs/44998336728) at `b88246b90` failed at the tarball check, naming `src/index.ts`, and the next commit reverts it. The check run on the head follows the commit that records this, so the pull request's description names it.
+
 **What the reviewer reads before the tag.** A feature proof of the pull request's head, by a reviewer who didn't implement it:
 
 - **Task 5 against this plan as amended:** it repeats the `browserslist` and baseline-browser-mapping readings, the build's byte identity, and the pack listing, and reads the README section against `RD-27` property 3.
