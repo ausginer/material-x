@@ -1,0 +1,108 @@
+# probes/rf70-probe.spec.browser.test.ts on both builds, Chromium 158, Firefox 159, WebKit 27.2.
+# Each engine's block is followed by its ✓ line. The screenshots it writes are compared in screenshots.txt.
+
+######## base
+RF70-COLOURS
+md-sys-color-shadow: rgb(255, 0, 255)
+mx-button: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color '#000'; --_level '1'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px'
+mx-fab: --_shadow-color #000 -> rgb(0, 0, 0); --_container-shadow-color '#000'; --_level '6'; box-shadow 'none'
+mx-list-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+mx-list-button-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+mx-list-link-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+token button.color.elevated container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token button.color.elevated shadow.color: "var(--_container-shadow-color)"
+token fab.color.default container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token fab.color.default shadow.color: "var(--_container-shadow-color)"
+token list-item.default shadow.color: ERROR Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+token elevation shadow-color: "var(--md-sys-color-surface-tint, #3F6900)"
+RF70-DRAG mx-list-button-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=false lifted=false events=pointermove,pointerdown,pointermove,dragstart,pointercancel
+RF70-DRAG mx-list-link-item noNativeDrag=true lifted=false events=pointermove,pointerdown,pointermove,dragstart,pointercancel
+ ✓ |spec (chromium)| tests/core/rf70-probe.spec.browser.test.ts (5 tests) 1563ms
+RF70-COLOURS
+md-sys-color-shadow: rgb(255, 0, 255)
+mx-button: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color '#000'; --_level '1'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px'
+mx-fab: --_shadow-color #000 -> rgb(0, 0, 0); --_container-shadow-color '#000'; --_level '6'; box-shadow 'none'
+mx-list-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+mx-list-button-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+mx-list-link-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+token button.color.elevated container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token button.color.elevated shadow.color: "var(--_container-shadow-color)"
+token fab.color.default container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token fab.color.default shadow.color: "var(--_container-shadow-color)"
+token list-item.default shadow.color: ERROR Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+token elevation shadow-color: "var(--md-sys-color-surface-tint, #3F6900)"
+RF70-DRAG mx-list-button-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=false lifted=false events=pointermove,pointerdown,pointermove,dragstart,pointercancel
+RF70-DRAG mx-list-link-item noNativeDrag=true lifted=true events=pointermove,pointerdown,pointermove
+ ✓ |spec/firefox (firefox)| tests/core/rf70-probe.spec.browser.test.ts (5 tests) 1237ms
+RF70-COLOURS
+md-sys-color-shadow: rgb(255, 0, 255)
+mx-button: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color '#000'; --_level '1'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px'
+mx-fab: --_shadow-color #000 -> rgb(0, 0, 0); --_container-shadow-color '#000'; --_level '6'; box-shadow 'none'
+mx-list-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+mx-list-button-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+mx-list-link-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'none'
+token button.color.elevated container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token button.color.elevated shadow.color: "var(--_container-shadow-color)"
+token fab.color.default container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token fab.color.default shadow.color: "var(--_container-shadow-color)"
+token list-item.default shadow.color: ERROR Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+token elevation shadow-color: "var(--md-sys-color-surface-tint, #3F6900)"
+RF70-DRAG mx-list-button-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=true lifted=true events=pointermove,pointerdown,pointermove
+ ✓ |spec/webkit (webkit)| tests/core/rf70-probe.spec.browser.test.ts (5 tests) 791ms
+
+######## head
+RF70-COLOURS
+md-sys-color-shadow: rgb(255, 0, 255)
+mx-button: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color '#000'; --_level '1'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px'
+mx-fab: --_shadow-color #000 -> rgb(0, 0, 0); --_container-shadow-color '#000'; --_level '6'; box-shadow 'color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px'
+mx-list-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+mx-list-button-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+mx-list-link-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+token button.color.elevated container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token button.color.elevated shadow.color: "var(--_container-shadow-color)"
+token fab.color.default container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token fab.color.default shadow.color: "var(--_container-shadow-color)"
+token list-item.default shadow.color: ERROR Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+token elevation shadow-color: "var(--md-sys-color-surface-tint, #3F6900)"
+RF70-DRAG mx-list-button-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=false lifted=false events=pointermove,pointerdown,pointermove,dragstart,pointercancel
+RF70-DRAG mx-list-link-item noNativeDrag=true lifted=false events=pointermove,pointerdown,pointermove,dragstart,pointercancel
+ ✓ |spec (chromium)| tests/core/rf70-probe.spec.browser.test.ts (5 tests) 1531ms
+RF70-COLOURS
+md-sys-color-shadow: rgb(255, 0, 255)
+mx-button: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color '#000'; --_level '1'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px'
+mx-fab: --_shadow-color #000 -> rgb(0, 0, 0); --_container-shadow-color '#000'; --_level '6'; box-shadow 'color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px'
+mx-list-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+mx-list-button-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+mx-list-link-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+token button.color.elevated container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token button.color.elevated shadow.color: "var(--_container-shadow-color)"
+token fab.color.default container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token fab.color.default shadow.color: "var(--_container-shadow-color)"
+token list-item.default shadow.color: ERROR Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+token elevation shadow-color: "var(--md-sys-color-surface-tint, #3F6900)"
+RF70-DRAG mx-list-button-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=false lifted=false events=pointermove,pointerdown,pointermove,dragstart,pointercancel
+RF70-DRAG mx-list-link-item noNativeDrag=true lifted=true events=pointermove,pointerdown,pointermove
+ ✓ |spec/firefox (firefox)| tests/core/rf70-probe.spec.browser.test.ts (5 tests) 1260ms
+RF70-COLOURS
+md-sys-color-shadow: rgb(255, 0, 255)
+mx-button: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color '#000'; --_level '1'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px'
+mx-fab: --_shadow-color #000 -> rgb(0, 0, 0); --_container-shadow-color '#000'; --_level '6'; box-shadow 'color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px'
+mx-list-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+mx-list-button-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+mx-list-link-item: --_shadow-color #3f6900 -> rgb(63, 105, 0); --_container-shadow-color ''; --_level '0'; box-shadow 'color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px'
+token button.color.elevated container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token button.color.elevated shadow.color: "var(--_container-shadow-color)"
+token fab.color.default container.shadow-color: "var(--md-sys-color-shadow, #000000)"
+token fab.color.default shadow.color: "var(--_container-shadow-color)"
+token list-item.default shadow.color: ERROR Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+token elevation shadow-color: "var(--md-sys-color-surface-tint, #3F6900)"
+RF70-DRAG mx-list-button-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=false lifted=true events=pointermove,pointerdown,pointermove
+RF70-DRAG mx-list-link-item noNativeDrag=true lifted=true events=pointermove,pointerdown,pointermove
+ ✓ |spec/webkit (webkit)| tests/core/rf70-probe.spec.browser.test.ts (5 tests) 789ms

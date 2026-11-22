@@ -1,0 +1,6 @@
+# packages/material-x: MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts, on an export of 966ec0354
+# (every project of the package's configuration; visual is off without MX_TEST_VISUAL=1)
+ RUN  v5.1.0 <scratch>/head/packages/material-x
+ Test Files  74 passed (74)
+      Tests  1651 passed | 1 expected fail | 4 skipped (1656)
+   Duration  122.08s (tests 87%, import 6%, worker 5%, setup 1%)
