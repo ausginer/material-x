@@ -1,0 +1,22 @@
+# node bench/consistency.ts, 2026-11-22, 12th Gen Intel(R) Core(TM) i7-1255U, 12 logical CPUs, Linux 7.2.15-200.fc44.x86_64, in the devcontainer, Node v26.13.1
+
+Witness: an unreferenced object is collected; a referenced one is kept.
+
+| Property | @preact/signals-core | alien-signals | usignal | @webreflection/signals |
+| --- | --- | --- | --- | --- |
+| P1 the effect sees a consistent d in the diamond | holds | holds | holds | **fails**: ["1:2+3","2:2+3","2:4+3","2:4+6","3:4+6","3:6+6","3:6+9"], expected ["1:2+3","2:4+6","3:6+9"] |
+| P2 one write to a runs b, c and d once each | holds | holds | holds | **fails**: {"b":1,"c":1,"d":3}, expected {"b":1,"c":1,"d":1} |
+| P2 one write to a runs the effect once | holds | holds | holds | **fails**: {"effect":3}, expected {"effect":1} |
+| P3 a computed whose value is unchanged does not rerun its consumers | holds | holds | **fails**: {"consumer":1,"effect":1}, expected {"consumer":0,"effect":0} | **fails**: {"consumer":1,"effect":1}, expected {"consumer":0,"effect":0} |
+| P3 a write of an equal value runs no effect | holds | holds | holds | **fails**: {"effect":1}, expected {"effect":0} |
+| P3 the equality function a signal names | n/a: no equality option | n/a: no equality option | holds | n/a: no equality option |
+| P4 an unobserved computed does not run on a write | holds | holds | holds | holds |
+| witness: the source holds a computed that an effect observes | holds | holds | holds | holds |
+| P4 the source of a computed that was read does not hold it | holds | **fails**: the source holds the computed | **fails**: the source holds the computed | **fails**: the source holds the computed |
+| P4 a computed whose last observer is disposed does not run on a write | holds | holds | holds | holds |
+| P4 the source does not hold a computed whose last observer is disposed | holds | holds | **fails**: the source holds the computed | **fails**: the source holds the computed |
+| P4 a computed is current when read after its last observer is disposed | holds | holds | holds | holds |
+| P10 the writes in a batch propagate once, at its end | holds | holds | holds | holds |
+| P10 nested batches flush at the end of the outermost one | holds | holds | holds | holds |
+| P10 a batch whose function throws still flushes, and the effect runs on a later write | holds | holds | **fails**: [1], expected [1,2,3] | holds |
+| tracking: after a branch switch, a write to the input no longer read runs nothing, and one to the newly read input runs the effect | holds | holds | holds | **fails**: {"afterOld":{"picked":1,"effect":1},"afterNew":{"picked":2,"effect":2},"seen":[1,2,2,20]}, expected {"afterOld":{"picked":0,"effect":0},"afterNew":{"picked":1,"effect":1},"seen":[1,2,20]} |

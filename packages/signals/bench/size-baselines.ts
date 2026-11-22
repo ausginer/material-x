@@ -1,8 +1,9 @@
 /* oxlint-disable no-await-in-loop, no-console -- a measurement script: serial, and it prints its readings */
 /**
- * Reads the Brotli size of `@ydinjs/signals` and of the two baselines,
- * `@preact/signals-core` and `alien-signals`, each in a module that imports the
- * same features, through the preset that measures the package's rows. The
+ * Reads the Brotli size of `@ydinjs/signals` and of the baselines,
+ * `@preact/signals-core`, `alien-signals`, `usignal` (its synchronous effects,
+ * `usignal/sync`) and `@webreflection/signals`, each in a module that imports
+ * the same features, through the preset that measures the package's rows. The
  * figures are readings for comparison, not rows: run `just build` first, since
  * the `@ydinjs/signals` fixtures read the build.
  *
@@ -39,6 +40,19 @@ const FIXTURES: ReadonlyArray<readonly [name: string, source: string]> = [
   [
     'alien-signals: signal, computed, effect, startBatch, endBatch',
     `export { signal, computed, effect, startBatch, endBatch } from 'alien-signals';`,
+  ],
+  ['usignal: signal', `export { signal } from 'usignal/sync';`],
+  [
+    'usignal: signal, computed, effect, batch',
+    `export { signal, computed, effect, batch } from 'usignal/sync';`,
+  ],
+  [
+    '@webreflection/signals: signal',
+    `export { signal } from '@webreflection/signals';`,
+  ],
+  [
+    '@webreflection/signals: signal, computed, effect, batch',
+    `export { signal, computed, effect, batch } from '@webreflection/signals';`,
   ],
 ];
 

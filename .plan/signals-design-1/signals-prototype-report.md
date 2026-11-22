@@ -12,6 +12,7 @@
 | **(A) `0e539a468`** | `packages/signals`, its workspace wiring, core's changes, the manifests, and the button group's forwarding on signals with **the button's helper importing `effect`**. |
 | **(B) `044d9c2ef`** | The same flow with **the context value carrying `watch`**, a function the group made, which creates the button's effect. The button imports nothing from signals. |
 | the report commit, after (B) | This report, its readings under [`checks/`](checks/), the benchmarks and the browser probe. It changes no source the flow runs, so the code at the head is shape (B). |
+| the baselines commit, after the report commit | `usignal` and `@webreflection/signals` in the size and speed benchmarks, the consistency probe `bench/consistency.ts`, and [§Two more baselines](#two-more-baselines-usignal-and-webreflectionsignals). It changes no source the flow runs. |
 
 To try (A): `git switch --detach 0e539a468`, then `aube install` and the commands below. Return with `git switch repo/signals-design-1`.
 
@@ -21,7 +22,7 @@ To try (A): `git switch --detach 0e539a468`, then `aube install` and the command
 - **Wiring:** the root `Justfile`'s project lists, root `vitest.config.ts`, `.scripts/vitest-config.ts` (`createSignalsTestConfig`, the `signals/` projects), and `MEASURED` in `.scripts/size-reading.ts`.
 - **Core:** `src/emitter.ts`, `tests/emitter.browser.test.ts`, the export, the `files.json` entry and the `.size-limit.json` row deleted. `Unsubscribe` is now exported by `src/controllers/useContext.ts`, whose JSDoc names signals. New controller `src/controllers/useEffect.ts` with `tests/controllers/useEffect.browser.test.ts`. `docs/api.ts` lists it in place of the emitter.
 - **material-x:** `src/button-group/button-group-context.ts` and `src/core/utils/useContext.ts`. `ButtonCore.ts`, `SwitchCore.ts` and `ButtonGroupCore.ts` are unchanged. Probe in `bench/`.
-- **Manifests:** `@ydinjs/signals` `0.1.0` is a required peer and a dev dependency of material-x, and an optional peer (`peerDependenciesMeta`) and a dev dependency of core. Signals' dev dependencies `@preact/signals-core` `1.14.5` and `alien-signals` `3.2.1` are exact. The lockfile recorded the peers through `aube install --fix-lockfile`, then `aube install --frozen-lockfile --force`; `node_modules/@ydinjs` holds all eight workspace packages.
+- **Manifests:** `@ydinjs/signals` `0.1.0` is a required peer and a dev dependency of material-x, and an optional peer (`peerDependenciesMeta`) and a dev dependency of core. Signals' dev dependencies `@preact/signals-core` `1.14.5`, `alien-signals` `3.2.1`, `usignal` `0.10.0` and `@webreflection/signals` `0.2.8` are exact. The lockfile recorded the peers through `aube install --fix-lockfile`, then `aube install --frozen-lockfile --force`; `node_modules/@ydinjs` holds all eight workspace packages.
 
 ### Provisional names, for the owner
 
@@ -42,6 +43,7 @@ aube install                                   # the lockfile; then check node_m
 cd packages/signals && aube exec just test     # 4 files, 53 tests pass
 node packages/signals/bench/speed.ts           # the speed table, about 5 s
 node packages/signals/bench/allocation.ts      # the P8 and C4 probe
+node packages/signals/bench/consistency.ts     # P1 to P4 and P10 against the four other libraries
 node packages/signals/bench/size-baselines.ts  # run `aube exec just build` in packages/signals first
 cd packages/material-x && aube exec just test tests/button-group   # with tests/button: 10 files, 222 tests pass on (A) and on (B)
 cd packages/material-x && aube exec vitest run -c bench/vitest.config.ts --silent=false   # the connect probe
@@ -167,6 +169,87 @@ What the cases show, with the explanation as an estimate where no probe isolated
 
 **The probe can't tell the three apart:** the ranges overlap, and an earlier invocation at the base read a median near 2,100 ms. About 2 ms a cycle, 40 µs a button, is mostly the button's own connect and disconnect, which is the same in all three. **Retained heap:** `performance.memory.usedJSHeapSize` is coarse in Chromium without `--enable-precise-memory-info`, and the probe can't force a collection. Its figures after a run move between 9 MB and 43 MB with collections at every commit, and the lowest figure after a run is 9.3 MB at the base, 9.7 MB at (A) and 9.8 MB at (B). That is no evidence of retention, and also no evidence of its absence. A heap snapshot after disconnect would answer it, and wasn't taken.
 
+## Two more baselines: `usignal` and `@webreflection/signals`
+
+The owner asked which library would do better than these two. They are `usignal` 0.10.0 and `@webreflection/signals` 0.2.8, both by the same author. Both are exact dev dependencies of `packages/signals`. aube refused `@webreflection/signals` at first because its name is one letter away from `@webreflection/signal`, a different package. The registry shows the same maintainer for both, 0.2.8 as the latest version (published 2026-05-30), no dependencies and no install script, so the package was added with `--allow-low-downloads`. Then `aube install --frozen-lockfile --force`, and `node_modules/@ydinjs` holds all eight workspace packages. Under the `browser` condition, `usignal`'s root export runs effects in a microtask, and the benchmarks import `usignal/sync` so that its effects run synchronously, as the others' do.
+
+### Features and shape
+
+Read from each package's published source.
+
+| Library | Batch | Equality | Lazy computed | Disposal | Shape |
+| --- | --- | --- | --- | --- | --- |
+| `@ydinjs/signals` | `batch(fn)` | `Object.is`, or the node's own `equals` | yes | `effect` returns a disposer | Plain object literals of one node shape, with free functions in `graph.ts` |
+| `@preact/signals-core` 1.14.5 | `batch(fn)` | `!==` on signals and computeds; no option | yes | yes | Constructor functions with their methods on `prototype` (`function Signal()`, `Signal.prototype._refresh`). The `.d.ts` declares them as classes |
+| `alien-signals` 3.2.1 | **No batch function:** `startBatch()` and `endBatch()` | `!==`; no option | yes | yes | Plain records with free functions. A signal or computed is its operator function bound to its record (`signalOper.bind({ … })`) |
+| `usignal` 0.10.0 | `batch(fn)` | `Object.is` by default; `equals` option on `signal` and `computed` | yes | yes | ES classes: `Signal`, `Reactive` and `Computed` extend it, then `FX` and `Effect` extend `Computed`. Fields are public, with one-letter names |
+| `@webreflection/signals` 0.2.8 | `batch(fn)` | **None:** every write notifies, also for an equal value, and no computed stops propagation | yes | yes | ES classes `Signal` and `Computed` with `#private` fields and a static block, a class `Effect` with public fields, and free functions `signal`, `computed`, `effect`, `batch`, `untracked` |
+
+### Size, Brotli bytes
+
+`node packages/signals/bench/size-baselines.ts`, through the same preset as the other rows ([`size-baselines-five.txt`](checks/size-baselines-five.txt)):
+
+| Library | `signal` | `signal`, `computed`, `effect`, batch |
+| --- | --- | --- |
+| `@ydinjs/signals` | 291 B | 1,231 B |
+| `@preact/signals-core` | 1,491 B | 1,545 B |
+| `alien-signals` (`startBatch`, `endBatch`) | 1,368 B | 1,567 B |
+| `usignal` (`usignal/sync`) | 359 B | 829 B |
+| `@webreflection/signals` | 188 B | 515 B |
+
+### Speed
+
+`node packages/signals/bench/speed.ts`, two runs ([`speed-five.txt`](checks/speed-five.txt)). Each cell gives the median per operation as run 1 / run 2. The file also has the spreads.
+
+| Case | ydin | Preact | alien | usignal | webreflection |
+| --- | --- | --- | --- | --- | --- |
+| 1a. chain of 10 | 316 / 342 ns | 273 / 398 ns | 243 / 282 ns | 752 / 842 ns | 417 / 437 ns |
+| 1b. diamond | 142 / 137 ns | 156 / 148 ns | 98 / 100 ns | 312 / 284 ns | 206 / 191 ns |
+| 2. branch switch | 83 / 85 ns | 131 / 133 ns | 96 / 105 ns | 217 / 457 ns | 84 / 100 ns |
+| 3. 100 inputs, 3 read | 279 / 277 ns | 123 / 116 ns | 86 / 85 ns | 198 / 197 ns | 94 / 88 ns |
+| 4. create and dispose, 1 input | 86 / 95 ns | 61 / 58 ns | 43 / 43 ns | 674 / 508 ns | 124 / 125 ns |
+| 4. the same, 10 inputs | 465 / 394 ns | 261 / 272 ns | 240 / 191 ns | 1.16 / 1.12 µs | 467 / 681 ns |
+| 4. the same, 100 inputs | 3.79 / 3.43 µs | 1.69 / 1.64 µs | 1.45 / 1.38 µs | 17.5 / 9.18 µs | 4.95 / 7.13 µs |
+| 5. family scan | 692 / 711 ns | 501 / 549 ns | 431 / 446 ns | 1.19 / 1.24 µs | 367 / 390 ns |
+
+**The webreflection cells don't measure the same work.** In 1b it runs `d` and the effect three times per write, as P2's failure below shows. In case 5 it runs the effect on every write, although the first match doesn't change, because no computed stops propagation. **usignal is the slowest in every case.** Its case 4 spread is wide: 258 ns to 2.08 µs for one input in run 1. An estimate from the source: each node allocates two `Set`s, and disposal clears them.
+
+### Consistency
+
+`node packages/signals/bench/consistency.ts` runs the suite's cases with dynamic reads, through one adapter per library ([`consistency.txt`](checks/consistency.txt), with the observed values of each failure). Two runs printed the same table. Whether a source still holds a computed is read with a `WeakRef` to the computed's function and a forced garbage collection. Two witnesses check the method: an unreferenced object is collected, and a computed that an effect observes is held, in all four libraries. **The ydin column is not from this probe.** It cites the suite (`tests/propagation.browser.test.ts`, `tests/narrowing.browser.test.ts`), which checks a subscription by reading the node's fields, not by collection. One extra one-off run showed that the ydin effect runs on a write after a batch that throws.
+
+| Property | ydin (suite) | Preact | alien | usignal | webreflection |
+| --- | --- | --- | --- | --- | --- |
+| P1 the diamond's effect sees a consistent `d` | holds | holds | holds | holds | **fails** |
+| P2 one write runs `b`, `c` and `d` once each | holds | holds | holds | holds | **fails** |
+| P2 one write runs the effect once | holds | holds | holds | holds | **fails** |
+| P3 a computed with an unchanged value doesn't rerun its consumers | holds | holds | holds | **fails** | **fails** |
+| P3 a write of an equal value runs no effect | holds | holds | holds | holds | **fails** |
+| P3 the node's own equality function | holds | no option | no option | holds | no option |
+| P4 an unobserved computed doesn't run on a write | holds | holds | holds | holds | holds |
+| P4 the source doesn't hold a computed that was only read | holds | holds | **fails** | **fails** | **fails** |
+| P4 a computed whose last observer is disposed doesn't run on a write | holds | holds | holds | holds | holds |
+| P4 the source doesn't hold that computed | holds | holds | holds | **fails** | **fails** |
+| P4 that computed is current when read | holds | holds | holds | holds | holds |
+| P10 a batch's writes propagate once, at its end | holds | holds | holds | holds | holds |
+| P10 nested batches flush at the end of the outermost | holds | holds | holds | holds | holds |
+| P10 a throwing batch still flushes, and the effect runs on a later write | holds | holds | holds, by the adapter's `finally` | **fails** | holds |
+| Tracking: after a branch switch, a write to the old input runs nothing | holds (P5, P6, declared) | holds | holds | holds | **fails** |
+
+**The failing cases.** Each one is observed. Each mechanism is an estimate from the published source, and no probe isolated it.
+
+- **webreflection, P1 and P2.** For writes 2 and 3 to `a`, the effect sees `1:2+3`, `2:2+3`, `2:4+3`, `2:4+6`, `3:4+6`, `3:6+6`, `3:6+9`. `d` and the effect run three times per write. Mechanism: a write notifies its subscribers one by one, and an effect runs as soon as it is notified. `a`'s first subscriber is `d`, so the effect reads `d` before `b` and `c` are invalid. After that, `b` and then `c` notify `d` again.
+- **webreflection, P3.** An equal write to a signal runs the effect, and a computed whose value is unchanged (`n % 2` for `n` going from 1 to 3) reruns its consumer and the effect. The library has no equality check.
+- **usignal, P3 at a computed.** The consumer and the effect each run once although `parity` is unchanged. Mechanism: a write marks every downstream computed and effect before anything recomputes, so a computed can't stop the propagation. An equal write to a signal is cut off.
+- **alien, usignal and webreflection, P4, a read computed.** A computed that was only read stays reachable from its source. Mechanism in alien: the computed's run links it to its sources with no observer. The others keep it in the source's subscriber set.
+- **usignal and webreflection, P4, after disposal.** The source still holds the computed after its last effect is disposed. Disposing the effect clears the effect's own sets, and the computed stays in the source's set. In webreflection it stays until the source's next write.
+- **usignal, P10.** When the batched function throws, no effect runs, and **the effect never runs again**: `seen` stays `[1]` after a later write. Mechanism: `batch` flushes inside its `try`, after the function, so the throw skips the flush and leaves the effect marked. The marking pass skips a node that is already marked.
+- **webreflection, tracking.** After `show` switches to `false`, a write to `left` reruns `picked` and the effect once. Mechanism: a source keeps a subscriber until its next write, which replaces its subscriber set. A read only adds to it.
+
+**Dynamic tracking is these libraries' form of narrowing.** Each run subscribes to what it read. There is no declared input to compare with P5 and P6, so the last row is the nearest case: Preact, alien and usignal drop the unread input at the run that stops reading it, and webreflection drops it after one stale run.
+
+**For the owner's question, evidence and not a verdict.** Both libraries are smaller than `@ydinjs/signals`: 515 B and 829 B against 1,231 B for the four features. Neither holds what the prototype's suite holds. webreflection fails P1, P2 and P3, keeps computeds alive from their sources, and runs once on a stale input. usignal fails the cut-off at a computed and keeps computeds alive from their sources, and a throwing batch stops its effects for good. It is also the slowest in every speed case. In this comparison, the only libraries that hold every property they offer are Preact, `alien-signals` and `@ydinjs/signals`. alien also keeps a computed that was only read alive.
+
 ## Properties
 
 | Property | Result | Where |
@@ -246,7 +329,7 @@ Evidence, not answers.
 ## Handoff
 
 - **Input:** `5c7e48fbd`, the task and revision 2 of the draft; `CONTRIBUTING.md`, `handoff.md`, `technical-english.md`, `agent-workflow.md` §Architecture prototypes.
-- **Outcome:** (A) `0e539a468` and (B) `044d9c2ef` on `repo/signals-design-1`, and this report with its readings in the commit after them.
+- **Outcome:** (A) `0e539a468` and (B) `044d9c2ef` on `repo/signals-design-1`, and this report with its readings in the commit after them. The two further baselines and the consistency probe are in the commit after that.
 - **Verification:** as listed under the commands; the one deviation from the parity check is core's `useContext` test.
 - **Open:** Q4, Q9, Q10, Q11, and whether to continue.
 - **Next:** the owner evaluates the prototype. Then the architect revises the draft.

@@ -51,9 +51,11 @@
   },
   "devDependencies": {
     "@preact/signals-core": "1.14.5",
+    "@webreflection/signals": "0.2.8",
     "alien-signals": "3.2.1",
     "size-limit": "14.3.0",
-    "size-limit-preset-rolldown": "0.1.0"
+    "size-limit-preset-rolldown": "0.1.0",
+    "usignal": "0.10.0"
   },
   "browserslist": "baseline newly available"
 }

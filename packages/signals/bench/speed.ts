@@ -1,7 +1,8 @@
 /* oxlint-disable no-console -- a measurement script: it prints its readings */
 /**
- * Compares `@ydinjs/signals` with `@preact/signals-core` and `alien-signals`
- * on the prototype task's five cases. Each case builds its graph once per
+ * Compares `@ydinjs/signals` with `@preact/signals-core`, `alien-signals`,
+ * `usignal` (its synchronous effects, `usignal/sync`) and
+ * `@webreflection/signals` on the prototype task's five cases. Each case builds its graph once per
  * library and times one operation repeated: warm-up samples first, then timed
  * samples, each of the same number of operations. It prints the median time
  * per operation and the spread of the samples, from the fastest to the
@@ -10,7 +11,9 @@
  * `node bench/speed.ts [--samples=N]`
  */
 import * as preact from '@preact/signals-core';
+import * as webreflection from '@webreflection/signals';
 import * as alien from 'alien-signals';
+import * as usignal from 'usignal/sync';
 import { family } from '../src/family.ts';
 import * as ydin from '../src/index.ts';
 
@@ -22,6 +25,8 @@ type Case = Readonly<{
   ydin(): () => void;
   preact(): () => void;
   alien(): () => void;
+  usignal(): () => void;
+  webreflection(): () => void;
 }>;
 
 const WARMUP_SAMPLES = 10;
@@ -94,6 +99,46 @@ const CASES: readonly Case[] = [
         head(value);
       };
     },
+    usignal() {
+      const head = usignal.signal(0);
+      let tail: { readonly value: number } = head;
+
+      for (let index = 0; index < 10; index += 1) {
+        const previous = tail;
+        tail = usignal.computed<number, undefined, number>(
+          () => previous.value + 1,
+        );
+      }
+
+      const last = tail;
+      usignal.effect(() => {
+        sink = last.value;
+      });
+      let value = 0;
+      return () => {
+        value += 1;
+        head.value = value;
+      };
+    },
+    webreflection() {
+      const head = webreflection.signal(0);
+      let tail: { readonly value: number } = head;
+
+      for (let index = 0; index < 10; index += 1) {
+        const previous = tail;
+        tail = webreflection.computed(() => previous.value + 1);
+      }
+
+      const last = tail;
+      webreflection.effect(() => {
+        sink = last.value;
+      });
+      let value = 0;
+      return () => {
+        value += 1;
+        head.value = value;
+      };
+    },
   },
   {
     name: '1b. diamond a → b, c → d and an effect, write a',
@@ -138,6 +183,34 @@ const CASES: readonly Case[] = [
       return () => {
         value += 1;
         a(value);
+      };
+    },
+    usignal() {
+      const a = usignal.signal(0);
+      const b = usignal.computed(() => a.value * 2);
+      const c = usignal.computed(() => a.value * 3);
+      const d = usignal.computed(() => b.value + c.value);
+      usignal.effect(() => {
+        sink = d.value;
+      });
+      let value = 0;
+      return () => {
+        value += 1;
+        a.value = value;
+      };
+    },
+    webreflection() {
+      const a = webreflection.signal(0);
+      const b = webreflection.computed(() => a.value * 2);
+      const c = webreflection.computed(() => a.value * 3);
+      const d = webreflection.computed(() => b.value + c.value);
+      webreflection.effect(() => {
+        sink = d.value;
+      });
+      let value = 0;
+      return () => {
+        value += 1;
+        a.value = value;
       };
     },
   },
@@ -190,6 +263,38 @@ const CASES: readonly Case[] = [
         show(value);
       };
     },
+    usignal() {
+      const show = usignal.signal(true);
+      const left = usignal.signal(1);
+      const right = usignal.signal(2);
+      const picked = usignal.computed(() =>
+        show.value ? left.value : right.value,
+      );
+      usignal.effect(() => {
+        sink = picked.value;
+      });
+      let value = true;
+      return () => {
+        value = !value;
+        show.value = value;
+      };
+    },
+    webreflection() {
+      const show = webreflection.signal(true);
+      const left = webreflection.signal(1);
+      const right = webreflection.signal(2);
+      const picked = webreflection.computed(() =>
+        show.value ? left.value : right.value,
+      );
+      webreflection.effect(() => {
+        sink = picked.value;
+      });
+      let value = true;
+      return () => {
+        value = !value;
+        show.value = value;
+      };
+    },
   },
   {
     name: '3. 100 declared inputs, 3 read per run, write a read one',
@@ -237,6 +342,34 @@ const CASES: readonly Case[] = [
         inputs[42]!(value);
       };
     },
+    usignal() {
+      const inputs = range(100).map((index) => usignal.signal(index));
+      const sum = usignal.computed(
+        () => inputs[7]!.value + inputs[42]!.value + inputs[93]!.value,
+      );
+      usignal.effect(() => {
+        sink = sum.value;
+      });
+      let value = 0;
+      return () => {
+        value += 1;
+        inputs[42]!.value = value;
+      };
+    },
+    webreflection() {
+      const inputs = range(100).map((index) => webreflection.signal(index));
+      const sum = webreflection.computed(
+        () => inputs[7]!.value + inputs[42]!.value + inputs[93]!.value,
+      );
+      webreflection.effect(() => {
+        sink = sum.value;
+      });
+      let value = 0;
+      return () => {
+        value += 1;
+        inputs[42]!.value = value;
+      };
+    },
   },
   ...[1, 10, 100].map((width): Case => ({
     name: `4. create and dispose an effect reading ${width} inputs`,
@@ -267,6 +400,26 @@ const CASES: readonly Case[] = [
         alien.effect(() => {
           for (const input of inputs) {
             sink = input();
+          }
+        })();
+      };
+    },
+    usignal() {
+      const inputs = range(width).map((index) => usignal.signal(index));
+      return () => {
+        usignal.effect(() => {
+          for (const input of inputs) {
+            sink = input.value;
+          }
+        })();
+      };
+    },
+    webreflection() {
+      const inputs = range(width).map((index) => webreflection.signal(index));
+      return () => {
+        webreflection.effect(() => {
+          for (const input of inputs) {
+            sink = input.value;
           }
         })();
       };
@@ -359,6 +512,60 @@ const CASES: readonly Case[] = [
         rows[10]!(value);
       };
     },
+    usignal() {
+      const rows = range(100).map((index) =>
+        usignal.signal(index === 50 ? 100 : 0),
+      );
+      const list = usignal.signal(rows);
+      const threshold = usignal.signal(10);
+      const firstMatch = usignal.computed(() => {
+        const limit = threshold.value;
+        const members = list.value;
+
+        for (let index = 0; index < members.length; index += 1) {
+          if (members[index]!.value > limit) {
+            return index;
+          }
+        }
+
+        return -1;
+      });
+      usignal.effect(() => {
+        sink = firstMatch.value;
+      });
+      let value = 0;
+      return () => {
+        value = (value + 1) % 5;
+        rows[10]!.value = value;
+      };
+    },
+    webreflection() {
+      const rows = range(100).map((index) =>
+        webreflection.signal(index === 50 ? 100 : 0),
+      );
+      const list = webreflection.signal(rows);
+      const threshold = webreflection.signal(10);
+      const firstMatch = webreflection.computed(() => {
+        const limit = threshold.value;
+        const members = list.value;
+
+        for (let index = 0; index < members.length; index += 1) {
+          if (members[index]!.value > limit) {
+            return index;
+          }
+        }
+
+        return -1;
+      });
+      webreflection.effect(() => {
+        sink = firstMatch.value;
+      });
+      let value = 0;
+      return () => {
+        value = (value + 1) % 5;
+        rows[10]!.value = value;
+      };
+    },
   },
 ];
 
@@ -396,12 +603,14 @@ console.log(
   `Node ${process.version}, ${SAMPLES} samples after ${WARMUP_SAMPLES} warm-up samples; median per operation, and the spread from the fastest sample to the slowest\n`,
 );
 console.log(
-  '| Case | @ydinjs/signals | @preact/signals-core | alien-signals |',
+  '| Case | @ydinjs/signals | @preact/signals-core | alien-signals | usignal | @webreflection/signals |',
 );
-console.log('| --- | --- | --- | --- |');
+console.log('| --- | --- | --- | --- | --- | --- |');
 
 for (const benchCase of CASES) {
-  const cells = (['ydin', 'preact', 'alien'] as const).map((library) => {
+  const cells = (
+    ['ydin', 'preact', 'alien', 'usignal', 'webreflection'] as const
+  ).map((library) => {
     const { median, min, max } = measure(
       benchCase[library](),
       benchCase.operations,

@@ -1,0 +1,12 @@
+# node bench/size-baselines.ts, 2026-11-22, 12th Gen Intel(R) Core(TM) i7-1255U, 12 logical CPUs, Linux 7.2.15-200.fc44.x86_64, in the devcontainer, Node v26.13.1
+
+@ydinjs/signals: signal: 291 B
+@ydinjs/signals: signal, computed, effect, batch: 1231 B
+@preact/signals-core: signal: 1491 B
+@preact/signals-core: signal, computed, effect, batch: 1545 B
+alien-signals: signal: 1368 B
+alien-signals: signal, computed, effect, startBatch, endBatch: 1567 B
+usignal: signal: 359 B
+usignal: signal, computed, effect, batch: 829 B
+@webreflection/signals: signal: 188 B
+@webreflection/signals: signal, computed, effect, batch: 515 B
