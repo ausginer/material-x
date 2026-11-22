@@ -35,6 +35,11 @@ import {
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
 import { type Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
+import {
+  type Validatable,
+  useValidatable,
+  type ValidatableProps,
+} from '@ydinjs/core/traits/validatable.js';
 import type { Valuable, ValuableProps } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
@@ -73,21 +78,25 @@ type InputElement = HTMLInputElement | HTMLTextAreaElement;
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   inputmode: Str as ConverterOf<TextFieldInputMode>,
   outlined: Bool,
+  readonly: Bool,
 })
 export class TextFieldLike extends AnyElement {
   accessor type!: TextFieldType | null;
   accessor inputmode!: TextFieldInputMode | null;
   accessor outlined!: boolean;
+  accessor readonly!: boolean;
 }
 
 export type TextFieldLikeProps = Props<typeof TextFieldLike>;
 
 export type TextFieldProperties = TextFieldLikeProps &
   DisableableProps &
-  ValuableProps;
+  ValuableProps &
+  ValidatableProps;
 export type TextFieldEvents = Readonly<{
   change: Event;
   input: InputEvent;
+  invalid: Event;
 }>;
 export type TextFieldCSSProperties = Readonly<{
   '--md-text-field-container-height'?: string;
@@ -108,6 +117,7 @@ export type TextFieldCoreTraits = readonly [
   typeof Disableable,
   typeof Valuable,
   typeof Nameable,
+  typeof Validatable,
 ];
 
 const TextFieldCoreConstructor: Composed<
@@ -196,9 +206,11 @@ export class TextFieldCore extends TextFieldCoreConstructor {
 
     useNameable(this, field);
     useDisableable(this, field);
+    useValidatable(this, field);
 
     useAttributes(this, {
       inputmode: transfer(field, 'inputmode'),
+      readonly: transfer(field, 'readonly'),
       value: (_, newValue) => {
         if (!this.#isDirty) {
           field.value = newValue ?? '';
@@ -207,6 +219,9 @@ export class TextFieldCore extends TextFieldCoreConstructor {
       },
       outlined: via(Bool, (_, newValue) => {
         toggleState(innards, 'outlined', newValue);
+      }),
+      error: via(Bool, (_, newValue) => {
+        toggleState(innards, 'error', newValue);
       }),
     });
 
@@ -257,21 +272,5 @@ export class TextFieldCore extends TextFieldCoreConstructor {
   #sync(): void {
     toggleState(internals(this), 'populated', !!this.#input.value);
     internals(this).setFormValue(this.#input.value);
-  }
-
-  checkValidity(): boolean {
-    const valid = internals(this).checkValidity();
-    toggleState(internals(this), 'error', !valid);
-    return valid;
-  }
-
-  reportValidity(): boolean {
-    const valid = internals(this).reportValidity();
-    toggleState(internals(this), 'error', !valid);
-    return valid;
-  }
-
-  setValidity(flags?: ValidityStateFlags, message?: string): void {
-    internals(this).setValidity(flags, message, this);
   }
 }

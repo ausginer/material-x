@@ -1,0 +1,15 @@
+# Relative links in .plan/00-index.md that resolve to no file, or to no heading of the named file.
+# Read by the architect on 2026-11-22 at origin/main 6a67badfd, with ../probes/index-links.mjs. Node v26.13.1.
+# The probe doesn't skip code spans: line 1373's 'o' is inside one and renders as code, so it isn't a link.
+63: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+79: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+1373: missing o
+2280: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+2280: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+2286: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+2286: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+2292: missing ../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md
+2292: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+2330: missing ../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md
+2330: missing ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+2691: anchor host-invariant-1/host-invariant-report.md#the-stop

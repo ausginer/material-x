@@ -409,6 +409,8 @@
       "value",
       "disabled",
       "name",
+      "error",
+      "required",
       "indeterminate"
     ],
     "reflection": [
@@ -477,6 +479,38 @@
         }
       },
       {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
         "name": "indeterminate",
         "property": {
           "1": "",
@@ -535,6 +569,11 @@
         "constructor": "Checkbox",
         "keys": [
           {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
             "key": "checked",
             "kind": "get+set",
             "enumerable": false
@@ -550,13 +589,43 @@
             "enumerable": false
           },
           {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "indeterminate",
             "kind": "get+set",
             "enumerable": false
           },
           {
+            "key": "labels",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "name",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
+            "kind": "function",
             "enumerable": false
           },
           {
@@ -580,13 +649,33 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
           },
           {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
             "enumerable": false
           }
         ]
@@ -1802,9 +1891,12 @@
       "type",
       "inputmode",
       "outlined",
+      "readonly",
       "disabled",
       "value",
-      "name"
+      "name",
+      "error",
+      "required"
     ],
     "reflection": [
       {
@@ -1841,6 +1933,22 @@
       },
       {
         "name": "outlined",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "readonly",
         "property": {
           "1": "",
           "true": "",
@@ -1901,6 +2009,38 @@
           "\"\"": "",
           "\"x\"": "x",
           "\"1\"": "1"
+        }
+      },
+      {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
         }
       }
     ],
@@ -1968,12 +2108,27 @@
             "enumerable": false
           },
           {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "inputmode",
             "kind": "get+set",
             "enumerable": false
           },
           {
             "key": "isPopulated",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "labels",
             "kind": "get",
             "enumerable": false
           },
@@ -1988,12 +2143,22 @@
             "enumerable": false
           },
           {
+            "key": "readonly",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "reportValidity",
             "kind": "function",
             "enumerable": false
           },
           {
-            "key": "setValidity",
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
             "kind": "function",
             "enumerable": false
           },
@@ -2013,6 +2178,11 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
@@ -2023,8 +2193,23 @@
             "enumerable": false
           },
           {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
             "enumerable": false
           }
         ]
@@ -2038,7 +2223,9 @@
       "checked",
       "value",
       "disabled",
-      "name"
+      "name",
+      "error",
+      "required"
     ],
     "reflection": [
       {
@@ -2104,6 +2291,38 @@
           "\"x\"": "x",
           "\"1\"": "1"
         }
+      },
+      {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
       }
     ],
     "instanceOf": {
@@ -2148,6 +2367,11 @@
         "constructor": "Radio",
         "keys": [
           {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
             "key": "checked",
             "kind": "get+set",
             "enumerable": false
@@ -2163,8 +2387,38 @@
             "enumerable": false
           },
           {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "labels",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "name",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
+            "kind": "function",
             "enumerable": false
           },
           {
@@ -2183,13 +2437,33 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
           },
           {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
             "enumerable": false
           }
         ]
@@ -2435,7 +2709,9 @@
       "shape",
       "disabled",
       "checked",
-      "value"
+      "value",
+      "error",
+      "required"
     ],
     "reflection": [
       {
@@ -2533,6 +2809,38 @@
           "\"x\"": "x",
           "\"1\"": "1"
         }
+      },
+      {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
       }
     ],
     "instanceOf": {
@@ -2577,6 +2885,11 @@
         "constructor": "SwitchButton",
         "keys": [
           {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
             "key": "checked",
             "kind": "get+set",
             "enumerable": false
@@ -2597,7 +2910,37 @@
             "enumerable": false
           },
           {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "labels",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
             "kind": "function",
             "enumerable": false
           },
@@ -2632,13 +2975,33 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
           },
           {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
             "enumerable": false
           }
         ]
@@ -2655,6 +3018,8 @@
       "disabled",
       "checked",
       "value",
+      "error",
+      "required",
       "width"
     ],
     "reflection": [
@@ -2755,6 +3120,38 @@
         }
       },
       {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
         "name": "width",
         "property": {
           "1": "1",
@@ -2813,6 +3210,11 @@
         "constructor": "SwitchIconButton",
         "keys": [
           {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
             "key": "checked",
             "kind": "get+set",
             "enumerable": false
@@ -2833,7 +3235,37 @@
             "enumerable": false
           },
           {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "labels",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
             "kind": "function",
             "enumerable": false
           },
@@ -2873,8 +3305,23 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Valuable",
             "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
             "enumerable": false
           },
           {
@@ -2885,6 +3332,11 @@
           {
             "key": "width",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
             "enumerable": false
           }
         ]
@@ -2898,9 +3350,12 @@
       "type",
       "inputmode",
       "outlined",
+      "readonly",
       "disabled",
       "value",
-      "name"
+      "name",
+      "error",
+      "required"
     ],
     "reflection": [
       {
@@ -2937,6 +3392,22 @@
       },
       {
         "name": "outlined",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "readonly",
         "property": {
           "1": "",
           "true": "",
@@ -2997,6 +3468,38 @@
           "\"\"": "",
           "\"x\"": "x",
           "\"1\"": "1"
+        }
+      },
+      {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
         }
       }
     ],
@@ -3064,12 +3567,27 @@
             "enumerable": false
           },
           {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "inputmode",
             "kind": "get+set",
             "enumerable": false
           },
           {
             "key": "isPopulated",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "labels",
             "kind": "get",
             "enumerable": false
           },
@@ -3084,12 +3602,22 @@
             "enumerable": false
           },
           {
+            "key": "readonly",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
             "key": "reportValidity",
             "kind": "function",
             "enumerable": false
           },
           {
-            "key": "setValidity",
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
             "kind": "function",
             "enumerable": false
           },
@@ -3109,6 +3637,11 @@
             "enumerable": false
           },
           {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
             "key": "symbol:Valuable",
             "kind": "value",
             "enumerable": false
@@ -3119,8 +3652,23 @@
             "enumerable": false
           },
           {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
             "enumerable": false
           }
         ]

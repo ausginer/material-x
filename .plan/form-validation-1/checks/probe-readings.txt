@@ -1,0 +1,153 @@
+# Probe readings, run 2026-11-22T08:02Z at 00fd35592 with Playwright 1.65.0
+# Engines: chromium 158.0.8127.18, firefox 159.0, webkit 27.2
+
+## probes/review-probe.mjs.txt
+chromium {
+ "hostApi": [
+  "validity:false",
+  "validationMessage:false",
+  "willValidate:false",
+  "setCustomValidity:false",
+  "form:false",
+  "labels:false"
+ ],
+ "internalFormOwner": "null",
+ "email": {
+  "internalTypeMismatch": true,
+  "hostValid": true,
+  "nativeTypeMismatch": true,
+  "formData": "foo"
+ },
+ "submit": {
+  "submitted": 0,
+  "invalidEvents": [
+   true
+  ],
+  "hostMethodCalls": [],
+  "errorState": false,
+  "hostMatchesInvalid": true,
+  "hostMatchesUserInvalid": false,
+  "activeIsInternal": true
+ },
+ "formCheck": {
+  "result": false,
+  "hostMethodCalls": [],
+  "invalidEvents": [
+   true
+  ]
+ },
+ "stale": {
+  "afterCheck": true,
+  "afterClearingValidity": true
+ },
+ "readonly": {
+  "willValidate": false,
+  "internalReadOnly": false
+ },
+ "disabled": {
+  "willValidate": false
+ },
+ "ariaInvalid": null,
+ "nativeUserInvalidAfterSubmit": true
+}
+firefox {
+ "hostApi": [
+  "validity:false",
+  "validationMessage:false",
+  "willValidate:false",
+  "setCustomValidity:false",
+  "form:false",
+  "labels:false"
+ ],
+ "internalFormOwner": "null",
+ "email": {
+  "internalTypeMismatch": true,
+  "hostValid": true,
+  "nativeTypeMismatch": true,
+  "formData": "foo"
+ },
+ "submit": {
+  "submitted": 0,
+  "invalidEvents": [
+   true
+  ],
+  "hostMethodCalls": [],
+  "errorState": false,
+  "hostMatchesInvalid": true,
+  "hostMatchesUserInvalid": true,
+  "activeIsInternal": true
+ },
+ "formCheck": {
+  "result": false,
+  "hostMethodCalls": [],
+  "invalidEvents": [
+   true
+  ]
+ },
+ "stale": {
+  "afterCheck": true,
+  "afterClearingValidity": true
+ },
+ "readonly": {
+  "willValidate": false,
+  "internalReadOnly": false
+ },
+ "disabled": {
+  "willValidate": false
+ },
+ "ariaInvalid": null,
+ "nativeUserInvalidAfterSubmit": true
+}
+webkit {
+ "hostApi": [
+  "validity:false",
+  "validationMessage:false",
+  "willValidate:false",
+  "setCustomValidity:false",
+  "form:false",
+  "labels:false"
+ ],
+ "internalFormOwner": "null",
+ "email": {
+  "internalTypeMismatch": true,
+  "hostValid": true,
+  "nativeTypeMismatch": true,
+  "formData": "foo"
+ },
+ "submit": {
+  "submitted": 0,
+  "invalidEvents": [
+   true
+  ],
+  "hostMethodCalls": [],
+  "errorState": false,
+  "hostMatchesInvalid": true,
+  "hostMatchesUserInvalid": false,
+  "activeIsInternal": true
+ },
+ "formCheck": {
+  "result": false,
+  "hostMethodCalls": [],
+  "invalidEvents": [
+   true
+  ]
+ },
+ "stale": {
+  "afterCheck": true,
+  "afterClearingValidity": true
+ },
+ "readonly": {
+  "willValidate": false,
+  "internalReadOnly": false
+ },
+ "disabled": {
+  "willValidate": false
+ },
+ "ariaInvalid": null,
+ "nativeUserInvalidAfterSubmit": true
+}
+
+## probes/plan-probe.mjs.txt
+chromium {"initial":{"valid":true,"message":"","willValidate":true,"matchesValid":true},"formAndLabels":{"form":true,"labels":["l"]},"afterCustom":{"customError":true,"valid":false,"message":"Bad","matchesInvalid":true,"formMatchesInvalid":true,"submitted":0,"invalidEvents":[{"bubbles":false,"composed":false,"cancelable":true}],"bubbledToForm":0},"afterReset":{"customError":true,"message":"Bad"},"flagWithEmptyMessage":"TypeError","disabledFieldset":{"willValidate":false,"checkValidity":true},"cleared":{"valid":true,"message":"","matchesInvalid":false,"submitted":1}}
+firefox {"initial":{"valid":true,"message":"","willValidate":true,"matchesValid":true},"formAndLabels":{"form":true,"labels":["l"]},"afterCustom":{"customError":true,"valid":false,"message":"Bad","matchesInvalid":true,"formMatchesInvalid":true,"submitted":0,"invalidEvents":[{"bubbles":false,"composed":false,"cancelable":true}],"bubbledToForm":0},"afterReset":{"customError":true,"message":"Bad"},"flagWithEmptyMessage":"TypeError","disabledFieldset":{"willValidate":false,"checkValidity":true},"cleared":{"valid":true,"message":"","matchesInvalid":false,"submitted":1}}
+webkit {"initial":{"valid":true,"message":"","willValidate":true,"matchesValid":true},"formAndLabels":{"form":true,"labels":["l"]},"afterCustom":{"customError":true,"valid":false,"message":"Bad","matchesInvalid":true,"formMatchesInvalid":true,"submitted":0,"invalidEvents":[{"bubbles":false,"composed":false,"cancelable":true}],"bubbledToForm":0},"afterReset":{"customError":true,"message":"Bad"},"flagWithEmptyMessage":"TypeError","disabledFieldset":{"willValidate":false,"checkValidity":true},"cleared":{"valid":true,"message":"","matchesInvalid":false,"submitted":1}}

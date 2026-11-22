@@ -1,0 +1,43 @@
+import subprocess, sys, os, re
+ROOT='/workspaces/worktrees/d/packages'
+M=[
+ ('M1 checkValidity toggles :state(error) (the deleted override)','material-x/src/text-field/TextFieldCore.ts',
+  "  /** Shows the internal field's value",
+  "  checkValidity(): boolean {\n    const valid = internals(this).checkValidity();\n    toggleState(internals(this), 'error', !valid);\n    return valid;\n  }\n\n  /** Shows the internal field's value"),
+ ('M2 setCustomValidity sets no flag','core/src/traits/validatable.ts',"{ customError: message !== '' }","{}"),
+ ('M3 error does not reach aria-invalid','core/src/traits/validatable.ts',"    error: transfer(target, 'aria-invalid', present),\n",""),
+ ('M4 required does not reach aria-required','core/src/traits/validatable.ts',"    required: transfer(target, 'aria-required', present),\n",""),
+ ('M5 required validates (valueMissing)','core/src/traits/validatable.ts',"    required: transfer(target, 'aria-required', present),\n",
+  "    required: (_, v) => { setAttribute(target, 'aria-required', present(v)); internals(host).setValidity(v == null ? {} : { valueMissing: true }, v == null ? '' : 'r', target); },\n"),
+ ('M6 checkable error does not set :state(error)','material-x/src/core/elements/CheckableCore.ts',"      toggleState(innards, 'error', value);\n",""),
+ ('M7 switch error does not set :state(error)','material-x/src/button/SwitchCore.ts',"      toggleState(innards, 'error', value);\n",""),
+ ('M8 text-field error does not set :state(error)','material-x/src/text-field/TextFieldCore.ts',"        toggleState(innards, 'error', newValue);\n",""),
+ ('M9 readonly does not reach the field','material-x/src/text-field/TextFieldCore.ts',"      readonly: transfer(field, 'readonly'),\n",""),
+ ('M10 reset clears custom validity','material-x/src/text-field/TextFieldCore.ts',"        this.#isDirty = false;\n","        this.#isDirty = false;\n        innards.setValidity({});\n"),
+ ('M11 willValidate always true','core/src/traits/validatable.ts',"return internals(this).willValidate;","return true;"),
+ ('M12 form is null','core/src/traits/validatable.ts',"return internals(this).form;","return null;"),
+ ('M13 labels empty','core/src/traits/validatable.ts',"return internals(this).labels;","return document.createDocumentFragment().childNodes;"),
+ ('M14 validationMessage empty','core/src/traits/validatable.ts',"return internals(this).validationMessage;","return '';"),
+ ('M15 reportValidity always true','core/src/traits/validatable.ts',"return internals(this).reportValidity();","return true;"),
+]
+sel=sys.argv[1:]
+for name,f,a,b in M:
+    if sel and name.split()[0] not in sel: continue
+    p=os.path.join(ROOT,f); orig=open(p).read(); assert orig.count(a)==1,(name)
+    if 'M5' in name:
+        b2=b; s=orig.replace(a,b2).replace("import { transfer, useAttributes }","import { setAttribute } from '../attribute.ts';\nimport { transfer, useAttributes }")
+    else: s=orig.replace(a,b)
+    open(p,'w').write(s)
+    try:
+        out=''
+        if f.startswith('core'):
+            subprocess.run('aube exec just build',shell=True,cwd=ROOT+'/core',capture_output=True)
+            r=subprocess.run('MX_TEST_ENGINES=chromium,firefox,webkit timeout 600 aube exec vitest run tests/traits/validatable.browser.test.ts',shell=True,cwd=ROOT+'/core',capture_output=True,text=True)
+            m=re.search(r'Tests\s+(.*)',r.stdout); out+='core: '+(m.group(1) if m else r.stdout[-300:])+' | '
+        r=subprocess.run('MX_TEST_ENGINES=chromium,firefox,webkit timeout 600 aube exec vitest run -c vitest.config.ts --project browser* tests/validatable.browser.test.ts',shell=True,cwd=ROOT+'/material-x',capture_output=True,text=True)
+        m=re.search(r'Tests\s+(.*)',r.stdout); out+='material-x: '+(m.group(1) if m else r.stdout[-300:])
+        print(name,'=>',out,flush=True)
+    finally:
+        open(p,'w').write(orig)
+        if f.startswith('core'):
+            subprocess.run('aube exec just build',shell=True,cwd=ROOT+'/core',capture_output=True)

@@ -1,0 +1,20 @@
+ ✓ |repo| .scripts/entry.node.test.ts:45 > entry.sh > should print a titleless entry 202ms
+ ✓ |repo| .scripts/entry.node.test.ts:52 > entry.sh > should print a titled entry with its title 137ms
+ ✓ |repo| .scripts/entry.node.test.ts:59 > entry.sh > should match the local id exactly rather than by prefix 321ms
+ ✓ |repo| .scripts/entry.node.test.ts:68 > entry.sh > should keep a sub-clause inside the entry that owns it 159ms
+ ✓ |repo| .scripts/entry.node.test.ts:75 > entry.sh > should resolve a multi-letter family through the same syntax 142ms
+ ✓ |repo| .scripts/entry.node.test.ts:82 > entry.sh > should resolve an entry of the repository record 121ms
+ ✓ |repo| .scripts/entry.node.test.ts:91 > entry.sh > should resolve an entry of the drag contract 123ms
+ ✓ |repo| .scripts/entry.node.test.ts:98 > entry.sh > should print a retired entry as the resolver printed it at its commit 174ms
+ ✓ |repo| .scripts/entry.node.test.ts:109 > entry.sh > should refuse an unknown scope 82ms
+ ✓ |repo| .scripts/entry.node.test.ts:116 > entry.sh > should refuse an unknown local id 113ms
+ ✓ |repo| .scripts/entry.node.test.ts:123 > entry.sh > should refuse an unqualified id and offer the qualified form 79ms
+ ✓ |repo| .scripts/entry.node.test.ts:131 > entry.sh > should tell the three refusals apart 102ms
+ ✓ |repo| .scripts/entry.node.test.ts:180 > entry.sh in a fixture repository > should refuse a local id the record defines twice 87ms
+ ✓ |repo| .scripts/entry.node.test.ts:187 > entry.sh in a fixture repository > should name the commit when the clone does not hold a retired scope 96ms
+ ✓ |repo| .scripts/entry.node.test.ts:265 > entry.sh --duplicates > should name both lines of a number that two entries take 95ms
+ ✓ |repo| .scripts/entry.node.test.ts:279 > entry.sh --duplicates > should refuse an id claimed in two documents of one scope 96ms
+ ✓ |repo| .scripts/entry.node.test.ts:292 > entry.sh --duplicates > should pass when a sub-clause or a mention repeats an id 106ms
+ ✓ |repo| .scripts/entry.node.test.ts:304 > entry.sh --duplicates > should read the documents at a commit when one is given 136ms
+ ✓ |repo| .scripts/entry.node.test.ts:328 > entry.sh --duplicates > should name the duplicates that the merge 1cf222c32 left 138ms
+      Tests  19 passed (19)

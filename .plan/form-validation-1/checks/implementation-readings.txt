@@ -1,0 +1,76 @@
+Form validation: implementation readings
+Branch material-x/form-validation-1, base 836d72d99 (2b341e0c6 merged with origin/main f1387729d).
+Engines: Playwright Chromium, Firefox and WebKit, as the repository's vitest config pins them (MX_TEST_ENGINES=chromium,firefox,webkit).
+
+== Rows ==
+core   tests/traits/validatable.browser.test.ts      13 rows x 3 engines: 39 passed
+core   tests/traits/validatable.declaration.test.ts   4 passed
+core   tests/traits/attribute-traits.declaration.test.ts  +2 rows (a getter is no attribute key and no prop), passed
+core   full suite, 3 engines: 72 files, 728 passed
+mx     tests/validatable.browser.test.ts  chromium 114 passed; firefox 106 passed, 8 skipped; webkit 106 passed, 8 skipped
+       (the 8 skipped are row 11, Chromium's accessibility tree through CDP)
+mx     affected suites, 3 engines (validatable, text-field, checkbox, radio, core/elements, button, list/list-roles, traits-baseline):
+       39 files, 1134 passed, 1 expected fail, 20 skipped
+mx     behavior project, chromium: 17 files, 483 passed; spec project, chromium: 8 files, 210 passed; node project: 24 passed
+
+Plan rows (FV-D10) to describes in tests/validatable.browser.test.ts:
+  1 'validity > should be valid when fresh'
+  2 'should become invalid with a custom message', 'should block form validation and submission while invalid',
+    'should fire one non-bubbling cancelable invalid event at the host'
+  3 'should become valid and submit with an empty custom message'
+  4 'error display > should set / should remove the error state and aria-invalid'
+  5 'error display > should not show the error display when an invalid element is checked',
+    'should keep the error display when a valid element is checked'
+  6 'should keep custom validity and error across a form reset'
+  7 'should not validate a disabled host', 'should not validate a host in a disabled fieldset'
+  8 'should read the form owner', 'should read a label that points at the host'
+  9 'readonly > ...' (text fields only)
+ 10 'required > ...'
+ 11 "Chromium's accessibility tree > should report the $tag control as invalid" (six) and '... as required' (text fields)
+
+== Mutations ==
+Each applied alone, core rebuilt when the mutation is in core, then core's validatable rows and material-x's
+validatable rows run in Chromium. Failed / total.
+M1 checkValidity toggles :state(error) (the deleted override) => material-x: 4 failed | 110 passed (114)
+M2 setCustomValidity sets no flag => core: 3 failed | 10 passed (13) | material-x: 24 failed | 90 passed (114)
+M3 error does not reach aria-invalid => core: 1 failed | 12 passed (13) | material-x: 18 failed | 96 passed (114)
+M4 required does not reach aria-required => core: 1 failed | 12 passed (13) | material-x: 8 failed | 106 passed (114)
+M5 required validates (valueMissing) => core: 1 failed | 12 passed (13) | material-x: 6 failed | 108 passed (114)
+M6 checkable error does not set :state(error) => material-x: 4 failed | 110 passed (114)
+M7 switch error does not set :state(error) => material-x: 4 failed | 110 passed (114)
+M8 text-field error does not set :state(error) => material-x: 4 failed | 110 passed (114)
+M9 readonly does not reach the field => material-x: 2 failed | 112 passed (114)
+M10 reset clears custom validity => material-x: 2 failed | 112 passed (114)
+M11 willValidate always true => core: 13 passed (13) | material-x: 14 failed | 100 passed (114)
+M12 form is null => core: 1 failed | 12 passed (13) | material-x: 6 failed | 108 passed (114)
+M13 labels empty => core: 1 failed | 12 passed (13) | material-x: 6 failed | 108 passed (114)
+M14 validationMessage empty => core: 1 failed | 12 passed (13) | material-x: 12 failed | 102 passed (114)
+M15 reportValidity always true => core: 1 failed | 12 passed (13) | material-x: 114 passed (114)
+
+== Size (RD-24), Brotli bytes, size-limit 14.3.0 with size-limit-preset-rolldown ==
+Base: 836d72d99 built. After: this branch built. Core rebuilt before each material-x build.
+row                                         base   after  delta
+material-x
+  button/button                             4907    4907     +0
+  button/icon-button                        5175    5175     +0
+  button/link-button                        4877    4877     +0
+  button/switch-button                      5280    5496   +216
+  button/switch-icon-button                 5661    5890   +229
+  button/split-button                       7507    7507     +0
+  button-group/button-group                 3115    3115     +0
+  button-group/connected-button-group       3862    3862     +0
+  checkbox/checkbox                         3968    4218   +250
+  fab/fab                                   4179    4179     +0
+  icon/icon                                  641     641     +0
+  list/list                                  661     661     +0
+  list/list-item                            2830    2830     +0
+  list/list-button-item                     4649    4649     +0
+  list/list-link-item                       4866    4866     +0
+  list/sortable-list                        8698    8698     +0
+  radio/radio                               3515    3775   +260
+  text-field/multiline-text-field           4153    4366   +213
+  text-field/text-field                     8266    8450   +184
+  complete                                 22295   22509   +214
+core
+  element                                    275     275     +0
+  emitter                                    198     198     +0
