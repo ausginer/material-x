@@ -74,3 +74,33 @@ I judge it acceptable for three reasons:
 
 - **Paths relative to the scope's root.** `drag:DRD-1` prints `.plan/00-index.md:1`, which means `packages/drag/.plan/00-index.md`. The lookup's duplicate error prints paths the same way, and the scope prefix says which root applies.
 - **A duplicate skips the run's test jobs.** This follows from putting the check in `scope`, which is the recommendation the owner adopted. `verify` still names `scope` as the failure.
+
+## Recheck of the repairs, 2026-11-22
+
+**Read at** `fd28e50b7`, the implementer's repair on `ab50d9e63`, in slot `d`. The subject is the dated repair paragraph in [`duplicate-address-check-plan.md`](../../duplicate-address-check-1/duplicate-address-check-plan.md) and its [mutations](../../duplicate-address-check-1/checks/repair-mutations.txt). This is a targeted recheck of `reviewer-1` and `reviewer-2` above, by a second reviewer, not a new proof. Readings: [`recheck.txt`](checks/recheck.txt). Each mutation was applied alone to `.scripts/entry.ts` and reverted.
+
+**Verdict: both repairs meet their required properties.** One tier C note on the record's layout, `recheck-1`.
+
+- **`reviewer-1`, repaired.**
+  - **The new row** builds its repository with `git init` and no commit. It writes `.scripts/fixtures/entry-duplicates-1cf222c32.txt` as `.plan/00-index.md` and runs `--duplicates` on the working tree, so it needs no object that `origin` lacks.
+  - **The fixture is exact.** It is byte-equal (`cmp`) to lines 3710–3816 of `.plan/00-index.md` at `1cf222c32`, read in this clone, which holds the commit through a local branch. No remote branch contains the commit. Its headings are `RF-73`, then `RF-74` and `RF-75` twice each, at lines 20, 45, 61 and 86. Those are the commit's own lines in [`witness.txt`](checks/witness.txt), 3729, 3754, 3770 and 3795, less 3709. So the fixture keeps every duplicate that the commit's whole file reports.
+  - **The row asserts the whole report** below its first line, so an extra or missing address fails it. The implementer's `mG` shows that the row fails when the pass needs three claims.
+  - **In CI** at `fd28e50b7`, `chromium` runs `.scripts/entry.node.test.ts`'s 20 rows in the `repo` project and passes, and so does `verify`. The plan now says where the original witness is reproducible.
+- **`reviewer-2`, repaired.**
+  - **The commit row** asserts both runs' whole outputs: `repo:RD-1` at lines 1 and 3 at `HEAD`, and `no duplicated address in drag, repo` in the working tree.
+  - **Three mutations, run in this tree:**
+    - `mD`, the review's read that always rejects, fails exactly that row;
+    - `mI`, my own, a read at a commit that returns no documents and so reports a clean commit, fails exactly that row too;
+    - `mF`, the deleted refusal, fails exactly the new refusal row.
+  - **On the command line,** `--duplicates 0000000` prints _"cannot read 0000000: this clone does not hold it as a commit"_ and exits 1, with no stack trace and no duplicate report. `--duplicates 1cf222c32` still reports the two addresses in this clone. So a failed read and a found duplicate no longer share a report.
+- **All 20 resolver rows pass** in this tree, as the plan says.
+
+**Not covered:** a fresh clone of `origin`. I made none, as the coordinator asked. CI's checkout stands in for it.
+
+### recheck-1
+
+**Tier C.** The plan's dated _"Repaired 2026-11-22 by the implementer"_ paragraph starts at the end of the _"Not run"_ bullet, on the same line, so it reads as part of that bullet.
+
+- **Current text:** line 39 of `duplicate-address-check-plan.md` reads _"- **Not run:** the workflow itself. The step runs on this pull request's own checks. **Repaired 2026-11-22 by the implementer,** for `reviewer-1` …"_. Its bullets follow after a blank line.
+- **Required property:** the dated paragraph stands on its own, as the record's other dated paragraphs do.
+- **Routing:** to the implementer, as a record correction on the branch.
