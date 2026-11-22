@@ -2897,6 +2897,7 @@ Tier C, **decided, implemented, open** (decided 2026-11-17 at `51a992b49`; see _
 - **The `add` regression that 2.10.1 fixes doesn't reach this lockfile.** The release notes say that an unrelated `aube add` on 2.10.0 drops locked optional-peer bindings (`aubepkg/aube#1941`). From the committed tree, `aube add -D -W left-pad@1.3.0` writes a byte-identical `package-lock.json` diff on 2.10.0 and on 2.10.1: the `left-pad` entry and the root specifier, nothing else.
 - **Property 3 applied.** The links don't survive, so the rule in `implementer.md` stays at either pin, and this finding stays open. This reading is property 3's reading for 2.10.1, made in an unused slot, so a unit that moves the pin to 2.10.1 cites it instead of repeating it. That unit keeps the rule and doesn't close this finding.
 - **The pin.** This finding gives no reason to move the pin to 2.10.1 or to keep it at 2.10.0. `RD-16` allows the move once the release age ends on 2026-11-23. The move is the owner's choice, on 2.10.1's other changes.
+- **The owner's answers, 2026-11-22,** relayed by the coordinator. He defers the move of the pin, so `packageManager` and the workflows' `AUBE_VERSION` stay at 2.10.0. He will write the upstream report to aube himself, later, as the queued follow-up 2 says.
 
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
