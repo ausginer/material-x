@@ -2173,6 +2173,59 @@ _"**The first adopter follows, in a unit of its own:** `FocusForwarding`'s contr
 - **The order:** the reviewer ranked the tasks by likelihood × visibility, and the map keeps that ranking. The queue order is the owner's (`RD-22`). The architect's reading of consequence: `RF-82` has a visible difference behind it (`RF-79`), and `RF-83` and `RF-86`'s level rows need #120's elevation row and contracts, which are on `main` since #120 merged as `0128548ff`.
 - **Readiness:** each entry says whether it is ready for an implementer, and what it waits for.
 
+#### RD-35 — `@ydinjs/core` carries form validation as the `Validatable` trait and the `useValidatable(host, target)` hook
+
+**The form-validation decisions, `RD-35` to `RD-46`.** The architect in slot `b` proposed them as `FV-D1` to `FV-D12` in the [form-validation plan](form-validation-1/form-validation-plan.md#3-decisions), on `material-x/form-validation-1`. The owner approved the plan on 2026-11-22: he settled `FV-Q1` to `FV-Q3` and accepted `FV-D11`, relayed by the coordinator. His words are in the plan's _Inputs_. The main slot's architect registered them on 2026-11-22, on the same branch at `76d354ee3`, in slot `g` on the coordinator's request. `RD-34` is the highest `RD-` on any branch on `origin`, so these are the next twelve numbers, in the plan's order. Each entry gives the decision and points to the plan's section, which holds the required properties.
+
+- **Status for all twelve:** implemented on the branch (plan §11). The [feature proof](reviews/form-validation-1/feature-proof-claude.md) passed at `be7d4c3b5`, with one record correction. They are in force on `main` once #155 merges. They close `RF-96`.
+- **Why one model:** a component's validity and its error display are two states that the consumer sets, and nothing else changes them. That is the controlled principle of [`architecture.md`](../.agents/docs/architecture.md) §Components applied to validation (plan §2).
+
+**This decision (`FV-D1`):** nothing in validation is Material's, so it lives in core at `@ydinjs/core/traits/validatable.js`, beside the other form traits. `Validatable` exposes the host's `ElementInternals` values: `validity`, `validationMessage`, `willValidate`, `form` and `labels`. `checkValidity()` and `reportValidity()` change no attribute, state or ARIA. In `setCustomValidity(message)`, a non-empty message sets `customError` and an empty one clears every flag. `error` and `required` are reflected boolean members. `useValidatable` registers the component's accessible control as the validation anchor and writes `aria-invalid` and `aria-required` on that control, not on the host. It sets no custom state.
+
+#### RD-36 — Validity is the consumer's custom validity only, and no native validator is adopted
+
+Registered from `FV-D2` (see `RD-35` for the provenance and status). The internal field's validity isn't copied. `type` doesn't validate, and the text field's documentation says so. `minlength`, `maxlength`, `pattern`, `min`, `max` and `step` aren't adopted, because each is a validator. `required` is an announcement (`RD-45`), and `readonly` is an editing state (`RD-38`). **Why:** the owner's _"as controlled as possible"_: validation is the consumer's code, and the component never validates by itself.
+
+#### RD-37 — `error` is set by the consumer only, and drives `:state(error)` and the control's `aria-invalid`
+
+Registered from `FV-D3` (see `RD-35`). In material-x, `:state(error)` follows `error` in `TextFieldCore`, `useCheckableCore` and `useSwitchCore`. No method, event, submission or reset sets or clears it, so `checkValidity()` and `reportValidity()` no longer paint a field. A host's own `aria-invalid` or `aria-required` is outside the contract. The documentation carries the plan's recipe for native-like timing. **Why:** the consumer decides when an error shows (plan §2).
+
+#### RD-38 — The text fields pass `readonly` to the internal field
+
+Registered from `FV-D4` (see `RD-35`). `readonly` is a `Bool` member of `TextFieldLike`, transferred to the internal field of both text fields. The platform already removes a `readonly` host from validation. The checkable controls don't get it, because HTML gives `readonly` no meaning on a checkbox or a radio. **Why:** without it, a `readonly` field leaves validation and stays editable (`RF-96`, P1).
+
+#### RD-39 — The validation anchor is the component's accessible control
+
+Registered from `FV-D5` (see `RD-35`). The browser's validation bubble points at the control and not at the host. The switches' host has no box, because it is `display: contents`. No row observes the anchor, because the bubble can't be read in the gate.
+
+#### RD-40 — A form reset leaves validity and `error` as they are
+
+Registered from `FV-D6` (see `RD-35`). The platform keeps custom validity across `form.reset()` in each engine, and `error` is controlled state. The consumer clears both in the form's `reset` listener, and the documentation says so. Validation registers no `formReset`. `RF-74`'s reset restores the text fields' value only. The checkables' reset (#124) isn't a finding, as `RF-74`'s dated paragraph of 2026-11-22 rules, on #158.
+
+#### RD-41 — The six value-bearing form controls carry validation, and the plain buttons don't
+
+Registered from `FV-D7` (see `RD-35`). In scope: `mx-text-field`, `mx-multiline-text-field`, `mx-checkbox`, `mx-radio`, `mx-switch-button` and `mx-switch-icon-button`, through `TextFieldCore`, `CheckableCoreTraits` and `SwitchCoreTraits`. `mx-button`, `mx-icon-button` and `mx-split-button` are form-associated only to submit and reset a form, carry no value, and keep their surface.
+
+#### RD-42 — `setValidity` and the text fields' validation overrides are deleted, with no alias
+
+Registered from `FV-D8` (see `RD-35`). `setValidity(flags, message)` let a consumer raise any flag, `valueMissing` included, which no native control allows. The text fields' `checkValidity()` and `reportValidity()` overrides go with it, and the trait's members replace them. **Why no alias:** material-x and core are 0.1.0 and unreleased (CONTRIBUTING §8).
+
+#### RD-43 — The error text stays in the `support` slot
+
+Registered from `FV-D9` (see `RD-35`). The consumer puts the message in `support` while `error` is set, and the text fields' `aria-describedby` fallback already includes that slot. No slot is added, and `validationMessage` isn't rendered. The owner accepted this as the review's I5 (i).
+
+#### RD-44 — Validation's rows, types and documentation
+
+Registered from `FV-D10` (see `RD-35`). The rows run in each engine at `RD-20`'s floor. Core's rows test the trait and the hook on a minimal element, with a declaration test. One parametrized block runs rows 1 to 10 for the six elements. Row 11 reads Chromium's accessibility tree through CDP. Each `*Properties` type gains `ValidatableProps` and each `*Events` type gains `invalid`. The JSDoc and the component pages document `error`, `required`, `setCustomValidity`, the `invalid` event, the recipe and the reset note. The project documentation (`accessibility.md`, `architecture.md`) is a pull request of its own after this one (`RD-32`).
+
+#### RD-45 — `required` announces a control as required and does nothing else
+
+Registered from `FV-D11` (see `RD-35`). The owner leaned towards it in `FV-Q2`, asked for a challenge, and accepted it on 2026-11-22. While `required` is set, the control's `aria-required` is `"true"`. `required` doesn't change `validity`, `willValidate`, submission or `:state(error)`, and it doesn't make `:required` match: no engine matches `:required` on a form-associated host. The documentation says that it doesn't block submission. **Why:** it reaches the control directly in every component, as `error` does. Host `aria-required` would reach a second node in the components that mirror `aria-*`, and wouldn't reach the checkbox's or the radio's control at all (`RF-94`, on #158). The plan's §3 holds the challenge and the documentation risk it leaves.
+
+#### RD-46 — The radio and the switches carry `error` and `required`, as the other controls do
+
+Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six controls have the same members, so a form library treats them alike. The radio and the switches draw nothing for `error`, because Material defines no error appearance for them, and `:state(error)` is there for the consumer's styles. Chromium and WebKit expose the radio's and the switch's control as `invalid`, as they do the native ones. Whether a screen reader announces it is deferred to one accessibility-testing unit, on the owner's answer. The checkbox's error appearance is `RF-95`, on #158.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -4082,6 +4135,25 @@ Tier A, **open**. It applies once #155 merges, because that unit gives `mx-check
 - **Required property:** `mx-checkbox` with `error` set draws Material's error appearance, in each engine at `RD-20`'s floor. Visual-contract rows observe it.
 - **The unit:** the follow-up of the plan's `FV-Q1`, after #155. It covers the token grouping, a `:state(error)` renderer, the visual-contract rows and the baselines, which `RD-13` records in a pull request of their own.
 - **Size:** _medium_.
+
+#### RF-96 — The text fields' validation doesn't follow the form, and the other form controls have none
+
+Tier A, **fixed on `material-x/form-validation-1`, and closed when #155 merges into `main`.** Pre-existing. Registered on 2026-11-22 by the architect, on `material-x/form-validation-1` at `76d354ee3`, from the [form-validation plan](form-validation-1/form-validation-plan.md#1-what-is-wrong-today)'s §1, relayed by the coordinator. The work item is [#131](https://github.com/ausginer/material-x/issues/131). The architect found it in a read-only review of the text fields' validation API, reported to the coordinator on 2026-11-22 and recorded only in the plan, and read it in a probe of each mechanism in Chromium 158, Firefox 159 and Playwright's WebKit 27.2 ([readings](form-validation-1/checks/probe-readings.txt)). `RF-95` is the highest `RF-` on any branch on `origin`, on #158, so this is the next free number. One entry holds §1's eight observations, because one model and one unit close them.
+
+- **What happens,** at `00fd35592`: the text fields carry the only validation code, and the checkbox, the radio and the switches have none.
+  - **P1:** the constraint attributes don't reach the internal field. A `readonly` host leaves validation, and its internal field stays editable.
+  - **P2:** the internal field's own validity is lost. With `type="email"` and the text `foo`, the form submits.
+  - **P3:** a submission, `form.checkValidity()` and `form.reportValidity()` never call the host's overrides, so `:state(error)` stays unset while the `invalid` event fires.
+  - **P4:** `:state(error)` goes stale after `setValidity({})`, and a query, `checkValidity()`, paints the field.
+  - **P5:** the host lacks `validity`, `validationMessage`, `willValidate`, `setCustomValidity`, `form` and `labels`, so code that reads `.validity.valid` throws.
+  - **P6:** nothing sets `aria-invalid` on the control.
+  - **P7:** `:user-invalid` matches a form-associated host in Firefox only.
+  - **P8:** no row, documentation or `*Events` type specifies any of it.
+  - P1 to P6 are observable at runtime.
+- **Required property:** each of the six value-bearing form controls has the native validation surface. Its validity is the consumer's custom validity only, and its error display, `:state(error)` and the control's `aria-invalid` follow the consumer's `error` and nothing else. That is the model of `RD-35` to `RD-46`, and their rows observe it in each engine at `RD-20`'s floor.
+- **Closed by** `RD-35` to `RD-46`, implemented on the branch (plan §11). The [feature proof](reviews/form-validation-1/feature-proof-claude.md) found the required property met at `be7d4c3b5`. P2 closes by documentation: `type` doesn't validate (`RD-36`). P7 closes because timing is the consumer's (`RD-37`).
+- **Not established:** real Safari, and a screen reader's speech, which go to the accessibility-testing unit (`RD-46`).
+- **Size:** _large_.
 
 ## Questions
 

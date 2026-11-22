@@ -83,6 +83,29 @@ Use the live example below to inspect interaction states:
   Playground
 </LinkTo>
 
+## Validation
+
+The element has no native validators: its validity and its error display are both yours to set.
+
+- **Validity:** `setCustomValidity(message)` makes the element invalid with a non-empty message, and valid with `''`. An invalid element blocks form submission and fires `invalid` at the host, which doesn't bubble. `validity`, `validationMessage`, `willValidate`, `checkValidity()` and `reportValidity()` behave as a native control's.
+- **Error display:** the `error` attribute. While it is set, the switch matches `:state(error)` and its button is announced as invalid. Material defines no error appearance for it, so it draws nothing: style `:state(error)` yourself if you need one. No method, event, submission or reset sets or clears it.
+- **`required`:** announces the control as required and does nothing else. It doesn't block submission and doesn't make `:required` match: validate in your own code, and select `[required]` in styles.
+- **Form reset** leaves custom validity and `error` as they are. Clear them in the form's `reset` listener.
+- Set `error` and `required` rather than `aria-invalid` and `aria-required` on the host.
+
+To show the error once the user has tried to submit, as a native control does:
+
+```js
+field.addEventListener('invalid', () => {
+  field.error = true;
+});
+field.addEventListener('change', () => {
+  const message = validate(field);
+  field.setCustomValidity(message);
+  if (field.error) field.error = message !== '';
+});
+```
+
 ## Accessibility
 
 - **Name:** Add `aria-label` because visible text labels are absent.

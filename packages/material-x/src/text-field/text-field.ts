@@ -18,8 +18,16 @@ export type {
  *
  * @summary Text fields let users enter and edit single-line text.
  *
+ * @description
+ * **Validation.** The element has no native validators. `setCustomValidity()`
+ * sets its validity and the `error` attribute sets its error display. Nothing
+ * else changes either, a form reset included. Set `error` and `required`
+ * rather than `aria-invalid` and `aria-required` on the host. Put the error
+ * message in the `support` slot.
+ *
  * @attr {"text"|"password"|"tel"|"search"|"url"|"number"|"email"} type -
- * Native input type.
+ * Native input type. It sets the keyboard, autofill and the native
+ * sanitization of the text, and doesn't validate.
  * @attr {"text"|"numeric"|"tel"|"search"|"url"|"decimal"|"email"|"none"}
  * inputmode - Virtual keyboard hint.
  * @attr {boolean} outlined - Enables outlined style.
@@ -29,6 +37,13 @@ export type {
  * form reset, and follows changes to it until the user edits the value or a
  * script sets the `value` property. Setting the property doesn't change the
  * attribute. A clone takes the default value, not the edited value.
+ * @attr {boolean} error - Shows the error display: `:state(error)`, Material's
+ *   error appearance, and the input announced as invalid.
+ *   Set by the consumer only.
+ * @attr {boolean} required - Announces the control as required. It doesn't
+ *   change validity, block submission or make `:required` match.
+ * @attr {boolean} readonly - Makes the field read-only and removes it from
+ *   validation.
  *
  * @slot label - Label content.
  * @slot support - Supporting text content.
@@ -63,6 +78,8 @@ export type {
  * @cssprop --md-text-field-supporting-text-row-gap - Overrides gap above
  * supporting text.
  *
+ * @event invalid - Fired at the host when a validity check finds it invalid.
+ *   It doesn't bubble and is cancelable.
  * @event input - Fired when the input value changes.
  * @event change - Fired when value is committed.
  */

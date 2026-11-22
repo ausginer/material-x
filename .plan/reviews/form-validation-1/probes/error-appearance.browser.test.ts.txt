@@ -1,0 +1,66 @@
+// Feature-proof probe for PR #155: does `error` alone, set through the
+// property, change what the text fields draw at rest, hovered and focused, and
+// does a validity check leave it alone? Scratch: copied into
+// packages/material-x/tests/ for its run, removed after it.
+import { afterEach, describe, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+function log(name: string, value: unknown): void {
+  // oxlint-disable-next-line no-console
+  console.log(`PROBE ${name} ${JSON.stringify(value)}`);
+}
+
+afterEach(async () => {
+  await commands.pointerMove(0, 0, 1).catch(() => {});
+});
+
+async function read(field: HTMLElement): Promise<Record<string, string>> {
+  await nextFrame();
+  const label = field.querySelector('[slot=label]')!;
+  const support = field.querySelector('[slot=support]')!;
+  return {
+    label: getComputedStyle(label).color,
+    support: getComputedStyle(support).color,
+    indicator: getComputedStyle(field).getPropertyValue('--_active-indicator-color').trim(),
+    outline: getComputedStyle(field).getPropertyValue('--_outline-color').trim(),
+  };
+}
+
+describe('error appearance', () => {
+  for (const tag of ['mx-text-field', 'mx-multiline-text-field']) {
+    for (const outlined of [false, true]) {
+      it(`${tag} outlined=${outlined}`, async () => {
+        const field = document.createElement(tag) as HTMLElement & { error: boolean; setCustomValidity(m: string): void; checkValidity(): boolean };
+        field.toggleAttribute('outlined', outlined);
+        const label = document.createElement('span');
+        label.slot = 'label';
+        label.textContent = 'Label';
+        const support = document.createElement('span');
+        support.slot = 'support';
+        support.textContent = 'Support';
+        field.append(label, support);
+        document.body.append(field);
+        const out: Record<string, unknown> = { rest: await read(field) };
+        field.setCustomValidity('m');
+        field.addEventListener('invalid', (e) => e.preventDefault());
+        field.checkValidity();
+        out['invalidChecked'] = await read(field);
+        field.error = true;
+        out['error'] = await read(field);
+        const r = field.getBoundingClientRect();
+        await commands.pointerMove(r.left + r.width / 2, r.top + r.height / 2, 1);
+        out['errorHover'] = await read(field);
+        await commands.pointerMove(0, 0, 1);
+        field.focus();
+        out['errorFocus'] = await read(field);
+        field.blur();
+        field.error = false;
+        out['cleared'] = await read(field);
+        log(`${tag} outlined=${outlined}`, out);
+      });
+    }
+  }
+});

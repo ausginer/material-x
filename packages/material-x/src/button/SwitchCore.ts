@@ -8,6 +8,11 @@ import type {
 } from '@ydinjs/core/traits/checkable.js';
 import type { Composed } from '@ydinjs/core/traits/composition.js';
 import {
+  type Validatable,
+  useValidatable,
+  type ValidatableProps,
+} from '@ydinjs/core/traits/validatable.js';
+import {
   VALUABLE_ATTRS,
   type Valuable,
   type ValuableProps,
@@ -22,10 +27,11 @@ import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { useButtonCore, type ButtonCoreTraits } from './ButtonCore.ts';
 
-export type SwitchProps = CheckableProps & ValuableProps;
+export type SwitchProps = CheckableProps & ValuableProps & ValidatableProps;
 export type SwitchEvents = Readonly<{
   change: Event;
   input: Event;
+  invalid: Event;
 }>;
 
 export type SwitchCoreTraits = readonly [
@@ -33,6 +39,7 @@ export type SwitchCoreTraits = readonly [
   typeof Checkable,
   typeof Valuable,
   typeof FocusForwarding,
+  typeof Validatable,
 ];
 
 export type SwitchCore = InstanceType<
@@ -59,6 +66,8 @@ export function useSwitchCore(
   ) as HTMLButtonElement;
   const innards = internals(host);
 
+  useValidatable(host, target);
+
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
       toggleState(innards, 'checked', value);
@@ -70,6 +79,9 @@ export function useSwitchCore(
         innards.setFormValue(newValue ?? 'on');
       }
     },
+    error: via(Bool, (_, value) => {
+      toggleState(innards, 'error', value);
+    }),
   });
 
   // The group's `value` controls `checked` only while it is set: it selects the

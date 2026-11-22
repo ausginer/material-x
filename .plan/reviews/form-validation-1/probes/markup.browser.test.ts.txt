@@ -1,0 +1,37 @@
+// Feature-proof probe for PR #155: do `error`, `required` and `readonly` given
+// in parsed markup reach the state and the control, and do the properties
+// reflect to the attributes? Scratch: copied into packages/material-x/tests/
+// for its run, removed after it.
+import { describe, it } from 'vitest';
+import '../src/button/switch-button.ts';
+import '../src/button/switch-icon-button.ts';
+import '../src/checkbox/checkbox.ts';
+import '../src/radio/radio.ts';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+const CASES = [
+  ['mx-text-field', '.input'], ['mx-multiline-text-field', '.input'], ['mx-checkbox', '#input'],
+  ['mx-radio', '#input'], ['mx-switch-button', '.host'], ['mx-switch-icon-button', '.host'],
+] as const;
+
+describe('markup and reflection', () => {
+  it.each(CASES)('%s', async (tag, control) => {
+    const form = document.createElement('form');
+    const ro = tag.includes('text-field') ? ' readonly' : '';
+    form.innerHTML = `<${tag} name="f" error required${ro}></${tag}>`;
+    document.body.append(form);
+    await nextFrame();
+    const el = form.firstElementChild as HTMLElement & Record<string, any>;
+    const c = el.shadowRoot!.querySelector<HTMLElement>(control)!;
+    const parsed = { error: el.error, required: el.required, state: el.matches(':state(error)'), ariaInvalid: c.getAttribute('aria-invalid'), ariaRequired: c.getAttribute('aria-required'), readOnly: ro ? (c as HTMLInputElement).readOnly : null, willValidate: el.willValidate };
+    const fresh = document.createElement(tag) as HTMLElement & Record<string, any>;
+    document.body.append(fresh);
+    fresh.error = true; fresh.required = true;
+    if (ro) fresh.readonly = true;
+    const reflected = { error: fresh.hasAttribute('error'), required: fresh.hasAttribute('required'), readonly: ro ? fresh.hasAttribute('readonly') : null };
+    // oxlint-disable-next-line no-console
+    console.log(`PROBE ${tag} ${JSON.stringify({ parsed, reflected })}`);
+  });
+});
