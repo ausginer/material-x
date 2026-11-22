@@ -3759,6 +3759,12 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **What changes for callers:** an explicit type argument no longer compiles. No caller in the repository passes one. Core's `useSlot` test writes `SlotControllerUpdateCallback<Node>`, which becomes `SlotControllerUpdateCallback`. The emitted JavaScript doesn't change, so no size row moves.
 - **Size:** _small_. One core module, its test's type, and core's typecheck with material-x's after core is rebuilt.
 
+**Dated 2026-11-22 by the implementer: implemented on `core/use-slot-nodes-1`, as decided, and not closed.** Requested by the coordinator for #119. `useSlot` and `SlotControllerUpdateCallback` take no type parameter, the callback's `nodes` is `readonly Node[]`, and the assertion and its lint suppression are gone. The doc comments lose their `@typeParam` lines. Core's `useSlot` browser test writes `SlotControllerUpdateCallback`. No alias is kept. Core's README names the module and shows no signature, so it doesn't change.
+
+- **Row:** `packages/core/tests/controllers/useSlot.declaration.test.ts`, in the `declaration/core` project. It asserts that the callback type's `nodes` is `readonly Node[]`, that an inline callback infers it, and that a type argument is an error on `useSlot` and on `SlotControllerUpdateCallback`. Before the change three of its four rows fail: the callback type needs a type argument, and both `@ts-expect-error` directives are unused. The inline-callback row passes on both sides, because the old default was `Node`. After the change all four pass ([before](use-slot-nodes-1/checks/declaration-before-change.txt), [after](use-slot-nodes-1/checks/declaration-after-change.txt)).
+- **Typecheck:** core, then material-x after core is rebuilt, and the root `typecheck-declarations`, all with no error. Core's browser and declaration projects pass in Chromium, Firefox and WebKit (683 rows).
+- **Built output:** core's `controllers/useSlot.js` differs from the build before the change only by the deleted `@typeParam` comment line, which the build keeps from the JSDoc. The code is the same. `useSlot.d.ts` and the source map differ as the signature does, and no other built file of core differs ([diff](use-slot-nodes-1/checks/built-output.txt)). A size row reads minified bundles, which hold no comments, so the decision's _no size row moves_ is reasoned from that and not measured.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
