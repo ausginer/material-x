@@ -1,0 +1,6 @@
+# packages/core: MX_TEST_ENGINES=chromium,firefox,webkit vitest run, on an export of 65152f4f0
+ RUN  v5.1.0 <scratch>/head/packages/core
+ Test Files  68 passed (68)
+      Tests  683 passed (683)
+Type Errors  no errors
+   Duration  17.02s (worker 47%, tests 22%, setup 21%, import 6%, typecheck 3%)

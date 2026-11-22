@@ -1,0 +1,10 @@
+# probes/rf70-link-drag.spec.browser.test.ts: the branch's dragged-level gesture (press at the centre, move 12 px in 3 steps, poll :state(drag))
+# on mx-list-link-item href="#" in mx-sortable-list, three runs per engine, on both builds.
+## base
+      3 RF70-LINK chromium lifted=false dragstart=a<#document-fragment<mx-list-link-item draggable=true
+      3 RF70-LINK firefox lifted=false dragstart=a<#document-fragment<mx-list-link-item draggable=true
+      3 RF70-LINK webkit lifted=true dragstart=none draggable=true
+## head
+      3 RF70-LINK chromium lifted=false dragstart=a<#document-fragment<mx-list-link-item draggable=true
+      3 RF70-LINK firefox lifted=false dragstart=a<#document-fragment<mx-list-link-item draggable=true
+      3 RF70-LINK webkit lifted=true dragstart=none draggable=true

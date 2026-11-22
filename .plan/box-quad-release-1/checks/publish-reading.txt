@@ -1,0 +1,125 @@
+box-quad 1.0.0, the reading after the publish (releasing.md step 6), 2026-11-22, read from slot b on box-quad/release-reading-1 at e97a42ee5
+
+§1 The release run 45002423668 (gh api …/actions/runs/45002423668/attempts/N and …/jobs)
+attempt 1: workflow_dispatch on main at e97a42ee576ab1a79537d08962891ff9251ee3e2, started 2026-11-22T08:21:25Z, failure
+  prepare: failure (2026-11-22T08:21:30Z → 2026-11-22T08:21:51Z)
+  dispatch: skipped (2026-11-22T08:21:27Z → 2026-11-22T08:21:27Z)
+  stage: skipped (2026-11-22T08:21:51Z → 2026-11-22T08:21:51Z)
+attempt 2: workflow_dispatch on main at e97a42ee576ab1a79537d08962891ff9251ee3e2, started 2026-11-22T08:31:26Z, success
+  prepare: success (2026-11-22T08:31:31Z → 2026-11-22T08:32:01Z)
+  dispatch: skipped (2026-11-22T08:31:28Z → 2026-11-22T08:21:27Z)
+  stage: success (2026-11-22T08:32:07Z → 2026-11-22T08:32:26Z)
+attempt 1, prepare's annotations:
+  failure: Process completed with exit code 1.
+  failure: no verify run for a push to main at e97a42ee576ab1a79537d08962891ff9251ee3e2 concluded success (running)
+verify on the push of e97a42ee5:
+  run 45002265639, attempt 1, started 2026-11-22T08:19:27Z, success at 2026-11-22T08:28:40Z
+the tag's run 45002418081:
+  attempt 1: push of @ydinjs/box-quad@1.0.0 at e97a42ee576ab1a79537d08962891ff9251ee3e2, started 2026-11-22T08:21:21Z, success
+    dispatch: success (2026-11-22T08:21:23Z → 2026-11-22T08:21:27Z)
+    prepare: skipped (2026-11-22T08:21:22Z → 2026-11-22T08:21:21Z)
+    stage: skipped (2026-11-22T08:21:22Z → 2026-11-22T08:21:21Z)
+  attempt 2: push of @ydinjs/box-quad@1.0.0 at e97a42ee576ab1a79537d08962891ff9251ee3e2, started 2026-11-22T08:29:23Z, success
+    dispatch: success (2026-11-22T08:21:23Z → 2026-11-22T08:21:27Z)
+    prepare: skipped (2026-11-22T08:29:25Z → 2026-11-22T08:29:24Z)
+    stage: skipped (2026-11-22T08:29:25Z → 2026-11-22T08:29:24Z)
+release runs on main at e97a42ee5:
+  45002423668 workflow_dispatch main
+  45002418081 push @ydinjs/box-quad@1.0.0
+the tag:
+  e97a42ee576ab1a79537d08962891ff9251ee3e2	refs/tags/@ydinjs/box-quad@1.0.0
+deployment to the environment npm:
+  npm main e97a42ee576ab1a79537d08962891ff9251ee3e2 2026-11-22T08:32:01Z
+attempt 2, stage's log (npm stage publish):
+    SHA256: d8c430e3ffa4e1304506a30e0c497a12d188cd6308355a0a04901d7c7ce910d8
+    SHASUM: 97d36a5b9697712b35eaa4e125ed1a9c4db33d8e
+  + @ydinjs/box-quad@1.0.0 (staged with id 35fac79f-5782-45dd-83f9-4d4af11fc0c3)
+  npm notice shasum: 97d36a5b9697712b35eaa4e125ed1a9c4db33d8e
+  npm notice stage Provenance statement published to transparency log: https://search.sigstore.dev/?logIndex=4039644288
+  npm notice stage Signed provenance statement with source and build information from GitHub Actions
+  npm notice stage package @ydinjs/box-quad@1.0.0 has been staged with tag latest
+
+§2 The registry (curl https://registry.npmjs.org/…), at 2026-11-22T08:39Z
+  dist-tags endpoint: {"latest":"1.0.0"}
+  package document: dist-tags {"latest":"1.0.0"} versions 0.0.0-stage, 1.0.0
+  time {"created":"2026-11-22T08:32:23.386Z","modified":"2026-11-22T08:35:01.422Z","0.0.0-stage":"2026-11-22T08:32:23.386Z","1.0.0":"2026-11-22T08:35:01.088Z"}
+  0.0.0-stage stub: true
+  version document 1.0.0: shasum 97d36a5b9697712b35eaa4e125ed1a9c4db33d8e
+    integrity sha512-9cFkPWMO0NaAbKkux9M/upNtCTo/Peh2mmer+AB/V+kCeP6xpt0WBOe661ctB+lUINdqQUJgQSh37p2leicj+g==
+    fileCount 7 unpackedSize 61955 license Apache-2.0 type module sideEffects false browserslist ["baseline 2024"]
+    attestations {"url":"https://registry.npmjs.org/-/npm/v1/attestations/@ydinjs%2fbox-quad@1.0.0","provenance":{"predicateType":"https://slsa.dev/provenance/v1"}}
+  The package document answered 404 at first, and 200 at 08:37Z with a cache-busting query; the plain URL answers 200 since.
+  the published tarball box-quad-1.0.0.tgz:
+    sha1   97d36a5b9697712b35eaa4e125ed1a9c4db33d8e
+    sha256 d8c430e3ffa4e1304506a30e0c497a12d188cd6308355a0a04901d7c7ce910d8
+    sha512 f5c1643d630ed0d6806ca92ec7d33fba936d093a3f3de8769a67abf8007f57e90278feb1a6dd1604e7baeb572d07e95420d76a414260412877ee9da57a2723fa
+
+§3 The provenance attestation (…/-/npm/v1/attestations/@ydinjs%2fbox-quad@1.0.0), the DSSE payloads decoded
+  predicateType https://github.com/npm/attestation/tree/main/specs/publish/v0.1
+    subject pkg:npm/%40ydinjs/box-quad@1.0.0 sha512 f5c1643d630ed0d6806ca92ec7d33fba936d093a3f3de8769a67abf8007f57e90278feb1a6dd1604e7baeb572d07e95420d76a414260412877ee9da57a2723fa
+    transparency log index 4039685556 integrated 2026-11-22T08:35:03.000Z
+  predicateType https://slsa.dev/provenance/v1
+    subject pkg:npm/%40ydinjs/box-quad@1.0.0 sha512 f5c1643d630ed0d6806ca92ec7d33fba936d093a3f3de8769a67abf8007f57e90278feb1a6dd1604e7baeb572d07e95420d76a414260412877ee9da57a2723fa
+    workflow {"ref":"refs/heads/main","repository":"https://github.com/ausginer/material-x","path":".github/workflows/release.yml"}
+    resolvedDependencies [{"uri":"git+https://github.com/ausginer/material-x@refs/heads/main","digest":{"gitCommit":"e97a42ee576ab1a79537d08962891ff9251ee3e2"}}]
+    internalParameters {"github":{"event_name":"workflow_dispatch","repository_id":"1018117082","repository_owner_id":"135843419"}}
+    builder https://github.com/actions/runner/github-hosted
+    invocationId https://github.com/ausginer/material-x/actions/runs/45002423668/attempts/2
+    transparency log index 4039644288 integrated 2026-11-22T08:32:22.000Z
+  aube trust check @ydinjs/box-quad@1.0.0:
+    @ydinjs/box-quad@1.0.0: pass
+    published: 2026-11-22T08:35:01.088Z
+    current evidence: staged publish approval
+    strongest earlier evidence: none
+  The bundles' signatures and certificates were not verified cryptographically: no tool here does it without npm.
+
+§4 An install into an empty project, and the import type-checked
+  package.json before: {"name": "box-quad-reading", "private": true, "type": "module"}
+  aube add @ydinjs/box-quad@1.0.0 → ERR_AUBE_NEW_PACKAGE_NAME: the name was first published at 2026-11-22T08:32:23.386Z, within minimumPackageAge (43200 minutes)
+  aube add --allow-low-downloads @ydinjs/box-quad@1.0.0 → + @ydinjs/box-quad@1.0.0
+  aube-lock.yaml: resolution: {integrity: sha512-9cFkPWMO0NaAbKkux9M/upNtCTo/Peh2mmer+AB/V+kCeP6xpt0WBOe661ctB+lUINdqQUJgQSh37p2leicj+g==}
+  installed files: CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json 
+  main.ts:
+    import {
+      ancestry,
+      type Box,
+      coordinates,
+      type Delta,
+      localDelta,
+      projection,
+      type Quad,
+      type Space,
+    } from '@ydinjs/box-quad';
+    
+    export function read(element: HTMLElement): readonly [boolean, Quad, Delta] {
+      const space: Space = {};
+      const box: Box = {};
+      const quad: Quad = {};
+      const delta: Delta = {};
+      const ok =
+        ancestry(element, space) &&
+        coordinates(element, box, space) &&
+        projection(box, quad) &&
+        localDelta(space, 1, 1, delta);
+      return [ok, quad, delta];
+    }
+    
+    // @ts-expect-error: `coordinates` takes an HTMLElement
+    coordinates('not an element', {});
+  tsconfig.json:
+    {
+      "compilerOptions": {
+        "target": "es2024",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["es2024", "dom"],
+        "strict": true,
+        "skipLibCheck": false,
+        "noEmit": true,
+        "types": []
+      },
+      "files": ["main.ts"]
+    }
+  tsc 7.0.2 (the repository's) -p tsconfig.json: exit 0
+  its files besides TypeScript's libs: <aube virtual store>/@ydinjs+box-quad@1.0.0-1412193fd8ec1f30/@ydinjs/box-quad/index.d.ts ./main.ts 
+  node --input-type=module -e "import * as m from '@ydinjs/box-quad'": exports ancestry, coordinates, localDelta, projection

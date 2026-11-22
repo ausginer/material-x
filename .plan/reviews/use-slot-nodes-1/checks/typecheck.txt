@@ -1,0 +1,13 @@
+# Root `just typecheck-declarations` then `just typecheck`, on exports of 65152f4f0 (head) and 24c2a07b2 (base)
+## head
+typecheck-declarations: 0 TS errors, last lines:
+  Recoverable time:  21ms (0% of the run)
+tsc -p tsconfig.declarations.json
+typecheck: 0 TS errors, nx summary:
+ NX   15 tasks: 15 succeeded
+## base
+typecheck-declarations: 0 TS errors, last lines:
+  Recoverable time:  19ms (0% of the run)
+tsc -p tsconfig.declarations.json
+typecheck: 0 TS errors, nx summary:
+ NX   15 tasks: 15 succeeded

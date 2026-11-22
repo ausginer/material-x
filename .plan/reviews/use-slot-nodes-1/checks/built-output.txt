@@ -1,0 +1,42 @@
+# diff -rq of the built packages (excluding node_modules, src, tests and dotfiles), base 24c2a07b2 against head 65152f4f0
+## core
+Files base/packages/core/controllers/useSlot.d.ts and head/packages/core/controllers/useSlot.d.ts differ
+Files base/packages/core/controllers/useSlot.js and head/packages/core/controllers/useSlot.js differ
+Files base/packages/core/controllers/useSlot.js.map and head/packages/core/controllers/useSlot.js.map differ
+(78 built .js, .d.ts and .js.map files)
+## material-x
+(224 built .js, .d.ts and .js.map files)
+
+## diff of core's controllers/useSlot.js
+14d13
+< * @typeParam T - The node type expected from the observed slot.
+
+## core's controllers/useSlot.d.ts on head
+import { ControlledElement } from "../element.js";
+/**
+ * Callback invoked when the observed slot dispatches `slotchange`.
+ *
+ * The `nodes` argument mirrors `slot.assignedNodes()` for the current slot
+ * state, so it includes text nodes and other non-element nodes.
+ *
+ * @param slot - The slot that dispatched the update.
+ * @param nodes - The currently assigned child nodes for this slot.
+ */
+export type SlotControllerUpdateCallback = (slot: HTMLSlotElement, nodes: readonly Node[]) => void;
+/**
+ * Observes a slot and runs a callback whenever its assigned nodes change.
+ *
+ * The slot can be passed either as a selector resolved inside
+ * `host.shadowRoot`, or as a direct `HTMLSlotElement` reference. Updates are
+ * driven by the browser `slotchange` event, and the callback receives the
+ * current `assignedNodes()` snapshot for that slot.
+ *
+ * @remarks This controller does not emit an initial update manually. The
+ * callback runs only when the platform dispatches `slotchange`.
+ *
+ * @param host - The host element that owns the observed slot.
+ * @param slotOrSelector - The slot to observe, either by selector or direct
+ *   element reference.
+ * @param callback - Callback invoked for each `slotchange` update.
+ */
+export declare function useSlot(host: ControlledElement, slotOrSelector: string | HTMLSlotElement, callback: SlotControllerUpdateCallback): void;

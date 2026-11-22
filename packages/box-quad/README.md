@@ -102,7 +102,19 @@ There is no option for a box other than the border box, and no list of fragments
 
 ## Browser support
 
-Current [Baseline](https://web.dev/baseline): the current stable release of Chrome and Firefox on desktop and Android, Edge, and Safari on macOS and iOS. No minimum version is promised: a browser version that leaves stable leaves support, and that isn't a breaking change.
+box-quad 1.x supports [Baseline](https://web.dev/baseline) 2024. The lowest supported version of each core browser is:
+
+| Browser             | Lowest version |
+| ------------------- | -------------- |
+| Chrome              | 130            |
+| Chrome for Android  | 130            |
+| Edge                | 130            |
+| Firefox             | 132            |
+| Firefox for Android | 132            |
+| Safari on macOS     | 18.2           |
+| Safari on iOS       | 18.2           |
+
+The floor stays for the whole 1.x line. A higher floor comes only with a new major version.
 
 ## API reference
 
