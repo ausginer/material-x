@@ -1,0 +1,106 @@
+Probe (probes/text-field-reset.browser.test.ts.txt), slot g, 2026-11-22, at cbb06d265 (origin/main). Run with MX_TEST_ENGINES=chromium,firefox,webkit, project browser*. The probe throws its readings; the three thrown errors follow.
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/text-field/zz-rf74-probe.browser.test.ts:18 > rf74 probe > reads
+Error: RF74 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36{
+ "mx-text-field": {
+  "parsed value attr: host.value": "",
+  "parsed value attr: inner.value": "",
+  "parsed value attr: form data": null,
+  "after setAttribute: host.value": "",
+  "after host.value=: attr": "changed-attr",
+  "after reset (scripted): host.value": "scripted",
+  "after reset (scripted): form data": "scripted",
+  "after reset (typed): host.value": "scriptedtyped",
+  "after reset (typed): form data": "scriptedtyped"
+ },
+ "mx-multiline-text-field": {
+  "parsed value attr: host.value": "",
+  "parsed value attr: inner.value": "",
+  "parsed value attr: form data": null,
+  "after setAttribute: host.value": "",
+  "after host.value=: attr": "changed-attr",
+  "after reset (scripted): host.value": "scripted",
+  "after reset (scripted): form data": "scripted",
+  "after reset (typed): host.value": "scriptedtyped",
+  "after reset (typed): form data": "scriptedtyped"
+ }
+}
+Trace:
+  step      locator                            start  duration  location
+  hover     locator('div')                      +8ms     162ms  tests/support/browser-setup.ts:77:19
+  click     getByLabel('', { exact: false })  +219ms      80ms  tests/text-field/zz-rf74-probe.browser.test.ts:41:23
+  keyboard  -                                 +299ms      33ms  tests/text-field/zz-rf74-probe.browser.test.ts:42:23
+  click     getByLabel('', { exact: false })  +399ms      52ms  tests/text-field/zz-rf74-probe.browser.test.ts:41:23
+  keyboard  -                                 +451ms      31ms  tests/text-field/zz-rf74-probe.browser.test.ts:42:23
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+ FAIL  |browser/firefox (firefox)| tests/text-field/zz-rf74-probe.browser.test.ts:18 > rf74 probe > reads
+Error: RF74 Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0{
+ "mx-text-field": {
+  "parsed value attr: host.value": "",
+  "parsed value attr: inner.value": "",
+  "parsed value attr: form data": null,
+  "after setAttribute: host.value": "",
+  "after host.value=: attr": "changed-attr",
+  "after reset (scripted): host.value": "scripted",
+  "after reset (scripted): form data": "scripted",
+  "after reset (typed): host.value": "scriptedtyped",
+  "after reset (typed): form data": "scriptedtyped"
+ },
+ "mx-multiline-text-field": {
+  "parsed value attr: host.value": "",
+  "parsed value attr: inner.value": "",
+  "parsed value attr: form data": null,
+  "after setAttribute: host.value": "",
+  "after host.value=: attr": "changed-attr",
+  "after reset (scripted): host.value": "scripted",
+  "after reset (scripted): form data": "scripted",
+  "after reset (typed): host.value": "scriptedtyped",
+  "after reset (typed): form data": "scriptedtyped"
+ }
+}
+Trace:
+  step      locator                            start  duration  location
+  hover     locator('div')                      +3ms     131ms  tests/support/browser-setup.ts:77:19
+  click     getByLabel('', { exact: false })  +179ms      88ms  tests/text-field/zz-rf74-probe.browser.test.ts:41:23
+  keyboard  -                                 +267ms      28ms  tests/text-field/zz-rf74-probe.browser.test.ts:42:23
+  click     getByLabel('', { exact: false })  +362ms      55ms  tests/text-field/zz-rf74-probe.browser.test.ts:41:23
+  keyboard  -                                 +417ms      18ms  tests/text-field/zz-rf74-probe.browser.test.ts:42:23
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+ FAIL  |browser/webkit (webkit)| tests/text-field/zz-rf74-probe.browser.test.ts:18 > rf74 probe > reads
+Error: RF74 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15{
+ "mx-text-field": {
+  "parsed value attr: host.value": "",
+  "parsed value attr: inner.value": "",
+  "parsed value attr: form data": null,
+  "after setAttribute: host.value": "",
+  "after host.value=: attr": "changed-attr",
+  "after reset (scripted): host.value": "scripted",
+  "after reset (scripted): form data": "scripted",
+  "after reset (typed): host.value": "scriptedtyped",
+  "after reset (typed): form data": "scriptedtyped"
+ },
+ "mx-multiline-text-field": {
+  "parsed value attr: host.value": "",
+  "parsed value attr: inner.value": "",
+  "parsed value attr: form data": null,
+  "after setAttribute: host.value": "",
+  "after host.value=: attr": "changed-attr",
+  "after reset (scripted): host.value": "scripted",
+  "after reset (scripted): form data": "scripted",
+  "after reset (typed): host.value": "scriptedtyped",
+  "after reset (typed): form data": "scriptedtyped"
+ }
+}
+Trace:
+  step      locator                            start  duration  location
+  hover     locator('div')                      +6ms     122ms  tests/support/browser-setup.ts:77:19
+  click     getByLabel('', { exact: false })  +178ms      60ms  tests/text-field/zz-rf74-probe.browser.test.ts:41:23
+  keyboard  -                                 +238ms      25ms  tests/text-field/zz-rf74-probe.browser.test.ts:42:23
+  click     getByLabel('', { exact: false })  +321ms      42ms  tests/text-field/zz-rf74-probe.browser.test.ts:41:23
+  keyboard  -                                 +364ms      15ms  tests/text-field/zz-rf74-probe.browser.test.ts:42:23
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+ Test Files  3 failed (3)
+      Tests  3 failed (3)
+   Start at  07:31:38
+   Duration  9.07s (worker 40%, tests 29%, import 28%, setup 3%)

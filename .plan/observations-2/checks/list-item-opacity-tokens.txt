@@ -1,0 +1,16 @@
+# List item disabled opacity tokens, as store.select() reads them (expressive, web)
+# Read by the architect on 2026-11-22 at cbb06d265, with packages/tproc/src/store/index.ts. Node v26.13.1.
+md.comp.list.list-item.selected.disabled.trailing-icon.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.selected.disabled.leading-icon.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.selected.disabled.state-layer.opacity {"opacity":0.1} {"opacity":0.1}
+md.comp.list.list-item.selected.disabled.overline.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.selected.disabled.trailing-supporting-text.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.selected.disabled.supporting-text.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.selected.disabled.label-text.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.selected.disabled.container.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.disabled.trailing-icon.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.disabled.label-text.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.disabled.state-layer.opacity {"opacity":0.1} {"opacity":0.1}
+md.comp.list.list-item.disabled.overline.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.disabled.supporting-text.opacity {"opacity":0.38} {"opacity":0.38}
+md.comp.list.list-item.disabled.leading-icon.opacity {"opacity":0.38} {"opacity":0.38}
