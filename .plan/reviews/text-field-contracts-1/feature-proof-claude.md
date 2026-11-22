@@ -69,3 +69,50 @@ Neither is a defect in the components.
 - **Also,** `RD-8` asks that an expected-failure row cite its finding's address. The row's comment says _"reported, not yet registered"_, so it owes that address once the architect registers the difference.
 - **Required property.** The row fails in each engine once the populated label sits where the tokens put it, within that engine's layout precision. It fails, and doesn't pass, when its oracle is missing.
 - **Routing.** To the implementer for the row's shape, and to the architect with the difference they are registering, since the row has to cite it.
+
+## Recheck of the remediation, 2026-11-22
+
+**Files were read at:** `0eee212bd`, the head of #160, in slot `f`. Its parent `ad662b00d` merges `main` at `23b245efb`, which has #155. `origin/main` is now `c5da3821c` (#161), and `git merge-tree` merges it with the head without conflict. Core and every measured package were built from the head before each test run, and the tree was clean after each step. The browsers and Node are the ones named above, with Vitest 5.1.0.
+
+**Subject:** the architect's ruling under `repo:RF-82` (`1fe3837d5`) with remediation items 1–4, `repo:RF-97` as amended on `main`, and the implementer's dated paragraph after the ruling. The coordinator asked me to recheck `reviewer-1` and `reviewer-2` against the remediation, and to explain the size change.
+
+**Verdict: the remediation meets items 1–4, and both findings are resolved. Every figure in the implementer's paragraph reproduces. The size change comes from the code that #155 and #151 put around the branch's stylesheets, not from the branch. The branch's own output is byte-identical on both bases. I have no new finding.**
+
+### Scope
+
+**Covered** ([`remediation-recheck.txt`](checks/remediation-recheck.txt), [`remediation-sizes.txt`](checks/remediation-sizes.txt)):
+
+- **`reviewer-1`, item 1.** `enter(field, 'error')` sets the `error` attribute and calls no validity method. `createField` and `enter` type the field as `HTMLElementTagNameMap[Tag]`, and `FieldElement` is deleted. With `setValidity()` put back on line 135, `just typecheck` fails with TS2551 on `MultilineTextField | TextField`. At the head, the typecheck and the spec file's lint pass. So a removed member now fails the typecheck, where the local type hid it before.
+- **Item 3 (a).** At the head the spec file passes in the three engines: 456 passed, 6 expected fail. With `enter` setting no `error`, 36 rows fail, 12 per engine. They are the same 36 rows as in the implementer's list. The 12 input text error rows (4 per engine) stay green. A node probe through the bridge ([probe](probes/rest-error-tokens.ts.txt)) shows why: `input-text.color` is `on-surface` in both rest packages and in both error packages at `error.default`. `label-text.color`, `supporting-text.color`, `active-indicator.color` (filled) and `outline.color` (outlined) differ. So the input text rows can't witness the error state while those tokens are equal. That limit is in the tokens and isn't a defect in the rows.
+- **`reviewer-2`, item 2.** The row is in its own block, `$tag $name populated label position contract`, for the filled field only. A `beforeAll` resolves `container.focus.padding.block` and `label-text.populated.line-height`. The row reads the rect of `.label slot`, the template's only label slot, and compares its centre with `toBe`. It is `it.fails` in the three engines, its comment cites `repo:RF-97`, and _"reported, not yet registered"_ is gone. `RF-97` is on `main` at `c5da3821c` and not in the branch's tree. No instrument resolves cited addresses (`entry.sh` checks duplicates only), and the citation resolves once the branch merges after #161.
+- **Item 3 (b).** With the `beforeAll`'s `label-text.populated.line-height` renamed, each of the 6 blocks fails with _Missing token_, and its run is skipped. With the populated label's `translate` 1 px further down (`+ 1px` after `var(--_container-focus-padding-block)` in `styles/default/main.styles.css`), all 6 runs fail with _Expect test to fail_. The 1 px move puts the line box's centre at exactly 16 px in every engine, so the row is at 15 px today, as the ruling reads. This meets both properties that `reviewer-2` asked for.
+- **Item 4.** The record has the implementer's dated paragraph with the witnesses, the totals, the sizes and the corrected 15 px, and the earlier paragraph is unchanged.
+- **The whole material-x run,** browser and spec projects, three engines: 2658 passed, 7 expected fail, 20 skipped. That is the record's figure.
+- **Sizes.** `just size-reading` reproduces `size-remediation-main.json` and `size-remediation-head.json` in all 33 rows, and a second head reading is identical. With core and `packages/material-x/src` at `6a67badfd`, and `src/text-field` at `256977dbc` for the head side, the readings also reproduce `size-before-fix.json` and `size-after-fix.json`.
+
+**Not covered:** real Safari, the visual project, and the rows outside the text field's spec file beyond the full run.
+
+### The size change
+
+The text-field rows move by +95, +89 and +41 Brotli bytes over `23b245efb`, where they moved by +17, +44 and +91 over `6a67badfd`. The cause is the code around the branch's stylesheets:
+
+- **The branch adds the same bytes on both bases.** After its short names are mapped back ([`remap.ts`](probes/remap.ts)), every built material-x `.js` file at the head equals `main`'s build, except `text-field/styles/default/main.css.js` and `text-field/styles/outlined/main.css.js`, as on the old base. Those two files are byte-identical between the bases, on both sides: +349 raw bytes (+46 Brotli alone) and +66 (+40). In both builds, `--_outline-opacity` takes `--i`, at index 8 of 228, and 219 names change.
+- **A row is one Brotli stream over the whole bundle,** so the same added bytes cost a different amount next to other code. I split each delta in two by pinning the name map ([probe](probes/pin-names.py.txt)): every existing name keeps its base name, and the new name goes last.
+
+  | Delta (Brotli bytes) | `text-field` | `multiline` | `complete` |
+  | --- | --- | --- | --- |
+  | Old base: content, names pinned | +34 | +47 | +48 |
+  | Old base: renaming | −17 | −3 | +43 |
+  | **Old base: total** | **+17** | **+44** | **+91** |
+  | New base: content, names pinned to `main` | +60 | +66 | +3 |
+  | New base: renaming | +35 | +23 | +38 |
+  | **New base: total** | **+95** | **+89** | **+41** |
+  | New base: content, names pinned to the old base | +64 | +66 | +54 |
+
+- **#155's code moves the text-field rows.** With both bases on the old base's names, the only built files that differ are #155's (`TextFieldCore.js`, `text-field.js`, `multiline-text-field.js`, the switches, the checkables and core's `traits/validatable.js`) and #151's list styles. Then the content delta grows by +30 for `text-field` and +19 for `multiline`. The renaming delta grows by +52 and +26, although the same 219 names change on both bases.
+- **#151's renaming moves `complete`.** #151 (`4936e77b9`) shifts 8 short names on `main`, among them `--_elevation-penumbra`. Pinned to the old base's names, `complete`'s content delta is +54. Pinned to `main`'s names, it is +3.
+- **Acceptability.** Under `repo:RD-24` the material-x rows have no limit until the first publication, so no reading here is over a limit, and none needs a decision. The new figures are the branch's real cost over today's `main`, and the record carries them as such. The change from the old figures is compression context that the branch doesn't control. So I read the change as acceptable and report no finding. The implementer's _"isn't read"_ is answered here.
+
+### Findings
+
+No new finding. `reviewer-1` and `reviewer-2` are resolved at `0eee212bd`.
