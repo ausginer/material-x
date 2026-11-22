@@ -60,3 +60,56 @@ direct write	996	-	62	60	0.0	4.4	16.0	0.0	58.4	917.8
 The same script, aimed at the prototype story as `STORY`, skips the two
 `controls` rows and 2 to 4, and reads `in-story range` and `direct write`: the
 shape it will read once _Live Demo_'s controls are in the story.
+
+## 2026-11-22, the implementer: before, on the unchanged stories
+
+Read against a Storybook 10.6.7 dev server started from slot b at `c801b6ec2`
+(the docs-dev steps, on port 6116), with the workspace packages built first, on
+the same machine as the after reading below. `in-story range` is skipped: the
+story has no range of its own yet.
+
+in-story range: skipped, the story has no such range
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+controls	7844	418	417	59	6327.6	454.1	38.9	125.0	851.6	48.0
+controls, sidebar hidden	3988	247	246	59	2957.1	441.3	38.7	42.1	463.5	53.5
+channel, panel shown	2327	72	73	54	1647.3	440.4	39.7	31.7	202.5	24.1
+channel, panel hidden	3095	90	91	55	2450.3	405.5	41.6	45.8	187.8	19.6
+channel, sidebar hidden	1126	72	71	54	736.6	255.8	24.9	19.2	87.6	13.2
+preview only	999	-	63	60	0.0	291.9	32.1	11.4	83.9	580.7
+direct write	1001	-	62	60	0.0	0.0	21.4	0.0	71.9	909.1
+
+## 2026-11-22, the implementer: after, on the implemented stories
+
+The same server, serving the stories with their sliders inside them, read three
+times in a row. The two Controls rows and the four `updateStoryArgs` rows are
+skipped, because the story has no Controls range and takes no `rotation` arg.
+`in-story range` drags _Live Demo_'s own `rotation` slider, with no
+`MX_IN_STORY`.
+
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2006	124	124	59	4.8	144.2	57.8	2.6	268.8	1529.4
+direct write	999	-	62	60	0.0	0.0	15.3	0.0	60.9	924.0
+
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	1999	124	124	59	5.7	138.2	55.1	0.0	256.2	1545.4
+direct write	998	-	62	60	0.0	1.4	14.9	0.2	61.0	921.5
+
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	1998	123	123	59	5.7	140.3	52.3	1.0	239.5	1560.6
+direct write	995	-	62	60	0.0	2.4	15.3	0.0	58.1	920.3
+
+`BQ-21`'s pass condition, on each of the three runs: 59 transforms; manager time
+4.8, 5.7 and 5.7 ms for the 60 changes, under 60 ms; the main thread idle for
+1529 of 2006, 1545 of 1999 and 1561 of 1998 ms, 76 to 78 % of the wall time,
+more than half. Before, the Controls drag took 6328 ms of manager time and was
+idle for 48 of 7844 ms.

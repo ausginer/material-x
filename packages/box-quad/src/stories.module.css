@@ -81,6 +81,38 @@
   }
 }
 
+/* The sliders sit above the stage, outside the geometry they change. */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  max-inline-size: 100%;
+}
+
+.range {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-inline-size: 100%;
+
+  & input {
+    flex: 0 1 200px;
+    min-inline-size: 80px;
+    margin: 0;
+    accent-color: var(--md-sys-color-primary);
+  }
+
+  & output {
+    min-inline-size: 5ch;
+    font-variant-numeric: tabular-nums;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+}
+
+.range-label {
+  min-inline-size: 9em;
+}
+
 /* Live Demo: the demo's geometry. */
 .demo-stage {
   inline-size: 640px;

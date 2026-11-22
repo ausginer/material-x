@@ -9,8 +9,11 @@
  * - Chromium and WebKit: at rotation 0 and skew 0, the overlay corners against
  *   the target's `getBoundingClientRect()` corners.
  * - A screenshot of each story in the light and the dark theme, in Chromium.
- * - _Pointer Delta_: a drag with Playwright's mouse at a rotated and zoomed arg
- *   set, then the box's centre against the pointer, in the three engines.
+ * - _Pointer Delta_: a drag with Playwright's mouse at a rotated and zoomed
+ *   ancestor, then the box's centre against the pointer, in the three engines.
+ *
+ * Each value is set through the story's own slider: its value, then an `input`
+ * event. The stories take no args, so no URL can set one.
  *
  * Run from the repository root after `aube exec just docs-build`:
  * `node packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts`.
@@ -69,8 +72,8 @@ await new Promise<void>((resolve) => {
 });
 const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
-function storyUrl(id: string, args = '', theme = 'light'): string {
-  return `${origin}${BASE}iframe.html?id=box-quad--${id}&viewMode=story&theme=${theme}${args ? `&args=${args}` : ''}`;
+function storyUrl(id: string, theme = 'light'): string {
+  return `${origin}${BASE}iframe.html?id=box-quad--${id}&viewMode=story&theme=${theme}`;
 }
 
 async function openStory(page: Page, url: string): Promise<void> {
@@ -82,6 +85,55 @@ async function openStory(page: Page, url: string): Promise<void> {
         requestAnimationFrame(() => requestAnimationFrame(resolve));
       }),
   );
+}
+
+/**
+ * Sets each named slider of the open story and waits two frames. The value goes
+ * through the input's own `value` setter, because React tracks the instance's
+ * value and ignores an `input` event that leaves it unchanged. The value shown
+ * beside each slider is the story's state, so it is checked.
+ */
+async function setSliders(
+  page: Page,
+  values: Readonly<Record<string, number>>,
+): Promise<void> {
+  await page.evaluate((entries) => {
+    const setValue = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      'value',
+    )!.set!;
+
+    for (const [name, value] of entries) {
+      const input = document.querySelector<HTMLInputElement>(
+        `#storybook-root input[type="range"][name="${name}"]`,
+      )!;
+      setValue.call(input, String(value));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+  }, Object.entries(values));
+
+  const shown = await page.evaluate(
+    (names) =>
+      names.map(
+        (name) =>
+          document
+            .querySelector(
+              `#storybook-root input[type="range"][name="${name}"]`,
+            )!
+            .parentElement!.querySelector('output')!.textContent,
+      ),
+    Object.keys(values),
+  );
+
+  for (const [index, [name, value]] of Object.entries(values).entries()) {
+    if (!shown[index]!.startsWith(String(value))) {
+      throw new Error(`slider ${name} shows ${shown[index]}, not ${value}`);
+    }
+  }
 }
 
 type Point = readonly [number, number];
@@ -135,11 +187,10 @@ async function firefoxParity(browser: Browser): Promise<boolean> {
     'Live Demo overlay corners against native getBoxQuads(), max |difference| (px), limit 0.02',
   );
 
+  await openStory(page, storyUrl('live-demo'));
+
   for (const [rotation, skew] of cases) {
-    await openStory(
-      page,
-      storyUrl('live-demo', `rotation:${rotation};skew:${skew}`),
-    );
+    await setSliders(page, { rotation, skew });
     const overlay = await readOverlayCorners(page);
     const native = await page.evaluate((selector) => {
       const target = document.querySelector(selector) as Element & {
@@ -172,7 +223,8 @@ async function boundingRectParity(
   name: string,
 ): Promise<boolean> {
   const page = await browser.newPage();
-  await openStory(page, storyUrl('live-demo', 'rotation:0;skew:0'));
+  await openStory(page, storyUrl('live-demo'));
+  await setSliders(page, { rotation: 0, skew: 0 });
   const overlay = await readOverlayCorners(page);
   const rect = await page.evaluate((selector) => {
     const { left, top, right, bottom } = document
@@ -203,8 +255,9 @@ async function boundingRectParity(
 
 async function pointerDrag(browser: Browser, name: string): Promise<boolean> {
   const page = await browser.newPage();
-  const args = 'ancestorRotation:-40;ancestorZoom:1.75';
-  await openStory(page, storyUrl('pointer-delta', args));
+  const sliders = { ancestorRotation: -40, ancestorZoom: 1.75 };
+  await openStory(page, storyUrl('pointer-delta'));
+  await setSliders(page, sliders);
   const box = page.locator('#storybook-root [class*="pointer-box"]');
   const start = await box.boundingBox();
   const startX = start!.x + start!.width / 2;
@@ -221,7 +274,9 @@ async function pointerDrag(browser: Browser, name: string): Promise<boolean> {
   const centreY = end!.y + end!.height / 2;
   const difference = Math.hypot(centreX - endX, centreY - endY);
   const ok = difference <= 1;
-  console.log(`\n## ${name} ${browser.version()}: Pointer Delta, ${args}`);
+  console.log(
+    `\n## ${name} ${browser.version()}: Pointer Delta, ancestorRotation ${sliders.ancestorRotation}, ancestorZoom ${sliders.ancestorZoom}`,
+  );
   console.log(
     `  pointer (${startX.toFixed(2)}, ${startY.toFixed(2)}) -> (${endX.toFixed(2)}, ${endY.toFixed(2)}) in 20 steps`,
   );
@@ -244,7 +299,10 @@ async function takeScreenshots(browser: Browser): Promise<void> {
 
   for (const id of STORIES) {
     for (const theme of ['light', 'dark']) {
-      await openStory(page, storyUrl(id, '', theme));
+      await openStory(page, storyUrl(id, theme));
+      // The preview's `html` and `body` transition their colours over 180 ms
+      // after the theme is set, so the screenshot waits for the end state.
+      await page.waitForTimeout(500);
       const file = `${id}-${theme}.png`;
       await page
         .locator('#storybook-root')
