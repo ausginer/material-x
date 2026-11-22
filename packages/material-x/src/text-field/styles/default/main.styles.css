@@ -219,6 +219,12 @@ slot:has-slotted {
   caret-color: var(--_caret-color);
 }
 
+/* `all: unset` drops the textarea's UA `white-space: pre-wrap`, and WebKit
+ * then collapses the line breaks of a value set from script. */
+textarea.input {
+  white-space: pre-wrap;
+}
+
 /* =======================
  * Prefix, suffix, label
  * ======================= */

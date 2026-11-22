@@ -424,4 +424,24 @@ describe('mx-multiline-text-field', () => {
       oneLine + 2 * lineHeight,
     ]);
   });
+
+  it('should grow the textarea by one line for each line of a value set through the host', async () => {
+    const field = createField('mx-multiline-text-field');
+
+    document.body.append(field);
+
+    await nextFrame();
+
+    const textarea = getInput(field);
+    const lineHeight = pixels(getComputedStyle(textarea).lineHeight);
+    const oneLine = textarea.getBoundingClientRect().height;
+
+    field.value = 'first\nsecond\nthird\nfourth';
+    await nextFrame();
+
+    expect([
+      textarea.getBoundingClientRect().height,
+      textarea.scrollHeight,
+    ]).toEqual([oneLine + 3 * lineHeight, 4 * lineHeight]);
+  });
 });
