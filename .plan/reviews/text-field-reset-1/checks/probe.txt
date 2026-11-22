@@ -1,0 +1,46 @@
+Native-comparison probe, rf74-review-probe.browser.test.ts, at eeb3ff814 (slot f), MX_TEST_ENGINES=chromium,firefox,webkit, --silent=false.
+Each line: engine, scenario, then the trace for a native <input>, mx-text-field, a native <textarea> (default = child text) and mx-multiline-text-field.
+RF74 chromium cleanDefaultChanges {"input":["changed","changed","",""],"mx-text-field":["changed","changed","",""],"textarea":["changed","changed","",""],"mx-multiline-text-field":["changed","changed","",""]}
+RF74 chromium cloneOfDirty {"input":["scripted"],"mx-text-field":["initial"],"textarea":["scripted"],"mx-multiline-text-field":["initial"]}
+RF74 chromium disabledReset {"input":["initial","<absent>","initial","initial"],"mx-text-field":["initial","<absent>","initial","initial"],"textarea":["initial","<absent>","initial","initial"],"mx-multiline-text-field":["initial","<absent>","initial","initial"]}
+RF74 chromium eventsDuringReset {"input":[],"mx-text-field":[],"textarea":[],"mx-multiline-text-field":[]}
+RF74 chromium noDefault {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 chromium resetAfterDefaultRemovedWhileDirty {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 chromium resetEventPrevented {"input":["scripted"],"mx-text-field":["scripted"],"textarea":["scripted"],"mx-multiline-text-field":["scripted"]}
+RF74 chromium scriptThenDefaultChange {"input":["scripted","scripted"],"mx-text-field":["scripted","scripted"],"textarea":["scripted","scripted"],"mx-multiline-text-field":["scripted","scripted"]}
+RF74 chromium typeThenDefaultChangeThenReset {"input":["initialtyped","later","later","again"],"mx-text-field":["initialtyped","later","later","again"],"textarea":["initialtyped","later","later","again"],"mx-multiline-text-field":["initialtyped","later","later","again"]}
+RF74 chromium upgrade {"input":["initial","initial"],"mx-text-field":["initial","initial"],"textarea":["initial","initial"],"mx-multiline-text-field":["initial","initial"]}
+RF74 chromium valueNull {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 firefox cleanDefaultChanges {"input":["changed","changed","",""],"mx-text-field":["changed","changed","",""],"textarea":["changed","changed","",""],"mx-multiline-text-field":["changed","changed","",""]}
+RF74 firefox cloneOfDirty {"input":["scripted"],"mx-text-field":["initial"],"textarea":["scripted"],"mx-multiline-text-field":["initial"]}
+RF74 firefox disabledReset {"input":["initial","<absent>","initial","initial"],"mx-text-field":["initial","<absent>","initial","initial"],"textarea":["initial","<absent>","initial","initial"],"mx-multiline-text-field":["initial","<absent>","initial","initial"]}
+RF74 firefox eventsDuringReset {"input":[],"mx-text-field":[],"textarea":[],"mx-multiline-text-field":[]}
+RF74 firefox noDefault {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 firefox resetAfterDefaultRemovedWhileDirty {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 firefox resetEventPrevented {"input":["scripted"],"mx-text-field":["scripted"],"textarea":["scripted"],"mx-multiline-text-field":["scripted"]}
+RF74 firefox scriptThenDefaultChange {"input":["scripted","scripted"],"mx-text-field":["scripted","scripted"],"textarea":["scripted","scripted"],"mx-multiline-text-field":["scripted","scripted"]}
+RF74 firefox typeThenDefaultChangeThenReset {"input":["initialtyped","later","later","again"],"mx-text-field":["initialtyped","later","later","again"],"textarea":["initialtyped","later","later","again"],"mx-multiline-text-field":["initialtyped","later","later","again"]}
+RF74 firefox upgrade {"input":["initial","initial"],"mx-text-field":["initial","initial"],"textarea":["initial","initial"],"mx-multiline-text-field":["initial","initial"]}
+RF74 firefox valueNull {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 webkit cleanDefaultChanges {"input":["changed","changed","",""],"mx-text-field":["changed","changed","",""],"textarea":["changed","changed","",""],"mx-multiline-text-field":["changed","changed","",""]}
+RF74 webkit cloneOfDirty {"input":["scripted"],"mx-text-field":["initial"],"textarea":["scripted"],"mx-multiline-text-field":["initial"]}
+RF74 webkit disabledReset {"input":["initial","<absent>","initial","initial"],"mx-text-field":["initial","<absent>","initial","initial"],"textarea":["initial","<absent>","initial","initial"],"mx-multiline-text-field":["initial","<absent>","initial","initial"]}
+RF74 webkit eventsDuringReset {"input":[],"mx-text-field":[],"textarea":[],"mx-multiline-text-field":[]}
+RF74 webkit noDefault {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 webkit resetAfterDefaultRemovedWhileDirty {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+RF74 webkit resetEventPrevented {"input":["scripted"],"mx-text-field":["scripted"],"textarea":["scripted"],"mx-multiline-text-field":["scripted"]}
+RF74 webkit scriptThenDefaultChange {"input":["scripted","scripted"],"mx-text-field":["scripted","scripted"],"textarea":["scripted","scripted"],"mx-multiline-text-field":["scripted","scripted"]}
+RF74 webkit typeThenDefaultChangeThenReset {"input":["initialtyped","later","later","again"],"mx-text-field":["initialtyped","later","later","again"],"textarea":["initialtyped","later","later","again"],"mx-multiline-text-field":["initialtyped","later","later","again"]}
+RF74 webkit upgrade {"input":["initial","initial"],"mx-text-field":["initial","initial"],"textarea":["initial","initial"],"mx-multiline-text-field":["initial","initial"]}
+RF74 webkit valueNull {"input":["",""],"mx-text-field":["",""],"textarea":["",""],"mx-multiline-text-field":["",""]}
+Result:       Tests  3 failed | 30 passed (33)
+The 3 failures are cloneOfDirty, one per engine (soft assertions, mx vs native).
+
+Validity across a reset (mx only), same engines:
+RF74 chromium validity mx-multiline-text-field {"before":[true,false],"after":[true,false]}
+RF74 chromium validity mx-text-field {"before":[true,false],"after":[true,false]}
+RF74 firefox validity mx-multiline-text-field {"before":[true,false],"after":[true,false]}
+RF74 firefox validity mx-text-field {"before":[true,false],"after":[true,false]}
+RF74 webkit validity mx-multiline-text-field {"before":[true,false],"after":[true,false]}
+RF74 webkit validity mx-text-field {"before":[true,false],"after":[true,false]}
+before/after = [matches(':state(error)'), form.checkValidity()], after setValidity({customError:true}) and checkValidity(), then form.reset().

@@ -16,6 +16,7 @@ import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
   internals,
+  use,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
@@ -166,6 +167,11 @@ export class TextFieldCore extends TextFieldCoreConstructor {
   }
 
   readonly #input: InputElement;
+  /**
+   * Set once the user edits the value or a script sets it. Until then, the
+   * value follows the `value` attribute. Upgrade and a form reset clear it.
+   */
+  #isDirty = false;
 
   constructor(template: HTMLTemplateElement) {
     super();
@@ -185,14 +191,31 @@ export class TextFieldCore extends TextFieldCoreConstructor {
 
     const innards = internals(this);
 
+    this.#input = field;
+    this.#sync();
+
     useNameable(this, field);
     useDisableable(this, field);
 
     useAttributes(this, {
       inputmode: transfer(field, 'inputmode'),
+      value: (_, newValue) => {
+        if (!this.#isDirty) {
+          field.value = newValue ?? '';
+          this.#sync();
+        }
+      },
       outlined: via(Bool, (_, newValue) => {
         toggleState(innards, 'outlined', newValue);
       }),
+    });
+
+    use(this, {
+      formReset: () => {
+        field.value = this.getAttribute('value') ?? '';
+        this.#isDirty = false;
+        this.#sync();
+      },
     });
 
     useTextFieldARIA(this, field);
@@ -201,9 +224,9 @@ export class TextFieldCore extends TextFieldCoreConstructor {
     useEvents(
       this,
       {
-        input() {
-          toggleState(innards, 'populated', !!field.value);
-          innards.setFormValue(field.value);
+        input: () => {
+          this.#isDirty = true;
+          this.#sync();
         },
         change: () => {
           notify(this, 'change');
@@ -214,8 +237,6 @@ export class TextFieldCore extends TextFieldCoreConstructor {
 
     // TODO: Remove when :has-slotted and :host:has() are baseline.
     useHasSlottedPolyfill(this);
-
-    this.#input = field;
   }
 
   get isPopulated(): boolean {
@@ -228,8 +249,14 @@ export class TextFieldCore extends TextFieldCoreConstructor {
 
   override set value(value: string | null) {
     this.#input.value = value ?? '';
+    this.#isDirty = true;
+    this.#sync();
+  }
+
+  /** Shows the internal field's value in the populated state and the form value. */
+  #sync(): void {
     toggleState(internals(this), 'populated', !!this.#input.value);
-    internals(this).setFormValue(value);
+    internals(this).setFormValue(this.#input.value);
   }
 
   checkValidity(): boolean {

@@ -1,0 +1,181 @@
+/*
+ * Review probe for RF-74 (PR #126): each scenario runs on mx-text-field,
+ * mx-multiline-text-field, a native <input> and a native <textarea>, and the
+ * custom fields are compared with the native control of their kind. A native
+ * <textarea>'s default is its child text, so its scenarios set that instead of
+ * a value attribute.
+ */
+import { describe, expect, it } from 'vitest';
+import { server, userEvent } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import '../../src/text-field/text-field.ts';
+import { nextFrame } from '../browser.ts';
+
+type Kind = 'mx-text-field' | 'mx-multiline-text-field' | 'input' | 'textarea';
+type Field = HTMLElement & { value: string | null; disabled?: boolean };
+
+const escape = (v: string): string => v.replaceAll('"', '&quot;');
+
+async function parse(
+  kind: Kind,
+  defaultValue: string | null,
+): Promise<{ form: HTMLFormElement; field: Field }> {
+  const form = document.createElement('form');
+  if (kind === 'textarea') {
+    form.innerHTML = `<textarea name="f">${defaultValue ?? ''}</textarea>`;
+  } else {
+    const attr =
+      defaultValue == null ? '' : ` value="${escape(defaultValue)}"`;
+    form.innerHTML = `<${kind} name="f"${attr}></${kind}>`;
+  }
+  document.body.append(form);
+  await nextFrame();
+  return { form, field: form.firstElementChild as Field };
+}
+
+function setDefault(kind: Kind, field: Field, v: string | null): void {
+  if (kind === 'textarea') {
+    field.textContent = v ?? '';
+  } else if (v == null) {
+    field.removeAttribute('value');
+  } else {
+    field.setAttribute('value', v);
+  }
+}
+
+function control(kind: Kind, field: Field): HTMLElement {
+  return kind === 'input' || kind === 'textarea'
+    ? field
+    : field.shadowRoot!.querySelector<HTMLElement>('.input')!;
+}
+
+function entry(form: HTMLFormElement): unknown {
+  const data = new FormData(form);
+  return data.has('f') ? data.get('f') : '<absent>';
+}
+
+const SCENARIOS: Record<string, (kind: Kind) => Promise<unknown>> = {
+  async upgrade(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    return [field.value, entry(form)];
+  },
+  async noDefault(kind) {
+    const { form, field } = await parse(kind, null);
+    return [field.value, entry(form)];
+  },
+  async cleanDefaultChanges(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    setDefault(kind, field, 'changed');
+    const a = [field.value, entry(form)];
+    setDefault(kind, field, null);
+    return [...a, field.value, entry(form)];
+  },
+  async scriptThenDefaultChange(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = 'scripted';
+    setDefault(kind, field, 'ignored');
+    return [field.value, entry(form)];
+  },
+  async typeThenDefaultChangeThenReset(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    await userEvent.click(control(kind, field));
+    await userEvent.keyboard('typed');
+    setDefault(kind, field, 'later');
+    const a = [field.value];
+    form.reset();
+    const b = [field.value, entry(form)];
+    setDefault(kind, field, 'again');
+    return [...a, ...b, field.value];
+  },
+  async resetAfterDefaultRemovedWhileDirty(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = 'scripted';
+    setDefault(kind, field, null);
+    form.reset();
+    return [field.value, entry(form)];
+  },
+  async valueNull(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = null;
+    return [field.value, entry(form)];
+  },
+  async disabledReset(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = 'scripted';
+    field.toggleAttribute('disabled', true);
+    form.reset();
+    const a = [field.value, entry(form)];
+    field.toggleAttribute('disabled', false);
+    return [...a, field.value, entry(form)];
+  },
+  async eventsDuringReset(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = 'scripted';
+    const events: string[] = [];
+    for (const type of ['input', 'change']) {
+      field.addEventListener(type, () => events.push(type));
+    }
+    form.reset();
+    await nextFrame();
+    return events;
+  },
+  async cloneOfDirty(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = 'scripted';
+    const clone = field.cloneNode(true) as Field;
+    form.append(clone);
+    await nextFrame();
+    return [clone.value];
+  },
+  async resetEventPrevented(kind) {
+    const { form, field } = await parse(kind, 'initial');
+    field.value = 'scripted';
+    form.addEventListener('reset', (event) => event.preventDefault());
+    form.reset();
+    return [field.value];
+  },
+};
+
+const PAIRS = [
+  ['mx-text-field', 'input'],
+  ['mx-multiline-text-field', 'textarea'],
+] as const;
+
+describe('RF-74 review probe', () => {
+  it.each(Object.keys(SCENARIOS))('%s', async (name) => {
+    const results: Record<string, unknown> = {};
+    for (const kind of [
+      'input',
+      'mx-text-field',
+      'textarea',
+      'mx-multiline-text-field',
+    ] as const) {
+      results[kind] = await SCENARIOS[name]!(kind);
+      document.body.replaceChildren();
+    }
+    console.log(`RF74 ${server.browser} ${name} ${JSON.stringify(results)}`);
+    for (const [mx, native] of PAIRS) {
+      expect.soft(results[mx], `${mx} vs ${native}`).toEqual(results[native]);
+    }
+  });
+});
+
+describe('RF-74 review probe, validity across a reset', () => {
+  it.each(['mx-text-field', 'mx-multiline-text-field'] as const)(
+    '%s',
+    async (kind) => {
+      const { form, field } = await parse(kind, 'initial');
+      const host = field as Field & {
+        setValidity(flags?: ValidityStateFlags, message?: string): void;
+        checkValidity(): boolean;
+      };
+      host.value = 'scripted';
+      host.setValidity({ customError: true }, 'bad');
+      host.checkValidity();
+      const before = [host.matches(':state(error)'), form.checkValidity()];
+      form.reset();
+      const after = [host.matches(':state(error)'), form.checkValidity()];
+      console.log(`RF74 ${server.browser} validity ${kind} ${JSON.stringify({ before, after })}`);
+    },
+  );
+});

@@ -1,0 +1,60 @@
+Feature proof of PR #126 (repo:RF-74), read by the reviewer on 2026-11-22 in slot f at eeb3ff814 (material-x/text-field-reset-1), in the devcontainer with aube 2.10.0.
+Engines: Playwright's Chromium, Firefox and WebKit, through MX_TEST_ENGINES=chromium,firefox,webkit.
+origin/main at c08dbd7fc; git log HEAD..origin/main is empty. git diff origin/main HEAD -- packages/ lists TextFieldCore.ts, text-field.ts, multiline-text-field.ts, traits-baseline.json and text-field.browser.test.ts only.
+
+== Head: tests/text-field/text-field.browser.test.ts
+ Test Files  3 passed (3)
+      Tests  144 passed (144)
+(48 per engine.)
+
+== Before: src/text-field/TextFieldCore.ts replaced by origin/main's for the run, then git checkout -- (status clean after)
+ Test Files  3 failed (3)
+      Tests  51 failed | 93 passed (144)
+     17 browser (chromium)
+     17 browser/firefox (firefox)
+     17 browser/webkit (webkit)
+mx-text-field default value > should take its value from the value attribute at upgrade
+mx-multiline-text-field default value > should take its value from the value attribute at upgrade
+mx-text-field default value > should submit an empty value before any edit when it has no value attribute
+mx-multiline-text-field default value > should submit an empty value before any edit when it has no value attribute
+mx-text-field default value > should follow the value attribute only until a script sets the value
+mx-multiline-text-field default value > should follow the value attribute only until a script sets the value
+mx-text-field default value > should stop following the value attribute once the user edits the value
+mx-multiline-text-field default value > should stop following the value attribute once the user edits the value
+mx-text-field default value > should restore the value attribute on form reset after a script set the value
+mx-multiline-text-field default value > should restore the value attribute on form reset after a script set the value
+mx-text-field default value > should restore the value attribute on form reset after the user edited the value
+mx-multiline-text-field default value > should restore the value attribute on form reset after the user edited the value
+mx-text-field default value > should reset to an empty, unpopulated value when it has no value attribute
+mx-multiline-text-field default value > should reset to an empty, unpopulated value when it has no value attribute
+mx-text-field default value > should follow the value attribute again after a form reset
+mx-multiline-text-field default value > should follow the value attribute again after a form reset
+mx-multiline-text-field > should show the value attribute's line breaks after a form reset
+The two new rows that pass in each engine: 'should not write the value attribute when a script sets the value', one per field.
+
+== Mutations, Chromium, each reverted with git checkout -- before the next
+m1 (the value setter doesn't set #isDirty):
+      Tests  2 failed | 46 passed (48)
+  mx-text-field default value > should follow the value attribute only until a script sets the value
+  mx-multiline-text-field default value > should follow the value attribute only until a script sets the value
+m2 (formReset doesn't clear #isDirty):
+      Tests  2 failed | 46 passed (48)
+  mx-text-field default value > should follow the value attribute again after a form reset
+  mx-multiline-text-field default value > should follow the value attribute again after a form reset
+m3 (the constructor doesn't call #sync()):
+      Tests  2 failed | 46 passed (48)
+  mx-text-field default value > should submit an empty value before any edit when it has no value attribute
+  mx-multiline-text-field default value > should submit an empty value before any edit when it has no value attribute
+
+== Runtime shape snapshot: tests/traits-baseline.browser.test.ts, three engines: 3 passed (3). The diff is 4 insertions and 4 deletions, the "x" and "1" attribute readings of both fields.
+
+== Size (Brotli), aube exec just size --json after building core; main = the three text-field sources from origin/main, restored after
+  text-field/multiline-text-field 4095 -> 4153 +58
+  text-field/text-field 8179 -> 8249 +70
+  complete 22222 -> 22233 +11
+  The other 17 of the 20 rows are equal. Every row passes its limit.
+
+== Record
+grep -c '^#### RF-74' .plan/00-index.md: 1 at eeb3ff814, 1 on origin/main. The diff to 00-index.md changes RF-74's status line and adds the 'Fixed 2026-11-22' bullet only.
+
+== Static checks on the four changed files: just fmt-check clean; just lint (oxlint, eslint) clean; just typecheck clean. gh pr checks 126: chromium, firefox, webkit, docs, static, measurements, verify pass.
