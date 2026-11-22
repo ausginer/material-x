@@ -1,6 +1,6 @@
 # Landing page — component gap analysis and plan
 
-**Status: decided as `repo:RD-47`, with two questions open ([Q5b, Q6](#open-questions-for-the-owner)).** Written by the architect on 2026-11-22, on the coordinator's task for #54, on `repo/landing-1` from `origin/main` at `23b245efb`. The owner answered Q1 to Q5 the same day, in chat, relayed by the coordinator. [`RD-47`](../00-index.md) records the answers and the order, and the [answers below](#the-owners-answers) say what each one changed here. This plan builds nothing: the components and the page are later units.
+**Status: decided as `repo:RD-47`, `RD-48` and `RD-49`, with no question open.** Written by the architect on 2026-11-22, on the coordinator's task for #54, on `repo/landing-1` from `origin/main` at `23b245efb`. The owner answered Q1 to Q5, then Q5b and Q6, the same day, in chat, relayed by the coordinator, and asked for a theme picker. In the [index](../00-index.md), `RD-47` records the components, the hosting and the order, `RD-48` the theme and the switch, and `RD-49` the picker. The [answers below](#the-owners-answers) say what each one changed here. This plan builds nothing: the components and the page are later units.
 
 **The owner's goal:** a landing page for `@ydinjs` built from material-x components, with no separate documentation program. Storybook isn't that page: it is slow to use (#169's trace puts the time in `sb-manager`), and it presents stories, not the project. **The owner starts on the page only once the components it needs exist.** Until then the project stays with Storybook, and this plan's component list is also the list of further work.
 
@@ -23,6 +23,9 @@ Given on 2026-11-22, in chat, relayed by the coordinator and quoted in translati
 | [Q4](#q4--which-packages-does-the-page-present-and-which-get-an-install-command) | (a) | Nothing |
 | [Q5](#q5--theme-and-type-scale-page-local-or-public) | The theme comes from Material Theme Builder | The builder's exports were read, and the type scale is asked again as [Q5b](#q5b--where-does-the-page-take-its-type-scale-from), with what the builder's export form changes as [Q6](#q6--which-builder-export-and-where-does-it-go) |
 | New | A sticky header is required | Top app bar moves from _after v1_ into the first set ([Top app bar](#top-app-bar-the-first-sets-third-component)) |
+| [Q5b](#q5b--where-does-the-page-take-its-type-scale-from) | (a) | The type scale is generated for the page from tproc's `md.sys.typescale` tokens (`RD-48`) |
+| [Q6](#q6--which-builder-export-and-where-does-it-go) | (a) | The JSON export is kept in `packages/site`, and the page's CSS is generated from it. tproc's default theme doesn't change, so the conditional theme-swap unit is gone (`RD-48`) |
+| New | _"The theme switch must stay, and (possibly as a separate improvement) a color picker for changing the theme, as in material-web"_ | The switch's properties are in `RD-48`, and the site unit carries them. The picker is a unit after the site ([Theme picker](#theme-picker-a-unit-after-the-site), `RD-49`) |
 
 ## What exists
 
@@ -70,7 +73,7 @@ The parts a landing page for these packages contains, and what each needs. _Exis
 | Part | Content | Exists | Missing | v1 |
 | --- | --- | --- | --- | --- |
 | Header | Wordmark; links to Docs (Storybook), API, GitHub; theme switch. Sticky | `mx-link-button` (text), `mx-switch-icon-button` | **Top app bar**; link icon button | `mx-top-app-bar`, pinned, with the link buttons and the theme switch as its actions. The GitHub link is a link button with a leading icon |
-| Theme switch | Light, dark, follow the system | `mx-switch-icon-button` with `light_mode`/`dark_mode` | — | Page script: `prefers-color-scheme` by default, the choice on `<html>`, kept in `localStorage` inside `try`/`catch` |
+| Theme switch | Light, dark, follow the system | `mx-switch-icon-button` with `light_mode`/`dark_mode` | — | **Required** (`RD-48`): `prefers-color-scheme` until the visitor chooses; the choice applied before the first paint and kept in `localStorage` inside `try`/`catch`; a choice equal to the system's setting is removed. A seed-colour picker comes after the site (`RD-49`) |
 | Hero | Name, one-line pitch, two actions, the install command | `mx-button`, `mx-link-button` | — (type scale is a foundation) | Page-local headline and body styles from `md.sys.typescale` |
 | Install snippet | One command per published package; copy | `mx-icon-button` (copy) | Code block (not M3); tabs for package managers; snackbar for "Copied" | `<pre><code>` styled from `surface-container` and Roboto Mono. The copy button swaps its icon to `check` and announces through a live region. Package managers, if shown, are a `mx-connected-button-group` |
 | Packages | One entry per package: name, what it does, status, links | `mx-list-link-item` could carry it | **Card**; chips for labels | **Cards**, one per package, each with link buttons. Status (`1.0.0`, _not yet published_) is text in a label style: M3 chips are interactive, and a badge is a count |
@@ -137,7 +140,7 @@ Decided by `RD-47` on the owner's Q1 (a) and Q2 (a).
 1. **The landing page is the site's root.** Storybook moves to `storybook/`, and `api/` stays. The page redirects a request whose query has Storybook's `path` parameter to `storybook/` with the same query, so links to `?path=/docs/…` keep working. Links to the old `iframe.html` break, and they aren't shared links.
 2. **The source is a private workspace package, `packages/site`,** with its own `Justfile`, Vite config, `tsconfig` and lint configuration, as every other package has. It is plain HTML and TypeScript modules with no framework, since material-x's own pitch is that it needs none. It imports the packages through their builds, as Storybook does after `_package-builds`, so the page is a real consumer of the published artifacts.
 3. **The demos are written for the page.** Storybook's demos are React stories and stay as they are. Framework-free demo modules shared by both wait until a second user needs them.
-4. **The theme is the owner's Material Theme Builder export,** and the type scale comes from tproc's tokens. Where each comes from is open ([Q5b](#q5b--where-does-the-page-take-its-type-scale-from), [Q6](#q6--which-builder-export-and-where-does-it-go)). Either way, the page follows `prefers-color-scheme` before any script runs, and the theme switch overrides it.
+4. **The theme is the owner's Material Theme Builder JSON export, kept in `packages/site`,** and the page's colour CSS is generated from it at build time. The type scale is generated from tproc's `md.sys.typescale` tokens. The page follows `prefers-color-scheme` before any script runs, and the theme switch overrides it. `RD-48` states the properties.
 5. **The gate covers the page.** `just docs-build` builds the page into `.docs` and Storybook into `.docs/storybook`. `just docs-smoke` loads the landing page under its existing rules. That is an amendment of `RD-14`, owed when the site unit lands (`RD-47`). `deploy` doesn't change.
 6. **Development is Vite's dev server** (`just site-dev`), which is the fast loop the owner asked for.
 
@@ -149,6 +152,29 @@ Decided by `RD-47` on the owner's Q1 (a) and Q2 (a).
 - **A separate repository or a custom domain:** nothing asks for one, and it would need a second Pages setup.
 - **A page built in stages before the components exist:** the owner prefers to stay with Storybook until they do (Q3).
 
+## Theme picker: a unit after the site
+
+The owner asked for a colour picker _"as in material-web"_, as a separate improvement after the switch. `RD-49` decides it, and this section holds the reading behind it.
+
+**What material-web's picker does.** A subagent read the source of material-web's documentation site on GitHub's `main` branch, and its report was relayed to the architect. The architect didn't reread the source, so these are its citations, not a verification:
+
+- `catalog/src/components/theme-changer.ts` shows a native `<input type="color">`, three custom `hct-slider`s for hue, chroma and tone, each wrapping `md-slider` over a drawn gradient, and a light, auto and dark segmented button set.
+- `catalog/src/utils/material-color-helpers.ts` generates each mode with `new SchemeContent(Hct.fromInt(argbFromHex(color)), isDark, 0)` from `@material/material-color-utilities`, and maps about 46 roles through `MaterialDynamicColors`.
+- `catalog/src/utils/apply-theme-string.ts` applies the result as `:root,:host{--md-sys-color-…}` in one adopted stylesheet, and sets `<meta name="theme-color">`.
+- `catalog/src/utils/theme.ts` and `apply-theme-string.ts` store the generated CSS, the seed, the mode and the last automatic mode in `localStorage`. `catalog/src/inline/apply-saved-theme.ts` reapplies the stored CSS from an inlined script before the first paint.
+- A copy button writes the stored CSS to the clipboard.
+
+**What this unit takes, and what it does differently.** `RD-49` holds the properties.
+
+- **The generator:** the same library, as `packages/site`'s dependency alone, loaded only when the picker opens. Every visitor would otherwise download it to use the default theme.
+- **Light and dark:** material-web regenerates one scheme whenever the mode changes. This page generates both from the seed at once and applies them the way it applies the default, so `RD-48`'s system rule and switch don't change.
+- **The variant** is the one that reproduces the default theme from its own seed. It isn't assumed to be `SchemeContent`. **Not established:** the architect's probe of the library against tproc's `default-theme.json` wasn't run, because running the downloaded package was refused in this session. The unit's witness establishes it.
+- **The controls are material-x elements.** An `mx-icon-button` in the top app bar opens a native `popover` holding an `mx-card`. In it are an `mx-text-field` for the hex value and three `mx-slider`s for hue, chroma and tone (C). A reset `mx-button` restores the default. The page draws the gradient strips and a swatch. **No colour input is needed:** a hex field and three sliders reach every colour. The native colour input's dialog differs by platform, and the popover is placed with plain CSS under the bar, not with anchor positioning.
+- **Persistence** is material-web's, with a format version on the stored CSS. Reset removes it.
+- **Not taken:** the copy button (the clipboard needs a secure context), a third mode control (`RD-48`'s switch returns to the system setting by itself), and `<meta name="theme-color">`, which the unit may add if it costs nothing.
+
+**Size: medium.** It is page code and one dependency, it adds no material-x component, and it uses B, H and C. It starts after A.
+
 ## Order
 
 Decided by `RD-47`. Each unit is one branch and one pull request.
@@ -158,28 +184,11 @@ Decided by `RD-47`. Each unit is one branch and one pull request.
    - **B — `mx-card`** (medium). The divider can come with it.
    - **H — `mx-top-app-bar`** (medium): [the properties above](#top-app-bar-the-first-sets-third-component), in a short plan of its own.
    - **C — `mx-slider`** (large): a plan, then the element.
-3. **A — the site** (repo, large), after B, H and C merge: `packages/site`; Storybook moved to `storybook/` with the redirect; `docs-build`, `docs-smoke` and the links in `docs-api.ts` updated; the theme and the type scale; every section in [The page](#the-page), including the box-quad demo ported from its story (516 lines of React today); and the `RD-14` amendment. This is #54.
-4. **Further work,** from [the table](#missing-components-sized), in the order the page would use it: the link icon button, the interactive card, the switch, the plain tooltip, the larger top app bars. The rest waits for a page that needs it.
-
-**If the owner answers Q6 (b),** the new theme replaces `default-theme.json` in a unit of its own (tproc and material-x, medium) before A. It changes every component's fallback colours and every visual baseline once.
+3. **A — the site** (repo, large), after B, H and C merge: `packages/site`; Storybook moved to `storybook/` with the redirect; `docs-build`, `docs-smoke` and the links in `docs-api.ts` updated; the theme, the type scale and the theme switch (`RD-48`); every section in [The page](#the-page), including the box-quad demo ported from its story (516 lines of React today); and the `RD-14` amendment. This is #54.
+4. **P — the theme picker** (repo, medium), after A ([above](#theme-picker-a-unit-after-the-site), `RD-49`).
+5. **Further work,** from [the table](#missing-components-sized), in the order the page would use it: the link icon button, the interactive card, the switch, the plain tooltip, the larger top app bars. The rest waits for a page that needs it.
 
 Fixes that make the page better and that it doesn't wait for: `RF-94`, `RF-77`, `RF-76`, `RF-68`.
-
-## Open questions for the owner
-
-### Q5b — Where does the page take its type scale from?
-
-Material Theme Builder doesn't export one ([above](#what-material-theme-builder-exports)).
-
-- **(a) Generated for the page from tproc's `md.sys.typescale` tokens: one CSS class or set of custom properties per style the page uses. Recommended:** the values are the ones the components use, and it adds nothing public to material-x.
-- (b) material-x exports type-scale styles now, and the page and Storybook use them. It is public surface with a consumer of one.
-- (c) The page writes its own sizes by hand. They drift from the tokens.
-
-### Q6 — Which builder export, and where does it go?
-
-- **(a) The JSON export, kept in `packages/site`, and the page's CSS generated from it as Storybook's theme is now: light and dark, with a `prefers-color-scheme` rule and the switch's override. Recommended:** one file, the form the repository already reads, and no change to the components' fallbacks or to any baseline.
-- (b) The JSON export replaces tproc's `default-theme.json`, so the components' fallback colours, Storybook and the page all take it. It is right if the new colours are to be the library's defaults, and it changes every visual baseline once.
-- (c) The CSS export's files, copied in as exported. The page sets their class on `<html>` from script and repeats the dark rule for `prefers-color-scheme`, and the medium- and high-contrast files are unused.
 
 ## Answered questions
 
@@ -215,14 +224,28 @@ The answers are in [The owner's answers](#the-owners-answers). The options are k
 - (b) material-x exports a theme stylesheet and type-scale styles now.
 - **Answered for the theme:** it comes from Material Theme Builder. The type scale is asked again as Q5b, and the export's form and place as Q6.
 
+### Q5b — Where does the page take its type scale from?
+
+Material Theme Builder doesn't export one ([above](#what-material-theme-builder-exports)).
+
+- **(a) Generated for the page from tproc's `md.sys.typescale` tokens: one CSS class or set of custom properties per style the page uses. Recommended:** the values are the ones the components use, and it adds nothing public to material-x. **Chosen.**
+- (b) material-x exports type-scale styles now, and the page and Storybook use them. It is public surface with a consumer of one.
+- (c) The page writes its own sizes by hand. They drift from the tokens.
+
+### Q6 — Which builder export, and where does it go?
+
+- **(a) The JSON export, kept in `packages/site`, and the page's CSS generated from it as Storybook's theme is now: light and dark, with a `prefers-color-scheme` rule and the switch's override. Recommended:** one file, the form the repository already reads, and no change to the components' fallbacks or to any baseline. **Chosen.**
+- (b) The JSON export replaces tproc's `default-theme.json`, so the components' fallback colours, Storybook and the page all take it. It is right if the new colours are to be the library's defaults, and it changes every visual baseline once.
+- (c) The CSS export's files, copied in as exported. The page sets their class on `<html>` from script and repeats the dark rule for `prefers-color-scheme`, and the medium- and high-contrast files are unused.
+
 ## Record changes
 
-- **Made:** `RD-47` in the [index](../00-index.md), on this branch.
+- **Made:** `RD-47`, its dated note of the answers to Q5b and Q6, `RD-48` and `RD-49`, in the [index](../00-index.md), on this branch.
 - **Owed when the site unit lands:** an amendment of `RD-14` property 6, so `docs-smoke` loads the landing page and Storybook at its new base path, and of property 2 or 4 if the recipe's output layout changes. The architect makes it on the site unit's plan.
-- **Owed on the answers to Q5b and Q6:** a dated note on `RD-47`.
+- **Owed with the picker unit:** if `docs-smoke` is the check that loads the picker's chunk (`RD-49` property 7), a second amendment of `RD-14` property 6.
 
 Each component unit plans itself in material-x's record when it is taken.
 
 ## Issues to open
 
-#54 stays the site unit, and its description still holds. The coordinator may open one issue per unit in [Order](#order): T (small), B (medium), H (medium) and C (large).
+#54 stays the site unit, and its description still holds. The coordinator may open one issue per unit in [Order](#order): T (small), B (medium), H (medium), C (large) and P (medium).

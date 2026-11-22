@@ -2242,6 +2242,36 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The owner prefers Storybook until the page can be built from finished components, to a page built in stages that is reworked as each component lands. The header has to stay visible as the page scrolls, and M3's pinned top app bar is the specified form of that header. The other reasons are the plan's.
 
+**Dated 2026-11-22 by the architect: the questions this entry left open are answered.** The owner chose Q5b (a) and Q6 (a), and `RD-48` decides the page's theme and type scale on them. He also asked for a theme picker, which `RD-49` makes a unit after the site. This entry's requirements don't change. Its order gains that unit at the end.
+
+#### RD-48 — The page's theme is a Material Theme Builder JSON export in `packages/site`, its type scale comes from tproc, and a light and dark switch is part of the site
+
+**Decided 2026-11-22 by the architect, on `repo/landing-1`,** on the owner's answers of the same day in chat to the [landing plan](landing-1/landing-plan.md)'s Q5b (a) and Q6 (a), relayed by the coordinator, for #54. `RD-47` is the highest `RD-` on any branch on `origin`, so this is the next free number. The site unit implements it.
+
+1. **The theme's source is one Material Theme Builder JSON export, kept in `packages/site`.** tproc's `default-theme.json` doesn't change, so the components' fallback colours, Storybook's theme and the visual baselines don't either.
+2. **The page's colour CSS is generated from that file at build time,** as Storybook's is from tproc's. It uses the light and dark schemes and sets every role they carry. The medium- and high-contrast schemes stay in the file and aren't used.
+3. **Before any script runs, the page follows `prefers-color-scheme`.** A stored choice overrides it in either direction, and an inline script in the document's head applies the choice before the first paint, so a visitor never sees the other scheme first.
+4. **The switch is required:** `mx-switch-icon-button` in the top app bar, showing the scheme in effect. Pressing it stores the other scheme as the choice. **A choice equal to the system's current setting is removed rather than stored,** so the page follows the system again with no third control. The choice is kept in `localStorage`, and every access is inside `try`/`catch`: without storage, the switch works for the visit and the page follows the system on the next one.
+5. **The type scale is generated for the page from tproc's `md.sys.typescale` tokens,** for the styles the page uses, with font family, weight, size, line height and letter spacing. The page loads Roboto, Roboto Mono and Material Symbols as Storybook does.
+
+**Why.** Material Theme Builder's exports carry colours only ([reading](landing-1/checks/mtb-export.txt)), so a type scale has to come from somewhere, and tproc's tokens are the ones the components use. Keeping the theme in the site leaves the library and its baselines alone. The JSON is the form the repository already reads, and generating from it gives the system rule and the override from one file. The CSS export's class selectors would need both written by hand. The plan's [_Answered questions_](landing-1/landing-plan.md#answered-questions) hold the options weighed.
+
+#### RD-49 — A seed-colour theme picker is a unit after the site, generating the scheme in the page with `@material/material-color-utilities`
+
+**Decided 2026-11-22 by the architect, on `repo/landing-1`,** on the owner's request of the same day in chat, relayed by the coordinator: _"The theme switch must stay, and (possibly as a separate improvement) a color picker for changing the theme, as in material-web"_ (in translation). `RD-48` is the highest `RD-` on any branch on `origin`, so this is the next free number. The site doesn't wait for it, and `RD-48`'s switch is required without it. The [plan](landing-1/landing-plan.md#theme-picker-a-unit-after-the-site) holds the reading of material-web's picker and the alternatives weighed.
+
+1. **The scheme is generated in the browser by `@material/material-color-utilities`** (Apache-2.0; 0.4.0 when read). It is a dependency of `packages/site` alone, at an exact version. No published package depends on it.
+2. **A visitor who doesn't open the picker downloads none of it.** The picker and the library load when the picker first opens. The unit reports the size of that chunk.
+3. **One seed gives a light and a dark scheme for every role the default theme sets.** No role is left with the default's value, so a picked theme never mixes with the default. The page applies the picked schemes the way it applies the default, so `RD-48`'s system rule and switch work unchanged on a picked theme. Only the standard contrast level is generated.
+4. **The variant is the one that reproduces the default.** The witness: generating from the default JSON's own `seed` gives its light and dark schemes. If no variant gives them exactly, the unit reports which roles differ and by how much, and the owner accepts the closest one or not. material-web's catalog uses `SchemeContent`, and which variant Material Theme Builder uses isn't established.
+5. **The picker uses material-x elements and draws no control of its own:** an `mx-icon-button` (`palette`) in the top app bar opens it. It is a native `popover` holding an `mx-card`, with an `mx-text-field` for the hex value and three `mx-slider`s for hue, chroma and tone. A reset `mx-button` returns to the default theme. The page draws only a gradient strip beside each slider and a swatch of the seed. material-x has no colour input, and the picker doesn't need one.
+6. **The picked theme persists.** The seed and the generated CSS are kept in `localStorage` with a format version, every access inside `try`/`catch`. `RD-48`'s head script applies stored CSS before the first paint without loading the library, and ignores CSS whose version it doesn't know. Reset removes both.
+7. **A check loads the picker's chunk.** It is lazily loaded, which is `RF-46`'s defect class, and `docs-smoke` doesn't open the picker. Either a site test opens it, or `RD-14`'s amendment for the site makes `docs-smoke` load it.
+
+**Not in the unit:** copying or exporting the theme (it would need the clipboard, which needs a secure context, as `RF-61` showed), contrast levels, and a colour choice per role.
+
+**Why.** The owner asked for it, after the switch and apart from it. Generating in the page is what lets a visitor try any colour without a build. Loading the generator only on demand keeps the page's first load what `RD-48` makes it. Reproducing the default from its own seed is what makes the picker's output and the default one theme rather than two.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
