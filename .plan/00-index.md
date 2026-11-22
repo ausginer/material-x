@@ -4056,6 +4056,31 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Order:** after #160 merges, because the rows extend #160's file. `RF-99`'s error hover row depends on it.
 - **Size:** _small_.
 
+#### RF-101 — A pointer press focuses a disabled link item, whose `disabled` is documented to disable focus
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-5`, from `recheck-1` of the [recheck of #151](https://github.com/ausginer/material-x/blob/c21fe8add/.plan/reviews/list-states-1/feature-proof-claude.md#recheck-1), relayed by the coordinator. The recheck is on `material-x/rf71-list-states-1` at `c21fe8add`, not yet on `main`, and was read at `54168b0b1` in Chromium, Firefox and WebKit ([readings](https://github.com/ausginer/material-x/blob/c21fe8add/.plan/reviews/list-states-1/checks/recheck.txt)). `RF-100` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed the cause and the documentation by reading at `origin/main` `6a67badfd`.
+
+- **What happens:** after a pointer press and release on a disabled `mx-list-link-item`, selected or not, `document.activeElement` is the item, its shadow root's active element is the internal `<a>`, and `focusin` fires, in the three engines. The item doesn't match `:focus-visible`. A disabled `mx-list-button-item` isn't focused, because its native button is disabled. `main` reads the same. Before #151's repair of `RF-71`, `7271c5b9f` hid it, because the host's `pointer-events: none` kept the press off the anchor.
+- **The cause:** `useDisableableLinkable` in `packages/core/src/traits/linkable.ts` removes the disabled anchor's `href` and sets its `tabIndex` to −1. That takes the anchor out of the tab order and leaves it focusable by a pointer.
+- **Why it is a problem:** `mx-list-link-item` documents `disabled` as _"Disables navigation and focus"_, and a disabled native control can't be focused. A consumer's `focus` and `focusin` handlers run for a disabled item, and focus leaves where it was, so the next <kbd>Tab</kbd> starts from the disabled item.
+- **Affected:** every adopter of `useDisableableLinkable`: `mx-list-link-item`, and `mx-link-button`. A press doesn't reach `mx-link-button`'s anchor today, because of `RF-102`'s rule. Once that rule goes, this defect would reach it too.
+- **Required property:** in each engine at `RD-20`'s floor, a pointer press on a disabled element built on `useDisableableLinkable` doesn't move focus and fires no `focus` or `focusin`. Rows observe it for `mx-list-link-item` and for `mx-link-button`. The repair belongs in the shared trait, and keeps the anchor out of the tab order.
+- **Order:** with `RF-102` or before it, because `RF-102`'s repair exposes `mx-link-button` to this one. It doesn't block #151.
+- **Size:** _small_.
+
+#### RF-102 — A press on a disabled button clicks the element beneath it
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-5`, from `recheck-2` of the [recheck of #151](https://github.com/ausginer/material-x/blob/c21fe8add/.plan/reviews/list-states-1/feature-proof-claude.md#recheck-2), relayed by the coordinator. The recheck is on `material-x/rf71-list-states-1` at `c21fe8add`, not yet on `main`, and was read in Chromium, Firefox and WebKit ([readings](https://github.com/ausginer/material-x/blob/c21fe8add/.plan/reviews/list-states-1/checks/recheck.txt), [probe](https://github.com/ausginer/material-x/blob/c21fe8add/.plan/reviews/list-states-1/probes/recheck-button-clickthrough.browser.test.ts.txt)). `RF-101` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed the rule by reading at `origin/main` `6a67badfd`.
+
+- **What happens:** a disabled `mx-button` or `mx-link-button` in a wrapper `<div>` is pressed at the centre of its internal `.host`. `document.elementFromPoint()` there returns the `<div>`, and the `<div>` receives `pointerdown` and `click` targeted at itself, in the three engines.
+- **The cause:** the host computes `display: contents`, and `button/styles/default/disabled.styles.css` gives the disabled `.host` `pointer-events: none`. So nothing of the element takes the press, and it goes to whatever lies beneath. This is the mechanism of `RF-71`'s `reviewer-1`, in the button family.
+- **Why it is a problem:** `RF-71`'s ruling of 2026-11-22 takes the native button as the measure: a press on a disabled native button gives no element a `click`. A consumer with a click handler on a container, a card or a row acts on a press of a disabled button.
+- **Affected, by reading:** every element whose core adopts `disabled.styles.css` through `ButtonCore`. Read for `mx-button` and `mx-link-button`. Not read for `mx-icon-button`, `mx-split-button`, `mx-switch-button` and `mx-switch-icon-button`. `mx-fab` isn't read either.
+- **Required property:** the same as `RF-71`'s, as its ruling states it. In each engine at `RD-20`'s floor, a pointer press on a disabled button-family element dispatches no `click` that reaches the element, a bubbling listener on any ancestor, or any other element. The element's box hit-tests to the element, so the press's `pointerdown` targets it and not what lies beneath. A disabled element shows no hover or pressed shape, no state layer and no ripple, as it does now. `mousedown`, and a capture-phase listener seeing a link button's `click` before its anchor stops it, are outside the property, as for `RF-71`.
+- **Rows,** for each affected element: a bubbling `click` listener on an ancestor receives nothing after a press at the element's centre, the press's `pointerdown` targets the element, and the shape, the state layer and the ripple don't change. **Witness:** the ancestor row fails on `main` in the three engines for `mx-button` and `mx-link-button`.
+- **Order:** with `RF-101` or after it (above). It doesn't block #151.
+- **Size:** _small_. The disabled rule and the rows, for one family.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
