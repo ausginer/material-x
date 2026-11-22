@@ -1,0 +1,566 @@
+
+ RUN  v5.1.0 .
+
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: Uncaught TypeError: Cannot read properties of undefined (reading 'setProperty')]
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: Uncaught TypeError: Cannot read properties of undefined (reading 'removeProperty')]
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: Uncaught TypeError: Cannot read properties of undefined (reading 'removeProperty')]
+stderr | tests/button-group/button-group.browser.test.ts:233 > mx-connected-button-group with whitespace between its buttons > should mark the first and last buttons
+[Error: Uncaught TypeError: Cannot convert undefined or null to object]
+stderr | tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+[Error: Uncaught TypeError: Cannot convert undefined or null to object]
+stderr | tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+[Error: Uncaught TypeError: Cannot convert undefined or null to object]
+ ❯ |browser (chromium)| tests/button-group/button-group.browser.test.ts (24 tests | 4 failed) 1716ms
+   ❯ mx-button-group with whitespace between its buttons (2)
+     × should shrink the neighbours of the pressed button 141ms
+     × should press and release without an error 87ms
+   ❯ mx-connected-button-group with whitespace between its buttons (2)
+     × should mark the first and last buttons 78ms
+     × should take a slot change without an error 83ms
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: TypeError: can't access property "setProperty", elements[(index - 1)].style is undefined]
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: TypeError: can't access property "removeProperty", element.style is undefined]
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: TypeError: can't access property "removeProperty", element.style is undefined]
+stderr | tests/button-group/button-group.browser.test.ts:233 > mx-connected-button-group with whitespace between its buttons > should mark the first and last buttons
+[Error: TypeError: can't access property "first", element.dataset is undefined]
+stderr | tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+[Error: TypeError: can't access property "first", element.dataset is undefined]
+stderr | tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+[Error: TypeError: can't access property "first", element.dataset is undefined]
+ ❯ |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts (24 tests | 4 failed) 2149ms
+   ❯ mx-button-group with whitespace between its buttons (2)
+     × should shrink the neighbours of the pressed button 219ms
+     × should press and release without an error 179ms
+   ❯ mx-connected-button-group with whitespace between its buttons (2)
+     × should mark the first and last buttons 113ms
+     × should take a slot change without an error 129ms
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: TypeError: undefined is not an object (evaluating 'elements[index - 1]?.style.setProperty')]
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: TypeError: undefined is not an object (evaluating 'element.style.removeProperty')]
+stderr | tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+[Error: TypeError: undefined is not an object (evaluating 'element.style.removeProperty')]
+stderr | tests/button-group/button-group.browser.test.ts:233 > mx-connected-button-group with whitespace between its buttons > should mark the first and last buttons
+[Error: TypeError: undefined is not an object (evaluating 'delete element.dataset["first"]')]
+stderr | tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+[Error: TypeError: undefined is not an object (evaluating 'delete element.dataset["first"]')]
+stderr | tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+[Error: TypeError: undefined is not an object (evaluating 'delete element.dataset["first"]')]
+ ❯ |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts (24 tests | 4 failed) 1663ms
+   ❯ mx-button-group with whitespace between its buttons (2)
+     × should shrink the neighbours of the pressed button 124ms
+     × should press and release without an error 80ms
+   ❯ mx-connected-button-group with whitespace between its buttons (2)
+     × should mark the first and last buttons 75ms
+     × should take a slot change without an error 88ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/button-group/button-group.browser.test.ts:198 > mx-button-group with whitespace between its buttons > should shrink the neighbours of the pressed button
+AssertionError: expected [ '', '' ] to deeply equal [ '-1', '-1' ]
+
+- Expected
++ Received
+
+  [
+-   "-1",
+-   "-1",
++   "",
++   "",
+  ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:212:8
+    210|       first!.style.getPropertyValue(LEADING_PROP),
+    211|       last!.style.getPropertyValue(TRAILING_PROP),
+    212|     ]).toEqual(['-1', '-1']);
+       |        ^
+    213|   });
+    214|
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      50ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |browser (chromium)| tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   TypeError {
++     "message": "Cannot read properties of undefined (reading 'setProperty')",
++   },
++   TypeError {
++     "message": "Cannot read properties of undefined (reading 'removeProperty')",
++   },
++   TypeError {
++     "message": "Cannot read properties of undefined (reading 'removeProperty')",
++   },
++ ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:228:20
+    226|     group.dispatchEvent(new PointerEvent('pointercancel', { bubbles: t…
+    227|
+    228|     expect(errors).toEqual([]);
+       |                    ^
+    229|   });
+    230| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      60ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |browser (chromium)| tests/button-group/button-group.browser.test.ts:233 > mx-connected-button-group with whitespace between its buttons > should mark the first and last buttons
+AssertionError: expected [ [ undefined, undefined ], …(2) ] to deeply equal [ [ '', undefined ], …(2) ]
+
+- Expected
++ Received
+
+  [
+    [
+-     "",
++     undefined,
+      undefined,
+    ],
+    [
+      undefined,
+      undefined,
+    ],
+    [
++     undefined,
+      undefined,
+-     "",
+    ],
+  ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:243:7
+    241|         button.dataset['last'],
+    242|       ]),
+    243|     ).toEqual([
+       |       ^
+    244|       ['', undefined],
+    245|       [undefined, undefined],
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      56ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |browser (chromium)| tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   TypeError {
++     "message": "Cannot convert undefined or null to object",
++   },
++ ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:260:20
+    258|     await nextFrame();
+    259|
+    260|     expect(errors).toEqual([]);
+       |                    ^
+    261|   });
+    262| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      45ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts:198 > mx-button-group with whitespace between its buttons > should shrink the neighbours of the pressed button
+AssertionError: expected [ '', '' ] to deeply equal [ '-1', '-1' ]
+
+- Expected
++ Received
+
+  [
+-   "-1",
+-   "-1",
++   "",
++   "",
+  ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:212:8
+    210|       first!.style.getPropertyValue(LEADING_PROP),
+    211|       last!.style.getPropertyValue(TRAILING_PROP),
+    212|     ]).toEqual(['-1', '-1']);
+       |        ^
+    213|   });
+    214|
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      51ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   TypeError {
++     "message": "can't access property \"setProperty\", elements[(index - 1)].style is undefined",
++   },
++   TypeError {
++     "message": "can't access property \"removeProperty\", element.style is undefined",
++   },
++   TypeError {
++     "message": "can't access property \"removeProperty\", element.style is undefined",
++   },
++ ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:228:20
+    226|     group.dispatchEvent(new PointerEvent('pointercancel', { bubbles: t…
+    227|
+    228|     expect(errors).toEqual([]);
+       |                    ^
+    229|   });
+    230| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms     163ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts:233 > mx-connected-button-group with whitespace between its buttons > should mark the first and last buttons
+AssertionError: expected [ [ undefined, undefined ], …(2) ] to deeply equal [ [ '', undefined ], …(2) ]
+
+- Expected
++ Received
+
+  [
+    [
+-     "",
++     undefined,
+      undefined,
+    ],
+    [
+      undefined,
+      undefined,
+    ],
+    [
++     undefined,
+      undefined,
+-     "",
+    ],
+  ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:243:7
+    241|         button.dataset['last'],
+    242|       ]),
+    243|     ).toEqual([
+       |       ^
+    244|       ['', undefined],
+    245|       [undefined, undefined],
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      51ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   TypeError {
++     "message": "can't access property \"first\", element.dataset is undefined",
++   },
++ ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:260:20
+    258|     await nextFrame();
+    259|
+    260|     expect(errors).toEqual([]);
+       |                    ^
+    261|   });
+    262| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      57ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts:198 > mx-button-group with whitespace between its buttons > should shrink the neighbours of the pressed button
+AssertionError: expected [ '', '' ] to deeply equal [ '-1', '-1' ]
+
+- Expected
++ Received
+
+  [
+-   "-1",
+-   "-1",
++   "",
++   "",
+  ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:212:8
+    210|       first!.style.getPropertyValue(LEADING_PROP),
+    211|       last!.style.getPropertyValue(TRAILING_PROP),
+    212|     ]).toEqual(['-1', '-1']);
+       |        ^
+    213|   });
+    214|
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      49ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts:215 > mx-button-group with whitespace between its buttons > should press and release without an error
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   TypeError {
++     "message": "undefined is not an object (evaluating 'elements[index - 1]?.style.setProperty')",
++   },
++   TypeError {
++     "message": "undefined is not an object (evaluating 'element.style.removeProperty')",
++   },
++   TypeError {
++     "message": "undefined is not an object (evaluating 'element.style.removeProperty')",
++   },
++ ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:228:20
+    226|     group.dispatchEvent(new PointerEvent('pointercancel', { bubbles: t…
+    227|
+    228|     expect(errors).toEqual([]);
+       |                    ^
+    229|   });
+    230| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      53ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts:233 > mx-connected-button-group with whitespace between its buttons > should mark the first and last buttons
+AssertionError: expected [ [ undefined, undefined ], …(2) ] to deeply equal [ [ '', undefined ], …(2) ]
+
+- Expected
++ Received
+
+  [
+    [
+-     "",
++     undefined,
+      undefined,
+    ],
+    [
+      undefined,
+      undefined,
+    ],
+    [
++     undefined,
+      undefined,
+-     "",
+    ],
+  ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:243:7
+    241|         button.dataset['last'],
+    242|       ]),
+    243|     ).toEqual([
+       |       ^
+    244|       ['', undefined],
+    245|       [undefined, undefined],
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      53ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/button-group/button-group.browser.test.ts:250 > mx-connected-button-group with whitespace between its buttons > should take a slot change without an error
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   TypeError {
++     "message": "undefined is not an object (evaluating 'delete element.dataset[\"first\"]')",
++   },
++ ]
+
+ ❯ tests/button-group/button-group.browser.test.ts:260:20
+    258|     await nextFrame();
+    259|
+    260|     expect(errors).toEqual([]);
+       |                    ^
+    261|   });
+    262| });
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      42ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 9 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: Cannot convert undefined or null to object
+ ❯ src/button-group/connected-button-group.ts:66:26
+ ❯ src/button-group/connected-button-group.ts:65:21
+ ❯ HTMLSlotElement.slotchange ../core/src/controllers/useSlot.ts:51:9
+
+This error originated in "tests/button-group/button-group-order.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should apply its disabled state and size to buttons that upgraded first". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: Cannot convert undefined or null to object
+ ❯ src/button-group/connected-button-group.ts:66:26
+ ❯ src/button-group/connected-button-group.ts:65:21
+ ❯ HTMLSlotElement.slotchange ../core/src/controllers/useSlot.ts:51:9
+
+This error originated in "tests/button-group/button-group-switch-order.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should select the switch whose value equals the group value". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: Cannot read properties of undefined (reading 'setProperty')
+ ❯ ButtonGroup.pointerdown src/button-group/button-group.ts:79:32
+ ❯ tests/button-group/button-group.browser.test.ts:205:13
+
+This error originated in "tests/button-group/button-group.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should shrink the neighbours of the pressed button". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: can't access property "setProperty", elements[(index - 1)].style is undefined
+ ❯ pointerdown src/button-group/button-group.ts:79:11
+ ❯ tests/button-group/button-group.browser.test.ts:205:13
+
+This error originated in "tests/button-group/button-group.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should shrink the neighbours of the pressed button". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: can't access property "first", element.dataset is undefined
+ ❯ ConnectedButtonGroup/</< src/button-group/connected-button-group.ts:66:11
+ ❯ ConnectedButtonGroup/< src/button-group/connected-button-group.ts:65:21
+ ❯ slotchange ../core/src/controllers/useSlot.ts:51:9
+ ❯ EventListener.handleEvent*connected ../core/src/controllers/useEvents.ts:58:16
+ ❯ connectedCallback/< ../core/src/element.ts:201:18
+ ❯ forEachMaybePromise ../core/src/utils/runtime.ts:43:22
+ ❯ connectedCallback ../core/src/element.ts:200:5
+ ❯ src/button-group/connected-button-group.ts:82:16
+
+This error originated in "tests/button-group/button-group-order.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should apply its disabled state and size to buttons that upgraded first". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: can't access property "first", element.dataset is undefined
+ ❯ ConnectedButtonGroup/</< src/button-group/connected-button-group.ts:66:11
+ ❯ ConnectedButtonGroup/< src/button-group/connected-button-group.ts:65:21
+ ❯ slotchange ../core/src/controllers/useSlot.ts:51:9
+ ❯ EventListener.handleEvent*connected ../core/src/controllers/useEvents.ts:58:16
+ ❯ connectedCallback/< ../core/src/element.ts:201:18
+ ❯ forEachMaybePromise ../core/src/utils/runtime.ts:43:22
+ ❯ connectedCallback ../core/src/element.ts:200:5
+ ❯ src/button-group/connected-button-group.ts:82:16
+
+This error originated in "tests/button-group/button-group-switch-order.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should select the switch whose value equals the group value". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: undefined is not an object (evaluating 'delete element.dataset["first"]')
+ ❯ src/button-group/connected-button-group.ts:66:34
+ ❯ src/button-group/connected-button-group.ts:65:21
+ ❯ slotchange ../core/src/controllers/useSlot.ts:51:9
+
+This error originated in "tests/button-group/button-group-order.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should apply its disabled state and size to buttons that upgraded first". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: undefined is not an object (evaluating 'delete element.dataset["first"]')
+ ❯ src/button-group/connected-button-group.ts:66:34
+ ❯ src/button-group/connected-button-group.ts:65:21
+ ❯ slotchange ../core/src/controllers/useSlot.ts:51:9
+
+This error originated in "tests/button-group/button-group-switch-order.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should select the switch whose value equals the group value". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: undefined is not an object (evaluating 'elements[index - 1]?.style.setProperty')
+ ❯ pointerdown src/button-group/button-group.ts:79:32
+ ❯ tests/button-group/button-group.browser.test.ts:205:13
+
+This error originated in "tests/button-group/button-group.browser.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "should shrink the neighbours of the pressed button". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  3 failed | 6 passed (9)
+      Tests  12 failed | 69 passed (81)
+     Errors  9 errors
+   Start at  07:12:41
+   Duration  12.22s (tests 53%, worker 27%, import 16%, setup 4%)
+
