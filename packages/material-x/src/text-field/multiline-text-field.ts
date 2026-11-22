@@ -17,6 +17,10 @@ export type {
  * @attr {boolean} outlined - Enables outlined style.
  * @attr {boolean} disabled - Disables interaction and form participation.
  * @attr {string} name - Name submitted with form data.
+ * @attr {string} value - Default value. The field takes it at upgrade and on a
+ * form reset, and follows changes to it until the user edits the value or a
+ * script sets the `value` property. Setting the property doesn't change the
+ * attribute.
  *
  * @slot label - Label content.
  * @slot support - Supporting text content.
