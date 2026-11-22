@@ -1,0 +1,75 @@
+# Screenshots of the resting list (mx-list-item, mx-list-button-item, mx-list-link-item href="#") and of a default mx-fab,
+# from probes/rf70-probe.spec.browser.test.ts, three runs per build: md5 (first 10 hex), per build and run.
+rf70-chromium-fab.png base-1 f7bffbe1f8
+rf70-chromium-fab.png base-2 f7bffbe1f8
+rf70-chromium-fab.png base-3 f7bffbe1f8
+rf70-chromium-fab.png head-1 0d98ff24df
+rf70-chromium-fab.png head-2 0d98ff24df
+rf70-chromium-fab.png head-3 0d98ff24df
+rf70-chromium-list.png base-1 fff386eb83
+rf70-chromium-list.png base-2 fff386eb83
+rf70-chromium-list.png base-3 fff386eb83
+rf70-chromium-list.png head-1 fff386eb83
+rf70-chromium-list.png head-2 fff386eb83
+rf70-chromium-list.png head-3 fff386eb83
+rf70-firefox-fab.png base-1 080b5082fb
+rf70-firefox-fab.png base-2 080b5082fb
+rf70-firefox-fab.png base-3 080b5082fb
+rf70-firefox-fab.png head-1 0ac187ccb8
+rf70-firefox-fab.png head-2 0ac187ccb8
+rf70-firefox-fab.png head-3 0ac187ccb8
+rf70-firefox-list.png base-1 401303acb7
+rf70-firefox-list.png base-2 401303acb7
+rf70-firefox-list.png base-3 401303acb7
+rf70-firefox-list.png head-1 70adf5be99
+rf70-firefox-list.png head-2 70adf5be99
+rf70-firefox-list.png head-3 70adf5be99
+rf70-webkit-fab.png base-1 380cebd9c6
+rf70-webkit-fab.png base-2 380cebd9c6
+rf70-webkit-fab.png base-3 380cebd9c6
+rf70-webkit-fab.png head-1 7c819cab6e
+rf70-webkit-fab.png head-2 7c819cab6e
+rf70-webkit-fab.png head-3 7c819cab6e
+rf70-webkit-list.png base-1 fa0c493fcd
+rf70-webkit-list.png base-2 fa0c493fcd
+rf70-webkit-list.png base-3 fa0c493fcd
+rf70-webkit-list.png head-1 fa0c493fcd
+rf70-webkit-list.png head-2 fa0c493fcd
+rf70-webkit-list.png head-3 fa0c493fcd
+
+# probes/pngdiff.mjs base vs head, run 1
+chromium list: differing 0 px, max channel delta 0, bbox x 1000000000--1 y 1000000000--1
+chromium fab: differing 491 px, max channel delta 26, bbox x 28-67 y 34-71
+firefox list: differing 48 px, max channel delta 3, bbox x 24-263 y 24-191
+firefox fab: differing 642 px, max channel delta 27, bbox x 27-68 y 33-73
+webkit list: differing 0 px, max channel delta 0, bbox x 1000000000--1 y 1000000000--1
+webkit fab: differing 560 px, max channel delta 26, bbox x 28-67 y 32-72
+
+# probes/pngrows.mjs, Firefox list, differing px per item row (0 static, 1 button, 2 link)
+{"0":16,"1":16,"2":16}
+
+# probes/pngdiff.mjs, first 12 differing px of the Firefox list, base vs head
+(25,24) a=250,251,247,255 b=247,249,244,255
+(26,24) a=236,242,224,255 b=234,241,222,255
+(261,24) a=236,242,224,255 b=234,241,222,255
+(262,24) a=250,251,247,255 b=247,249,244,255
+(24,25) a=251,252,250,255 b=249,250,248,255
+(263,25) a=250,251,249,255 b=248,250,247,255
+(24,26) a=236,241,225,255 b=234,239,222,255
+(263,26) a=236,241,223,255 b=234,239,220,255
+(24,77) a=235,241,222,255 b=233,239,219,255
+(263,77) a=235,241,223,255 b=233,239,220,255
+(24,78) a=249,251,246,255 b=246,249,243,255
+(263,78) a=250,251,249,255 b=248,249,247,255
+
+# probes/rf70-zero-layers.spec.browser.test.ts: the resting list as built, against the same list with
+# --_elevation-penumbra, -umbra and -ambient set to none on each host
+base chromium built vs none: byte-equal
+base firefox built vs none: differing 84 px, max channel delta 19, bbox x 24-263 y 24-191
+base webkit built vs none: byte-equal
+head chromium built vs none: byte-equal
+head firefox built vs none: differing 84 px, max channel delta 22, bbox x 24-263 y 24-191
+head webkit built vs none: byte-equal
+none, base vs head, chromium: byte-equal
+none, base vs head, firefox: byte-equal
+none, base vs head, webkit: byte-equal

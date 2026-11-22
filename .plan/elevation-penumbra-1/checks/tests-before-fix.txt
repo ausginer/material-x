@@ -1,0 +1,346 @@
+ RUN  v5.1.0 .
+
+ ❯ |spec/material-x (chromium)| tests/core/elevation.spec.browser.test.ts (6 tests | 5 failed) 823ms
+   ❯ mx-fab elevation layers (2)
+     × should draw the three elevation layers of its resting level (default) 174ms
+     × should draw the three elevation layers of its resting level (extended) 79ms
+   ❯ mx-list items elevation layers (3)
+     × should draw the three elevation layers of the dragged level (mx-list-item) 167ms
+     × should draw the three elevation layers of the dragged level (mx-list-button-item) 167ms
+     × should draw the three elevation layers of the resting level (mx-list-link-item) 83ms
+ ❯ |spec/material-x/firefox (firefox)| tests/core/elevation.spec.browser.test.ts (6 tests | 5 failed) 1059ms
+   ❯ mx-fab elevation layers (2)
+     × should draw the three elevation layers of its resting level (default) 145ms
+     × should draw the three elevation layers of its resting level (extended) 122ms
+   ❯ mx-list items elevation layers (3)
+     × should draw the three elevation layers of the dragged level (mx-list-item) 162ms
+     × should draw the three elevation layers of the dragged level (mx-list-button-item) 296ms
+     × should draw the three elevation layers of the resting level (mx-list-link-item) 148ms
+ ❯ |spec/material-x/webkit (webkit)| tests/core/elevation.spec.browser.test.ts (6 tests | 5 failed) 704ms
+   ❯ mx-fab elevation layers (2)
+     × should draw the three elevation layers of its resting level (default) 141ms
+     × should draw the three elevation layers of its resting level (extended) 84ms
+   ❯ mx-list items elevation layers (3)
+     × should draw the three elevation layers of the dragged level (mx-list-item) 117ms
+     × should draw the three elevation layers of the dragged level (mx-list-button-item) 109ms
+     × should draw the three elevation layers of the resting level (mx-list-link-item) 74ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |spec/material-x (chromium)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+ FAIL  |spec/material-x (chromium)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0 0 0 / 0.12) 0px 9px 12px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0 0 0 / 0.2) 0px 3px 4.2px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:131:42
+    129|       });
+    130|
+    131|       expect(renderedLayers(boxOf(fab))).toEqual(
+       |                                          ^
+    132|         await expectedLayers(boxOf(fab), values['elevation.default']!),
+    133|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      50ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      43ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  |spec/material-x (chromium)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/material-x (chromium)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px",
+-   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 6px 6px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:168:35
+    166|       });
+    167|
+    168|       expect(renderedLayers(box)).toEqual(
+       |                                   ^
+    169|         await expectedLayers(box, values['container.elevation']!),
+    170|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      46ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      46ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  |spec/material-x (chromium)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px",
+-   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:191:33
+    189|     });
+    190|
+    191|     expect(renderedLayers(box)).toEqual(
+       |                                 ^
+    192|       await expectedLayers(box, values['container.elevation']!),
+    193|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      47ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  |spec/material-x/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0 0 0 / 0.12) 0px 9px 12px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0 0 0 / 0.2) 0px 3px 4.2px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:131:42
+    129|       });
+    130|
+    131|       expect(renderedLayers(boxOf(fab))).toEqual(
+       |                                          ^
+    132|         await expectedLayers(boxOf(fab), values['elevation.default']!),
+    133|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      54ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  |spec/material-x/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0 0 0 / 0.12) 0px 9px 12px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0 0 0 / 0.2) 0px 3px 4.2px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:131:42
+    129|       });
+    130|
+    131|       expect(renderedLayers(boxOf(fab))).toEqual(
+       |                                          ^
+    132|         await expectedLayers(boxOf(fab), values['elevation.default']!),
+    133|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      95ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  |spec/material-x/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/material-x/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px",
+-   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 6px 6px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:168:35
+    166|       });
+    167|
+    168|       expect(renderedLayers(box)).toEqual(
+       |                                   ^
+    169|         await expectedLayers(box, values['container.elevation']!),
+    170|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      52ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms      91ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  |spec/material-x/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px",
+-   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:191:33
+    189|     });
+    190|
+    191|     expect(renderedLayers(box)).toEqual(
+       |                                 ^
+    192|       await expectedLayers(box, values['container.elevation']!),
+    193|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      60ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  |spec/material-x/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+ FAIL  |spec/material-x/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0 0 0 / 0.12) 0px 9px 12px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 4.5px 4.5px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0 0 0 / 0.2) 0px 3px 4.2px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:131:42
+    129|       });
+    130|
+    131|       expect(renderedLayers(boxOf(fab))).toEqual(
+       |                                          ^
+    132|         await expectedLayers(boxOf(fab), values['elevation.default']!),
+    133|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      51ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      56ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  |spec/material-x/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/material-x/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 12px 16px 0px",
+-   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 6px 6px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 4px 5.6px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:168:35
+    166|       });
+    167|
+    168|       expect(renderedLayers(box)).toEqual(
+       |                                   ^
+    169|         await expectedLayers(box, values['container.elevation']!),
+    170|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      53ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      47ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  |spec/material-x/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+AssertionError: expected { penumbra: 'none', …(2) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 0px 0px 0px",
+-   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 0px 0px 0px",
++   "penumbra": "none",
+    "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 0px 0px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:191:33
+    189|     });
+    190|
+    191|     expect(renderedLayers(box)).toEqual(
+       |                                 ^
+    192|       await expectedLayers(box, values['container.elevation']!),
+    193|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      51ms  packages/material-x/tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  15 failed | 3 passed (18)
+   Start at  07:22:33
+   Duration  7.45s (tests 50%, worker 30%, import 15%, setup 5%)
+
+error: recipe `test` failed on line 66 with exit code 1

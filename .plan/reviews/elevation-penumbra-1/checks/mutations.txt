@@ -1,0 +1,60 @@
+# Mutations of the RF-70 feature proof (PR #120), each applied alone to an export of
+# 966ec0354 and reverted, running tests/core/elevation.spec.browser.test.ts in
+# Chromium 158, Firefox 159 and WebKit 27.2 (Playwright 1.65.0).
+#
+# m1a-fab-revert          fab/styles/default/main.styles.css: the comment and `box-shadow: var(--_elevation-penumbra);` removed
+# m1b-interactive-revert  list/styles/item/interactive-box.styles.css: the same two lines removed
+# m1c-static-revert       list/styles/item/static-box.styles.css: `box-shadow: var(--_elevation-penumbra);` back to `box-shadow: none;`
+# m2-fab-level-hovered    fab/styles/default/main.styles.css line 2: `var(--_elevation-default)` -> `var(--_elevation-hovered)`
+# m3-list-level-plus-1    list/styles/item/main.styles.css: `--_level: var(--_container-elevation, 0)` -> `calc(var(--_container-elevation, 0) + 1)`
+# m4-penumbra-formula     core/styles/elevation/tokens.ts: `createShadowColor(0.75, 0.75, 14)` -> `createShadowColor(1, 0.75, 14)`
+#                         (rerun alone in Chromium with `git diff --stat` shown: 6 passed of 6)
+
+== mut-m1a-fab-revert
+      Tests  6 failed | 12 passed (18)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+
+== mut-m1b-interactive-revert
+      Tests  6 failed | 12 passed (18)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+
+== mut-m1c-static-revert
+      Tests  3 failed | 15 passed (18)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+
+== mut-m2-fab-level-hovered
+      Tests  6 failed | 12 passed (18)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (default)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:114 > mx-fab elevation layers > should draw the three elevation layers of its resting level (extended)
+
+== mut-m3-list-level-plus-1
+      Tests  9 failed | 9 passed (18)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+|spec (chromium)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+|spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:153 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+|spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:176 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+
+== mut-m4-penumbra-formula
+      Tests  18 passed (18)
+

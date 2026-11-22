@@ -1,6 +1,7 @@
 /*
- * A static item's host is its box. `box-shadow: none` keeps the elevation to
- * the two pseudo-element layers.
+ * A static item's host is its box, so the host draws the elevation layers that
+ * the elevation stylesheet draws on `.host`: the penumbra here, and the umbra
+ * and the ambient on the pseudo-elements below.
  */
 :host {
   position: relative;
@@ -20,7 +21,7 @@
   font: inherit;
   text-align: start;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: none;
+  box-shadow: var(--_elevation-penumbra);
 }
 
 :host(:focus-visible) {

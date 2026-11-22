@@ -1,0 +1,39 @@
+# Sizes, Brotli bytes, read with `just size-reading` on exports of 682639048 (base) and 966ec0354 (head),
+# compared with the committed .plan/elevation-penumbra-1/checks/size-{before,after}-fix.json by probes/sizecmp.mjs.
+# Only rows that move are listed.
+material-x:button/button	base 4913	head 4907	delta -6	committed 4913 -> 4907
+material-x:button/icon-button	base 5184	head 5175	delta -9	committed 5184 -> 5175
+material-x:button/link-button	base 4883	head 4877	delta -6	committed 4883 -> 4877
+material-x:button/switch-button	base 5258	head 5280	delta 22	committed 5258 -> 5280
+material-x:button/switch-icon-button	base 5659	head 5661	delta 2	committed 5659 -> 5661
+material-x:button/split-button	base 7496	head 7494	delta -2	committed 7496 -> 7494
+material-x:button-group/connected-button-group	base 3864	head 3854	delta -10	committed 3864 -> 3854
+material-x:checkbox/checkbox	base 3969	head 3968	delta -1	committed 3969 -> 3968
+material-x:fab/fab	base 4171	head 4179	delta 8	committed 4171 -> 4179
+material-x:list/list-item	base 2826	head 2830	delta 4	committed 2826 -> 2830
+material-x:list/list-button-item	base 4639	head 4649	delta 10	committed 4639 -> 4649
+material-x:list/list-link-item	base 4870	head 4866	delta -4	committed 4870 -> 4866
+material-x:list/sortable-list	base 8699	head 8698	delta -1	committed 8699 -> 8698
+material-x:text-field/text-field	base 8181	head 8163	delta -18	committed 8181 -> 8163
+material-x:complete	base 22158	head 22179	delta 21	committed 22158 -> 22179
+rows 33, rows where this pass and the committed readings disagree: 0
+
+# probes/private-props-remap.ts <scratch> (head's short names mapped back to base's, every built material-x .js)
+names 227 227 same set true renamed 100
+{
+  same: 78,
+  renamedOnly: 16,
+  differ: [
+    'fab/styles/default/main.css.js',
+    'list/styles/item/interactive-box.css.js',
+    'list/styles/item/static-box.css.js'
+  ],
+  missing: []
+}
+
+# probes/first-mention.ts, in collect-props.ts's file order
+base: file #15 core/styles/elevation/elevation.css.ts is the first to mention --_elevation-penumbra
+head: file #3 list/styles/item/interactive-box.css.ts is the first to mention --_elevation-penumbra
+slot c at 966ec0354: file #3 list/styles/item/interactive-box.css.ts is the first to mention --_elevation-penumbra
+base: --_elevation-penumbra is name #194 of 227, short --gm, between --_elevation-hovered and --_ripple-easing
+head: --_elevation-penumbra is name #95 of 227, short --cr, between --_indicator-outline-offset and --_top-space
