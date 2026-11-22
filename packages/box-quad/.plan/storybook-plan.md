@@ -1,6 +1,6 @@
 # Storybook stories for `@ydinjs/box-quad`
 
-**Status:** implemented on 2026-11-22 at `97b789f54` ([record](plan.md#record)). It was settled first. The owner answered the three questions on 2026-11-22 with the recommended option of each ([§4](#4-owners-answers)). The decisions are registered as `BQ-13` to `BQ-18` in [`plan.md`](plan.md)'s ledger, where they're the record, and this plan holds their required properties. [§9](#9-revisions) lists what each revision changed. **Amended on 2026-11-22 by [§10](#10-the-sliders-move-into-the-stories):** the stories are slow because every arg change re-renders Storybook's manager, and their sliders move into the stories. That amendment proposes `SB-D8` and `SB-D9`, which amend `BQ-14`, `BQ-16` and `BQ-18`. It asks `SB-Q4`, and it isn't implemented.
+**Status:** implemented on 2026-11-22 at `97b789f54` ([record](plan.md#record)). It was settled first. The owner answered the three questions on 2026-11-22 with the recommended option of each ([§4](#4-owners-answers)). The decisions are registered as `BQ-13` to `BQ-18` in [`plan.md`](plan.md)'s ledger, where they're the record, and this plan holds their required properties. [§9](#9-revisions) lists what each revision changed. **Amended on 2026-11-22 by [§10](#10-the-sliders-move-into-the-stories):** the stories are slow because every arg change re-renders Storybook's manager, and their sliders move into the stories. That amendment is settled and not yet implemented. The owner answered `SB-Q4` A on 2026-11-22, and the main slot's architect registered `SB-D8` as `BQ-19` and `BQ-20` and `SB-D9` as `BQ-21`, which supersede `BQ-14`, `BQ-16` and `BQ-18` ([record](plan.md#record)).
 
 - **Read at** `origin/main` `4fd8b9a67`, after the 1.0.0 release reading (#147).
 - **Written by** the architect in slot `b`, on `box-quad/storybook-1`. An architect outside the main slot proposes and doesn't record ([agent workflow](../../../.agents/docs/agent-workflow.md#parallel-units)). So the first revision gave local names: decisions `SB-D1` to `SB-D7` and owner questions `SB-Q1` to `SB-Q3`. **Registered by** the main slot's architect on 2026-11-22, in slot `b` on the coordinator's request: `SB-D1` to `SB-D6` are `BQ-13` to `BQ-18`, in that order. `SB-D7` applies `repo:RD-32` and is not a decision of its own (§3, last section). The questions keep their local names, because box-quad's register has no question series.
@@ -215,6 +215,7 @@ The owner answered on 2026-11-22, in chat, relayed by the coordinator: **`SB-Q1`
 - **2026-11-22, first revision:** the first plan, with `SB-D1` to `SB-D7` and `SB-Q1` to `SB-Q3`, at `a26a111c1`.
 - **2026-11-22, this revision, by the main slot's architect:** the owner's answers, all A, and the registration of `SB-D1` to `SB-D6` as `BQ-13` to `BQ-18`. The status, §3's headings and the text that said _pending_ or _recommends_, §4's title, §5's estimate, §6's steps and §7's list changed. No required property changed. §3's third, fourth and fifth sections said _"pending `SB-Q1`"_, _"pending `SB-Q3`"_ and _"pending `SB-Q2`"_, with the architect's recommendation. The fifth also said what MIT would require if demo text were copied. §5 also estimated about 150 and 60 lines for `SB-Q3` C. §8 doesn't change.
 - **2026-11-22, the amendment, by the architect in slot `b`, on `box-quad/storybook-2`:** [§10](#10-the-sliders-move-into-the-stories) and the status line were added. §7's first entry was annotated. It isn't deleted, because §10 cites it. Nothing else in §1 to §9 changed. `BQ-13` to `BQ-18` stay as registered until the main slot's architect registers `SB-D8` and `SB-D9`.
+- **2026-11-22, the registration of §10, by the main slot's architect:** the owner's answer `SB-Q4` A, and `SB-D8` and `SB-D9` registered as `BQ-19` to `BQ-21`. The status line, §10.3's two headings and §10.4's title changed, and §10.4 gained the answer. No required property changed. The headings said _"(`SB-D8`, amends `BQ-14` and `BQ-16`)"_ and _"(`SB-D9`, amends `BQ-18`)"_, §10.4's title said _"Owner's question"_, and the status line said that the amendment proposes the two decisions and asks `SB-Q4`.
 
 ## 10. The sliders move into the stories
 
@@ -273,7 +274,7 @@ The preview's theme decorator calls `top.history.replaceState` on every story re
 
 ### 10.3 Decisions
 
-#### The sliders are in the stories, and no story takes Storybook args (`SB-D8`, amends `BQ-14` and `BQ-16`)
+#### The sliders are in the stories, and no story takes Storybook args: `BQ-19` and `BQ-20`
 
 It replaces `BQ-14`'s _Args_ property, its _"redrawn after every arg change"_, and `BQ-16`'s _"follows `BQ-14`'s rules for args"_.
 
@@ -295,7 +296,7 @@ It replaces `BQ-14`'s _Args_ property, its _"redrawn after every arg change"_, a
 
 **Why:** §10.2's rows. A dragged slider changes its value about 60 times a second. Through args, each change costs the manager 17 to 110 ms on the probe's machine, so the drag can't keep up. Inside the story the manager's cost is under 0.2 ms per change. A preview-side fix can't remove the manager's re-render, because it happens in the manager.
 
-#### What the stories' reading measures (`SB-D9`, amends `BQ-18`)
+#### What the stories' reading measures: `BQ-21`
 
 - **`controls-cost.ts` is the before-and-after witness of `SB-D8`.**
   - **Before:** the rows in `controls-cost.txt`. The implementer runs the script once more before changing the stories, so the before and after readings come from one machine.
@@ -305,9 +306,11 @@ It replaces `BQ-14`'s _Args_ property, its _"redrawn after every arg change"_, a
 - **The screenshots are retaken,** because the sliders change each story's layout.
 - **Typecheck, lint, `docs-build` and `docs-smoke`** stay as `BQ-18` gives them.
 
-### 10.4 Owner's question
+### 10.4 Owner's answer
 
 #### Do the stories keep Storybook args as their initial values? (`SB-Q4`)
+
+**Answered on 2026-11-22: A,** relayed by the coordinator: _"it's mostly a dynamic demonstration anyway"_ (in translation).
 
 - **A (recommended): no.** The sliders' initial values are the demo's defaults, written in the story. There is one source of truth, and the Controls panel and the docs page show nothing that could disagree with the sliders. What is lost: a URL can't open a story at an arg set (`&args=rotation:30`). Only `stories-reading.ts` used that, and `SB-D9` moves it to the sliders.
 - **B: yes, hidden.** Each story keeps its `args` as the sliders' initial values and hides them from the Controls panel. The view remounts when the args change, so a URL with `&args=` still opens the story at those values. The cost is a mechanism that nothing visible shows, and a fact this plan hasn't established: whether Storybook still applies URL args to an arg that the panel hides. `stories-reading.ts` could then keep its URLs.
