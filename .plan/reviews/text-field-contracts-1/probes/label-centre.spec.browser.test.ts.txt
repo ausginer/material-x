@@ -1,0 +1,28 @@
+// Feature-proof probe for PR #160: where each engine centres the filled field's
+// populated label, against the `it.fails` row's expected position. Scratch:
+// copied into packages/material-x/tests/text-field/ for its run, removed after it.
+import { describe, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import '../../src/text-field/text-field.ts';
+import { nextFrame, pixels } from '../browser.ts';
+
+describe('populated label centre', () => {
+  it.each(['mx-text-field', 'mx-multiline-text-field'])('%s', async (tag) => {
+    const { values } = await commands.resolveTokenContract({ contract: 'text-field.default', state: 'default', tokens: ['container.focus.padding.block', 'label-text.populated.line-height'] });
+    const field = document.createElement(tag);
+    const label = document.createElement('span');
+    label.slot = 'label';
+    label.textContent = 'Label';
+    field.append(label);
+    field.style.setProperty('--md-text-field-focus-duration', '0s');
+    field.setAttribute('value', 'Value');
+    document.body.append(field);
+    await nextFrame();
+    const { top, bottom } = label.getBoundingClientRect();
+    const container = field.shadowRoot!.querySelector('.notched-outline')!.getBoundingClientRect();
+    const expected = pixels(values['container.focus.padding.block']!) + pixels(values['label-text.populated.line-height']!) / 2;
+    // oxlint-disable-next-line no-console
+    console.log(`PROBE ${tag} ${JSON.stringify({ centre: (top + bottom) / 2 - container.top, expected, height: bottom - top })}`);
+  });
+});

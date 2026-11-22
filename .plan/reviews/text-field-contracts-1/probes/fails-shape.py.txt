@@ -1,0 +1,23 @@
+# Two scratch changes for the `it.fails` row's shape, each applied alone and reverted:
+#   repair: the filled field's populated label moved down by the 1.375 px that
+#           Chromium reads, so its centre lands on the row's expected position;
+#   oracle: the row's `label-text.populated.line-height` renamed, so its oracle is missing.
+import subprocess, sys, os
+ROOT = '/workspaces/worktrees/f/packages/material-x'
+CSS = 'src/text-field/styles/default/main.styles.css'
+ROW = 'tests/text-field/text-field.spec.browser.test.ts'
+M = {
+  'repair': (CSS, '          var(--_container-focus-padding-block)\n      );', '          var(--_container-focus-padding-block) + 1.375px\n      );'),
+  'oracle': (ROW, "        'label-text.populated.line-height',\n      ]);\n      const field = await createField(tag, outlined, { value: 'Value' });", "        'label-text.populated.no-such-token',\n      ]);\n      const field = await createField(tag, outlined, { value: 'Value' });"),
+}
+for name in sys.argv[1:]:
+    f, a, b = M[name]; p = os.path.join(ROOT, f); orig = open(p).read(); assert orig.count(a) == 1, name
+    open(p, 'w').write(orig.replace(a, b))
+    try:
+        r = subprocess.run("MX_TEST_ENGINES=chromium,firefox,webkit timeout 600 aube exec vitest run -c vitest.config.ts --project 'spec*' tests/text-field/text-field.spec.browser.test.ts -t 'should centre the populated label'", shell=True, cwd=ROOT, capture_output=True, text=True)
+        tests = [l for l in r.stdout.splitlines() if 'Tests ' in l]
+        fails = sorted({l.split(' > ')[-1].strip() + ' | ' + l.split('|')[1] for l in r.stdout.splitlines() if l.startswith(' FAIL ')})
+        print(name, '=>', tests, *fails, sep='\n  ', flush=True)
+        open(f'/tmp/claude-1000/-workspaces-worktrees-b/dd01a063-f015-4f0c-ace0-643f0168264b/scratchpad/tf/fails-{name}.txt', 'w').write(r.stdout)
+    finally:
+        open(p, 'w').write(orig)
