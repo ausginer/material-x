@@ -64,3 +64,61 @@ aube pack: sha256 4235cc62833440f9d8ae3f99b6312be916ea7fb2096e37d4fcf60ffe2c14f7
 The README's 2 ts examples, each with declared HTMLElement constants, type-check with tsc (strict, skipLibCheck false, types [], nodenext, DOM lib) against the package installed with aube from the new tarball: exit 0. With coordinates('x', card) appended to the first: exit 1, TS2345.
 aube exec just fmt README.md, then git diff --check: clean.
 grep for BQ-, F-<digit>, RF-, RD-, .plan and 7+ character hex strings in the README: 0 hits
+
+== The release pull request, 2026-11-22, by the implementer in slot b, on box-quad/release-1 from 7d0d36999
+
+Task 5, as amended on 2026-11-22. Changed: packages/box-quad/package.json ("browserslist": ["baseline 2024"], no "with downstream"; oxfmt places it last) and the README's Browser support section. Commit e6bee2a9e.
+
+aube exec browserslist in packages/box-quad (browserslist 4.29.4, baseline-browser-mapping 2.11.31), lowest version per browser:
+and_chr 156
+and_ff 158
+chrome 130
+edge 130
+firefox 132
+ios_saf 18.2
+safari 18.2
+Only the core set's browsers; no samsung, opera or other downstream browser.
+baseline-browser-mapping getCompatibleVersions({ targetYear: 2024 }):
+chrome 130
+chrome_android 130
+edge 130
+firefox 132
+firefox_android 132
+safari 18.2
+safari_ios 18.2
+The README names Chrome and Edge 130, Firefox 132, Safari 18.2 on macOS and iOS, Chrome for Android 130 and Firefox for Android 132: the desktop and iOS versions are browserslist's, the Android versions baseline-browser-mapping's.
+
+aube exec just build before and after the field, cmp: index.js, index.js.map and index.d.ts identical.
+  sha256 index.js     51dc4e4f83b8c38f3697400288e990fdaac3d2bdce132c3b7c6040b4c1103529
+  sha256 index.js.map cc22cb268964d21de17433eabe22c89aa0d4a197a20153ff6914af9e92d50ab1
+  sha256 index.d.ts   016caea68e92ddc7d3284f41ab3f657ff7c6c33896676faaff9ba1f7c3491b4e
+aube pack --dry-run: CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json (7 files), @ydinjs/box-quad@1.0.0. The packed package.json has "browserslist": ["baseline 2024"].
+aube install --frozen-lockfile at the root: passes; node_modules/@ydinjs holds the workspace packages.
+aube exec oxfmt --check README.md package.json: clean. git diff --check: clean.
+grep for BQ-, F-<digit>, RF-, RD-, .plan and 7+ character hex strings in the README: 0 hits.
+git diff 315a18ad1 HEAD -- packages/box-quad/src packages/box-quad/tsdown.config.ts: empty.
+
+aube exec just release-check box-quad at e6bee2a9e: exit 0
+  ### @ydinjs/box-quad@1.0.0
+  - tarball: `ydinjs-box-quad-1.0.0.tgz`
+  - shasum (SHA-1), as npm shows it: `97d36a5b9697712b35eaa4e125ed1a9c4db33d8e`
+  - integrity: `sha512-9cFkPWMO0NaAbKkux9M/upNtCTo/Peh2mmer+AB/V+kCeP6xpt0WBOe661ctB+lUINdqQUJgQSh37p2leicj+g==`
+  - sha256: `d8c430e3ffa4e1304506a30e0c497a12d188cd6308355a0a04901d7c7ce910d8`
+  - `CHANGELOG.md`
+  - `LICENSE`
+  - `README.md`
+  - `index.d.ts`
+  - `index.js`
+  - `index.js.map`
+  - `package.json`
+
+The mutation dispatch. b88246b90 adds "src/index.ts" to box-quad's files and nothing else (parent e6bee2a9e).
+gh workflow run release.yml --ref box-quad/release-1 -f package=box-quad
+  https://github.com/ausginer/material-x/actions/runs/44998336728
+  event workflow_dispatch, headBranch box-quad/release-1, headSha b88246b9063a02dab603ea12fbc46ec38a85d315 (read while in progress, before any other push)
+  conclusion failure: prepare failed at "Pack and check the tarball"; dispatch and stage skipped.
+    ##[error]src/index.ts is a source, test or record file
+    - `pack-excluded`: src/index.ts is a source, test or record file
+758a8174a reverts it; its tree under packages/ equals e6bee2a9e's.
+
+The check run on the head is dispatched after the commit that adds this section, so its run ID, headSha and summary are in the pull request's description and not in this file. A commit after it needs another check run.
