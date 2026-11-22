@@ -1,0 +1,6 @@
+{
+  "runtime": ["index", "family"],
+  "clean": {
+    "extras": ["_virtual", "internal"]
+  }
+}

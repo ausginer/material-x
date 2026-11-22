@@ -137,6 +137,7 @@
   "devDependencies": {
     "@fontsource/roboto": "5.3.0",
     "@ydinjs/drag": "0.1.0",
+    "@ydinjs/signals": "0.1.0",
     "@ydinjs/tproc": "0.1.0",
     "size-limit": "14.3.0",
     "size-limit-preset-rolldown": "0.1.0"
@@ -144,6 +145,7 @@
   "peerDependencies": {
     "@types/react": "^19",
     "@ydinjs/drag": "0.1.0",
+    "@ydinjs/signals": "0.1.0",
     "react": "^19"
   },
   "peerDependenciesMeta": {

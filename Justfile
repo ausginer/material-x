@@ -14,7 +14,7 @@ build:
 
 # Delete build artefacts for all packages
 clean-build:
-    nx run-many -t clean:build --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t clean:build --projects=box-quad,signals,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Docs
@@ -97,7 +97,7 @@ test-safari *ARGS: _test-builds
 # material-x's node project builds material-x in its own.
 [private]
 _package-builds:
-    nx run-many -t build --projects=box-quad,core,drag,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+    nx run-many -t build --projects=box-quad,signals,core,drag,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
 
 # The CSS plugin also reads the custom property list that material-x's
 # `build:prepare` collects.
@@ -111,7 +111,7 @@ _test-builds: _package-builds
 
 # Check bundle-size budgets for all measured packages
 size:
-    nx run-many -t size --projects=box-quad,core,drag,material-x --parallel=1 --skipNxCache
+    nx run-many -t size --projects=box-quad,signals,core,drag,material-x --parallel=1 --skipNxCache
 
 # Write the rows that `size` measures, as JSON, to FILE (builds first)
 size-reading FILE:
@@ -138,13 +138,13 @@ release-check NAME:
 
 # Type-check all packages
 typecheck:
-    nx run-many -t typecheck --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t typecheck --projects=box-quad,signals,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # Type-check every built declaration file as a consumer reads it: with
 # `skipLibCheck` off and no ambient `types` (`repo:RF-51`). It builds every
 # package that writes declarations first, because it reads their builds.
 typecheck-declarations:
-    nx run-many -t build --projects=box-quad,core,drag,material-x,size-limit-preset-rolldown,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+    nx run-many -t build --projects=box-quad,signals,core,drag,material-x,size-limit-preset-rolldown,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
     tsc -p tsconfig.declarations.json
 
 # ---------------------------------------------------------------------------
@@ -155,12 +155,12 @@ typecheck-declarations:
 # One authority over the whole tree: `oxfmt` writes every file type it
 # supports, Markdown included, so no file is offered to a second formatter.
 fmt:
-    nx run-many -t fmt --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t fmt --projects=box-quad,signals,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
     oxfmt . '!packages/**'
 
 # Check formatting everywhere without writing — the same single authority
 fmt-check:
-    nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t fmt:check --projects=box-quad,signals,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
     oxfmt --check . '!packages/**'
 
 # ---------------------------------------------------------------------------
@@ -171,14 +171,14 @@ fmt-check:
 # package's lint builds what its imports resolve to first, and the Storybook
 # sources read material-x's custom elements manifest.
 lint:
-    nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint --projects=box-quad,signals,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
     nx run @ydinjs/material-x:build:cem --skipNxCache
     oxlint --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' .
 
 # Lint and auto-fix everywhere
 lint-fix:
-    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=box-quad,signals,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
     nx run @ydinjs/material-x:build:cem --skipNxCache
     oxlint --fix --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' --fix .

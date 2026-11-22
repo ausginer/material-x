@@ -4,8 +4,8 @@
  * where the instrument reports them, and its limit. One nx run builds the
  * measured packages, and nx's task graph builds their prerequisites first, so
  * the script reads a tree where only the install has run. Each package is then
- * measured by its own instrument: size-limit's `--json` for `box-quad`, `core`
- * and `material-x`, and `bench/size/measure.ts --json` for `drag`. A row over
+ * measured by its own instrument: size-limit's `--json` for `box-quad`,
+ * `signals`, `core` and `material-x`, and `bench/size/measure.ts --json` for `drag`. A row over
  * its limit is still read; an instrument that prints no reading fails the
  * script.
  *
@@ -124,7 +124,7 @@ if (output == null) {
 }
 
 /** The packages that the root `just size` measures, in the reading's order. */
-const MEASURED = ['box-quad', 'core', 'material-x', 'drag'] as const;
+const MEASURED = ['box-quad', 'signals', 'core', 'material-x', 'drag'] as const;
 
 await run(
   'aube',

@@ -3,10 +3,5 @@
     "name": "element",
     "path": "element.js",
     "limit": "340 B"
-  },
-  {
-    "name": "emitter",
-    "path": "emitter.js",
-    "limit": "210 B"
   }
 ]

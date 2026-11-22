@@ -1,8 +1,13 @@
 import { use, type ControlledElement } from '../element.ts';
-import type { Unsubscribe } from '../emitter.ts';
 import { useEvents } from './useEvents.ts';
 
 declare const $ctx: unique symbol;
+
+/**
+ * Cleanup function that a context effect returns, for example the disposer of
+ * an effect from `@ydinjs/signals`.
+ */
+export type Unsubscribe = () => void;
 
 const CONTEXT_EVENT_INIT: Readonly<EventInit> = {
   bubbles: true,
@@ -44,11 +49,11 @@ export function createContext<T>(): Context<T> {
  *
  * The provided `value` is expected to stay stable by reference for as long as
  * the provider is connected. If the exposed state changes over time, keep the
- * same object and publish updates through a nested `EventEmitter` or another
- * manual observable mechanism instead of replacing the whole value object.
+ * same object and publish updates through signals from `@ydinjs/signals` in it
+ * instead of replacing the whole value object.
  *
  * @remarks Provider and consumer composition on the same host is unsupported.
- * For same-host coordination, use a local `EventEmitter` directly.
+ * For same-host coordination, use signals directly.
  *
  * @typeParam T - The stable value shape exposed through this context.
  * @param host - The provider host element.
@@ -98,9 +103,9 @@ export type ContextEffect<T> = (
  * `undefined` when no provider answers. A connection that ends before its
  * lookup runs does nothing. The lookup doesn't react to provider value
  * replacement after it, so consumers should treat the resolved value as a
- * long-lived object and subscribe to updates inside it, for example through a
- * nested `EventEmitter`. The effect may return a cleanup function for manual
- * subscriptions.
+ * long-lived object and subscribe to updates inside it, for example with an
+ * effect on its signals. The effect may return a cleanup function for manual
+ * subscriptions, such as that effect's disposer.
  *
  * @typeParam T - The stable value shape exposed through this context.
  * @param host - The consumer host element.

@@ -1,0 +1,59 @@
+{
+  "name": "@ydinjs/signals",
+  "version": "0.1.0",
+  "description": "Signals with declared inputs: each computed and effect names what it may read, and subscribes to what its last run read.",
+  "homepage": "https://github.com/ausginer/material-x/tree/main/packages/signals#readme",
+  "bugs": {
+    "url": "https://github.com/ausginer/material-x/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "Vlad Rindevich <github.aqwb5@mail.ausginer.com> (https://github.com/Lodin)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ausginer/material-x.git",
+    "directory": "packages/signals"
+  },
+  "files": [
+    "index.js",
+    "index.js.map",
+    "index.d.ts",
+    "family.js",
+    "family.js.map",
+    "family.d.ts",
+    "_internal"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./family.js": {
+      "types": "./family.d.ts",
+      "default": "./family.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix",
+    "test": "just test",
+    "size": "just size",
+    "typecheck": "just typecheck"
+  },
+  "devDependencies": {
+    "@preact/signals-core": "1.14.5",
+    "alien-signals": "3.2.1",
+    "size-limit": "14.3.0",
+    "size-limit-preset-rolldown": "0.1.0"
+  },
+  "browserslist": "baseline newly available"
+}

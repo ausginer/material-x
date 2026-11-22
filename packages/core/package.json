@@ -24,6 +24,10 @@
       "types": "./controllers/useContext.d.ts",
       "default": "./controllers/useContext.js"
     },
+    "./controllers/useEffect.js": {
+      "types": "./controllers/useEffect.d.ts",
+      "default": "./controllers/useEffect.js"
+    },
     "./controllers/useCSSProps.js": {
       "types": "./controllers/useCSSProps.d.ts",
       "default": "./controllers/useCSSProps.js"
@@ -59,10 +63,6 @@
     "./element.js": {
       "types": "./element.d.ts",
       "default": "./element.js"
-    },
-    "./emitter.js": {
-      "types": "./emitter.d.ts",
-      "default": "./emitter.js"
     },
     "./traits/attribute-traits.js": {
       "types": "./traits/attribute-traits.d.ts",
@@ -130,7 +130,16 @@
     "type-fest": "5.10.0"
   },
   "devDependencies": {
+    "@ydinjs/signals": "0.1.0",
     "size-limit": "14.3.0",
     "size-limit-preset-rolldown": "0.1.0"
+  },
+  "peerDependencies": {
+    "@ydinjs/signals": "0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@ydinjs/signals": {
+      "optional": true
+    }
   }
 }

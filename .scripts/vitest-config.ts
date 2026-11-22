@@ -182,6 +182,7 @@ type DeclarationTestProjectOptions = Readonly<{
 type WorkspaceTestConfigOptions = Readonly<{
   root: URL;
   boxQuadRoot: URL;
+  signalsRoot: URL;
   materialXRoot: URL;
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   dragCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
@@ -671,6 +672,23 @@ export function createBoxQuadTestConfig(root: URL): UserConfig {
   };
 }
 
+function createSignalsTestProjects(root: URL, scope?: string): UserConfig[] {
+  return createEngineTestProjects({
+    name: scopedName('browser', scope),
+    root,
+    include: ['tests/**/*.browser.test.ts'],
+    viteConfig: createViteConfig(root),
+  });
+}
+
+export function createSignalsTestConfig(root: URL): UserConfig {
+  return {
+    test: {
+      projects: assignGroupOrder(createSignalsTestProjects(root)),
+    },
+  };
+}
+
 function createTprocTestProjects(root: URL, scope?: string): [UserConfig] {
   return [
     createNodeTestProject({
@@ -826,6 +844,7 @@ export function createWorkspaceTestConfig(
         ),
         ...createCoreTestProjects(options.coreRoot, 'core'),
         ...createBoxQuadTestProjects(options.boxQuadRoot, 'box-quad'),
+        ...createSignalsTestProjects(options.signalsRoot, 'signals'),
         ...createDragTestProjects(
           options.dragRoot,
           'drag',

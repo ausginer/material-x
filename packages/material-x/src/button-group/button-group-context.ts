@@ -8,14 +8,11 @@ import {
   type Context,
 } from '@ydinjs/core/controllers/useContext.js';
 import type { ControlledElement } from '@ydinjs/core/element.js';
-import { EventEmitter } from '@ydinjs/core/emitter.js';
 import type { Disableable } from '@ydinjs/core/traits/disableable.js';
 import type { Valuable } from '@ydinjs/core/traits/valuable.js';
+import { signal, type Signal } from '@ydinjs/signals';
 import type { ButtonLike } from '../button/ButtonCore.ts';
-import type {
-  ChangedAttribute,
-  ContextData,
-} from '../core/utils/useContext.ts';
+import type { AttributeName, ContextData } from '../core/utils/useContext.ts';
 import type { ButtonGroupLike } from './ButtonGroupCore.ts';
 
 export const BUTTON_GROUP_CTX: Context<
@@ -33,11 +30,14 @@ export const BUTTON_GROUP_ELEMENTS: readonly string[] = [
 export function useButtonGroupProvider<T extends ControlledElement>(
   host: T,
   ctx: Context<ContextData<T>>,
-  attributes: ReadonlyArray<Exclude<keyof T & string, keyof ControlledElement>>,
+  attributes: ReadonlyArray<AttributeName<T>>,
 ): void {
-  const emitter = new EventEmitter<ChangedAttribute>();
+  // One signal per forwarded attribute, holding the group's serialized value.
+  const signals = Object.fromEntries(
+    attributes.map((attr) => [attr, signal<string | null>(null)] as const),
+  ) as Record<AttributeName<T>, Signal<string | null>>;
 
-  useProvider(host, ctx, { emitter, provider: host });
+  useProvider(host, ctx, { attributes: signals });
 
   useAttributes(
     host,
@@ -46,8 +46,8 @@ export function useButtonGroupProvider<T extends ControlledElement>(
         (attr) =>
           [
             attr,
-            ((oldValue, newValue) =>
-              emitter.emit(attr, oldValue, newValue)) satisfies UpdateCallback,
+            ((_, newValue) =>
+              signals[attr].set(newValue)) satisfies UpdateCallback,
           ] as const,
       ),
     ),

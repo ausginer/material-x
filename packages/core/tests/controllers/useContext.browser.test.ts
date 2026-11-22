@@ -1,3 +1,4 @@
+import { effect, signal } from '@ydinjs/signals';
 import type { Constructor } from 'type-fest';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 import {
@@ -5,17 +6,47 @@ import {
   useContext,
   useProvider,
   type ContextEffect,
+  type Unsubscribe,
 } from '../../src/controllers/useContext.ts';
 import { ControlledElement } from '../../src/element.ts';
-import {
-  EventEmitter,
-  type Unsubscribe,
-  type UpdateCallback,
-} from '../../src/emitter.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
+type UpdateCallback = (update: string) => void;
+
+type Channel = Readonly<{
+  on(callback: UpdateCallback): Unsubscribe;
+  emit(update: string): void;
+}>;
+
+/**
+ * A changing part of a provider's value: a signal that each subscriber watches
+ * through an effect. Every `emit` notifies, also of an equal update.
+ */
+function createChannel(): Channel {
+  const update = signal('', { equals: () => false });
+
+  return {
+    on(callback) {
+      let subscribed = false;
+
+      return effect([update], (update) => {
+        const value = update();
+
+        if (subscribed) {
+          callback(value);
+        }
+
+        subscribed = true;
+      });
+    },
+    emit(value) {
+      update.set(value);
+    },
+  };
+}
+
 type ContextValue = Readonly<{
-  emitter: EventEmitter<[string]>;
+  emitter: Channel;
   name: string;
 }>;
 
@@ -65,10 +96,10 @@ function createConsumer(
   parents: readonly string[],
 ): readonly [
   effectMock: Mock<ContextEffect<ContextValue>>,
-  updateMock: Mock<UpdateCallback<[string]>>,
+  updateMock: Mock<UpdateCallback>,
   ctr: Constructor<ControlledElement>,
 ] {
-  const updateMock = vi.fn<UpdateCallback<[string]>>();
+  const updateMock = vi.fn<UpdateCallback>();
   const effectMock = vi.fn<ContextEffect<ContextValue>>((value) =>
     value?.emitter.on(updateMock),
   );
@@ -169,7 +200,7 @@ describe('useContext', () => {
   it('should resolve the provider value on connect', async () => {
     const ctx = createContext<ContextValue>();
     const value = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'provider',
     } as const;
     const Provider = createProvider(ctx, value);
@@ -193,11 +224,11 @@ describe('useContext', () => {
   it('should resolve the nearest provider when providers are nested', async () => {
     const ctx = createContext<ContextValue>();
     const outerValue = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'outer',
     } as const;
     const innerValue = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'inner',
     } as const;
     const OuterProvider = createProvider(ctx, outerValue);
@@ -228,7 +259,7 @@ describe('useContext', () => {
     const providerCtx = createContext<ContextValue>();
     const consumerCtx = createContext<ContextValue>();
     const Provider = createProvider(providerCtx, {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'provider',
     });
     const effectMock = vi.fn<ContextEffect<ContextValue>>();
@@ -258,12 +289,12 @@ describe('useContext', () => {
     const ctx = createContext<ContextValue>();
 
     const firstValue = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'first',
     } as const;
 
     const secondValue = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'second',
     } as const;
 
@@ -300,11 +331,11 @@ describe('useContext', () => {
   it('should dispose previous subscription before rerunning effect after reconnect', async () => {
     const ctx = createContext<ContextValue>();
     const firstValue = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'first',
     } as const;
     const secondValue = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'second',
     } as const;
     const firstCleanup: Mock<Unsubscribe> = vi.fn();
@@ -349,7 +380,7 @@ describe('useContext', () => {
 
   it('should rely on manual subscriptions inside the provided value', async () => {
     const ctx = createContext<ContextValue>();
-    const emitter = new EventEmitter<[string]>();
+    const emitter = createChannel();
     const Provider = createProvider(ctx, {
       emitter,
       name: 'provider',
@@ -379,8 +410,8 @@ describe('useContext', () => {
 
   it('should unsubscribe from the previous provider after moving to another provider', async () => {
     const ctx = createContext<ContextValue>();
-    const firstEmitter = new EventEmitter<[string]>();
-    const secondEmitter = new EventEmitter<[string]>();
+    const firstEmitter = createChannel();
+    const secondEmitter = createChannel();
     const FirstProvider = createProvider(ctx, {
       emitter: firstEmitter,
       name: 'first',
@@ -425,7 +456,7 @@ describe('useContext', () => {
   it('should call effect with undefined after reconnect without any provider', async () => {
     const ctx = createContext<ContextValue>();
     const value = {
-      emitter: new EventEmitter<[string]>(),
+      emitter: createChannel(),
       name: 'provider',
     } as const;
     const Provider = createProvider(ctx, value);
@@ -451,8 +482,8 @@ describe('useContext', () => {
 
   it('should not react to provider value replacement without reconnect', async () => {
     const ctx = createContext<ContextValue>();
-    const firstEmitter = new EventEmitter<[string]>();
-    const secondEmitter = new EventEmitter<[string]>();
+    const firstEmitter = createChannel();
+    const secondEmitter = createChannel();
     const firstValue = {
       emitter: firstEmitter,
       name: 'first',
@@ -492,7 +523,7 @@ describe('useContext', () => {
 
   it('should keep multiple consumers isolated when one disconnects', async () => {
     const ctx = createContext<ContextValue>();
-    const emitter = new EventEmitter<[string]>();
+    const emitter = createChannel();
     const Provider = createProvider(ctx, {
       emitter,
       name: 'provider',
@@ -534,7 +565,7 @@ describe('useContext', () => {
 
 describe('useContext with a named parent', () => {
   function createValue(name: string): ContextValue {
-    return { emitter: new EventEmitter<[string]>(), name };
+    return { emitter: createChannel(), name };
   }
 
   /** An element of a provider name that isn't defined yet. */
