@@ -15,17 +15,38 @@
     --md-list-item-container-shape,
     var(--_container-expressive-shape)
   );
-  background: var(--md-list-item-container-color, var(--_container-color));
+  /* The container's opacity reaches the container and none of the content. */
+  background: color-mix(
+    in srgb,
+    var(--md-list-item-container-color, var(--_container-color))
+      calc(var(--_container-opacity, 1) * 100%),
+    transparent
+  );
   color: var(--_label-text-color);
   cursor: default;
   text-decoration: none;
   font: inherit;
   text-align: start;
   -webkit-tap-highlight-color: transparent;
+  transition: border-radius
+    var(--md-list-item-press-duration, var(--_press-duration))
+    var(--md-list-item-press-easing, var(--_press-easing));
 
   /* For shadow */
   &::before,
   &::after {
     content: '';
   }
+}
+
+/*
+ * On the host rather than `.host`: the host's own box would otherwise still
+ * take the pointer, match `:hover` and `:active`, and receive the click.
+ */
+:host(:state(disabled)) {
+  pointer-events: none;
+}
+
+:host(:state(disabled)) slot {
+  opacity: var(--_opacity);
 }
