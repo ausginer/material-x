@@ -1,0 +1,22 @@
+# .scripts/entry.sh --duplicates, read by the implementer on 2026-11-22 on repo/duplicate-address-check-1. Node v26.13.1.
+
+$ .scripts/entry.sh --duplicates 1cf222c32    # 1cf222c32
+duplicated addresses: each is claimed by more than one entry heading
+repo:RF-74
+  .plan/00-index.md:3729
+  .plan/00-index.md:3770
+repo:RF-75
+  .plan/00-index.md:3754
+  .plan/00-index.md:3795
+exit 1
+
+$ .scripts/entry.sh --duplicates origin/main    # 6a67badfd
+no duplicated address in drag, repo
+exit 0
+
+$ .scripts/entry.sh --duplicates    # the branch's working tree
+no duplicated address in drag, repo
+exit 0
+
+# The retired scope drag2, read once at 0870abd75 with the resolver's heading pattern; duplicated identifiers, if any:
+(end; 11 documents)

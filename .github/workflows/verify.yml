@@ -42,7 +42,9 @@ jobs:
   # Decides the run's mode (`repo:RD-15`). `reduced` only if the head commit
   # carries `[noci]` and every change since the last fully verified commit is a
   # record or Markdown; otherwise `full`. It installs nothing: the decision
-  # script uses Node's built-in modules, `git` and `gh`.
+  # script uses Node's built-in modules, `git` and `gh`. It also fails when a
+  # record register claims one address twice, because it is the job that every
+  # run of either mode requires (`.plan/duplicate-address-check-1`).
   scope:
     if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
@@ -65,6 +67,7 @@ jobs:
           EVENT: ${{ github.event_name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node .scripts/ci-scope.ts
+      - run: .scripts/entry.sh --duplicates
 
   # A reduced run's checks: the gate's checks that read records and Markdown.
   # `oxfmt` formats both, the record resolver's tests resolve entries in the

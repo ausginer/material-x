@@ -192,3 +192,143 @@ describe('entry.sh in a fixture repository', () => {
     expect(err).not.toContain('unknown');
   });
 });
+
+const git = async (cwd: string, args: readonly string[]): Promise<void> => {
+  await new Promise<void>((done, reject) => {
+    execFile('git', [...args], { cwd }, (error: Error | null) => {
+      if (error) {
+        reject(error);
+      } else {
+        done();
+      }
+    });
+  });
+};
+
+/**
+ * A repository holding a copy of the resolver and the given current-state
+ * documents of `repo` and `drag`, relative to the repository's root.
+ */
+async function createFixture(
+  documents: Readonly<Record<string, string>>,
+): Promise<string> {
+  const root = await mkdtemp(join(tmpdir(), 'entry-duplicates-'));
+  const files: Readonly<Record<string, string>> = {
+    '.plan/00-index.md': '#### RD-1 — Repository\n',
+    'packages/drag/.plan/00-index.md': '#### DRD-1 — Drag\n',
+    'packages/drag/.plan/contract.md': '#### DRI-1 — Contract\n',
+    ...documents,
+  };
+
+  await mkdir(join(root, '.scripts'));
+  await Promise.all(
+    ['entry.sh', 'entry.ts'].map(
+      async (name) =>
+        await copyFile(
+          join(REPOSITORY, '.scripts', name),
+          join(root, '.scripts', name),
+        ),
+    ),
+  );
+
+  await Promise.all(
+    Object.entries(files).map(async ([path, source]) => {
+      await mkdir(join(root, path, '..'), { recursive: true });
+      await writeFile(join(root, path), source);
+    }),
+  );
+
+  await git(root, ['init', '-q']);
+
+  return root;
+}
+
+describe('entry.sh --duplicates', () => {
+  const roots: string[] = [];
+
+  const fixture = async (
+    documents: Readonly<Record<string, string>>,
+  ): Promise<string> => {
+    const root = await createFixture(documents);
+    roots.push(root);
+    return root;
+  };
+
+  afterAll(async () => {
+    await Promise.all(
+      roots.map(
+        async (root) => await rm(root, { recursive: true, force: true }),
+      ),
+    );
+  });
+
+  it('should name both lines of a number that two entries take', async () => {
+    const root = await fixture({
+      '.plan/00-index.md':
+        '#### RD-1 — First\n\nOne.\n\n#### RD-2 — Second\n\nTwo.\n\n#### RD-2 — Third\n\nThree.\n',
+    });
+
+    const { code, err } = await run(root, ['--duplicates']);
+
+    expect(code).toBe(1);
+    expect(err).toContain(
+      'repo:RD-2\n  .plan/00-index.md:5\n  .plan/00-index.md:9',
+    );
+  });
+
+  it('should refuse an id claimed in two documents of one scope', async () => {
+    const root = await fixture({
+      'packages/drag/.plan/contract.md': '#### DRD-1 — Again\n',
+    });
+
+    const { code, err } = await run(root, ['--duplicates']);
+
+    expect(code).toBe(1);
+    expect(err).toContain(
+      'drag:DRD-1\n  .plan/00-index.md:1\n  .plan/contract.md:1',
+    );
+  });
+
+  it('should pass when a sub-clause or a mention repeats an id', async () => {
+    const root = await fixture({
+      '.plan/00-index.md':
+        '#### RD-1 — First\n\n##### RD-1 §Clause\n\n### A section (RD-1)\n',
+    });
+
+    const { code, out } = await run(root, ['--duplicates']);
+
+    expect(code).toBe(0);
+    expect(out).toBe('no duplicated address in drag, repo\n');
+  });
+
+  it('should read the documents at a commit when one is given', async () => {
+    const root = await fixture({
+      '.plan/00-index.md': '#### RD-1 — First\n\n#### RD-1 — Again\n',
+    });
+    await git(root, ['add', '.']);
+    await git(root, [
+      '-c',
+      'user.name=fixture',
+      '-c',
+      'user.email=fixture@example.invalid',
+      'commit',
+      '-qm',
+      'fixture',
+    ]);
+    await writeFile(join(root, '.plan/00-index.md'), '#### RD-1 — First\n');
+
+    const [atHead, tree] = await Promise.all([
+      run(root, ['--duplicates', 'HEAD']),
+      run(root, ['--duplicates']),
+    ]);
+
+    expect([atHead.code, tree.code]).toEqual([1, 0]);
+  });
+
+  it('should name the duplicates that the merge 1cf222c32 left', async () => {
+    const { code, err } = await run(REPOSITORY, ['--duplicates', '1cf222c32']);
+
+    expect(code).toBe(1);
+    expect(err.match(/^repo:\S+$/gmu)).toEqual(['repo:RF-74', 'repo:RF-75']);
+  });
+});

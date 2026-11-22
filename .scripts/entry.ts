@@ -19,6 +19,14 @@
  * local identifier is a citation of something the record never states, and a
  * duplicated one is a defect in the record that a first match would hide.
  *
+ * **`--duplicates [<commit>]` reads every register whole** and fails when one
+ * scope's documents claim a local identifier more than once, naming each place.
+ * It uses the lookup's own heading pattern, so the two can't disagree about what
+ * a heading claims. It reads the working tree, or `<commit>` when one is given.
+ * It leaves the retired scopes out: their commit can't change, so no merge can
+ * add a duplicate to them, and a clone without that commit would fail for a
+ * reason unrelated to the change under test.
+ *
  * **A retired scope is read at the commit its row names, never from the working
  * tree.** Its record no longer changes, so that commit holds all of it. A clone
  * that does not hold the commit gets a fourth error, which names the commit,
@@ -163,35 +171,90 @@ async function holds(commit: string): Promise<boolean> {
   }
 }
 
+type Heading = Readonly<{ local: string; title?: string; at: number }>;
+
+/** Every entry heading in `lines`, with its 0-based line index. */
+function headings(lines: readonly string[]): Heading[] {
+  return lines.flatMap((line, at) => {
+    const match = ENTRY.exec(line);
+
+    return match ? [{ local: match[1]!, title: match[2], at }] : [];
+  });
+}
+
 /** Every entry in `source` whose identifier is exactly `local`, as printed text. */
 function matching(source: string, local: string): string[] {
   const lines = source.split('\n');
-  const found: string[] = [];
 
-  for (const [at, line] of lines.entries()) {
-    const match = ENTRY.exec(line);
+  return headings(lines)
+    .filter((heading) => heading.local === local)
+    .map(({ title, at }) => {
+      const rest = lines.slice(at + 1);
+      const stop = rest.findIndex((next) => CLOSES.test(next));
+      const body = (stop < 0 ? rest : rest.slice(0, stop)).join('\n').trim();
+      const heading =
+        title === undefined ? `#### ${local}` : `#### ${local} — ${title}`;
 
-    if (match?.[1] !== local) {
-      continue;
-    }
+      return `${heading}\n\n${body}`;
+    });
+}
 
-    const rest = lines.slice(at + 1);
-    const stop = rest.findIndex((next) => CLOSES.test(next));
-    const body = (stop < 0 ? rest : rest.slice(0, stop)).join('\n').trim();
-    const heading =
-      match[2] === undefined ? `#### ${local}` : `#### ${local} — ${match[2]}`;
+/**
+ * Fails when a current scope's documents claim one local identifier more than
+ * once, and prints each such address with every `<path>:<line>` that claims it.
+ */
+async function checkDuplicates(commit: string | undefined): Promise<void> {
+  const current = [...SCOPES].filter(([, scope]) => scope.commit === undefined);
+  const reports = await Promise.all(
+    current.map(async ([name, scope]) => {
+      const documents =
+        commit === undefined
+          ? await workingTree(scope)
+          : await atCommit(scope, commit);
+      const claims = new Map<string, string[]>();
 
-    found.push(`${heading}\n\n${body}`);
+      for (const { path, source } of documents) {
+        for (const { local, at } of headings(source.split('\n'))) {
+          const places = claims.get(local) ?? [];
+          places.push(`${path}:${at + 1}`);
+          claims.set(local, places);
+        }
+      }
+
+      return [...claims]
+        .filter(([, places]) => places.length > 1)
+        .map(
+          ([local, places]) =>
+            `${name}:${local}\n${places.map((place) => `  ${place}`).join('\n')}`,
+        );
+    }),
+  );
+  const duplicates = reports.flat();
+
+  if (duplicates.length > 0) {
+    fail(
+      `duplicated addresses: each is claimed by more than one entry heading\n${duplicates.join('\n')}`,
+    );
   }
 
-  return found;
+  process.stdout.write(
+    `no duplicated address in ${current.map(([name]) => name).join(', ')}\n`,
+  );
 }
 
 const [address, ...rest] = process.argv.slice(2);
 const example = [...SCOPES.keys()][0]!;
 
+if (address === '--duplicates' && rest.length <= 1) {
+  await checkDuplicates(rest[0]);
+  process.exit(0);
+}
+
 if (address === undefined || rest.length > 0) {
-  fail(`usage: .scripts/entry.sh <scope>:<local-id>    e.g. ${example}:DRD-13`);
+  fail(
+    `usage: .scripts/entry.sh <scope>:<local-id>    e.g. ${example}:DRD-13\n` +
+      `       .scripts/entry.sh --duplicates [<commit>]`,
+  );
 }
 
 const parsed = ADDRESS.exec(address!);
