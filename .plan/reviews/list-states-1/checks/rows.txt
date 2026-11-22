@@ -1,0 +1,89 @@
+# The list item rows, read by the reviewer on 2026-11-22 in slot c at 7271c5b9f (head) and with packages/material-x/src/list at f1387729d (base).
+# Playwright 1.65.0, Node v26.13.1. From packages/material-x:
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'spec*' --project 'browser*' tests/list/list-item.spec.browser.test.ts tests/list/list-item.browser.test.ts
+
+## head
+ Test Files  6 passed (6)
+      Tests  129 passed (129)
+
+## base: failing rows, by engine and row
+⎯⎯⎯⎯⎯⎯ Failed Tests 72 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed | 3 passed (6)
+      Tests  72 failed | 57 passed (129)
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:101 > mx-list-button-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:101 > mx-list-link-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:115 > mx-list-button-item selection colour contract > should render the selected container colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:115 > mx-list-link-item selection colour contract > should render the selected container colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:124 > mx-list-button-item selection colour contract > should render the selected label colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:124 > mx-list-link-item selection colour contract > should render the selected label colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:135 > mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:135 > mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:173 > mx-list-button-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:173 > mx-list-link-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:195 > mx-list-button-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:195 > mx-list-link-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:206 > mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:206 > mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:101 > mx-list-button-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:101 > mx-list-link-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:115 > mx-list-button-item selection colour contract > should render the selected container colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:115 > mx-list-link-item selection colour contract > should render the selected container colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:124 > mx-list-button-item selection colour contract > should render the selected label colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:124 > mx-list-link-item selection colour contract > should render the selected label colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:135 > mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:135 > mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:173 > mx-list-button-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:173 > mx-list-link-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:195 > mx-list-button-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:195 > mx-list-link-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:206 > mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:206 > mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:101 > mx-list-button-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:101 > mx-list-link-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:115 > mx-list-button-item selection colour contract > should render the selected container colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:115 > mx-list-link-item selection colour contract > should render the selected container colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:124 > mx-list-button-item selection colour contract > should render the selected label colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:124 > mx-list-link-item selection colour contract > should render the selected label colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:135 > mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:135 > mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-button-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:160 > mx-list-link-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:173 > mx-list-button-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:173 > mx-list-link-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:195 > mx-list-button-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:195 > mx-list-link-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:206 > mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:206 > mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+
+## head, the whole material-x browser and spec projects in the three engines
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'spec*' --project 'browser*'
+ Test Files  75 passed (75)
+      Tests  1840 passed | 1 expected fail | 4 skipped (1845)

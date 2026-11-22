@@ -1,0 +1,64 @@
+# probes/name-map.ts <slot c>: collect-props.ts's glob, loading and naming, printed instead of written.
+# base: src/list at f1387729d. head: 7271c5b9f. restored: the head with interactive.css.ts and interactive.styles.css put back from f1387729d, unimported.
+glob order, first six files: text-field/styles/outlined/main.css.ts | text-field/styles/default/main.css.ts | radio/styles/default/main.css.ts | list/styles/item/interactive-box.css.ts | list/styles/item/interactive.css.ts | list/styles/item/main.css.ts
+
+## base vs head: 227 and 227 names, same set true, 8 renamed
+--_elevation-penumbra base #95 --cr -> #98 --cu
+--_top-space base #96 --cs -> #99 --cv
+--_bottom-space base #97 --ct -> #100 --cw
+--_leading-space base #98 --cu -> #101 --cx
+--_trailing-space base #99 --cv -> #102 --cy
+--_container-expressive-shape base #100 --cw -> #95 --cr
+--_overline-color base #101 --cx -> #96 --cs
+--_trailing-supporting-text-color base #102 --cy -> #97 --ct
+
+## base vs restored: 227 and 227 names, same set true, 8 renamed
+--_elevation-penumbra base #95 --cr -> #98 --cu
+--_top-space base #96 --cs -> #99 --cv
+--_bottom-space base #97 --ct -> #100 --cw
+--_leading-space base #98 --cu -> #101 --cx
+--_trailing-space base #99 --cv -> #102 --cy
+--_container-expressive-shape base #100 --cw -> #95 --cr
+--_overline-color base #101 --cx -> #96 --cs
+--_trailing-supporting-text-color base #102 --cy -> #97 --ct
+
+restored map identical to head map: true
+
+## Size readings: just size-reading at base (src/list at f1387729d) and head, in slot c
+material-x:button/button	base 4907	head 4912	delta 5	committed 4907 -> 4912
+material-x:button/icon-button	base 5175	head 5159	delta -16	committed 5175 -> 5159
+material-x:button/link-button	base 4877	head 4878	delta 1	committed 4877 -> 4878
+material-x:button/switch-button	base 5280	head 5260	delta -20	committed 5280 -> 5260
+material-x:button/switch-icon-button	base 5661	head 5658	delta -3	committed 5661 -> 5658
+material-x:button/split-button	base 7507	head 7510	delta 3	committed 7507 -> 7510
+material-x:button-group/button-group	base 3115	head 3114	delta -1	committed 3115 -> 3114
+material-x:button-group/connected-button-group	base 3862	head 3875	delta 13	committed 3862 -> 3875
+material-x:fab/fab	base 4179	head 4175	delta -4	committed 4179 -> 4175
+material-x:list/list-item	base 2830	head 2823	delta -7	committed 2830 -> 2823
+material-x:list/list-button-item	base 4649	head 4822	delta 173	committed 4649 -> 4822
+material-x:list/list-link-item	base 4866	head 5039	delta 173	committed 4866 -> 5039
+material-x:text-field/text-field	base 8266	head 8273	delta 7	committed 8266 -> 8273
+material-x:complete	base 22295	head 22392	delta 97	committed 22295 -> 22392
+rows 33, rows where this reading and the committed readings disagree: 0
+A second head reading after the base build is byte-identical to the first.
+
+## probes/remap.ts: every built material-x .js at head against base, after mapping the head's short names back to the base's
+{
+ "same": 89,
+ "renamedOnly": [
+  "button/styles/default/main.css.js",
+  "button/styles/icon/main.css.js",
+  "button/styles/size/main.css.js",
+  "button/styles/split/main.css.js",
+  "button-group/styles/standard/main.css.js",
+  "core/styles/elevation/elevation.css.js",
+  "fab/styles/default/main.css.js",
+  "list/styles/item/static-box.css.js"
+ ],
+ "differ": [
+  "list/styles/item/interactive-box.css.js",
+  "list/styles/item/main.css.js"
+ ],
+ "missing": [],
+ "onlyInBase": []
+}

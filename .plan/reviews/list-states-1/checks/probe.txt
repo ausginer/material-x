@@ -1,0 +1,142 @@
+# probes/rf71-review-probe.spec.browser.test.ts.txt, copied to packages/material-x/tests/list/ for each run and removed after it.
+# --project 'spec*' --silent=false, three engines. Each probe line appears once per engine (Chromium, Firefox, WebKit).
+# 'state' lines: diff lists each reading that differs from the four token layers merged in the Settled cascade order
+# (default, the state, the selection's default, the selection's state), as [rendered, expected]. {} means every reading agrees.
+
+## head 7271c5b9f
+      Tests  66 passed (66)
+PROBE raw mx-list-button-item {"unselected":"color(srgb 0.968627 0.984314 0.917647)","selected":"color(srgb 0.8 0.933333 0.631373)","selectedDisabled":"color(srgb 0.098039 0.113725 0.07451 / 0.38)","disabled":"color(srgb 0.968627 0.984314 0.917647)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[-0.00005499999999969418,-0.00012499999999704414,0.00005000000000165983,0]}
+PROBE raw mx-list-button-item {"unselected":"color(srgb 0.968627 0.984314 0.917647)","selected":"color(srgb 0.8 0.933333 0.631373)","selectedDisabled":"color(srgb 0.0980392 0.113725 0.0745098 / 0.38)","disabled":"color(srgb 0.968627 0.984314 0.917647)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[-0.000003999999997006398,-0.00012499999999704414,-0.0000010000000010279564,0]}
+PROBE raw mx-list-button-item {"unselected":"color(srgb 0.968627 0.984314 0.917647)","selected":"color(srgb 0.8 0.933333 0.631373)","selectedDisabled":"color(srgb 0.0980392 0.113725 0.0745098 / 0.38)","disabled":"color(srgb 0.968627 0.984314 0.917647)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[-0.000003999999997006398,-0.00012499999999704414,-0.0000010000000010279564,0]}
+PROBE raw mx-list-link-item {"unselected":"color(srgb 0.968627 0.984314 0.917647)","selected":"color(srgb 0.8 0.933333 0.631373)","selectedDisabled":"color(srgb 0.098039 0.113725 0.07451 / 0.38)","disabled":"color(srgb 0.968627 0.984314 0.917647)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[-0.00005499999999969418,-0.00012499999999704414,0.00005000000000165983,0]}
+PROBE raw mx-list-link-item {"unselected":"color(srgb 0.968627 0.984314 0.917647)","selected":"color(srgb 0.8 0.933333 0.631373)","selectedDisabled":"color(srgb 0.0980392 0.113725 0.0745098 / 0.38)","disabled":"color(srgb 0.968627 0.984314 0.917647)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[-0.000003999999997006398,-0.00012499999999704414,-0.0000010000000010279564,0]}
+PROBE raw mx-list-link-item {"unselected":"color(srgb 0.968627 0.984314 0.917647)","selected":"color(srgb 0.8 0.933333 0.631373)","selectedDisabled":"color(srgb 0.0980392 0.113725 0.0745098 / 0.38)","disabled":"color(srgb 0.968627 0.984314 0.917647)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[-0.000003999999997006398,-0.00012499999999704414,-0.0000010000000010279564,0]}
+PROBE ripple mx-list-button-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-button-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-button-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-link-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-link-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-link-item {"enabled":2,"disabled":0}
+PROBE sortable handles=false {"pointer":{"hit":"mx-sortable-list","lifted":false,"reorders":0},"keyboard":null}
+PROBE sortable handles=false {"pointer":{"hit":"mx-sortable-list","lifted":false,"reorders":0},"keyboard":null}
+PROBE sortable handles=false {"pointer":{"hit":"mx-sortable-list","lifted":false,"reorders":0},"keyboard":null}
+PROBE sortable handles=true {"pointer":{"hit":"mx-sortable-list","lifted":false,"reorders":0},"keyboard":{"reorders":0}}
+PROBE sortable handles=true {"pointer":{"hit":"mx-sortable-list","lifted":false,"reorders":0},"keyboard":{"reorders":0}}
+PROBE sortable handles=true {"pointer":{"hit":"mx-sortable-list","lifted":false,"reorders":0},"keyboard":{"reorders":0}}
+PROBE state mx-list-button-item selected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-button-item selected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-button-item unselected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-link-item selected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.dragged {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.focused {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.hovered {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.pressed {"matched":"true","diff":{}}
+PROBE state mx-list-link-item unselected.pressed {"matched":"true","diff":{}}
+
+## base: packages/material-x/src/list at f1387729d
+      Tests  66 passed (66)
+PROBE raw mx-list-button-item {"unselected":"rgb(247, 251, 234)","selected":"rgb(247, 251, 234)","selectedDisabled":"rgb(247, 251, 234)","disabled":"rgb(247, 251, 234)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[222,222,215,0.62]}
+PROBE raw mx-list-button-item {"unselected":"rgb(247, 251, 234)","selected":"rgb(247, 251, 234)","selectedDisabled":"rgb(247, 251, 234)","disabled":"rgb(247, 251, 234)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[222,222,215,0.62]}
+PROBE raw mx-list-button-item {"unselected":"rgb(247, 251, 234)","selected":"rgb(247, 251, 234)","selectedDisabled":"rgb(247, 251, 234)","disabled":"rgb(247, 251, 234)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[222,222,215,0.62]}
+PROBE raw mx-list-link-item {"unselected":"rgb(247, 251, 234)","selected":"rgb(247, 251, 234)","selectedDisabled":"rgb(247, 251, 234)","disabled":"rgb(247, 251, 234)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[222,222,215,0.62]}
+PROBE raw mx-list-link-item {"unselected":"rgb(247, 251, 234)","selected":"rgb(247, 251, 234)","selectedDisabled":"rgb(247, 251, 234)","disabled":"rgb(247, 251, 234)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[222,222,215,0.62]}
+PROBE raw mx-list-link-item {"unselected":"rgb(247, 251, 234)","selected":"rgb(247, 251, 234)","selectedDisabled":"rgb(247, 251, 234)","disabled":"rgb(247, 251, 234)","expectedOpaque":"rgb(25, 29, 19)","rgbaReference":"rgba(25, 29, 19, 0.38)","channelError":[222,222,215,0.62]}
+PROBE ripple mx-list-button-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-button-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-button-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-link-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-link-item {"enabled":2,"disabled":0}
+PROBE ripple mx-list-link-item {"enabled":2,"disabled":0}
+PROBE sortable handles=false {"pointer":{"hit":"mx-list-button-item","lifted":false,"reorders":0},"keyboard":null}
+PROBE sortable handles=false {"pointer":{"hit":"mx-list-button-item","lifted":false,"reorders":0},"keyboard":null}
+PROBE sortable handles=false {"pointer":{"hit":"mx-list-button-item","lifted":false,"reorders":0},"keyboard":null}
+PROBE sortable handles=true {"pointer":{"hit":"span","lifted":false,"reorders":0},"keyboard":{"reorders":0}}
+PROBE sortable handles=true {"pointer":{"hit":"span","lifted":false,"reorders":0},"keyboard":{"reorders":0}}
+PROBE sortable handles=true {"pointer":{"hit":"span","lifted":false,"reorders":0},"keyboard":{"reorders":0}}
+PROBE state mx-list-button-item selected.dragged {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item selected.dragged {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item selected.dragged {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item selected.focused {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-button-item selected.focused {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-button-item selected.focused {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-button-item selected.hovered {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-button-item selected.hovered {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-button-item selected.hovered {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-button-item selected.pressed {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item selected.pressed {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item selected.pressed {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.dragged {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.dragged {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.dragged {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.focused {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.focused {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.focused {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.hovered {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.hovered {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.hovered {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.pressed {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.pressed {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-button-item unselected.pressed {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item selected.dragged {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item selected.dragged {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item selected.dragged {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item selected.focused {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-link-item selected.focused {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-link-item selected.focused {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-link-item selected.hovered {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-link-item selected.hovered {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-link-item selected.hovered {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"trail":["rgb(66, 73, 55)","rgb(81, 109, 47)"]}}
+PROBE state mx-list-link-item selected.pressed {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item selected.pressed {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item selected.pressed {"matched":"true","diff":{"container":["247,251,234,1","204,238,161,1"],"label":["rgb(25, 29, 19)","rgb(81, 109, 47)"],"overline":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"support":["rgb(66, 73, 55)","rgb(81, 109, 47)"],"lead":["rgb(66, 73, 55)","rgb(25, 29, 19)"],"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.dragged {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.dragged {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.dragged {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.focused {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.focused {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.focused {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.hovered {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.hovered {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.hovered {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.pressed {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.pressed {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}
+PROBE state mx-list-link-item unselected.pressed {"matched":"true","diff":{"trail":["rgb(66, 73, 55)","rgb(25, 29, 19)"]}}

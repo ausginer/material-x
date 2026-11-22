@@ -1,0 +1,1162 @@
+
+ RUN  v5.1.0 /workspaces/worktrees/c/packages/material-x
+
+ ❯ |spec (chromium)| tests/list/list-item.spec.browser.test.ts (28 tests | 24 failed) 2097ms
+   ❯ mx-list-button-item selection colour contract (5)
+     × should render the unselected trailing icon colour 127ms
+     × should render the selected container colour 77ms
+     × should render the selected label colour 65ms
+     × should render the unselected colours again once selected is cleared 68ms
+   ❯ mx-list-link-item selection colour contract (5)
+     × should render the unselected trailing icon colour 70ms
+     × should render the selected container colour 71ms
+     × should render the selected label colour 62ms
+     × should render the unselected colours again once selected is cleared 67ms
+   ❯ mx-list-button-item disabled contract (5)
+     × should render the lead content at the disabled opacity 67ms
+     × should render the overline content at the disabled opacity 66ms
+     × should render the label content at the disabled opacity 66ms
+     × should render the support content at the disabled opacity 67ms
+     × should render the trail content at the disabled opacity 67ms
+   ❯ mx-list-link-item disabled contract (5)
+     × should render the lead content at the disabled opacity 71ms
+     × should render the overline content at the disabled opacity 67ms
+     × should render the label content at the disabled opacity 82ms
+     × should render the support content at the disabled opacity 83ms
+     × should render the trail content at the disabled opacity 81ms
+   ❯ mx-list-button-item selected and disabled contract (3)
+     × should render the container colour at the container opacity 85ms
+     × should render the label content at the disabled opacity 74ms
+   ❯ mx-list-link-item selected and disabled contract (3)
+     × should render the container colour at the container opacity 64ms
+     × should render the label content at the disabled opacity 70ms
+   ❯ mx-list-button-item press transition contract (1)
+     × should transition the container shape over the press duration and easing 67ms
+   ❯ mx-list-link-item press transition contract (1)
+     × should transition the container shape over the press duration and easing 67ms
+ ❯ |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts (28 tests | 24 failed) 3500ms
+   ❯ mx-list-button-item selection colour contract (5)
+     × should render the unselected trailing icon colour 168ms
+     × should render the selected container colour 134ms
+     × should render the selected label colour 123ms
+     × should render the unselected colours again once selected is cleared 157ms
+   ❯ mx-list-link-item selection colour contract (5)
+     × should render the unselected trailing icon colour 73ms
+     × should render the selected container colour 84ms
+     × should render the selected label colour 201ms
+     × should render the unselected colours again once selected is cleared 147ms
+   ❯ mx-list-button-item disabled contract (5)
+     × should render the lead content at the disabled opacity 133ms
+     × should render the overline content at the disabled opacity 142ms
+     × should render the label content at the disabled opacity 138ms
+     × should render the support content at the disabled opacity 126ms
+     × should render the trail content at the disabled opacity 114ms
+   ❯ mx-list-link-item disabled contract (5)
+     × should render the lead content at the disabled opacity 133ms
+     × should render the overline content at the disabled opacity 115ms
+     × should render the label content at the disabled opacity 138ms
+     × should render the support content at the disabled opacity 113ms
+     × should render the trail content at the disabled opacity 126ms
+   ❯ mx-list-button-item selected and disabled contract (3)
+     × should render the container colour at the container opacity 117ms
+     × should render the label content at the disabled opacity 150ms
+   ❯ mx-list-link-item selected and disabled contract (3)
+     × should render the container colour at the container opacity 104ms
+     × should render the label content at the disabled opacity 89ms
+   ❯ mx-list-button-item press transition contract (1)
+     × should transition the container shape over the press duration and easing 101ms
+   ❯ mx-list-link-item press transition contract (1)
+     × should transition the container shape over the press duration and easing 164ms
+ ❯ |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts (28 tests | 24 failed) 2072ms
+   ❯ mx-list-button-item selection colour contract (5)
+     × should render the unselected trailing icon colour 124ms
+     × should render the selected container colour 74ms
+     × should render the selected label colour 84ms
+     × should render the unselected colours again once selected is cleared 76ms
+   ❯ mx-list-link-item selection colour contract (5)
+     × should render the unselected trailing icon colour 71ms
+     × should render the selected container colour 79ms
+     × should render the selected label colour 62ms
+     × should render the unselected colours again once selected is cleared 66ms
+   ❯ mx-list-button-item disabled contract (5)
+     × should render the lead content at the disabled opacity 63ms
+     × should render the overline content at the disabled opacity 64ms
+     × should render the label content at the disabled opacity 63ms
+     × should render the support content at the disabled opacity 65ms
+     × should render the trail content at the disabled opacity 63ms
+   ❯ mx-list-link-item disabled contract (5)
+     × should render the lead content at the disabled opacity 65ms
+     × should render the overline content at the disabled opacity 65ms
+     × should render the label content at the disabled opacity 63ms
+     × should render the support content at the disabled opacity 64ms
+     × should render the trail content at the disabled opacity 65ms
+   ❯ mx-list-button-item selected and disabled contract (3)
+     × should render the container colour at the container opacity 65ms
+     × should render the label content at the disabled opacity 67ms
+   ❯ mx-list-link-item selected and disabled contract (3)
+     × should render the container colour at the container opacity 66ms
+     × should render the label content at the disabled opacity 68ms
+   ❯ mx-list-button-item press transition contract (1)
+     × should transition the container shape over the press duration and easing 65ms
+   ❯ mx-list-link-item press transition contract (1)
+     × should transition the container shape over the press duration and easing 64ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 72 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:95 > mx-list-button-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:95 > mx-list-link-item selection colour contract > should render the unselected trailing icon colour
+AssertionError: expected [ 66, 73, 55, 1 ] to deeply equal [ 25, 29, 19, 1 ]
+
+- Expected
++ Received
+
+  [
+-   25,
+-   29,
+-   19,
++   66,
++   73,
++   55,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:104:48
+    102|     item.append(icon);
+    103|
+    104|     expect(srgb(getComputedStyle(icon).color)).toEqual(
+       |                                                ^
+    105|       expectedColor(values['trailing-icon.color']!),
+    106|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      49ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      50ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:109 > mx-list-button-item selection colour contract > should render the selected container colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:109 > mx-list-link-item selection colour contract > should render the selected container colour
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 204, 238, 161, 1 ]
+
+- Expected
++ Received
+
+  [
+-   204,
+-   238,
+-   161,
++   247,
++   251,
++   234,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:113:70
+    111|     const item = await createItem(tag, { selected: true });
+    112|
+    113|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    114|       expectedColor(values['container.color']!),
+    115|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      55ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      47ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:118 > mx-list-button-item selection colour contract > should render the selected label colour
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:118 > mx-list-link-item selection colour contract > should render the selected label colour
+AssertionError: expected [ 25, 29, 19, 1 ] to deeply equal [ 81, 109, 47, 1 ]
+
+- Expected
++ Received
+
+  [
+-   81,
+-   109,
+-   47,
++   25,
++   29,
++   19,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:124:66
+    122|     const item = await createItem(tag, { selected: true });
+    123|
+    124|     expect(srgb(getComputedStyle(getSlot(item, 'label')).color)).toEqu…
+       |                                                                  ^
+    125|       expectedColor(values['label-text.color']!),
+    126|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      44ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      42ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:129 > mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:129 > mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+@@ -4,11 +4,11 @@
+      251,
+      234,
+      1,
+    ],
+    "icon": [
+-     25,
+-     29,
+-     19,
++     66,
++     73,
++     55,
+      1,
+    ],
+  }
+
+ ❯ tests/list/list-item.spec.browser.test.ts:145:8
+    143|       container: srgb(getComputedStyle(getControl(item)).backgroundCol…
+    144|       icon: srgb(getComputedStyle(trailing).color),
+    145|     }).toEqual({
+       |        ^
+    146|       container: expectedColor(container!),
+    147|       icon: expectedColor(icon!),
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      47ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      47ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the trail content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:159:69
+    157|       const item = await createItem(tag, { disabled: true });
+    158|
+    159|       expect(Number(getComputedStyle(getSlot(item, slot)).opacity)).to…
+       |                                                                     ^
+    160|         Number(values['opacity']),
+    161|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      46ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      47ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      43ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      62ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      62ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      61ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:167 > mx-list-button-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:167 > mx-list-link-item selected and disabled contract > should render the container colour at the container opacity
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 25, 29, 19, 0.38 ]
+
+- Expected
++ Received
+
+  [
+-   25,
+-   29,
+-   19,
+-   0.38,
++   247,
++   251,
++   234,
++   1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:175:70
+    173|     const [red, green, blue] = expectedColor(values['container.color']…
+    174|
+    175|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    176|       red,
+    177|       green,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      64ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      44ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:189 > mx-list-button-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:189 > mx-list-link-item selected and disabled contract > should render the label content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:193:70
+    191|     const item = await createItem(tag, { selected: true, disabled: tru…
+    192|
+    193|     expect(Number(getComputedStyle(getSlot(item, 'label')).opacity)).t…
+       |                                                                      ^
+    194|       Number(values['opacity']),
+    195|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      52ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      51ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/72]⎯
+
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:200 > mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec (chromium)| tests/list/list-item.spec.browser.test.ts:200 > mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+AssertionError: expected { property: 'all', …(2) } to deeply equal { property: 'border-radius', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "duration": "0.35s",
+-   "easing": "cubic-bezier(0.42, 1.67, 0.21, 0.9)",
+-   "property": "border-radius",
++   "duration": "0s",
++   "easing": "ease",
++   "property": "all",
+  }
+
+ ❯ tests/list/list-item.spec.browser.test.ts:211:8
+    209|       duration: style.transitionDuration,
+    210|       easing: style.transitionTimingFunction,
+    211|     }).toEqual({
+       |        ^
+    212|       property: 'border-radius',
+    213|       duration: resolveComputed(
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      47ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:95 > mx-list-button-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:95 > mx-list-link-item selection colour contract > should render the unselected trailing icon colour
+AssertionError: expected [ 66, 73, 55, 1 ] to deeply equal [ 25, 29, 19, 1 ]
+
+- Expected
++ Received
+
+  [
+-   25,
+-   29,
+-   19,
++   66,
++   73,
++   55,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:104:48
+    102|     item.append(icon);
+    103|
+    104|     expect(srgb(getComputedStyle(icon).color)).toEqual(
+       |                                                ^
+    105|       expectedColor(values['trailing-icon.color']!),
+    106|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      65ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      50ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:109 > mx-list-button-item selection colour contract > should render the selected container colour
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 204, 238, 161, 1 ]
+
+- Expected
++ Received
+
+  [
+-   204,
+-   238,
+-   161,
++   247,
++   251,
++   234,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:113:70
+    111|     const item = await createItem(tag, { selected: true });
+    112|
+    113|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    114|       expectedColor(values['container.color']!),
+    115|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms      63ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:118 > mx-list-button-item selection colour contract > should render the selected label colour
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:118 > mx-list-link-item selection colour contract > should render the selected label colour
+AssertionError: expected [ 25, 29, 19, 1 ] to deeply equal [ 81, 109, 47, 1 ]
+
+- Expected
++ Received
+
+  [
+-   81,
+-   109,
+-   47,
++   25,
++   29,
++   19,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:124:66
+    122|     const item = await createItem(tag, { selected: true });
+    123|
+    124|     expect(srgb(getComputedStyle(getSlot(item, 'label')).color)).toEqu…
+       |                                                                  ^
+    125|       expectedColor(values['label-text.color']!),
+    126|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      63ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms     143ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:129 > mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:129 > mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+@@ -4,11 +4,11 @@
+      251,
+      234,
+      1,
+    ],
+    "icon": [
+-     25,
+-     29,
+-     19,
++     66,
++     73,
++     55,
+      1,
+    ],
+  }
+
+ ❯ tests/list/list-item.spec.browser.test.ts:145:8
+    143|       container: srgb(getComputedStyle(getControl(item)).backgroundCol…
+    144|       icon: srgb(getComputedStyle(trailing).color),
+    145|     }).toEqual({
+       |        ^
+    146|       container: expectedColor(container!),
+    147|       icon: expectedColor(icon!),
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      58ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      59ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:109 > mx-list-link-item selection colour contract > should render the selected container colour
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 204, 238, 161, 1 ]
+
+- Expected
++ Received
+
+  [
+-   204,
+-   238,
+-   161,
++   247,
++   251,
++   234,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:113:70
+    111|     const item = await createItem(tag, { selected: true });
+    112|
+    113|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    114|       expectedColor(values['container.color']!),
+    115|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      60ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the trail content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:159:69
+    157|       const item = await createItem(tag, { disabled: true });
+    158|
+    159|       expect(Number(getComputedStyle(getSlot(item, slot)).opacity)).to…
+       |                                                                     ^
+    160|         Number(values['opacity']),
+    161|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      62ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      61ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      54ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      56ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      57ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      57ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      59ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      53ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      60ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:167 > mx-list-button-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:167 > mx-list-link-item selected and disabled contract > should render the container colour at the container opacity
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 25, 29, 19, 0.38 ]
+
+- Expected
++ Received
+
+  [
+-   25,
+-   29,
+-   19,
+-   0.38,
++   247,
++   251,
++   234,
++   1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:175:70
+    173|     const [red, green, blue] = expectedColor(values['container.color']…
+    174|
+    175|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    176|       red,
+    177|       green,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      63ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      50ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:189 > mx-list-button-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:189 > mx-list-link-item selected and disabled contract > should render the label content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:193:70
+    191|     const item = await createItem(tag, { selected: true, disabled: tru…
+    192|
+    193|     expect(Number(getComputedStyle(getSlot(item, 'label')).opacity)).t…
+       |                                                                      ^
+    194|       Number(values['opacity']),
+    195|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      84ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      68ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/72]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:200 > mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:200 > mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+AssertionError: expected { property: 'all', …(2) } to deeply equal { property: 'border-radius', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "duration": "0.35s",
+-   "easing": "cubic-bezier(0.42, 1.67, 0.21, 0.9)",
+-   "property": "border-radius",
++   "duration": "0s",
++   "easing": "ease",
++   "property": "all",
+  }
+
+ ❯ tests/list/list-item.spec.browser.test.ts:211:8
+    209|       duration: style.transitionDuration,
+    210|       easing: style.transitionTimingFunction,
+    211|     }).toEqual({
+       |        ^
+    212|       property: 'border-radius',
+    213|       duration: resolveComputed(
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      77ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms     153ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:95 > mx-list-button-item selection colour contract > should render the unselected trailing icon colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:95 > mx-list-link-item selection colour contract > should render the unselected trailing icon colour
+AssertionError: expected [ 66, 73, 55, 1 ] to deeply equal [ 25, 29, 19, 1 ]
+
+- Expected
++ Received
+
+  [
+-   25,
+-   29,
+-   19,
++   66,
++   73,
++   55,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:104:48
+    102|     item.append(icon);
+    103|
+    104|     expect(srgb(getComputedStyle(icon).color)).toEqual(
+       |                                                ^
+    105|       expectedColor(values['trailing-icon.color']!),
+    106|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      45ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      48ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:109 > mx-list-button-item selection colour contract > should render the selected container colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:109 > mx-list-link-item selection colour contract > should render the selected container colour
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 204, 238, 161, 1 ]
+
+- Expected
++ Received
+
+  [
+-   204,
+-   238,
+-   161,
++   247,
++   251,
++   234,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:113:70
+    111|     const item = await createItem(tag, { selected: true });
+    112|
+    113|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    114|       expectedColor(values['container.color']!),
+    115|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      51ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      57ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:118 > mx-list-button-item selection colour contract > should render the selected label colour
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:118 > mx-list-link-item selection colour contract > should render the selected label colour
+AssertionError: expected [ 25, 29, 19, 1 ] to deeply equal [ 81, 109, 47, 1 ]
+
+- Expected
++ Received
+
+  [
+-   81,
+-   109,
+-   47,
++   25,
++   29,
++   19,
+    1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:124:66
+    122|     const item = await createItem(tag, { selected: true });
+    123|
+    124|     expect(srgb(getComputedStyle(getSlot(item, 'label')).color)).toEqu…
+       |                                                                  ^
+    125|       expectedColor(values['label-text.color']!),
+    126|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      56ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      42ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:129 > mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:129 > mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+@@ -4,11 +4,11 @@
+      251,
+      234,
+      1,
+    ],
+    "icon": [
+-     25,
+-     29,
+-     19,
++     66,
++     73,
++     55,
+      1,
+    ],
+  }
+
+ ❯ tests/list/list-item.spec.browser.test.ts:145:8
+    143|       container: srgb(getComputedStyle(getControl(item)).backgroundCol…
+    144|       icon: srgb(getComputedStyle(trailing).color),
+    145|     }).toEqual({
+       |        ^
+    146|       container: expectedColor(container!),
+    147|       icon: expectedColor(icon!),
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      54ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      44ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the lead content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:159:69
+    157|       const item = await createItem(tag, { disabled: true });
+    158|
+    159|       expect(Number(getComputedStyle(getSlot(item, slot)).opacity)).to…
+       |                                                                     ^
+    160|         Number(values['opacity']),
+    161|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      43ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-button-item disabled contract > should render the trail content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the lead content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the overline content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the support content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:154 > mx-list-link-item disabled contract > should render the trail content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:159:69
+    157|       const item = await createItem(tag, { disabled: true });
+    158|
+    159|       expect(Number(getComputedStyle(getSlot(item, slot)).opacity)).to…
+       |                                                                     ^
+    160|         Number(values['opacity']),
+    161|       );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      43ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      43ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      45ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      45ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      46ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      45ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      46ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      44ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      45ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:167 > mx-list-button-item selected and disabled contract > should render the container colour at the container opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:167 > mx-list-link-item selected and disabled contract > should render the container colour at the container opacity
+AssertionError: expected [ 247, 251, 234, 1 ] to deeply equal [ 25, 29, 19, 0.38 ]
+
+- Expected
++ Received
+
+  [
+-   25,
+-   29,
+-   19,
+-   0.38,
++   247,
++   251,
++   234,
++   1,
+  ]
+
+ ❯ tests/list/list-item.spec.browser.test.ts:175:70
+    173|     const [red, green, blue] = expectedColor(values['container.color']…
+    174|
+    175|     expect(srgb(getComputedStyle(getControl(item)).backgroundColor)).t…
+       |                                                                      ^
+    176|       red,
+    177|       green,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      44ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      45ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:189 > mx-list-button-item selected and disabled contract > should render the label content at the disabled opacity
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:189 > mx-list-link-item selected and disabled contract > should render the label content at the disabled opacity
+AssertionError: expected 1 to be 0.38 // Object.is equality
+
+- Expected
++ Received
+
+- 0.38
++ 1
+
+ ❯ tests/list/list-item.spec.browser.test.ts:193:70
+    191|     const item = await createItem(tag, { selected: true, disabled: tru…
+    192|
+    193|     expect(Number(getComputedStyle(getSlot(item, 'label')).opacity)).t…
+       |                                                                      ^
+    194|       Number(values['opacity']),
+    195|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      49ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      49ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/72]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:200 > mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+ FAIL  |spec/webkit (webkit)| tests/list/list-item.spec.browser.test.ts:200 > mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+AssertionError: expected { property: 'all', …(2) } to deeply equal { property: 'border-radius', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "duration": "0.35s",
+-   "easing": "cubic-bezier(0.42, 1.67, 0.21, 0.9)",
+-   "property": "border-radius",
++   "duration": "0s",
++   "easing": "ease",
++   "property": "all",
+  }
+
+ ❯ tests/list/list-item.spec.browser.test.ts:211:8
+    209|       duration: style.transitionDuration,
+    210|       easing: style.transitionTimingFunction,
+    211|     }).toEqual({
+       |        ^
+    212|       property: 'border-radius',
+    213|       duration: resolveComputed(
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      44ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      43ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/72]⎯
+
+
+ Test Files  3 failed | 12 passed (15)
+      Tests  72 failed | 422 passed | 4 skipped (498)
+   Start at  09:14:42
+   Duration  60.06s (tests 89%, worker 7%, import 3%, setup 1%)
+

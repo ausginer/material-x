@@ -1,0 +1,237 @@
+// Feature-proof probe for RF-71 (#151). Scratch: removed after its run, kept as
+// .plan/reviews/list-states-1/probes/rf71-review-probe.spec.browser.test.ts.txt.
+import { internals } from '@ydinjs/core/element.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
+import { afterEach, describe, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
+import { nextFrame, resolveComputed } from '../browser.ts';
+
+const TAGS = ['mx-list-button-item', 'mx-list-link-item'] as const;
+
+function log(name: string, value: unknown): void {
+  // oxlint-disable-next-line no-console
+  console.log(`PROBE ${name} ${JSON.stringify(value)}`);
+}
+
+async function make(
+  tag: string,
+  { selected = false, disabled = false } = {},
+): Promise<HTMLElement> {
+  const item = document.createElement(tag);
+  item.setAttribute('href', '#x');
+  item.style.setProperty('--md-list-item-press-duration', '0s');
+  const lead = document.createElement('mx-icon');
+  lead.slot = 'lead';
+  const trail = document.createElement('mx-icon');
+  trail.slot = 'trail';
+  const overline = document.createElement('span');
+  overline.slot = 'overline';
+  overline.textContent = 'o';
+  const support = document.createElement('span');
+  support.slot = 'support';
+  support.textContent = 's';
+  item.append(lead, overline, 'label', support, trail);
+  item.toggleAttribute('selected', selected);
+  item.toggleAttribute('disabled', disabled);
+  document.body.append(item);
+  await nextFrame();
+  return item;
+}
+
+function center(element: Element): [number, number] {
+  const r = element.getBoundingClientRect();
+  return [r.left + r.width / 2, r.top + r.height / 2];
+}
+
+function read(item: HTMLElement): Record<string, string> {
+  const root = item.shadowRoot!;
+  const host = root.querySelector('.host')!;
+  const cs = (e: Element): CSSStyleDeclaration => getComputedStyle(e);
+  return {
+    shape: cs(host).borderTopLeftRadius,
+    container: cs(host).backgroundColor,
+    label: cs(root.querySelector('slot.label')!).color,
+    overline: cs(root.querySelector('slot.overline')!).color,
+    support: cs(root.querySelector('slot.support')!).color,
+    lead: cs(item.querySelector('[slot=lead]')!).color,
+    trail: cs(item.querySelector('[slot=trail]')!).color,
+    level: cs(item).getPropertyValue('--_level').trim(),
+  };
+}
+
+const TOKEN_OF: Record<string, string> = {
+  shape: 'container.expressive.shape',
+  container: 'container.color',
+  label: 'label-text.color',
+  overline: 'overline.color',
+  support: 'supporting-text.color',
+  lead: 'leading-icon.color',
+  trail: 'trailing-icon.color',
+  level: 'container.elevation',
+};
+
+function norm(key: string, value: string | number): string {
+  if (key === 'shape') return resolveComputed('border-top-left-radius', String(value));
+  if (key === 'level') return String(value);
+  return resolveComputed('color', String(value));
+}
+
+/** 8-bit sRGB and alpha, as the new spec rows compare. */
+function srgb(computed: string): number[] {
+  const [r, g, b, a = 1] = computed.match(/\d+(?:\.\d+)?(?:e-?\d+)?/gu)!.map(Number);
+  const s = computed.startsWith('color(srgb') ? 255 : 1;
+  return [Math.round(r! * s), Math.round(g! * s), Math.round(b! * s), Math.round(a * 100) / 100];
+}
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  await commands.pointerMove(0, 0, 1).catch(() => {});
+  document.body.replaceChildren();
+});
+
+describe('raw colours', () => {
+  it.each(TAGS)('%s', async (tag) => {
+    const { values } = await commands.resolveTokenContract({
+      contract: 'list-item.default',
+      state: 'selected.disabled',
+      tokens: ['container.color', 'container.opacity'],
+    });
+    const out: Record<string, unknown> = {};
+    for (const [name, opts] of [
+      ['unselected', {}],
+      ['selected', { selected: true }],
+      ['selectedDisabled', { selected: true, disabled: true }],
+      ['disabled', { disabled: true }],
+    ] as const) {
+      const item = await make(tag, opts);
+      out[name] = getComputedStyle(item.shadowRoot!.querySelector('.host')!).backgroundColor;
+      item.remove();
+    }
+    const expected = resolveComputed('color', String(values['container.color']));
+    // The exact alpha-composited reference: the token colour with the token opacity as alpha.
+    const [r, g, b] = srgb(expected);
+    out['expectedOpaque'] = expected;
+    out['rgbaReference'] = resolveComputed(
+      'background-color',
+      `rgb(${r} ${g} ${b} / ${values['container.opacity']})`,
+    );
+    const raw = String(out['selectedDisabled']).match(/\d+(?:\.\d+)?(?:e-?\d+)?/gu)!.map(Number);
+    const scale = String(out['selectedDisabled']).startsWith('color(srgb') ? 255 : 1;
+    out['channelError'] = [raw[0]! * scale - r!, raw[1]! * scale - g!, raw[2]! * scale - b!, (raw[3] ?? 1) - Number(values['container.opacity'])];
+    log(`raw ${tag}`, out);
+  });
+});
+
+describe('selection × state', () => {
+  for (const tag of TAGS) {
+    for (const selection of ['selected', 'unselected'] as const) {
+      for (const state of ['hovered', 'focused', 'dragged', 'pressed'] as const) {
+        it(`${tag} ${selection}.${state}`, async () => {
+          // The cascade's layers, in the Settled paragraph's order: main default,
+          // main state, the selection's default, the selection's state.
+          const values: Record<string, string | number> = {};
+          for (const path of ['default', state, `${selection}.default`, `${selection}.${state}`]) {
+            for (const token of Object.values(TOKEN_OF)) {
+              try {
+                const r = await commands.resolveTokenContract({ contract: 'list-item.default', state: path, tokens: [token] });
+                values[token] = r.values[token]!;
+              } catch {
+                // absent from this layer
+              }
+            }
+          }
+          const item = await make(tag, { selected: selection === 'selected' });
+          let matched = '';
+          if (state === 'hovered') {
+            await commands.pointerMove(...center(item), 1);
+            matched = String(item.matches(':hover'));
+          } else if (state === 'focused') {
+            item.focus();
+            matched = String(item.matches(':focus-within'));
+          } else if (state === 'dragged') {
+            toggleState(internals(item as never), 'drag', true);
+            matched = String(item.matches(':state(drag)'));
+          } else {
+            await commands.pointerPress(...center(item));
+            matched = String(item.matches(':active'));
+          }
+          await nextFrame();
+          const seen = read(item);
+          const diff: Record<string, [string, string]> = {};
+          for (const [key, token] of Object.entries(TOKEN_OF)) {
+            const want = norm(key, values[token]!);
+            const got = key === 'container' ? srgb(seen[key]!).join(',') : seen[key]!;
+            const wanted = key === 'container' ? srgb(want).join(',') : want;
+            if (got !== wanted) diff[key] = [got, wanted];
+          }
+          log(`state ${tag} ${selection}.${state}`, { matched, diff });
+        });
+      }
+    }
+  }
+});
+
+describe('ripple row discriminates', () => {
+  it.each(TAGS)('%s', async (tag) => {
+    const out: Record<string, number> = {};
+    for (const disabled of [false, true]) {
+      const item = await make(tag, { disabled });
+      await commands.pointerPress(...center(item));
+      await nextFrame();
+      out[disabled ? 'disabled' : 'enabled'] = item.shadowRoot!.getAnimations().length;
+      await commands.pointerRelease();
+      item.remove();
+    }
+    log(`ripple ${tag}`, out);
+  });
+});
+
+describe('disabled item in a sortable list', () => {
+  for (const handles of [false, true]) {
+    it(`handles=${handles}`, async () => {
+      const list = document.createElement('mx-sortable-list');
+      list.style.setProperty('--_drag-duration', '0s');
+      const items = ['A', 'B', 'C'].map((label) => {
+        const item = document.createElement('mx-list-button-item');
+        if (handles) {
+          const handle = document.createElement('span');
+          handle.dataset['handle'] = '';
+          handle.slot = 'lead';
+          handle.textContent = '≡';
+          item.append(handle);
+        }
+        item.append(label);
+        return item;
+      });
+      items[0]!.toggleAttribute('disabled', true);
+      list.append(...items);
+      document.body.append(list);
+      await nextFrame();
+      const events: unknown[] = [];
+      list.addEventListener('reorder', (e) => events.push((e as unknown as { from: number; to: number }).to));
+      const target = handles ? items[0]!.querySelector('[data-handle]')! : items[0]!;
+      const [x, y] = center(target);
+      const hit = document.elementFromPoint(x, y);
+      await commands.pointerPress(x, y);
+      await commands.pointerMove(x, y + 12, 3);
+      const lifted = items[0]!.matches(':state(drag)');
+      await commands.pointerMove(x, center(items[1]!)[1] + 10, 8);
+      await commands.pointerRelease();
+      await nextFrame();
+      await new Promise((r) => setTimeout(r, 100));
+      const pointer = { hit: hit?.localName ?? null, lifted, reorders: events.length };
+      events.length = 0;
+      let keyboard: unknown = null;
+      if (handles) {
+        (items[0]!.querySelector('[data-handle]') as HTMLElement).focus();
+        await userEvent.keyboard('{ArrowDown}');
+        await new Promise((r) => setTimeout(r, 100));
+        keyboard = { reorders: events.length };
+      }
+      log(`sortable handles=${handles}`, { pointer, keyboard });
+    });
+  }
+});
