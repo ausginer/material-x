@@ -1,0 +1,99 @@
+# Remediation witnesses for RF-82 on #160, in slot f on the merge of 1fe3837d5 with origin/main at 23b245efb (ad662b00d), plus the remediation.
+# The spec file in Playwright's Chromium, Firefox and WebKit, Vitest 5.1.0: MX_TEST_ENGINES=chromium,firefox,webkit vitest run --project 'spec*' --reporter=verbose tests/text-field/text-field.spec.browser.test.ts
+# Each mutation was a scratch edit, reverted after its run. In the verbose reporter a passing it.fails row shows as a tick.
+
+## (a) The head: the file passes
+ ✓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding 205ms
+ ✓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding 84ms
+ ✓ |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding 166ms
+ ✓ |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding 89ms
+ ✓ |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding 205ms
+ ✓ |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding 145ms
+ Test Files  3 passed (3)
+      Tests  456 passed | 6 expected fail (462)
+
+## (a) enter(field, 'error') sets no error attribute: the error rows whose error token differs from the resting one fail
+⎯⎯⎯⎯⎯⎯ Failed Tests 36 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed (3)
+      Tests  36 failed | 420 passed | 6 expected fail (462)
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled populated label in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled supporting text in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled active indicator in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled populated label in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled supporting text in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled active indicator in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined populated label in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined supporting text in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined outline in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined populated label in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined supporting text in its error colour
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined outline in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled populated label in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled supporting text in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled active indicator in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled populated label in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled supporting text in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled active indicator in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined populated label in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined supporting text in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined outline in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined populated label in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined supporting text in its error colour
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined outline in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled populated label in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled supporting text in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled active indicator in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled populated label in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled supporting text in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled active indicator in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined populated label in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined supporting text in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined outline in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined populated label in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined supporting text in its error colour
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined outline in its error colour
+# The four input text error rows per engine stay green: input-text.color is var(--md-sys-color-on-surface, #191D13) in text-field.default, text-field.error, text-field.outlined and text-field.outlined.error (resolveTokenContract, read in a node probe).
+
+## (b) label-text.populated.line-height renamed in the beforeAll: the file fails
+ ↓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ ↓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ ↓ |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ ↓ |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ ↓ |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ ↓ |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ FAIL  |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:558 > mx-text-field filled populated label position contract
+ FAIL  |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:558 > mx-multiline-text-field filled populated label position contract
+Error: Missing token "label-text.populated.line-height-renamed" in state "default" of contract "text-field.default"
+ FAIL  |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:558 > mx-text-field filled populated label position contract
+ FAIL  |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:558 > mx-multiline-text-field filled populated label position contract
+Error: Missing token "label-text.populated.line-height-renamed" in state "default" of contract "text-field.default"
+ FAIL  |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:558 > mx-text-field filled populated label position contract
+ FAIL  |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:558 > mx-multiline-text-field filled populated label position contract
+Error: Missing token "label-text.populated.line-height-renamed" in state "default" of contract "text-field.default"
+ Test Files  3 failed (3)
+      Tests  456 passed | 6 skipped (462)
+
+## (b) The populated label translated 1 px further down in styles/default/main.styles.css: all 6 runs fail
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ × |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ × |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ × |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed (3)
+      Tests  6 failed | 456 passed (462)
+
+# The failures, as reported: the row passed, so it.fails reports it.
+ FAIL  |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ FAIL  |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+Error: Expect test to fail
+ FAIL  |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ FAIL  |spec/firefox (firefox)| tests/text-field/text-field.spec.browser.test.ts:576 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+Error: Expect test to fail
+ FAIL  |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+ FAIL  |spec/webkit (webkit)| tests/text-field/text-field.spec.browser.test.ts:577 > mx-multiline-text-field filled populated label position contract > should centre the populated label in its line below the top padding
+Error: Expect test to fail
+
+## The field type from HTMLElementTagNameMap: enter calling setValidity() fails the typecheck (scratch, reverted)
+tests/text-field/text-field.spec.browser.test.ts(135,11): error TS2551: Property 'setValidity' does not exist on type 'MultilineTextField | TextField'. Did you mean 'validity'?

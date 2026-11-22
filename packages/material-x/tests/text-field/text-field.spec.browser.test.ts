@@ -1,15 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
 import '../../src/text-field/multiline-text-field.ts';
 import '../../src/text-field/text-field.ts';
 import { nextFrame, pixels, resolveComputed } from '../browser.ts';
 
-type FieldElement = HTMLElement & {
-  setValidity(flags?: ValidityStateFlags, message?: string): void;
-  checkValidity(): boolean;
-};
-
 const TAGS = ['mx-text-field', 'mx-multiline-text-field'] as const;
+
+type Tag = (typeof TAGS)[number];
 
 type Variant = Readonly<{
   name: string;
@@ -89,11 +86,11 @@ type CreateOptions = Readonly<{ value?: string; disabled?: boolean }>;
 
 /** A field with content in each slot, so every part has a box. */
 async function createField(
-  tag: string,
+  tag: Tag,
   outlined: boolean,
   { value, disabled = false }: CreateOptions = {},
-): Promise<FieldElement> {
-  const field = document.createElement(tag) as FieldElement;
+): Promise<HTMLElementTagNameMap[Tag]> {
+  const field = document.createElement(tag);
 
   for (const [slot, text] of [
     ['label', 'Label'],
@@ -126,14 +123,16 @@ async function createField(
   return field;
 }
 
-async function enter(field: FieldElement, state: State): Promise<void> {
+async function enter(
+  field: HTMLElementTagNameMap[Tag],
+  state: State,
+): Promise<void> {
   if (state === 'hover') {
     await userEvent.hover(field);
   } else if (state === 'focus') {
     getPart(field, '.input').focus();
   } else if (state === 'error') {
-    field.setValidity({ customError: true }, 'Error');
-    field.checkValidity();
+    field.setAttribute('error', '');
   }
 
   await nextFrame();
@@ -553,23 +552,34 @@ describe.each(CASES)('$tag $name populated label contract', (testCase) => {
         pixels(values['label-text.size']!),
     );
   });
+});
 
-  // The populated label's line box is centred in the band of its line height
-  // below the container's top padding. It fails: the label is the resting one
-  // scaled, so its line box is the resting line height scaled, and not the
-  // populated line height, and its centre sits above the band's. The
-  // difference is reported, not yet registered.
-  it.skipIf(outlined).fails(
-    'should centre the populated label in its line below the top padding',
-    async () => {
-      const values = await resolveTokens(testCase, 'rest', [
+describe.each(CASES.filter(({ outlined }) => !outlined))(
+  '$tag $name populated label position contract',
+  (testCase) => {
+    let values: Readonly<Record<string, string | number>>;
+
+    // A missing token fails the file here, where `fails` doesn't invert it.
+    beforeAll(async () => {
+      values = await resolveTokens(testCase, 'rest', [
         'container.focus.padding.block',
         'label-text.populated.line-height',
       ]);
-      const field = await createField(tag, outlined, { value: 'Value' });
-      const { top, bottom } = getSlotted(
+    });
+
+    // The populated label's line box is centred in the band of its line height
+    // below the container's top padding. The line box is the label's slot,
+    // which carries the label's line height and its scale. It fails: the label
+    // is the resting one scaled, so its line box is the resting line height
+    // scaled, and not the populated line height, and its centre sits 1 px
+    // above the band's (repo:RF-97).
+    it.fails('should centre the populated label in its line below the top padding', async () => {
+      const field = await createField(testCase.tag, false, {
+        value: 'Value',
+      });
+      const { top, bottom } = getPart(
         field,
-        'label',
+        '.label slot',
       ).getBoundingClientRect();
       const container = getPart(
         field,
@@ -580,6 +590,6 @@ describe.each(CASES)('$tag $name populated label contract', (testCase) => {
         pixels(values['container.focus.padding.block']!) +
           pixels(values['label-text.populated.line-height']!) / 2,
       );
-    },
-  );
-});
+    });
+  },
+);
