@@ -1,0 +1,81 @@
+RF-74 readings, 2026-11-22, by the implementer, in /workspaces/worktrees/f, on material-x/text-field-reset-1.
+Engines: Playwright's Chromium 158, Firefox 159, WebKit 27.2.
+File: packages/material-x/tests/text-field/text-field.browser.test.ts
+
+Rows, under describe.each(FIELD_TAGS) '%s default value', so each runs for mx-text-field and mx-multiline-text-field:
+  - should take its value from the value attribute at upgrade
+  - should submit an empty value before any edit when it has no value attribute
+  - should follow the value attribute only until a script sets the value
+  - should stop following the value attribute once the user edits the value
+  - should restore the value attribute on form reset after a script set the value
+  - should restore the value attribute on form reset after the user edited the value
+  - should reset to an empty, unpopulated value when it has no value attribute
+  - should follow the value attribute again after a form reset
+  - should not write the value attribute when a script sets the value
+And one row under 'mx-multiline-text-field':
+  - should show the value attribute's line breaks after a form reset
+
+Before the change: TextFieldCore.ts, text-field.ts and multiline-text-field.ts at origin/main c08dbd7fc, with the new rows.
+  chromium:
+    AssertionError: expected [ '', '', false, null ] to deeply equal [ 'initial', 'initial', true, …(1) ]
+    AssertionError: expected null to be '' // Object.is equality
+    AssertionError: expected [ '', 'scripted' ] to deeply equal [ 'changed', 'scripted' ]
+    AssertionError: expected 'typed' to be 'initialtyped' // Object.is equality
+    AssertionError: expected [ 'scripted', 'scripted' ] to deeply equal [ 'initial', 'initial' ]
+    AssertionError: expected [ 'typed', 'typed' ] to deeply equal [ 'initial', 'initial' ]
+    AssertionError: expected [ 'scripted', true, 'scripted' ] to deeply equal [ '', false, '' ]
+    AssertionError: expected 'scripted' to be 'changed' // Object.is equality
+    AssertionError: expected [ 'scripted', 24 ] to deeply equal [ 'first\nsecond', 48 ]
+    Tests  17 failed | 31 passed (48)
+  firefox:
+    AssertionError: expected [ '', '', false, null ] to deeply equal [ 'initial', 'initial', true, …(1) ]
+    AssertionError: expected null to be '' // Object.is equality
+    AssertionError: expected [ '', 'scripted' ] to deeply equal [ 'changed', 'scripted' ]
+    AssertionError: expected 'typed' to be 'initialtyped' // Object.is equality
+    AssertionError: expected [ 'scripted', 'scripted' ] to deeply equal [ 'initial', 'initial' ]
+    AssertionError: expected [ 'typed', 'typed' ] to deeply equal [ 'initial', 'initial' ]
+    AssertionError: expected [ 'scripted', true, 'scripted' ] to deeply equal [ '', false, '' ]
+    AssertionError: expected 'scripted' to be 'changed' // Object.is equality
+    AssertionError: expected [ 'scripted', 24 ] to deeply equal [ 'first\nsecond', 48 ]
+    Tests  17 failed | 31 passed (48)
+  webkit:
+    AssertionError: expected [ '', '', false, null ] to deeply equal [ 'initial', 'initial', true, …(1) ]
+    AssertionError: expected null to be '' // Object.is equality
+    AssertionError: expected [ '', 'scripted' ] to deeply equal [ 'changed', 'scripted' ]
+    AssertionError: expected 'typed' to be 'initialtyped' // Object.is equality
+    AssertionError: expected [ 'scripted', 'scripted' ] to deeply equal [ 'initial', 'initial' ]
+    AssertionError: expected [ 'typed', 'typed' ] to deeply equal [ 'initial', 'initial' ]
+    AssertionError: expected [ 'scripted', true, 'scripted' ] to deeply equal [ '', false, '' ]
+    AssertionError: expected 'scripted' to be 'changed' // Object.is equality
+    AssertionError: expected [ 'scripted', 24 ] to deeply equal [ 'first\nsecond', 48 ]
+    Tests  17 failed | 31 passed (48)
+  The 17 failures are the 8 property rows for each field and the line-break row.
+  'should not write the value attribute when a script sets the value' passes before: the property is unchanged (decision property 5).
+
+Mutation for that row: the value setter also calls this.setAttribute('value', this.#input.value).
+Run before the merge of origin/main, on the 45-row file (before the line-break row), at 59691ab95's tree.
+  chromium: Tests  6 failed | 39 passed (45)
+  firefox: Tests  6 failed | 39 passed (45)
+  webkit: Tests  6 failed | 39 passed (45)
+    × should not write the value attribute when a script sets the value
+    × should reset to an empty, unpopulated value when it has no value attribute
+    × should restore the value attribute on form reset after a script set the value
+  The same three rows fail in each engine, for each field. Source restored after the run.
+
+After the change:
+  --project browser (chromium)  tests/text-field   Tests  48 passed (48)
+  --project browser/firefox (firefox)  tests/text-field   Tests  48 passed (48)
+  --project browser/webkit (webkit)  tests/text-field   Tests  48 passed (48)
+  tests/traits-baseline.browser.test.ts and tests/core/utils/polyfills.browser.test.ts: 3 of 3 in each engine,
+  with the snapshot updated: setting the value attribute to "x" or "1" now reads "x" or "1" through value
+  on both text fields (it read ""). No other line of the snapshot changes.
+  Full browser project, Chromium: Test Files 16 passed (16), Tests 359 passed (359).
+
+Size rows, `aube exec just size --json` in packages/material-x, Brotli bytes.
+Before: the three source files at origin/main c08dbd7fc. After: the change. Same tree, read in turn;
+a second after-reading is identical in all 20 rows.
+  row                               before  after  delta
+  text-field/multiline-text-field        4095   4153 +58
+  text-field/text-field                  8179   8249 +70
+  complete                              22222  22233 +11
+  other rows at 0: 17
