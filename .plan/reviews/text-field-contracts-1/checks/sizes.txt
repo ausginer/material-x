@@ -1,0 +1,27 @@
+# just size-reading at the head, at the base (packages/material-x/src at 6a67badfd) and at the head again, in slot f. Brotli bytes.
+# The second head reading is byte-identical to the first. Only rows that move are listed.
+material-x:button/button	base 4907	head 4914	delta 7	committed 4907 -> 4914
+material-x:button/icon-button	base 5175	head 5171	delta -4	committed 5175 -> 5171
+material-x:button/link-button	base 4877	head 4882	delta 5	committed 4877 -> 4882
+material-x:button/switch-button	base 5280	head 5251	delta -29	committed 5280 -> 5251
+material-x:button/switch-icon-button	base 5661	head 5659	delta -2	committed 5661 -> 5659
+material-x:button/split-button	base 7507	head 7500	delta -7	committed 7507 -> 7500
+material-x:button-group/button-group	base 3115	head 3120	delta 5	committed 3115 -> 3120
+material-x:button-group/connected-button-group	base 3862	head 3880	delta 18	committed 3862 -> 3880
+material-x:checkbox/checkbox	base 3968	head 3969	delta 1	committed 3968 -> 3969
+material-x:fab/fab	base 4179	head 4195	delta 16	committed 4179 -> 4195
+material-x:list/list-item	base 2830	head 2828	delta -2	committed 2830 -> 2828
+material-x:list/list-button-item	base 4649	head 4645	delta -4	committed 4649 -> 4645
+material-x:list/list-link-item	base 4866	head 4848	delta -18	committed 4866 -> 4848
+material-x:list/sortable-list	base 8698	head 8686	delta -12	committed 8698 -> 8686
+material-x:radio/radio	base 3515	head 3516	delta 1	committed 3515 -> 3516
+material-x:text-field/multiline-text-field	base 4153	head 4197	delta 44	committed 4153 -> 4197
+material-x:text-field/text-field	base 8266	head 8283	delta 17	committed 8266 -> 8283
+material-x:complete	base 22295	head 22386	delta 91	committed 22295 -> 22386
+rows 33, rows where these readings and the committed ones disagree: 0
+
+## private property names (node_modules/.cache/css/css-private-props.json of each build)
+names 227 -> 228, added ["--_outline-opacity"], removed [], renamed 219
+
+## probes/remap.ts: every built material-x .js at the head against the base, after mapping the head's short names back to the base's
+same 58, renamed only 38, differ ["text-field/styles/default/main.css.js","text-field/styles/outlined/main.css.js"], missing [], only in base []

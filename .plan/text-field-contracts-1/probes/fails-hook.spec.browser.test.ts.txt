@@ -1,0 +1,13 @@
+// Architect's probe: does Vitest's `fails` invert an error thrown in a
+// `beforeAll` or `beforeEach` hook? Scratch, removed after the run.
+import { beforeAll, beforeEach, describe, it } from 'vitest';
+
+describe('beforeAll throws', () => {
+  beforeAll(() => { throw new Error('missing oracle'); });
+  it.fails('row', () => { throw new Error('difference'); });
+});
+
+describe('beforeEach throws', () => {
+  beforeEach(() => { throw new Error('missing oracle'); });
+  it.fails('row', () => { throw new Error('difference'); });
+});

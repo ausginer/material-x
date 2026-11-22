@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# read-state.sh <label>: size reading of slot f's current tree, then snapshot the material-x build and the names map.
+set -euo pipefail
+S=/tmp/claude-1000/-workspaces-worktrees-b/273f3a11-0fdc-405a-aa7d-ae0a281476a3/scratchpad/sz
+F=/workspaces/worktrees/f
+L="${1:?}"
+cd "$F"
+aube exec just size-reading "$S/$L.json" > "$S/$L.log" 2>&1
+d="${S:?}/build-${L:?}"
+rm -rf "${d:?}"; mkdir -p "$d"
+(cd packages/material-x && cp -r button button-group checkbox core fab icon list radio text-field "$d/" && cp node_modules/.cache/size-limit/complete.js "$d/complete-entry.js" 2>/dev/null || true)
+cp node_modules/.cache/css/css-private-props.json "$d/names.json"
+node -e 'const r=JSON.parse(require("fs").readFileSync(process.argv[1])).rows;for(const x of r)if(x.row.startsWith("text-field")||x.row==="complete")console.log(process.argv[2],x.row,x.brotli)' "$S/$L.json" "$L"

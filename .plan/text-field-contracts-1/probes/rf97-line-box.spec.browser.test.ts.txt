@@ -1,0 +1,32 @@
+// Architect's probe for RF-97 on #160: the filled field's populated label's
+// line box (the label slot, which carries the line height and the transform)
+// against the slotted span's content area. Scratch: copied into
+// packages/material-x/tests/text-field/ for its run, removed after it.
+import { describe, it } from 'vitest';
+import '../../src/text-field/multiline-text-field.ts';
+import '../../src/text-field/text-field.ts';
+import { nextFrame } from '../browser.ts';
+
+describe('populated label line box', () => {
+  it.each(['mx-text-field', 'mx-multiline-text-field'])('%s', async (tag) => {
+    const field = document.createElement(tag);
+    const label = document.createElement('span');
+    label.slot = 'label';
+    label.textContent = 'Label';
+    field.append(label);
+    field.style.setProperty('--md-text-field-focus-duration', '0s');
+    field.setAttribute('value', 'Value');
+    document.body.append(field);
+    await nextFrame();
+    const root = field.shadowRoot!;
+    const top0 = root.querySelector('.notched-outline')!.getBoundingClientRect().top;
+    const box = root.querySelector('.label slot')!.getBoundingClientRect();
+    const span = label.getBoundingClientRect();
+    const r = (n: number) => Math.round(n * 1e4) / 1e4;
+    // oxlint-disable-next-line no-console
+    console.log(`PROBE ${tag} ${JSON.stringify({
+      lineBox: { top: r(box.top - top0), bottom: r(box.bottom - top0), centre: r((box.top + box.bottom) / 2 - top0), height: r(box.height) },
+      span: { centre: r((span.top + span.bottom) / 2 - top0), height: r(span.height) },
+    })}`);
+  });
+});

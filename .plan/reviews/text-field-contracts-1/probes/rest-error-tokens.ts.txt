@@ -1,0 +1,12 @@
+// Is input-text.color equal at rest and in error, in both variants? And which error tokens differ from rest?
+const { resolveTokenContract } = await import('/workspaces/worktrees/f/packages/material-x/tests/support/visual-contracts.node.ts');
+const T = ['input-text.color', 'label-text.color', 'supporting-text.color', 'active-indicator.color', 'outline.color'];
+for (const [rest, error] of [['text-field.default', 'text-field.error'], ['text-field.outlined', 'text-field.outlined.error']]) {
+  for (const t of T) {
+    try {
+      const a = (await resolveTokenContract({ contract: rest, state: 'default', tokens: [t] })).values[t];
+      const b = (await resolveTokenContract({ contract: error, state: 'error.default', tokens: [t] })).values[t];
+      console.log(rest.padEnd(20), t.padEnd(28), a === b ? 'equal' : 'differs', String(a), '|', String(b));
+    } catch (e) { console.log(rest.padEnd(20), t.padEnd(28), 'n/a', (e as Error).message); }
+  }
+}
