@@ -580,4 +580,22 @@ describe('mx-multiline-text-field', () => {
       textarea.getBoundingClientRect().height > oneLine,
     ]).toEqual([textarea.clientWidth, true]);
   });
+
+  it("should show the value attribute's line breaks after a form reset", async () => {
+    const { form, field } = await createFieldInForm(
+      'mx-multiline-text-field',
+      'value="first&#10;second"',
+    );
+    const textarea = getInput(field);
+    const lineHeight = pixels(getComputedStyle(textarea).lineHeight);
+
+    field.value = 'scripted';
+    form.reset();
+    await nextFrame();
+
+    expect([field.value, textarea.scrollHeight]).toEqual([
+      'first\nsecond',
+      2 * lineHeight,
+    ]);
+  });
 });
