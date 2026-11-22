@@ -58,8 +58,12 @@ export default class ButtonGroup extends ButtonGroupConstructor {
 
     let elements: ReadonlyArray<ButtonLike & ControlledElement> = [];
 
-    useSlot<ButtonLike & ControlledElement>(this, 'slot', (_, newElements) => {
-      elements = newElements;
+    useSlot(this, 'slot', (slot) => {
+      // The slot's elements, without the text and comment nodes between them.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      elements = slot.assignedElements() as Array<
+        ButtonLike & ControlledElement
+      >;
     });
 
     const pointerup = () => {

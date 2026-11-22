@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, onTestFinished } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import '../../src/button-group/button-group.ts';
 import '../../src/button-group/connected-button-group.ts';
@@ -166,6 +166,98 @@ describe('mx-button-group press interaction', () => {
 
     expect(first!.style.getPropertyValue(LEADING_PROP)).toBe('');
     expect(last!.style.getPropertyValue(TRAILING_PROP)).toBe('');
+  });
+});
+
+// Line breaks, indentation and a comment between the buttons: the slot
+// assigns each of them to the group as a node of its own.
+const SEPARATED_BUTTONS = `
+  <mx-button>One</mx-button>
+  <!-- separator -->
+  <mx-button>Two</mx-button>
+  <mx-button>Three</mx-button>
+`;
+
+function collectErrors(): readonly unknown[] {
+  const errors: unknown[] = [];
+  const controller = new AbortController();
+  window.addEventListener(
+    'error',
+    (event) => {
+      errors.push(event.error);
+    },
+    {
+      signal: controller.signal,
+    },
+  );
+  onTestFinished(() => controller.abort());
+  return errors;
+}
+
+describe('mx-button-group with whitespace between its buttons', () => {
+  it('should shrink the neighbours of the pressed button', async () => {
+    document.body.innerHTML = `<mx-button-group>${SEPARATED_BUTTONS}</mx-button-group>`;
+    await nextFrame();
+    const [first, middle, last] = [
+      ...document.querySelectorAll<HTMLElement>('mx-button'),
+    ];
+
+    middle!.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, composed: true }),
+    );
+
+    expect([
+      first!.style.getPropertyValue(LEADING_PROP),
+      last!.style.getPropertyValue(TRAILING_PROP),
+    ]).toEqual(['-1', '-1']);
+  });
+
+  it('should press and release without an error', async () => {
+    document.body.innerHTML = `<mx-button-group>${SEPARATED_BUTTONS}</mx-button-group>`;
+    await nextFrame();
+    const group = document.querySelector('mx-button-group')!;
+    const middle = group.querySelectorAll('mx-button')[1]!;
+    const errors = collectErrors();
+
+    middle.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, composed: true }),
+    );
+    group.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+    group.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true }));
+
+    expect(errors).toEqual([]);
+  });
+});
+
+describe('mx-connected-button-group with whitespace between its buttons', () => {
+  it('should mark the first and last buttons', async () => {
+    document.body.innerHTML = `<mx-connected-button-group>${SEPARATED_BUTTONS}</mx-connected-button-group>`;
+    await nextFrame();
+    const buttons = [...document.querySelectorAll<HTMLElement>('mx-button')];
+
+    expect(
+      buttons.map((button) => [
+        button.dataset['first'],
+        button.dataset['last'],
+      ]),
+    ).toEqual([
+      ['', undefined],
+      [undefined, undefined],
+      [undefined, ''],
+    ]);
+  });
+
+  it('should take a slot change without an error', async () => {
+    document.body.innerHTML = `<mx-connected-button-group>${SEPARATED_BUTTONS}</mx-connected-button-group>`;
+    await nextFrame();
+    const errors = collectErrors();
+
+    document
+      .querySelector('mx-connected-button-group')!
+      .append('\n  ', document.createElement('mx-button'), '\n');
+    await nextFrame();
+
+    expect(errors).toEqual([]);
   });
 });
 

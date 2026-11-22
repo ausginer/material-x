@@ -1,0 +1,81 @@
+
+ RUN  v5.1.0 .
+
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (tight) > roving: tab stops, ArrowRight, End, Home
+tight roving {"initial":[0,-1,-1],"afterRight":[-1,0,-1],"activeAfterRight":1,"afterEnd":[-1,-1,0],"afterHome":[0,-1,-1],"afterLeftWrap":[-1,-1,0]}
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (tight) > roving: tab stops, ArrowRight, End, Home 164ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (tight) > selection: group value and click
+tight selection {"initial":[false,true,false],"afterClick":[false,true,false],"valueAfterClick":"b","afterSet":[true,false,false]}
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (tight) > selection: group value and click 149ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (tight) > edges after removal and insertion
+tight edges {"afterRemove":[["",null],[null,""]],"afterPrepend":[["",null],[null,null],[null,""]]}
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (tight) > standard: press edge buttons and release restores
+tight standard {"pressFirst":["","","","-1","",""],"released":["","","","","",""],"pressLast":["","","-1","","",""],"cancelled":["","","","","",""]}
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (tight) > edges after removal and insertion 99ms
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (tight) > standard: press edge buttons and release restores 67ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (separated) > roving: tab stops, ArrowRight, End, Home
+separated roving {"initial":[0,-1,-1],"afterRight":[-1,0,-1],"activeAfterRight":1,"afterEnd":[-1,-1,0],"afterHome":[0,-1,-1],"afterLeftWrap":[-1,-1,0]}
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (separated) > roving: tab stops, ArrowRight, End, Home 134ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (separated) > selection: group value and click
+separated selection {"initial":[false,true,false],"afterClick":[false,true,false],"valueAfterClick":"b","afterSet":[true,false,false]}
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (separated) > selection: group value and click 150ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (separated) > edges after removal and insertion
+separated edges {"afterRemove":[["",null],[null,""]],"afterPrepend":[["",null],[null,null],[null,""]]}
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (separated) > standard: press edge buttons and release restores
+separated standard {"pressFirst":["","","","-1","",""],"released":["","","","","",""],"pressLast":["","","-1","","",""],"cancelled":["","","","","",""]}
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (separated) > edges after removal and insertion 99ms
+ ✓ |browser (chromium)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (separated) > standard: press edge buttons and release restores 67ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (tight) > roving: tab stops, ArrowRight, End, Home
+tight roving {"initial":[0,-1,-1],"afterRight":[-1,0,-1],"activeAfterRight":1,"afterEnd":[-1,-1,0],"afterHome":[0,-1,-1],"afterLeftWrap":[-1,-1,0]}
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (tight) > roving: tab stops, ArrowRight, End, Home 194ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (tight) > selection: group value and click
+tight selection {"initial":[false,true,false],"afterClick":[false,true,false],"valueAfterClick":"b","afterSet":[true,false,false]}
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (tight) > edges after removal and insertion
+tight edges {"afterRemove":[["",null],[null,""]],"afterPrepend":[["",null],[null,null],[null,""]]}
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (tight) > selection: group value and click 169ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (tight) > standard: press edge buttons and release restores
+tight standard {"pressFirst":["","","","-1","",""],"released":["","","","","",""],"pressLast":["","","-1","","",""],"cancelled":["","","","","",""]}
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (tight) > edges after removal and insertion 100ms
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (tight) > standard: press edge buttons and release restores 67ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (separated) > roving: tab stops, ArrowRight, End, Home
+separated roving {"initial":[0,-1,-1],"afterRight":[-1,0,-1],"activeAfterRight":1,"afterEnd":[-1,-1,0],"afterHome":[0,-1,-1],"afterLeftWrap":[-1,-1,0]}
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (separated) > roving: tab stops, ArrowRight, End, Home 114ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (separated) > selection: group value and click
+separated selection {"initial":[false,true,false],"afterClick":[false,true,false],"valueAfterClick":"b","afterSet":[true,false,false]}
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (separated) > selection: group value and click 151ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (separated) > edges after removal and insertion
+separated edges {"afterRemove":[["",null],[null,""]],"afterPrepend":[["",null],[null,null],[null,""]]}
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (separated) > standard: press edge buttons and release restores
+separated standard {"pressFirst":["","","","-1","",""],"released":["","","","","",""],"pressLast":["","","-1","","",""],"cancelled":["","","","","",""]}
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (separated) > edges after removal and insertion 101ms
+ ✓ |browser/firefox (firefox)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (separated) > standard: press edge buttons and release restores 65ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (tight) > roving: tab stops, ArrowRight, End, Home
+tight roving {"initial":[0,-1,-1],"afterRight":[-1,0,-1],"activeAfterRight":1,"afterEnd":[-1,-1,0],"afterHome":[0,-1,-1],"afterLeftWrap":[-1,-1,0]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (tight) > roving: tab stops, ArrowRight, End, Home 192ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (tight) > selection: group value and click
+tight selection {"initial":[false,true,false],"afterClick":[false,true,false],"valueAfterClick":"b","afterSet":[true,false,false]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (tight) > selection: group value and click 222ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (tight) > edges after removal and insertion
+tight edges {"afterRemove":[["",null],[null,""]],"afterPrepend":[["",null],[null,null],[null,""]]}
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (tight) > standard: press edge buttons and release restores
+tight standard {"pressFirst":["","","","-1","",""],"released":["","","","","",""],"pressLast":["","","-1","","",""],"cancelled":["","","","","",""]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (tight) > edges after removal and insertion 112ms
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (tight) > standard: press edge buttons and release restores 65ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (separated) > roving: tab stops, ArrowRight, End, Home
+separated roving {"initial":[0,-1,-1],"afterRight":[-1,0,-1],"activeAfterRight":1,"afterEnd":[-1,-1,0],"afterHome":[0,-1,-1],"afterLeftWrap":[-1,-1,0]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:31 > probe (separated) > roving: tab stops, ArrowRight, End, Home 108ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (separated) > selection: group value and click
+separated selection {"initial":[false,true,false],"afterClick":[false,true,false],"valueAfterClick":"b","afterSet":[true,false,false]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:71 > probe (separated) > selection: group value and click 133ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (separated) > edges after removal and insertion
+separated edges {"afterRemove":[["",null],[null,""]],"afterPrepend":[["",null],[null,null],[null,""]]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:97 > probe (separated) > edges after removal and insertion 95ms
+stdout | tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (separated) > standard: press edge buttons and release restores
+separated standard {"pressFirst":["","","","-1","",""],"released":["","","","","",""],"pressLast":["","","-1","","",""],"cancelled":["","","","","",""]}
+ ✓ |browser/webkit (webkit)| tests/button-group/zz-reviewer-whitespace-probe.browser.test.ts:124 > probe (separated) > standard: press edge buttons and release restores 65ms
+
+ Test Files  3 passed (3)
+      Tests  24 passed (24)
+   Start at  07:15:53
+   Duration  7.22s (tests 57%, worker 26%, import 12%, setup 5%)
+

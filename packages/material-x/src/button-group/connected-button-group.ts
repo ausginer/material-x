@@ -58,24 +58,26 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
 
     useRovingTabindex(this);
 
-    useSlot<ButtonLike & Checkable & ControlledElement>(
-      this,
-      'slot',
-      (_, newElements) => {
-        newElements.forEach((element) => {
-          delete element.dataset['first'];
-          delete element.dataset['last'];
-        });
+    useSlot(this, 'slot', (slot) => {
+      // The slot's elements, without the text and comment nodes between them.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      const elements = slot.assignedElements() as Array<
+        ButtonLike & Checkable & ControlledElement
+      >;
 
-        if (newElements[0]) {
-          newElements[0].dataset['first'] = '';
-        }
+      elements.forEach((element) => {
+        delete element.dataset['first'];
+        delete element.dataset['last'];
+      });
 
-        if (newElements.at(-1)) {
-          newElements.at(-1)!.dataset['last'] = '';
-        }
-      },
-    );
+      if (elements[0]) {
+        elements[0].dataset['first'] = '';
+      }
+
+      if (elements.at(-1)) {
+        elements.at(-1)!.dataset['last'] = '';
+      }
+    });
   }
 }
 

@@ -1,0 +1,163 @@
+import { describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/button-group/button-group.ts';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/button.ts';
+import '../../src/button/switch-button.ts';
+import { nextFrame } from '../browser.ts';
+
+const LEADING_PROP = '--_interaction-direction-leading';
+const TRAILING_PROP = '--_interaction-direction-trailing';
+
+const SWITCHES = [
+  '<mx-switch-button value="a">A</mx-switch-button>',
+  '<mx-switch-button value="b">B</mx-switch-button>',
+  '<mx-switch-button value="c">C</mx-switch-button>',
+];
+const BUTTONS = [
+  '<mx-button>One</mx-button>',
+  '<mx-button>Two</mx-button>',
+  '<mx-button>Three</mx-button>',
+];
+
+const MARKUPS = {
+  tight: (items: readonly string[]) => items.join(''),
+  separated: (items: readonly string[]) =>
+    `\n  ${items[0]}\n  <!-- separator -->\n  ${items[1]}\n  ${items[2]}\n`,
+};
+
+for (const [name, markup] of Object.entries(MARKUPS)) {
+  describe(`probe (${name})`, () => {
+    it('roving: tab stops, ArrowRight, End, Home', async () => {
+      document.body.innerHTML = `<mx-connected-button-group>${markup(SWITCHES)}</mx-connected-button-group>`;
+      await nextFrame();
+      const items = [
+        ...document.querySelectorAll<HTMLElement>('mx-switch-button'),
+      ];
+      const stops = () => items.map((item) => item.tabIndex);
+      const initial = stops();
+      items[0]!.focus();
+      await userEvent.keyboard('{ArrowRight}');
+      const afterRight = stops();
+      const activeAfterRight = items.indexOf(
+        document.activeElement as HTMLElement,
+      );
+      await userEvent.keyboard('{End}');
+      const afterEnd = stops();
+      await userEvent.keyboard('{Home}');
+      const afterHome = stops();
+      await userEvent.keyboard('{ArrowLeft}');
+      const afterLeftWrap = stops();
+
+      console.log(
+        name,
+        'roving',
+        JSON.stringify({
+          initial,
+          afterRight,
+          activeAfterRight,
+          afterEnd,
+          afterHome,
+          afterLeftWrap,
+        }),
+      );
+      expect(initial).toEqual([0, -1, -1]);
+      expect(afterRight).toEqual([-1, 0, -1]);
+      expect(activeAfterRight).toBe(1);
+      expect(afterEnd).toEqual([-1, -1, 0]);
+      expect(afterHome).toEqual([0, -1, -1]);
+    });
+
+    it('selection: group value and click', async () => {
+      document.body.innerHTML = `<mx-connected-button-group value="b">${markup(SWITCHES)}</mx-connected-button-group>`;
+      await nextFrame();
+      const group = document.querySelector('mx-connected-button-group')!;
+      const items = [
+        ...document.querySelectorAll<HTMLElement>('mx-switch-button'),
+      ];
+      const checked = () => items.map((item) => item.matches(':state(checked)'));
+      const initial = checked();
+      await userEvent.click(items[2]!);
+      await nextFrame();
+      const afterClick = checked();
+      const valueAfterClick = group.getAttribute('value');
+      group.setAttribute('value', 'a');
+      await nextFrame();
+      const afterSet = checked();
+
+      console.log(
+        name,
+        'selection',
+        JSON.stringify({ initial, afterClick, valueAfterClick, afterSet }),
+      );
+      expect(initial).toEqual([false, true, false]);
+      expect(afterSet).toEqual([true, false, false]);
+    });
+
+    it('edges after removal and insertion', async () => {
+      document.body.innerHTML = `<mx-connected-button-group>${markup(SWITCHES)}</mx-connected-button-group>`;
+      await nextFrame();
+      const group = document.querySelector('mx-connected-button-group')!;
+      const edges = () =>
+        [...group.querySelectorAll<HTMLElement>('mx-switch-button')].map(
+          (item) => [item.dataset['first'] ?? null, item.dataset['last'] ?? null],
+        );
+      group.querySelectorAll('mx-switch-button')[2]!.remove();
+      await nextFrame();
+      const afterRemove = edges();
+      group.prepend(document.createElement('mx-switch-button'), '\n  ');
+      await nextFrame();
+      const afterPrepend = edges();
+
+      console.log(name, 'edges', JSON.stringify({ afterRemove, afterPrepend }));
+      expect(afterRemove).toEqual([
+        ['', null],
+        [null, ''],
+      ]);
+      expect(afterPrepend).toEqual([
+        ['', null],
+        [null, null],
+        [null, ''],
+      ]);
+    });
+
+    it('standard: press edge buttons and release restores', async () => {
+      document.body.innerHTML = `<mx-button-group>${markup(BUTTONS)}</mx-button-group>`;
+      await nextFrame();
+      const group = document.querySelector('mx-button-group')!;
+      const [first, middle, last] = [
+        ...document.querySelectorAll<HTMLElement>('mx-button'),
+      ];
+      const read = () => [
+        first!.style.getPropertyValue(LEADING_PROP),
+        first!.style.getPropertyValue(TRAILING_PROP),
+        middle!.style.getPropertyValue(LEADING_PROP),
+        middle!.style.getPropertyValue(TRAILING_PROP),
+        last!.style.getPropertyValue(LEADING_PROP),
+        last!.style.getPropertyValue(TRAILING_PROP),
+      ];
+      first!.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, composed: true }),
+      );
+      const pressFirst = read();
+      group.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+      const released = read();
+      last!.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, composed: true }),
+      );
+      const pressLast = read();
+      group.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true }));
+      const cancelled = read();
+
+      console.log(
+        name,
+        'standard',
+        JSON.stringify({ pressFirst, released, pressLast, cancelled }),
+      );
+      expect(pressFirst).toEqual(['', '', '', '-1', '', '']);
+      expect(released).toEqual(['', '', '', '', '', '']);
+      expect(pressLast).toEqual(['', '', '-1', '', '', '']);
+      expect(cancelled).toEqual(['', '', '', '', '', '']);
+    });
+  });
+}
