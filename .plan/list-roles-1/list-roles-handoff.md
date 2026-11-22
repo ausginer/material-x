@@ -517,6 +517,8 @@ Found while reading for the second re-ruling. Neither is this unit's property, a
 - **The list items and the FAB draw no penumbra.** The elevation stylesheet draws its penumbra as `.host`'s own `box-shadow`, and its umbra and ambient layers on `.host::before` and `::after`. `useListItemCore` and `mx-fab` adopt the elevation stylesheet before their own, whose `.host` rule starts with `all: unset`, so the penumbra is reset to `none` (finding 10). `useButtonCore` adopts it after its own stylesheet, so the buttons draw it. This unit keeps `main`'s pixels.
 - **`interactive.styles.css` ships nowhere.** `src/list/styles/item/interactive.css.ts` builds it, and no module imports that file on `main`. So the interactive items' transition of their shape on press, and their disabled `cursor`, `pointer-events` and slot opacity, aren't applied.
 
+**Registered 2026-11-22 by the architect,** on `repo/register-observations-1`: the first item as [`repo:RF-70`](../00-index.md), the second as [`repo:RF-71`](../00-index.md). The entries govern.
+
 ## Where `RF-68`'s record lives
 
 **Decided: in this branch.** `RF-68`'s entry was registered on `repo/list-sortable-1` (#90), which isn't merged. This unit repairs it, so the entry has to be on `main` when the repair lands, and #90's merge date isn't known.
