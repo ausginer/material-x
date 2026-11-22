@@ -1,0 +1,208 @@
+Mutations of .scripts/entry.ts at 910aee555 in slot d, each followed by: aube exec vitest run --project repo .scripts/entry.node.test.ts (probes/entry-mutate.sh). The file was restored from HEAD after each. This clone holds 1cf222c32 (local branch core/use-slot-nodes-1).
+
+# mutation: head
+      Tests  19 passed (19)
+
+# mutation: main
+diff --git a/.scripts/entry.ts b/.scripts/entry.ts
+index 624a9ffa2..13713b387 100755
+--- a/.scripts/entry.ts
++++ b/.scripts/entry.ts
+@@ -19,14 +19,6 @@
+  * local identifier is a citation of something the record never states, and a
+  * duplicated one is a defect in the record that a first match would hide.
+  *
+- * **`--duplicates [<commit>]` reads every register whole** and fails when one
+- * scope's documents claim a local identifier more than once, naming each place.
+- * It uses the lookup's own heading pattern, so the two can't disagree about what
+- * a heading claims. It reads the working tree, or `<commit>` when one is given.
+- * It leaves the retired scopes out: their commit can't change, so no merge can
+- * add a duplicate to them, and a clone without that commit would fail for a
+- * reason unrelated to the change under test.
+- *
+  * **A retired scope is read at the commit its row names, never from the working
+  * tree.** Its record no longer changes, so that commit holds all of it. A clone
+  * that does not hold the commit gets a fourth error, which names the commit,
+@@ -171,90 +163,35 @@ async function holds(commit: string): Promise<boolean> {
+   }
+ }
+ 
+-type Heading = Readonly<{ local: string; title?: string; at: number }>;
+-
+-/** Every entry heading in `lines`, with its 0-based line index. */
+-function headings(lines: readonly string[]): Heading[] {
+-  return lines.flatMap((line, at) => {
+-    const match = ENTRY.exec(line);
+-
+-    return match ? [{ local: match[1]!, title: match[2], at }] : [];
+-  });
+-}
+-
+ /** Every entry in `source` whose identifier is exactly `local`, as printed text. */
+ function matching(source: string, local: string): string[] {
+   const lines = source.split('\n');
++  const found: string[] = [];
+ 
+-  return headings(lines)
+-    .filter((heading) => heading.local === local)
+-    .map(({ title, at }) => {
+-      const rest = lines.slice(at + 1);
+-      const stop = rest.findIndex((next) => CLOSES.test(next));
+-      const body = (stop < 0 ? rest : rest.slice(0, stop)).join('\n').trim();
+-      const heading =
+-        title === undefined ? `#### ${local}` : `#### ${local} — ${title}`;
+-
+-      return `${heading}\n\n${body}`;
+-    });
+-}
++  for (const [at, line] of lines.entries()) {
++    const match = ENTRY.exec(line);
+ 
+-/**
+- * Fails when a current scope's documents claim one local identifier more than
+- * once, and prints each such address with every `<path>:<line>` that claims it.
+- */
+-async function checkDuplicates(commit: string | undefined): Promise<void> {
+-  const current = [...SCOPES].filter(([, scope]) => scope.commit === undefined);
+-  const reports = await Promise.all(
+-    current.map(async ([name, scope]) => {
+-      const documents =
+-        commit === undefined
+-          ? await workingTree(scope)
+-          : await atCommit(scope, commit);
+-      const claims = new Map<string, string[]>();
+-
+-      for (const { path, source } of documents) {
+-        for (const { local, at } of headings(source.split('\n'))) {
+-          const places = claims.get(local) ?? [];
+-          places.push(`${path}:${at + 1}`);
+-          claims.set(local, places);
+-        }
+-      }
++    if (match?.[1] !== local) {
++      continue;
++    }
+ 
+-      return [...claims]
+-        .filter(([, places]) => places.length > 1)
+-        .map(
+-          ([local, places]) =>
+-            `${name}:${local}\n${places.map((place) => `  ${place}`).join('\n')}`,
+-        );
+-    }),
+-  );
+-  const duplicates = reports.flat();
++    const rest = lines.slice(at + 1);
++    const stop = rest.findIndex((next) => CLOSES.test(next));
++    const body = (stop < 0 ? rest : rest.slice(0, stop)).join('\n').trim();
++    const heading =
++      match[2] === undefined ? `#### ${local}` : `#### ${local} — ${match[2]}`;
+ 
+-  if (duplicates.length > 0) {
+-    fail(
+-      `duplicated addresses: each is claimed by more than one entry heading\n${duplicates.join('\n')}`,
+-    );
++    found.push(`${heading}\n\n${body}`);
+   }
+ 
+-  process.stdout.write(
+-    `no duplicated address in ${current.map(([name]) => name).join(', ')}\n`,
+-  );
++  return found;
+ }
+ 
+ const [address, ...rest] = process.argv.slice(2);
+ const example = [...SCOPES.keys()][0]!;
+ 
+-if (address === '--duplicates' && rest.length <= 1) {
+-  await checkDuplicates(rest[0]);
+-  process.exit(0);
+-}
+-
+ if (address === undefined || rest.length > 0) {
+-  fail(
+-    `usage: .scripts/entry.sh <scope>:<local-id>    e.g. ${example}:DRD-13\n` +
+-      `       .scripts/entry.sh --duplicates [<commit>]`,
+-  );
++  fail(`usage: .scripts/entry.sh <scope>:<local-id>    e.g. ${example}:DRD-13`);
+ }
+ 
+ const parsed = ADDRESS.exec(address!);
+     × should name both lines of a number that two entries take 181ms
+     × should refuse an id claimed in two documents of one scope 156ms
+     × should pass when a sub-clause or a mention repeats an id 166ms
+     × should read the documents at a commit when one is given 315ms
+     × should name the duplicates that the merge 1cf222c32 left 134ms
+      Tests  5 failed | 14 passed (19)
+
+# mutation: mA-commit-read-throws
+diff --git a/.scripts/entry.ts b/.scripts/entry.ts
+index 624a9ffa2..943b2337b 100755
+--- a/.scripts/entry.ts
++++ b/.scripts/entry.ts
+@@ -140,6 +140,7 @@ async function atCommit(
+   { root, currentState }: Scope,
+   commit: string,
+ ): Promise<readonly Document[]> {
++  throw new Error("mutation");
+   const listing = await git([
+     'ls-tree',
+     '-r',
+     × should print a titleless entry 159ms
+     × should match the local id exactly rather than by prefix 362ms
+     × should keep a sub-clause inside the entry that owns it 196ms
+     × should resolve a multi-letter family through the same syntax 177ms
+     × should print a retired entry as the resolver printed it at its commit 175ms
+     × should name the duplicates that the merge 1cf222c32 left 118ms
+      Tests  6 failed | 13 passed (19)
+
+# mutation: mB-first-document-only
+diff --git a/.scripts/entry.ts b/.scripts/entry.ts
+index 624a9ffa2..be1094c15 100755
+--- a/.scripts/entry.ts
++++ b/.scripts/entry.ts
+@@ -213,7 +213,7 @@ async function checkDuplicates(commit: string | undefined): Promise<void> {
+           : await atCommit(scope, commit);
+       const claims = new Map<string, string[]>();
+ 
+-      for (const { path, source } of documents) {
++      for (const { path, source } of documents.slice(0, 1)) {
+         for (const { local, at } of headings(source.split('\n'))) {
+           const places = claims.get(local) ?? [];
+           places.push(`${path}:${at + 1}`);
+     × should refuse an id claimed in two documents of one scope 120ms
+      Tests  1 failed | 18 passed (19)
+
+# mutation: mC-own-pattern
+diff --git a/.scripts/entry.ts b/.scripts/entry.ts
+index 624a9ffa2..b388554ec 100755
+--- a/.scripts/entry.ts
++++ b/.scripts/entry.ts
+@@ -214,7 +214,7 @@ async function checkDuplicates(commit: string | undefined): Promise<void> {
+       const claims = new Map<string, string[]>();
+ 
+       for (const { path, source } of documents) {
+-        for (const { local, at } of headings(source.split('\n'))) {
++        for (const { local, at } of source.split("\n").flatMap((l, at) => { const m = /^#{4,5} ([A-Za-z][A-Za-z0-9]*-\d+)/u.exec(l); return m ? [{ local: m[1]!, at }] : []; })) {
+           const places = claims.get(local) ?? [];
+           places.push(`${path}:${at + 1}`);
+           claims.set(local, places);
+     × should pass when a sub-clause or a mention repeats an id 118ms
+      Tests  1 failed | 18 passed (19)
+
+# mutation: mD-duplicates-commit-read-throws
+diff --git a/.scripts/entry.ts b/.scripts/entry.ts
+index 624a9ffa2..4052feb54 100755
+--- a/.scripts/entry.ts
++++ b/.scripts/entry.ts
+@@ -210,7 +210,7 @@ async function checkDuplicates(commit: string | undefined): Promise<void> {
+       const documents =
+         commit === undefined
+           ? await workingTree(scope)
+-          : await atCommit(scope, commit);
++          : await Promise.reject(new Error("mutation"));
+       const claims = new Map<string, string[]>();
+ 
+       for (const { path, source } of documents) {
+     × should name the duplicates that the merge 1cf222c32 left 73ms
+      Tests  1 failed | 18 passed (19)

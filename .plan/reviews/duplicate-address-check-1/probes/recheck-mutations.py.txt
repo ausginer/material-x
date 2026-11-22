@@ -1,0 +1,19 @@
+# Recheck mutations of .scripts/entry.ts for #156, each applied alone, run with the repo project, and reverted.
+import subprocess, sys, re
+P = '/workspaces/worktrees/d/.scripts/entry.ts'
+M = {
+  'mD': ('          : await atCommit(scope, commit);', '          : await Promise.reject(new Error("mutation"));'),
+  'mF': ("  if (commit !== undefined && !(await holds(commit))) {\n    fail(`cannot read ${commit}: this clone does not hold it as a commit`);\n  }\n", ''),
+  'mI': ('          : await atCommit(scope, commit);', '          : [];'),
+}
+for name in sys.argv[1:]:
+    a, b = M[name]; orig = open(P).read(); assert orig.count(a) == 1, name
+    open(P, 'w').write(orig.replace(a, b))
+    try:
+        r = subprocess.run('timeout 300 aube exec vitest run --project repo .scripts/entry.node.test.ts', shell=True, cwd='/workspaces/worktrees/d', capture_output=True, text=True)
+        out = re.sub(r'\x1b\[[0-9;]*m', '', r.stdout + r.stderr)
+        print(f'## {name}: {b.strip()[:70] or "(deleted)"}')
+        for l in out.splitlines():
+            if 'FAIL' in l or 'Tests ' in l: print(re.sub(r' \d+ms$', '', l))
+    finally:
+        open(P, 'w').write(orig)

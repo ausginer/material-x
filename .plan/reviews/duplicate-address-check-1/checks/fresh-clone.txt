@@ -1,0 +1,37 @@
+Fresh clone: git clone --filter=blob:none --no-checkout https://github.com/ausginer/material-x.git, then fetch +refs/pull/156/merge and check it out.
+f7f7ac9 Merge 910aee5555ba1a85758645dae6a3ac1dd0f8fbac into 6a67badfd3e3ca4f6165f3663cc0faf1aad9d0e4
+$ git cat-file -e '1cf222c32^{commit}'
+fatal: Not a valid object name 1cf222c32^{commit}
+exit 128
+$ .scripts/entry.sh --duplicates 1cf222c32
+node:internal/errors:999
+  const err = new Error(message);
+              ^
+
+Error: Command failed: git ls-tree -r --name-only 1cf222c32 -- ./.plan/00-index.md
+fatal: Not a valid object name 1cf222c32
+
+    at genericNodeError (node:internal/errors:999:15)
+exit 1
+$ .scripts/entry.sh --duplicates no-such-commit
+node:internal/errors:999
+  const err = new Error(message);
+              ^
+
+Error: Command failed: git ls-tree -r --name-only no-such-commit -- packages/drag/.plan/00-index.md packages/drag/.plan/contract.md
+fatal: Not a valid object name no-such-commit
+
+    at genericNodeError (node:internal/errors:999:15)
+exit 1
+$ .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+exit 0
+
+$ git ls-remote origin | grep -c use-slot
+0
+
+In slot d: git for-each-ref --contains 1cf222c32
+refs/heads/core/use-slot-nodes-1
+
+$ git apply --check checks/docs-unit.patch.txt (in the fresh clone at the merge ref)
+exit 0
