@@ -1,0 +1,75 @@
+// Reviewer's probe: what the polyfill covered beyond growth. Copied into
+// packages/material-x/tests/text-field/ to run, then removed.
+import { $ } from '@ydinjs/core/utils/DOM.js';
+import { describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import { nextFrame, pixels } from '../browser.ts';
+
+function setup(): { field: HTMLElement; textarea: HTMLTextAreaElement } {
+  const field = document.createElement('mx-multiline-text-field');
+  field.style.display = 'block';
+  field.style.inlineSize = '300px';
+  document.body.append(field);
+  const textarea = $<HTMLTextAreaElement>(field, '.input')!;
+  return { field, textarea };
+}
+
+const h = (el: Element) => el.getBoundingClientRect().height;
+
+describe('field-sizing probe', () => {
+  it('empty, grow, shrink, soft wrap, width re-wrap, programmatic value', async () => {
+    const { field, textarea } = setup();
+    await nextFrame();
+    const lh = pixels(getComputedStyle(textarea).lineHeight);
+    const empty = h(textarea);
+
+    await userEvent.click(textarea);
+    await userEvent.keyboard('a{Enter}b{Enter}c');
+    await nextFrame();
+    const three = h(textarea);
+
+    await userEvent.keyboard('{Backspace}{Backspace}{Backspace}{Backspace}');
+    await nextFrame();
+    const one = h(textarea);
+
+    // Programmatic value set through the host.
+    (field as HTMLElement & { value: string }).value = 'x\ny\nz\nw';
+    await nextFrame();
+    const programmatic = h(textarea);
+
+    (field as HTMLElement & { value: string }).value = '';
+    await nextFrame();
+    const cleared = h(textarea);
+
+    // One long unbroken-by-newline line soft-wraps.
+    textarea.value = 'word '.repeat(60);
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    await nextFrame();
+    const wrapped300 = h(textarea);
+
+    // Narrow the host without a window resize: it re-wraps.
+    field.style.inlineSize = '150px';
+    await nextFrame();
+    const wrapped150 = h(textarea);
+
+    const result = {
+      rowsAttr: textarea.rows,
+      overflowY: getComputedStyle(textarea).overflowY,
+      scrollFits: textarea.scrollHeight <= Math.ceil(h(textarea)),
+      empty: empty / lh,
+      three: three / lh,
+      one: one / lh,
+      programmatic: programmatic / lh,
+      cleared: cleared / lh,
+      wrapped300Lines: Math.round(wrapped300 / lh),
+      wrapped150Lines: Math.round(wrapped150 / lh),
+    };
+    console.log(navigator.userAgent, JSON.stringify(result));
+    // `programmatic` is read, not asserted: WebKit reads 1 (see the report).
+    expect([result.empty, result.three, result.one, result.cleared]).toEqual([1, 3, 1, 1]);
+    expect(result.wrapped300Lines).toBeGreaterThan(1);
+    expect(result.wrapped150Lines).toBeGreaterThan(result.wrapped300Lines);
+    expect(result.scrollFits).toBe(true);
+  });
+});

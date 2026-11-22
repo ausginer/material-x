@@ -1,0 +1,24 @@
+# probes/part-layout.browser.test.ts, run by the reviewer on 2026-11-21 at 1deacdc54, copied into packages/material-x/tests/list/ and removed after.
+# "main" is the same tree with the list templates and styles/item/main.styles.css checked out from 640658b5c. Tops are CSS pixels.
+# The received values of each row, one run per side. The committed file was rerun on the branch and gave the same branch values.
+
+== branch
+|browser (chromium)|        REVIEW order {"first":24,"second":82}
+|browser/firefox (firefox)| REVIEW order {"first":24,"second":82}
+|browser/webkit (webkit)|   REVIEW order {"first":24,"second":82}
+|browser (chromium)|        REVIEW mx-list-button-item hit=mx-list-button-item clicks=[]
+|browser (chromium)|        REVIEW mx-list-link-item hit=mx-list-link-item clicks=[]
+|browser/firefox (firefox)| REVIEW mx-list-button-item hit=mx-list-button-item clicks=[]
+|browser/firefox (firefox)| REVIEW mx-list-link-item hit=mx-list-link-item clicks=[]
+|browser/webkit (webkit)|   REVIEW mx-list-button-item hit=mx-list-button-item clicks=[]
+|browser/webkit (webkit)|   REVIEW mx-list-link-item hit=mx-list-link-item clicks=[]
+== main
+|browser (chromium)|        REVIEW order {"first":82,"second":24}
+|browser/firefox (firefox)| REVIEW order {"first":82,"second":24}
+|browser/webkit (webkit)|   REVIEW order {"first":82,"second":24}
+|browser (chromium)|        REVIEW mx-list-button-item hit=mx-list-button-item clicks=[]
+|browser (chromium)|        REVIEW mx-list-link-item hit=mx-list-link-item clicks=[]
+|browser/firefox (firefox)| REVIEW mx-list-button-item hit=mx-list-button-item clicks=[]
+|browser/firefox (firefox)| REVIEW mx-list-link-item hit=mx-list-link-item clicks=[]
+|browser/webkit (webkit)|   REVIEW mx-list-button-item hit=mx-list-button-item clicks=[]
+|browser/webkit (webkit)|   REVIEW mx-list-link-item hit=mx-list-link-item clicks=[]

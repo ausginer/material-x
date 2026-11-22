@@ -1,0 +1,6 @@
+# node probes/host-has-popover.ts
+# run 2026-11-21 by the architect, Playwright 1.65.0's Chromium 158, Firefox 159 and WebKit 27.2; plain custom elements, no package code
+# staticHas: :host:has(.y) without :popover-open (3px = matches). sync/frames: the host's display right after showPopover() and two frames later (contents = :host:has(.x:popover-open) matches). freshSync: a popover open from the start. innerHasSync: .w:has(.x:popover-open) on an element inside the tree.
+firefox 159.0 {"staticHas":"3px","sync":"block","frames":"block","matchesDirect":"x is :popover-open","freshSync":"block","innerHasSync":"contents"}
+chromium 158.0.8127.18 {"staticHas":"3px","sync":"contents","frames":"contents","matchesDirect":"x is :popover-open","freshSync":"contents","innerHasSync":"contents"}
+webkit 27.2 {"staticHas":"3px","sync":"contents","frames":"contents","matchesDirect":"x is :popover-open","freshSync":"contents","innerHasSync":"contents"}

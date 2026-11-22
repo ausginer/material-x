@@ -1540,7 +1540,7 @@
       "ButtonGroupLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
-      "FocusForwarding": true
+      "FocusForwarding": false
     },
     "statics": [
       {
@@ -1573,22 +1573,12 @@
             "enumerable": false
           },
           {
-            "key": "focus",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "selected",
             "kind": "get+set",
             "enumerable": false
           },
           {
             "key": "symbol:Disableable",
-            "kind": "value",
-            "enumerable": false
-          },
-          {
-            "key": "symbol:FocusForwarding",
             "kind": "value",
             "enumerable": false
           },
@@ -1621,7 +1611,7 @@
       "ButtonGroupLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
-      "FocusForwarding": true
+      "FocusForwarding": false
     },
     "statics": [
       {
@@ -1643,16 +1633,6 @@
           {
             "key": "constructor",
             "kind": "function",
-            "enumerable": false
-          },
-          {
-            "key": "focus",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
-            "key": "symbol:FocusForwarding",
-            "kind": "value",
             "enumerable": false
           }
         ]
@@ -1749,7 +1729,7 @@
       "ButtonGroupLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
-      "FocusForwarding": true
+      "FocusForwarding": false
     },
     "statics": [
       {
@@ -1782,11 +1762,6 @@
             "enumerable": false
           },
           {
-            "key": "focus",
-            "kind": "function",
-            "enumerable": false
-          },
-          {
             "key": "href",
             "kind": "get+set",
             "enumerable": false
@@ -1798,11 +1773,6 @@
           },
           {
             "key": "symbol:Disableable",
-            "kind": "value",
-            "enumerable": false
-          },
-          {
-            "key": "symbol:FocusForwarding",
             "kind": "value",
             "enumerable": false
           },

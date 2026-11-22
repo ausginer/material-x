@@ -1,0 +1,12 @@
+# cmp of each screenshot that list-layout.ts --png wrote, main's build at 7cc702e1b against the branch's, and of each build's level 0 against its level 6.
+# Read by the implementer on 2026-11-21.
+
+chromium-level0.png main = branch (33500 bytes)
+chromium-level6.png main = branch (41233 bytes)
+firefox-level0.png main = branch (50681 bytes)
+firefox-level6.png main = branch (60544 bytes)
+webkit-level0.png main = branch (41418 bytes)
+webkit-level6.png main = branch (50044 bytes)
+chromium branch level0 != level6 (the level raises the items)
+firefox branch level0 != level6 (the level raises the items)
+webkit branch level0 != level6 (the level raises the items)

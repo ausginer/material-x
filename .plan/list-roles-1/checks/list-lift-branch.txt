@@ -1,0 +1,24 @@
+# The lift probe: node .plan/list-roles-1/probes/list-lift.ts $PWD/packages/material-x <engine> <modes>
+# Read by the implementer on 2026-11-21 for the second re-ruling. 'item-lift' lifts the item's host, which is what core's trait lifts on the branch (useReorderableItem(host)), for the button item and, with '-static', the static item. 'none' lifts the inner .host, which is what the trait lifted on main and nothing lifts on the branch.
+
+## The branch's build, modes none,item-lift,item-lift-static
+# engine chromium 158.0.8127.18
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+item-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+item-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine firefox 159.0
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+item-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+item-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine webkit 27.2
+none               list 192 -> 204, link top 144 -> 156, visual rect kept=true, list after hidePopover 204
+item-lift          list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+item-lift-static   list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+
+## main's build at 7cc702e1b, mode none (the lift as main does it)
+# engine chromium 158.0.8127.18
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine firefox 159.0
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192
+# engine webkit 27.2
+none               list 192 -> 192, link top 144 -> 144, visual rect kept=true, list after hidePopover 192

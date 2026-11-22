@@ -2,6 +2,11 @@ import type { SortableItem } from './sortable-list-context.ts';
 
 const DESCRIPTION = 'Use the arrow keys to move';
 
+/** The attributes the item claims, which its observer watches. */
+const CLAIMED: MutationObserverInit = {
+  attributeFilter: ['tabindex', 'role', 'aria-label', 'aria-description'],
+};
+
 /**
  * The item's handle: a child element with `data-handle` in its `lead` or
  * `trail` slot. The item's semantics and drag's `handle(item)` use this one
@@ -15,8 +20,7 @@ export function handleOf(item: HTMLElement): HTMLElement | null {
 
 /**
  * Writes the attribute when the element doesn't have it, and records it in
- * `owned`. A value the consumer set is kept, and one the item wrote stays in
- * the record while it is present. `touch-action` is the inline style property.
+ * `owned`. `touch-action` is the inline style property.
  */
 function claim(
   element: HTMLElement,
@@ -37,10 +41,12 @@ function claim(
 
 function release(element: HTMLElement | null, owned: string[]): void {
   for (const name of owned) {
-    if (name === 'touch-action') {
-      element!.style.removeProperty(name);
-    } else {
+    if (name !== 'touch-action') {
       element!.removeAttribute(name);
+    } else if (element!.style.touchAction === 'none') {
+      // No observer sees an inline style, so only a different value tells a
+      // consumer's `touch-action` from the item's.
+      element!.style.removeProperty(name);
     }
   }
 
@@ -50,13 +56,13 @@ function release(element: HTMLElement | null, owned: string[]): void {
 /**
  * The sortable semantics of one item of `list`, on the item's own elements:
  * its handle's, or else its control's description, and a static item's tab
- * stop on its inner element. Nothing goes on the host, whose
- * `display: contents` box takes no focus and gains an accessibility node of
- * its own with a `tabindex`.
+ * stop. A static item's control is its host, whose box takes focus and is its
+ * `listitem`. An interactive item writes nothing on its host.
  *
- * The handle is the consumer's element, and an interactive item's control
- * receives the host's `aria-*`, so what the item wrote on either is recorded,
- * and only that is removed. A static item's inner element has no other writer.
+ * The handle and a static item's host are the consumer's elements, and an
+ * interactive item's control receives the host's `aria-*`. So a value is the
+ * item's from its write until anyone else writes or removes that attribute,
+ * and the item removes only the values that are still its own.
  */
 export function sortItem(
   list: HTMLElement,
@@ -69,45 +75,74 @@ export function sortItem(
     return undefined;
   }
 
-  const isStatic = control.localName === 'div';
   const handleOwned: string[] = [];
   const controlOwned: string[] = [];
   let handle: HTMLElement | null = null;
 
-  const releaseControl = (): void => {
-    if (isStatic) {
-      control.removeAttribute('tabindex');
-      control.removeAttribute('aria-description');
-    } else {
-      release(control, controlOwned);
+  // Each record that reaches this function is another writer's, so its
+  // attribute stops being the item's.
+  const disown = (records: readonly MutationRecord[]): void => {
+    for (const { target, attributeName } of records) {
+      const owned =
+        target === control
+          ? controlOwned
+          : target === handle
+            ? handleOwned
+            : [];
+      const index = owned.indexOf(attributeName!);
+
+      if (index >= 0) {
+        owned.splice(index, 1);
+      }
     }
   };
+  const observer = new MutationObserver(disown);
+
+  // Runs the item's own writes and removals: the pending records, which are
+  // another writer's, are applied first, and those of the item's own writes
+  // are dropped.
+  const write = (run: () => void): void => {
+    disown(observer.takeRecords());
+    run();
+    observer.takeRecords();
+  };
+
+  observer.observe(control, CLAIMED);
 
   const update = (): void => {
-    const next = handleOf(host);
+    write(() => {
+      const next = handleOf(host);
 
-    if (next !== handle) {
-      release(handle, handleOwned);
-      handle = next;
-    }
+      if (next !== handle) {
+        release(handle, handleOwned);
+        handle = next;
+        observer.disconnect();
+        observer.observe(control, CLAIMED);
 
-    if (handle) {
-      claim(handle, handleOwned, 'tabindex', '0');
-      claim(handle, handleOwned, 'role', 'button');
-
-      if (!handle.hasAttribute('aria-labelledby')) {
-        claim(handle, handleOwned, 'aria-label', 'Reorder');
+        if (handle) {
+          observer.observe(handle, CLAIMED);
+        }
       }
 
-      claim(handle, handleOwned, 'aria-description', DESCRIPTION);
-      claim(handle, handleOwned, 'touch-action', 'none');
-      releaseControl();
-    } else if (isStatic) {
-      control.tabIndex = 0;
-      control.setAttribute('aria-description', DESCRIPTION);
-    } else {
-      claim(control, controlOwned, 'aria-description', DESCRIPTION);
-    }
+      if (handle) {
+        claim(handle, handleOwned, 'tabindex', '0');
+        claim(handle, handleOwned, 'role', 'button');
+
+        if (!handle.hasAttribute('aria-labelledby')) {
+          claim(handle, handleOwned, 'aria-label', 'Reorder');
+        }
+
+        claim(handle, handleOwned, 'aria-description', DESCRIPTION);
+        claim(handle, handleOwned, 'touch-action', 'none');
+        release(control, controlOwned);
+      } else {
+        if (control === host) {
+          claim(control, controlOwned, 'tabindex', '0');
+        }
+
+        claim(control, controlOwned, 'aria-description', DESCRIPTION);
+      }
+    });
   };
 
   update();
@@ -115,8 +150,12 @@ export function sortItem(
   return {
     update,
     release: () => {
-      release(handle, handleOwned);
-      releaseControl();
+      write(() => {
+        release(handle, handleOwned);
+        release(control, controlOwned);
+      });
+      observer.disconnect();
+      handle = null;
     },
   };
 }

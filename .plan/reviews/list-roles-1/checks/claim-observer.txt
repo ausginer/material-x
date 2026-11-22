@@ -1,0 +1,103 @@
+# Re-check of reviewer-1 and reviewer-2 at 0bf998d2f (material-x/list-roles-1), 2026-11-21, by the feature proof. One detached worktree, installed and built with aube exec just build. Playwright 1.65.0: Chromium 158.0.8127.18, Firefox 159.0, WebKit 27.2. Node 26.13.1.
+
+## The two probes, copied to packages/material-x/tests/list/ and run with MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts <file> --silent=false
+# probes/consumer-writes.browser.test.ts (the first pass's four cases; at de24d50d5 see consumer-writes.txt) and probes/claim-observer.browser.test.ts
+      Tests  30 passed (30)
+CLAIM chromium 20 moves | {"observersCreated":21,"observingNow":1,"claimed":["0","Use the arrow keys to move"]}
+CLAIM chromium button item, description and handle in one task | {"claimed":"Use the arrow keys to move","control":"Mine"}
+CLAIM chromium move into mx-list | {"observingInList":2,"observingAfterRelease":0,"callbacksAfterRelease":0}
+CLAIM chromium removal, then update, then release | {"removed":null,"afterUpdate":"0","afterRelease":null}
+CLAIM chromium removed from the document | {"observingInList":1,"observingAfterRemoval":0}
+CLAIM chromium touch-action | {"sameValue":"","otherValue":"pan-y"}
+CLAIM firefox 20 moves | {"observersCreated":21,"observingNow":1,"claimed":["0","Use the arrow keys to move"]}
+CLAIM firefox button item, description and handle in one task | {"claimed":"Use the arrow keys to move","control":"Mine"}
+CLAIM firefox move into mx-list | {"observingInList":2,"observingAfterRelease":0,"callbacksAfterRelease":0}
+CLAIM firefox removal, then update, then release | {"removed":null,"afterUpdate":"0","afterRelease":null}
+CLAIM firefox removed from the document | {"observingInList":1,"observingAfterRemoval":0}
+CLAIM firefox touch-action | {"sameValue":"","otherValue":"pan-y"}
+CLAIM webkit 20 moves | {"observersCreated":21,"observingNow":1,"claimed":["0","Use the arrow keys to move"]}
+CLAIM webkit button item, description and handle in one task | {"claimed":"Use the arrow keys to move","control":"Mine"}
+CLAIM webkit move into mx-list | {"observingInList":2,"observingAfterRelease":0,"callbacksAfterRelease":0}
+CLAIM webkit removal, then update, then release | {"removed":null,"afterUpdate":"0","afterRelease":null}
+CLAIM webkit removed from the document | {"observingInList":1,"observingAfterRemoval":0}
+CLAIM webkit touch-action | {"sameValue":"","otherValue":"pan-y"}
+WRITES chromium handle aria-label then removal | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=Reorder | consumer wrote: tabindex=0 aria-description=Use the arrow keys to move aria-label=Drag A | handle removed: tabindex=null aria-description=null aria-label=Drag A
+WRITES chromium host -1 then mx-list | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | consumer wrote: tabindex=-1 aria-description=Mine aria-label=null | in mx-list: tabindex=-1 aria-description=Mine aria-label=null
+WRITES chromium host 0 then handle | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | consumer wrote: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | with a handle: tabindex=0 aria-description=null aria-label=null
+WRITES chromium host 0 then mx-list | in mx-list: tabindex=0 aria-description=null aria-label=null | focus() reaches it: true
+WRITES firefox handle aria-label then removal | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=Reorder | consumer wrote: tabindex=0 aria-description=Use the arrow keys to move aria-label=Drag A | handle removed: tabindex=null aria-description=null aria-label=Drag A
+WRITES firefox host -1 then mx-list | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | consumer wrote: tabindex=-1 aria-description=Mine aria-label=null | in mx-list: tabindex=-1 aria-description=Mine aria-label=null
+WRITES firefox host 0 then handle | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | consumer wrote: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | with a handle: tabindex=0 aria-description=null aria-label=null
+WRITES firefox host 0 then mx-list | in mx-list: tabindex=0 aria-description=null aria-label=null | focus() reaches it: true
+WRITES webkit handle aria-label then removal | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=Reorder | consumer wrote: tabindex=0 aria-description=Use the arrow keys to move aria-label=Drag A | handle removed: tabindex=null aria-description=null aria-label=Drag A
+WRITES webkit host -1 then mx-list | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | consumer wrote: tabindex=-1 aria-description=Mine aria-label=null | in mx-list: tabindex=-1 aria-description=Mine aria-label=null
+WRITES webkit host 0 then handle | claimed: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | consumer wrote: tabindex=0 aria-description=Use the arrow keys to move aria-label=null | with a handle: tabindex=0 aria-description=null aria-label=null
+WRITES webkit host 0 then mx-list | in mx-list: tabindex=0 aria-description=null aria-label=null | focus() reaches it: true
+
+## Mutations of sortable-item.ts, each applied, run on tests/list/sortable-list.browser.test.ts in three engines (count = engines), and reverted with git checkout
+## clean
+      1       Tests  228 passed (228)
+ packages/material-x/src/list/sortable-item.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## R1 the report's mutation: disown iterates no record
+      1       Tests  18 failed | 210 passed (228)
+      3      × should keep a consumer's aria-label on a handle once the handle leaves
+      3      × should keep a consumer's tabindex and description on the host once it moves into mx-list
+      3      × should keep a consumer's tabindex of the item's value as a tab stop in mx-list
+      3      × should keep a consumer's tabindex of the item's value on the host once it gains a handle
+      3      × should keep a consumer's write made in the same task as the release
+      3      × should keep the description that the host forwards to a button item's control once it gains a handle
+      1 ⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+ packages/material-x/src/list/sortable-item.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## R2 write() drops the pending records instead of applying them
+      1       Tests  3 failed | 225 passed (228)
+      3      × should keep a consumer's write made in the same task as the release
+      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ packages/material-x/src/list/sortable-item.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## R3 the observer's callback applies nothing
+      1       Tests  15 failed | 213 passed (228)
+      3      × should keep a consumer's aria-label on a handle once the handle leaves
+      3      × should keep a consumer's tabindex and description on the host once it moves into mx-list
+      3      × should keep a consumer's tabindex of the item's value as a tab stop in mx-list
+      3      × should keep a consumer's tabindex of the item's value on the host once it gains a handle
+      3      × should keep the description that the host forwards to a button item's control once it gains a handle
+      1 ⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+## clean after reverts
+      1       Tests  228 passed (228)
+
+## aube exec just size-reading at 0bf998d2f against de24d50d5: row, de24d50d5, 0bf998d2f, difference (Brotli bytes)
+box-quad index	1182	1182	+0
+core element	312	312	+0
+core emitter	198	198	+0
+material-x button/button	4929	4929	+0
+material-x button/icon-button	5216	5216	+0
+material-x button/link-button	4900	4900	+0
+material-x button/switch-button	5297	5297	+0
+material-x button/switch-icon-button	5694	5694	+0
+material-x button/split-button	7507	7507	+0
+material-x button-group/button-group	3113	3113	+0
+material-x button-group/connected-button-group	3898	3898	+0
+material-x checkbox/checkbox	4025	4025	+0
+material-x fab/fab	4236	4236	+0
+material-x icon/icon	661	661	+0
+material-x list/list	686	686	+0
+material-x list/list-item	2789	2789	+0
+material-x list/list-button-item	4664	4664	+0
+material-x list/list-link-item	4883	4883	+0
+material-x list/sortable-list	8548	8686	+138
+material-x radio/radio	3590	3590	+0
+material-x text-field/multiline-text-field	4437	4437	+0
+material-x text-field/text-field	8253	8253	+0
+material-x complete	22198	22379	+181
+drag draggable alone	2189	2189	+0
+drag draggable + lift	3932	3932	+0
+drag example: resize handle	3265	3265	+0
+drag example: drop zone	4570	4570	+0
+drag example: canvas group	3261	3261	+0
+drag freeDrag	4984	4984	+0
+drag freeDrag + bounds + landing	5465	5465	+0
+drag sortable + y	6533	6533	+0
+drag sortable + xy	6484	6484	+0
+drag complete	7143	7143	+0

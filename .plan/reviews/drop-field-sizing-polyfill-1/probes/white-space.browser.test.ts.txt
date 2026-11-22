@@ -1,0 +1,34 @@
+// Reviewer's probe: whether a value set from script keeps its line breaks.
+// Copied into packages/material-x/tests/text-field/ to run, then removed.
+import { $ } from '@ydinjs/core/utils/DOM.js';
+import { expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import { nextFrame } from '../browser.ts';
+
+it('ws probe', async () => {
+  const field = document.createElement('mx-multiline-text-field') as HTMLElement & { value: string };
+  field.style.display = 'block';
+  field.style.inlineSize = '300px';
+  document.body.append(field);
+  await nextFrame();
+  const ta = $<HTMLTextAreaElement>(field, '.input')!;
+  const lh = parseFloat(getComputedStyle(ta).lineHeight);
+  const cs = getComputedStyle(ta);
+  const out: Record<string, unknown> = { whiteSpace: cs.whiteSpace, wsCollapse: cs.getPropertyValue('white-space-collapse'), textWrap: cs.getPropertyValue('text-wrap-mode') };
+  field.value = 'x\ny\nz\nw';
+  await nextFrame();
+  out.setLines = ta.getBoundingClientRect().height / lh;
+  out.setScrollLines = ta.scrollHeight / lh;
+  // typed after programmatic: does typing re-layout?
+  await userEvent.click(ta);
+  await userEvent.keyboard('{End}q');
+  await nextFrame();
+  out.afterTypeLines = ta.getBoundingClientRect().height / lh;
+  ta.style.whiteSpace = 'pre-wrap';
+  field.value = 'x\ny\nz\nw';
+  await nextFrame();
+  out.preWrapSetLines = ta.getBoundingClientRect().height / lh;
+  console.log('READING', navigator.userAgent.slice(-30), JSON.stringify(out));
+  expect(out).toBeTruthy();
+});

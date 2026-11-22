@@ -1,0 +1,26 @@
+# The host's computed --_level per frame after onStart, while drag's lift holds the item in mx-sortable-list (real pointer input, --_drag-duration .65s). Read by the implementer on 2026-11-21 with a scratch browser test, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2.
+# 'state' is the first frame that sees the drag state; '+Nms' is each later frame; '+1000ms' a reading 1 s later.
+
+## Without the :host(:popover-open) rule and without onStart's style read
+RISE chromium mx-list-item rest=0 duration=.65s | state 8 | +14ms 8 popover-open=true | +30ms 8 popover-open=true | +46ms 8 popover-open=true | +63ms 8 popover-open=true | +80ms 8 popover-open=true | +96ms 8 popover-open=true | +1000ms 8
+RISE chromium mx-list-button-item rest=0 duration=.65s | state 8 | +15ms 8 popover-open=true | +31ms 8 popover-open=true | +47ms 8 popover-open=true | +64ms 8 popover-open=true | +80ms 8 popover-open=true | +98ms 8 popover-open=true | +1000ms 8
+RISE firefox mx-list-item rest=0 duration=.65s | state 8 | +13ms 8 popover-open=true | +30ms 8 popover-open=true | +47ms 8 popover-open=true | +63ms 8 popover-open=true | +80ms 8 popover-open=true | +96ms 8 popover-open=true | +1000ms 8
+RISE firefox mx-list-button-item rest=0 duration=.65s | state 8 | +14ms 8 popover-open=true | +27ms 8 popover-open=true | +45ms 8 popover-open=true | +61ms 8 popover-open=true | +79ms 8 popover-open=true | +94ms 8 popover-open=true | +1000ms 8
+RISE webkit mx-list-item rest=0 duration=.65s | state 8 | +48ms 8 popover-open=true | +66ms 8 popover-open=true | +82ms 8 popover-open=true | +98ms 8 popover-open=true | +114ms 8 popover-open=true | +130ms 8 popover-open=true | +1000ms 8
+RISE webkit mx-list-button-item rest=0 duration=.65s | state 8 | +53ms 8 popover-open=true | +75ms 8 popover-open=true | +80ms 8 popover-open=true | +97ms 8 popover-open=true | +111ms 8 popover-open=true | +127ms 8 popover-open=true | +1000ms 8
+
+## With the rule, without the read
+RISE chromium mx-list-item rest=0 duration=.65s | state 0 | +12ms 0.673494 popover-open=true | +27ms 1.34522 popover-open=true | +44ms 2.00501 popover-open=true | +61ms 2.65809 popover-open=true | +77ms 3.29325 popover-open=true | +94ms 3.91755 popover-open=true | +1000ms 8
+RISE chromium mx-list-button-item rest=0 duration=.65s | state 0 | +16ms 0.673494 popover-open=true | +32ms 1.34923 popover-open=true | +48ms 2.00896 popover-open=true | +65ms 2.65809 popover-open=true | +82ms 3.29703 popover-open=true | +99ms 3.9139 popover-open=true | +1000ms 8
+RISE firefox mx-list-item rest=0 duration=.65s | state 0 | +15ms 0.653647 popover-open=true | +30ms 1.34591 popover-open=true | +46ms 1.98863 popover-open=true | +62ms 2.6574 popover-open=true | +79ms 3.27824 popover-open=true | +96ms 3.91519 popover-open=true | +1000ms 8
+RISE firefox mx-list-button-item rest=0 duration=.65s | state 0 | +17ms 0.694281 popover-open=true | +30ms 1.34281 popover-open=true | +47ms 2.02411 popover-open=true | +63ms 2.65395 popover-open=true | +80ms 3.30786 popover-open=true | +96ms 3.90603 popover-open=true | +1000ms 8
+RISE webkit mx-list-item rest=0 duration=.65s | state 8 | +31ms 8 popover-open=true | +33ms 8 popover-open=true | +49ms 8 popover-open=true | +65ms 8 popover-open=true | +81ms 8 popover-open=true | +97ms 8 popover-open=true | +1000ms 8
+RISE webkit mx-list-button-item rest=0 duration=.65s | state 8 | +16ms 8 popover-open=true | +37ms 8 popover-open=true | +48ms 8 popover-open=true | +64ms 8 popover-open=true | +80ms 8 popover-open=true | +96ms 8 popover-open=true | +1000ms 8
+
+## With the rule and the read (the branch)
+RISE chromium mx-list-item rest=0 duration=.65s | state 0 | +14ms 0.673494 popover-open=true | +29ms 1.34522 popover-open=true | +46ms 2.00896 popover-open=true | +63ms 2.65809 popover-open=true | +79ms 3.29703 popover-open=true | +96ms 3.91755 popover-open=true | +1000ms 8
+RISE chromium mx-list-button-item rest=0 duration=.65s | state 0 | +16ms 0.677536 popover-open=true | +32ms 1.34923 popover-open=true | +49ms 2.00896 popover-open=true | +65ms 2.65809 popover-open=true | +82ms 3.29703 popover-open=true | +99ms 3.91755 popover-open=true | +1000ms 8
+RISE firefox mx-list-item rest=0 duration=.65s | state 0 | +15ms 0.658097 popover-open=true | +30ms 1.35088 popover-open=true | +47ms 1.99094 popover-open=true | +64ms 2.66247 popover-open=true | +80ms 3.27844 popover-open=true | +97ms 3.91495 popover-open=true | +1000ms 8
+RISE firefox mx-list-button-item rest=0 duration=.65s | state 0 | +14ms 0.656421 popover-open=true | +29ms 1.34933 popover-open=true | +44ms 1.99183 popover-open=true | +61ms 2.66062 popover-open=true | +77ms 3.2784 popover-open=true | +94ms 3.91567 popover-open=true | +1000ms 8
+RISE webkit mx-list-item rest=0 duration=.65s | state 0.243983 | +23ms 1.172933 popover-open=true | +44ms 2.00896 popover-open=true | +53ms 2.362414 popover-open=true | +75ms 3.21002 popover-open=true | +86ms 3.6229 popover-open=true | +106ms 4.349198 popover-open=true | +1000ms 8
+RISE webkit mx-list-button-item rest=0 duration=.65s | state 0 | +16ms 0.64924 popover-open=true | +37ms 1.493056 popover-open=true | +51ms 2.048395 popover-open=true | +64ms 2.557251 popover-open=true | +80ms 3.172085 popover-open=true | +101ms 3.954018 popover-open=true | +1000ms 8

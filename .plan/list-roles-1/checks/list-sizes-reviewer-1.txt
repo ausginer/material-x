@@ -1,0 +1,37 @@
+# Size rows, Brotli bytes: aube exec just size-reading. base: origin/main at 73f081dc4. de24d50d5: the step-2 commit. fix: the reviewer-1 fix over d1df5e19d. All three builds name private custom properties as their own build does; the fix changes no stylesheet, so its names equal de24d50d5's.
+# Read by the implementer on 2026-11-21.
+
+package	row	base	de24d50d5	fix	fix - de24d50d5
+box-quad	index	1182	1182	1182	+0
+core	element	312	312	312	+0
+core	emitter	198	198	198	+0
+material-x	button/button	4926	4929	4929	+0
+material-x	button/icon-button	5203	5216	5216	+0
+material-x	button/link-button	4900	4900	4900	+0
+material-x	button/switch-button	5291	5297	5297	+0
+material-x	button/switch-icon-button	5682	5694	5694	+0
+material-x	button/split-button	7492	7507	7507	+0
+material-x	button-group/button-group	3126	3113	3113	+0
+material-x	button-group/connected-button-group	3888	3898	3898	+0
+material-x	checkbox/checkbox	4021	4025	4025	+0
+material-x	fab/fab	4234	4236	4236	+0
+material-x	icon/icon	661	661	661	+0
+material-x	list/list	685	686	686	+0
+material-x	list/list-item	2828	2789	2789	+0
+material-x	list/list-button-item	4667	4664	4664	+0
+material-x	list/list-link-item	4885	4883	4883	+0
+material-x	list/sortable-list	8605	8548	8686	+138
+material-x	radio/radio	3590	3590	3590	+0
+material-x	text-field/multiline-text-field	4437	4437	4437	+0
+material-x	text-field/text-field	8188	8253	8253	+0
+material-x	complete	22092	22198	22379	+181
+drag	draggable alone	2189	2189	2189	+0
+drag	draggable + lift	3932	3932	3932	+0
+drag	example: resize handle	3265	3265	3265	+0
+drag	example: drop zone	4570	4570	4570	+0
+drag	example: canvas group	3261	3261	3261	+0
+drag	freeDrag	4984	4984	4984	+0
+drag	freeDrag + bounds + landing	5465	5465	5465	+0
+drag	sortable + y	6533	6533	6533	+0
+drag	sortable + xy	6484	6484	6484	+0
+drag	complete	7143	7143	7143	+0

@@ -200,8 +200,7 @@ slot:has-slotted {
 /* =======================
  * Input
  * ======================= */
-.input,
-.input-polyfill {
+.input {
   all: unset;
   grid-area: I;
   field-sizing: content;
@@ -218,17 +217,6 @@ slot:has-slotted {
   );
   color: var(--_input-text-color);
   caret-color: var(--_caret-color);
-}
-
-.input-polyfill {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  visibility: hidden;
-  pointer-events: none;
-  overflow: hidden;
-  block-size: 0;
-  contain: 'layout style';
 }
 
 /* =======================

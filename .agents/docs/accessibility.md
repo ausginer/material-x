@@ -49,13 +49,19 @@ None known.
 
 ### Accessibility test notes
 
-- `mx-list` exposes `role="list"` through `ElementInternals`, and list items currently expose `role="listitem"` through `ElementInternals` on the custom-element host (`src/list/list.ts`, `src/list/ListItemCore.ts`).
-- List item hosts use `display: contents` so their internal `div`, `button`, or `a` implementation can participate in layout without an extra host box (`src/list/styles/default/main.styles.css`). Future accessibility tests must verify that the host `listitem` role is still exposed in the accessibility tree for `mx-list-item`, `mx-list-button-item`, and `mx-list-link-item` in the supported Baseline browser matrix.
-- Tests should also verify that interactive items retain their native control semantics: `mx-list-button-item` remains operable and exposed as a button, while `mx-list-link-item` remains exposed as a link when enabled and is removed from focus/navigation when disabled (`src/list/list-button-item.ts`, `src/list/list-link-item.ts`).
+- `mx-list` exposes `role="list"` through `ElementInternals` (`src/list/list.ts`).
+- Each item's host is its `listitem`, through `ElementInternals`, and has a box (`src/list/ListItemCore.ts`). No template carries a `role`, and the host's `role` attribute stays the consumer's.
+- The host has a box because WebKit parents an item's shadow content by its box and its slotted light-DOM nodes by the DOM: past a `display: contents` host, the button, the link or the label text ends up outside its `listitem`. With a box, each item's content, control and slotted nodes are inside its `listitem` in Chromium, Firefox and WebKit.
+- `mx-list-item` has no inner element: its shadow root holds the slots and their `.content` wrapper directly, and its host is its box (`src/list/styles/item/static-box.styles.css`). `mx-list-button-item` and `mx-list-link-item` wrap their `<button>` or `<a>` `.host`, which keeps its own role, name and focus. Their shadow roots delegate focus, which reaches the control through a box host in every engine.
+- A consumer's `tabindex` on an `mx-list-item` host makes the host a tab stop, as on any element with a box, and the item doesn't suppress it. Its accessible node is its `listitem`, with no node of its own.
+- In `mx-sortable-list`, a handle-less `mx-list-item` takes focus on its host, which is its `listitem`: the item writes `tabindex="0"` and the arrow-key description there where the consumer hasn't set them, and when it gains a handle or leaves the list it removes only the values that are still its own: a value anyone else writes or removes, at any time, is the consumer's (`src/list/sortable-item.ts`). Its focus indicator draws on `:host(:focus-visible)`. The focused item is announced with its role and has no node of its own around it. `.plan/list-sortable-1/checks/list-a11y-roles.txt` reads Chromium's tree with the focused item.
+- A drag lifts the item's host into the top layer, so the list keeps no gap for it.
+- `tests/list/list-roles.browser.test.ts` checks the structure in every engine of the gate, and Chromium's own accessibility tree through CDP: one `listitem` per item, below the list, with each button and link inside its item and keeping its role and name. Firefox's and WebKit's trees were read with the probe in `.plan/list-roles-1/probes/list-roles.ts`.
+- Interactive items keep their native control semantics: `mx-list-button-item` is operable and exposed as a button, and `mx-list-link-item` is exposed as a link, and is removed from the tab order when disabled (`src/list/list-button-item.ts`, `src/list/list-link-item.ts`).
 
 ### Missing requirements
 
-- No automated accessibility coverage exists yet for the `display: contents` host plus `ElementInternals.role` combination. If tests show that a supported browser/AT combination drops the host `listitem` role, move list item semantics to a non-`display: contents` wrapper or another tested structure.
+- The trees were read in Playwright's builds of Chromium, Firefox and WebKit, not in Safari or with a screen reader.
 
 ## Drag (`@ydinjs/drag` sortable)
 

@@ -1,0 +1,235 @@
+{
+  "rows": [
+    {
+      "package": "box-quad",
+      "row": "index",
+      "brotli": 1182,
+      "gzip": null,
+      "limit": 1182
+    },
+    {
+      "package": "core",
+      "row": "element",
+      "brotli": 275,
+      "gzip": null,
+      "limit": 340
+    },
+    {
+      "package": "core",
+      "row": "emitter",
+      "brotli": 198,
+      "gzip": null,
+      "limit": 210
+    },
+    {
+      "package": "material-x",
+      "row": "button/button",
+      "brotli": 4915,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/icon-button",
+      "brotli": 5151,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/link-button",
+      "brotli": 4876,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-button",
+      "brotli": 5233,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-icon-button",
+      "brotli": 5657,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/split-button",
+      "brotli": 7489,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/button-group",
+      "brotli": 3113,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/connected-button-group",
+      "brotli": 3870,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "checkbox/checkbox",
+      "brotli": 3980,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "fab/fab",
+      "brotli": 4178,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "icon/icon",
+      "brotli": 643,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list",
+      "brotli": 658,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-item",
+      "brotli": 2846,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-button-item",
+      "brotli": 4643,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-link-item",
+      "brotli": 4842,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/sortable-list",
+      "brotli": 8592,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "radio/radio",
+      "brotli": 3526,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/multiline-text-field",
+      "brotli": 4071,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/text-field",
+      "brotli": 8160,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "complete",
+      "brotli": 21960,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "drag",
+      "row": "draggable alone",
+      "brotli": 2189,
+      "gzip": 2422,
+      "limit": 2189
+    },
+    {
+      "package": "drag",
+      "row": "draggable + lift",
+      "brotli": 3932,
+      "gzip": 4362,
+      "limit": 3932
+    },
+    {
+      "package": "drag",
+      "row": "example: resize handle",
+      "brotli": 3265,
+      "gzip": 3607,
+      "limit": 3265
+    },
+    {
+      "package": "drag",
+      "row": "example: drop zone",
+      "brotli": 4570,
+      "gzip": 5058,
+      "limit": 4570
+    },
+    {
+      "package": "drag",
+      "row": "example: canvas group",
+      "brotli": 3261,
+      "gzip": 3573,
+      "limit": 3261
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag",
+      "brotli": 4984,
+      "gzip": 5526,
+      "limit": 4984
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag + bounds + landing",
+      "brotli": 5465,
+      "gzip": 6041,
+      "limit": 5465
+    },
+    {
+      "package": "drag",
+      "row": "sortable + y",
+      "brotli": 6533,
+      "gzip": 7232,
+      "limit": 6533
+    },
+    {
+      "package": "drag",
+      "row": "sortable + xy",
+      "brotli": 6484,
+      "gzip": 7191,
+      "limit": 6484
+    },
+    {
+      "package": "drag",
+      "row": "complete",
+      "brotli": 7143,
+      "gzip": 7900,
+      "limit": 7143
+    }
+  ]
+}
