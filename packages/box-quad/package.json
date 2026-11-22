@@ -45,6 +45,10 @@
     "typecheck": "just typecheck"
   },
   "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "size-limit": "14.3.0",
     "size-limit-preset-rolldown": "0.1.0"
   },

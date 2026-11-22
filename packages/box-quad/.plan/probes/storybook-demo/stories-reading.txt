@@ -1,0 +1,55 @@
+# node packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts, on 2026-11-22, from the repository root after aube exec just docs-build.
+# Stories at box-quad/storybook-1 with this unit's source; .docs built from that tree. Node v26.13.1.
+
+
+## Firefox 159.0, layout.css.getBoxQuads.enabled
+Live Demo overlay corners against native getBoxQuads(), max |difference| (px), limit 0.02
+rotation -18 skew   8  1.52e-2  pass
+  overlay p1 (486.18, 336.75) p2 (763.88, 246.52) p3 (841.80, 406.27) p4 (564.10, 496.50)
+  native  p1 (486.19, 336.75) p2 (763.90, 246.51) p3 (841.81, 406.25) p4 (564.10, 496.49)
+rotation -55 skew -20  7.87e-3  pass
+rotation -55 skew  20  2.81e-3  pass
+rotation  55 skew -20  2.81e-3  pass
+rotation  55 skew  20  7.87e-3  pass
+
+## Firefox 159.0: Pointer Delta, ancestorRotation:-40;ancestorZoom:1.75
+  pointer (555.40, 372.36) -> (695.40, 442.36) in 20 steps
+  box centre (695.40, 442.36), distance 0.000 px  pass
+
+## Chromium 158.0.8127.18
+Live Demo at rotation 0, skew 0: overlay corners against getBoundingClientRect() corners
+  overlay p1 (518.00, 285.00) p2 (810.00, 285.00) p3 (810.00, 461.00) p4 (518.00, 461.00)
+  rect    p1 (518.00, 285.00) p2 (810.00, 285.00) p3 (810.00, 461.00) p4 (518.00, 461.00)
+  max |difference| 0.00e+0  pass
+
+## Chromium 158.0.8127.18: Pointer Delta, ancestorRotation:-40;ancestorZoom:1.75
+  pointer (555.40, 372.86) -> (695.40, 442.86) in 20 steps
+  box centre (695.40, 442.86), distance 0.000 px  pass
+
+## Chromium 158.0.8127.18: Failed Reads
+  A 3D transform. Read: false, overlay drawn: false  pass
+  An inline element on two lines. Read: false, overlay drawn: false  pass
+  `display: none`. Read: false, overlay drawn: false  pass
+  A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+
+## Chromium 158.0.8127.18: screenshots of #storybook-root
+  screenshots/live-demo-light.png
+  screenshots/live-demo-dark.png
+  screenshots/nested-spaces-light.png
+  screenshots/nested-spaces-dark.png
+  screenshots/pointer-delta-light.png
+  screenshots/pointer-delta-dark.png
+  screenshots/failed-reads-light.png
+  screenshots/failed-reads-dark.png
+
+## WebKit 27.2
+Live Demo at rotation 0, skew 0: overlay corners against getBoundingClientRect() corners
+  overlay p1 (518.00, 285.00) p2 (810.00, 285.00) p3 (810.00, 461.00) p4 (518.00, 461.00)
+  rect    p1 (518.00, 285.00) p2 (810.00, 285.00) p3 (810.00, 461.00) p4 (518.00, 461.00)
+  max |difference| 0.00e+0  pass
+
+## WebKit 27.2: Pointer Delta, ancestorRotation:-40;ancestorZoom:1.75
+  pointer (555.40, 372.86) -> (695.40, 442.86) in 20 steps
+  box centre (695.40, 442.86), distance 0.000 px  pass
+
+All readings pass
