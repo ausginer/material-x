@@ -4011,6 +4011,51 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Ready** for an implementer. The reviewer's task 11 was waiting for a ruling first, and `RF-81` is that ruling. The other half of that task, replacing `button.color.spec`'s literal elevation row, is `RF-86`'s.
 - **Size:** _small_.
 
+#### RF-97 — The filled text field's populated label sits above its band
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-5`, from the implementer's report on #160, relayed by the coordinator. `RF-82`'s dated paragraph on `material-x/text-field-contracts-1` at [`256977dbc`](https://github.com/ausginer/material-x/blob/256977dbc/.plan/00-index.md) reports it as a new difference under `RD-34`, the comparison that `RF-81`'s ruling on the populated label asked for. `RF-96` is the highest `RF-` on any branch on `origin`, on #155, so this is the next free number. Read in that branch's text field stylesheet and token package.
+
+- **What happens:** the populated label is the resting label scaled by `label-text.populated.scale`, 0.75. So its line box is 24 px × 0.75 = 18 px, and not the 16 px of `label-text.populated.line-height`. Chromium reads the line box's centre 14.625 px below the container's top, where `container.focus.padding.block` (8 px) plus half of 16 px gives 16 px. So the label sits 1.375 px higher than the tokens place it. The implementer read the centre in Chromium only. #160's row is `it.fails` in Chromium, Firefox and WebKit.
+- **Affected:** the filled `mx-text-field` and `mx-multiline-text-field` while populated or focused.
+- **Required property:** in each engine at `RD-20`'s floor, the filled field's populated label is centred `container.focus.padding.block` plus half of `label-text.populated.line-height` below the container's top. **The scale stays,** as `RF-81` rules, so the label still moves between rest and populated by transform alone, with no layout. The implementer chooses how the offset is corrected.
+- **Rows:** #160's populated-label position row becomes a plain row. **Witness:** it fails before the repair, as its `it.fails` already shows, and passes after it in the three engines.
+- **Order:** after #160 merges, because the row is #160's.
+- **Size:** _small_.
+
+#### RF-98 — A hovered filled text field draws no state layer
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-5`, from the implementer's report on #160, relayed by the coordinator: _"Seen, not registered"_ (1) in `RF-82`'s dated paragraph at [`256977dbc`](https://github.com/ausginer/material-x/blob/256977dbc/.plan/00-index.md). `RF-97` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed it by reading at `256977dbc`: `textFieldAllowedTokensSelector` admits `state-layer.color` and `state-layer.opacity`, `SPECIAL_FILLED_TOKENS` adds the hover state layer's colour, and no stylesheet under `src/text-field/` reads either property. Not run.
+
+- **What happens:** the filled field renders `--_state-layer-color` and `--_state-layer-opacity`, 0.08 on hover, and no rule reads them. So a hovered field shows no state layer, where M3's filled field shows `hover.state-layer.color` at `hover.state-layer.opacity` over its container.
+- **Affected:** the filled `mx-text-field` and `mx-multiline-text-field`, enabled and hovered. The outlined field isn't affected, because `md.comp.outlined-text-field` has no state-layer token (read in the token store at `6a67badfd`).
+- **Required property:** in each engine at `RD-20`'s floor, a hovered, enabled filled field draws its state layer at `hover.state-layer.color` and `hover.state-layer.opacity` over the container, or `error.hover.state-layer.color` and `.opacity` while in error, and its other parts don't change. A disabled field draws none. Visual-contract rows observe it, read as painted, as `RF-82`'s colour rows read.
+- **It meets part of `RF-81`'s property,** because the two properties then have a reader.
+- **Not established:** which element draws the layer. `.notched-outline`'s background is already the container colour mixed at its opacity (`RF-79`'s fix on #160).
+- **Order:** after #160 merges, because the rows extend #160's file.
+- **Size:** _small_.
+
+#### RF-99 — An empty text field's resting label keeps the placeholder colour in every state
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-5`, from the implementer's report on #160, relayed by the coordinator: _"Seen, not registered"_ (2) in `RF-82`'s dated paragraph at [`256977dbc`](https://github.com/ausginer/material-x/blob/256977dbc/.plan/00-index.md). `RF-98` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed it by reading `main.styles.css` at `256977dbc`. Not run.
+
+- **What happens:** `.label` takes `color: var(--_input-text-placeholder-color)`. `--_label-text-color` applies only under `:host(:state(populated))` and `:host(:focus-within)`, and in the disabled sheet. So an empty, unfocused field draws its label in the placeholder colour whatever its state. The values are equal at rest, so only the other states show it. An empty field in error keeps `on-surface-variant`, where `error.label-text.color` is `error`. An empty outlined field on hover keeps it too, where `hover.label-text.color` is `on-surface`. #160's colour rows use a populated field, so they don't see it.
+- **Affected:** `mx-text-field` and `mx-multiline-text-field`, both variants, while empty and unfocused.
+- **Required property:** in each engine at `RD-20`'s floor, an empty field's resting label takes the `label-text.color` of the field's effective state: `default`, `hover`, `error.default`, `error.hover` or `disabled`. Rows observe each of these on an empty field. **Witness:** the empty error row and the empty outlined hover row fail before the repair.
+- **Not established:** whether any other state differs. The unit's rows establish it.
+- **Order:** after #160 merges, because the rows extend #160's file. The error hover row needs `RF-100` for its expected value.
+- **Size:** _small_.
+
+#### RF-100 — The text field's `error.hover` and `error.focus` states don't extend `hover` and `focus`, so their effective tokens differ from what the field renders
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-5`, from the implementer's report on #160, relayed by the coordinator: _"Seen, not registered"_ (3) in `RF-82`'s dated paragraph at [`256977dbc`](https://github.com/ausginer/material-x/blob/256977dbc/.plan/00-index.md). `RF-99` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed the mechanism by reading `createTextFieldExtensions` in `src/text-field/styles/utils.ts` at `256977dbc`.
+
+- **What happens:** `error.hover` and `error.focus` extend `default` and `error`, and not `hover` or `focus`, so their effective states lack the hover and focus tokens. `effective('error.focus')`'s `active-indicator.thickness` is 1 px, from `default`. The stylesheet draws 2 px in error and focus, because the `focus` block matches as well.
+- **Why it is Tier B:** the rendering is right today, by the cascade. The effective state is the oracle of every visual-contract row (`RD-34`), and it disagrees with the rendering for these two states. So a row for the error hover or focus state compares against wrong values, or has to read another state. No row reads them yet.
+- **Required property:** `error.hover`'s effective tokens include `hover`'s, and `error.focus`'s include `focus`'s, with the error tokens winning where both set a token. Each effective state then equals what the field renders in that combination of states. The rendered stylesheet doesn't change in any value.
+- **Rows:** the error hover and error focus states of `RF-82`'s colour and edge rows. **Witness:** the error focus row of the active indicator's thickness fails against the current oracle and passes after the repair.
+- **Order:** after #160 merges, because the rows extend #160's file. `RF-99`'s error hover row depends on it.
+- **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
