@@ -1,0 +1,7 @@
+# node bench/size-baselines.ts at 044d9c2ef's source, 2026-11-22T05:58:19Z
+@ydinjs/signals: signal: 291 B
+@ydinjs/signals: signal, computed, effect, batch: 1231 B
+@preact/signals-core: signal: 1491 B
+@preact/signals-core: signal, computed, effect, batch: 1545 B
+alien-signals: signal: 1368 B
+alien-signals: signal, computed, effect, startBatch, endBatch: 1567 B

@@ -1,0 +1,117 @@
+{
+  "note": "Modules in each row bundle (rolldown, platform neutral, as the size preset bundles), CSS modules left out. Base 5c7e48fbd, A 0e539a468, B 044d9c2ef.",
+  "rows": {
+    "button/button": {
+      "A vs base": {
+        "entered": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ],
+        "left": []
+      },
+      "B vs base": {
+        "entered": [],
+        "left": []
+      },
+      "B vs A": {
+        "entered": [],
+        "left": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ]
+      }
+    },
+    "button/split-button": {
+      "A vs base": {
+        "entered": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ],
+        "left": ["core/emitter.js"]
+      },
+      "B vs base": {
+        "entered": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ],
+        "left": ["core/emitter.js"]
+      },
+      "B vs A": {
+        "entered": [],
+        "left": []
+      }
+    },
+    "button-group/button-group": {
+      "A vs base": {
+        "entered": ["signals/index.js", "signals/internal/node.js"],
+        "left": ["core/emitter.js"]
+      },
+      "B vs base": {
+        "entered": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ],
+        "left": ["core/emitter.js"]
+      },
+      "B vs A": {
+        "entered": ["signals/internal/graph.js"],
+        "left": []
+      }
+    },
+    "text-field/text-field": {
+      "A vs base": {
+        "entered": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ],
+        "left": []
+      },
+      "B vs base": {
+        "entered": [],
+        "left": []
+      },
+      "B vs A": {
+        "entered": [],
+        "left": [
+          "signals/index.js",
+          "signals/internal/graph.js",
+          "signals/internal/node.js"
+        ]
+      }
+    },
+    "icon/icon": {
+      "A vs base": {
+        "entered": [],
+        "left": []
+      },
+      "B vs base": {
+        "entered": [],
+        "left": []
+      },
+      "B vs A": {
+        "entered": [],
+        "left": []
+      }
+    },
+    "list/list": {
+      "A vs base": {
+        "entered": [],
+        "left": []
+      },
+      "B vs base": {
+        "entered": [],
+        "left": []
+      },
+      "B vs A": {
+        "entered": [],
+        "left": []
+      }
+    }
+  }
+}

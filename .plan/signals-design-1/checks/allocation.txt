@@ -1,0 +1,34 @@
+# node bench/allocation.ts, 2026-11-22T05:58:15Z
+
+## Run 1
+Node v26.13.1, 200000 operations after 50000 warm-up operations
+
+witness: an empty operation: 2.75 B/operation
+diamond a → b, c → d and an effect: -0.01 B/operation
+branch switch on every write: -1.86 B/operation
+family scan reading the same 51 members: -0.01 B/operation
+witness: a computed whose callback has a rest parameter, 100 inputs: 849.11 B/operation
+witness: an operation that allocates one empty object: 54.72 B/operation
+reference: @preact/signals-core diamond: 191.85 B/operation
+
+## Run 2
+Node v26.13.1, 200000 operations after 50000 warm-up operations
+
+witness: an empty operation: 2.75 B/operation
+diamond a → b, c → d and an effect: -0.01 B/operation
+branch switch on every write: -2.25 B/operation
+family scan reading the same 51 members: -0.01 B/operation
+witness: a computed whose callback has a rest parameter, 100 inputs: 849.11 B/operation
+witness: an operation that allocates one empty object: 54.29 B/operation
+reference: @preact/signals-core diamond: 123.74 B/operation
+
+## Run 3
+Node v26.13.1, 200000 operations after 50000 warm-up operations
+
+witness: an empty operation: 2.75 B/operation
+diamond a → b, c → d and an effect: -0.01 B/operation
+branch switch on every write: -2.28 B/operation
+family scan reading the same 51 members: -0.01 B/operation
+witness: a computed whose callback has a rest parameter, 100 inputs: 849.11 B/operation
+witness: an operation that allocates one empty object: 55.98 B/operation
+reference: @preact/signals-core diamond: 121.64 B/operation

@@ -1,0 +1,29 @@
+# node bench/speed.ts, 2026-11-22T05:58:04Z, 12th Gen Intel(R) Core(TM) i7-1255U, 12 logical CPUs, Linux 7.2.15-200.fc44.x86_64, in the devcontainer
+
+## Run 1
+Node v26.13.1, 30 samples after 10 warm-up samples; median per operation, and the spread from the fastest sample to the slowest
+
+| Case | @ydinjs/signals | @preact/signals-core | alien-signals |
+| --- | --- | --- | --- |
+| 1a. chain of 10 computeds and an effect, write the head | 695.5 ns (349.5 ns–785.2 ns) | 322.5 ns (311.0 ns–599.4 ns) | 284.2 ns (278.9 ns–296.9 ns) |
+| 1b. diamond a → b, c → d and an effect, write a | 148.4 ns (144.7 ns–169.7 ns) | 188.9 ns (179.8 ns–221.3 ns) | 111.5 ns (106.6 ns–123.0 ns) |
+| 2. branch switch on every write | 97.7 ns (96.4 ns–187.3 ns) | 156.7 ns (151.9 ns–170.3 ns) | 205.8 ns (118.9 ns–226.9 ns) |
+| 3. 100 declared inputs, 3 read per run, write a read one | 301.2 ns (281.0 ns–603.2 ns) | 133.9 ns (124.8 ns–157.8 ns) | 91.3 ns (87.6 ns–93.0 ns) |
+| 4. create and dispose an effect reading 1 inputs | 93.6 ns (87.7 ns–135.0 ns) | 67.5 ns (62.2 ns–147.1 ns) | 51.5 ns (49.9 ns–62.4 ns) |
+| 4. create and dispose an effect reading 10 inputs | 480.7 ns (451.2 ns–506.7 ns) | 342.7 ns (326.7 ns–375.3 ns) | 328.5 ns (272.4 ns–387.4 ns) |
+| 4. create and dispose an effect reading 100 inputs | 4.40 µs (4.11 µs–7.88 µs) | 2.79 µs (2.59 µs–3.74 µs) | 2.42 µs (2.29 µs–2.94 µs) |
+| 5. scan 100 rows for the first over a threshold (match at 50), write row 10 | 897.4 ns (872.9 ns–1.19 µs) | 731.0 ns (697.8 ns–793.7 ns) | 541.7 ns (526.0 ns–568.1 ns) |
+
+## Run 2
+Node v26.13.1, 30 samples after 10 warm-up samples; median per operation, and the spread from the fastest sample to the slowest
+
+| Case | @ydinjs/signals | @preact/signals-core | alien-signals |
+| --- | --- | --- | --- |
+| 1a. chain of 10 computeds and an effect, write the head | 360.5 ns (351.4 ns–752.4 ns) | 318.9 ns (312.4 ns–346.9 ns) | 287.0 ns (279.8 ns–594.6 ns) |
+| 1b. diamond a → b, c → d and an effect, write a | 287.0 ns (155.4 ns–312.5 ns) | 286.3 ns (279.6 ns–318.7 ns) | 215.7 ns (211.4 ns–248.4 ns) |
+| 2. branch switch on every write | 181.3 ns (179.1 ns–191.4 ns) | 250.7 ns (233.4 ns–270.2 ns) | 112.8 ns (108.1 ns–228.5 ns) |
+| 3. 100 declared inputs, 3 read per run, write a read one | 271.2 ns (267.8 ns–280.2 ns) | 122.4 ns (117.7 ns–187.2 ns) | 88.0 ns (84.6 ns–175.6 ns) |
+| 4. create and dispose an effect reading 1 inputs | 83.1 ns (78.1 ns–174.4 ns) | 64.4 ns (59.8 ns–127.5 ns) | 45.8 ns (43.8 ns–50.3 ns) |
+| 4. create and dispose an effect reading 10 inputs | 466.1 ns (414.7 ns–1.21 µs) | 363.7 ns (320.2 ns–382.1 ns) | 294.4 ns (258.0 ns–324.6 ns) |
+| 4. create and dispose an effect reading 100 inputs | 3.96 µs (3.84 µs–4.50 µs) | 2.71 µs (2.55 µs–3.19 µs) | 2.34 µs (2.18 µs–2.96 µs) |
+| 5. scan 100 rows for the first over a threshold (match at 50), write row 10 | 904.2 ns (866.3 ns–1.88 µs) | 702.8 ns (681.9 ns–862.8 ns) | 527.4 ns (510.6 ns–566.2 ns) |
