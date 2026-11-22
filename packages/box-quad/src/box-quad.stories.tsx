@@ -8,6 +8,13 @@
  * arg change, a `ResizeObserver` callback or a `scroll` listener. All three run
  * before the next frame paints, so the polygon never lags the element it
  * outlines.
+ *
+ * A readout is written by changing its text node's data, which adds and
+ * removes no node. Storybook's highlight addon observes the story's subtree for
+ * added and removed nodes and starts a `ResizeObserver` on `<body>` for each
+ * such change. Started inside our observer's callback, that observation is
+ * shallower than the one being delivered, and WebKit reports a
+ * `ResizeObserver` loop error.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useLayoutEffect, useRef, type JSX, type RefObject } from 'react';
@@ -103,6 +110,11 @@ function drawOverlay(overlay: SVGSVGElement, quad: Quad | false): void {
   }
 }
 
+/** Replaces the text of an element that holds one text node. */
+function writeText(element: Element, text: string): void {
+  (element.firstChild as Text).data = text;
+}
+
 function formatPoint(quad: Quad, index: number, digits: number): string {
   return `(${quad[index * 2]!.toFixed(digits)}, ${quad[index * 2 + 1]!.toFixed(digits)})`;
 }
@@ -130,15 +142,19 @@ function Readout({
 
 /** Writes the read's result, p1 to one decimal, and p1 to p4 to two. */
 function writeReadout(readout: HTMLDListElement, quad: Quad | false): void {
-  readout.querySelector('[data-read]')!.textContent = String(!!quad);
-  readout.querySelector('[data-first]')!.textContent = quad
-    ? formatPoint(quad, 0, 1)
-    : '-';
-  readout.querySelector('[data-points]')!.textContent = quad
-    ? [0, 1, 2, 3]
-        .map((index) => `p${index + 1}: ${formatPoint(quad, index, 2)}`)
-        .join(' ')
-    : '-';
+  writeText(readout.querySelector('[data-read]')!, String(!!quad));
+  writeText(
+    readout.querySelector('[data-first]')!,
+    quad ? formatPoint(quad, 0, 1) : '-',
+  );
+  writeText(
+    readout.querySelector('[data-points]')!,
+    quad
+      ? [0, 1, 2, 3]
+          .map((index) => `p${index + 1}: ${formatPoint(quad, index, 2)}`)
+          .join(' ')
+      : '-',
+  );
 }
 
 type LiveDemoArgs = Readonly<{ rotation: number; skew: number }>;
@@ -351,7 +367,10 @@ function PointerDeltaView({
           x += delta[0]!;
           y += delta[1]!;
           box.style.translate = `${x}px ${y}px`;
-          translationRef.current!.textContent = `(${x.toFixed(1)}, ${y.toFixed(1)})`;
+          writeText(
+            translationRef.current!,
+            `(${x.toFixed(1)}, ${y.toFixed(1)})`,
+          );
         }
       },
       { signal },
@@ -457,7 +476,7 @@ function FailedReadPanel({ name, target }: FailedReadCase): JSX.Element {
       const element = panel.querySelector<HTMLElement>('[data-target]')!;
       const quad = readQuad(element, panel, store) && store.quad;
       drawOverlay(overlayRef.current!, quad);
-      readRef.current!.textContent = String(!!quad);
+      writeText(readRef.current!, String(!!quad));
     };
     const observer = new ResizeObserver(draw);
     observer.observe(panel);
