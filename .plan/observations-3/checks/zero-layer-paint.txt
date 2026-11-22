@@ -1,0 +1,5 @@
+# A rounded box at level 0 with two layers, screenshotted per variant; byte equality with the 'none' variant
+# Run by the architect on 2026-11-22 at c08dbd7fc, Playwright's browsers from the root node_modules. Node v26.13.1.
+chromium 158.0.8127.18 zero == none: true transparentAtZero == none: true
+firefox 159.0 zero == none: false transparentAtZero == none: true
+webkit 27.2 zero == none: true transparentAtZero == none: true

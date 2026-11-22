@@ -1,0 +1,33 @@
+# Shadow-colour and list elevation tokens, as store.select() reads them (expressive, web)
+# Read by the architect on 2026-11-22 at c08dbd7fc, with packages/tproc/src/store/index.ts. Node v26.13.1.
+SHADOW md.comp.button.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.button.filled.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.button.elevated.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.button.tonal.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.surface.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.secondary.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.branded.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.primary.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.tertiary-container.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.secondary-container.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.primary-container.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.fab.tertiary.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.outlined-select.menu.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.filled-select.menu.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.filled-autocomplete.menu.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.outlined-autocomplete.menu.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.branded.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.primary.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.secondary.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.surface.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.tertiary.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.tertiary-container.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.secondary-container.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.extended-fab.primary-container.container.shadow-color {"tokenName":"md.sys.color.shadow"}
+SHADOW md.comp.list.reorder.list-item.shadow-color {"tokenName":"md.sys.color.shadow"}
+LIST md.comp.list.list-item.container.elevation md.comp.list {"elevation":{"unit":"DIPS"}}
+LIST md.comp.list.list-item.dragged.container.elevation md.comp.list {"elevation":{"value":8,"unit":"DIPS"}}
+LIST md.comp.list.reorder.list-item.shadow-color md.comp.list.reorder {"color":{"alpha":1}}
+TOKEN md.sys.color.surface-tint deprecated: true {"color":{"red":0.81960785,"green":0.88235295,"blue":1,"alpha":1}}
+TOKEN md.sys.color.shadow deprecated: false {"color":{"alpha":1}}
+TOKEN md.comp.button.filled.container.elevation deprecated: false {"elevation":{"unit":"DIPS"}}
