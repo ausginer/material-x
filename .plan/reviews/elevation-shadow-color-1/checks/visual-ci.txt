@@ -1,0 +1,22 @@
+CI: workflow verify, run 45008013029, event pull_request, head afa794ea7 (PR #152). Job chromium (137164001563) fails; job verify (137166117111) fails because chromium failed. firefox and webkit pass.
+Failing rows, all in tests/button/button.visual.browser.test.ts (visual/material-x, Chromium), from the job log:
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match the color variant matrix
+175 pixels (ratio 0.01) differ.
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match buttons composed with a leading icon
+231 pixels (ratio 0.01) differ.
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match the switch variant matrix
+268 pixels (ratio 0.01) differ.
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match enabled and disabled buttons
+175 pixels (ratio 0.02) differ.
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match the hovered elevated button
+490 pixels (ratio 0.07) differ.
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match the keyboard-focused button
+195 pixels (ratio 0.03) differ.
+
+The diff images of the screenshots artifact are in visual-ci/. In each one, the differing pixels are at the shadow edge of the elevated buttons only:
+- color variants: the elevated button, the second of five (filled, elevated, tonal, outlined, text).
+- icon composition: the elevated button, the second of five.
+- switch variants: the two elevated switches, the third and fourth of eight.
+- enabled and disabled: the enabled elevated button. The disabled one (level 0) doesn't differ.
+- hovered and focused: the single elevated button.
+button-sizes-and-shapes, which has no elevated button, passes. The button-group, checkbox and radio visual files pass.
