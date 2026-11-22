@@ -1,0 +1,16 @@
+aube exec just build, then aube pack --ignore-scripts, in packages/box-quad at 478e05fdd. Files:
+package/CHANGELOG.md
+package/LICENSE
+package/README.md
+package/index.d.ts
+package/index.js
+package/index.js.map
+package/package.json
+
+diff -r against the published @ydinjs/box-quad 1.0.0 tarball (registry.npmjs.org):
+diff -r pub/package/package.json head-pkg/package/package.json
+47a48,51
+>     "@types/react": "19.3.0",
+>     "@types/react-dom": "19.3.0",
+>     "react": "19.3.1",
+>     "react-dom": "19.3.1",

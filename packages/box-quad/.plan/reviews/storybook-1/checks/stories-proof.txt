@@ -1,0 +1,82 @@
+node packages/box-quad/.plan/reviews/storybook-1/probes/stories-proof.ts, at 478e05fdd, after aube exec just docs-build in slot b. Node v26.13.1.
+The WebKit page errors are counted as failures here; resize-observer-errors.txt and webkit-errors-all-stories.txt locate them.
+
+## chromium 158.0.8127.18: overlay bounds against getBoundingClientRect(), limit 0.05 px
+  Live Demo rotation:-18;skew:8                              0.00e+0  pass
+  Live Demo rotation:-55;skew:-20                            1.83e-4  pass
+  Live Demo rotation:-55;skew:20                             0.00e+0  pass
+  Live Demo rotation:55;skew:-20                             0.00e+0  pass
+  Live Demo rotation:55;skew:20                              1.83e-4  pass
+  Nested Spaces ancestorRotation:12;ancestorZoom:1.25;targetRotation:-20 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:-45;ancestorZoom:2;targetRotation:45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:45;ancestorZoom:0.5;targetRotation:-45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Failed Reads
+    A 3D transform. Read: false, overlay drawn: false  pass
+    An inline element on two lines. Read: false, overlay drawn: false  pass
+    `display: none`. Read: false, overlay drawn: false  pass
+    A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+  Docs page: {"text":"Reproduces the live demo\nof getBoxQuadsPolyfill by Jochen Kühner (MIT).","href":"https://jogibear9988.github.io/getBoxQuadsPolyfill#live-demo","stories":5}
+  Phone width, 375 x 667
+    Live Demo scroller: {"scrolls":true,"scrollLeft":200}
+    Live Demo, scrolled by 200 px                            3.05e-5  pass
+    Nested Spaces, defaults                                  0.00e+0  pass
+    pointer-delta: page scrolls horizontally: false
+    failed-reads: page scrolls horizontally: false
+  page errors: none
+
+## firefox 159.0: overlay bounds against getBoundingClientRect(), limit 0.05 px
+  Live Demo rotation:-18;skew:8                              3.05e-5  pass
+  Live Demo rotation:-55;skew:-20                            4.36e-3  pass
+  Live Demo rotation:-55;skew:20                             3.05e-5  pass
+  Live Demo rotation:55;skew:-20                             3.05e-5  pass
+  Live Demo rotation:55;skew:20                              4.36e-3  pass
+  Nested Spaces ancestorRotation:12;ancestorZoom:1.25;targetRotation:-20 0.00e+0  pass
+    after scrolling by 90 px                                 1.53e-5  pass
+  Nested Spaces ancestorRotation:-45;ancestorZoom:2;targetRotation:45 1.53e-5  pass
+    after scrolling by 90 px                                 1.53e-5  pass
+  Nested Spaces ancestorRotation:45;ancestorZoom:0.5;targetRotation:-45 0.00e+0  pass
+    after scrolling by 90 px                                 1.53e-5  pass
+  Failed Reads
+    A 3D transform. Read: false, overlay drawn: false  pass
+    An inline element on two lines. Read: false, overlay drawn: false  pass
+    `display: none`. Read: false, overlay drawn: false  pass
+    A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+  Docs page: {"text":"Reproduces the live demo\nof getBoxQuadsPolyfill by Jochen Kühner (MIT).","href":"https://jogibear9988.github.io/getBoxQuadsPolyfill#live-demo","stories":5}
+  Phone width, 375 x 667
+    Live Demo scroller: {"scrolls":true,"scrollLeft":200}
+    Live Demo, scrolled by 200 px                            1.53e-5  pass
+    Nested Spaces, defaults                                  0.00e+0  pass
+    pointer-delta: page scrolls horizontally: false
+    failed-reads: page scrolls horizontally: false
+  page errors: none
+
+## webkit 27.2: overlay bounds against getBoundingClientRect(), limit 0.05 px
+  Live Demo rotation:-18;skew:8                              0.00e+0  pass
+  Live Demo rotation:-55;skew:-20                            1.83e-4  pass
+  Live Demo rotation:-55;skew:20                             1.53e-5  pass
+  Live Demo rotation:55;skew:-20                             1.53e-5  pass
+  Live Demo rotation:55;skew:20                              1.83e-4  pass
+  Nested Spaces ancestorRotation:12;ancestorZoom:1.25;targetRotation:-20 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:-45;ancestorZoom:2;targetRotation:45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:45;ancestorZoom:0.5;targetRotation:-45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Failed Reads
+    A 3D transform. Read: false, overlay drawn: false  pass
+    An inline element on two lines. Read: false, overlay drawn: false  pass
+    `display: none`. Read: false, overlay drawn: false  pass
+    A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+  Docs page: {"text":"Reproduces the live demo\nof getBoxQuadsPolyfill by Jochen Kühner (MIT).","href":"https://jogibear9988.github.io/getBoxQuadsPolyfill#live-demo","stories":5}
+  Phone width, 375 x 667
+    Live Demo scroller: {"scrolls":true,"scrollLeft":200}
+    Live Demo, scrolled by 200 px                            3.05e-5  pass
+    Nested Spaces, defaults                                  0.00e+0  pass
+    pointer-delta: page scrolls horizontally: false
+    failed-reads: page scrolls horizontally: false
+  page errors: ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications. | ResizeObserver loop completed with undelivered notifications.
+
+12 reading(s) FAILED

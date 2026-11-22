@@ -1,0 +1,43 @@
+node packages/box-quad/.plan/reviews/storybook-1/probes/resize-observer-errors.ts, at 478e05fdd.
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 1000 nested-spaces  page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 375 nested-spaces  page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 1 (ResizeObserver loop completed with undelivered notifications.); Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+node packages/box-quad/.plan/reviews/storybook-1/probes/webkit-errors-all-stories.ts, at 478e05fdd.
+WebKit 27.2: 89 stories, 3 raise a page error
+  box-quad--live-demo: ResizeObserver loop completed with undelivered notifications.
+  box-quad--nested-spaces: ResizeObserver loop completed with undelivered notifications.
+  box-quad--failed-reads: ResizeObserver loop completed with undelivered notifications.
