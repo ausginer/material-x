@@ -1,0 +1,87 @@
+# box-quad 1.0.0: the release plan reconciled with main. Read by the architect on 2026-11-22 in slot g, on box-quad/release-1 from origin/main at 682639048.
+
+## 1. packages/box-quad/package.json at origin/main (version, files, sideEffects, publishConfig; no browserslist)
+3:  "version": "1.0.0",
+16:  "files": [
+23:  "sideEffects": false,
+32:    "access": "public"
+browserslist field present: 0
+
+## 2. drag's dependency on box-quad
+98:    "@ydinjs/box-quad": "1.0.0"
+
+## 3. .size-limit.json
+[
+  {
+    "name": "index",
+    "path": "index.js",
+    "limit": "1182 B"
+  }
+]
+
+## 4. CHANGELOG.md headings
+1:# Changelog
+3:## 1.0.0
+7:### Added
+
+## 5. README.md: Browser support section (the wording before 1.0.0)
+## Browser support
+
+Current [Baseline](https://web.dev/baseline): the current stable release of Chrome and Firefox on desktop and Android, Edge, and Safari on macOS and iOS. No minimum version is promised: a browser version that leaves stable leaves support, and that isn't a breaking change.
+
+## API reference
+
+## 6. The root clean-build and the docs recipes
+16:clean-build:
+17:    nx run-many -t clean:build --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+23:# Start the Storybook dev server (full stack: the core and box-quad API sections
+27:    nx run-many -t docs:api:prepare --projects=core,box-quad --skipNxCache --tui=false
+36:    nx run-many -t docs:api:build --projects=core,box-quad --skipNxCache --tui=false
+100:    nx run-many -t build --projects=box-quad,core,drag,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+114:    nx run-many -t size --projects=box-quad,core,drag,material-x --parallel=1 --skipNxCache
+141:    nx run-many -t typecheck --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+147:    nx run-many -t build --projects=box-quad,core,drag,material-x,size-limit-preset-rolldown,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+158:    nx run-many -t fmt --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+163:    nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+174:    nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+181:    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+
+## 7. packages/box-quad is unchanged since the Baseline reading's commit 315a18ad1
+git diff --stat 315a18ad1 origin/main -- packages/box-quad/ (empty = unchanged):
+[end]
+
+## 8. browserslist 'baseline 2024' in packages/box-quad: lowest version per browser (browserslist "version":"4.29.4", baseline-browser-mapping "version":"2.11.31")
+and_chr 156
+and_ff 158
+chrome 130
+edge 130
+firefox 132
+ios_saf 18.2
+safari 18.2
+
+## 9. baseline-browser-mapping getCompatibleVersions({ targetYear: 2024 }): the Android versions browserslist can't list
+# browserslist's data holds only the current Android version, so 'baseline 2024' lists and_chr and and_ff at today's version.
+"browser":"chrome","version":"130","release_date":"2024-10-15"},
+"browser":"chrome_android","version":"130","release_date":"2024-10-15"},
+"browser":"edge","version":"130","release_date":"2024-10-17"},
+"browser":"firefox","version":"132","release_date":"2024-10-29"},
+"browser":"firefox_android","version":"132","release_date":"2024-10-29"},
+"browser":"safari","version":"18.2","release_date":"2024-12-11"},
+"browser":"safari_ios","version":"18.2","release_date":"2024-12-11"}]
+
+## 10. The API reference link
+https://ausginer.github.io/material-x/api/box-quad/ -> HTTP 200
+
+## 11. release.yml runs (none: no check run, mutation dispatch or release has run)
+[]
+
+## 12. The registry
+npm view @ydinjs/box-quad: 404
+
+## 13. Candidate slots for the implementer
+b: repo/aube-2.10.1-reading-1; untracked: ?? button-r1.lines ?? button-r2.lines ?? complete-r1.lines ?? complete-r2.lines 
+e: repo/button-group-whitespace-1; untracked: 
+f: material-x/textfield-white-space-1; untracked:  M packages/material-x/tests/text-field/text-field.browser.test.ts 
+#117 repo/button-group-whitespace-1
+#116 material-x/textfield-white-space-1
+#113 repo/proto-branches-1
