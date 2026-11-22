@@ -94,6 +94,7 @@ Several units may be open at once, one in each session slot ([coordinator-setup.
 
 - **Who runs where.** The coordinator runs in the main slot. **Only the main slot's architect mints, amends, supersedes or renumbers a record identifier.** An architect in another slot, such as a challenge, proposes and doesn't record. Any other role may run in any slot, the consolidator and its passes included. A slot's role definitions are those of its branch.
 - **One unit per slot, and one open task per session.**
+- **No new slot or scratch worktree** without the owner's word: a unit reuses one of the existing slots ([coordinator-setup.md](coordinator-setup.md#slots)).
 - **The record stays one file.** `.plan/00-index.md` and each package's index aren't split. The single minter prevents two units from minting one identifier. Two units that amend one entry depend on each other, and the stack order expresses that. The coordinator counts index conflicts that neither prevents.
 
 ### Stacks

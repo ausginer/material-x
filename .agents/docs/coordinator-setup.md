@@ -46,6 +46,7 @@ A slot is a lowercase letter from `b` to `z`. No letter is the main slot, which 
 - **Slot _s_ is the worktree `/workspaces/worktrees/<s>`,** on the devcontainer's `<workspace>_worktrees` volume. When the slot is missing, `cl` creates it locked and detached at `origin/main`. When it exists, `cl` reuses it as it is. `cl` never removes, cleans, switches or unlocks a slot.
 - **`cl` refuses a slot when `/workspaces/worktrees` isn't a mount point,** and names the mount. Rebuild the container. The main slot doesn't need the volume.
 - **The session in a slot checks out its unit's branch and runs `aube install` there.** Each slot has its own `node_modules`. The coordinator runs in the main slot.
+- **Reuse the existing slots, `b` to `g`, and create no other.** Disk space is short. A unit takes a slot whose branch is merged or pushed and whose tree is clean, and switches it to the unit's branch. A new slot, or a scratch worktree beside the slots, needs the owner's word.
 
 ### Session names
 
