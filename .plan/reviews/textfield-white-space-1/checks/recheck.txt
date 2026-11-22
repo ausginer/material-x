@@ -1,0 +1,84 @@
+Recheck at d2b5d3235, slot f, 2026-11-22. Text-field file, three engines.
+MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project browser --project browser/firefox --project browser/webkit tests/text-field/text-field.browser.test.ts
+
+== head
+ Test Files  3 passed (3)
+      Tests  87 passed (87)
+
+== mutation: the line 'overflow-wrap: break-word;' deleted from main.styles.css, restored after the run
+     × should wrap a line that has no break opportunity within the field 177ms
+     × should wrap a line that has no break opportunity within the field 148ms
+     × should wrap a line that has no break opportunity within the field 177ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/text-field/text-field.browser.test.ts:448 > mx-multiline-text-field > should wrap a line that has no break opportunity within the field
+AssertionError: expected [ 1609, false ] to deeply equal [ 300, true ]
+ FAIL  |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:448 > mx-multiline-text-field > should wrap a line that has no break opportunity within the field
+AssertionError: expected [ 1610, false ] to deeply equal [ 300, true ]
+ FAIL  |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:448 > mx-multiline-text-field > should wrap a line that has no break opportunity within the field
+AssertionError: expected [ 1609, false ] to deeply equal [ 300, true ]
+ Test Files  3 failed (3)
+      Tests  3 failed | 84 passed (87)
+
+== sizes, aube exec just size --json, Brotli bytes. prev = d2b5d3235 with main.styles.css at 8ea79c66f. (name, prev, head, delta)
+text-field/multiline-text-field          4096 4095 -1
+text-field/text-field                    8205 8179 -26
+complete                                 22197 22216 +19
+rows 20 zero-delta rows 17
+Shipped rule: textarea.input{white-space:pre-wrap;overflow-wrap:break-word}
+Matches for the comment's 'break opportunity' under packages/material-x/text-field/: 0
+
+== probes/edges.browser.test.ts.txt and probes/long-line.browser.test.ts.txt (screenshot line removed) at d2b5d3235, one line per reading
+chromium  empty + internal placeholder => [1,1]
+chromium  empty + internal two-line placeholder => [2,2]
+chromium  form.reset() after script a\nb => {"value":"\"a\\nb\"","lines":[2,2]}
+chromium  long unbroken 200 x => {"lines":[6,6],"clientWidth":300,"scrollWidth":300}
+chromium  mx => {"overflowX":"auto","overflowY":"auto","taRect":300,"hostRect":300,"layoutOverflow":null,"scrollLeftMax":0}
+chromium  mx-multiline-text-field computed => {"whiteSpace":"pre-wrap","collapse":"preserve","wrapMode":"wrap","overflowWrap":"break-word","wordBreak":"normal"}
+chromium  mx-text-field computed => {"whiteSpace":"normal","collapse":"collapse","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"}
+chromium  native textarea => {"lines":6,"overflowWrap":"break-word","whiteSpace":"pre-wrap","scrollWidth":300,"clientWidth":300}
+chromium  script "\n\n" (3 empty lines) => [3,3]
+chromium  script 2 lines then cleared => [1,1]
+chromium  script 4 + typed Enter+line => [5,5]
+chromium  script 4 lines [h, scrollH] => [4,4]
+chromium  script value round-trips => true
+chromium  single-line value a\nb => {"value":"\"ab\"","height":24}
+chromium  soft wrap 60 words => [9,9]
+chromium  typed 3 lines => [3,3]
+chromium  typed then 4 Backspace => [1,1]
+chromium  typed unbroken 80 x => {"lines":[3,3],"clientWidth":300,"scrollWidth":300}
+firefox   empty + internal placeholder => [1,1]
+firefox   empty + internal two-line placeholder => [2,2]
+firefox   form.reset() after script a\nb => {"value":"\"a\\nb\"","lines":[2,2]}
+firefox   long unbroken 200 x => {"lines":[6,6],"clientWidth":300,"scrollWidth":300}
+firefox   mx => {"overflowX":"visible","overflowY":"visible","taRect":300,"hostRect":300,"layoutOverflow":null,"scrollLeftMax":0}
+firefox   mx-multiline-text-field computed => {"whiteSpace":"pre-wrap","collapse":"preserve","wrapMode":"wrap","overflowWrap":"break-word","wordBreak":"normal"}
+firefox   mx-text-field computed => {"whiteSpace":"normal","collapse":"collapse","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"}
+firefox   native textarea => {"lines":6,"overflowWrap":"break-word","whiteSpace":"pre-wrap","scrollWidth":300,"clientWidth":300}
+firefox   script "\n\n" (3 empty lines) => [3,3]
+firefox   script 2 lines then cleared => [1,1]
+firefox   script 4 + typed Enter+line => [5,5]
+firefox   script 4 lines [h, scrollH] => [4,4]
+firefox   script value round-trips => true
+firefox   single-line value a\nb => {"value":"\"ab\"","height":24}
+firefox   soft wrap 60 words => [9,9]
+firefox   typed 3 lines => [3,3]
+firefox   typed then 4 Backspace => [1,1]
+firefox   typed unbroken 80 x => {"lines":[3,3],"clientWidth":300,"scrollWidth":300}
+webkit    empty + internal placeholder => [1,1]
+webkit    empty + internal two-line placeholder => [2,2]
+webkit    form.reset() after script a\nb => {"value":"\"a\\nb\"","lines":[2,2]}
+webkit    long unbroken 200 x => {"lines":[6,6],"clientWidth":300,"scrollWidth":300}
+webkit    mx => {"overflowX":"auto","overflowY":"auto","taRect":300,"hostRect":300,"layoutOverflow":null,"scrollLeftMax":0}
+webkit    mx-multiline-text-field computed => {"whiteSpace":"pre-wrap","collapse":"preserve","wrapMode":"wrap","overflowWrap":"break-word","wordBreak":"normal"}
+webkit    mx-text-field computed => {"whiteSpace":"normal","collapse":"collapse","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"}
+webkit    native textarea => {"lines":6,"overflowWrap":"break-word","whiteSpace":"pre-wrap","scrollWidth":300,"clientWidth":300}
+webkit    script "\n\n" (3 empty lines) => [3,3]
+webkit    script 2 lines then cleared => [1,1]
+webkit    script 4 + typed Enter+line => [5,5]
+webkit    script 4 lines [h, scrollH] => [4,4]
+webkit    script value round-trips => true
+webkit    single-line value a\nb => {"value":"\"ab\"","height":24}
+webkit    soft wrap 60 words => [9,9]
+webkit    typed 3 lines => [3,3]
+webkit    typed then 4 Backspace => [1,1]
+webkit    typed unbroken 80 x => {"lines":[3,3],"clientWidth":300,"scrollWidth":300}

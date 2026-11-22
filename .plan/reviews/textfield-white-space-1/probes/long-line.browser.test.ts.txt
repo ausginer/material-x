@@ -1,0 +1,42 @@
+// Reviewer scratch probe for RF-73; removed after the readings are saved.
+import { describe, it } from 'vitest';
+import { page } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import { nextFrame } from '../browser.ts';
+
+describe('rf73 probe 2', () => {
+  it('reads', async () => {
+    const out: Record<string, unknown> = {};
+    const field = document.createElement('mx-multiline-text-field') as HTMLElement & { value: string };
+    field.style.display = 'block';
+    field.style.inlineSize = '300px';
+    document.body.append(field);
+    await nextFrame();
+    field.value = 'x'.repeat(200);
+    await nextFrame();
+    const ta = field.shadowRoot!.querySelector('textarea')!;
+    const cs = getComputedStyle(ta);
+    const layout = field.shadowRoot!.querySelector('.layout');
+    out['mx'] = {
+      overflowX: cs.overflowX, overflowY: cs.overflowY,
+      taRect: ta.getBoundingClientRect().width,
+      hostRect: field.getBoundingClientRect().width,
+      layoutOverflow: layout ? getComputedStyle(layout).overflow : null,
+      scrollLeftMax: ta.scrollWidth - ta.clientWidth,
+    };
+    const native = document.createElement('textarea');
+    native.rows = 1;
+    native.style.cssText = 'field-sizing: content; inline-size: 300px; padding: 0; border: 0; font: 16px/24px monospace';
+    native.value = 'x'.repeat(200);
+    document.body.append(native);
+    await nextFrame();
+    const ncs = getComputedStyle(native);
+    out['native textarea'] = {
+      lines: native.getBoundingClientRect().height / 24,
+      overflowWrap: ncs.overflowWrap, whiteSpace: ncs.whiteSpace,
+      scrollWidth: native.scrollWidth, clientWidth: native.clientWidth,
+    };
+    await page.screenshot({ path: `rf73-long-${navigator.userAgent.includes('Firefox') ? 'firefox' : navigator.userAgent.includes('Chrome') ? 'chromium' : 'webkit'}.png`, element: field });
+    throw new Error(`RF73 ${navigator.userAgent}\n${JSON.stringify(out)}`);
+  });
+});

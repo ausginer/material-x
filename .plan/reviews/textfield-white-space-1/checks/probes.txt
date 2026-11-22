@@ -1,0 +1,46 @@
+Edge-case probe (probes/edges.browser.test.ts.txt), slot f, 2026-11-22. Host 300 px wide. Line readings are [height, scrollHeight] in line heights.
+head = 37f1eda29. base = the same tree with main.styles.css at 682639048. For each engine: the head readings, then every key whose base reading differs.
+
+==== browserchromium, head
+RF73 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36{ "mx-text-field computed": { "whiteSpace": "normal", "collapse": "collapse", "wrapMode": "wrap", "overflowWrap": "normal", "wordBreak": "normal" },
+ "mx-multiline-text-field computed": { "whiteSpace": "pre-wrap", "collapse": "preserve", "wrapMode": "wrap", "overflowWrap": "normal", "wordBreak": "normal" },
+ "script 4 lines [h, scrollH]": [ 4, 4 ], "script value round-trips": true, "script 4 + typed Enter+line": [ 5, 5 ], "typed 3 lines": [ 3, 3 ], "typed then 4 Backspace": [ 1, 1 ], "script \"\\n\\n\" (3 empty lines)": [ 3, 3 ], "script 2 lines then cleared": [ 1, 1 ], "empty + internal placeholder": [ 1, 1 ], "empty + internal two-line placeholder": [ 2, 2 ], "long unbroken 200 x": { "lines": [ 1, 1 ], "clientWidth": 300, "scrollWidth": 1609 },
+ "soft wrap 60 words": [ 9, 9 ], "typed unbroken 80 x": { "lines": [ 1, 1 ], "clientWidth": 300, "scrollWidth": 644 },
+ "single-line value a\\nb": { "value": "\"ab\"", "height": 24 },
+ "form.reset() after script a\\nb": { "value": "\"a\\nb\"", "lines": [ 2, 2 ] }}
+==== browserchromium, keys where base differs
+  mx-multiline-text-field computed: head {"whiteSpace":"pre-wrap","collapse":"preserve","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"} | base {"whiteSpace":"normal","collapse":"collapse","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"}
+  empty + internal two-line placeholder: head [2,2] | base [1,1]
+
+==== browserfirefox, head
+RF73 Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0{ "mx-text-field computed": { "whiteSpace": "normal", "collapse": "collapse", "wrapMode": "wrap", "overflowWrap": "normal", "wordBreak": "normal" },
+ "mx-multiline-text-field computed": { "whiteSpace": "pre-wrap", "collapse": "preserve", "wrapMode": "wrap", "overflowWrap": "normal", "wordBreak": "normal" },
+ "script 4 lines [h, scrollH]": [ 4, 4 ], "script value round-trips": true, "script 4 + typed Enter+line": [ 5, 5 ], "typed 3 lines": [ 3, 3 ], "typed then 4 Backspace": [ 1, 1 ], "script \"\\n\\n\" (3 empty lines)": [ 3, 3 ], "script 2 lines then cleared": [ 1, 1 ], "empty + internal placeholder": [ 1, 1 ], "empty + internal two-line placeholder": [ 2, 2 ], "long unbroken 200 x": { "lines": [ 1, 1 ], "clientWidth": 300, "scrollWidth": 1610 },
+ "soft wrap 60 words": [ 9, 9 ], "typed unbroken 80 x": { "lines": [ 1, 1 ], "clientWidth": 300, "scrollWidth": 644 },
+ "single-line value a\\nb": { "value": "\"ab\"", "height": 24 },
+ "form.reset() after script a\\nb": { "value": "\"a\\nb\"", "lines": [ 2, 2 ] }}
+==== browserfirefox, keys where base differs
+  mx-multiline-text-field computed: head {"whiteSpace":"pre-wrap","collapse":"preserve","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"} | base {"whiteSpace":"normal","collapse":"collapse","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"}
+  empty + internal two-line placeholder: head [2,2] | base [1,1]
+
+==== browserwebkit, head
+RF73 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15{ "mx-text-field computed": { "whiteSpace": "normal", "collapse": "collapse", "wrapMode": "wrap", "overflowWrap": "normal", "wordBreak": "normal" },
+ "mx-multiline-text-field computed": { "whiteSpace": "pre-wrap", "collapse": "preserve", "wrapMode": "wrap", "overflowWrap": "normal", "wordBreak": "normal" },
+ "script 4 lines [h, scrollH]": [ 4, 4 ], "script value round-trips": true, "script 4 + typed Enter+line": [ 5, 5 ], "typed 3 lines": [ 3, 3 ], "typed then 4 Backspace": [ 1, 1 ], "script \"\\n\\n\" (3 empty lines)": [ 3, 3 ], "script 2 lines then cleared": [ 1, 1 ], "empty + internal placeholder": [ 1, 1 ], "empty + internal two-line placeholder": [ 2, 2 ], "long unbroken 200 x": { "lines": [ 1, 1 ], "clientWidth": 300, "scrollWidth": 1609 },
+ "soft wrap 60 words": [ 9, 9 ], "typed unbroken 80 x": { "lines": [ 1, 1 ], "clientWidth": 300, "scrollWidth": 644 },
+ "single-line value a\\nb": { "value": "\"ab\"", "height": 24 },
+ "form.reset() after script a\\nb": { "value": "\"a\\nb\"", "lines": [ 2, 2 ] }}
+==== browserwebkit, keys where base differs
+  mx-multiline-text-field computed: head {"whiteSpace":"pre-wrap","collapse":"preserve","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"} | base {"whiteSpace":"normal","collapse":"collapse","wrapMode":"wrap","overflowWrap":"normal","wordBreak":"normal"}
+  script 4 lines [h, scrollH]: head [4,4] | base [1,1]
+  script 4 + typed Enter+line: head [5,5] | base [2,2]
+  script "\n\n" (3 empty lines): head [3,3] | base [1,1]
+  form.reset() after script a\nb: head {"value":"\"a\\nb\"","lines":[2,2]} | base {"value":"\"a\\nb\"","lines":[1,1]}
+
+Long-line probe (probes/long-line.browser.test.ts.txt), head only: 200 'x' through the host's value in a 300 px host, and a native textarea with field-sizing: content, rows=1 and inline-size: 300px beside it:
+RF73 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36
+{"mx":{"overflowX":"auto","overflowY":"auto","taRect":300,"hostRect":300,"layoutOverflow":null,"scrollLeftMax":1309},"native textarea":{"lines":6,"overflowWrap":"break-word","whiteSpace":"pre-wrap","scrollWidth":300,"clientWidth":300}}
+RF73 Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0
+{"mx":{"overflowX":"visible","overflowY":"visible","taRect":300,"hostRect":300,"layoutOverflow":null,"scrollLeftMax":1310},"native textarea":{"lines":6,"overflowWrap":"break-word","whiteSpace":"pre-wrap","scrollWidth":300,"clientWidth":300}}
+RF73 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
+{"mx":{"overflowX":"auto","overflowY":"auto","taRect":300,"hostRect":300,"layoutOverflow":null,"scrollLeftMax":1309},"native textarea":{"lines":6,"overflowWrap":"break-word","whiteSpace":"pre-wrap","scrollWidth":300,"clientWidth":300}}
