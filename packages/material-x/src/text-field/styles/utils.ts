@@ -85,6 +85,7 @@ export const textFieldAllowedTokensSelector: GroupSelector =
     // Outlined
     'outline.color',
     'outline.width',
+    'outline.opacity',
   ]);
 
 export function createTextFieldExtensions(
