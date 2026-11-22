@@ -11,6 +11,8 @@
 
 .host {
   all: unset;
+  /* `all: unset` resets the elevation stylesheet's penumbra. */
+  box-shadow: var(--_elevation-penumbra);
   display: inline-flex;
   position: relative; /* For ripple */
   background-color: var(--_container-color);

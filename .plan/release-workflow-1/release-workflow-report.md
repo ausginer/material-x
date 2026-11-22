@@ -43,8 +43,10 @@ Each of these is a reading of the plan where it is silent. The reviewer may refu
 
 - **The dispatched check run for box-quad at `main`'s head,** and **the mutation dispatch** that adds `src/index.ts` to box-quad's `files`. Both need box-quad's own task 1 merged first. Until then box-quad's pack fails `prepare` on every pack check, as the local run shows, so a dispatch now would prove nothing about either.
 - **Witnessed at the first release:** the `stage` job ran under the environment `npm`; the summary's sha256 equals the approved tarball's `shasum`; and the registry carries the provenance attestation.
+  - **2026-11-22: witnessed at box-quad 1.0.0.** Release run 45002423668, attempt 2, on `main` at `e97a42ee5`: `stage` ran under the environment `npm`, whose deployment names `main` at `e97a42ee5`. The summary's shasum `97d36a5b…` and sha256 `d8c430e3…` are the published tarball's, and the registry carries a provenance attestation that names that run's attempt 2. Attempt 1 failed in `prepare` because the tag was pushed while `verify` was still running, and staged nothing ([reading](../box-quad-release-1/box-quad-release-plan.md#the-reading-after-the-publish-2026-11-22)).
 - **The owner's settings O1 to O3,** in [`releasing.md`](../../.agents/docs/releasing.md#the-owners-settings).
 - **The feature proof** of tasks 1 to 3 by a reviewer who didn't implement them, before the first tag. It repeats the mutation dispatch.
+- **2026-11-22: the mutation dispatch ran** on box-quad's release pull request, `box-quad/release-1`: [run 44998336728](https://github.com/ausginer/material-x/actions/runs/44998336728) at `b88246b90` failed in `prepare` at the tarball check, naming `src/index.ts`. The check run on the pull request's head follows the commit that records this, and the pull request's description names it ([transcript](../box-quad-release-1/checks/implementation.txt)).
 
 ## Corrected after the feature proof
 

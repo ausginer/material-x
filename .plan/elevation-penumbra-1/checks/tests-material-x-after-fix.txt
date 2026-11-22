@@ -1,0 +1,8 @@
+ RUN  v5.1.0 .
+
+
+ Test Files  72 passed (72)
+      Tests  1627 passed | 1 expected fail | 4 skipped (1632)
+   Start at  07:24:26
+   Duration  120.13s (tests 87%, worker 6%, import 6%, setup 1%)
+

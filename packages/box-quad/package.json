@@ -47,5 +47,8 @@
   "devDependencies": {
     "size-limit": "14.3.0",
     "size-limit-preset-rolldown": "0.1.0"
-  }
+  },
+  "browserslist": [
+    "baseline 2024"
+  ]
 }
