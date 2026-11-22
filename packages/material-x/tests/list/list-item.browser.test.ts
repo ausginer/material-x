@@ -3,6 +3,7 @@ import { commands } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
 import { nextFrame, pixels } from '../browser.ts';
 
 function createItem(
@@ -187,6 +188,20 @@ describe.each(['mx-list-button-item', 'mx-list-link-item'] as const)(
       return element;
     };
 
+    /** A disabled item alone in an `mx-list`, inside a wrapper `<div>`. */
+    const createDisabledItemInList = async (): Promise<
+      readonly [item: HTMLElement, wrapper: HTMLElement]
+    > => {
+      const element = await createDisabledItem();
+      const wrapper = document.createElement('div');
+      const list = document.createElement('mx-list');
+      list.append(element);
+      wrapper.append(list);
+      document.body.append(wrapper);
+      await nextFrame();
+      return [element, wrapper];
+    };
+
     it('should keep its shape while hovered', async () => {
       const element = await createDisabledItem();
       const control = getControl(element);
@@ -230,6 +245,33 @@ describe.each(['mx-list-button-item', 'mx-list-link-item'] as const)(
       await nextFrame();
 
       expect(clicks).toEqual([]);
+    });
+
+    it('should dispatch no click to an ancestor of the list', async () => {
+      const [element, wrapper] = await createDisabledItemInList();
+      const clicks: Event[] = [];
+      wrapper.addEventListener('click', (event) => {
+        clicks.push(event);
+      });
+
+      await commands.pointerPress(...centerOf(element));
+      await commands.pointerRelease();
+      await nextFrame();
+
+      expect(clicks).toEqual([]);
+    });
+
+    it('should target the item with the press', async () => {
+      const [element, wrapper] = await createDisabledItemInList();
+      const targets: EventTarget[] = [];
+      wrapper.addEventListener('pointerdown', (event) => {
+        targets.push(event.target!);
+      });
+
+      await commands.pointerPress(...centerOf(element));
+      await nextFrame();
+
+      expect(targets).toEqual([element]);
     });
   },
 );

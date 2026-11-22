@@ -39,14 +39,6 @@
   }
 }
 
-/*
- * On the host rather than `.host`: the host's own box would otherwise still
- * take the pointer, match `:hover` and `:active`, and receive the click.
- */
-:host(:state(disabled)) {
-  pointer-events: none;
-}
-
 :host(:state(disabled)) slot {
   opacity: var(--_opacity);
 }

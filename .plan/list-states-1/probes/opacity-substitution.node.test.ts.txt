@@ -1,0 +1,21 @@
+// Witness for tests/list/list-item-opacity-tokens.node.test.ts (RF-71, reviewer-2).
+// Copied to tests/list/ for its run and removed after it. It replaces one value
+// that the row reads, then one token, and runs the row's own file.
+import store from '@ydinjs/tproc/store/index.js';
+import { vi } from 'vitest';
+
+const SUBSTITUTED = 'md.comp.list.list-item.selected.disabled.overline.opacity';
+const MISSING = 'md.comp.list.list-item.disabled.leading-icon.opacity';
+
+const select = store.select.bind(store);
+vi.spyOn(store, 'select').mockImplementation((token, tags) =>
+  token.tokenName === SUBSTITUTED
+    ? { value: { opacity: 0.5 } }
+    : select(token, tags),
+);
+const getToken = store.getToken.bind(store);
+vi.spyOn(store, 'getToken').mockImplementation((name) =>
+  name === MISSING ? undefined : getToken(name),
+);
+
+await import('./list-item-opacity-tokens.node.test.ts');

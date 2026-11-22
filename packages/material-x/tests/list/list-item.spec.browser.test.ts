@@ -192,14 +192,17 @@ describe.each(INTERACTIVE_ITEMS)('%s selected and disabled contract', (tag) => {
     expect(Number(getComputedStyle(getControl(item)).opacity)).toBe(1);
   });
 
-  it('should render the label content at the disabled opacity', async () => {
-    const values = await resolveTokens('disabled', ['opacity']);
-    const item = await createItem(tag, { selected: true, disabled: true });
+  it.each(CONTENT_SLOTS)(
+    'should render the %s content at the disabled opacity',
+    async (slot) => {
+      const values = await resolveTokens('disabled', ['opacity']);
+      const item = await createItem(tag, { selected: true, disabled: true });
 
-    expect(Number(getComputedStyle(getSlot(item, 'label')).opacity)).toBe(
-      Number(values['opacity']),
-    );
-  });
+      expect(Number(getComputedStyle(getSlot(item, slot)).opacity)).toBe(
+        Number(values['opacity']),
+      );
+    },
+  );
 });
 
 describe.each(INTERACTIVE_ITEMS)('%s press transition contract', (tag) => {
