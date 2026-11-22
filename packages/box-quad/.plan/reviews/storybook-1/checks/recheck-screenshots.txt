@@ -1,0 +1,86 @@
+The implementer's probes/storybook-demo/stories-reading.ts at c8d33e022, run as a copy whose screenshots go to scratch (the copy is deleted after each run).
+Runs 1 to 3: as committed. Runs 4 to 6 ('settled'): the same, with 'await page.waitForTimeout(500)' after each story opens and before its screenshot.
+
+Run 1's text output against the committed stories-reading.txt: equal, apart from the header comment and one blank line.
+
+run 1 failed-reads-dark.png vs committed: equal
+run 1 failed-reads-light.png vs committed: equal
+run 1 live-demo-dark.png vs committed: equal
+run 1 live-demo-light.png vs committed: equal
+run 1 nested-spaces-dark.png vs committed: equal
+run 1 nested-spaces-light.png vs committed: equal
+run 1 pointer-delta-dark.png vs committed: equal
+run 1 pointer-delta-light.png vs committed: equal
+run 2 failed-reads-dark.png vs committed: 519851 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 2 failed-reads-light.png vs committed: equal
+run 2 live-demo-dark.png vs committed: equal
+run 2 live-demo-light.png vs committed: equal
+run 2 nested-spaces-dark.png vs committed: 418583 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 2 nested-spaces-light.png vs committed: equal
+run 2 pointer-delta-dark.png vs committed: 442072 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 2 pointer-delta-light.png vs committed: equal
+run 3 failed-reads-dark.png vs committed: 519851 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 3 failed-reads-light.png vs committed: equal
+run 3 live-demo-dark.png vs committed: 396207 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 3 live-demo-light.png vs committed: equal
+run 3 nested-spaces-dark.png vs committed: 418583 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 3 nested-spaces-light.png vs committed: equal
+run 3 pointer-delta-dark.png vs committed: 442072 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 3 pointer-delta-light.png vs committed: equal
+
+run 2 vs run 3 failed-reads-dark.png: equal
+run 2 vs run 3 live-demo-dark.png: 396207 of 665984 pixels differ, max channel difference 1, within x 0..967, y 0..687
+run 2 vs run 3 nested-spaces-dark.png: equal
+run 2 vs run 3 pointer-delta-dark.png: equal
+
+settled run 1 failed-reads-dark.png vs committed: equal
+settled run 1 failed-reads-light.png vs committed: equal
+settled run 1 live-demo-dark.png vs committed: equal
+settled run 1 live-demo-light.png vs committed: equal
+settled run 1 nested-spaces-dark.png vs committed: equal
+settled run 1 nested-spaces-light.png vs committed: equal
+settled run 1 pointer-delta-dark.png vs committed: equal
+settled run 1 pointer-delta-light.png vs committed: equal
+settled run 2 failed-reads-dark.png vs committed: equal
+settled run 2 failed-reads-light.png vs committed: equal
+settled run 2 live-demo-dark.png vs committed: equal
+settled run 2 live-demo-light.png vs committed: equal
+settled run 2 nested-spaces-dark.png vs committed: equal
+settled run 2 nested-spaces-light.png vs committed: equal
+settled run 2 pointer-delta-dark.png vs committed: equal
+settled run 2 pointer-delta-light.png vs committed: equal
+settled run 3 failed-reads-dark.png vs committed: equal
+settled run 3 failed-reads-light.png vs committed: equal
+settled run 3 live-demo-dark.png vs committed: equal
+settled run 3 live-demo-light.png vs committed: equal
+settled run 3 nested-spaces-dark.png vs committed: equal
+settled run 3 nested-spaces-light.png vs committed: equal
+settled run 3 pointer-delta-dark.png vs committed: equal
+settled run 3 pointer-delta-light.png vs committed: equal
+
+.storybook/preview-frame.css, html and body:
+html,
+body {
+  color: var(--md-sys-color-on-surface);
+  background-color: var(--md-sys-color-surface-container-lowest);
+  font-family: var(--md-ref-typeface-plain);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.storybook/preview.ts sets the theme from the URL as the module runs:
+import type { Preview } from '@storybook/react-vite';
+import { addons } from 'storybook/preview-api';
+import './preview-frame.css';
+import './theme.css';
+import { DocsContainer } from './docs/DocsContainer.tsx';
+
+const theme = new URL(
+  window.top?.location.href ?? window.location.href,
+).searchParams.get('theme');
+
+if (theme === 'dark') {
+  document.documentElement.dataset['theme'] = 'dark';
+}
+

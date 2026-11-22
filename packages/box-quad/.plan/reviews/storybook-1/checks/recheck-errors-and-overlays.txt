@@ -1,0 +1,132 @@
+Recheck at c8d33e022 in slot b, after aube exec just docs-build. Node v26.13.1.
+
+## probes/resize-observer-errors.ts
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## probes/webkit-errors-all-stories.ts
+WebKit 27.2: 89 stories, 0 raise a page error
+
+## probes/recheck-arg-updates.ts
+WebKit 27.2 live-demo: page errors on load 0, after 10 updates of rotation 0; last style "transform: rotate(55deg) skewX(8deg);"
+WebKit 27.2 nested-spaces: page errors on load 0, after 10 updates of ancestorZoom 0; last style "rotate: 12deg; zoom: 1.3;"
+
+## probes/stories-proof.ts
+
+## chromium 158.0.8127.18: overlay bounds against getBoundingClientRect(), limit 0.05 px
+  Live Demo rotation:-18;skew:8                              0.00e+0  pass
+  Live Demo rotation:-55;skew:-20                            1.83e-4  pass
+  Live Demo rotation:-55;skew:20                             0.00e+0  pass
+  Live Demo rotation:55;skew:-20                             0.00e+0  pass
+  Live Demo rotation:55;skew:20                              1.83e-4  pass
+  Nested Spaces ancestorRotation:12;ancestorZoom:1.25;targetRotation:-20 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:-45;ancestorZoom:2;targetRotation:45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:45;ancestorZoom:0.5;targetRotation:-45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Failed Reads
+    A 3D transform. Read: false, overlay drawn: false  pass
+    An inline element on two lines. Read: false, overlay drawn: false  pass
+    `display: none`. Read: false, overlay drawn: false  pass
+    A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+  Docs page: {"text":"Reproduces the live demo\nof getBoxQuadsPolyfill by Jochen Kühner (MIT).","href":"https://jogibear9988.github.io/getBoxQuadsPolyfill#live-demo","stories":5}
+  Phone width, 375 x 667
+    Live Demo scroller: {"scrolls":true,"scrollLeft":200}
+    Live Demo, scrolled by 200 px                            3.05e-5  pass
+    Nested Spaces, defaults                                  0.00e+0  pass
+    pointer-delta: page scrolls horizontally: false
+    failed-reads: page scrolls horizontally: false
+  page errors: none
+
+## firefox 159.0: overlay bounds against getBoundingClientRect(), limit 0.05 px
+  Live Demo rotation:-18;skew:8                              3.05e-5  pass
+  Live Demo rotation:-55;skew:-20                            4.36e-3  pass
+  Live Demo rotation:-55;skew:20                             3.05e-5  pass
+  Live Demo rotation:55;skew:-20                             3.05e-5  pass
+  Live Demo rotation:55;skew:20                              4.36e-3  pass
+  Nested Spaces ancestorRotation:12;ancestorZoom:1.25;targetRotation:-20 0.00e+0  pass
+    after scrolling by 90 px                                 1.53e-5  pass
+  Nested Spaces ancestorRotation:-45;ancestorZoom:2;targetRotation:45 1.53e-5  pass
+    after scrolling by 90 px                                 1.53e-5  pass
+  Nested Spaces ancestorRotation:45;ancestorZoom:0.5;targetRotation:-45 0.00e+0  pass
+    after scrolling by 90 px                                 1.53e-5  pass
+  Failed Reads
+    A 3D transform. Read: false, overlay drawn: false  pass
+    An inline element on two lines. Read: false, overlay drawn: false  pass
+    `display: none`. Read: false, overlay drawn: false  pass
+    A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+  Docs page: {"text":"Reproduces the live demo\nof getBoxQuadsPolyfill by Jochen Kühner (MIT).","href":"https://jogibear9988.github.io/getBoxQuadsPolyfill#live-demo","stories":5}
+  Phone width, 375 x 667
+    Live Demo scroller: {"scrolls":true,"scrollLeft":200}
+    Live Demo, scrolled by 200 px                            1.53e-5  pass
+    Nested Spaces, defaults                                  0.00e+0  pass
+    pointer-delta: page scrolls horizontally: false
+    failed-reads: page scrolls horizontally: false
+  page errors: none
+
+## webkit 27.2: overlay bounds against getBoundingClientRect(), limit 0.05 px
+  Live Demo rotation:-18;skew:8                              0.00e+0  pass
+  Live Demo rotation:-55;skew:-20                            1.83e-4  pass
+  Live Demo rotation:-55;skew:20                             1.53e-5  pass
+  Live Demo rotation:55;skew:-20                             1.53e-5  pass
+  Live Demo rotation:55;skew:20                              1.83e-4  pass
+  Nested Spaces ancestorRotation:12;ancestorZoom:1.25;targetRotation:-20 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:-45;ancestorZoom:2;targetRotation:45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Nested Spaces ancestorRotation:45;ancestorZoom:0.5;targetRotation:-45 0.00e+0  pass
+    after scrolling by 90 px                                 0.00e+0  pass
+  Failed Reads
+    A 3D transform. Read: false, overlay drawn: false  pass
+    An inline element on two lines. Read: false, overlay drawn: false  pass
+    `display: none`. Read: false, overlay drawn: false  pass
+    A 2D transform, for contrast. Read: true, overlay drawn: true  pass
+  Docs page: {"text":"Reproduces the live demo\nof getBoxQuadsPolyfill by Jochen Kühner (MIT).","href":"https://jogibear9988.github.io/getBoxQuadsPolyfill#live-demo","stories":5}
+  Phone width, 375 x 667
+    Live Demo scroller: {"scrolls":true,"scrollLeft":200}
+    Live Demo, scrolled by 200 px                            3.05e-5  pass
+    Nested Spaces, defaults                                  0.00e+0  pass
+    pointer-delta: page scrolls horizontally: false
+    failed-reads: page scrolls horizontally: false
+  page errors: none
+
+All readings pass
+
+## Also
+aube exec just docs-smoke: 112 of 112 pages passed. aube exec just typecheck and aube exec just lint in packages/box-quad: exit 0 and exit 0.
+git merge-tree --write-tree origin/main (4936e77b9) c8d33e022: no conflict.

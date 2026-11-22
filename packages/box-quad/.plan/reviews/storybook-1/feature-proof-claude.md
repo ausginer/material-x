@@ -72,3 +72,29 @@ There are two findings:
 - **`BQ-18`'s reading doesn't cover _Nested Spaces_.** `BQ-18` doesn't ask for it, so the record complies. `BQ-16`'s property for it is established above.
 - **The overlay draws outside the scroll container** when the target is partly scrolled out, as in the light screenshot. `BQ-16` says so, and the story's description says it.
 - **The module comment's credit is worded differently from `BQ-17`'s sentence.** It names the same demo, author, licence and link, and _Live Demo_'s description, the one the docs page shows, is verbatim.
+
+## Recheck, 2026-11-22: the fixes at c8d33e022
+
+**Read at** `c8d33e022`: the fix is `3765d39df`, and the record entry follows it. This is a targeted recheck of this report's two findings, not a fresh proof, on the coordinator's task. It ran in slot `b`, with a fresh `docs-build`. `origin/main` is at `4936e77b9`, and the branch still merges with no conflict.
+
+- **Rerun:** this report's three probes, and a new [`recheck-arg-updates.ts`](probes/recheck-arg-updates.ts) for arg changes in WebKit ([reading](checks/recheck-errors-and-overlays.txt)). The implementer's `stories-reading.ts`, three times as committed and three times with a 500 ms wait before each screenshot ([reading](checks/recheck-screenshots.txt), compared with [`png-compare.ts`](probes/png-compare.ts)). The implementer's `resize-observer-diagnosis.ts`. `docs-smoke`, which passed 112 of 112, and box-quad's `typecheck` and `lint`, which pass.
+
+| Finding | Resolved | Evidence |
+| --- | --- | --- |
+| `reviewer-1`: the WebKit `ResizeObserver` loop error | Yes | Each story and the docs page raise no page error in Chromium, Firefox or WebKit, at 1000 px and at 375 px: 30 of 30 readings are clean, against 6 errored before. In WebKit, 0 of the 89 stories raise a page error, against 3 before. Ten arg updates sent through the preview channel to _Live Demo_ and to _Nested Spaces_ in WebKit apply and raise none. The overlays still bound their targets in three engines, at every arg set this report reads |
+| `reviewer-2`: the reason for `autodocs` | Yes | The record now says that box-quad's stories have no docs page without the tag. It says that the other 17 docs pages are material-x's MDX pages, and that this is the only `autodocs` tag |
+
+**The fix and its cause:**
+
+- **The fix:** each readout is written through its single text node's `data`. Nothing is suppressed. React rendered each output with one text node, `-`, and re-renders it with the same child, so it doesn't replace the node behind the stories.
+- **The cause, as far as the probe shows it:** the implementer's diagnosis probe shows the mechanism. Before the fix, each story callback made `childList` records, and the preview then created a new observer on `<body>`. After the fix, each callback makes only `characterData` records, and no further observer follows. The probe attributes the new observer to the preview bundle (`iframe`). Naming Storybook's highlight addon as its source is the implementer's reading, and the probe doesn't print it.
+
+**Is the dark-screenshot variation the probe's, and acceptable as stated? Yes, and its cause is now known.**
+
+- **What varies:** as committed, the reading's text output equals the committed output. Its light screenshots are byte-equal to the committed ones in all three runs. Its dark screenshots differ from run to run, a different set each time and _Pointer Delta_'s included. Each differing image is a uniform shift of at most 1 per channel over 59 % to 78 % of the frame, background included, and nothing local to an overlay or a readout.
+- **The cause:** the preview's `html` and `body` transition `color` and `background-color` over 180 ms (`.storybook/preview-frame.css`). `.storybook/preview.ts` sets `data-theme="dark"` from the URL as the module runs, so a dark story opens with that transition running. The reading waits only for the root's first child and two frames, so a dark screenshot can land in the transition's last steps.
+- **The witness:** with a 500 ms wait before each screenshot, all eight screenshots are identical in three runs and byte-equal to the committed ones.
+
+So the stories render the same as before the fix, the committed screenshots are the settled rendering, and keeping them is right. The variation belongs to the reading's timing, not to the stories or to the fix. It isn't a finding against this unit. A later reading that compares dark screenshots needs the same settling wait.
+
+**Result:** both findings are resolved, with no new finding.
