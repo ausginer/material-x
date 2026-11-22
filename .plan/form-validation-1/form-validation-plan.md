@@ -1,6 +1,6 @@
 # Controlled form validation for material-x's form-associated components
 
-**Status:** proposed. The owner answered [`FV-Q1` to `FV-Q3`](#owners-choices) on 2026-11-22. `FV-Q1` and `FV-Q3` are settled. For `FV-Q2`, the owner leans towards a `required` attribute and asked for a challenge, and the architect recommends accepting it (`FV-D11`). Nothing here is registered yet. [§10](#10-revisions) lists what each revision changed.
+**Status:** approved for implementation on 2026-11-22. The owner settled [`FV-Q1` to `FV-Q3`](#owners-choices) and accepted `FV-D11`. Nothing here is registered yet: the main slot's architect registers `FV-D1` to `FV-D12` and `FV-F1` to `FV-F3` in [`00-index.md`](../00-index.md). [§10](#10-revisions) lists what each revision changed.
 
 - **Read at** `origin/main` `00fd35592`. PR [#126](https://github.com/ausginer/material-x/pull/126) (`repo:RF-74`, the text fields' default value and form reset) is open on `material-x/text-field-reset-1`. This plan builds on it and doesn't re-decide it.
 - **Written by** the architect in slot `b`, on this branch in slot `d`. An architect outside the main slot proposes and doesn't record ([agent workflow](../../.agents/docs/agent-workflow.md#parallel-units)). So the entries below carry local names: decisions `FV-D1` to `FV-D12`, owner questions `FV-Q1` to `FV-Q3`, and proposed findings `FV-F1` to `FV-F3`. The main slot's architect registers them in [`00-index.md`](../00-index.md): the decisions, with the findings of [§1](#1-what-is-wrong-today) as one `RF-` entry that they close, and the findings of [§8](#8-proposed-findings) as `RF-` entries of their own.
@@ -14,6 +14,10 @@
   - `FV-Q2`: he leans towards `required`, translated only into `aria-required`, never a validator, and asked the architect to challenge it;
   - the `aria-*` gap of `mx-checkbox` and `mx-radio` is a bug, to be proposed as a finding;
   - `FV-Q3`: yes, the radio and the switches carry `error` too, and screen readers are to be checked.
+- **The owner's final answers,** relayed by the coordinator on 2026-11-22:
+  - `FV-D11` is accepted: `required` sets `aria-required` on the control and nothing else, and the docs say that it announces only;
+  - `FV-F1` and `FV-F2` are fixed in a unit of their own, not this one;
+  - screen readers: layer 1 of [§9](#9-accessibility-proof-and-the-screen-reader-method) only for now, each engine's accessibility tree with row 11. AT-SPI2, Orca and Guidepup are deferred together to one accessibility-testing unit after the main material-x work ends.
 - **Governing records:** [`architecture.md`](../../.agents/docs/architecture.md) §Components (_every component is controlled_, and the text fields' exception), `repo:RF-50`, `repo:RF-74`, `repo:RD-20` (the browser floor), `repo:RD-24` (size rows), `repo:RD-26` and `repo:RD-33` (traits), `repo:RD-32` (one branch per unit), CONTRIBUTING §1.1, §2, §8 and §15.
 - **Evidence:** [`checks/probe-readings.txt`](checks/probe-readings.txt), the output of [`probes/review-probe.mjs.txt`](probes/review-probe.mjs.txt) and [`probes/plan-probe.mjs.txt`](probes/plan-probe.mjs.txt) in Chromium 158, Firefox 159 and Playwright's WebKit 27.2. Each probe is a minimal form-associated element that reproduces the mechanism it tests, not the built component. [`checks/size-estimate.txt`](checks/size-estimate.txt) is a size estimate from hand-written stand-ins. [`checks/aria-states.txt`](checks/aria-states.txt) is the output of [`probes/aria-states.ts`](probes/aria-states.ts): each engine's own accessibility tree for the built components and for native controls, [§9](#9-accessibility-proof-and-the-screen-reader-method).
 
@@ -164,7 +168,7 @@ The owner's direction decides the review's I1 and I2.
 
 ### FV-D11 — `required` announces a control as required and does nothing else
 
-This is the owner's leaning in `FV-Q2`, challenged below. The architect recommends that the owner accept it.
+This was the owner's leaning in `FV-Q2`, challenged below. The architect recommended accepting it, and the owner accepted it on 2026-11-22.
 
 - **Required properties:**
   - `required` is a `Validatable` member on all six elements (`FV-D1`).
@@ -182,7 +186,7 @@ This is the owner's leaning in `FV-Q2`, challenged below. The architect recommen
   - **Form libraries that read the DOM attribute** treat it as a rule of their own and validate in JavaScript. That fits this model: the consumer's validator then calls `setCustomValidity`. The architect didn't verify which libraries read it, and none blocks submission natively through it.
 - **Why accept.** What the challenge leaves against it is one documentation risk, against an API that announces correctly on all six controls today, needs no fix first, and follows the same rule as `error`.
 - **Cost:** one more attribute member and one more branch in the hook. It isn't measured separately, and §4's reading covers it.
-- **If the owner rejects it,** host `aria-required` is the alternative. It needs `FV-F1` fixed for the checkbox and the radio, and it puts the state on two nodes until `FV-F2` is fixed.
+- **The alternative, not adopted:** host `aria-required`. It needs `FV-F1` fixed for the checkbox and the radio, and it puts the state on two nodes until `FV-F2` is fixed.
 
 ### FV-D12 — The radio and the switches carry `error` and `required`, as the other controls do
 
@@ -193,12 +197,12 @@ This is the owner's answer to `FV-Q3`.
 - **Assistive technology:**
   - Chromium and WebKit expose the radio's and the switch's control as `invalid` with `error` set, as they do the native radio and switch (§9).
   - Firefox's `invalid` state isn't read, because Marionette doesn't report it.
-  - Whether a screen reader announces it is §9's next step.
+  - Whether a screen reader announces it is deferred to the accessibility-testing unit (§9).
 - **Some ARIA references** list `aria-invalid` for `checkbox`, `switch` and `radiogroup`, and not for `radio`. Both engines that the probe reads expose it on a radio. An `mx-radio-group` would carry a group's invalidity later.
 
 ## Owner's choices
 
-All three were answered by the owner on 2026-11-22, relayed by the coordinator.
+All three were answered by the owner on 2026-11-22, relayed by the coordinator. `FV-Q2` was settled by his acceptance of `FV-D11`.
 
 ### FV-Q1 — Does the checkbox's error appearance come with this unit?
 
@@ -210,7 +214,7 @@ All three were answered by the owner on 2026-11-22, relayed by the coordinator.
 
 ### FV-Q2 — How is a required control announced?
 
-**The owner leans towards `required`, translated only into `aria-required`, and asked for a challenge.** The architect's first recommendation was the host's `aria-required`. The accessibility-tree readings of §9 changed it: a host attribute reaches two nodes in the components that mirror `aria-*`, and none of the right ones in the checkbox and the radio. **The architect now recommends accepting the owner's leaning,** as `FV-D11` argues. The owner accepts or rejects `FV-D11`.
+**Answered: `required`, translated only into `aria-required`** (`FV-D11`). The owner leaned towards it and asked for a challenge. The architect's first recommendation was the host's `aria-required`. The accessibility-tree readings of §9 changed it: a host attribute reaches two nodes in the components that mirror `aria-*`, and none of the right ones in the checkbox and the radio. The architect then recommended the owner's leaning, as `FV-D11` argues, and the owner accepted it.
 
 ### FV-Q3 — Do the radio and the switches carry `error` too?
 
@@ -232,9 +236,9 @@ All three were answered by the owner on 2026-11-22, relayed by the coordinator.
 
 ## 5. Sequencing
 
-1. The owner accepts or rejects `FV-D11`. The main slot's architect registers the decisions, §1's finding and §8's findings, and amends this plan on this branch if an answer changes it.
-2. **`FV-F1` and `FV-F2` are fixed in a unit of their own, before this one or beside it.** This unit doesn't wait for it, because `useValidatable` writes the control directly. The two units overlap in `useCheckableCore` only, and the second to land merges the first.
-3. **Implementation starts after #126 merges.** The implementer runs `git merge origin/main` on this branch, with no rebase. #126 and this unit both edit `TextFieldCore.ts`, around the value code and the deleted methods. The conflict is textual only, because validation reads nothing that RF-74 writes.
+1. **Done:** the owner accepted `FV-D11`. The main slot's architect registers the decisions, §1's finding and §8's findings. Registration doesn't block implementation.
+2. **`FV-F1` and `FV-F2` are fixed in a unit of their own, not this one,** before it or beside it, as the owner confirmed. This unit doesn't wait for it, because `useValidatable` writes the control directly. The two units overlap in `useCheckableCore` only, and the second to land merges the first.
+3. **Implementation starts after #126 merges.** It merged on 2026-11-22 as `2f18fb47a`. The implementer runs `git merge origin/main` on this branch, with no rebase. #126 and this unit both edit `TextFieldCore.ts`, around the value code and the deleted methods. The conflict is textual only, because validation reads nothing that RF-74 writes.
 4. **Order of work:**
    1. core's trait, hook, export and rows;
    2. `aube exec just build` in `packages/core`;
@@ -254,7 +258,7 @@ All three were answered by the owner on 2026-11-22, relayed by the coordinator.
 
 ## 7. Not established
 
-- **Not checked:** real Safari, and any screen reader's speech (§9). The bubble's position with each anchor.
+- **Not checked:** real Safari, and any screen reader's speech, deferred to the accessibility-testing unit (§9). The bubble's position with each anchor.
 - **Not read:** Firefox's `invalid` state, which Marionette doesn't report (§9).
 - **Not run:** `FV-D6`'s reading of #124.
 - **ARIA:** whether `aria-invalid` is supported on `radio` is taken from secondary references, not read in the specification. Two engines expose it.
@@ -338,13 +342,19 @@ Playwright's ARIA snapshot isn't used: it computes roles in page script and repo
      - the `support` text is read as the description;
      - and, for `FV-F2`, whether the host's extra node is announced.
 
-- **This unit's rows** (`FV-D10`, row 11) pin layer 1 in Chromium. Layers 2 and 3 are the owner's choice, and their readings join this section when they run.
+- **This unit's rows** (`FV-D10`, row 11) pin layer 1 in Chromium. That is all this unit does for screen readers, by the owner's choice.
+- **Layers 2 and 3 are deferred together:** AT-SPI2, Orca and Guidepup. The owner wants one active accessibility-testing unit after the main material-x work ends, and their readings belong to it.
 
 ## 10. Revisions
 
 - **2026-11-22, `e39b43ec8`:** the first plan, with `FV-D1` to `FV-D10` and `FV-Q1` to `FV-Q3`.
-- **2026-11-22, this revision,** for the owner's answers:
+- **2026-11-22, `a65d77bae`,** for the owner's answers:
   - `FV-Q1` and `FV-Q3` answered.
   - `FV-Q2`'s recommendation changed from host `aria-required` to the owner's `required`, on §9's readings: `FV-D11`.
   - Added `FV-D12`, the findings `FV-F1` to `FV-F3`, §9's readings and method, rows 10 and 11.
   - `FV-D1`, `FV-D2`, `FV-D3`, `FV-D7`, `FV-D10` and §5 to §7 amended to match.
+- **2026-11-22, this revision,** for the owner's final answers. The plan is approved for implementation:
+  - `FV-D11` accepted, so `FV-Q2` is answered;
+  - `FV-F1` and `FV-F2` confirmed as a unit of their own (§5);
+  - screen readers limited to §9's layer 1 with row 11, and layers 2 and 3 deferred to one accessibility-testing unit after the main material-x work (`FV-D12`, §7, §9);
+  - #126's merge recorded in §5.
