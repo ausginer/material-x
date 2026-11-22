@@ -42,6 +42,8 @@ async function loadRegistry(): Promise<ContractRegistry> {
     icon,
     textField,
     listItem,
+    elevation,
+    fabColor,
   ] = await Promise.all([
     import('../../src/button/styles/size/tokens.ts'),
     import('../../src/button/styles/default/tokens.ts'),
@@ -56,6 +58,8 @@ async function loadRegistry(): Promise<ContractRegistry> {
     import('../../src/button/styles/icon/tokens.ts'),
     import('../../src/text-field/styles/default/tokens.ts'),
     import('../../src/list/styles/item/tokens.ts'),
+    import('../../src/core/styles/elevation/tokens.ts'),
+    import('../../src/fab/styles/color/tokens.ts'),
   ]);
 
   // Both group token arrays are indexed by `BUTTON_GROUP_SIZES`:
@@ -85,6 +89,8 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'radio.default': radio.defaultTokens,
     'text-field.default': textField.defaultTokens,
     'list-item.default': listItem.listItemTokens,
+    elevation: elevation.elevationTokens,
+    'fab.color.default': fabColor.defaultColorTokens,
     'icon-button.color.filled':
       icon.variantTokens[icon.VARIANTS.indexOf('filled')]!,
     'icon-button.color.tonal':

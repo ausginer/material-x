@@ -7,13 +7,12 @@ import { useEvents } from './useEvents.ts';
  * The `nodes` argument mirrors `slot.assignedNodes()` for the current slot
  * state, so it includes text nodes and other non-element nodes.
  *
- * @typeParam T - The node type expected from the observed slot.
  * @param slot - The slot that dispatched the update.
  * @param nodes - The currently assigned child nodes for this slot.
  */
-export type SlotControllerUpdateCallback<T extends Node> = (
+export type SlotControllerUpdateCallback = (
   slot: HTMLSlotElement,
-  nodes: readonly T[],
+  nodes: readonly Node[],
 ) => void;
 
 /**
@@ -27,16 +26,15 @@ export type SlotControllerUpdateCallback<T extends Node> = (
  * @remarks This controller does not emit an initial update manually. The
  * callback runs only when the platform dispatches `slotchange`.
  *
- * @typeParam T - The node type expected from the observed slot.
  * @param host - The host element that owns the observed slot.
  * @param slotOrSelector - The slot to observe, either by selector or direct
  *   element reference.
  * @param callback - Callback invoked for each `slotchange` update.
  */
-export function useSlot<T extends Node = Node>(
+export function useSlot(
   host: ControlledElement,
   slotOrSelector: string | HTMLSlotElement,
-  callback: SlotControllerUpdateCallback<T>,
+  callback: SlotControllerUpdateCallback,
 ): void {
   const slot =
     typeof slotOrSelector === 'string'
@@ -47,8 +45,7 @@ export function useSlot<T extends Node = Node>(
     host,
     {
       slotchange() {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-        callback(slot, slot.assignedNodes() as T[]);
+        callback(slot, slot.assignedNodes());
       },
     },
     slot,

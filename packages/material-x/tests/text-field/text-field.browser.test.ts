@@ -403,6 +403,189 @@ describe.each(FIELD_TAGS)('%s', (tag) => {
   });
 });
 
+/**
+ * Parses a field named `f` inside a form, so the field upgrades with its
+ * attributes as markup declares them.
+ */
+async function createFieldInForm(
+  tag: FieldTag,
+  attributes = '',
+): Promise<Readonly<{ form: HTMLFormElement; field: FieldElement }>> {
+  const form = document.createElement('form');
+  form.innerHTML = `<${tag} name="f" ${attributes}></${tag}>`;
+  document.body.append(form);
+
+  await nextFrame();
+
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  return { form, field: form.firstElementChild as FieldElement };
+}
+
+describe.each(FIELD_TAGS)('%s default value', (tag) => {
+  it('should take its value from the value attribute at upgrade', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    expect([
+      field.value,
+      getInput(field).value,
+      field.isPopulated,
+      new FormData(form).get('f'),
+    ]).toEqual(['initial', 'initial', true, 'initial']);
+  });
+
+  it('should submit an empty value before any edit when it has no value attribute', async () => {
+    const { form } = await createFieldInForm(tag);
+
+    expect(new FormData(form).get('f')).toBe('');
+  });
+
+  it('should follow the value attribute only until a script sets the value', async () => {
+    const { field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.setAttribute('value', 'changed');
+    const followed = field.value;
+
+    field.value = 'scripted';
+    field.setAttribute('value', 'ignored');
+
+    expect([followed, field.value]).toEqual(['changed', 'scripted']);
+  });
+
+  it('should stop following the value attribute once the user edits the value', async () => {
+    const { field } = await createFieldInForm(tag, 'value="initial"');
+
+    await userEvent.click(getInput(field));
+    await userEvent.keyboard('typed');
+    field.setAttribute('value', 'ignored');
+
+    expect(field.value).toBe('initialtyped');
+  });
+
+  it('should restore the value attribute on form reset after a script set the value', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+    form.reset();
+
+    expect([field.value, new FormData(form).get('f')]).toEqual([
+      'initial',
+      'initial',
+    ]);
+  });
+
+  it('should restore the value attribute on form reset after the user edited the value', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    await userEvent.click(getInput(field));
+    await userEvent.keyboard('typed');
+    form.reset();
+
+    expect([field.value, new FormData(form).get('f')]).toEqual([
+      'initial',
+      'initial',
+    ]);
+  });
+
+  it('should reset to an empty, unpopulated value when it has no value attribute', async () => {
+    const { form, field } = await createFieldInForm(tag);
+
+    field.value = 'scripted';
+    form.reset();
+
+    expect([
+      field.value,
+      field.isPopulated,
+      new FormData(form).get('f'),
+    ]).toEqual(['', false, '']);
+  });
+
+  it('should follow the value attribute again after a form reset', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+    form.reset();
+    field.setAttribute('value', 'changed');
+
+    expect(field.value).toBe('changed');
+  });
+
+  it('should not write the value attribute when a script sets the value', async () => {
+    const { field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+
+    expect(field.getAttribute('value')).toBe('initial');
+  });
+
+  it('should empty the value when the value attribute is removed while the value is clean', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.removeAttribute('value');
+
+    expect([field.value, new FormData(form).get('f')]).toEqual(['', '']);
+  });
+
+  it('should submit an empty value when a script sets the value to null', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = null;
+    const data = new FormData(form);
+
+    expect([field.value, data.has('f'), data.get('f')]).toEqual(['', true, '']);
+  });
+
+  it('should restore the value attribute on form reset while disabled', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+    field.toggleAttribute('disabled', true);
+    form.reset();
+    const whileDisabled = [field.value, new FormData(form).has('f')];
+
+    field.toggleAttribute('disabled', false);
+
+    expect([...whileDisabled, new FormData(form).get('f')]).toEqual([
+      'initial',
+      false,
+      'initial',
+    ]);
+  });
+
+  it('should fire no input or change event on form reset', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+    const events: string[] = [];
+
+    field.value = 'scripted';
+
+    for (const type of ['input', 'change']) {
+      field.addEventListener(type, () => {
+        events.push(type);
+      });
+    }
+
+    form.reset();
+    await nextFrame();
+
+    expect(events).toEqual([]);
+  });
+
+  it('should give a clone the value attribute and a clean value, not the edited value', async () => {
+    const { form, field } = await createFieldInForm(tag, 'value="initial"');
+
+    field.value = 'scripted';
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    const clone = field.cloneNode(true) as FieldElement;
+    form.append(clone);
+    await nextFrame();
+    const cloned = clone.value;
+
+    clone.setAttribute('value', 'changed');
+
+    expect([cloned, clone.value]).toEqual(['initial', 'changed']);
+  });
+});
+
 describe('mx-multiline-text-field', () => {
   it('should grow the textarea by one line for each line typed', async () => {
     const field = createField('mx-multiline-text-field');
@@ -464,5 +647,23 @@ describe('mx-multiline-text-field', () => {
       textarea.scrollWidth,
       textarea.getBoundingClientRect().height > oneLine,
     ]).toEqual([textarea.clientWidth, true]);
+  });
+
+  it("should show the value attribute's line breaks after a form reset", async () => {
+    const { form, field } = await createFieldInForm(
+      'mx-multiline-text-field',
+      'value="first&#10;second"',
+    );
+    const textarea = getInput(field);
+    const lineHeight = pixels(getComputedStyle(textarea).lineHeight);
+
+    field.value = 'scripted';
+    form.reset();
+    await nextFrame();
+
+    expect([field.value, textarea.scrollHeight]).toEqual([
+      'first\nsecond',
+      2 * lineHeight,
+    ]);
   });
 });

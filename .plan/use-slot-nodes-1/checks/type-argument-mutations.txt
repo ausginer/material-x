@@ -1,0 +1,27 @@
+== head (no mutation)
+      Tests  4 passed (4)
+
+== useSlot<T extends Text = Text>
+sed -e s/^export function useSlot(/export function useSlot<T extends Text = Text>(/
+     × should reject a type argument
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 3 passed (4)
+
+== useSlot<T extends Node = Node>
+sed -e s/^export function useSlot(/export function useSlot<T extends Node = Node>(/
+     × should reject a type argument
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 3 passed (4)
+
+== SlotControllerUpdateCallback<T extends Text = Text>
+sed -e s/^export type SlotControllerUpdateCallback = (/export type SlotControllerUpdateCallback<T extends Text = Text> = (/
+     × should reject a type argument on the callback type
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 3 passed (4)
+
+== SlotControllerUpdateCallback<T extends Node = Node>
+sed -e s/^export type SlotControllerUpdateCallback = (/export type SlotControllerUpdateCallback<T extends Node = Node> = (/
+     × should reject a type argument on the callback type
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 3 passed (4)
+

@@ -1,0 +1,40 @@
+# Type mutations of packages/core/src/controllers/useSlot.ts, each applied alone to an export of
+# 65152f4f0 and reverted, running the declaration rows (vitest --project declaration).
+#
+# d1  `nodes: readonly Node[]` -> `nodes: Node[]`
+# d2  `nodes: readonly Node[]` -> `nodes: readonly Element[]`
+# d3  `export function useSlot(` -> `export function useSlot<T extends Node = Node>(`
+# d4  `export type SlotControllerUpdateCallback = (` -> `export type SlotControllerUpdateCallback<T extends Node = Node> = (`
+# d5  `export function useSlot(` -> `export function useSlot<T extends Text = Text>(`
+
+== dmut-d1-mutable-nodes
+     × should type the callback nodes as readonly Node[]
+     × should infer readonly Node[] for an inline callback
+      Tests  2 failed | 2 passed (4)
+
+== dmut-d2-element-nodes
+     × should type the callback nodes as readonly Node[]
+     × should infer readonly Node[] for an inline callback
+      Tests  2 failed | 2 passed (4)
+
+== dmut-d3-useSlot-generic-again
+     × should reject a type argument
+      Tests  1 failed | 3 passed (4)
+
+== dmut-d4-callback-generic-with-default
+     × should reject a type argument on the callback type
+      Tests  1 failed | 3 passed (4)
+
+== dmut-d5-useSlot-generic-text-constraint
+      Tests  4 passed (4)
+
+# The errors that the two @ts-expect-error directives absorb: the rows with both directive lines deleted
+# (sed '/@ts-expect-error/d'), run as a separate declaration file.
+## head
+TypeCheckError: Expected 0 type arguments, but got 1.
+TypeCheckError: Type 'SlotControllerUpdateCallback' is not generic.
+TypeCheckError: This expression is not callable. Type 'ExpectFunction<any>' has no call signatures.
+## head with d5
+TypeCheckError: Type 'HTMLElement' is missing the following properties from type 'Text' wholeText, splitText, data, length, and 5 more.
+TypeCheckError: Type 'SlotControllerUpdateCallback' is not generic.
+TypeCheckError: This expression is not callable. Type 'ExpectFunction<any>' has no call signatures.

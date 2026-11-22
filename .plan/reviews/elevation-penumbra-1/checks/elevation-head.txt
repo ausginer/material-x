@@ -1,0 +1,10 @@
+# tests/core/elevation.spec.browser.test.ts on an export of 966ec0354, Chromium 158, Firefox 159, WebKit 27.2
+
+ RUN  v5.1.0 <scratch>/head/packages/material-x
+
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  07:31:06
+   Duration  9.06s (tests 41%, worker 31%, import 22%, setup 6%)
+
