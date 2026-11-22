@@ -2226,6 +2226,22 @@ Registered from `FV-D11` (see `RD-35`). The owner leaned towards it in `FV-Q2`, 
 
 Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six controls have the same members, so a form library treats them alike. The radio and the switches draw nothing for `error`, because Material defines no error appearance for them, and `:state(error)` is there for the consumer's styles. Chromium and WebKit expose the radio's and the switch's control as `invalid`, as they do the native ones. Whether a screen reader announces it is deferred to one accessibility-testing unit, on the owner's answer. The checkbox's error appearance is `RF-95`, on #158.
 
+#### RD-47 — The landing page waits for Card, Top app bar and Slider, and then replaces Storybook at the site's root
+
+**Decided 2026-11-22 by the architect, on `repo/landing-1`,** on the owner's answers of the same day in chat to the [landing plan](landing-1/landing-plan.md)'s Q1 to Q5, relayed by the coordinator, for #54. `RD-46` is the highest `RD-` on any branch on `origin`, so this is the next free number. The plan holds the gap analysis, the sizes, the alternatives weighed and the questions as asked.
+
+- **Components first.** The first set is `mx-card`, `mx-top-app-bar` and `mx-slider`, each with its stories and the component definition of done. The site unit starts after all three merge. Until then Storybook stays the site's root, and nothing of the page is built or deployed (Q3, which the owner answered with none of its options).
+- **The top app bar is in the first set,** on the owner's requirement of a sticky header: the small bar, pinned, with an on-scroll state. The plan's [properties](landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component) bind its unit. Collapsing and hiding on scroll wait.
+- **The token tables come first, in one unit,** at the manifest's current release, so the three component units don't each regenerate tproc's store.
+- **The plan's [component table](landing-1/landing-plan.md#missing-components-sized) is the list of further work,** in the plan's order. A component outside the first set needs a page or a consumer to ask for it.
+- **Hosting (Q1 (a)).** When the site unit lands, the landing page is the Pages root, Storybook moves to `storybook/`, `api/` stays, and the page redirects a request carrying Storybook's `path` parameter to `storybook/` with the same query.
+- **Build (Q2 (a)).** The page is a private workspace package, `packages/site`: plain HTML and TypeScript, built by Vite, importing the packages through their builds. Storybook's React demos stay as they are, and the page writes its own.
+- **Packages presented (Q4 (a)).** Cards for material-x, core, box-quad and drag. An install command only for a package on npm, which today is box-quad, and _not yet published_ for the others. tproc and the Vite plugins in a short _Tooling_ note.
+- **Theme (Q5).** The colours come from the owner's Material Theme Builder export. Its exports carry colours only ([reading](landing-1/checks/mtb-export.txt)), so the type scale comes from tproc's `md.sys.typescale` tokens. Where each lives is open as the plan's Q5b and Q6. The page follows `prefers-color-scheme` before any script runs, and its theme switch overrides it.
+- **Owed when the site unit lands:** an amendment of `RD-14` property 6, so `docs-smoke` loads the landing page and Storybook at its new base path, and of property 2 or 4 if the recipe's output layout changes.
+
+**Why.** The owner prefers Storybook until the page can be built from finished components, to a page built in stages that is reworked as each component lands. The header has to stay visible as the page scrolls, and M3's pinned top app bar is the specified form of that header. The other reasons are the plan's.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
