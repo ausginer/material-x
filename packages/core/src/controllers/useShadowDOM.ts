@@ -20,7 +20,7 @@ export function useShadowDOM(
   init?: Partial<ShadowRootInit>,
 ): void {
   const root = host.attachShadow({ mode: 'open', ...init });
-  root.adoptedStyleSheets = [...styles];
+  root.adoptedStyleSheets = styles as CSSStyleSheet[];
 
   for (const template of templates) {
     root.append(template.content.cloneNode(true));
