@@ -1,0 +1,44 @@
+Checks at 478e05fdd in slot b, Node v26.13.1:
+- aube install: aube 2.10.0 by jdx.dev · ✓ Already up to date; the tree stays clean.
+- aube exec just docs-build (root): exit 0. aube exec just docs-smoke (root): exit 0, 112 of 112 pages passed.
+- aube exec just typecheck and aube exec just lint (packages/box-quad): exit 0 and exit 0.
+- Storybook index entries for box-quad:
+   box-quad--docs docs dev,test,manifest,autodocs
+   box-quad--live-demo story dev,test,manifest,autodocs
+   box-quad--nested-spaces story dev,test,manifest,autodocs
+   box-quad--pointer-delta story dev,test,manifest,autodocs
+   box-quad--failed-reads story dev,test,manifest,autodocs
+- Docs pages in the index: 18; MDX files tracked: 17; files with an autodocs tag: packages/box-quad/src/box-quad.stories.tsx 
+
+package-lock.json, 4fd8b9a67..478e05fdd: 4	0	package-lock.json
+diff --git a/package-lock.json b/package-lock.json
+index 12711cbbf..a60bc9104 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -19579,6 +19579,10 @@
+       "name": "@ydinjs/box-quad",
+       "version": "1.0.0",
+       "devDependencies": {
++        "@types/react": "19.3.0",
++        "@types/react-dom": "19.3.0",
++        "react": "19.3.1",
++        "react-dom": "19.3.1",
+         "size-limit": "14.3.0",
+         "size-limit-preset-rolldown": "0.1.0"
+       }
+Workspace links in the lock at the head:
+7498:    "node_modules/@ydinjs/box-quad": {
+7502:    "node_modules/@ydinjs/core": {
+7506:    "node_modules/@ydinjs/drag": {
+7510:    "node_modules/@ydinjs/material-x": {
+7514:    "node_modules/@ydinjs/tproc": {
+7518:    "node_modules/@ydinjs/vite-custom-element-assets": {
+7522:    "node_modules/@ydinjs/vite-traits-plugin": {
+
+drag's versions:
+101:    "@types/react": "19.3.0",
+102:    "@types/react-dom": "19.3.0",
+103:    "react": "19.3.1",
+104:    "react-dom": "19.3.1",
+
+git merge-tree --write-tree --name-only origin/main (6a67badfd) HEAD: 12f4056603fd4a51382727ea9fbe2e62bf22f284, no conflict

@@ -1,0 +1,34 @@
+CI: workflow verify, run 45008707443, event pull_request, head 910aee555 (PR #156).
+
+scope job (137165972622), step '.scripts/entry.sh --duplicates':
+no duplicated address in drag, repo
+
+chromium job (137166144983), the repo project:
+ FAIL   repo  .scripts/entry.node.test.ts > entry.sh --duplicates > should name the duplicates that the merge 1cf222c32 left
+AssertionError: expected null to deeply equal [ 'repo:RF-74', 'repo:RF-75' ]
+
+- Expected:
+[
+  "repo:RF-74",
+  "repo:RF-75",
+]
+
++ Received:
+null
+
+ ❯ .scripts/entry.node.test.ts:332:40
+ Test Files  1 failed | 157 passed (158)
+      Tests  1 failed | 2565 passed | 12 skipped (2578)
+
+verify job (137168281263):
+scope: success, expected success
+system-deps: success, expected success
+static: success, expected success
+chromium: failure, expected success
+firefox: success, expected success
+webkit: success, expected success
+docs: success, expected success
+records: skipped, expected skipped
+
+Ruleset 'Main protection' (20963220), required_status_checks:
+{"required_status_checks":[{"context":"verify","integration_id":15368}],"strict_required_status_checks_policy":false}

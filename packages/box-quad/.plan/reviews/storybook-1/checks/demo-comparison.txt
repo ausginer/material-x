@@ -1,0 +1,33 @@
+Upstream demo source at jogibear9988/getBoxQuadsPolyfill c3e766291 (index.html, site.js, site.css), fetched with gh api. Normalized lines of 12+ characters that the stories file or CSS module shares with it:
+stories.module.css:208  ~  site.css:99  | display: flex
+stories.module.css:93  ~  site.css:389  | position: relative
+stories.module.css:22  ~  site.css:17  | box-sizing: border-box
+stories.module.css:24  ~  site.css:239  | background-image:
+stories.module.css:98  ~  site.css:432  | position: absolute
+stories.module.css:40  ~  site.css:437  | overflow: visible
+stories.module.css:41  ~  site.css:436  | pointer-events: none
+stories.module.css:62  ~  site.css:381  | border-radius: 999px
+stories.module.css:215  ~  site.css:397  | display: grid
+stories.module.css:85  ~  site.css:525  | .demo-stage 
+stories.module.css:88  ~  site.css:370  | padding: 28px
+stories.module.css:169  ~  site.css:373  | overflow: hidden
+stories.module.css:119  ~  site.css:419  | padding: 20px 28px
+stories.module.css:124  ~  site.css:423  | transform-origin: center
+stories.module.css:143  ~  site.css:305  | overflow: auto
+stories.module.css:181  ~  site.css:177  | align-items: center
+stories.module.css:182  ~  site.css:178  | justify-content: center
+stories.module.css:216  ~  site.css:248  | place-items: center
+shared lines of 12+ characters: 18
+
+Short labels the stories render that the demo's index.html also has:
+ index.html:65: <div class="visual-node visual-node-b">ancestor</div>
+ index.html:185: <span>First point</span>
+ index.html:194: <div class="demo-reference">relativeTo: demo stage</div>
+ index.html:196: <div class="demo-card demo-card-base">Ancestor</div>
+ index.html:198: <span>Target node</span>
+ index.html:208: <h3>Quad points</h3>
+
+Upstream LICENSE, first lines:
+MIT License
+
+Copyright (c) 2024 Jochen Kühner

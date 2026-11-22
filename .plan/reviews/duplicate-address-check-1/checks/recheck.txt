@@ -1,0 +1,67 @@
+# Recheck of #156's repairs at fd28e50b7, read by the reviewer on 2026-11-22 in slot d. Node v26.13.1.
+
+## The fixture against the commit (this clone holds 1cf222c32 through a local branch; no remote branch contains it)
+$ git show 1cf222c32:.plan/00-index.md | sed -n 3710,3816p | cmp - .scripts/fixtures/entry-duplicates-1cf222c32.txt
+no output: byte-equal
+fixture headings:
+1:#### RF-73 — WebKit collapses a multiline text field's l
+20:#### RF-74 — Text fields ignore a form reset and their 
+45:#### RF-75 — Core's `useSlot` lets a caller type a slot
+61:#### RF-74 — Text fields ignore a form reset and their 
+86:#### RF-75 — Core's `useSlot` lets a caller type a slot
+checks/witness.txt reads the commit's whole file at 3729/3770 (RF-74) and 3754/3795 (RF-75): each minus 3709 gives 20/61 and 45/86
+
+## aube exec vitest run --project repo --reporter=verbose .scripts/entry.node.test.ts
+ ✓ |repo| .scripts/entry.node.test.ts:45 > entry.sh > should print a titleless entry
+ ✓ |repo| .scripts/entry.node.test.ts:52 > entry.sh > should print a titled entry with its title
+ ✓ |repo| .scripts/entry.node.test.ts:59 > entry.sh > should match the local id exactly rather than by prefix
+ ✓ |repo| .scripts/entry.node.test.ts:68 > entry.sh > should keep a sub-clause inside the entry that owns it
+ ✓ |repo| .scripts/entry.node.test.ts:75 > entry.sh > should resolve a multi-letter family through the same syntax
+ ✓ |repo| .scripts/entry.node.test.ts:82 > entry.sh > should resolve an entry of the repository record
+ ✓ |repo| .scripts/entry.node.test.ts:91 > entry.sh > should resolve an entry of the drag contract
+ ✓ |repo| .scripts/entry.node.test.ts:98 > entry.sh > should print a retired entry as the resolver printed it at its commit
+ ✓ |repo| .scripts/entry.node.test.ts:109 > entry.sh > should refuse an unknown scope
+ ✓ |repo| .scripts/entry.node.test.ts:116 > entry.sh > should refuse an unknown local id
+ ✓ |repo| .scripts/entry.node.test.ts:123 > entry.sh > should refuse an unqualified id and offer the qualified form
+ ✓ |repo| .scripts/entry.node.test.ts:131 > entry.sh > should tell the three refusals apart
+ ✓ |repo| .scripts/entry.node.test.ts:180 > entry.sh in a fixture repository > should refuse a local id the record defines twice
+ ✓ |repo| .scripts/entry.node.test.ts:187 > entry.sh in a fixture repository > should name the commit when the clone does not hold a retired scope
+ ✓ |repo| .scripts/entry.node.test.ts:265 > entry.sh --duplicates > should name both lines of a number that two entries take
+ ✓ |repo| .scripts/entry.node.test.ts:279 > entry.sh --duplicates > should refuse an id claimed in two documents of one scope
+ ✓ |repo| .scripts/entry.node.test.ts:292 > entry.sh --duplicates > should pass when a sub-clause or a mention repeats an id
+ ✓ |repo| .scripts/entry.node.test.ts:304 > entry.sh --duplicates > should read the documents at a commit when one is given
+ ✓ |repo| .scripts/entry.node.test.ts:337 > entry.sh --duplicates > should refuse a commit the clone does not hold as a failed read
+ ✓ |repo| .scripts/entry.node.test.ts:353 > entry.sh --duplicates > should name the duplicates that the merge 1cf222c32 left
+      Tests  20 passed (20)
+
+## probes/recheck-mutations.py.txt: each mutation of .scripts/entry.ts applied alone and reverted (mI is the reviewer's own: a read at a commit that finds no document)
+## mD: : await Promise.reject(new Error("mutation"));
+      Tests  1 failed | 19 passed (20)
+ FAIL  |repo| .scripts/entry.node.test.ts:304 > entry.sh --duplicates > should read the documents at a commit when one is given
+## mF: (deleted)
+      Tests  1 failed | 19 passed (20)
+ FAIL  |repo| .scripts/entry.node.test.ts:337 > entry.sh --duplicates > should refuse a commit the clone does not hold as a failed read
+## mI: : [];
+      Tests  1 failed | 19 passed (20)
+ FAIL  |repo| .scripts/entry.node.test.ts:304 > entry.sh --duplicates > should read the documents at a commit when one is given
+
+## The CLI in slot d
+$ .scripts/entry.sh --duplicates 0000000
+cannot read 0000000: this clone does not hold it as a commit
+exit 1
+$ .scripts/entry.sh --duplicates 1cf222c32   (this clone holds it)
+duplicated addresses: each is claimed by more than one entry heading
+repo:RF-74
+  .plan/00-index.md:3729
+  .plan/00-index.md:3770
+repo:RF-75
+  .plan/00-index.md:3754
+  .plan/00-index.md:3795
+exit 1
+$ .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+exit 0
+
+## CI at fd28e50b7: gh pr checks 156
+chromium, firefox, webkit, static, docs, measurements, scope and verify pass
+chromium job 137173315308: .scripts/entry.node.test.ts (20 tests) passed in the repo project

@@ -1,0 +1,6 @@
+# Size estimate, 2026-11-22, esbuild 0.28.1 --minify --format=esm, Brotli from node:zlib defaults
+# Hand-written stand-ins, not the flattener's output: probes/size-*.js.txt
+size-base (one class)        min   395 brotli  209
+size-with (one class)        min  1173 brotli  443
+size-base-2 (two classes)    min   547 brotli  218
+size-with-2 (two classes)    min  1878 brotli  453

@@ -1,5 +1,5 @@
 // oxlint-disable typescript/no-empty-object-type
-import type { AbstractConstructor } from 'type-fest';
+import type { AbstractConstructor, WritableKeysOf } from 'type-fest';
 import type { AttributePrimitive, ConverterOf } from '../attribute.ts';
 import type { ControlledElement } from '../element.ts';
 import { bound, type Bound } from './composition.ts';
@@ -10,14 +10,20 @@ export const AnyElement: Bound<HTMLElement> = bound();
 /** The bound of a trait whose members need a {@link ControlledElement}. */
 export const Controlled: Bound<ControlledElement> = bound();
 
-/** A trait's attribute members: neither a method nor an `HTMLElement` member. */
-type AttributeKeys<T> = {
-  [K in keyof T]-?: K extends keyof HTMLElement
-    ? never
-    : T[K] extends (...args: never[]) => unknown
+/**
+ * A trait's attribute members: writable, and neither a method nor an
+ * `HTMLElement` member. A getter with no setter is read-only, so it isn't one.
+ */
+type AttributeKeys<T> = Extract<
+  {
+    [K in keyof T]-?: K extends keyof HTMLElement
       ? never
-      : K;
-}[keyof T];
+      : T[K] extends (...args: never[]) => unknown
+        ? never
+        : K;
+  }[keyof T],
+  WritableKeysOf<T & object>
+>;
 
 /**
  * The converter of an attribute member of type `M`: it reads exactly `M`.

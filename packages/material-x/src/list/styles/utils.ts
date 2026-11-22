@@ -21,12 +21,17 @@ export const LIST_ITEM_STATES = [
 
 export const LIST_ITEM_SELECTION_STATES = ['unselected', 'selected'] as const;
 
-const STATE_MAP: Readonly<Record<string, Param | readonly Param[]>> = {
+const STATE_MAP: Readonly<Record<string, Param>> = {
   hovered: pseudoClass('hover'),
-  focused: [pseudoClass('focus-within'), pseudoClass('state', 'selected')],
+  focused: pseudoClass('focus-within'),
   dragged: pseudoClass('state', 'drag'),
   pressed: pseudoClass('active'),
   disabled: pseudoClass('state', 'disabled'),
+};
+
+const SELECTION_MAP: Readonly<Record<string, Param>> = {
+  selected: pseudoClass('state', 'selected'),
+  unselected: pseudoClass('not', pseudoClass('state', 'selected')),
 };
 
 export function groupListItemTokens(tokenName: string): GroupResult | null {
@@ -160,28 +165,22 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'two-line.container.height',
   ]);
 
+/**
+ * Renders a state's block on one `:host()` that holds the state's condition,
+ * and a selection's block on one that holds the selection's condition beside
+ * it: `selected.hovered` on `:host(:state(selected):hover)`.
+ */
 export function createListItemDeclarationRenderer(): DeclarationBlockRenderer {
   return (path, declarations) => {
     const index = path.indexOf('.');
-
+    const selection =
+      index < 0 ? undefined : SELECTION_MAP[path.slice(0, index)];
     const state = index < 0 ? path : path.slice(index + 1);
-    let selectors: string[];
-
-    if (state === 'default') {
-      selectors = [selector(':host')];
-    } else {
-      const params = STATE_MAP[state]
-        ? Array.isArray(STATE_MAP[state])
-          ? STATE_MAP[state]
-          : [STATE_MAP[state]]
-        : [];
-      selectors = params.map((p) => selector(':host', p));
-    }
 
     return {
       path,
       declarations,
-      selectors,
+      selectors: [selector(':host', selection, STATE_MAP[state])],
     };
   };
 }

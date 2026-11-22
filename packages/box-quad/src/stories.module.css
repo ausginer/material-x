@@ -1,0 +1,248 @@
+/* Colours come from the preview's theme tokens, so each story reads in the light and the dark theme. */
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  max-inline-size: 100%;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* A container narrower than the demo's stage scrolls; the relative read doesn't change. */
+.scroller {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+/* A stage has no border, so the overlay's user space at `inset: 0` is its border-box space. */
+.stage {
+  position: relative;
+  box-sizing: border-box;
+  background-color: var(--md-sys-color-surface-container-low);
+  background-image:
+    linear-gradient(var(--md-sys-color-outline-variant) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      var(--md-sys-color-outline-variant) 1px,
+      transparent 1px
+    );
+  background-size: 24px 24px;
+  border-radius: 16px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.outline {
+  fill: color-mix(in srgb, var(--md-sys-color-tertiary) 12%, transparent);
+  stroke: var(--md-sys-color-tertiary);
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+}
+
+.corner {
+  fill: var(--md-sys-color-tertiary);
+  stroke: var(--md-sys-color-surface);
+  stroke-width: 2;
+}
+
+.badge {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: 12px;
+}
+
+.readout {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+
+  & dt {
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  & dd {
+    margin: 0;
+  }
+}
+
+/* Live Demo: the demo's geometry. */
+.demo-stage {
+  inline-size: 640px;
+  min-block-size: 420px;
+  padding: 28px;
+  overflow: hidden;
+}
+
+.stack {
+  position: relative;
+  min-block-size: 364px;
+}
+
+.card {
+  position: absolute;
+  box-sizing: content-box;
+  border-style: solid;
+}
+
+.ancestor-card {
+  inset-inline-start: 90px;
+  inset-block-start: 110px;
+  inline-size: 300px;
+  block-size: 200px;
+  border-width: 2px;
+  border-color: var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.target-card {
+  inset-inline-start: 170px;
+  inset-block-start: 146px;
+  inline-size: 220px;
+  block-size: 120px;
+  padding: 20px 28px;
+  border-width: 8px;
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  transform-origin: center;
+}
+
+/* Nested Spaces */
+.nested-stage {
+  inline-size: 560px;
+  max-inline-size: 100%;
+  block-size: 440px;
+  padding: 72px;
+}
+
+.nested-ancestor {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--md-sys-color-surface-container);
+}
+
+.nested-scroller {
+  block-size: 180px;
+  overflow: auto;
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.nested-content {
+  padding: 120px 48px 360px;
+}
+
+.nested-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 120px;
+  block-size: 64px;
+  border: 4px solid var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* Pointer Delta */
+.pointer-stage {
+  display: grid;
+  place-items: center;
+  inline-size: 560px;
+  max-inline-size: 100%;
+  block-size: 400px;
+  overflow: hidden;
+}
+
+.pointer-ancestor {
+  inline-size: 200px;
+  block-size: 140px;
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: 12px;
+}
+
+.pointer-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 72px;
+  block-size: 72px;
+  margin: 16px;
+  border-radius: 12px;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+/* Failed Reads */
+.failed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  inline-size: 960px;
+  max-inline-size: 100%;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.failed-case {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+
+.failed-stage {
+  display: grid;
+  place-items: center;
+  block-size: 160px;
+  padding: 16px;
+}
+
+.failed-target {
+  padding: 16px;
+  border: 4px solid var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.three-d {
+  transform: rotateX(40deg);
+}
+
+.two-d {
+  transform: rotate(12deg);
+}
+
+.hidden {
+  display: none;
+}
+
+.failed-text {
+  inline-size: 140px;
+  margin: 0;
+}
+
+.split-inline {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}

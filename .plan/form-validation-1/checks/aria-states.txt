@@ -1,0 +1,156 @@
+# node .plan/form-validation-1/probes/aria-states.ts <packages/material-x> <variant> <engine>
+# run 2026-11-22 by the architect on material-x/form-validation-1 at e39b43ec8 (origin/main 00fd35592), built with aube exec just build; Playwright 1.65.0's Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2
+# Chromium: CDP Accessibility.getPartialAXTree. WebKit: inspector DOM.getAccessibilityPropertiesForNode. Firefox: Marionette GetAccessibilityPropertiesForElement, which reports no invalid state.
+
+# variant main, engine chromium
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"role":"textbox","name":"Name","ignored":false,"invalid":"false","required":false}
+  mx-checkbox control        {"role":"checkbox","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-checkbox host           {"role":"generic","name":"Accept terms","ignored":false,"invalid":"false"}
+  mx-radio control           {"role":"radio","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-switch-button control   {"role":"switch","name":"Wi-Fi","ignored":false,"invalid":"false","checked":"false"}
+  mx-checkbox <label for>    {"role":"checkbox","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-text-field aria-label   {"role":"textbox","name":"Host-labelled field","ignored":false,"invalid":"false","required":false}
+    its host                 {"role":"generic","name":"Host-labelled field","ignored":false,"invalid":"false"}
+  mx-switch aria-label       {"role":"switch","name":"Host-labelled switch","ignored":false,"invalid":"false","checked":"false"}
+    its host                 {"role":"generic","name":"Host-labelled switch","ignored":false,"invalid":"false"}
+  native text                {"role":"textbox","name":"Native text","ignored":false,"invalid":"true","required":true}
+  native checkbox            {"role":"checkbox","name":"Native checkbox","ignored":false,"invalid":"true","checked":"false"}
+  native radio               {"role":"radio","name":"Native radio","ignored":false,"invalid":"true","checked":"false"}
+  native switch              {"role":"switch","name":"Native switch","ignored":false,"invalid":"true","checked":"false"}
+
+# variant main, engine webkit
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"exists":true,"role":"textbox","name":"Name","required":false}
+  mx-checkbox control        {"exists":true,"role":"checkbox","name":"","required":false,"checked":"false"}
+  mx-checkbox host           {"exists":true,"role":"group","name":"Accept terms"}
+  mx-radio control           {"exists":true,"role":"radio","name":"","required":false,"checked":"false"}
+  mx-switch-button control   {"exists":true,"role":"switch","name":"Wi-Fi","required":false}
+  mx-checkbox <label for>    {"exists":true,"role":"checkbox","name":"","required":false,"checked":"false"}
+  mx-text-field aria-label   {"exists":true,"role":"textbox","name":"Host-labelled field","required":false}
+    its host                 {"exists":true,"role":"group","name":"Host-labelled field"}
+  mx-switch aria-label       {"exists":true,"role":"switch","name":"Host-labelled switch","required":false}
+    its host                 {"exists":true,"role":"group","name":"Host-labelled switch"}
+  native text                {"exists":true,"role":"textbox","name":"Native text","invalid":"true","required":true}
+  native checkbox            {"exists":true,"role":"checkbox","name":"Native checkbox","invalid":"true","required":true,"checked":"false"}
+  native radio               {"exists":true,"role":"radio","name":"Native radio","invalid":"true","required":true,"checked":"false"}
+  native switch              {"exists":true,"role":"switch","name":"Native switch","invalid":"true","required":true}
+
+# variant main, engine firefox
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"role":"textbox","name":"Name","required":"false"}
+  mx-checkbox control        {"role":"checkbox","name":"","required":"false","checked":"false"}
+  mx-checkbox host           {"role":"generic","name":"Accept terms","required":"false"}
+  mx-radio control           {"role":"radio","name":"","required":"false","checked":"false"}
+  mx-switch-button control   {"role":"switch","name":"Wi-Fi","required":"false","checked":"false"}
+  mx-checkbox <label for>    {"role":"checkbox","name":"","required":"false","checked":"false"}
+  mx-text-field aria-label   {"role":"textbox","name":"Host-labelled field","required":"false"}
+    its host                 {"role":"generic","name":"Host-labelled field","required":"false"}
+  mx-switch aria-label       {"role":"switch","name":"Host-labelled switch","required":"false","checked":"false"}
+    its host                 {"role":"generic","name":"Host-labelled switch","required":"false"}
+  native text                {"role":"textbox","name":"Native text","required":"true"}
+  native checkbox            {"role":"checkbox","name":"Native checkbox","required":"true","checked":"false"}
+  native radio               {"role":"radio","name":"Native radio","required":"true","checked":"false"}
+  native switch              {"role":"switch","name":"Native switch","required":"true","checked":"false"}
+
+# variant target, engine chromium
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"role":"textbox","name":"Name","ignored":false,"invalid":"true","required":true}
+  mx-checkbox control        {"role":"checkbox","name":"","ignored":false,"invalid":"true","checked":"false"}
+  mx-checkbox host           {"role":"generic","name":"Accept terms","ignored":false,"invalid":"false"}
+  mx-radio control           {"role":"radio","name":"","ignored":false,"invalid":"true","checked":"false"}
+  mx-switch-button control   {"role":"switch","name":"Wi-Fi","ignored":false,"invalid":"true","checked":"false"}
+  mx-checkbox <label for>    {"role":"checkbox","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-text-field aria-label   {"role":"textbox","name":"Host-labelled field","ignored":false,"invalid":"false","required":false}
+    its host                 {"role":"generic","name":"Host-labelled field","ignored":false,"invalid":"false"}
+  mx-switch aria-label       {"role":"switch","name":"Host-labelled switch","ignored":false,"invalid":"false","checked":"false"}
+    its host                 {"role":"generic","name":"Host-labelled switch","ignored":false,"invalid":"false"}
+  native text                {"role":"textbox","name":"Native text","ignored":false,"invalid":"true","required":true}
+  native checkbox            {"role":"checkbox","name":"Native checkbox","ignored":false,"invalid":"true","checked":"false"}
+  native radio               {"role":"radio","name":"Native radio","ignored":false,"invalid":"true","checked":"false"}
+  native switch              {"role":"switch","name":"Native switch","ignored":false,"invalid":"true","checked":"false"}
+
+# variant target, engine webkit
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"exists":true,"role":"textbox","name":"Name","invalid":"true","required":true}
+  mx-checkbox control        {"exists":true,"role":"checkbox","name":"","invalid":"true","required":true,"checked":"false"}
+  mx-checkbox host           {"exists":true,"role":"group","name":"Accept terms"}
+  mx-radio control           {"exists":true,"role":"radio","name":"","invalid":"true","required":true,"checked":"false"}
+  mx-switch-button control   {"exists":true,"role":"switch","name":"Wi-Fi","invalid":"true","required":true}
+  mx-checkbox <label for>    {"exists":true,"role":"checkbox","name":"","required":false,"checked":"false"}
+  mx-text-field aria-label   {"exists":true,"role":"textbox","name":"Host-labelled field","required":false}
+    its host                 {"exists":true,"role":"group","name":"Host-labelled field"}
+  mx-switch aria-label       {"exists":true,"role":"switch","name":"Host-labelled switch","required":false}
+    its host                 {"exists":true,"role":"group","name":"Host-labelled switch"}
+  native text                {"exists":true,"role":"textbox","name":"Native text","invalid":"true","required":true}
+  native checkbox            {"exists":true,"role":"checkbox","name":"Native checkbox","invalid":"true","required":true,"checked":"false"}
+  native radio               {"exists":true,"role":"radio","name":"Native radio","invalid":"true","required":true,"checked":"false"}
+  native switch              {"exists":true,"role":"switch","name":"Native switch","invalid":"true","required":true}
+
+# variant target, engine firefox
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"role":"textbox","name":"Name","required":"true"}
+  mx-checkbox control        {"role":"checkbox","name":"","required":"true","checked":"false"}
+  mx-checkbox host           {"role":"generic","name":"Accept terms","required":"false"}
+  mx-radio control           {"role":"radio","name":"","required":"true","checked":"false"}
+  mx-switch-button control   {"role":"switch","name":"Wi-Fi","required":"true","checked":"false"}
+  mx-checkbox <label for>    {"role":"checkbox","name":"","required":"false","checked":"false"}
+  mx-text-field aria-label   {"role":"textbox","name":"Host-labelled field","required":"false"}
+    its host                 {"role":"generic","name":"Host-labelled field","required":"false"}
+  mx-switch aria-label       {"role":"switch","name":"Host-labelled switch","required":"false","checked":"false"}
+    its host                 {"role":"generic","name":"Host-labelled switch","required":"false"}
+  native text                {"role":"textbox","name":"Native text","required":"true"}
+  native checkbox            {"role":"checkbox","name":"Native checkbox","required":"true","checked":"false"}
+  native radio               {"role":"radio","name":"Native radio","required":"true","checked":"false"}
+  native switch              {"role":"switch","name":"Native switch","required":"true","checked":"false"}
+
+# variant host, engine chromium
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"role":"textbox","name":"Name","ignored":false,"invalid":"true","required":true}
+  mx-checkbox control        {"role":"checkbox","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-checkbox host           {"role":"generic","name":"Accept terms","ignored":false,"invalid":"true"}
+  mx-radio control           {"role":"radio","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-switch-button control   {"role":"switch","name":"Wi-Fi","ignored":false,"invalid":"true","checked":"false"}
+  mx-checkbox <label for>    {"role":"checkbox","name":"","ignored":false,"invalid":"false","checked":"false"}
+  mx-text-field aria-label   {"role":"textbox","name":"Host-labelled field","ignored":false,"invalid":"false","required":false}
+    its host                 {"role":"generic","name":"Host-labelled field","ignored":false,"invalid":"false"}
+  mx-switch aria-label       {"role":"switch","name":"Host-labelled switch","ignored":false,"invalid":"false","checked":"false"}
+    its host                 {"role":"generic","name":"Host-labelled switch","ignored":false,"invalid":"false"}
+  native text                {"role":"textbox","name":"Native text","ignored":false,"invalid":"true","required":true}
+  native checkbox            {"role":"checkbox","name":"Native checkbox","ignored":false,"invalid":"true","checked":"false"}
+  native radio               {"role":"radio","name":"Native radio","ignored":false,"invalid":"true","checked":"false"}
+  native switch              {"role":"switch","name":"Native switch","ignored":false,"invalid":"true","checked":"false"}
+
+# variant host, engine webkit
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"exists":true,"role":"textbox","name":"Name","invalid":"true","required":true}
+  mx-checkbox control        {"exists":true,"role":"checkbox","name":"","required":false,"checked":"false"}
+  mx-checkbox host           {"exists":true,"role":"group","name":"Accept terms","invalid":"true"}
+  mx-radio control           {"exists":true,"role":"radio","name":"","required":false,"checked":"false"}
+  mx-switch-button control   {"exists":true,"role":"switch","name":"Wi-Fi","invalid":"true","required":true}
+  mx-checkbox <label for>    {"exists":true,"role":"checkbox","name":"","required":false,"checked":"false"}
+  mx-text-field aria-label   {"exists":true,"role":"textbox","name":"Host-labelled field","required":false}
+    its host                 {"exists":true,"role":"group","name":"Host-labelled field"}
+  mx-switch aria-label       {"exists":true,"role":"switch","name":"Host-labelled switch","required":false}
+    its host                 {"exists":true,"role":"group","name":"Host-labelled switch"}
+  native text                {"exists":true,"role":"textbox","name":"Native text","invalid":"true","required":true}
+  native checkbox            {"exists":true,"role":"checkbox","name":"Native checkbox","invalid":"true","required":true,"checked":"false"}
+  native radio               {"exists":true,"role":"radio","name":"Native radio","invalid":"true","required":true,"checked":"false"}
+  native switch              {"exists":true,"role":"switch","name":"Native switch","invalid":"true","required":true}
+
+# variant host, engine firefox
+  :required {"faceMatchesRequired":false,"faceMatchesOptional":false,"mxTextFieldMatchesRequired":false,"nativeMatchesRequired":true}
+  mx-text-field control      {"role":"textbox","name":"Name","required":"true"}
+  mx-checkbox control        {"role":"checkbox","name":"","required":"false","checked":"false"}
+  mx-checkbox host           {"role":"generic","name":"Accept terms","required":"true"}
+  mx-radio control           {"role":"radio","name":"","required":"false","checked":"false"}
+  mx-switch-button control   {"role":"switch","name":"Wi-Fi","required":"true","checked":"false"}
+  mx-checkbox <label for>    {"role":"checkbox","name":"","required":"false","checked":"false"}
+  mx-text-field aria-label   {"role":"textbox","name":"Host-labelled field","required":"false"}
+    its host                 {"role":"generic","name":"Host-labelled field","required":"false"}
+  mx-switch aria-label       {"role":"switch","name":"Host-labelled switch","required":"false","checked":"false"}
+    its host                 {"role":"generic","name":"Host-labelled switch","required":"false"}
+  native text                {"role":"textbox","name":"Native text","required":"true"}
+  native checkbox            {"role":"checkbox","name":"Native checkbox","required":"true","checked":"false"}
+  native radio               {"role":"radio","name":"Native radio","required":"true","checked":"false"}
+  native switch              {"role":"switch","name":"Native switch","required":"true","checked":"false"}

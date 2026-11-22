@@ -1,0 +1,28 @@
+// Recheck probe for RF-71 (#151): does a pointer press focus a disabled element
+// that uses core's useDisableableLinkable? Scratch: copied into
+// packages/material-x/tests/list/ for its run, removed after it.
+import { describe, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../../src/button/link-button.ts';
+import '../../src/list/list-link-item.ts';
+import { nextFrame } from '../browser.ts';
+
+describe('disabled link focus', () => {
+  it.each(['mx-link-button', 'mx-list-link-item'])('%s', async (tag) => {
+    const el = document.createElement(tag);
+    el.setAttribute('href', '#t');
+    el.append('Link');
+    el.toggleAttribute('disabled', true);
+    document.body.append(el);
+    await nextFrame();
+    const r = el.getBoundingClientRect();
+    const events: string[] = [];
+    el.addEventListener('focusin', () => events.push('focusin'));
+    await commands.pointerPress(r.left + r.width / 2, r.top + r.height / 2);
+    await commands.pointerRelease();
+    await nextFrame();
+    const anchor = el.shadowRoot!.querySelector('a')!;
+    // oxlint-disable-next-line no-console
+    console.log(`PROBE ${tag} ${JSON.stringify({ active: document.activeElement?.localName ?? null, inner: el.shadowRoot!.activeElement?.localName ?? null, tabIndex: anchor.tabIndex, href: anchor.getAttribute('href'), events })}`);
+  });
+});
