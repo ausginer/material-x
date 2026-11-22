@@ -1,0 +1,52 @@
+// Architect scratch probe for repo:RF-74; run from
+// packages/material-x/tests/text-field/zz-rf74-probe.browser.test.ts, then removed.
+// It throws its readings so the reporter prints them in each engine.
+import { describe, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/text-field/multiline-text-field.ts';
+import '../../src/text-field/text-field.ts';
+import { nextFrame } from '../browser.ts';
+
+type F = HTMLElement & { value: string | null };
+
+const inner = (f: Element): HTMLInputElement | HTMLTextAreaElement =>
+  f.shadowRoot!.querySelector('.input')!;
+
+const out: Record<string, unknown> = {};
+
+describe('rf74 probe', () => {
+  it('reads', async () => {
+    for (const tag of ['mx-text-field', 'mx-multiline-text-field']) {
+      const form = document.createElement('form');
+      form.innerHTML = `<${tag} name="f" value="initial"></${tag}>`;
+      document.body.append(form);
+      await nextFrame();
+      const f = form.firstElementChild as F;
+      const r: Record<string, unknown> = {};
+      r['parsed value attr: host.value'] = f.value;
+      r['parsed value attr: inner.value'] = inner(f).value;
+      r['parsed value attr: form data'] = new FormData(form).get('f');
+
+      f.setAttribute('value', 'changed-attr');
+      await nextFrame();
+      r['after setAttribute: host.value'] = f.value;
+
+      f.value = 'scripted';
+      r['after host.value=: attr'] = f.getAttribute('value');
+      form.reset();
+      await nextFrame();
+      r['after reset (scripted): host.value'] = f.value;
+      r['after reset (scripted): form data'] = new FormData(form).get('f');
+
+      await userEvent.click(inner(f));
+      await userEvent.keyboard('typed');
+      form.reset();
+      await nextFrame();
+      r['after reset (typed): host.value'] = f.value;
+      r['after reset (typed): form data'] = new FormData(form).get('f');
+      out[tag] = r;
+      form.remove();
+    }
+    throw new Error(`RF74 ${navigator.userAgent}${JSON.stringify(out, null, 1)}`);
+  });
+});

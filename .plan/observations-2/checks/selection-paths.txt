@@ -1,0 +1,198 @@
+## unselected.default
+:host {
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+## unselected.hovered
+(empty)
+
+## unselected.focused
+(empty)
+
+## unselected.dragged
+(empty)
+
+## unselected.pressed
+(empty)
+
+## unselected.disabled
+(empty)
+
+## selected.default
+:host {
+  --_container-expressive-shape: 16px;
+  --_overline-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_trailing-icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_leading-icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_supporting-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_trailing-supporting-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+}
+
+## selected.hovered
+:host(:hover) {
+  --_container-expressive-shape: 16px;
+}
+
+## selected.focused
+:host(:focus-within), :host(:state(selected)) {
+  --_container-expressive-shape: 16px;
+}
+
+## selected.dragged
+:host(:state(drag)) {
+  --_container-expressive-shape: 16px;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+## selected.pressed
+:host(:active) {
+  --_container-expressive-shape: 16px;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+## selected.disabled
+:host(:state(disabled)) {
+  --_container-expressive-shape: 16px;
+  --_container-opacity: 0.38;
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_overline-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+## default
+:host {
+  --_leading-avatar-shape: var(--_shape-full);
+  --_leading-image-expressive-shape: 8px;
+  --_leading-video-shape: 8px;
+  --_leading-avatar-size: 40px;
+  --_trailing-icon-expressive-size: 20px;
+  --_leading-avatar-label-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_leading-avatar-label-type-font-weight: var(--md-ref-typeface-weight-bold, 700);
+  --_leading-avatar-label-type-font-size: 16px;
+  --_leading-avatar-label-type-font-tracking: 0px;
+  --_leading-avatar-label-type-line-height: 24px;
+  --_leading-avatar-label-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_leading-avatar-label-weight: var(--md-ref-typeface-weight-bold, 700);
+  --_leading-avatar-label-size: 16px;
+  --_leading-avatar-label-line-height: 24px;
+  --_leading-avatar-label-tracking: 0px;
+  --_two-line-container-height: 72px;
+  --_label-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_label-text-size: 16px;
+  --_label-text-tracking: 0px;
+  --_label-text-line-height: 24px;
+  --_label-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_trailing-supporting-text-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_trailing-supporting-text-tracking: 0px;
+  --_supporting-text-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_supporting-text-type-font-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_supporting-text-type-font-size: 14px;
+  --_supporting-text-type-font-tracking: 0px;
+  --_supporting-text-type-line-height: 20px;
+  --_supporting-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_supporting-text-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_supporting-text-size: 14px;
+  --_supporting-text-line-height: 20px;
+  --_supporting-text-tracking: 0px;
+  --_overline-tracking: 0px;
+  --_overline-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_overline-type-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_overline-type-font-size: 11px;
+  --_overline-type-font-tracking: 0px;
+  --_overline-type-line-height: 16px;
+  --_overline-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_overline-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_overline-size: 11px;
+  --_overline-line-height: 16px;
+  --_trailing-supporting-text-size: 11px;
+  --_trailing-supporting-text-line-height: 16px;
+  --_trailing-supporting-text-font: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_trailing-supporting-text-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_trailing-supporting-text-type-font-weight: var(--md-ref-typeface-weight-medium, 500);
+  --_trailing-supporting-text-type-font-size: 11px;
+  --_trailing-supporting-text-type-font-tracking: 0px;
+  --_trailing-supporting-text-type-line-height: 16px;
+  --_label-text-type-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+  --_label-text-type-font-weight: var(--md-ref-typeface-weight-regular, 400);
+  --_label-text-type-font-size: 16px;
+  --_label-text-type-font-tracking: 0px;
+  --_label-text-type-line-height: 24px;
+  --_small-leading-video-height: 56px;
+  --_leading-image-height: 56px;
+  --_large-leading-video-width: 114px;
+  --_large-leading-video-height: 64px;
+  --_small-leading-video-width: 100px;
+  --_leading-video-width: 100px;
+  --_leading-image-width: 56px;
+  --_leading-icon-expressive-size: 20px;
+  --_three-line-container-height: 88px;
+  --_one-line-container-height: 56px;
+  --_container-expressive-shape: 4px;
+  --_between-space: 12px;
+  --_bottom-space: 10px;
+  --_top-space: 10px;
+  --_trailing-supporting-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_container-elevation: 0;
+  --_trailing-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_leading-icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_overline-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_leading-avatar-color: var(--md-sys-color-primary-container, #4F8200);
+  --_trailing-space: 16px;
+  --_leading-space: 16px;
+  --_container-height: 56px;
+  --_leading-avatar-label-color: var(--md-sys-color-on-primary-container, #F9FFEA);
+  --_container-color: var(--md-sys-color-surface, #F7FBEA);
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_state-layer-opacity: 0.1;
+  --_press-duration: 350ms;
+  --_press-easing: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+}
+
+## hovered
+:host(:hover) {
+  --_container-expressive-shape: 12px;
+}
+
+## focused
+:host(:focus-within), :host(:state(selected)) {
+  --_container-expressive-shape: 16px;
+}
+
+## dragged
+:host(:state(drag)) {
+  --_container-expressive-shape: 16px;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-elevation: 8;
+}
+
+## pressed
+:host(:active) {
+  --_container-expressive-shape: 16px;
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+## disabled
+:host(:state(disabled)) {
+  --_container-expressive-shape: 4px;
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_overline-color: var(--md-sys-color-on-surface, #191D13);
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_opacity: 0.38;
+}
+

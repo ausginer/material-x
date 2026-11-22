@@ -3670,6 +3670,27 @@ Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-o
 - **Not established:** whether the press transition is still wanted after `RD-31`'s drag; the rendered pixels, since no row reads a selected or disabled item's colors.
 - **Size:** _medium_. The selection rendering in `src/list/styles/utils.ts`, the adoption and its order, and rows for the selected and disabled states. `RF-70` changes the same adoption lists.
 
+**Settled 2026-11-22 by the architect, on `repo/register-observations-2`,** from the coordinator's request for #104. Read at `cbb06d265`: each selection and state path rendered on its own ([reading](observations-2/checks/selection-paths.txt), [probe](observations-2/probes/selection-paths.ts)), and the disabled opacity tokens ([reading](observations-2/checks/list-item-opacity-tokens.txt), [probe](observations-2/probes/list-item-opacity-tokens.ts)). Nothing in it is the owner's to decide. The required property above stands, and the task below meets it.
+
+- **Which items:** `mx-list-button-item` and `mx-list-link-item`, the two items that take `selected`, both through `useInteractiveListItemCore`. `mx-list-item` has no selected or disabled state, and its sheets don't change apart from the focused mapping below.
+- **The sheet is `interactive-box.css.ts`.** Only `useInteractiveListItemCore` adopts it, after the item's main sheet. It takes the selection rendering and the disabled and press rules, and `interactive.css.ts` and `interactive.styles.css` are deleted. The two sheets have one caller and are only ever wanted together, so one sheet gives them one place in the order. The press transition then goes in the `.host` rule after `all: unset`, where #120 puts `RF-70`'s penumbra, and the odd `with { type: 'css' }` import goes with the deleted module.
+- **The selection selectors.** Each `selected.<state>` block renders on one `:host()` that holds `:state(selected)` and the state's own condition together: `selected.default` on `:host(:state(selected))`, `selected.hovered` on `:host(:state(selected):hover)`, and so on for each state in `LIST_ITEM_STATES`. Each `unselected.<state>` block holds `:not(:state(selected))` in place of `:state(selected)`. Today the only `unselected` token is `default`'s trailing icon color.
+- **The cascade:** this sheet comes after the main sheet. A block with both conditions outranks the main sheet's state block. A selection's `default` block ties with a main state block and wins by order. In the reading, no custom property is set by a main state block and by a selection's `default` and left unset by that selection's own state block, except the unselected trailing icon color in the main `disabled` block, where the two values are the same. So the order changes no value today.
+- **The focused mapping loses `:state(selected)`.** `STATE_MAP` in `src/list/styles/utils.ts` lists `:state(selected)` beside `:focus-within` for `focused`, so the main sheet gives a selected item the focused shape. Once the selection blocks render, `selected.default` sets the selected shape itself, 16 px, and the mapping goes. Otherwise the selection rendering would emit `:state(selected)` twice in one selector.
+- **The selected, disabled container.** `selected.disabled` sets `--_container-color` to `on-surface` and `--_container-opacity` to 0.38, and nothing reads `--_container-opacity`. Adopted as it is, a selected, disabled item would get an opaque `on-surface` container. Property: the container shows `--_container-color` at `--_container-opacity`, and that opacity reaches none of the item's content.
+- **The disabled content:** every disabled opacity token is 0.38, selected or not: label text, leading and trailing icon, overline, supporting text and trailing supporting text. So the sheet's one `opacity: var(--_opacity)` on every slot holds them all, and it stays.
+- **`cursor: default` leaves the disabled block,** because `interactive-box.styles.css`'s `.host` rule already sets it for every interactive item.
+- **Pointer input while disabled, as a property.** Pointing at or pressing a disabled item changes nothing it shows: no hover or pressed shape, no state layer and no ripple. The item dispatches no `click` from a pointer press, as a disabled native button doesn't. Read, not run: `pointer-events: none` on `.host` alone still leaves the host's own box hit-testable, so `:host(:hover)` and `:host(:active)` still match and a pointer click targets the host. The implementer chooses where the rule goes, and the rows decide whether it holds.
+- **The press transition stays.** This settles the entry's _not established_. The tokens give the container shape as 4 px at rest, 12 px hovered, and 16 px focused, dragged, pressed or selected, and the interactive items declare `--md-list-item-press-duration` and `--md-list-item-press-easing`, which do nothing today. `RD-31`'s drag writes `transition: none` on the host, not on `.host`, so it doesn't stop this transition. The transition animates the radius on every change of state, the press included.
+- **Rows,** in each engine at `RD-20`'s floor, for both items. Values that come from the tokens are tproc-backed visual contracts in the `spec` project. Pointer behavior goes in `browser` rows.
+  - Not selected: the container is `surface` and the trailing icon `on-surface`. Selected: the container is `secondary-container` and the label `on-secondary-container`. Clearing `selected` gives the unselected values again.
+  - Selected and disabled: the container shows `on-surface` at 0.38, and the content shows 0.38.
+  - Disabled: the content shows 0.38. Hovering and pressing change neither the shape nor the ripple, and a pointer press dispatches no `click` on the item.
+  - The press: `.host`'s `border-radius` transitions over the press duration and easing.
+  - **Witness:** the selection, opacity and press rows fail on `main`'s sheets. By reading, the pointer rows already hold on `main`, because a native disabled button dispatches no `click`, the ripple checks `disabled`, and the main sheet's `disabled` block outranks its `hovered` and `pressed` blocks by order. They are there so that the new rule can't break them.
+- **Order with #120:** both units change `interactive-box.styles.css`'s `.host` rule, so this unit starts from `main` after #120 merges.
+- **Size:** _medium_, as before.
+
 #### RF-72 — The button groups treat every slotted node as a button, so whitespace between buttons throws
 
 Tier A, **open**. Registered on 2026-11-22 by the architect, on `repo/register-observations-1`, from [#105](https://github.com/ausginer/material-x/issues/105), relayed by the coordinator. The implementer of #100 saw it while writing the connected group's order row. `RF-71` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `b46b840d8`. The connected group was observed by that implementer, and the standard group is read and not run.
@@ -3696,6 +3717,47 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Required property:** the review's, which this entry adopts. A multiline text field shows a value's line breaks, and is as many lines tall as the value, however the value was set: by typing, through the host's `value`, or by a form reset. It holds in each engine at `RD-20`'s floor, and a row observes it in each engine.
 - **Not established:** real Safari, which the review didn't run.
 - **Size:** _small_. One declaration in material-x's text field stylesheet, and the row.
+
+#### RF-74 — Text fields ignore a form reset and their `value` attribute
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#118](https://github.com/ausginer/material-x/issues/118), relayed by the coordinator. The feature proof of #116 found it as `reviewer-2` in [`feature-proof-claude.md`](https://github.com/ausginer/material-x/blob/182b5ef04/.plan/reviews/textfield-white-space-1/feature-proof-claude.md#reviewer-2), on `material-x/textfield-white-space-1` at `182b5ef04`, not yet on `main`. `RF-73` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect probed both fields at `cbb06d265` in Chromium 158, Firefox 159 and Playwright's WebKit 27.2 ([reading](observations-2/checks/text-field-reset.txt), [probe](observations-2/probes/text-field-reset.browser.test.ts.txt)).
+
+- **What happens:** `mx-text-field` and `mx-multiline-text-field` set `formAssociated`, and `TextFieldCore` registers no `formReset`. So after `form.reset()`, a value set through the host's `value` or typed by the user stays, in the field and in the form's data, in each of the three engines. A native `<input>` or `<textarea>` returns to its default value.
+- **The `value` attribute does nothing.** The `Valuable` trait observes it, and `TextFieldCore` overrides `value` with the internal field's value, so nothing reads the attribute. A parsed `<mx-text-field value="initial">` reads `''` through `value` and shows nothing, and a later `setAttribute('value', …)` changes nothing. Neither element documents the attribute.
+- **The form value starts unset.** The form value is set on input and through `value`, and not at upgrade. So a field that is never edited is absent from the form's data, where an empty native field submits `''`.
+- **Affected:** both text fields, inside a `<form>`.
+- **Required property:** below, as the decision states it. Rows observe it in each engine at `RD-20`'s floor, for both fields.
+- **Not established:** real Safari. Whether the checkable controls reset is outside this entry (the closing message names it).
+
+**Decided 2026-11-22 by the architect: the default value is the host's `value` attribute,** as the review left to the architect. The field follows a native `<input>`.
+
+1. **The default value** is the host's `value` attribute, or `''` when there is none, for both fields.
+2. **At upgrade,** the field's value is the default value, and the form value is the field's value from then on.
+3. **While the value is clean,** a change to the `value` attribute sets the value. The value is clean until the user edits it or a script sets `value`. Upgrade and reset make it clean.
+4. **A form reset** sets the value to the default value and makes it clean. The field then shows it as it shows a value set in any other way: the populated state, the form value, and `RF-73`'s line breaks.
+5. **Setting `value` doesn't write the attribute,** as today and as on a native `<input>`.
+6. Both elements document the `value` attribute as the default value.
+
+- **Why the attribute:** it is the default a reader of HTML expects, a page or a framework can declare it, and `Valuable` already observes it.
+- **Not adopted:** always `''`, which a form that declares its values can't reset to. A snapshot of the value at first connection, which no markup can declare and which drops later attribute changes. A multiline field's child text, as a native `<textarea>` has, because the host's children are its slotted label and supporting content, and one rule serves both fields through `TextFieldCore`. A `defaultValue` property, which no supported use needs while the attribute exists.
+- **Outside this entry:** form state restore.
+- **Size:** _medium_. `TextFieldCore`, the two elements' documentation, and rows for both fields, with nothing left to decide.
+
+#### RF-75 — Core's `useSlot` lets a caller type a slot's text and comment nodes as elements
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#119](https://github.com/ausginer/material-x/issues/119), relayed by the coordinator. The feature proof of #117 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/button-group-whitespace-1/feature-proof-claude.md#reviewer-1) at `aa7831ae4`, and the review reached `main` in #117. `RF-74` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `cbb06d265`.
+
+- **The contract:** `useSlot<T extends Node = Node>(host, slotOrSelector, callback)`, exported as `@ydinjs/core/controllers/useSlot.js`, passes the callback `slot.assignedNodes() as T[]` behind a lint suppression. So `useSlot<HTMLElement>` compiles, and its callback receives text and comment nodes typed as `HTMLElement`. `SlotControllerUpdateCallback<T>` is exported with the same parameter.
+- **Why it is a problem:** the type tells an integrator something the runtime contradicts, and the compiler can't see it at the call site. Both callers that passed a type argument were `RF-72`. Since #117 no caller in the repository passes one: the groups read `slot.assignedElements()`, `useRovingTabindex` narrows with a type guard, `ListItemCore` checks `instanceof HTMLElement`, and the slot polyfill counts the nodes.
+- **Required property:** the review's, which this entry adopts. The type that `useSlot` gives its callback's nodes is one that every node it passes has.
+
+**Decided 2026-11-22 by the architect: core's signature changes.** `@ydinjs/core` is 0.1.0 and has never been released, so CONTRIBUTING §8 applies, and the old shape is deleted with no alias.
+
+- **`useSlot` and `SlotControllerUpdateCallback` lose their type parameter.** The callback's `nodes` is `readonly Node[]`, which is what `assignedNodes()` returns, so the assertion and its lint suppression go. The doc comments drop the `@typeParam` lines and keep saying that the nodes include text and other non-element nodes.
+- **A caller that wants elements** reads `slot.assignedElements()` from the callback's first argument, as the groups do, or narrows the nodes with a type guard.
+- **Not adopted:** an element mode or a second controller, since the slot argument already gives the elements and no caller needs more. Passing only elements, because the slot polyfill mirrors `:has-slotted`, which counts every assigned node, text included. Keeping a constrained type parameter, because no constraint narrower than `Node` holds for what `assignedNodes()` returns.
+- **What changes for callers:** an explicit type argument no longer compiles. No caller in the repository passes one. Core's `useSlot` test writes `SlotControllerUpdateCallback<Node>`, which becomes `SlotControllerUpdateCallback`. The emitted JavaScript doesn't change, so no size row moves.
+- **Size:** _small_. One core module, its test's type, and core's typecheck with material-x's after core is rebuilt.
 
 ## Questions
 
