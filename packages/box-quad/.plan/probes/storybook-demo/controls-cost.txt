@@ -1,0 +1,62 @@
+Read on 2026-11-22 against a Storybook 10.6.7 dev server started from slot b at
+origin/main 23b245efb (the docs-dev command, on port 6116), with the workspace
+packages built first. Headless Chromium in the development container, with
+software rendering: the absolute times are this machine's, and the ratios
+between rows are the reading.
+
+`in-story range` was taken with MX_IN_STORY=box-quad-probe--live-demo-in-story,
+a temporary story that was deleted afterwards and never committed:
+
+  function View(): JSX.Element {
+    const [rotation, setRotation] = useState(-18);
+    return (
+      <div>
+        <input type="range" name="rotation" min={-55} max={55} step={1}
+          value={rotation} style={{ width: 600 }}
+          onChange={(event) => { setRotation(Number(event.currentTarget.value)); }} />
+        {LiveDemo.render!({ rotation, skew: 8 }, {} as never)}
+      </div>
+    );
+  }
+
+It renders _Live Demo_'s own view, `LiveDemoView`, through `LiveDemo.render`, so
+the overlay, the readout and the read are the story's, unchanged.
+
+Three runs, in order, with the script as committed:
+
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+controls	7513	404	404	59	6107.2	421.3	38.6	118.2	808.5	41.0
+controls, sidebar hidden	3992	246	246	59	2969.8	435.9	39.0	39.7	460.8	48.9
+in-story range	1993	123	123	59	5.5	126.8	55.8	2.8	262.2	1541.3
+channel, panel shown	2130	75	76	57	1400.7	464.0	43.0	30.2	203.0	19.7
+channel, panel hidden	2865	93	93	55	2275.2	367.2	32.6	49.4	170.6	19.0
+channel, sidebar hidden	1777	98	99	52	1212.2	352.6	29.2	29.2	148.3	19.4
+preview only	1003	-	63	60	0.0	285.8	32.3	14.0	88.9	583.1
+direct write	998	-	62	60	0.0	3.7	20.6	0.0	73.3	900.8
+
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+controls	7484	409	410	59	6179.9	374.2	34.1	131.2	722.7	44.7
+controls, sidebar hidden	3617	225	226	59	2726.7	388.5	33.0	39.4	402.1	40.5
+in-story range	1995	123	123	59	8.6	171.3	62.6	0.7	264.5	1488.2
+channel, panel shown	2473	78	79	54	1855.6	373.6	41.6	38.7	188.6	22.2
+channel, panel hidden	3322	101	102	55	2700.0	365.1	32.9	56.6	185.6	17.0
+channel, sidebar hidden	1645	88	88	54	1032.3	391.4	39.3	25.5	151.5	20.5
+preview only	995	-	63	60	0.0	345.9	37.5	15.8	96.3	500.3
+direct write	996	-	62	60	0.0	2.2	15.4	0.0	56.3	922.9
+
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+controls	7968	425	425	59	6478.6	445.9	40.2	131.5	861.4	50.0
+controls, sidebar hidden	4200	260	260	59	3120.2	463.0	39.0	46.3	488.8	58.5
+in-story range	2005	123	123	59	3.6	113.7	49.8	0.0	225.9	1613.0
+channel, panel shown	2195	76	77	54	1617.8	349.9	31.6	36.4	171.6	16.4
+channel, panel hidden	2876	94	95	54	2273.5	357.0	41.0	51.6	164.2	20.8
+channel, sidebar hidden	1564	85	86	52	1018.4	361.7	32.2	22.9	127.1	19.5
+preview only	994	-	63	60	0.0	343.0	38.8	17.6	102.8	492.9
+direct write	996	-	62	60	0.0	4.4	16.0	0.0	58.4	917.8
+
+The same script, aimed at the prototype story as `STORY`, skips the two
+`controls` rows and 2 to 4, and reads `in-story range` and `direct write`: the
+shape it will read once _Live Demo_'s controls are in the story.
