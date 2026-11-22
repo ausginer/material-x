@@ -17,7 +17,8 @@
     "index.js",
     "index.js.map",
     "index.d.ts",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "src/index.ts"
   ],
   "type": "module",
   "sideEffects": false,
