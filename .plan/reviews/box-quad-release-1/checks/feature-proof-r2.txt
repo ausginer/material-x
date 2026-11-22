@@ -1,0 +1,108 @@
+box-quad 1.0.0 release pull request (#121), feature proof of the head and the pre-tag readings, 2026-11-22.
+Read by the reviewer in slot b, in the devcontainer with aube 2.10.0, at fe0e52467 (box-quad/release-1, origin's head and the pull request's headRefOid). GitHub reads through gh api, read-only: nothing dispatched, tagged or changed.
+
+== Source stability
+git diff --stat 315a18ad1 HEAD -- packages/box-quad/src packages/box-quad/tsdown.config.ts: empty, exit 0.
+git diff --stat $(merge-base origin/main HEAD) HEAD: .plan/00-index.md, box-quad-release-plan.md, checks/implementation.txt, checks/reconciliation.txt, release-workflow-report.md, packages/box-quad/README.md (14 lines), packages/box-quad/package.json (5 lines). No other package file.
+
+== Task 5: browserslist
+aube exec browserslist in packages/box-quad (browserslist 4.29.4, resolving baseline-browser-mapping 2.11.31), lowest version per browser, entries in brackets:
+chrome 130 (27)
+edge 130 (26)
+firefox 132 (27)
+safari 18.2 (12)
+ios_saf 18.2 (12)
+and_chr 156 (1)
+and_ff 158 (1)
+Browsers listed: and_chr and_ff chrome edge firefox ios_saf safari. No samsung, opera or other downstream browser.
+
+== Task 5: baseline-browser-mapping 2.11.31, getCompatibleVersions({ targetYear: 2024 }), imported from browserslist's own resolution
+chrome 130
+chrome_android 130
+edge 130
+firefox 132
+firefox_android 132
+safari 18.2
+safari_ios 18.2
+README table: Chrome 130, Chrome for Android 130, Edge 130, Firefox 132, Firefox for Android 132, Safari on macOS 18.2, Safari on iOS 18.2. Desktop and iOS equal browserslist's; Android equal baseline-browser-mapping's.
+
+== Task 5: build byte identity
+Existing outputs in slot b before my build, sha256:
+  51dc4e4f83b8c38f3697400288e990fdaac3d2bdce132c3b7c6040b4c1103529  index.js
+  cc22cb268964d21de17433eabe22c89aa0d4a197a20153ff6914af9e92d50ab1  index.js.map
+  016caea68e92ddc7d3284f41ab3f657ff7c6c33896676faaff9ba1f7c3491b4e  index.d.ts
+aube exec just build at fe0e52467: exit 0, the same three sha256s.
+Before the field: git archive 7d0d36999 into a scratch tree (node_modules linked to slot b's), package.json without "browserslist", aube exec just build: exit 0, the same three sha256s.
+cmp, head build against the 7d0d36999 build: index.js, index.js.map and index.d.ts identical.
+git status in slot b after the build: clean.
+
+== Task 5: pack
+aube pack --dry-run in packages/box-quad:
+  package: @ydinjs/box-quad@1.0.0
+  CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json (7 files)
+aube pack into scratch: the packed package/package.json has "browserslist": ["baseline 2024"]; tarball sha256 d8c430e3ffa4e1304506a30e0c497a12d188cd6308355a0a04901d7c7ce910d8.
+
+== Task 5: release-check
+aube exec just release-check box-quad at fe0e52467: exit 0
+  ### @ydinjs/box-quad@1.0.0
+  - tarball: `ydinjs-box-quad-1.0.0.tgz`
+  - shasum (SHA-1), as npm shows it: `97d36a5b9697712b35eaa4e125ed1a9c4db33d8e`
+  - integrity: `sha512-9cFkPWMO0NaAbKkux9M/upNtCTo/Peh2mmer+AB/V+kCeP6xpt0WBOe661ctB+lUINdqQUJgQSh37p2leicj+g==`
+  - sha256: `d8c430e3ffa4e1304506a30e0c497a12d188cd6308355a0a04901d7c7ce910d8`
+  - CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json
+
+== Task 5: README checks
+grep -nE 'BQ-|F-[0-9]|RF-|RD-|\.plan|\b[0-9a-f]{7,}\b' packages/box-quad/README.md: no hit.
+aube exec oxfmt --check README.md package.json: all matched files use the correct format.
+git diff --check origin/main...HEAD: clean.
+
+== The mutation run
+git diff b88246b90^ b88246b90 (parent e6bee2a9e): packages/box-quad/package.json only, 2 insertions, 1 deletion:
+  -    "CHANGELOG.md"
+  +    "CHANGELOG.md",
+  +    "src/index.ts"
+git diff --stat e6bee2a9e 758a8174a: empty (the revert restores e6bee2a9e's tree).
+git diff --stat 758a8174a fe0e52467: box-quad-release-plan.md, checks/implementation.txt, release-workflow-report.md only.
+gh run view 44998336728: workflow release, event workflow_dispatch, headBranch box-quad/release-1, headSha b88246b9063a02dab603ea12fbc46ec38a85d315, created 2026-11-22T07:27:46Z, completed, conclusion failure.
+  jobs: prepare failure, failed step "Pack and check the tarball"; dispatch skipped; stage skipped.
+  log: ##[error]src/index.ts is a source, test or record file
+       - `pack-excluded`: src/index.ts is a source, test or record file
+
+== The head run
+gh run view 44998449442: workflow release, event workflow_dispatch, headBranch box-quad/release-1, headSha fe0e52467f9819c2b3ff63613daa91daa04481b5, created 2026-11-22T07:29:22Z, completed, conclusion success.
+  jobs: prepare success; dispatch skipped; stage skipped.
+  "Check the release": **@ydinjs/box-quad@1.0.0**, from `packages/box-quad`, has the dist-tag `latest`.
+  "Pack and check the tarball":
+    ### @ydinjs/box-quad@1.0.0
+    - tarball: `ydinjs-box-quad-1.0.0.tgz`
+    - shasum (SHA-1), as npm shows it: `97d36a5b9697712b35eaa4e125ed1a9c4db33d8e`
+    - integrity: `sha512-9cFkPWMO0NaAbKkux9M/upNtCTo/Peh2mmer+AB/V+kCeP6xpt0WBOe661ctB+lUINdqQUJgQSh37p2leicj+g==`
+    - sha256: `d8c430e3ffa4e1304506a30e0c497a12d188cd6308355a0a04901d7c7ce910d8`
+    - CHANGELOG.md LICENSE README.md index.d.ts index.js index.js.map package.json
+  Equal to the local release-check and to my scratch pack.
+gh pr view 121: OPEN, headRefName box-quad/release-1, headRefOid fe0e52467f9819c2b3ff63613daa91daa04481b5, base main, MERGEABLE.
+git ls-remote origin box-quad/release-1: fe0e52467f9819c2b3ff63613daa91daa04481b5.
+verify on the pull request: run 44998551535, event pull_request, headSha fe0e52467f9819c2b3ff63613daa91daa04481b5, conclusion success (gh pr checks 121: all pass, deploy and records skipped).
+
+== O1
+gh api repos/ausginer/material-x/environments/npm:
+  {"can_admins_bypass":false,"deployment_branch_policy":{"custom_branch_policies":true,"protected_branches":false},"name":"npm","protection_rules":[{"id":73462501,"type":"branch_policy"}]}
+  protection_rules holds the branch policy only: no required reviewer, no wait timer.
+gh api repos/ausginer/material-x/environments/npm/deployment-branch-policies:
+  {"total_count":1,"branch_policies":[{"id":67747490,"name":"main","type":"branch"}]}
+
+== O2
+gh api repos/ausginer/material-x/rulesets: Backup preservation (branch), Main protection (branch), Prototype preservation (branch), Release tags (tag, id 27829590), all active.
+gh api repos/ausginer/material-x/rulesets/27829590:
+  {"name":"Release tags","target":"tag","enforcement":"active","conditions":{"ref_name":{"include":["refs/tags/@ydinjs/**/*"],"exclude":[]}},"bypass_actors":[],"current_user_can_bypass":"never","rules":["deletion","non_fast_forward","update"]}
+The stored pattern is refs/tags/@ydinjs/**/*; the records write refs/tags/@ydinjs/**.
+GitHub's own matcher, on the same convention in two branch rulesets (Backup preservation refs/heads/backup/**/*, Prototype preservation refs/heads/proto/**/*), through gh api repos/ausginer/material-x/rules/branches/<name>:
+  backup/x      -> ruleset 20963078 (deletion, non_fast_forward, creation, update)
+  backup/a/b    -> ruleset 20963078 (same)
+  proto/x       -> ruleset 27828300 (deletion, non_fast_forward)
+  nomatch/x     -> []
+So **/* matches a name with no directory between, and refs/tags/@ydinjs/**/* covers refs/tags/@ydinjs/box-quad@1.0.0. This is GitHub's branch matcher; GitHub has no tag counterpart of the endpoint.
+
+== O3
+gh api repos/ausginer/material-x/environments/npm/secrets: NPM_STAGE_TOKEN, created 2026-11-22T07:15:29Z, updated 2026-11-22T07:15:29Z.
+gh api repos/ausginer/material-x/actions/secrets: total_count 1, CODECOV_TOKEN. NPM_STAGE_TOKEN isn't a repository secret.
