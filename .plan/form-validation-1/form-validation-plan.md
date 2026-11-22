@@ -1,16 +1,21 @@
 # Controlled form validation for material-x's form-associated components
 
-**Status:** proposed, waiting for the owner's answers to [`FV-Q1` to `FV-Q3`](#owners-choices). Nothing here is registered yet.
+**Status:** proposed. The owner answered [`FV-Q1` to `FV-Q3`](#owners-choices) on 2026-11-22. `FV-Q1` and `FV-Q3` are settled. For `FV-Q2`, the owner leans towards a `required` attribute and asked for a challenge, and the architect recommends accepting it (`FV-D11`). Nothing here is registered yet. [§10](#10-revisions) lists what each revision changed.
 
 - **Read at** `origin/main` `00fd35592`. PR [#126](https://github.com/ausginer/material-x/pull/126) (`repo:RF-74`, the text fields' default value and form reset) is open on `material-x/text-field-reset-1`. This plan builds on it and doesn't re-decide it.
-- **Written by** the architect in slot `b`, on this branch in slot `d`. An architect outside the main slot proposes and doesn't record ([agent workflow](../../.agents/docs/agent-workflow.md#parallel-units)). So the decisions below carry local names, `FV-D1` to `FV-D10`, and owner questions `FV-Q1` to `FV-Q3`. Once the owner answers, the main slot's architect registers them in [`00-index.md`](../00-index.md), with the findings of [§1](#1-what-is-wrong-today) as one `RF-` entry that they close.
+- **Written by** the architect in slot `b`, on this branch in slot `d`. An architect outside the main slot proposes and doesn't record ([agent workflow](../../.agents/docs/agent-workflow.md#parallel-units)). So the entries below carry local names: decisions `FV-D1` to `FV-D12`, owner questions `FV-Q1` to `FV-Q3`, and proposed findings `FV-F1` to `FV-F3`. The main slot's architect registers them in [`00-index.md`](../00-index.md): the decisions, with the findings of [§1](#1-what-is-wrong-today) as one `RF-` entry that they close, and the findings of [§8](#8-proposed-findings) as `RF-` entries of their own.
 - **Inputs:** the architect's read-only review of the text fields' validation API, reported to the coordinator on 2026-11-22 and recorded only here, in §1. The owner's answers to it, relayed by the coordinator on 2026-11-22:
   - a general system that reaches each component through a trait and a use-hook;
   - the review's I3 (the native names), I4 A (a controlled `error` attribute), I5 (i) (the error text stays in `support`) and I6 (tests and docs);
   - _"as controlled as possible"_: companies validate with their own code or a validator library, so native validators are unlikely to be needed. The system uses the native machinery as far as it can and never switches into an uncontrolled mode;
   - scope: the text fields, the checkbox, the radio and the switch buttons.
+- **The owner's answers to `FV-Q1` to `FV-Q3`,** relayed by the coordinator on 2026-11-22:
+  - `FV-Q1`: the checkbox's error appearance comes in a follow-up unit;
+  - `FV-Q2`: he leans towards `required`, translated only into `aria-required`, never a validator, and asked the architect to challenge it;
+  - the `aria-*` gap of `mx-checkbox` and `mx-radio` is a bug, to be proposed as a finding;
+  - `FV-Q3`: yes, the radio and the switches carry `error` too, and screen readers are to be checked.
 - **Governing records:** [`architecture.md`](../../.agents/docs/architecture.md) §Components (_every component is controlled_, and the text fields' exception), `repo:RF-50`, `repo:RF-74`, `repo:RD-20` (the browser floor), `repo:RD-24` (size rows), `repo:RD-26` and `repo:RD-33` (traits), `repo:RD-32` (one branch per unit), CONTRIBUTING §1.1, §2, §8 and §15.
-- **Evidence:** [`checks/probe-readings.txt`](checks/probe-readings.txt), the output of [`probes/review-probe.mjs.txt`](probes/review-probe.mjs.txt) and [`probes/plan-probe.mjs.txt`](probes/plan-probe.mjs.txt) in Chromium 158, Firefox 159 and Playwright's WebKit 27.2. Each probe is a minimal form-associated element that reproduces the mechanism it tests, not the built component. [`checks/size-estimate.txt`](checks/size-estimate.txt) is a size estimate from hand-written stand-ins.
+- **Evidence:** [`checks/probe-readings.txt`](checks/probe-readings.txt), the output of [`probes/review-probe.mjs.txt`](probes/review-probe.mjs.txt) and [`probes/plan-probe.mjs.txt`](probes/plan-probe.mjs.txt) in Chromium 158, Firefox 159 and Playwright's WebKit 27.2. Each probe is a minimal form-associated element that reproduces the mechanism it tests, not the built component. [`checks/size-estimate.txt`](checks/size-estimate.txt) is a size estimate from hand-written stand-ins. [`checks/aria-states.txt`](checks/aria-states.txt) is the output of [`probes/aria-states.ts`](probes/aria-states.ts): each engine's own accessibility tree for the built components and for native controls, [§9](#9-accessibility-proof-and-the-screen-reader-method).
 
 ## 1. What is wrong today
 
@@ -52,13 +57,15 @@ Tier A: P1 to P6 are observable at runtime.
   - an empty one makes it valid.
   - The internals throw a `TypeError` for a true flag with an empty message, in each engine (`plan-probe`), so the empty message must map to no flags, as a native control's does.
   - Its validation anchor is the target that `useValidatable` registered (`FV-D5`).
-- `error` is a boolean attribute member (`accessor error!: boolean`, `Bool`), observed and reflected. `ValidatableProps` is `Props<typeof Validatable>`.
+- `error` and `required` are boolean attribute members (`accessor error!: boolean`, `accessor required!: boolean`, `Bool`), observed and reflected. `ValidatableProps` is `Props<typeof Validatable>`.
 
 **The hook `useValidatable(host, target)`:**
 
 - `target` is the component's accessible control: the text fields' `.input`, the checkbox's and the radio's `#input`, and the switches' `.host` button.
 - It registers `target` as the host's validation anchor.
 - While `error` is set, `target`'s `aria-invalid` is `"true"`. Otherwise `target` has no `aria-invalid`.
+- While `required` is set, `target`'s `aria-required` is `"true"`. Otherwise `target` has no `aria-required` (`FV-D11`).
+- It writes the target directly, not the host, so neither state appears on a second node ([§9](#9-accessibility-proof-and-the-screen-reader-method)), and it doesn't depend on `FV-F1`'s fix.
 - It sets no custom state, as `useCheckable` sets none (`checkable.ts`, _"Does not wire form internals or custom states"_). How the trait reaches the registered target is the implementer's choice. `FocusForwarding`'s module `WeakMap` is a precedent.
 
 ### FV-D2 — Validity is the consumer's custom validity only: the internal field's validity isn't copied, and no constraint attribute is added except `readonly`
@@ -67,14 +74,15 @@ The owner's direction decides the review's I1 and I2.
 
 - **I2, copying the internal field's validity, is not adopted.** It would make `type`, `required` and the other constraints change validity as the user types: native validators, uncontrolled.
 - **`type` doesn't validate.** On the text field, `type` sets the keyboard, autofill and the native sanitization of the text. The element's documentation says that validation is the consumer's. P2 is closed by that statement, not by code.
-- **The constraint attributes `required`, `minlength`, `maxlength`, `pattern`, `min`, `max` and `step` are not adopted.** Each is a validator. `maxlength` also stops typing at the limit, which isn't validation, and could be added on request as an input limit. `required`'s announcement is `FV-Q2`'s.
+- **The constraint attributes `minlength`, `maxlength`, `pattern`, `min`, `max` and `step` are not adopted.** Each is a validator. `maxlength` also stops typing at the limit, which isn't validation, and could be added on request as an input limit.
+- **`required` is adopted as an announcement only** (`FV-D11`). It doesn't touch validity.
 - **`readonly` earns its bytes** (`FV-D4`), because it is an editing state, not a validator.
 
 ### FV-D3 — `error` is set by the consumer only, and `checkValidity()` and `reportValidity()` don't touch it
 
 - **What follows `error`.** In material-x, `:state(error)` follows `error` in `TextFieldCore`, `useCheckableCore` and `useSwitchCore`. The text fields' existing `:state(error)` styles draw it.
 - **What doesn't change it.** No method, event, form submission or reset sets or clears `error`.
-- **A host's own `aria-invalid` is outside the contract** (CONTRIBUTING §1.1). The text fields and the switches mirror the host's `aria-*` to the target (`TextFieldCore.ts:143`, `ButtonCore.ts:110`), so a host `aria-invalid` and `error` would both write the target's. The JSDoc of `error` says to use `error`, and the library doesn't arbitrate between them.
+- **A host's own `aria-invalid` or `aria-required` is outside the contract** (CONTRIBUTING §1.1). The text fields and the switches mirror the host's `aria-*` to the target (`TextFieldCore.ts:143`, `ButtonCore.ts:110`), so a host attribute and `error` or `required` would both write the target's. The JSDoc of `error` and `required` says to use them, and the library doesn't arbitrate.
 - **The documented recipe** for native-like timing:
 
   ```js
@@ -115,7 +123,7 @@ The owner's direction decides the review's I1 and I2.
 
 ### FV-D7 — Scope: six elements, and not the plain buttons
 
-- **In scope:** `mx-text-field`, `mx-multiline-text-field`, `mx-checkbox`, `mx-radio`, `mx-switch-button` and `mx-switch-icon-button`. They compose `Validatable` through `TextFieldCore`, `CheckableCoreTraits` and `SwitchCoreTraits`.
+- **In scope:** `mx-text-field`, `mx-multiline-text-field`, `mx-checkbox`, `mx-radio`, `mx-switch-button` and `mx-switch-icon-button`. They compose `Validatable` through `TextFieldCore`, `CheckableCoreTraits` and `SwitchCoreTraits`, so each has the same members (`FV-D12`).
 - **Out of scope:** `mx-button`, `mx-icon-button` and `mx-split-button` are form-associated to submit and reset a form, carry no value of their own, and keep their surface.
 
 ### FV-D8 — `setValidity` and the text fields' overrides are deleted
@@ -142,41 +150,71 @@ The owner's direction decides the review's I1 and I2.
     5. `checkValidity()` and `reportValidity()` on an invalid element leave `error`, `:state(error)` and `aria-invalid` unchanged. A mutation that restores today's toggle must fail this row.
     6. `form.reset()` leaves custom validity and `error`.
     7. A disabled host, or one in a disabled `<fieldset>`, has `willValidate` `false`.
-    8. `form` is the owner form, and `labels` holds a `<label for>` that names the host.
+    8. `form` is the owner form, and `labels` holds a `<label for>` that points at the host. It doesn't name the checkbox or the radio (`FV-F1`), so this row reads `labels` only.
     9. Text fields only: `readonly` makes the internal field read-only and `willValidate` `false`, and its removal restores both.
+    10. Setting `required` gives the target `aria-required="true"`, and clearing it removes it. Neither changes `validity`, `willValidate` or submission.
+    11. Chromium only, through CDP as `tests/list/list-roles.browser.test.ts` reads the tree: with `error` and `required` set, the control's accessibility node reports `invalid` `"true"`. A text field's node also reports `required` `true`. Chromium's CDP reports `required` on no checkbox, radio or switch, native ones included ([§9](#9-accessibility-proof-and-the-screen-reader-method)).
 - **Snapshots:** `tests/__snapshots__/traits-baseline.json` and the runtime shape snapshot change for the new members.
 - **Types:** each element's `*Properties` gains `ValidatableProps`, and `*Events` gains `invalid: Event`.
 - **Docs:**
-  - Each element's JSDoc documents `error`, `setCustomValidity`, the `invalid` event, `FV-D3`'s precondition, and that the element has no native validators.
+  - Each element's JSDoc documents `error`, `required`, `setCustomValidity`, the `invalid` event, `FV-D3`'s precondition, and that the element has no native validators. `required`'s says that it announces the control as required, doesn't block submission, and doesn't make `:required` match.
   - The text field also documents `readonly`, and that `type` doesn't validate.
   - Each component page carries `FV-D3`'s recipe and `FV-D6`'s reset note.
 - **Project documentation is its own unit** (`repo:RD-32`). The updates to `accessibility.md`, where the text fields' _Missing requirements_ changes, and to `architecture.md`'s list of shared traits go in a separate pull request after this one.
 
+### FV-D11 — `required` announces a control as required and does nothing else
+
+This is the owner's leaning in `FV-Q2`, challenged below. The architect recommends that the owner accept it.
+
+- **Required properties:**
+  - `required` is a `Validatable` member on all six elements (`FV-D1`).
+  - While it is set, the control's `aria-required` is `"true"`, and otherwise the control has none.
+  - It doesn't change `validity`, `willValidate`, submission or `:state(error)`.
+  - It doesn't make `:required` match. No engine matches `:required` on a form-associated host ([§9](#9-accessibility-proof-and-the-screen-reader-method)), so a consumer's styles select `[required]`.
+- **The challenge, and what each side of it weighs.**
+  - **Against: the name promises blocking.** A native `<input required>` blocks submission and matches `:required`. Every comparable library's `required` validates, Material Web's included. A consumer who writes `required` and forgets to validate gets an empty required field submitted, and nothing reports it. This is the strongest argument against, and the docs carry it (`FV-D10`).
+  - **Against: it fixes the name's meaning.** Once released, turning `required` into a validator would be a breaking behaviour change. Host `aria-required` leaves the name free. The owner's direction makes a validating `required` unlikely, so this weighs little.
+  - **For: the platform gives a host `required` nothing to conflict with.** On a form-associated host, the attribute doesn't match `:required` and doesn't change validity in any engine (§9). So the translation is the attribute's only effect, and nothing native disagrees with it.
+  - **For: it reaches only the control.** The host-attribute alternative leaves `aria-required` on the host as well. Chromium, Firefox and WebKit expose a host that carries `aria-*` as a node of its own, `generic` or `group`. The readings show that node with the host's name, and on the checkbox's host with its `aria-invalid` and `aria-required` too (§9, the `host` variant). For `mx-checkbox` and `mx-radio`, the host attribute doesn't reach the control at all until `FV-F1` is fixed. `required` writes the control directly in every component, as `error` does for `aria-invalid`. The plan chose `error` over host `aria-invalid` for the same reason (`FV-D3`), and one rule for both states is simpler to document.
+  - **For: assistive technology gets what a native `required` gives it.** In Firefox and WebKit, the control's `required` state equals a native control's with `required` (§9).
+  - **For: a consumer's validator can read it.** A form library or the consumer's own code reads `field.required` to decide whether to validate. So one declaration announces the control and drives the consumer's check. As a typed member, it is also discoverable.
+  - **Neutral: the controlled principle.** `required` is consumer state, and `aria-required` derives from it. Both options are controlled.
+  - **Form libraries that read the DOM attribute** treat it as a rule of their own and validate in JavaScript. That fits this model: the consumer's validator then calls `setCustomValidity`. The architect didn't verify which libraries read it, and none blocks submission natively through it.
+- **Why accept.** What the challenge leaves against it is one documentation risk, against an API that announces correctly on all six controls today, needs no fix first, and follows the same rule as `error`.
+- **Cost:** one more attribute member and one more branch in the hook. It isn't measured separately, and §4's reading covers it.
+- **If the owner rejects it,** host `aria-required` is the alternative. It needs `FV-F1` fixed for the checkbox and the radio, and it puts the state on two nodes until `FV-F2` is fixed.
+
+### FV-D12 — The radio and the switches carry `error` and `required`, as the other controls do
+
+This is the owner's answer to `FV-Q3`.
+
+- **The same members on all six.** A form library sets `error`, `required` and `setCustomValidity` on each control the same way.
+- **The radio and the switches draw nothing for `error`.** Material defines no error appearance for them. `:state(error)` is there for the consumer's styles.
+- **Assistive technology:**
+  - Chromium and WebKit expose the radio's and the switch's control as `invalid` with `error` set, as they do the native radio and switch (§9).
+  - Firefox's `invalid` state isn't read, because Marionette doesn't report it.
+  - Whether a screen reader announces it is §9's next step.
+- **Some ARIA references** list `aria-invalid` for `checkbox`, `switch` and `radiogroup`, and not for `radio`. Both engines that the probe reads expose it on a radio. An `mx-radio-group` would carry a group's invalidity later.
+
 ## Owner's choices
+
+All three were answered by the owner on 2026-11-22, relayed by the coordinator.
 
 ### FV-Q1 — Does the checkbox's error appearance come with this unit?
 
-Material's checkbox has an error appearance: `md.comp.checkbox` holds 24 tokens whose names contain `error`. `checkbox/styles/utils.ts:42` drops them today. Without them, the checkbox's `error` reaches assistive technology and draws nothing.
+**Answered: in a follow-up unit,** as the architect recommended.
 
-- **Follow-up unit (recommended).** This unit stays behavioural, and the follow-up does the token grouping, the `:state(error)` renderer, the visual-contract rows and the baselines, which `repo:RD-13` records in a pull request of their own.
-- **In this unit:** one pull request, with two kinds of review.
+- Material's checkbox has an error appearance: `md.comp.checkbox` holds 24 tokens whose names contain `error`, and `checkbox/styles/utils.ts:42` drops them today.
+- Until the follow-up lands, the checkbox's `error` reaches assistive technology and draws nothing. The docs say so.
+- The follow-up does the token grouping, the `:state(error)` renderer, the visual-contract rows and the baselines, which `repo:RD-13` records in a pull request of their own. It is `FV-F3`.
 
 ### FV-Q2 — How is a required control announced?
 
-Without a native validator, nothing says a control is required.
-
-- **No `required` attribute (recommended).** The consumer sets `aria-required="true"` on the host, which the text fields and the switches mirror to the control. Nothing native-looking behaves non-natively.
-  - **A gap to register:** `mx-checkbox` and `mx-radio` mirror no host `aria-*` (`useCheckableCore` calls no `useARIA`), so they can't be announced as required, or named by `aria-label`, until they do.
-- **A `required` attribute that sets `aria-required` only.** It costs a transfer per component. Its name promises blocking that the element doesn't do.
-- **A `required` that validates** (`valueMissing`) is excluded by the owner's direction.
+**The owner leans towards `required`, translated only into `aria-required`, and asked for a challenge.** The architect's first recommendation was the host's `aria-required`. The accessibility-tree readings of §9 changed it: a host attribute reaches two nodes in the components that mirror `aria-*`, and none of the right ones in the checkbox and the radio. **The architect now recommends accepting the owner's leaning,** as `FV-D11` argues. The owner accepts or rejects `FV-D11`.
 
 ### FV-Q3 — Do the radio and the switches carry `error` too?
 
-Material defines no error appearance for a radio or a switch.
-
-- **Yes, uniformly (recommended).** A form library sets `error` and `setCustomValidity` on every control the same way. `:state(error)` is there for a consumer's styles, and `aria-invalid` is announced.
-  - **A caveat, not established:** some ARIA references support `aria-invalid` on `checkbox`, `switch` and `radiogroup` but not on `radio`, and ARIA 1.3's drafts discuss deprecating it as a global attribute. An `mx-radio-group` would carry the group's invalidity later.
-- **Validity surface only for those three:** two traits instead of one, and an API that differs by control.
+**Answered: yes,** as the architect recommended, with screen readers to be checked. `FV-D12` records it, and §9 says what is established and how the rest is.
 
 ## 4. What each component pays
 
@@ -194,19 +232,20 @@ Material defines no error appearance for a radio or a switch.
 
 ## 5. Sequencing
 
-1. The owner answers `FV-Q1` to `FV-Q3`. The main slot's architect registers the decisions and the finding, and amends this plan on this branch if an answer changes it.
-2. **Implementation starts after #126 merges.** The implementer runs `git merge origin/main` on this branch, with no rebase. #126 and this unit both edit `TextFieldCore.ts`, around the value code and the deleted methods. The conflict is textual only, because validation reads nothing that RF-74 writes.
-3. **Order of work:**
+1. The owner accepts or rejects `FV-D11`. The main slot's architect registers the decisions, §1's finding and §8's findings, and amends this plan on this branch if an answer changes it.
+2. **`FV-F1` and `FV-F2` are fixed in a unit of their own, before this one or beside it.** This unit doesn't wait for it, because `useValidatable` writes the control directly. The two units overlap in `useCheckableCore` only, and the second to land merges the first.
+3. **Implementation starts after #126 merges.** The implementer runs `git merge origin/main` on this branch, with no rebase. #126 and this unit both edit `TextFieldCore.ts`, around the value code and the deleted methods. The conflict is textual only, because validation reads nothing that RF-74 writes.
+4. **Order of work:**
    1. core's trait, hook, export and rows;
    2. `aube exec just build` in `packages/core`;
    3. material-x's six elements, types, docs and rows;
    4. the size readings.
-4. **The pull request opens** once the implementation is pushed, with `Refs` to the work-queue item the coordinator names.
+5. **The pull request opens** once the implementation is pushed, with `Refs` to the work-queue item the coordinator names.
 
 ## 6. Not adopted
 
 - **A shared base class instead of the trait.** It is one copy per bundle instead of one per class, which is the same in Brotli, as §4 shows. It also fixes one place in every component's chain, and the owner asked for a trait.
-- **`aria-invalid` on the host as the controlled API,** with `:state(error)` derived from it. That would be one attribute instead of two. But the checkbox and the radio don't mirror host ARIA, the host isn't the accessible node, and the owner accepted `error`.
+- **`aria-invalid` and `aria-required` on the host as the controlled API,** with `:state(error)` derived from `aria-invalid`. That would need no new attribute. But the host attribute reaches a second node in every engine, and the checkbox's and the radio's control not at all (§9). The owner accepted `error`, and `FV-D11` argues `required`.
 - **Native validators, I1 and I2:** `FV-D2`.
 - **Automatic error timing,** the review's I4 B and C: the owner chose A.
 - **`:user-invalid` for timing:** the engines disagree (P7).
@@ -215,6 +254,97 @@ Material defines no error appearance for a radio or a switch.
 
 ## 7. Not established
 
-- **Not checked:** real Safari and screen readers. The bubble's position with each anchor.
+- **Not checked:** real Safari, and any screen reader's speech (§9). The bubble's position with each anchor.
+- **Not read:** Firefox's `invalid` state, which Marionette doesn't report (§9).
 - **Not run:** `FV-D6`'s reading of #124.
-- **ARIA:** support for `aria-invalid` on `radio` is taken from secondary references, not read in the specification.
+- **ARIA:** whether `aria-invalid` is supported on `radio` is taken from secondary references, not read in the specification. Two engines expose it.
+- **Form libraries:** which of them read the `required` attribute (`FV-D11`) wasn't verified.
+
+## 8. Proposed findings
+
+The main slot's architect mints their addresses. Each names its tier, its evidence and the property that must hold.
+
+### FV-F1 — `mx-checkbox` and `mx-radio` can't be named: neither a host `aria-label` nor a `<label for>` reaches the control
+
+- **Tier A, pre-existing.** The owner calls it a bug.
+- **What happens:**
+  - `useCheckableCore` doesn't call `useARIA` (`CheckableCore.ts`), so no host `aria-*` reaches the internal `<input>`.
+  - `<mx-checkbox aria-label="Accept terms">` exposes an unnamed `checkbox`, in Chromium, Firefox and WebKit. The host becomes a second node named _"Accept terms"_: `generic` in Chromium and Firefox, `group` in WebKit. `mx-radio` reads the same.
+  - **A `<label for>` that labels the host names nothing either:** the checkbox stays unnamed in each engine. The label reaches the host's `labels` and not the control.
+  - The host's `aria-required` and `aria-invalid` stay on the host's node too (§9, the `host` variant).
+- **Why it is a problem:** neither control has a way to be named. No content slot exists to name it either. The JSDoc of both elements says that _"It can be associated with an external `<label>` via the standard `for`/`id` mechanism"_, which the readings contradict.
+- **Evidence:** [`checks/aria-states.txt`](checks/aria-states.txt), the `main` and `host` variants, built from `origin/main` `00fd35592`.
+- **Required property:** in each engine at `RD-20`'s floor, the checkbox's or the radio's accessible control carries the name that a host `aria-label`, a host `aria-labelledby` or a `<label>` labelling the host gives. The host's `aria-*` states reach the control.
+- **Where the fix belongs:** a unit of its own, before this one or beside it (§5). It needs a decision of its own on how a light-DOM label reaches a shadow control, and validation doesn't depend on it, because `useValidatable` writes the control directly.
+  - **One question for that unit, not established:** a mirrored `aria-labelledby` or `aria-describedby` holds ids that resolve in the shadow root's scope, not the document's.
+- **Size:** not known before that decision.
+
+### FV-F2 — A host's `aria-*` that is mirrored to the control stays on the host, which every engine exposes as a second named node
+
+- **Tier A, pre-existing.**
+- **What happens:** `useARIA` copies the host's `aria-*` to the control and leaves it on the host (`TextFieldCore.ts:143`, `ButtonCore.ts:110`). `<mx-text-field aria-label="Host-labelled field">` and `<mx-switch-button aria-label="Host-labelled switch">` each expose two named nodes: the control, and the host as `generic` (Chromium, Firefox) or `group` (WebKit) with the same name. A state on the host's node was read on the checkbox's host, which doesn't mirror. On a mirroring host it wasn't read.
+- **Why it is a problem:** assistive technology can announce the name twice, or a group around the control, and the state on a node with no role.
+- **Evidence:** [`checks/aria-states.txt`](checks/aria-states.txt), the `mx-text-field aria-label` and `mx-switch aria-label` rows and the `host` variant.
+- **Required property:** a host's `aria-*` attribute reaches the accessibility tree on the control only.
+- **Not established:** what a screen reader announces for the extra node (§9). The other `useARIA` adopters weren't read.
+- **Where the fix belongs:** the same unit as `FV-F1`, because they share a mechanism.
+
+### FV-F3 — `mx-checkbox` draws no error appearance
+
+- **Tier A, once this unit lands.**
+- **What happens:** `checkbox/styles/utils.ts:42` drops every token whose name contains `error`, so `:state(error)` changes nothing visible. Material's `md.comp.checkbox` holds 24 of them.
+- **Required property:** `mx-checkbox` with `error` set draws Material's error appearance, observed by visual-contract rows.
+- **Where:** the follow-up unit of `FV-Q1`, after this one.
+
+## 9. Accessibility proof, and the screen-reader method
+
+**What this container establishes is what each browser exposes to the platform's accessibility interface,** read from each engine's own tree. [`probes/aria-states.ts`](probes/aria-states.ts) uses `.plan/list-roles-1/probes/list-roles.ts`'s readers:
+
+- Chromium through CDP's `Accessibility.getPartialAXTree`;
+- WebKit through its inspector's `DOM.getAccessibilityPropertiesForNode`;
+- Firefox through Marionette's `GetAccessibilityPropertiesForElement`.
+
+Playwright's ARIA snapshot isn't used: it computes roles in page script and reports neither state. The probe reads the built components and, beside them, native controls with the same attributes.
+
+- **The `target` variant writes what `useValidatable` would** (`aria-invalid` and `aria-required` on each control):
+
+  | Control | Chromium `invalid` | WebKit `invalid` | WebKit `required` | Firefox `required` |
+  | --- | --- | --- | --- | --- |
+  | text field's `<input>` | `"true"` | `"true"` | `true` | `"true"` |
+  | checkbox's `<input>` | `"true"` | `"true"` | `true` | `"true"` |
+  | radio's `<input>` | `"true"` | `"true"` | `true` | `"true"` |
+  | switch's `<button role=switch>` | `"true"` | `"true"` | `true` | `"true"` |
+  - Each component's control reads as the native control with the same attributes does, in each column.
+  - Chromium's CDP reports `required` only for a `textbox`, `true` for both the text field and the native one, and for no checkbox, radio or switch, native ones included. That is a limit of the instrument, not a difference from native.
+
+- **Firefox's `invalid` state isn't readable here,** because Marionette's properties carry `required` and `checked` and no invalid state.
+- **`:required` doesn't match a form-associated host** with `required`, a plain one or `mx-text-field`, in any engine. A native `<input required>` matches.
+- **The `main` and `host` variants** are `FV-F1`'s and `FV-F2`'s evidence.
+
+**What a screen reader adds, and where it can run:**
+
+1. **The accessibility tree, in this container (done).** It shows what the browser hands the screen reader. It doesn't show what the screen reader says, or whether it announces a state on a given role.
+2. **The platform's interface, in this container (possible, not done).** Linux screen readers read AT-SPI2.
+   - Headed Chromium and Firefox under Xvfb, with a D-Bus session and `at-spi2-core`, expose each control's `STATE_INVALID_ENTRY` and `STATE_REQUIRED` to a small `pyatspi` or `python3-gi` script.
+   - That is what Orca reads, and it would close Firefox's `invalid` gap.
+   - It costs container packages, roughly tens of megabytes. The disk holding the slots is 85% full.
+   - Whether Playwright's WebKit build reports to AT-SPI isn't known.
+3. **Speech, with a real screen reader (needs the owner's machine or a runner).** Three candidates:
+   - **Orca with Firefox and Chromium on the owner's Fedora host.** Orca is a desktop accessibility application, not a development tool, but installing it is the owner's decision under his host rule.
+   - **VoiceOver with Safari** needs a Mac, and **NVDA or JAWS** needs Windows. Neither is available here.
+   - **Automation:** Guidepup drives VoiceOver on GitHub's macOS runners and NVDA on its Windows runners, and records what they speak. That would be a new development dependency and a workflow, an owner decision outside this unit.
+   - **What the speech check must establish,** for each of the six elements with `error` and `required` set:
+     - the control's announcement includes _invalid_ and _required_, for the radio and the switch in particular;
+     - the `support` text is read as the description;
+     - and, for `FV-F2`, whether the host's extra node is announced.
+
+- **This unit's rows** (`FV-D10`, row 11) pin layer 1 in Chromium. Layers 2 and 3 are the owner's choice, and their readings join this section when they run.
+
+## 10. Revisions
+
+- **2026-11-22, `e39b43ec8`:** the first plan, with `FV-D1` to `FV-D10` and `FV-Q1` to `FV-Q3`.
+- **2026-11-22, this revision,** for the owner's answers:
+  - `FV-Q1` and `FV-Q3` answered.
+  - `FV-Q2`'s recommendation changed from host `aria-required` to the owner's `required`, on §9's readings: `FV-D11`.
+  - Added `FV-D12`, the findings `FV-F1` to `FV-F3`, §9's readings and method, rows 10 and 11.
+  - `FV-D1`, `FV-D2`, `FV-D3`, `FV-D7`, `FV-D10` and §5 to §7 amended to match.
