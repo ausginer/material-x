@@ -28,3 +28,39 @@ packages/ differs between 242654011 and 682639048).
   every other row (17 rows)                            0
 The source comment is not in the built output (no match for "collapses" under
 packages/material-x/text-field/).
+
+overflow-wrap, 2026-11-22, by the implementer, in /workspaces/worktrees/f, on 8ea79c66f.
+From the feature proof's reviewer-1
+(.plan/reviews/textfield-white-space-1/feature-proof-claude.md).
+Fix: `overflow-wrap: break-word;` added to the `textarea.input` rule.
+
+Row: packages/material-x/tests/text-field/text-field.browser.test.ts
+  "should wrap a line that has no break opportunity within the field"
+  Host display: block, inline-size: 300px. field.value = 'x'.repeat(200).
+  Asserts [scrollWidth, height > one line] = [clientWidth, true].
+
+Before the fix (8ea79c66f plus the new row):
+  --project browser (chromium)  expected [1609, false] to deeply equal [300, true]
+                                Tests  1 failed | 28 passed (29)
+  --project browser/firefox     expected [1610, false] to deeply equal [300, true]
+                                Tests  1 failed | 28 passed (29)
+  --project browser/webkit      expected [1609, false] to deeply equal [300, true]
+                                Tests  1 failed | 28 passed (29)
+
+After the fix:
+  --project browser (chromium)  tests/text-field   Tests  29 passed (29)
+  --project browser/firefox     tests/text-field   Tests  29 passed (29)
+  --project browser/webkit      tests/text-field   Tests  29 passed (29)
+
+Size rows, `aube exec just size --json` in packages/material-x, Brotli bytes.
+Before: main.styles.css at 8ea79c66f. After: the fix. Same tree, read in turn;
+a second after-reading is identical in all 20 rows.
+  row                               before  after  delta  vs 242654011
+  text-field/multiline-text-field     4096   4095     -1           +40
+  text-field/text-field               8205   8179    -26            -2
+  complete                           22197  22216    +19           +58
+  every other row (17 rows)                            0             0
+The "before" column equals the earlier "after" column above, byte for byte.
+Built: text-field/styles/default/main.css.js carries
+  textarea.input{white-space:pre-wrap;overflow-wrap:break-word}
+and no comment text (no match for "opportunity").

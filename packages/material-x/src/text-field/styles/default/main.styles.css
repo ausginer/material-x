@@ -220,9 +220,12 @@ slot:has-slotted {
 }
 
 /* `all: unset` drops the textarea's UA `white-space: pre-wrap`, and WebKit
- * then collapses the line breaks of a value set from script. */
+ * then collapses the line breaks of a value set from script. It also drops
+ * `overflow-wrap: break-word`, without which a line with no break opportunity
+ * runs past the field. */
 textarea.input {
   white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 /* =======================
