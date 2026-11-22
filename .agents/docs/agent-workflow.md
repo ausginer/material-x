@@ -56,6 +56,8 @@ Stop for the owner to try the prototype and assess the API, interaction and comp
 
 A successful prototype is evidence for a design, not production acceptance. Its code may be reused, but production implementation still owes the applicable correctness, integration, performance and independent review checks. Small changes within a settled architecture keep the normal handoff.
 
+**A shelved prototype is kept on a `proto/<name>` branch.** When the owner sets a prototype aside without adopting or dropping it, its last commit is pushed as `proto/<name>`, for example `proto/signals-1`. The branch has no pull request, so no merge deletes it. **Do not delete, move or force-push a `proto/*` branch** unless the owner asks, and a clean-up of merged or stale branches leaves it alone.
+
 ## Phase coordination
 
 ### Authority and stopping boundary
