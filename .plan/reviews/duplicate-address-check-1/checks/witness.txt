@@ -1,0 +1,22 @@
+Read in slot d at 910aee555 (origin/main = 6a67badfd).
+
+$ .scripts/entry.sh --duplicates 1cf222c32
+duplicated addresses: each is claimed by more than one entry heading
+repo:RF-74
+  .plan/00-index.md:3729
+  .plan/00-index.md:3770
+repo:RF-75
+  .plan/00-index.md:3754
+  .plan/00-index.md:3795
+exit 1
+
+$ .scripts/entry.sh --duplicates origin/main
+no duplicated address in drag, repo
+exit 0
+
+$ .scripts/entry.sh --duplicates 
+no duplicated address in drag, repo
+exit 0
+
+# drag2 at 0870abd75, every .md under packages/drag2/.plan/contract and obligations.md, headings by the resolver's pattern, duplicates:
+(documents: 11)
