@@ -1,0 +1,78 @@
+# The list item's sheets, as the build evaluates them
+# Read by the architect on 2026-11-22, with packages/material-x, packages/tproc and
+# packages/vite-custom-element-assets identical to origin/main at b46b840d8.
+# Node v26.13.1. Probe: ../probes/render-sheet.ts.
+
+## Which modules import src/list/styles/item/interactive.css.ts
+$ grep -rn "styles/item/interactive.css" src tests
+(no match)
+
+## main.css.ts (adopted by every list item): lines that name 'selected'
+97::host(:focus-within), :host(:state(selected)) {
+
+## interactive.css.ts (adopted by no item), whole output
+:host {
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+:host {
+  --_container-expressive-shape: 16px;
+  --_overline-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_trailing-icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_leading-icon-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_supporting-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_trailing-supporting-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+  --_container-color: var(--md-sys-color-secondary-container, #CCEEA1);
+}
+
+:host(:hover) {
+  --_container-expressive-shape: 16px;
+}
+
+:host(:focus-within), :host(:state(selected)) {
+  --_container-expressive-shape: 16px;
+}
+
+:host(:state(drag)) {
+  --_container-expressive-shape: 16px;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:active) {
+  --_container-expressive-shape: 16px;
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-secondary-container, #516D2F);
+}
+
+:host(:state(disabled)) {
+  --_container-expressive-shape: 16px;
+  --_container-opacity: 0.38;
+  --_trailing-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_leading-icon-color: var(--md-sys-color-on-surface, #191D13);
+  --_overline-color: var(--md-sys-color-on-surface, #191D13);
+  --_trailing-supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_supporting-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_label-text-color: var(--md-sys-color-on-surface, #191D13);
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}
+
+.host {
+  transition: border-radius
+    var(--md-list-item-press-duration, var(--_press-duration))
+    var(--md-list-item-press-easing, var(--_press-easing));
+}
+
+:host(:state(disabled)) {
+  .host {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  slot {
+    opacity: var(--_opacity);
+  }
+}
