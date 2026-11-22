@@ -1,0 +1,28 @@
+# packages/core: `just docs-api-build` (TypeDoc) on both exports. The base's run is without the new declaration file.
+## warnings, base vs head (sorted, the output path excluded)
+identical: 13 lines, none naming useSlot (0 on head)
+## pages that differ (diff -rq)
+assets/hierarchy.js
+classes/checkable.Checkable.html
+classes/disableable.Disableable.html
+classes/element.ControlledElement.html
+classes/selectable.Selectable.html
+classes/valuable.Valuable.html
+functions/useSlot.useSlot.html
+hierarchy.html
+types/useSlot.SlotControllerUpdateCallback.html
+## the same pages with each data-refl id replaced
+assets/hierarchy.js: differs (a compressed blob, which the id replacement cannot reach)
+classes/checkable.Checkable.html: equal
+classes/disableable.Disableable.html: equal
+classes/element.ControlledElement.html: equal
+classes/selectable.Selectable.html: equal
+classes/valuable.Valuable.html: equal
+functions/useSlot.useSlot.html: differs
+hierarchy.html: equal
+types/useSlot.SlotControllerUpdateCallback.html: differs
+## "Type Parameters" headings on the two useSlot pages
+base functions/useSlot.useSlot.html: 1
+head functions/useSlot.useSlot.html: 0
+base types/useSlot.SlotControllerUpdateCallback.html: 1
+head types/useSlot.SlotControllerUpdateCallback.html: 0
