@@ -1,0 +1,5 @@
+# packages/core on an export of 65152f4f0: `just lint` (oxlint, then ESLint) and `oxfmt --check` on the three changed files
+oxlint src/controllers/useSlot.ts tests/controllers/useSlot.declaration.test.ts tests/controllers/useSlot.browser.test.ts
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts src/controllers/useSlot.ts tests/controllers/useSlot.declaration.test.ts tests/controllers/useSlot.browser.test.ts
+lint exit 0
+oxfmt --check: All matched files use the correct format. (3 files)

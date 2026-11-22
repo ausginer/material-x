@@ -1,0 +1,8 @@
+diff of core's built controllers/useSlot.js, before → after the change
+14d13
+< * @typeParam T - The node type expected from the observed slot.
+
+diff -rq of core's built .js, .d.ts and .js.map files
+Files before/controllers/useSlot.d.ts and after/controllers/useSlot.d.ts differ
+Files before/controllers/useSlot.js and after/controllers/useSlot.js differ
+Files before/controllers/useSlot.js.map and after/controllers/useSlot.js.map differ

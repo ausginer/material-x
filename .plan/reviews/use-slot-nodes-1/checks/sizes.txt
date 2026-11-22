@@ -1,0 +1,35 @@
+# `just size-reading` on exports of 24c2a07b2 (base) and 65152f4f0 (head), compared by probes/size-compare.mjs
+box-quad:index	brotli 1182 -> 1182	gzip null -> null	limit 1182
+core:element	brotli 275 -> 275	gzip null -> null	limit 340
+core:emitter	brotli 198 -> 198	gzip null -> null	limit 210
+material-x:button/button	brotli 4913 -> 4913	gzip null -> null	limit null
+material-x:button/icon-button	brotli 5184 -> 5184	gzip null -> null	limit null
+material-x:button/link-button	brotli 4883 -> 4883	gzip null -> null	limit null
+material-x:button/switch-button	brotli 5258 -> 5258	gzip null -> null	limit null
+material-x:button/switch-icon-button	brotli 5659 -> 5659	gzip null -> null	limit null
+material-x:button/split-button	brotli 7516 -> 7516	gzip null -> null	limit null
+material-x:button-group/button-group	brotli 3118 -> 3118	gzip null -> null	limit null
+material-x:button-group/connected-button-group	brotli 3884 -> 3884	gzip null -> null	limit null
+material-x:checkbox/checkbox	brotli 3969 -> 3969	gzip null -> null	limit null
+material-x:fab/fab	brotli 4171 -> 4171	gzip null -> null	limit null
+material-x:icon/icon	brotli 641 -> 641	gzip null -> null	limit null
+material-x:list/list	brotli 661 -> 661	gzip null -> null	limit null
+material-x:list/list-item	brotli 2826 -> 2826	gzip null -> null	limit null
+material-x:list/list-button-item	brotli 4639 -> 4639	gzip null -> null	limit null
+material-x:list/list-link-item	brotli 4870 -> 4870	gzip null -> null	limit null
+material-x:list/sortable-list	brotli 8699 -> 8699	gzip null -> null	limit null
+material-x:radio/radio	brotli 3515 -> 3515	gzip null -> null	limit null
+material-x:text-field/multiline-text-field	brotli 4055 -> 4055	gzip null -> null	limit null
+material-x:text-field/text-field	brotli 8181 -> 8181	gzip null -> null	limit null
+material-x:complete	brotli 22205 -> 22205	gzip null -> null	limit null
+drag:draggable alone	brotli 2189 -> 2189	gzip 2422 -> 2422	limit 2189
+drag:draggable + lift	brotli 3932 -> 3932	gzip 4362 -> 4362	limit 3932
+drag:example: resize handle	brotli 3265 -> 3265	gzip 3607 -> 3607	limit 3265
+drag:example: drop zone	brotli 4570 -> 4570	gzip 5058 -> 5058	limit 4570
+drag:example: canvas group	brotli 3261 -> 3261	gzip 3573 -> 3573	limit 3261
+drag:freeDrag	brotli 4984 -> 4984	gzip 5526 -> 5526	limit 4984
+drag:freeDrag + bounds + landing	brotli 5465 -> 5465	gzip 6041 -> 6041	limit 5465
+drag:sortable + y	brotli 6533 -> 6533	gzip 7232 -> 7232	limit 6533
+drag:sortable + xy	brotli 6484 -> 6484	gzip 7191 -> 7191	limit 6484
+drag:complete	brotli 7143 -> 7143	gzip 7900 -> 7900	limit 7143
+rows 33, base rows 33, rows that move 0

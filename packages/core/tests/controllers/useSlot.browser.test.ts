@@ -22,10 +22,10 @@ describe('useSlot', () => {
   const namedSlotMatcher = matcher('<slot name="label"></slot>');
 
   function createDefaultHostWithSelectorMock(): readonly [
-    mock: Mock<SlotControllerUpdateCallback<Node>>,
+    mock: Mock<SlotControllerUpdateCallback>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const mock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
+    const mock: Mock<SlotControllerUpdateCallback> = vi.fn();
 
     return [
       mock,
@@ -40,10 +40,10 @@ describe('useSlot', () => {
   }
 
   function createDefaultHostWithElementMock(): readonly [
-    mock: Mock<SlotControllerUpdateCallback<Node>>,
+    mock: Mock<SlotControllerUpdateCallback>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const mock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
+    const mock: Mock<SlotControllerUpdateCallback> = vi.fn();
 
     return [
       mock,
@@ -58,10 +58,10 @@ describe('useSlot', () => {
   }
 
   function createNamedHostWithMock(): readonly [
-    mock: Mock<SlotControllerUpdateCallback<Node>>,
+    mock: Mock<SlotControllerUpdateCallback>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const mock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
+    const mock: Mock<SlotControllerUpdateCallback> = vi.fn();
 
     return [
       mock,
@@ -76,12 +76,12 @@ describe('useSlot', () => {
   }
 
   function createDualHostWithMocks(): readonly [
-    defaultMock: Mock<SlotControllerUpdateCallback<Node>>,
-    namedMock: Mock<SlotControllerUpdateCallback<Node>>,
+    defaultMock: Mock<SlotControllerUpdateCallback>,
+    namedMock: Mock<SlotControllerUpdateCallback>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const defaultMock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
-    const namedMock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
+    const defaultMock: Mock<SlotControllerUpdateCallback> = vi.fn();
+    const namedMock: Mock<SlotControllerUpdateCallback> = vi.fn();
 
     return [
       defaultMock,

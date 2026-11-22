@@ -3780,6 +3780,55 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **What changes for callers:** an explicit type argument no longer compiles. No caller in the repository passes one. Core's `useSlot` test writes `SlotControllerUpdateCallback<Node>`, which becomes `SlotControllerUpdateCallback`. The emitted JavaScript doesn't change, so no size row moves.
 - **Size:** _small_. One core module, its test's type, and core's typecheck with material-x's after core is rebuilt.
 
+#### RF-74 — Text fields ignore a form reset and their `value` attribute
+
+Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#118](https://github.com/ausginer/material-x/issues/118), relayed by the coordinator. The feature proof of #116 found it as `reviewer-2` in [`feature-proof-claude.md`](https://github.com/ausginer/material-x/blob/182b5ef04/.plan/reviews/textfield-white-space-1/feature-proof-claude.md#reviewer-2), on `material-x/textfield-white-space-1` at `182b5ef04`, not yet on `main`. `RF-73` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect probed both fields at `cbb06d265` in Chromium 158, Firefox 159 and Playwright's WebKit 27.2 ([reading](observations-2/checks/text-field-reset.txt), [probe](observations-2/probes/text-field-reset.browser.test.ts.txt)).
+
+- **What happens:** `mx-text-field` and `mx-multiline-text-field` set `formAssociated`, and `TextFieldCore` registers no `formReset`. So after `form.reset()`, a value set through the host's `value` or typed by the user stays, in the field and in the form's data, in each of the three engines. A native `<input>` or `<textarea>` returns to its default value.
+- **The `value` attribute does nothing.** The `Valuable` trait observes it, and `TextFieldCore` overrides `value` with the internal field's value, so nothing reads the attribute. A parsed `<mx-text-field value="initial">` reads `''` through `value` and shows nothing, and a later `setAttribute('value', …)` changes nothing. Neither element documents the attribute.
+- **The form value starts unset.** The form value is set on input and through `value`, and not at upgrade. So a field that is never edited is absent from the form's data, where an empty native field submits `''`.
+- **Affected:** both text fields, inside a `<form>`.
+- **Required property:** below, as the decision states it. Rows observe it in each engine at `RD-20`'s floor, for both fields.
+- **Not established:** real Safari. Whether the checkable controls reset is outside this entry (the closing message names it).
+
+**Decided 2026-11-22 by the architect: the default value is the host's `value` attribute,** as the review left to the architect. The field follows a native `<input>`.
+
+1. **The default value** is the host's `value` attribute, or `''` when there is none, for both fields.
+2. **At upgrade,** the field's value is the default value, and the form value is the field's value from then on.
+3. **While the value is clean,** a change to the `value` attribute sets the value. The value is clean until the user edits it or a script sets `value`. Upgrade and reset make it clean.
+4. **A form reset** sets the value to the default value and makes it clean. The field then shows it as it shows a value set in any other way: the populated state, the form value, and `RF-73`'s line breaks.
+5. **Setting `value` doesn't write the attribute,** as today and as on a native `<input>`.
+6. Both elements document the `value` attribute as the default value.
+
+- **Why the attribute:** it is the default a reader of HTML expects, a page or a framework can declare it, and `Valuable` already observes it.
+- **Not adopted:** always `''`, which a form that declares its values can't reset to. A snapshot of the value at first connection, which no markup can declare and which drops later attribute changes. A multiline field's child text, as a native `<textarea>` has, because the host's children are its slotted label and supporting content, and one rule serves both fields through `TextFieldCore`. A `defaultValue` property, which no supported use needs while the attribute exists.
+- **Outside this entry:** form state restore.
+- **Size:** _medium_. `TextFieldCore`, the two elements' documentation, and rows for both fields, with nothing left to decide.
+
+#### RF-75 — Core's `useSlot` lets a caller type a slot's text and comment nodes as elements
+
+Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-2`, from [#119](https://github.com/ausginer/material-x/issues/119), relayed by the coordinator. The feature proof of #117 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/button-group-whitespace-1/feature-proof-claude.md#reviewer-1) at `aa7831ae4`, and the review reached `main` in #117. `RF-74` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the code at `cbb06d265`.
+
+- **The contract:** `useSlot<T extends Node = Node>(host, slotOrSelector, callback)`, exported as `@ydinjs/core/controllers/useSlot.js`, passes the callback `slot.assignedNodes() as T[]` behind a lint suppression. So `useSlot<HTMLElement>` compiles, and its callback receives text and comment nodes typed as `HTMLElement`. `SlotControllerUpdateCallback<T>` is exported with the same parameter.
+- **Why it is a problem:** the type tells an integrator something the runtime contradicts, and the compiler can't see it at the call site. Both callers that passed a type argument were `RF-72`. Since #117 no caller in the repository passes one: the groups read `slot.assignedElements()`, `useRovingTabindex` narrows with a type guard, `ListItemCore` checks `instanceof HTMLElement`, and the slot polyfill counts the nodes.
+- **Required property:** the review's, which this entry adopts. The type that `useSlot` gives its callback's nodes is one that every node it passes has.
+
+**Decided 2026-11-22 by the architect: core's signature changes.** `@ydinjs/core` is 0.1.0 and has never been released, so CONTRIBUTING §8 applies, and the old shape is deleted with no alias.
+
+- **`useSlot` and `SlotControllerUpdateCallback` lose their type parameter.** The callback's `nodes` is `readonly Node[]`, which is what `assignedNodes()` returns, so the assertion and its lint suppression go. The doc comments drop the `@typeParam` lines and keep saying that the nodes include text and other non-element nodes.
+- **A caller that wants elements** reads `slot.assignedElements()` from the callback's first argument, as the groups do, or narrows the nodes with a type guard.
+- **Not adopted:** an element mode or a second controller, since the slot argument already gives the elements and no caller needs more. Passing only elements, because the slot polyfill mirrors `:has-slotted`, which counts every assigned node, text included. Keeping a constrained type parameter, because no constraint narrower than `Node` holds for what `assignedNodes()` returns.
+- **What changes for callers:** an explicit type argument no longer compiles. No caller in the repository passes one. Core's `useSlot` test writes `SlotControllerUpdateCallback<Node>`, which becomes `SlotControllerUpdateCallback`. The emitted JavaScript doesn't change, so no size row moves.
+- **Size:** _small_. One core module, its test's type, and core's typecheck with material-x's after core is rebuilt.
+
+**Dated 2026-11-22 by the implementer: implemented on `core/use-slot-nodes-1`, as decided, and not closed.** Requested by the coordinator for #119. `useSlot` and `SlotControllerUpdateCallback` take no type parameter, the callback's `nodes` is `readonly Node[]`, and the assertion and its lint suppression are gone. The doc comments lose their `@typeParam` lines. Core's `useSlot` browser test writes `SlotControllerUpdateCallback`. No alias is kept. Core's README names the module and shows no signature, so it doesn't change.
+
+- **Row:** `packages/core/tests/controllers/useSlot.declaration.test.ts`, in the `declaration/core` project. It asserts that the callback type's `nodes` is `readonly Node[]`, that an inline callback infers it, and that a type argument is an error on `useSlot` and on `SlotControllerUpdateCallback`. Before the change three of its four rows fail: the callback type needs a type argument, and both `@ts-expect-error` directives are unused. The inline-callback row passes on both sides, because the old default was `Node`. After the change all four pass ([before](use-slot-nodes-1/checks/declaration-before-change.txt), [after](use-slot-nodes-1/checks/declaration-after-change.txt)).
+- **Typecheck:** core, then material-x after core is rebuilt, and the root `typecheck-declarations`, all with no error. Core's browser and declaration projects pass in Chromium, Firefox and WebKit (683 rows).
+- **Built output:** core's `controllers/useSlot.js` differs from the build before the change only by the deleted `@typeParam` comment line, which the build keeps from the JSDoc. The code is the same. `useSlot.d.ts` and the source map differ as the signature does, and no other built file of core differs ([diff](use-slot-nodes-1/checks/built-output.txt)). A size row reads minified bundles, which hold no comments, so the decision's _no size row moves_ is reasoned from that and not measured.
+
+**Dated 2026-11-22 by the implementer,** for `reviewer-1` of the [feature proof](reviews/use-slot-nodes-1/feature-proof-claude.md) at `e3fce2b4e`, relayed by the coordinator. The two type-argument rows passed `HTMLElement`, so a type parameter that `HTMLElement` doesn't satisfy, such as `<T extends Text = Text>`, turned the line's error into a constraint error that `@ts-expect-error` absorbed. Both rows now pass `never`, which satisfies any constraint: a one-parameter mutation of either declaration leaves the directive unused, and the row fails. Each of `useSlot<T extends Text = Text>`, `useSlot<T extends Node = Node>`, `SlotControllerUpdateCallback<T extends Text = Text>` and `SlotControllerUpdateCallback<T extends Node = Node>` fails its row, and the head passes all four ([mutations](use-slot-nodes-1/checks/type-argument-mutations.txt)). **Not caught:** two or more type parameters without defaults, because one argument is then an arity error, which the directive absorbs.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
