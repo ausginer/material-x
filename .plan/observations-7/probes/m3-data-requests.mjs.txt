@@ -1,0 +1,10 @@
+import { createRequire } from 'node:module';
+const { chromium } = createRequire('/workspaces/material-x/package.json')('playwright');
+const b = await chromium.launch(); const p = await b.newPage();
+const reqs = []; p.on('request', (r) => { if (/dsdb|token|_dsm|design-?system/i.test(r.url())) reqs.push(r.url()); });
+await p.goto('https://m3.material.io/get-started', { waitUntil: 'networkidle' }); await p.waitForTimeout(3000);
+console.log(await p.evaluate(() => { const r=[]; const w=(n)=>{ if(n.nodeType===1&&/All Material 3 content/.test(n.textContent)&&n.textContent.length<700) r.push(n.outerHTML.slice(0,1500)); if(n.shadowRoot)w(n.shadowRoot); for(const c of n.childNodes)w(c)}; w(document.body); return r.at(-1); }));
+await p.goto('https://m3.material.io/components/buttons/specs', { waitUntil: 'networkidle' }); await p.waitForTimeout(5000);
+console.log(reqs.slice(0,10).join('\n'));
+const t = await p.evaluate(() => { const o=[]; const w=(n)=>{ if(n.nodeType===3&&/license|copyright|©/i.test(n.textContent)) o.push(n.textContent.trim().slice(0,300)); if(n.nodeName==='SCRIPT')return; if(n.shadowRoot)w(n.shadowRoot); for(const c of n.childNodes)w(c)}; w(document.body); return o; }); console.log(t);
+await b.close();
