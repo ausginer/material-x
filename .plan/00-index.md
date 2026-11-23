@@ -4465,6 +4465,12 @@ Tier C, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23
 - **Ready** for an implementer, after `RF-109`.
 - **Size:** _small_.
 
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, as its own commit after `RF-109`'s, for #181, and not closed.** `timing` is `useCSSProps(this, CSS_PROPS)`, with no wrapper. `onStart`'s read of `--_level` is unchanged.
+
+- **Rows** ([readings](css-props-1/checks/rows.txt)), two, in `tests/list/sortable-list.browser.test.ts`: a later landing in a connection keeps the first one's duration, which fails before the change in the three engines; and a list that connects in a hidden iframe sorts once it is shown. The second passes before the change too, as this entry says, and with this change on the old hook it fails in Firefox only. After both repairs, material-x's browser and spec projects pass in the three engines.
+- **Sizes,** Brotli ([reading](css-props-1/checks/size.txt)): `list/sortable-list` 8,701 → 8,772 B (+71), because its graph now contains the hook, and `complete` 22,733 → 22,653 B (−80). No other row differs from `RF-109`'s reading.
+- **Not checked:** Safari.
+
 #### RF-106 — `useCSSProps` declares its parsed values as strings
 
 Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator: _"И про врущий тип тоже"_ ("And about the lying type too"). `RF-105` is the entry before this one, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt)).
@@ -4475,6 +4481,8 @@ Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-2
 - **The unit:** `RF-109`'s, in the hook's commit, because `RF-109` rewrites the same local.
 - **Ready** for an implementer.
 - **Size:** _small_.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in `RF-109`'s commit, for #182, and not closed.** The local is `Partial<Record<keyof T, unknown>> | null`. core and material-x typecheck.
 
 #### RF-107 — material-x animates motion under `prefers-reduced-motion: reduce`
 
@@ -4545,6 +4553,11 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **The unit:** this one, with `RF-106` in the same commit, because both rewrite the hook's local, and then `RF-105` as its own commit. `RF-103`'s unit doesn't wait for it. It edits `sortable-list.ts` in other places.
 - **Ready** for an implementer.
 - **Size:** _medium_: core's hook and its rows, and rows in material-x, in its own branch and pull request, with nothing to decide first.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, with `RF-106`, for #185 and #182, and not closed.** From `main` at `35ea25892`, requested by the coordinator. `useCSSProps`' connect callback only discards, and the returned function reads at its first call.
+
+- **Rows** ([readings](css-props-1/checks/rows.txt)): in core, nine replace the row that expected the throw from `connectedCallback()`. Six of them fail before the repair in each engine, and all pass after it. The three that pass before are later calls, a change within a connection, and the values after a disconnect, which the old hook had too. In material-x, `tests/core/animations/ripple.browser.test.ts` presses the five adopters after their iframe is shown: the five fail in Firefox before the repair, with the `CSSVariableError`, and pass in the three engines after it.
+- **Sizes,** Brotli ([reading](css-props-1/checks/size.txt)): the rows that contain the hook move by −4 to +52 B (`text-field/text-field` 8,486 → 8,538 B), and `complete` goes 22,724 → 22,733 B. core's two rows don't move, and neither contains the hook.
 
 #### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
 
