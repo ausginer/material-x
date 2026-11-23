@@ -1,0 +1,28 @@
+# mx-sortable-list's announcement after a keyboard move, and the document overflow of the real element.
+# Read by the architect on 2026-11-23 at fa056ff71, with ../probes/announcement-and-overflow.browser.test.ts.txt
+# in packages/material-x/tests/list/. Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2 (Playwright's) read the same.
+# The list is A B C D, and ArrowDown on A proposes to: 1. Each reading: the final order, then the region's text.
+#   MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' tests/list/<probe>
+never commits                                 ABCD  "Item 2 of 4."   A is item 1
+commits at the proposed slot                  BACD  "Item 2 of 4."   A is item 2
+commits at the end, at once                   BCDA  "Item 2 of 4."   A is item 4
+commits at the end, after 100 ms              BCDA  "Item 2 of 4."   A is item 4
+commits at the proposed slot, after 800 ms    BACD  "Item 2 of 4."   A is item 2 at 800 ms; the region spoke before that (by reading: the 500 ms bound)
+# Document scrollHeight against clientHeight, with the list after 3000 px in an unpositioned 200 px scroll container.
+# 768 is the harness's own page, and mx-list adds nothing to it.
+mx-list            768   720
+mx-sortable-list  3025   720
+
+# ../probes/uncommitted-move.browser.test.ts.txt, Chromium, at fa056ff71:
+[["A","B","C"],[1],"Item 2 of 3."]
+
+# ../probes/scroll-overflow.ts.txt, at fa056ff71: [document scrollHeight, scroll container's scrollHeight], viewport 600 px high.
+# The same inline styles on a minimal element, not on mx-sortable-list.
+chromium absolute [ 3001, 3018 ]
+chromium fixed    [ 600, 3018 ]
+firefox  absolute [ 3001, 3021 ]
+firefox  fixed    [ 600, 3021 ]
+webkit   absolute [ 3001, 3021 ]
+webkit   fixed    [ 600, 3021 ]
+
+# 'ariaNotify' in Element.prototype: Chromium true, Firefox true, WebKit false.

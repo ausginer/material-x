@@ -1,0 +1,74 @@
+// Place in packages/material-x/tests/list/ as *.browser.test.ts.
+import { expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/sortable-list.ts';
+import type { ReorderEvent } from '../../src/list/sortable-list.ts';
+
+const wait = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+async function move(commit?: (event: ReorderEvent, list: HTMLElement) => void) {
+  const list = document.createElement('mx-sortable-list');
+  const items = ['A', 'B', 'C', 'D'].map((text) => {
+    const item = document.createElement('mx-list-item');
+    item.textContent = text;
+    return item;
+  });
+  list.append(...items);
+  document.body.append(list);
+  list.addEventListener('reorder', (event) => commit?.(event, list));
+  await wait(100);
+  items[0]!.focus();
+  await userEvent.keyboard('{ArrowDown}');
+  await wait(1500);
+  const read = [
+    [...list.children].map((child) => child.textContent).join(''),
+    list.shadowRoot!.querySelector('[aria-live]')!.textContent,
+  ];
+  list.remove();
+  return read;
+}
+
+it('probe: announcements', async () => {
+  const readings = {
+    'never commits': await move(),
+    'commits at the proposed slot': await move((event, list) =>
+      list.insertBefore(event.item, event.next),
+    ),
+    'commits at the end, at once': await move((event, list) =>
+      list.append(event.item),
+    ),
+    'commits at the end, after 100 ms': await move((event, list) =>
+      setTimeout(() => list.append(event.item), 100),
+    ),
+    'commits at the proposed slot, after 800 ms': await move((event, list) =>
+      setTimeout(() => list.insertBefore(event.item, event.next), 800),
+    ),
+  };
+  expect(JSON.stringify(readings, null, 1)).toBe('');
+});
+
+it('probe: overflow of the real element', () => {
+  const readings: Record<string, unknown> = {};
+  for (const tag of ['mx-list', 'mx-sortable-list'] as const) {
+    const scroller = document.createElement('div');
+    scroller.style.cssText = 'height:200px;overflow:auto';
+    const pad = document.createElement('div');
+    pad.style.height = '3000px';
+    const list = document.createElement(tag);
+    const item = document.createElement('mx-list-item');
+    item.textContent = 'A';
+    list.append(item);
+    scroller.append(pad, list);
+    document.body.append(scroller);
+    readings[tag] = [
+      document.documentElement.scrollHeight,
+      document.documentElement.clientHeight,
+    ];
+    scroller.remove();
+  }
+  expect(JSON.stringify(readings)).toBe('');
+});

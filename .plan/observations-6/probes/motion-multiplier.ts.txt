@@ -1,0 +1,43 @@
+// Run from packages/material-x, where `playwright` resolves.
+import { chromium, firefox, webkit } from 'playwright';
+
+const page = `<!doctype html><script>
+CSS.registerProperty({ name: '--level', syntax: '<number>', inherits: true, initialValue: '0' });
+customElements.define('x-a', class extends HTMLElement {
+  constructor() {
+    super();
+    const root = this.attachShadow({ mode: 'open' });
+    const shared = new CSSStyleSheet();
+    shared.replaceSync('@media (prefers-reduced-motion: reduce) { :host { --_motion: 0 } }');
+    const own = new CSSStyleSheet();
+    own.replaceSync(\`:host { --level: 0; transition: --level calc(var(--d, .65s) * var(--_motion, 1)) ease }
+      :host(.lift) { --level: 8; transition: --level calc(var(--d, .65s) * var(--_motion, 1)) ease !important }
+      .b { border-radius: 0; color: red; transition: border-radius calc(var(--d, .35s) * var(--_motion, 1)) ease, color var(--d, .35s) ease }\`);
+    root.adoptedStyleSheets = [shared, own];
+    root.innerHTML = '<div class=b>b</div>';
+  }
+});
+</script><x-a></x-a><x-a id=o style="--d:1s"></x-a>`;
+
+for (const engine of [chromium, firefox, webkit]) {
+  const browser = await engine.launch();
+  const tab = await browser.newPage();
+  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    await tab.emulateMedia({ reducedMotion });
+    await tab.setContent(page);
+    console.log(engine.name(), browser.version(), reducedMotion, JSON.stringify(await tab.evaluate(async () => {
+      const read = async (host: HTMLElement) => {
+        const box = host.shadowRoot!.querySelector<HTMLElement>('.b')!;
+        const style = getComputedStyle(box);
+        const computed = `${style.transitionProperty} ${style.transitionDuration}`;
+        box.getBoundingClientRect();
+        box.style.borderRadius = '20px'; box.style.color = 'blue';
+        host.classList.add('lift');
+        await new Promise((resolve) => setTimeout(resolve, 60));
+        return [computed, [...host.getAnimations(), ...box.getAnimations()].map((a) => `${(a as CSSTransition).transitionProperty} ${a.effect!.getTiming().duration}`)];
+      };
+      return [await read(document.querySelector('x-a')!), await read(document.querySelector('#o')!)];
+    })));
+  }
+  await browser.close();
+}

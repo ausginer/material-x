@@ -1,0 +1,19 @@
+# RF-109 and RF-105, read by the architect on 2026-11-23 at 0c0e8527e, in Playwright's Chromium 158.0.8127.18,
+# Firefox 159.0 and WebKit 27.2. The trial edit isn't committed: useCSSProps clears its result on connect and reads at the
+# first call, and sortable-list.ts passes useCSSProps's result as timing (RF-105's edit).
+
+# ../probes/hidden-iframe-ripple.browser.test.ts.txt: an element connects in an iframe, which is shown before the press.
+# The number of the ripple's animations after the press, the clicks, and the iframe's errors.
+                          mx-button, mx-fab, mx-checkbox, mx-radio, mx-list-button-item
+before, display: block    ripple 2, clicks 1, no error, in the three engines
+before, display: none     Chromium, WebKit: ripple 2, clicks 1, no error
+                          Firefox: ripple 0, clicks 1, CSSVariableError: Invalid value for --_ripple-duration, on each of the five
+trial, both               ripple 2, clicks 1, no error, in the three engines
+
+# ../probes/hidden-iframe.browser.test.ts.txt, with the trial edit: 1 reorder event and no error in the three engines,
+# for display: block and for display: none. (Before RF-105, the list alone reads 1 too: see landing-timing.txt.)
+
+# Typecheck with the trial edit: packages/core and packages/material-x pass.
+# material-x's browser and spec projects with the trial edit, three engines: 81 files, 2658 passed, 7 expected failures, 20 skipped.
+# core's tests/controllers/useCSSProps, with the trial edit, three engines: 15 passed, 3 failed. The failing row in each engine is
+# "should surface CSSVariableError for invalid parsed values", which expects the throw from connectedCallback().

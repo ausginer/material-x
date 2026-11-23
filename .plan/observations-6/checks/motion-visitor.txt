@@ -1,0 +1,25 @@
+# Readings for RF-107's mechanism and for RF-108. Read by the architect on 2026-11-23 at 3410bba45, in Playwright's
+# Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2.
+
+# ../probes/motion-multiplier.ts.txt: a shared sheet with @media (prefers-reduced-motion: reduce) { :host { --_motion: 0 } },
+# and calc(<duration> * var(--_motion, 1)) as each motion transition's duration. The same in the three engines:
+no-preference  border-radius, color   0.35s, 0.35s    --level 650, border-radius 350, color 350 start
+reduce         border-radius, color   0s, 0.35s       only color 350 starts
+no-preference, --d: 1s on the host    1s, 1s          --level 1000, border-radius 1000, color 1000 start
+reduce, --d: 1s on the host           0s, 1s          only color 1000 starts
+# The host's own --level transition, with a second rule that is !important, is instant under reduce too.
+
+# lightningcss 1.33.0's Declaration visitor: a transition that holds a var() arrives as "unparsed", with the propertyId and a
+# token list whose first identifier is the property. One without var() arrives parsed. transition-property is parsed.
+
+# transition and animation declarations in material-x's CSS: 24 in 20 rules outside @keyframes, and 2 inside, at 23b245efb and at HEAD.
+# No animation is infinite.
+
+# ../probes/fab-transition-all.browser.test.ts.txt: mx-fab, and mx-fab extended="open", against each other.
+                               mx-fab          mx-fab extended="open"
+computed transition of .host   all 0s          all 0.35s
+on hover, on .host             none            box-shadow 350 (WebKit also --_level 350)
+host's --_level at 500 ms      8               8
+box-shadow settled by 660 ms   yes             no in Chromium and WebKit, yes in Firefox
+on keyboard focus              none            outline-color 350, outline-offset 350
+--md-fab-container-height set  none            padding-top 350, padding-bottom 350

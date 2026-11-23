@@ -1,0 +1,32 @@
+// Place in packages/material-x/tests/ as *.browser.test.ts.
+import { expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
+
+// Each ripple adopter connects in an iframe, which is shown before the press.
+it.each(['block', 'none'])('probe: iframe display %s', async (display) => {
+  const out: Record<string, unknown> = {};
+  for (const [tag, path] of [['mx-button', 'button/button.ts'], ['mx-fab', 'fab/fab.ts'], ['mx-checkbox', 'checkbox/checkbox.ts'], ['mx-radio', 'radio/radio.ts'], ['mx-list-button-item', 'list/list-button-item.ts']] as const) {
+    const frame = document.createElement('iframe');
+    frame.style.cssText = `display:${display};width:400px;height:200px`;
+    const url = import.meta.url.replace(/tests\/.*$/u, `src/${path}`);
+    frame.srcdoc = `<script>window.errors = []; addEventListener('error', (e) => errors.push(e.message));</script>
+<${tag}>A</${tag}><script type="module">await import(${JSON.stringify(url)}); document.body.dataset.ready = '';</script>`;
+    document.body.append(frame);
+    await expect.poll(() => frame.contentDocument?.body?.dataset['ready'], { timeout: 10_000 }).toBe('');
+    frame.style.display = 'block';
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const host = frame.contentDocument!.querySelector<HTMLElement>(tag)!;
+    let clicks = 0;
+    host.addEventListener('click', () => { clicks += 1; });
+    const outer = frame.getBoundingClientRect();
+    const inner = host.shadowRoot!.querySelector('.host, input, .control')!.getBoundingClientRect();
+    await commands.pointerPress(outer.left + frame.clientLeft + inner.left + inner.width / 2, outer.top + frame.clientTop + inner.top + inner.height / 2);
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    const ripple = host.shadowRoot!.getAnimations().filter((a) => !('transitionProperty' in a) && !('animationName' in a)).length;
+    await commands.pointerRelease();
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    out[tag] = { ripple, clicks, errors: (frame.contentWindow as unknown as { errors: string[] }).errors };
+    frame.remove();
+  }
+  expect(JSON.stringify({ display, ...out })).toBe('');
+});

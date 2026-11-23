@@ -1,0 +1,35 @@
+// Place in packages/material-x/tests/list/ as *.browser.test.ts.
+import { expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+
+// A list that connects in a display: none iframe, which is shown before the key press.
+it.each(['block', 'none'])('probe: iframe display %s', async (display) => {
+  const frame = document.createElement('iframe');
+  frame.style.display = display;
+  const urls = ['list-item.ts', 'sortable-list.ts'].map(
+    (name) => new URL(`../../src/list/${name}`, import.meta.url).href,
+  );
+  frame.srcdoc = `<script>window.errors = []; addEventListener('error', (e) => errors.push(e.message));</script>
+<mx-sortable-list><mx-list-item>A</mx-list-item><mx-list-item>B</mx-list-item></mx-sortable-list>
+<script type="module">
+for (const url of ${JSON.stringify(urls)}) await import(url);
+document.body.dataset.ready = '';
+</script>`;
+  document.body.append(frame);
+  await expect
+    .poll(() => frame.contentDocument?.body?.dataset['ready'], { timeout: 10_000 })
+    .toBe('');
+  frame.style.display = 'block';
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const list = frame.contentDocument!.querySelector('mx-sortable-list')!;
+  let moves = 0;
+  list.addEventListener('reorder', () => {
+    moves += 1;
+  });
+  (list.firstElementChild as HTMLElement).focus();
+  await userEvent.keyboard('{ArrowDown}');
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const { errors } = frame.contentWindow as unknown as { errors: string[] };
+  frame.remove();
+  expect(JSON.stringify({ display, moves, errors })).toBe('');
+});
