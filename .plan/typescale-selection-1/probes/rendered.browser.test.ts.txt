@@ -1,0 +1,48 @@
+import roboto400 from '@fontsource/roboto/files/roboto-latin-400-normal.woff2?url';
+import { it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../src/button/button.ts';
+import '../src/button/icon-button.ts';
+import '../src/button/split-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/fab/fab.ts';
+import '../src/list/list.ts';
+import '../src/list/list-item.ts';
+import '../src/text-field/text-field.ts';
+
+const T = 'Hamburgefonstiv';
+const cases: Record<string, string> = {
+  ...Object.fromEntries(['xsmall', '', 'medium', 'large', 'xlarge'].map((s) => [`button ${s || 'small'}`, `<mx-button${s ? ` size="${s}"` : ''}><span>${T}</span></mx-button>`])),
+  'switch-button': `<mx-switch-button><span>${T}</span></mx-switch-button>`,
+  'button text': `<mx-button color="text"><span>${T}</span></mx-button>`,
+  ...Object.fromEntries(['', 'medium', 'large'].map((s) => [`fab extended ${s || 'small'}`, `<mx-fab extended="open"${s ? ` size="${s}"` : ''}><span>${T}</span></mx-fab>`])),
+  'list label': `<mx-list><mx-list-item><span>${T}</span></mx-list-item></mx-list>`,
+  'list overline': `<mx-list><mx-list-item><span slot="overline">${T}</span>x</mx-list-item></mx-list>`,
+  'list support': `<mx-list><mx-list-item><span slot="support">${T}</span>x</mx-list-item></mx-list>`,
+  'list trail': `<mx-list><mx-list-item><span slot="trail">${T}</span>x</mx-list-item></mx-list>`,
+  'list lead avatar-label': `<mx-list><mx-list-item><span slot="lead" data-avatar>${T}</span>x</mx-list-item></mx-list>`,
+  'text-field label': `<mx-text-field><span slot="label">${T}</span></mx-text-field>`,
+  'text-field support': `<mx-text-field><span slot="support">${T}</span></mx-text-field>`,
+  'text-field prefix': `<mx-text-field><span slot="prefix">${T}</span></mx-text-field>`,
+};
+
+it('reads the rendered typography', async () => {
+  document.fonts.add(await new FontFace('Roboto', `url(${roboto400})`, { weight: '400' }).load());
+  const out: string[] = [];
+  for (const theme of [true, false]) {
+    if (!theme) document.head.querySelector('[data-mx-test]')!.textContent = '';
+    for (const [name, html] of Object.entries(cases)) {
+      const box = document.createElement('div');
+      box.innerHTML = html;
+      document.body.append(box);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const span = box.querySelector('span')!;
+      const s = getComputedStyle(span);
+      const r = document.createRange();
+      r.selectNodeContents(span);
+      out.push(`${theme ? 'theme' : 'plain'} | ${name} | ${s.fontFamily} | ${s.fontWeight} | ${s.letterSpacing} | ${s.fontSize}/${s.lineHeight} | axes ${s.fontVariationSettings} | width ${r.getBoundingClientRect().width.toFixed(2)}`);
+      box.remove();
+    }
+  }
+  await commands.writeFile(`./zz-probe-${server.browser}.txt`, out.join('\n') + '\n');
+});

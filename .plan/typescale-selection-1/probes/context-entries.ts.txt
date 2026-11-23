@@ -1,0 +1,20 @@
+const R=process.env.TP ?? '/workspaces/worktrees/d/packages/tproc/';
+const {default:store}=await import(R+'src/store/index.ts');
+const defaults:any=Object.fromEntries(store.tagGroups.map((g:any)=>[g.contextTagGroupName,g.defaultTag]));
+const mk=(o:any)=>({...defaults,platform:'web',audience:'3p','motion.scheme':'expressive',...o});
+export const CTX:any={static:mk({}),variable:mk({font:'variable'}),standard:mk({'motion.scheme':'standard'}),desktop:mk({device:'desktop'}),fp:mk({audience:'1p.baseline'})};
+export const match=(t:any,c:any)=>(t.contextualReferenceTree??[]).filter((e:any)=>Object.entries(e.contextTags??{}).every(([k,v])=>c[k]===v));
+let n=0,tree=0;
+for(const [name,c] of Object.entries(CTX)){const h:any={};const zero:string[]=[],many:string[]=[];
+ for(const t of store.tokens){const m=match(t,c); if(!t.contextualReferenceTree){h.notree=(h.notree??0)+1;continue;} h[m.length]=(h[m.length]??0)+1; if(m.length===0)zero.push(t.tokenName); if(m.length>1)many.push(t.tokenName);}
+ console.log(name,JSON.stringify(c),h,'zero',zero.slice(0,20),'many',many.slice(0,20));}
+// groups present
+const g:any={};for(const t of store.tokens)for(const e of t.contextualReferenceTree??[]){const k=Object.keys(e.contextTags??{}).sort().join('+');g[k]=(g[k]??new Set()).add(t.tokenName)}
+for(const k in g)console.log(k||'(none)',g[k].size);
+// cascade on values vs tree.value
+let dis:string[]=[];let cascN=0;
+for(const t of store.tokens){const c=CTX.static;const vs=t.values.map((v:any,i:number)=>({v,i})).filter(({v}:any)=>Object.entries(v.contextTags??{}).every(([k,x])=>c[k]===x)).sort((a:any,b:any)=>Number(b.v.specificityScore??0)-Number(a.v.specificityScore??0));
+ const m=match(t,c); if(m.length===1){cascN++; if(!vs.length||vs[0].i!==m[0].value)dis.push(t.tokenName)} }
+console.log('cascade compared',cascN,'disagree',dis.length,dis.slice(0,20));
+// consistency of no-tree tokens
+const nt=[...store.tokens].filter((t:any)=>!t.contextualReferenceTree);console.log('no tree',nt.length,nt.filter((t:any)=>t.values.length>1).map((t:any)=>t.tokenName).slice(0,30));

@@ -1,0 +1,627 @@
+Readings for repo:RF-110, by the architect on 2026-11-23 in slot d, at origin/main 246b64754.
+Store release 2026-11-19_06-20-01. No tracked source was changed: the rule was replaced in the git-ignored build packages/tproc/store/Store.js and put back.
+Contexts: every group at its default tag, with platform web, audience 3p, motion.scheme expressive; 'static' has font static, 'variable' has font variable.
+Published: material-web main a0bab1d94 tokens/versions/v0_192; androidx ac364f3c7 TypeScaleTokens.kt (VERSION v0_103).
+
+== context-entries.ts: matching entries per token with a tree; upstream's value cascade against the tree's value
+static {"motion.scheme":"expressive","platform":"web","font":"static","theme":"light","audience":"3p","device":"mobile","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 3962, notree: 18 } zero [] many []
+variable {"motion.scheme":"expressive","platform":"web","font":"variable","theme":"light","audience":"3p","device":"mobile","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 3962, notree: 18 } zero [] many []
+standard {"motion.scheme":"standard","platform":"web","font":"static","theme":"light","audience":"3p","device":"mobile","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 3962, notree: 18 } zero [] many []
+desktop {"motion.scheme":"expressive","platform":"web","font":"static","theme":"light","audience":"3p","device":"desktop","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 3962, notree: 18 } zero [] many []
+fp {"motion.scheme":"expressive","platform":"web","font":"static","theme":"light","audience":"1p.baseline","device":"mobile","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 3962, notree: 18 } zero [] many []
+audience 145
+(none) 1847
+audience+contrast+ios.dark.theme.elevation+platform+theme 1355
+audience+contrast+platform 1355
+contrast+platform+theme 1355
+audience+contrast+platform+theme 1355
+audience+platform+theme 116
+motion.scheme+platform 53
+platform 143
+ios.weight.setting+platform 112
+audience+ios.weight.setting+platform 30
+audience+platform 30
+language.height 15
+audience+font 118
+audience+font+platform 131
+audience+font+ios.weight.setting+platform 77
+font 138
+font+ios.weight.setting+platform 25
+font+platform 25
+cascade compared 3962 disagree 0 []
+no tree 18 []
+
+== the same on #188's store (worktree at 29bb6d088)
+static {"motion.scheme":"expressive","platform":"web","font":"static","theme":"light","audience":"3p","device":"mobile","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 4286, notree: 18 } zero [] many []
+variable {"motion.scheme":"expressive","platform":"web","font":"variable","theme":"light","audience":"3p","device":"mobile","contrast":"default","language.height":"small","ios.dark.theme.elevation":"none","ios.weight.setting":"default"} { '1': 4286, notree: 18 } zero [] many []
+cascade compared 4286 disagree 0 []
+
+== selection-diff.ts: one-hop values that change, static (lines cut at 260)
+===== static one-hop changes (no md.sys.color) 97 resolvedValue changes of selected entry 1558
+md.sys.motion 12
+    md.sys.motion.spring.slow.effects.damping  null  "1"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.slow.effects.stiffness  null  "800"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.slow.spatial.damping  null  "0.8"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.slow.spatial.stiffness  null  "200"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.default.effects.damping  null  "1"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.default.effects.stiffness  null  "1600"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.default.spatial.damping  null  "0.8"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.default.spatial.stiffness  null  "380"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.fast.spatial.damping  null  "0.6"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.fast.spatial.stiffness  null  "800"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.fast.effects.damping  null  "1"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+    md.sys.motion.spring.fast.effects.stiffness  null  "3800"  {"motion.scheme":"expressive","platform":"ios"}  {"motion.scheme":"expressive","platform":"web"}
+md.ref.typeface 17
+    md.ref.typeface.body-small.line-height  "30px"  "16px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.body-medium.line-height  "35px"  "20px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.body-large.line-height  "41px"  "24px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.label-small.line-height  "29px"  "16px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.label-medium.line-height  "30px"  "16px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.label-large.line-height  "36px"  "20px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.title-small.line-height  "36px"  "20px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.title-medium.line-height  "42px"  "24px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.title-large.line-height  "53px"  "28px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.headline-small.line-height  "59px"  "32px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.headline-medium.line-height  "66px"  "36px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.headline-large.line-height  "75px"  "40px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.display-small.line-height  "80px"  "44px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.display-medium.line-height  "99px"  "52px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.display-large.line-height  "120px"  "64px"  {"language.height":"extra.large"}  {"language.height":"small"}
+    md.ref.typeface.brand  "\"Roboto Flex\""  "\"Roboto\""  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.ref.typeface.plain  "\"Google Sans Text\""  "\"Roboto\""  {"audience":"1p.baseline","font":"static","platform":"web"}  {"audience":"3p","font":"static"}
+md.sys.typescale.emphasized 25
+    md.sys.typescale.emphasized.display-small  {"font-name":"md.sys.typescale.emphasized.display-small.font","font-weight":"md.sys.typescale.emphasized.display-small.weight","font-size":"md.sys.typescale.emphasized.display-small.size","font-tracking":"md.sys.t
+    md.sys.typescale.emphasized.headline-large  {"font-name":"md.sys.typescale.emphasized.headline-large.font","font-weight":"md.sys.typescale.emphasized.headline-large.weight","font-size":"md.sys.typescale.emphasized.headline-large.size","font-tracking":"md.s
+    md.sys.typescale.emphasized.headline-medium  {"font-name":"md.sys.typescale.emphasized.headline-medium.font","font-weight":"md.sys.typescale.emphasized.headline-medium.weight","font-size":"md.sys.typescale.emphasized.headline-medium.size","font-tracking":"
+    md.sys.typescale.emphasized.headline-medium.rond  "100"  "0"  {"font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.title-large  {"font-name":"md.sys.typescale.emphasized.title-large.font","font-weight":"md.sys.typescale.emphasized.title-large.weight","font-size":"md.sys.typescale.emphasized.title-large.size","font-tracking":"md.sys.typescale
+    md.sys.typescale.emphasized.title-medium  {"font-name":"md.sys.typescale.emphasized.title-medium.font","font-weight":"md.sys.typescale.emphasized.title-medium.weight","font-size":"md.sys.typescale.emphasized.title-medium.size","font-tracking":"md.sys.types
+    md.sys.typescale.emphasized.title-medium.tracking  "0px"  "0.15px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.title-small  {"font-name":"md.sys.typescale.emphasized.title-small.font","font-weight":"md.sys.typescale.emphasized.title-small.weight","font-size":"md.sys.typescale.emphasized.title-small.size","font-tracking":"md.sys.typescale
+    md.sys.typescale.emphasized.title-small.tracking  "0px"  "0.1px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.body-large  {"font-name":"md.sys.typescale.emphasized.body-large.font","font-weight":"md.sys.typescale.emphasized.body-large.weight","font-size":"md.sys.typescale.emphasized.body-large.size","font-tracking":"md.sys.typescale.emp
+    md.sys.typescale.emphasized.body-large.tracking  "0px"  "0.5px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.body-medium  {"font-name":"md.sys.typescale.emphasized.body-medium.font","font-weight":"md.sys.typescale.emphasized.body-medium.weight","font-size":"md.sys.typescale.emphasized.body-medium.size","font-tracking":"md.sys.typescale
+    md.sys.typescale.emphasized.body-medium.tracking  "0px"  "0.25px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.label-large  {"font-name":"md.sys.typescale.emphasized.label-large.font","font-weight":"md.sys.typescale.emphasized.label-large.weight","font-size":"md.sys.typescale.emphasized.label-large.size","font-tracking":"md.sys.typescale
+    md.sys.typescale.emphasized.label-large.tracking  "0px"  "0.1px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.body-small  {"font-name":"md.sys.typescale.emphasized.body-small.font","font-weight":"md.sys.typescale.emphasized.body-small.weight","font-size":"md.sys.typescale.emphasized.body-small.size","font-tracking":"md.sys.typescale.emp
+    md.sys.typescale.emphasized.body-small.tracking  "0px"  "0.4px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.label-medium  {"font-name":"md.sys.typescale.emphasized.label-medium.font","font-weight":"md.sys.typescale.emphasized.label-medium.weight","font-size":"md.sys.typescale.emphasized.label-medium.size","font-tracking":"md.sys.types
+    md.sys.typescale.emphasized.label-medium.tracking  "0px"  "0.5px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.label-small  {"font-name":"md.sys.typescale.emphasized.label-small.font","font-weight":"md.sys.typescale.emphasized.label-small.weight","font-size":"md.sys.typescale.emphasized.label-small.size","font-tracking":"md.sys.typescale
+    md.sys.typescale.emphasized.label-small.tracking  "0px"  "0.5px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.display-large  {"font-name":"md.sys.typescale.emphasized.display-large.font","font-weight":"md.sys.typescale.emphasized.display-large.weight","font-size":"md.sys.typescale.emphasized.display-large.size","font-tracking":"md.sys.t
+    md.sys.typescale.emphasized.display-large.tracking  "0px"  "-0.25px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.emphasized.display-medium  {"font-name":"md.sys.typescale.emphasized.display-medium.font","font-weight":"md.sys.typescale.emphasized.display-medium.weight","font-size":"md.sys.typescale.emphasized.display-medium.size","font-tracking":"md.s
+    md.sys.typescale.emphasized.headline-small  {"font-name":"md.sys.typescale.emphasized.headline-small.font","font-weight":"md.sys.typescale.emphasized.headline-small.weight","font-size":"md.sys.typescale.emphasized.headline-small.size","font-tracking":"md.s
+md.sys.typescale 43
+    md.sys.typescale.display-large  {"font-name":"md.sys.typescale.display-large.font","font-weight":"md.sys.typescale.display-large.weight","font-size":"md.sys.typescale.display-large.size","font-tracking":"md.sys.typescale.display-large.tracking","line-heigh
+    md.sys.typescale.display-large.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.display-large.tracking  "0px"  "-0.25px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.display-large.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.display-medium  {"font-name":"md.sys.typescale.display-medium.font","font-weight":"md.sys.typescale.display-medium.weight","font-size":"md.sys.typescale.display-medium.size","font-tracking":"md.sys.typescale.display-medium.tracking","line-
+    md.sys.typescale.display-medium.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.display-medium.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.display-small  {"font-name":"md.sys.typescale.display-small.font","font-weight":"md.sys.typescale.display-small.weight","font-size":"md.sys.typescale.display-small.size","font-tracking":"md.sys.typescale.display-small.tracking","line-heigh
+    md.sys.typescale.display-small.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.display-small.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.headline-large  {"font-name":"md.sys.typescale.headline-large.font","font-weight":"md.sys.typescale.headline-large.weight","font-size":"md.sys.typescale.headline-large.size","font-tracking":"md.sys.typescale.headline-large.tracking","line-
+    md.sys.typescale.headline-large.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.headline-large.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.headline-medium  {"font-name":"md.sys.typescale.headline-medium.font","font-weight":"md.sys.typescale.headline-medium.weight","font-size":"md.sys.typescale.headline-medium.size","font-tracking":"md.sys.typescale.headline-medium.tracking","
+    md.sys.typescale.headline-medium.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.headline-medium.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.headline-small  {"font-name":"md.sys.typescale.headline-small.font","font-weight":"md.sys.typescale.headline-small.weight","font-size":"md.sys.typescale.headline-small.size","font-tracking":"md.sys.typescale.headline-small.tracking","line-
+    md.sys.typescale.headline-small.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.headline-small.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.title-medium  {"font-name":"md.sys.typescale.title-medium.font","font-weight":"md.sys.typescale.title-medium.weight","font-size":"md.sys.typescale.title-medium.size","font-tracking":"md.sys.typescale.title-medium.tracking","line-height":"m
+    md.sys.typescale.title-medium.weight  "md.ref.typeface.weight-bold"  "md.ref.typeface.weight-medium"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.title-medium.tracking  "0px"  "0.15px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.title-small  {"font-name":"md.sys.typescale.title-small.font","font-weight":"md.sys.typescale.title-small.weight","font-size":"md.sys.typescale.title-small.size","font-tracking":"md.sys.typescale.title-small.tracking","line-height":"md.sys
+    md.sys.typescale.title-small.weight  "md.ref.typeface.weight-bold"  "md.ref.typeface.weight-medium"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.title-small.tracking  "0px"  "0.1px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.title-small.wght  "700"  "500"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.body-large  {"font-name":"md.sys.typescale.body-large.font","font-weight":"md.sys.typescale.body-large.weight","font-size":"md.sys.typescale.body-large.size","font-tracking":"md.sys.typescale.body-large.tracking","line-height":"md.sys.type
+    md.sys.typescale.body-large.tracking  "0px"  "0.5px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.body-medium  {"font-name":"md.sys.typescale.body-medium.font","font-weight":"md.sys.typescale.body-medium.weight","font-size":"md.sys.typescale.body-medium.size","font-tracking":"md.sys.typescale.body-medium.tracking","line-height":"md.sys
+    md.sys.typescale.body-medium.tracking  "0px"  "0.25px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.body-small  {"font-name":"md.sys.typescale.body-small.font","font-weight":"md.sys.typescale.body-small.weight","font-size":"md.sys.typescale.body-small.size","font-tracking":"md.sys.typescale.body-small.tracking","line-height":"md.sys.type
+    md.sys.typescale.body-small.tracking  "0px"  "0.4px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.label-large.tracking  "0px"  "0.1px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.label-large.weight  "md.ref.typeface.weight-bold"  "md.ref.typeface.weight-medium"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.label-medium  {"font-name":"md.sys.typescale.label-medium.font","font-weight":"md.sys.typescale.label-medium.weight","font-size":"md.sys.typescale.label-medium.size","font-tracking":"md.sys.typescale.label-medium.tracking","line-height":"m
+    md.sys.typescale.label-medium.tracking  "0px"  "0.5px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.label-small  {"font-name":"md.sys.typescale.label-small.font","font-weight":"md.sys.typescale.label-small.weight","font-size":"md.sys.typescale.label-small.size","font-tracking":"md.sys.typescale.label-small.tracking","line-height":"md.sys
+    md.sys.typescale.label-small.tracking  "0px"  "0.5px"  {"audience":"3p","font":"variable"}  {"audience":"3p","font":"static"}
+    md.sys.typescale.title-large  {"font-name":"md.sys.typescale.title-large.font","font-weight":"md.sys.typescale.title-large.weight","font-size":"md.sys.typescale.title-large.size","font-tracking":"md.sys.typescale.title-large.tracking","line-height":"md.sys
+    md.sys.typescale.title-large.weight  "md.ref.typeface.weight-medium"  "md.ref.typeface.weight-regular"  {"font":"ios.bold","platform":"web"}  {"font":"static","platform":"web"}
+    md.sys.typescale.title-large.wght  "500"  "400"  {"font":"ios.bold"}  {"font":"static"}
+    md.sys.typescale.label-large  {"font-name":"md.sys.typescale.label-large.font","font-weight":"md.sys.typescale.label-large.weight","font-size":"md.sys.typescale.label-large.size","font-tracking":"md.sys.typescale.label-large.tracking","line-height":"md.sys
+    md.sys.typescale.label-large.wght  "700"  "500"  {"font":"ios.bold"}  {"font":"static"}
+===== variable one-hop changes (no md.sys.color) 47 resolvedValue changes of selected entry 1389
+md.sys.motion 12
+md.ref.typeface 16
+md.sys.typescale 19
+md.sys.color differing 40
+
+== chain.ts: the CSS layer's one-hop chain against the selected entry's own resolvedValue; component sets that change under static
+first match compared 3849 composites skipped 113 chain≠entry.resolvedValue 21 {"FONT_NAMES":21}
+   non-colour md.sys.typescale.emphasized.title-medium.font, md.sys.typescale.emphasized.title-small.font, md.sys.typescale.emphasized.label-large.font, md.sys.typescale.title-medium.font, md.sys.typescale.title-small.font, md.sys.typescale.label-large.font
+static compared 3849 composites skipped 113 chain≠entry.resolvedValue 0 {}
+   non-colour 
+variable compared 3849 composites skipped 113 chain≠entry.resolvedValue 0 {}
+   non-colour 
+standard motion compared 3849 composites skipped 113 chain≠entry.resolvedValue 0 {}
+   non-colour 
+38 component sets with a changed non-colour chain
+{
+  DURATION: 34,
+  TYPOGRAPHY: 10,
+  FONT_NAMES: 37,
+  FONT_WEIGHT: 15,
+  FONT_TRACKING: 37
+}
+md.comp.button 3 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION label-text:TYPOGRAPHY
+md.comp.button.xsmall 3 label-text:TYPOGRAPHY pressed.container.corner-size.motion.spring.damping:DURATION pressed.container.corner-size.motion.spring.stiffness:DURATION
+md.comp.button.small 3 label-text:TYPOGRAPHY pressed.container.corner-size.motion.spring.damping:DURATION pressed.container.corner-size.motion.spring.stiffness:DURATION
+md.comp.button.medium 3 label-text:TYPOGRAPHY pressed.container.corner-size.motion.spring.damping:DURATION pressed.container.corner-size.motion.spring.stiffness:DURATION
+md.comp.button.large 3 label-text:TYPOGRAPHY pressed.container.corner-size.motion.spring.damping:DURATION pressed.container.corner-size.motion.spring.stiffness:DURATION
+md.comp.button.xlarge 3 label-text:TYPOGRAPHY pressed.container.corner-size.motion.spring.damping:DURATION pressed.container.corner-size.motion.spring.stiffness:DURATION
+md.comp.text-button 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.filled-button 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.outlined-button 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.elevated-button 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.filled-tonal-button 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.outlined-text-field 6 supporting-text.font:FONT_NAMES supporting-text.tracking:FONT_TRACKING label-text.font:FONT_NAMES label-text.tracking:FONT_TRACKING input-text.font:FONT_NAMES input-text.tracking:FONT_TRACKING
+md.comp.filled-text-field 6 supporting-text.font:FONT_NAMES supporting-text.tracking:FONT_TRACKING label-text.font:FONT_NAMES label-text.tracking:FONT_TRACKING input-text.font:FONT_NAMES input-text.tracking:FONT_TRACKING
+md.comp.outlined-select 9 menu.list-item.label-text.font:FONT_NAMES menu.list-item.label-text.weight:FONT_WEIGHT menu.list-item.label-text.tracking:FONT_TRACKING text-field.supporting-text.font:FONT_NAMES text-field.supporting-text.tracking:FONT_TRACKING text-field.label-text.font:FONT_NAMES
+md.comp.filled-select 9 menu.list-item.label-text.font:FONT_NAMES menu.list-item.label-text.weight:FONT_WEIGHT menu.list-item.label-text.tracking:FONT_TRACKING text-field.supporting-text.font:FONT_NAMES text-field.supporting-text.tracking:FONT_TRACKING text-field.label-text.font:FONT_NAMES
+md.comp.filled-autocomplete 9 menu.list-item.label-text.font:FONT_NAMES menu.list-item.label-text.weight:FONT_WEIGHT menu.list-item.label-text.tracking:FONT_TRACKING text-field.supporting-text.font:FONT_NAMES text-field.supporting-text.tracking:FONT_TRACKING text-field.label-text.font:FONT_NAMES
+md.comp.outlined-autocomplete 9 menu.list-item.label-text.font:FONT_NAMES menu.list-item.label-text.weight:FONT_WEIGHT menu.list-item.label-text.tracking:FONT_TRACKING text-field.supporting-text.font:FONT_NAMES text-field.supporting-text.tracking:FONT_TRACKING text-field.label-text.font:FONT_NAMES
+md.comp.extended-fab.branded 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.extended-fab.primary 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.extended-fab.secondary 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.extended-fab.surface 3 label-text.font:FONT_NAMES label-text.weight:FONT_WEIGHT label-text.tracking:FONT_TRACKING
+md.comp.extended-fab.tertiary 3 label-text.font:FONT_NAMES label-text.tracking:FONT_TRACKING label-text.weight:FONT_WEIGHT
+md.comp.extended-fab.medium 1 label-text:TYPOGRAPHY
+md.comp.extended-fab.large 1 label-text:TYPOGRAPHY
+md.comp.extended-fab 1 label-text:TYPOGRAPHY
+md.comp.extended-fab.small 1 label-text:TYPOGRAPHY
+md.comp.icon-button 2 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION
+md.comp.icon-button.xsmall 2 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION
+md.comp.icon-button.small 2 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION
+md.comp.icon-button.medium 2 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION
+md.comp.icon-button.large 2 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION
+md.comp.icon-button.xlarge 2 pressed.container.corner-size.motion.spring.stiffness:DURATION pressed.container.corner-size.motion.spring.damping:DURATION
+md.comp.button-group.standard.xlarge 2 pressed.item.width.motion.spring.dampening:DURATION pressed.item.width.motion.spring.stiffness:DURATION
+md.comp.button-group.standard.large 2 pressed.item.width.motion.spring.dampening:DURATION pressed.item.width.motion.spring.stiffness:DURATION
+md.comp.button-group.standard.medium 2 pressed.item.width.motion.spring.dampening:DURATION pressed.item.width.motion.spring.stiffness:DURATION
+md.comp.button-group.standard.small 2 pressed.item.width.motion.spring.dampening:DURATION pressed.item.width.motion.spring.stiffness:DURATION
+md.comp.button-group.standard.xsmall 2 pressed.item.width.motion.spring.dampening:DURATION pressed.item.width.motion.spring.stiffness:DURATION
+md.comp.list 11 list-item.leading-avatar-label.font:FONT_NAMES list-item.leading-avatar-label.weight:FONT_WEIGHT list-item.leading-avatar-label.tracking:FONT_TRACKING list-item.label-text.tracking:FONT_TRACKING list-item.label-text.font:FONT_NAMES list-item.trailing-supporting-text.tracking:FONT_TRACKING
+sys.color resolved differ 40 [
+  'md.sys.color.on-tertiary-fixed-variant {"audience":"3p","contrast":"high.contrast","platform":"web","theme":"dark"}',
+  'md.sys.color.on-secondary-fixed-variant {"audience":"3p","contrast":"high.contrast","platform":"web","theme":"dark"}',
+  'md.sys.color.surface-dim {"audience":"1p.baseline","platform":"web","theme":"dark"}'
+]
+
+== published.ts: selected entries against material-web (75) and Compose (120)
+== now (first match, per entry)
+mw compared 75, differ 34 display-large.font Roboto Flex≠Roboto; display-large.weight 500≠400; display-large.tracking 0≠-0.25; display-medium.font Roboto Flex≠Roboto; display-medium.weight 500≠400; display-small.font Roboto Flex≠Roboto; display-small.weight 500≠400; headline-large.font Roboto Flex≠Roboto; headline-large.weight 500≠400; headline-medium.font Roboto Flex≠Roboto; headline-medium.weight 500≠400; headline-small.font Roboto Flex≠Roboto; headline-small.weight 500≠400; title-large.font Roboto Flex≠Roboto; title-large.weight 500≠400; title-medium.font Roboto Flex≠Roboto; title-medium.weight 700≠500; title-medium.tracking 0≠0.15; title-small.font Roboto Flex≠Roboto; title-small.weight 700≠500; title-small.tracking 0≠0.1; body-large.font Google Sans Text≠Roboto; body-large.tracking 0≠0.5; body-medium.font Google Sans Text≠Roboto; body-medium.tracking 0≠0.25; body-small.font Google Sans Text≠Roboto; body-small.tracking 0≠0.4; label-large.font Roboto Flex≠Roboto; label-large.weight 700≠500; label-large.tracking 0≠0.1; label-medium.font Google Sans Text≠Roboto; label-medium.tracking 0≠0.5; label-small.font Google Sans Text≠Roboto; label-small.tracking 0≠0.5
+kt compared 120, differ 28 display-large.weight 500≠400; display-large.tracking 0≠-0.25; emphasized.display-large.tracking 0≠-0.25; display-medium.weight 500≠400; display-small.weight 500≠400; headline-large.weight 500≠400; headline-medium.weight 500≠400; headline-small.weight 500≠400; title-large.weight 500≠400; title-medium.weight 700≠500; title-medium.tracking 0≠0.15; emphasized.title-medium.tracking 0≠0.15; title-small.weight 700≠500; title-small.tracking 0≠0.1; emphasized.title-small.tracking 0≠0.1; body-large.tracking 0≠0.5; emphasized.body-large.tracking 0≠0.5; body-medium.tracking 0≠0.25; emphasized.body-medium.tracking 0≠0.25; body-small.tracking 0≠0.4; emphasized.body-small.tracking 0≠0.4; label-large.weight 700≠500; label-large.tracking 0≠0.1; emphasized.label-large.tracking 0≠0.1; label-medium.tracking 0≠0.5; emphasized.label-medium.tracking 0≠0.5; label-small.tracking 0≠0.5; emphasized.label-small.tracking 0≠0.5
+== static
+mw compared 75, differ 0 
+kt compared 120, differ 0 
+== variable
+mw compared 75, differ 24 display-large.font Roboto Flex≠Roboto; display-large.tracking 0≠-0.25; display-medium.font Roboto Flex≠Roboto; display-small.font Roboto Flex≠Roboto; headline-large.font Roboto Flex≠Roboto; headline-medium.font Roboto Flex≠Roboto; headline-small.font Roboto Flex≠Roboto; title-large.font Roboto Flex≠Roboto; title-medium.font Roboto Flex≠Roboto; title-medium.tracking 0≠0.15; title-small.font Roboto Flex≠Roboto; title-small.tracking 0≠0.1; body-large.font Roboto Flex≠Roboto; body-large.tracking 0≠0.5; body-medium.font Roboto Flex≠Roboto; body-medium.tracking 0≠0.25; body-small.font Roboto Flex≠Roboto; body-small.tracking 0≠0.4; label-large.font Roboto Flex≠Roboto; label-large.tracking 0≠0.1; label-medium.font Roboto Flex≠Roboto; label-medium.tracking 0≠0.5; label-small.font Roboto Flex≠Roboto; label-small.tracking 0≠0.5
+kt compared 120, differ 18 display-large.tracking 0≠-0.25; emphasized.display-large.tracking 0≠-0.25; title-medium.tracking 0≠0.15; emphasized.title-medium.tracking 0≠0.15; title-small.tracking 0≠0.1; emphasized.title-small.tracking 0≠0.1; body-large.tracking 0≠0.5; emphasized.body-large.tracking 0≠0.5; body-medium.tracking 0≠0.25; emphasized.body-medium.tracking 0≠0.25; body-small.tracking 0≠0.4; emphasized.body-small.tracking 0≠0.4; label-large.tracking 0≠0.1; emphasized.label-large.tracking 0≠0.1; label-medium.tracking 0≠0.5; emphasized.label-medium.tracking 0≠0.5; label-small.tracking 0≠0.5; emphasized.label-small.tracking 0≠0.5
+
+== css-published.mjs: processToken + resolve against material-web
+now:     75 compared, 34 differ {font 15, weight 10, tracking 9}; base composites with variation axes 15 of 16
+static:  75 compared, 0 differ; base composites with variation axes 0 of 16
+variable: 75 compared, 24 differ {font 15, tracking 9}; 15 of 16
+
+== material-x compiled CSS, 35 .css.ts through .scripts/css/debug.ts: 5 differ under static, and the same 5 under variable
+## src_button_styles_default_main (now < > static)
+11,12c11,12
+<   --_label-text-font-name: var(--md-ref-typeface-plain, 'Google Sans Text');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-plain, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+14c14
+<   --_label-text-font-tracking: 0px;
+---
+>   --_label-text-font-tracking: 0.1px;
+16,18d15
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 700, 'slnt' 0, 'opsz' 14, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+## src_button_styles_size_main (now < > static)
+15a16
+>   --_label-text-font-tracking: 0.15px;
+17,19d17
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 16, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+28,29c26,27
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+30a29
+>   --_label-text-font-tracking: 0px;
+32,34d30
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 24, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+44,45c40,41
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+46a43
+>   --_label-text-font-tracking: 0px;
+48,50d44
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 32, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+## src_fab_styles_extended_main (now < > static)
+2,3c2,3
+<   --_label-text-font-name: var(--md-ref-typeface-plain, 'Google Sans Text');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-plain, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+5c5
+<   --_label-text-font-tracking: 0px;
+---
+>   --_label-text-font-tracking: 0.15px;
+7,9d6
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 16, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+53,54c50,51
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+58,60d54
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 24, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+68,69c62,63
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+73,75d66
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 22, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+## src_list_styles_item_main (now < > static)
+9c9
+<     'Google Sans Text'
+---
+>     'Roboto'
+12,13c12,13
+<     --md-ref-typeface-weight-bold,
+<     700
+---
+>     --md-ref-typeface-weight-medium,
+>     500
+16c16
+<   --_leading-avatar-label-type-font-tracking: 0px;
+---
+>   --_leading-avatar-label-type-font-tracking: 0.15px;
+18,22c18,19
+<   --_leading-avatar-label-font: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+<   --_leading-avatar-label-weight: var(--md-ref-typeface-weight-bold, 700);
+---
+>   --_leading-avatar-label-font: var(--md-ref-typeface-plain, 'Roboto');
+>   --_leading-avatar-label-weight: var(--md-ref-typeface-weight-medium, 500);
+25c22
+<   --_leading-avatar-label-tracking: 0px;
+---
+>   --_leading-avatar-label-tracking: 0.15px;
+29c26
+<   --_label-text-tracking: 0px;
+---
+>   --_label-text-tracking: 0.5px;
+31c28
+<   --_label-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_label-text-font: var(--md-ref-typeface-plain, 'Roboto');
+33,37c30,31
+<   --_trailing-supporting-text-tracking: 0px;
+<   --_supporting-text-type-font-name: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+---
+>   --_trailing-supporting-text-tracking: 0.5px;
+>   --_supporting-text-type-font-name: var(--md-ref-typeface-plain, 'Roboto');
+43c37
+<   --_supporting-text-type-font-tracking: 0px;
+---
+>   --_supporting-text-type-font-tracking: 0.25px;
+45c39
+<   --_supporting-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_supporting-text-font: var(--md-ref-typeface-plain, 'Roboto');
+49,51c43,45
+<   --_supporting-text-tracking: 0px;
+<   --_overline-tracking: 0px;
+<   --_overline-type-font-name: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_supporting-text-tracking: 0.25px;
+>   --_overline-tracking: 0.5px;
+>   --_overline-type-font-name: var(--md-ref-typeface-plain, 'Roboto');
+54c48
+<   --_overline-type-font-tracking: 0px;
+---
+>   --_overline-type-font-tracking: 0.5px;
+56c50
+<   --_overline-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_overline-font: var(--md-ref-typeface-plain, 'Roboto');
+62,65c56
+<   --_trailing-supporting-text-font: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+---
+>   --_trailing-supporting-text-font: var(--md-ref-typeface-plain, 'Roboto');
+68c59
+<     'Google Sans Text'
+---
+>     'Roboto'
+75c66
+<   --_trailing-supporting-text-type-font-tracking: 0px;
+---
+>   --_trailing-supporting-text-type-font-tracking: 0.5px;
+77,80c68
+<   --_label-text-type-font-name: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+---
+>   --_label-text-type-font-name: var(--md-ref-typeface-plain, 'Roboto');
+83c71
+<   --_label-text-type-font-tracking: 0px;
+---
+>   --_label-text-type-font-tracking: 0.5px;
+## src_text-field_styles_default_main (now < > static)
+2c2
+<   --_supporting-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_supporting-text-font: var(--md-ref-typeface-plain, 'Roboto');
+6c6
+<   --_supporting-text-tracking: 0px;
+---
+>   --_supporting-text-tracking: 0.4px;
+14c14
+<   --_label-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_label-text-font: var(--md-ref-typeface-plain, 'Roboto');
+18c18
+<   --_label-text-tracking: 0px;
+---
+>   --_label-text-tracking: 0.5px;
+28c28
+<   --_input-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_input-text-font: var(--md-ref-typeface-plain, 'Roboto');
+32c32
+<   --_input-text-tracking: 0px;
+---
+>   --_input-text-tracking: 0.5px;
+
+== rendered.browser.test.ts, base, Chromium (Firefox and WebKit: the same apart from quotes around the family)
+theme: the suite's --md-ref-typeface-* = Roboto; plain: no theme
+theme | button xsmall | Roboto | 700 | normal | 14px/20px | axes normal | width 109.27
+theme | button small | Roboto | 700 | normal | 14px/20px | axes normal | width 109.27
+theme | button medium | Roboto | 700 | normal | 16px/24px | axes normal | width 124.88
+theme | button large | Roboto | 500 | normal | 24px/32px | axes normal | width 186.25
+theme | button xlarge | Roboto | 500 | normal | 32px/40px | axes normal | width 248.33
+theme | switch-button | Roboto | 700 | normal | 14px/20px | axes normal | width 109.27
+theme | button text | Roboto | 700 | normal | 14px/20px | axes normal | width 109.27
+theme | fab extended small | Roboto | 700 | normal | 16px/20px | axes normal | width 124.88
+theme | fab extended medium | Roboto | 500 | normal | 22px/28px | axes normal | width 170.73
+theme | fab extended large | Roboto | 500 | normal | 24px/32px | axes normal | width 186.25
+theme | list label | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+theme | list overline | Roboto | 500 | normal | 11px/16px | axes normal | width 85.38
+theme | list support | Roboto | 400 | normal | 14px/20px | axes normal | width 107.94
+theme | list trail | Roboto | 500 | normal | 11px/16px | axes normal | width 85.38
+theme | list lead avatar-label | Roboto | 700 | normal | 16px/24px | axes normal | width 124.88
+theme | text-field label | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+theme | text-field support | Roboto | 400 | normal | 12px/16px | axes normal | width 92.52
+theme | text-field prefix | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+plain | button xsmall | "Google Sans Text" | 700 | normal | 14px/20px | axes normal | width 105.00
+plain | button small | "Google Sans Text" | 700 | normal | 14px/20px | axes normal | width 105.00
+plain | button medium | "Google Sans Text" | 700 | normal | 16px/24px | axes normal | width 120.00
+plain | button large | "Roboto Flex" | 500 | normal | 24px/32px | axes normal | width 167.53
+plain | button xlarge | "Roboto Flex" | 500 | normal | 32px/40px | axes normal | width 223.38
+plain | switch-button | "Google Sans Text" | 700 | normal | 14px/20px | axes normal | width 105.00
+plain | button text | "Google Sans Text" | 700 | normal | 14px/20px | axes normal | width 105.00
+plain | fab extended small | "Google Sans Text" | 700 | normal | 16px/20px | axes normal | width 120.00
+plain | fab extended medium | "Roboto Flex" | 500 | normal | 22px/28px | axes normal | width 153.58
+plain | fab extended large | "Roboto Flex" | 500 | normal | 24px/32px | axes normal | width 167.53
+plain | list label | "Google Sans Text" | 400 | normal | 16px/24px | axes normal | width 111.69
+plain | list overline | "Google Sans Text" | 500 | normal | 11px/16px | axes normal | width 76.80
+plain | list support | "Google Sans Text" | 400 | normal | 14px/20px | axes normal | width 97.73
+plain | list trail | "Google Sans Text" | 500 | normal | 11px/16px | axes normal | width 76.80
+plain | list lead avatar-label | "Google Sans Text" | 700 | normal | 16px/24px | axes normal | width 120.00
+plain | text-field label | "Google Sans Text" | 400 | normal | 16px/24px | axes normal | width 111.69
+plain | text-field support | "Google Sans Text" | 400 | normal | 12px/16px | axes normal | width 83.77
+plain | text-field prefix | "Google Sans Text" | 400 | normal | 16px/24px | axes normal | width 111.69
+
+== rendered.browser.test.ts, static, Chromium (Firefox and WebKit: the same apart from quotes around the family)
+theme: the suite's --md-ref-typeface-* = Roboto; plain: no theme
+theme | button xsmall | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | button small | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | button medium | Roboto | 500 | normal | 16px/24px | axes normal | width 124.17
+theme | button large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+theme | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal | width 246.70
+theme | switch-button | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | button text | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | fab extended small | Roboto | 500 | normal | 16px/20px | axes normal | width 124.17
+theme | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal | width 169.61
+theme | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+theme | list label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+theme | list overline | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+theme | list support | Roboto | 400 | 0.25px | 14px/20px | axes normal | width 111.69
+theme | list trail | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+theme | list lead avatar-label | Roboto | 500 | 0.15px | 16px/24px | axes normal | width 126.42
+theme | text-field label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+theme | text-field support | Roboto | 400 | normal | 12px/16px | axes normal | width 92.52
+theme | text-field prefix | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+plain | button xsmall | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+plain | button small | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+plain | button medium | Roboto | 500 | normal | 16px/24px | axes normal | width 124.17
+plain | button large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+plain | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal | width 246.70
+plain | switch-button | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+plain | button text | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+plain | fab extended small | Roboto | 500 | normal | 16px/20px | axes normal | width 124.17
+plain | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal | width 169.61
+plain | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+plain | list label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+plain | list overline | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+plain | list support | Roboto | 400 | 0.25px | 14px/20px | axes normal | width 111.69
+plain | list trail | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+plain | list lead avatar-label | Roboto | 500 | 0.15px | 16px/24px | axes normal | width 126.42
+plain | text-field label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+plain | text-field support | Roboto | 400 | normal | 12px/16px | axes normal | width 92.52
+plain | text-field prefix | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+
+== rendered.browser.test.ts, variable, Chromium (Firefox and WebKit: the same apart from quotes around the family)
+theme: the suite's --md-ref-typeface-* = Roboto; plain: no theme
+theme | button xsmall | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | button small | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | button medium | Roboto | 500 | normal | 16px/24px | axes normal | width 124.17
+theme | button large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+theme | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal | width 246.70
+theme | switch-button | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | button text | Roboto | 500 | normal | 14px/20px | axes normal | width 108.66
+theme | fab extended small | Roboto | 500 | normal | 16px/20px | axes normal | width 124.17
+theme | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal | width 169.61
+theme | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+theme | list label | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+theme | list overline | Roboto | 500 | normal | 11px/16px | axes normal | width 85.38
+theme | list support | Roboto | 400 | normal | 14px/20px | axes normal | width 107.94
+theme | list trail | Roboto | 500 | normal | 11px/16px | axes normal | width 85.38
+theme | list lead avatar-label | Roboto | 500 | normal | 16px/24px | axes normal | width 124.17
+theme | text-field label | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+theme | text-field support | Roboto | 400 | normal | 12px/16px | axes normal | width 92.52
+theme | text-field prefix | Roboto | 400 | normal | 16px/24px | axes normal | width 123.36
+plain | button xsmall | "Roboto Flex" | 500 | normal | 14px/20px | axes normal | width 97.73
+plain | button small | "Roboto Flex" | 500 | normal | 14px/20px | axes normal | width 97.73
+plain | button medium | "Roboto Flex" | 500 | normal | 16px/24px | axes normal | width 111.69
+plain | button large | "Roboto Flex" | 400 | normal | 24px/32px | axes normal | width 167.53
+plain | button xlarge | "Roboto Flex" | 400 | normal | 32px/40px | axes normal | width 223.38
+plain | switch-button | "Roboto Flex" | 500 | normal | 14px/20px | axes normal | width 97.73
+plain | button text | "Roboto Flex" | 500 | normal | 14px/20px | axes normal | width 97.73
+plain | fab extended small | "Roboto Flex" | 500 | normal | 16px/20px | axes normal | width 111.69
+plain | fab extended medium | "Roboto Flex" | 400 | normal | 22px/28px | axes normal | width 153.58
+plain | fab extended large | "Roboto Flex" | 400 | normal | 24px/32px | axes normal | width 167.53
+plain | list label | "Roboto Flex" | 400 | normal | 16px/24px | axes normal | width 111.69
+plain | list overline | "Roboto Flex" | 500 | normal | 11px/16px | axes normal | width 76.80
+plain | list support | "Roboto Flex" | 400 | normal | 14px/20px | axes normal | width 97.73
+plain | list trail | "Roboto Flex" | 500 | normal | 11px/16px | axes normal | width 76.80
+plain | list lead avatar-label | "Roboto Flex" | 500 | normal | 16px/24px | axes normal | width 111.69
+plain | text-field label | "Roboto Flex" | 400 | normal | 16px/24px | axes normal | width 111.69
+plain | text-field support | "Roboto Flex" | 400 | normal | 12px/16px | axes normal | width 83.77
+plain | text-field prefix | "Roboto Flex" | 400 | normal | 16px/24px | axes normal | width 111.69
+
+== rendered, base, firefox: lines that differ from Chromium once quotes and widths are removed
+none
+
+== rendered, static, firefox: lines that differ from Chromium once quotes and widths are removed
+none
+
+== rendered, variable, firefox: lines that differ from Chromium once quotes and widths are removed
+none
+
+== rendered, base, webkit: lines that differ from Chromium once quotes and widths are removed
+none
+
+== rendered, static, webkit: lines that differ from Chromium once quotes and widths are removed
+none
+
+== rendered, variable, webkit: lines that differ from Chromium once quotes and widths are removed
+none
+
+== visual project, Chromium, local: actual screenshots compared byte for byte (the committed baselines are the runner's, so 18 of 19 rows fail locally at base; the 19th, the focused checkbox, passes in all and writes no file)
+base against base2:
+same button-color-variants.png
+same button-enabled-and-disabled.png
+same button-focused.png
+same button-group-connected-selected.png
+same button-group-connected-sizes.png
+same button-group-standard-disabled.png
+same button-group-standard-sizes.png
+same button-hovered.png
+same button-icon-composition.png
+same button-sizes-and-shapes.png
+same button-switch-variants.png
+same checkbox-disabled.png
+same checkbox-hovered.png
+same checkbox-states.png
+same radio-disabled.png
+same radio-focused.png
+same radio-hovered.png
+same radio-states.png
+base against static:
+DIFF button-color-variants.png
+DIFF button-enabled-and-disabled.png
+DIFF button-focused.png
+DIFF button-group-connected-selected.png
+DIFF button-group-connected-sizes.png
+DIFF button-group-standard-disabled.png
+DIFF button-group-standard-sizes.png
+DIFF button-hovered.png
+DIFF button-icon-composition.png
+DIFF button-sizes-and-shapes.png
+DIFF button-switch-variants.png
+same checkbox-disabled.png
+same checkbox-hovered.png
+same checkbox-states.png
+same radio-disabled.png
+same radio-focused.png
+same radio-hovered.png
+same radio-states.png
+base against variable:
+DIFF button-color-variants.png
+DIFF button-enabled-and-disabled.png
+DIFF button-focused.png
+DIFF button-group-connected-selected.png
+DIFF button-group-connected-sizes.png
+DIFF button-group-standard-disabled.png
+DIFF button-group-standard-sizes.png
+DIFF button-hovered.png
+DIFF button-icon-composition.png
+DIFF button-sizes-and-shapes.png
+DIFF button-switch-variants.png
+same checkbox-disabled.png
+same checkbox-hovered.png
+same checkbox-states.png
+same radio-disabled.png
+same radio-focused.png
+same radio-hovered.png
+same radio-states.png
+
+== material-x's whole suite under static, Chromium, Firefox and WebKit (browser, spec) and node after build-prepare
+ Test Files  3 failed | 81 passed (84)
+      Tests  2691 passed | 7 expected fail | 20 skipped (2718)
+The 3 failed files are node's, at base too: slot d's collected-properties list was stale. After 'just build-prepare': base 35 passed, static 35 passed:
+ Test Files  3 passed (3)
+      Tests  35 passed (35)

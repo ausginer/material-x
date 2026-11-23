@@ -98,13 +98,13 @@ Sizes use the [work queue's words](../../.agents/docs/work-queue.md#issues). Eve
 
 | Component | First set | Size | Like | What drives the size |
 | --- | --- | --- | --- | --- |
-| **Card** (elevated, filled, outlined; not interactive) | **Yes** | medium | less than `mx-fab` | Three token tables; container colour, shape, elevation and outline; slots. An interactive card (the whole card a link or a button) adds a state layer, focus and activation, and waits |
+| **Card** (elevated, filled, outlined; not interactive) | **Yes** | medium | less than `mx-fab` | One token table, which holds the three variants' sets; container colour, shape, elevation and outline; slots. An interactive card (the whole card a link or a button) adds a state layer, focus and activation, and waits |
 | **Top app bar** (small, pinned, on-scroll state) | **Yes** | medium | — | One token table; leading, headline and trailing slots; the on-scroll state ([below](#top-app-bar-the-first-sets-third-component)). The medium and large variants, and collapsing or hiding on scroll, wait |
 | **Slider** (continuous, one value) | **Yes** | large | more than `mx-checkbox` | Form association through core's `Validatable`; `value`, `min`, `max`, `step`; pointer and keyboard; value indicator; M3 Expressive sizes; RTL. The range slider, stops and the vertical slider wait. It needs a plan first |
 | Divider | Optional | small | — | One token table and a host style. It can go with Card's unit |
 | Link icon button | No | small | `mx-link-button` beside `mx-button` | The same split the button already has |
 | Switch | No | medium | `mx-checkbox` | Form-associated, checked, icons, handle shape and motion |
-| Top app bar, medium and large; collapse and hide on scroll | No | medium | the small bar | Two more token tables; the headline's move between sizes as the page scrolls |
+| Top app bar, medium and large; collapse and hide on scroll | No | medium | the small bar | No further token table, since the small bar's table holds their sets; the headline's move between sizes as the page scrolls |
 | Tooltip (plain) | No | medium | — | Popover, anchor positioning, hover and focus delays. The rich tooltip is large |
 | Snackbar | No | medium | — | Timing, a queue, a live region |
 | Dialog | No | large | — | Native `<dialog>` underneath; basic and full-screen; focus return |
@@ -180,13 +180,14 @@ The owner asked for a colour picker _"as in material-web"_, as a separate improv
 Decided by `RD-47`. Each unit is one branch and one pull request.
 
 1. **T — the token tables** (tproc, small): rows for the card variants, the small top app bar, the slider and the divider in `manifest.json`, and one update at the manifest's current release, so no existing token changes. **It goes first, on its own,** so that the three component units don't each regenerate the store and conflict.
-2. **After T, in parallel** (material-x, each with its stories and the full definition of done):
+2. **S — the typescale selection** (tproc and material-x, medium): `RF-110`, before any unit that reads a text style. It doesn't depend on T. Added on 2026-11-23.
+3. **After T and S, in parallel** (material-x, each with its stories and the full definition of done):
    - **B — `mx-card`** (medium). The divider can come with it.
    - **H — `mx-top-app-bar`** (medium): [the properties above](#top-app-bar-the-first-sets-third-component), in a short plan of its own.
    - **C — `mx-slider`** (large): a plan, then the element.
-3. **A — the site** (repo, large), after B, H and C merge: `packages/site`; Storybook moved to `storybook/` with the redirect; `docs-build`, `docs-smoke` and the links in `docs-api.ts` updated; the theme, the type scale and the theme switch (`RD-48`); every section in [The page](#the-page), including the box-quad demo ported from its story (516 lines of React today); and the `RD-14` amendment. This is #54.
-4. **P — the theme picker** (repo, medium), after A ([above](#theme-picker-a-unit-after-the-site), `RD-49`).
-5. **Further work,** from [the table](#missing-components-sized), in the order the page would use it: the link icon button, the interactive card, the switch, the plain tooltip, the larger top app bars. The rest waits for a page that needs it.
+4. **A — the site** (repo, large), after B, H and C merge: `packages/site`; Storybook moved to `storybook/` with the redirect; `docs-build`, `docs-smoke` and the links in `docs-api.ts` updated; the theme, the type scale and the theme switch (`RD-48`); every section in [The page](#the-page), including the box-quad demo ported from its story (516 lines of React today); and the `RD-14` amendment. This is #54.
+5. **P — the theme picker** (repo, medium), after A ([above](#theme-picker-a-unit-after-the-site), `RD-49`).
+6. **Further work,** from [the table](#missing-components-sized), in the order the page would use it: the link icon button, the interactive card, the switch, the plain tooltip, the larger top app bars. The rest waits for a page that needs it.
 
 Fixes that make the page better and that it doesn't wait for: `RF-94`, `RF-77`, `RF-76`, `RF-68`.
 
@@ -241,6 +242,7 @@ Material Theme Builder doesn't export one ([above](#what-material-theme-builder-
 ## Record changes
 
 - **Made:** `RD-47`, its dated note of the answers to Q5b and Q6, `RD-48` and `RD-49`, in the [index](../00-index.md), on this branch.
+- **Corrected on 2026-11-23,** from `reviewer-2` of #188's feature proof: in [the table](#missing-components-sized), Card said _"Three token tables"_ and the larger bars said _"Two more token tables"_. One Cards row and one App bars row in tproc's manifest each hold every variant. The same day, [Order](#order) gained unit S, so A, P and _Further work_ moved from 3, 4 and 5 to 4, 5 and 6. The parallel units moved from 2 to 3.
 - **Owed when the site unit lands:** an amendment of `RD-14` property 6, so `docs-smoke` loads the landing page and Storybook at its new base path, and of property 2 or 4 if the recipe's output layout changes. The architect makes it on the site unit's plan.
 - **Owed with the picker unit:** if `docs-smoke` is the check that loads the picker's chunk (`RD-49` property 7), a second amendment of `RD-14` property 6.
 

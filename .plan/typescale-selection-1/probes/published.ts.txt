@@ -1,0 +1,24 @@
+import fs from 'node:fs';
+const S=process.argv[2];
+const R='/workspaces/worktrees/d/packages/tproc/';
+const {default:store}=await import(R+'src/store/index.ts');
+const defaults:any=Object.fromEntries(store.tagGroups.map((g:any)=>[g.contextTagGroupName,g.defaultTag]));
+const mk=(o:any)=>({...defaults,platform:'web',audience:'3p','motion.scheme':'expressive',...o});
+const lit=(r:any)=>r.fontWeight??(r.fontNames?r.fontNames.values.join():undefined)??(r.fontTracking?r.fontTracking.value??0:undefined)??r.lineHeight?.value??r.fontSize?.value;
+const pick=(n:string,c:any)=>lit(store.getToken(n)!.contextualReferenceTree!.find((e:any)=>Object.entries(e.contextTags??{}).every(([k,v])=>c[k]===v))!.resolvedValue);
+const cur=(n:string)=>lit(store.select(store.getToken(n)!)!.entry!.resolvedValue);
+// what the CSS layer renders: the one-hop chain, each hop under its own selection
+const mw=fs.readFileSync(S+'/pub/mw.scss','utf8');
+const ref:any={'weight-bold':700,'weight-medium':500,'weight-regular':400,brand:'Roboto',plain:'Roboto'};
+const mwVal=(k:string)=>{const m=mw.match(new RegExp(`'${k}':\\s*(?:map\\.get\\(\\$deps, 'md-ref-typeface', '([^']+)'\\)|if\\(\\$exclude-hardcoded-values, null, ([-\\d.]+)rem\\))`))!;return m[1]?ref[m[1]]:Number(m[2])*16};
+const kt=fs.readFileSync(S+'/pub/TypeScaleTokens.kt','utf8');
+const ktW:any={WeightBold:700,WeightMedium:500,WeightRegular:400};
+const cap=(s:string)=>s.split('-').map(x=>x[0].toUpperCase()+x.slice(1)).join('');
+const ktVal=(base:string,k:string)=>{const m=kt.match(new RegExp(`${base}${k}:[^\\n]*\\n\\s*get\\(\\) = ([^\\n]+)`));if(!m)return undefined;const v=m[1];return v.includes('TypefaceTokens')?ktW[v.split('.')[1]]??v:Number(v.replace('.sp',''))};
+for(const [name,f] of [['now (first match, per entry)',cur],['static',(n:string)=>pick(n,mk({}))],['variable',(n:string)=>pick(n,mk({font:'variable'}))]] as any){
+ const r:any={mw:[0,[]],kt:[0,[]]};
+ for(const role of ['display','headline','title','body','label'])for(const s of ['large','medium','small']){const b=`${role}-${s}`;
+  for(const k of ['font','weight','size','line-height','tracking']){const a=f(`md.sys.typescale.${b}.${k}`),e=mwVal(`${b}-${k}`);r.mw[0]++;if(typeof e==='number'?Math.abs(a-e)>1e-6:a!==e)r.mw[1].push(`${b}.${k} ${a}≠${e}`);}
+  for(const em of ['','emphasized.'])for(const [k,K] of [['weight','Weight'],['size','Size'],['line-height','LineHeight'],['tracking','Tracking']]){const e=ktVal(cap(b)+(em?'Emphasized':''),K);if(e===undefined)continue;const a=f(`md.sys.typescale.${em}${b}.${k}`);r.kt[0]++;if(Math.abs(a-e)>1e-6)r.kt[1].push(`${em}${b}.${k} ${a}≠${e}`);}}
+ console.log(`== ${name}`);for(const x of ['mw','kt'])console.log(x,`compared ${r[x][0]}, differ ${r[x][1].length}`,r[x][1].join('; '));
+}
