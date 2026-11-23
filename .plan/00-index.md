@@ -4397,6 +4397,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Order:** the form-validation unit doesn't wait for this entry, because `useValidatable` writes the control directly. The two units overlap in `useCheckableCore` only, and the second to land merges the first. The owner confirmed that they are separate units (plan, _Inputs_).
 - **Size:** _large_. A decision on the label mechanism comes before implementation.
 
+**Dated 2026-11-23 by the architect, on `repo/private-props-1`: the owner rejected an option and set the next step.** His words, to Mx Architect Explainer, relayed by the coordinator: _"Со снятием с хоста - согласен на 100%, сам думал так же. Это надо добавить в описание issue как точно отвергнутый вариант. Следующая задача - послушать voiceover"_ ("On removing it from the host I agree 100%, I thought the same. Add it to the issue's description as a definitely rejected option. The next task is to listen to VoiceOver").
+
+- **Rejected: the component copies the host's `aria-*` to its control and removes it from the host.** It is _Move the attribute_ in this entry's other note of the same date, on `material-x/slider-1`, and option (b) of that branch's slider plan, Q2. Both name `aria-label` only.
+  - **What it gives:** one named node in Chromium, Firefox and WebKit, read with `aria-label` on a prototype ([reading](https://github.com/ausginer/material-x/blob/bcb3e7aaac8420b2af910adfa572df0dd47076a4/.plan/slider-1/checks/naming.txt), c10, `strip`).
+  - **Why it is rejected:** the control can keep a stale name. When the consumer later removes the attribute, `removeAttribute` finds none, so neither a `MutationObserver` nor `attributeChangedCallback` runs. Only overriding the host's attribute methods would repair that. Also, `getAttribute` gives the consumer a wrong answer, and hydration can mismatch. These are by reasoning and not by reading.
+- **Next, the owner's:** he listens to VoiceOver in Safari, for whether it announces the second node at all. That is part of _Not established_. It answers for VoiceOver only.
+- **No other option is decided by this.** The required property stands, with _on the control only_.
+
 #### RF-95 — `mx-checkbox` draws no error appearance
 
 Tier A, **open**. It applies once #155 merges, because that unit gives `mx-checkbox` its `error` attribute and `:state(error)`. Registered on 2026-11-22 by the architect, on `repo/register-observations-4`, from [#149](https://github.com/ausginer/material-x/issues/149), relayed by the coordinator. The finding was proposed as `FV-F3` in the [form-validation plan](https://github.com/ausginer/material-x/blob/be7d4c3b5/.plan/form-validation-1/form-validation-plan.md#8-proposed-findings) §8, on `material-x/form-validation-1` at `be7d4c3b5` (#155), not yet on `main`. `RF-94` is the highest `RF-` on any branch on `origin`, so this is the next free number. In the code at `6a67badfd`, the architect confirmed that the token grouping in `checkbox/styles/utils.ts` returns `null` for any token name that has an `error` part.
@@ -5008,6 +5016,54 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Depends on `RF-117`,** for `ReorderEvent`.
 - **Ready,** after `RF-117`.
 - **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
+
+#### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.
+
+- **What happens,** in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, the same in each: a button that sets no level of its own draws the shadow of a lifted list item around it. An unchecked `mx-checkbox` is filled with the container color of a list item, a text field or a top app bar around it. Two rarer cases nest a text field or a list in a text field. The card has both leaks too, and its slot resets them.
+- **The cause** is in the reader. A component reads a private property that its own host doesn't declare unconditionally, and an ancestor that uses the same name supplies it. The name's sharing is coincidence for `--_container-color`, and design for `--_level`, which the elevation stylesheet owns.
+- **What relies on the inheritance:** each component inside its own shadow tree, the list items for `--_drag-*`, and the groups' and the split button's rules for their slotted buttons.
+- **Required property:** in each engine at `RD-20`'s floor, the rendering of a material-x element doesn't depend on the private properties of an element that it is slotted into, except where the record lists one as inherited on purpose. A check in the suite fails when an element reads a private property that another element declares, and neither declares it nor lists it.
+- **Meanwhile:** `mx-card` keeps its slot's two resets, which cover it (no leak in the three engines), and the repair removes them. `mx-top-app-bar` needs none, and neither element waits for this entry.
+- **Answered by the owner on 2026-11-23** in chat, relayed by the coordinator: **(a)**. _"Да, (а)"_ ("Yes, (a)"). The prefix by the component's or the trait's name isn't taken now. The coordinator said that it may be a separate task later, for readability, and the owner decided nothing on that.
+- **The architect settles the extent: every exposed property,** not only the leaks found. Then the check needs nothing but the element itself, so a new element or a new conditional token can't open a leak in an existing element, and an element nested in its own kind is covered. It costs +123 bytes in `complete`, not +11. The owner's remark on bytes is in `RF-123` and is about that entry. The extent is the architect's choice, which the question left to the unit's plan.
+- **Required properties of the repair:**
+  1. Each element declares unconditionally, for its own host, each private property that its stylesheets read, as the probe counts reads. The check lists the exceptions, each with its reason. Today they are `--_drag-duration` and `--_drag-easing` on the list items.
+  2. Such a declaration gives the value that the unset property has today (`0` for `--_level`, otherwise `initial`). It overrides no other declaration: not the element's own, in any state or variant, nor a group's `::slotted` rule or an inline style. This holds whatever the order in which the stylesheets are adopted, or the unit states the order it relies on and rows hold it. `ButtonCore` adopts the elevation sheet after its default one, and `mx-fab` and `mx-card` adopt it first.
+  3. A check in the suite finds every element by itself, so a new one is covered with no edit to the check. It reads every adopted stylesheet, those that a controller adds later included. It names the element and the property when it fails, and its message states the rule.
+  4. Rendering is unchanged outside a container. The probe's control reads it: with every exposed property reset on the host, nothing changed but a check mark's running animation. That control put the resets in a first-adopted sheet, and the unit's own placement is read again.
+- **Rows,** in the three engines: no shadow on a button in a lifted list item; no fill on an unchecked checkbox in a list item, a text field and a top app bar; a text field in a text field, also disabled; a list in a disabled text field. **Witness:** each fails without its declaration, and the check fails when one declaration is removed. The probe, rerun, reads no leak.
+- **It removes `mx-card`'s two slot resets,** and the card's rows for them keep passing.
+- **The question as asked: which repair?** The owner's hypothesis was a prefix by the component's or the trait's name.
+  - **(a) Each element declares on its host what it reads, with the check. Recommended.** It repairs every leak found, whatever the ancestor. `complete` +11 bytes for the leaks found, and +123 for every exposed property. The unit's plan sets how much of it, between the two.
+  - **(b) A prefix by the component's or the trait's name.** It repairs the checkbox and future coincidences. It leaves `--_level`, 72 of the 142 cases, because both sides read the trait's one name, and an element nested in its own kind. 484 occurrences in 29 files, tproc's render and `complete` +242 bytes, an estimate.
+  - **(c) Both.** The costs of both. The prefix then buys names that can be told apart in the developer tools.
+  - **Not offered:** resets in every container's slots, which no check can keep complete, and `inherits: false`, which breaks every component.
+- **Unit:** its own, separate from `RF-123`, because the files and the waits differ. Either can land first, and each measures its sizes on its own base.
+- **Waits for** #213 to merge, because the unit removes the card's resets, and for this record (#216). It doesn't wait for `mx-top-app-bar` (#211) or `mx-slider` (`material-x/slider-1`): whichever of the unit and an element lands second declares that element's reads, and the check names them. Neither element's branch changes for this now. If the unit lands before #211, the top app bar's row lands with #211.
+- **Plan:** none. Nothing is left for the architect to decide before implementation.
+- **Size:** _medium_. Until the answer it was _medium_ for (a), and _large_ for (b) and (c).
+
+**Amended 2026-11-23 by the architect,** on the owner's answer. Until then the entry waited for it, and said that a plan comes first and sets the extent. The check of the required property covered only a private property that another element declares. It now covers every one that the element reads.
+
+#### RF-123 — The published names of private custom properties collide with a page's own
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, from the [diagnosis](private-props-1/private-props.md#published-names) of `RF-122`. `RF-122` is the entry before this one, so this is the next free number. Run on the package as built from `92a386a17`, in the three engines ([reading](private-props-1/checks/mangled-names.txt), [probe](private-props-1/probes/mangled-names.mjs)).
+
+- **What happens:** the build names each private property `--` and one or two letters, such as `--bh`. A page that uses the same names is affected both ways. `:root { --hh: 3px }` sets a filled button's corners, and `:root { --bh: red }` fills an unchecked checkbox. A page's `var(--an)` in content slotted into a text field takes the field's suffix color. `--fn` is registered as a number for the whole document, so a page's own `--fn` can't hold anything else.
+- **Why it is a problem:** short names such as `--bg` and `--fg` are common in a page's styles, and both are in the build's map. The map changes with the sources, so a page can't avoid the names, and each release may break a different page.
+- **Required property:** no name that the package publishes for a private property is one that a page would choose, and the registered name is among them.
+- **Answered by the owner on 2026-11-23** in chat, relayed by the coordinator: **the `--mx-` prefix.** Asked whether the size is worth it, he said: _"Байты жалеть сейчас не время, сейчас время архитектуры и имплементации. Ужиматься будем позже"_ ("Now isn't the time to spare bytes, it's the time for architecture and implementation. We'll slim down later").
+- **The repair:** `collect-props.ts` gives each name the prefix, such as `--mx-a`. Names in the sources don't change. No public property of the repository starts with `--mx-`, so the prefix is free. It adds 125 bytes to `complete`, by the diagnosis's reading. A page that writes `--mx-a` itself still collides, and the names still change between releases.
+- **Verification:** the probe, rerun on the built package in the three engines with names from the new map, and with the page's `--bh`, `--hh`, `--an` and `--fn`: none of the four has an effect, in either direction. The built files hold no private name without the prefix, `CSS.registerProperty`'s argument included. The unit adds no test: one template writes every name. It reports the size of each row.
+- **The options as they stood:** a prefix in `collect-props.ts`' names. `--mx-a`: `complete` +125 bytes. `--_a`: +45, and pages use `--_a` for their own private names. The architect recommended `--mx-`. A prefix in the sources (`RF-122` (b)) doesn't change the published names, because the build replaces them.
+- **Interaction:** `RF-122` (a) protects the reading side of the exposed properties, and not the page's content or the registration. The two units touch different files.
+- **Unit:** its own, and the first of the two by readiness. It waits for this record (#216) and for nothing else. `mx-card`, `mx-top-app-bar` and `mx-slider` aren't affected: their sources name private properties as `--_x`, and the build replaces them.
+- **Plan:** none. Nothing is left for the architect to decide.
+- **Size:** _small_.
+
+**Amended 2026-11-23 by the architect,** on the owner's answer. Until then the prefix was an option that the architect recommended.
 
 ## Questions
 
