@@ -1,0 +1,4 @@
+import fsp from 'node:fs/promises';import {syncBuiltinESMExports} from 'node:module';import {appendFileSync} from 'node:fs';
+const o=fsp.readFile;const P='/workspaces/worktrees/f/packages/tproc/tokens/';let logged=false;
+fsp.readFile=(p,...a)=>{const s=p instanceof URL?p.pathname:String(p);if(s.startsWith(P)){if(!logged){logged=true;appendFileSync('/tmp/claude-1000/-workspaces-material-x/0bcce428-ea7a-4737-8f6a-333972f49f7b/scratchpad/t188/redir.log','x\n')}return o('/tmp/claude-1000/-workspaces-material-x/0bcce428-ea7a-4737-8f6a-333972f49f7b/scratchpad/t188/packages/tproc/tokens/'+s.slice(P.length),...a)}return o(p,...a)};
+syncBuiltinESMExports();

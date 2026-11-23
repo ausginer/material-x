@@ -2252,6 +2252,12 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Dated 2026-11-22 by the architect: the questions this entry left open are answered.** The owner chose Q5b (a) and Q6 (a), and `RD-48` decides the page's theme and type scale on them. He also asked for a theme picker, which `RD-49` makes a unit after the site. This entry's requirements don't change. Its order gains that unit at the end.
 
+**Unit T implemented 2026-11-23 by the implementer,** on `tproc/landing-tables-1`, at the manifest's release. Four rows (Cards, App bars, Sliders, Divider) add 20 sets and 324 tokens, and all 103 files of the store before it are byte-identical after. The proofs are in [`token-tables.txt`](landing-1/checks/token-tables.txt) and the update's report in [`token-tables-report.md`](landing-1/checks/token-tables-report.md).
+
+- **A manifest row is a whole table,** so the App bars row also carries the medium, large and flexible bars and the deprecated `md.comp.top-app-bar.*` sets. No component uses them.
+- **`md.comp.top-app-bar.small` is deprecated upstream.** The small bar's current tokens are `md.comp.app-bar` and `md.comp.app-bar.small`.
+- **Deprecated tokens are stored and flagged.** `md.comp.slider` has 43 of 96.
+
 #### RD-48 — The page's theme is a Material Theme Builder JSON export in `packages/site`, its type scale comes from tproc, and a light and dark switch is part of the site
 
 **Decided 2026-11-22 by the architect, on `repo/landing-1`,** on the owner's answers of the same day in chat to the [landing plan](landing-1/landing-plan.md)'s Q5b (a) and Q6 (a), relayed by the coordinator, for #54. `RD-47` is the highest `RD-` on any branch on `origin`, so this is the next free number. The site unit implements it.
