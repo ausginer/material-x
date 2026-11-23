@@ -1,0 +1,16 @@
+import fs from 'node:fs';import {pathToFileURL} from 'node:url';
+const P=process.argv[2]!+'/pub/';
+const {loadStore}=await import('/workspaces/worktrees/e/packages/tproc/src/store/Store.ts');
+const store=await loadStore(pathToFileURL('/workspaces/worktrees/e/packages/tproc/tokens/'));
+const kt=fs.readFileSync(P+'TypeScaleTokens.kt','utf8');const W:any={WeightBold:700,WeightMedium:500,WeightRegular:400};
+const cap=(s:string)=>s.split('-').map(x=>x[0]!.toUpperCase()+x.slice(1)).join('');
+const get=(n:string)=>{const m=kt.match(new RegExp(`val ${n}:[^\\n]*\\n\\s*get\\(\\) = ([^\\n]+)`));if(!m)return undefined;return m[1]!.startsWith('Typeface')?W[m[1]!.split('.')[1]!]:parseFloat(m[1]!)};
+const lit=(r:any)=>r.fontWeight??(r.fontTracking?r.fontTracking.value??0:undefined)??r.lineHeight?.value??r.fontSize?.value;
+const res=(n:string)=>store.select(store.getToken(n)!)!.entry!.resolvedValue as any;
+let n=0,miss=0;for(const em of ['','emphasized.'])for(const r of ['display','headline','title','body','label'])for(const s of ['large','medium','small'])for(const [k,K] of [['weight','Weight'],['size','Size'],['line-height','LineHeight'],['tracking','Tracking']] as const){
+ const e=get(cap(`${r}-${s}`)+(em?'Emphasized':'')+K);if(e===undefined){miss++;continue}n++;const a=lit(res(`md.sys.typescale.${em}${r}-${s}.${k}`));if(Math.abs(a-e)>1e-6)console.log('DIFF',em,r,s,k,a,e)}
+console.log('compose typescale compared',n,'missing',miss);
+for(const [f,c] of [['ExpressiveMotionTokens',{}],['StandardMotionTokens',{'motion.scheme':'standard'}]] as any){const t=fs.readFileSync(P+f+'.kt','utf8');let k=0,b=0;for(const sp of ['fast','default','slow'])for(const ki of ['spatial','effects'])for(const p of ['damping','stiffness']){const m=t.match(new RegExp(`Spring${cap(sp)}${cap(ki)}${cap(p)}[^=]*= *([\\d.]+)`));const a=(store.select(store.getToken(`md.sys.motion.spring.${sp}.${ki}.${p}`)!,c)!.entry!.resolvedValue as any).numeric;k++;if(!m||Number(m[1])!==a){b++;console.log(f,sp,ki,p,m?.[1],a)}}console.log(f,k,'differ',b, t.match(/VERSION.*/)?.[0])}
+// component references to emphasized
+const em:any={};for(const t of store.tokens){if(!t.tokenName.startsWith('md.comp'))continue;const v=JSON.stringify(t.values);if(/typescale\.emphasized/.test(v))em[store.getTokenSet(t).tokenSetName]=(em[store.getTokenSet(t).tokenSetName]??0)+1}console.log('emphasized refs',em);
+for(const n of ['md.comp.button.xsmall.label-text','md.comp.button.small.label-text','md.comp.button.medium.label-text','md.comp.button.large.label-text','md.comp.button.xlarge.label-text','md.comp.extended-fab.small.label-text','md.comp.extended-fab.medium.label-text','md.comp.extended-fab.large.label-text','md.comp.list.list-item.label-text','md.comp.list.list-item.overline','md.comp.list.list-item.supporting-text','md.comp.list.list-item.trailing-supporting-text','md.comp.list.list-item.leading-avatar-label','md.comp.filled-text-field.input-text','md.comp.filled-text-field.supporting-text']){const t=store.getToken(n)??store.getToken(n+'.font');if(!t){console.log(n,'none');continue}const s=store.select(t)!;console.log(n,JSON.stringify(s.value).slice(0,160))}

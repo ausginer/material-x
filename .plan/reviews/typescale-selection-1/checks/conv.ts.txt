@@ -1,0 +1,29 @@
+import fs from 'node:fs';
+const R='/workspaces/worktrees/e/packages/tproc/';
+const {convert,SITE_BASE_URL}=await import(R+'scripts/convert.ts');
+const {fetchText}=await import(R+'scripts/site.ts');
+const man=JSON.parse(fs.readFileSync(R+'tokens/manifest.json','utf8'));
+console.log(man.source?.release??Object.keys(man), man.tables.length);
+const release='2026-11-19_06-20-01';
+const src=await Promise.all(man.tables.map(async({kind,componentId}:any)=>({kind,componentId,table:JSON.parse(await fetchText(`${SITE_BASE_URL}${release}/${kind}.${componentId}.json`))})));
+const run=(s:any)=>{try{const c=convert(s,{release,fetchDate:man.fetchDate??man.source?.fetchDate});return c}catch(e:any){return e.message.slice(0,220)}};
+const c=run(src);
+if(typeof c==='string')console.log('REFUSED',c);else{let same=0;const diff:string[]=[];for(const [p,t] of c.files){const f=R+'tokens/'+p;if(fs.existsSync(f)&&fs.readFileSync(f,'utf8')===t)same++;else diff.push(p)}console.log('files',c.files.size,'identical',same,'different',diff);}
+// mutations on real tables
+const mut=(n:string,f:(s:any)=>void)=>{const s=structuredClone(src);f(s);const r=run(s);console.log(n,'=>',typeof r==='string'?r:'ACCEPTED')};
+const ren=(s:any,a:string,b:string,key:string,list:string)=>{for(const x of s)for(const g of x.table.system[list]??[])if(g[key]===a)g[key]=b};
+mut('rename group font→typeface',s=>ren(s,'font','typeface','contextTagGroupName','contextTagGroups'));
+mut('rename tag static→fixed',s=>ren(s,'static','fixed','tagName','tags'));
+mut('rename tag web→browser',s=>ren(s,'web','browser','tagName','tags'));
+mut('rename tag 3p→external',s=>ren(s,'3p','external','tagName','tags'));
+mut('rename tag tv (unused in context)',s=>ren(s,'tv','television','tagName','tags'));
+const trees=(s:any)=>{for(const x of s){for(const t of x.table.system.contextualReferenceTrees?Object.entries(x.table.system.contextualReferenceTrees):[]) return [x,t] as any}};
+const keys=Object.keys(src[0]!.table.system);console.log(keys.join());
+const tr=src.find((x:any)=>x.table.system.contextualReferenceTrees)?.table.system.contextualReferenceTrees;
+const k=Object.keys(tr)[0]!;console.log(Array.isArray(tr),k,Object.keys(tr[k]));
+const each=(s:any,f:(list:any,k:string)=>boolean)=>{let done=false;for(const x of s)for(const [k,v] of Object.entries<any>(x.table.system.contextualReferenceTrees??{})){if(done)return;done=f(v.contextualReferenceTree,k)}};
+mut('remove one whole tree\'s entries',s=>each(s,(l)=>{if(!l?.length)return false;l.length=0;return true}));
+mut('duplicate an untagged entry',s=>each(s,(l)=>{const e=l?.find((x:any)=>!x.contextTags?.length);if(!e)return false;l.push(structuredClone(e));return true}));
+mut('add untagged to tagged',s=>each(s,(l)=>{if(!l||l.length<4)return false;const e=structuredClone(l[0]);delete e.contextTags;l.push(e);return true}));
+// legacy
+const D=R+'.data/tokens/';const {readdirSync,readFileSync}=fs;const fl=readdirSync(D);

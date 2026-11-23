@@ -1,0 +1,7 @@
+import {pathToFileURL} from 'node:url';
+const {loadStore,RENDERED_CONTEXT}=await import('/workspaces/worktrees/e/packages/tproc/src/store/Store.ts');
+const store=await loadStore(pathToFileURL('/workspaces/worktrees/e/packages/tproc/tokens/'));
+// effect of each single-group change on one-hop selected values outside md.sys.color / inside
+const strip=(v:any)=>{const {contextTags,specificityScore,...r}=v;return JSON.stringify(r)};
+for(const g of store.tagGroups)for(const t of g.tags){if(t.tagName===RENDERED_CONTEXT[g.contextTagGroupName])continue;let col=0,n=0,none=0;const s=new Set<string>();for(const k of store.tokens){const a=store.select(k),b=store.select(k,{[g.contextTagGroupName]:t.tagName} as any);if(!b){none++;continue}if(strip(a!.value)!==strip(b.value)){const set=store.getTokenSet(k).tokenSetName;if(set==='md.sys.color')col++;else{n++;s.add(set)}}}
+console.log(g.contextTagGroupName,t.tagName,'colour',col,'other',n,'none',none,[...s].slice(0,6).join(' '))}
