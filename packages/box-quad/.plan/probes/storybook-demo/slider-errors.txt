@@ -59,3 +59,22 @@ No page error and no node change
 
 ## node packages/box-quad/.plan/reviews/storybook-1/probes/webkit-errors-all-stories.ts
 WebKit 27.2: 89 stories, 0 raise a page error
+
+## slider-errors.ts again, on 2026-11-23, at 67b7a39aa, after the repair of the feature proof's findings; .docs built from that tree. The two storybook-1 probes above were not rerun.
+
+## chromium 158.0.8127.18
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## firefox 159.0
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## webkit 27.2
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+No page error and no node change

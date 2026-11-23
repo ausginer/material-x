@@ -113,3 +113,57 @@ direct write	995	-	62	60	0.0	2.4	15.3	0.0	58.1	920.3
 1529 of 2006, 1545 of 1999 and 1561 of 1998 ms, 76 to 78 % of the wall time,
 more than half. Before, the Controls drag took 6328 ms of manager time and was
 idle for 48 of 7844 ms.
+
+## 2026-11-23, the implementer: after the repair of the feature proof's findings
+
+Read against a Storybook dev server started from slot b at the merge d8c3d1d0e, on
+port 6116, four times in a row. The first run follows the server's start.
+
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2110	130	130	59	6.1	187.1	65.8	2.4	386.1	1464.7
+direct write	1011	-	64	60	0.0	2.3	20.6	0.0	126.9	862.2
+
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2184	134	135	59	25.0	209.3	93.9	4.8	462.6	1391.8
+direct write	1001	-	62	60	0.0	2.8	19.0	0.0	78.8	902.5
+
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2160	132	132	59	9.1	196.8	78.3	2.0	409.4	1465.8
+direct write	1014	-	64	60	0.0	2.9	19.6	0.0	87.2	906.2
+
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6116
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2071	128	128	59	8.9	184.3	73.8	0.3	387.5	1418.2
+direct write	1003	-	63	60	0.0	1.7	19.5	0.2	108.2	875.1
+
+`BQ-21`'s pass condition, on each of the four runs: 59 transforms; manager time
+6.1, 25.0, 9.1 and 8.9 ms for the 60 changes, under 60 ms; the main thread idle
+for 1465 of 2110, 1392 of 2184, 1466 of 2160 and 1418 of 2071 ms, 64 to 69 % of
+the wall time, more than half.

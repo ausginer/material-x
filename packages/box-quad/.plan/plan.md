@@ -72,13 +72,40 @@ The package's argument, alternatives, measurements and findings. The current-sta
 
 ## Record
 
+### 2026-11-23 — the feature proof of the in-story sliders is repaired
+
+The implementer repaired the three findings of the [feature proof](reviews/storybook-2/feature-proof-claude.md) (read at `59967767a`) on `box-quad/storybook-2`, on the coordinator's request for pull request #177. The stories' repair is at `67b7a39aa`, and `main` is merged in at `d8c3d1d0e`. No decision changes.
+
+**Disposition of the review:**
+
+- **`reviewer-1` (A): repaired.** _Nested Spaces_' stage has a 144 px top padding and is 72 px taller, so the ancestor stays below the stage's top at every slider value and nothing is clipped or hidden. Over all 2821 pairs of rotation and zoom, at 1000 and 1600 px, in Chromium, Firefox and WebKit ([script](probes/storybook-demo/covered-grid.ts), [output](probes/storybook-demo/covered-grid.txt)):
+  - before, a slider was covered at up to 267 pairs in Chromium, 279 in Firefox and 321 in WebKit, and the ancestor reached up to 43.9 px above the controls row's bottom edge;
+  - after, no slider is covered at any pair, and the ancestor stays at least 28.1 px below the controls row.
+
+  The review's `covered-drag.ts`, unchanged, reproduced its committed readings before. After, it finds no covered range or thumb. At 1000 px, rotation 45 and zoom 0.5, dragging _Target rotation_'s thumb from −20 by 40 px left −20 before and gives 0 after, in the three engines. `covered-grid.ts` hit-tests one point per 4 by 3 px of each range.
+
+- **`reviewer-2` (C): repaired.** The range declares `inline-size: 200px` in place of the flex basis, and shrinks to 80 px at least. At 1000 px it is 200 px wide in the three engines. The review's `layout.ts`, unchanged, reads 159 px at 375 px, 104 px at 320 px, and 80 px on the docs page at 375 px. No page scrolls sideways, and no slider or stage moves while a slider does.
+- **`reviewer-3` (C): corrected.** Two statements in the 2026-11-22 entry below are corrected in place, with one more out-of-range cell than the review lists (`channel, panel hidden`'s box-quad time). `stories-reading.ts`'s header names `BQ-21`. No decision's wording changes.
+
+**`BQ-21`'s acceptance, rerun:**
+
+- **`stories-reading.ts`** ([output](probes/storybook-demo/stories-reading.txt)) passes with the same differences: at most 0.0152 px in Firefox at the defaults and 0.0079 px at the extremes, 0 in Chromium and WebKit, and 0.000 px for the _Pointer Delta_ drags. The coordinates moved, because the wider sliders change the centred stories' width. The six screenshots of the three stories with sliders are retaken, and _Failed Reads_' two are byte-equal.
+- **`slider-errors.ts`** ([output](probes/storybook-demo/slider-errors.txt)): no page error and no node change.
+- **`controls-cost.ts`** ([output](probes/storybook-demo/controls-cost.txt)), four runs on a dev server: 59 transforms each, 6.1 to 25.0 ms of manager time, and the main thread idle for 64 to 69 % of the drag. Each run meets the three conditions. The idle share is below the 76 to 78 % of 2026-11-22, and the cause wasn't read.
+- **Checks,** on the merge: box-quad's `typecheck` and `lint`, `docs-build`, and `docs-smoke` at 112 of 112 pages.
+- **Not covered:** real Safari, GPU rendering and touch. The two `storybook-1` error probes weren't rerun.
+
 ### 2026-11-22 — the stories' sliders are inside the stories, and BQ-19 to BQ-21 are implemented
 
-The implementer carried out the [Storybook plan](storybook-plan.md)'s §10.5, steps 2 to 6, on `box-quad/storybook-2` from `c801b6ec2`, on the coordinator's request for #169. The architect's registration at `8b99db9d4` was merged in before the record. The implementation is at `64c1d4459`.
+The implementer carried out the [Storybook plan](storybook-plan.md)'s §10.5, steps 2 to 6, on `box-quad/storybook-2` from `c801b6ec2`, on the coordinator's request for #169. The implementation is at `64c1d4459`, whose parent is the architect's registration at `8b99db9d4`. _Corrected 2026-11-23 on `reviewer-3`: this entry said that the registration was merged in before the record, and the history is linear._
 
 - **What changed (`BQ-19`, `BQ-20`):** `src/box-quad.stories.tsx` has one `Range` component, a `<label>` holding the label's text, a native `<input type="range">` and an `<output>` with the value. _Live Demo_, _Nested Spaces_ and _Pointer Delta_ hold their values in React state with the former defaults, and render their sliders in a controls row above the stage, outside the geometry they change. The names, ranges and steps are the former args'. No story has `args` or `argTypes`, and each `render` takes no arguments. The three descriptions and the module comment say what the sliders change. `src/stories.module.css` gains the controls row and the range's layout. The range takes `--md-sys-color-primary` as its `accent-color`. _Failed Reads_ doesn't change.
 - **`BQ-21`'s witness, `controls-cost.ts`** ([output](probes/storybook-demo/controls-cost.txt), under the two dated headings at its end). Both readings are from one Storybook dev server in slot `b`, on port 6116, in headless Chromium 158:
-  - **Before,** on the unchanged stories: the Controls drag took 7844 ms, 6328 ms of it in the manager, with the main thread idle for 48 ms. The other rows match §10.2's ranges, except `channel, sidebar hidden` at 737 ms of manager time, below its range of 1.0 to 1.2 s.
+  - **Before,** on the unchanged stories: the Controls drag took 7844 ms, 6328 ms of it in the manager, with the main thread idle for 48 ms. The manager time of every other row is inside §10.2's range, except `channel, sidebar hidden` at 737 ms, below its range of 1.0 to 1.2 s. _Corrected 2026-11-23 on `reviewer-3`: this entry said that the other rows match, which holds for the manager time only._ The other columns outside their ranges are:
+    - the Controls drag's preview time, 454.1 ms against 374 to 446;
+    - `channel, panel hidden`'s preview time, 405.5 ms against 357 to 367, and box-quad time, 41.6 ms against 33 to 41;
+    - `channel, sidebar hidden`'s wall time, 1.1 s against 1.6 to 1.8, preview time, 255.8 ms against 352 to 391, and box-quad time, 24.9 ms against 29 to 39;
+    - `direct write`'s preview time, 0.0 ms against 1 to 4.
   - **After,** three runs: `in-story range` on _Live Demo_'s own slider shows 59 transforms, 4.8 to 5.7 ms of manager time for the 60 changes, and the main thread idle for 76 to 78 % of the drag's 2.0 s. That meets each of `BQ-21`'s three conditions. The Controls and `updateStoryArgs` rows are skipped, because the story has no Controls range and takes no `rotation` arg.
 - **The reading** ([script](probes/storybook-demo/stories-reading.ts), [output](probes/storybook-demo/stories-reading.txt)) sets each value through its slider: through the input's own `value` setter and an `input` event, then two frames. It checks that the value beside the slider shows it. Each screenshot now waits 500 ms for the preview's 180 ms colour transition, as the feature proof's recheck found. The results don't change:
   - In Firefox, _Live Demo_'s overlay corners are within 0.0152 px of the native `getBoxQuads()` at the defaults, and within 0.0079 px at the four extremes.
