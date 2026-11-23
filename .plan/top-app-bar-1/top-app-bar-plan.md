@@ -60,7 +60,8 @@
 **The container color changes to `on-scroll.container.color`, and no shadow is drawn.** The landing plan's property 3 says _"container colour and elevation"_. It was written before this reading: the spec shows and describes a color change only, and upstream calls the shadow on these bars a bug and says to remove it. material-x draws elevation only as a shadow, so `container.elevation` and `on-scroll.container.elevation` are excluded by ruling (`RD-34`), and property 3 is amended.
 
 - **The cost:** a page whose content has the color `surface-container` at the top shows no edge under the bar.
-- **If the owner wants the shadow:** the bar adopts the elevation stylesheet on its host at the token's level, and then waits for `RD-53`'s shared host-box stylesheet. A shadow would also be the first one in material-x that no component token colors.
+- **The owner chose color only on 2026-11-23** (`RD-54`), relayed by the coordinator: _"(а), и поехали"_ ("(a), and let's go"). The next bullet is the option he didn't take.
+- **If the owner wanted the shadow:** the bar would adopt the elevation stylesheet on its host at the token's level, and then wait for `RD-53`'s shared host-box stylesheet. The shadow would also be the first one in material-x that no component token colors.
 
 **Motion:** `background-color` transitions over `expressive.default-effects` (200ms), because the tokens give no motion and the effects scheme is M3's for color. It isn't motion under `RF-107`'s policy, so a reduced-motion preference leaves it. A page loaded at a restored scroll position runs it once.
 
@@ -76,6 +77,8 @@ The package keeps the scrolled values in a state of their own, rendered on `:hos
 ### Accessibility
 
 **The bar exposes no landmark and no role.** A bar inside a region isn't the page's banner. The page sets `role="banner"` on the bar itself, which keeps it a child of `body` and so pinned. A `<header>` around it needs `display: contents`. The bar takes no focus of its own, and Tab goes through `lead`, the headline and `trail` in order. The consumer chooses the heading level.
+
+The owner confirmed the role on the bar on 2026-11-23 (`RD-54`): _"Да, тогда role="banner" выглядит правильнее всего"_ ("Yes, then role="banner" looks the most correct").
 
 **A pinned bar covers focused and targeted content** unless the page sets `scroll-padding-block-start` on its scroller. No component can set it. The component page says so, and the story does it.
 
