@@ -1,0 +1,19 @@
+import {pathToFileURL} from 'node:url';
+const {loadStore}=await import('/workspaces/worktrees/e/packages/tproc/src/store/Store.ts');
+const store=await loadStore(pathToFileURL('/workspaces/worktrees/e/packages/tproc/tokens/'));
+console.log(store.tagGroups.map((g:any)=>g.contextTagGroupName+': '+(g.description??'')+' | '+g.tags.map((t:any)=>t.tagName+'('+(t.displayName)+(t.description?': '+t.description:'')+')').join('; ')).join('\n'));
+// tokens with motion.scheme choices
+const bySet:any={};for(const t of store.tokens){const tags=new Set((t.contextualReferenceTree??[]).map((e:any)=>e.contextTags?.['motion.scheme']).filter(Boolean));if(tags.size){const s=store.getTokenSet(t).tokenSetName;(bySet[s]??=[]).push(t.tokenName.slice(s.length+1)+'['+[...tags]+']')}}
+console.log('MOTION',JSON.stringify(bySet,null,0));
+// any tag whose name includes expressive/baseline/emphasized in any group
+const tags=new Set<string>();for(const t of store.tokens)for(const e of [...(t.contextualReferenceTree??[]),...t.values])for(const [k,v] of Object.entries((e as any).contextTags??{}))tags.add(k+'='+v);console.log([...tags].join(' '));
+const S=(s:any)=>s.displayName+'|'+s.tokenSetName;
+console.log('sets w/ expressive|baseline|m3e in name:',store.sets.filter((s:any)=>/expressive|baseline|legacy|m3e/i.test(JSON.stringify([s.displayName,s.tokenSetName,s.description]))).map(S));
+const oldSel=(t:any)=>{const tr=t.contextualReferenceTree;const e=tr?.find((e:any)=>e.contextTags&&Object.values(e.contextTags).some((x:any)=>['expressive','web'].includes(x)))??tr?.[0];return {value:t.values[e?e.value:0],entry:e}};
+// for every token: scheme of the old entry vs new entry
+let lost:string[]=[],change:any={},n=0;
+for(const t of store.tokens){if(!t.contextualReferenceTree)continue;const o=oldSel(t).entry,w=store.select(t)!.entry!;const os=o.contextTags?.['motion.scheme'],ws=w.contextTags?.['motion.scheme'];
+ const k=os+'->'+ws;change[k]=(change[k]??0)+1;if(os==='expressive'&&ws!=='expressive')lost.push(t.tokenName);
+ // entry exists with expressive but the new selection isn't expressive
+ if(t.contextualReferenceTree.some((e:any)=>e.contextTags?.['motion.scheme']==='expressive')&&ws!=='expressive'){lost.push('X '+t.tokenName)}}
+console.log('scheme old->new',change,'lost',lost);

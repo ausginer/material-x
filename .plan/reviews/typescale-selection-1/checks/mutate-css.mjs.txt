@@ -1,0 +1,14 @@
+import fs from 'node:fs';import {execSync} from 'node:child_process';
+const W='/workspaces/worktrees/e/packages/material-x/';
+const B='src/button/styles/default/main.styles.css',F='src/fab/styles/extended/main.styles.css',T='src/text-field/styles/default/main.styles.css',L='src/list/styles/item/main.styles.css';
+const D=(f,n,i=0,v='')=>[f,n,i,v];
+const M=[['button reader',D(B,'letter-spacing: var(--_label-text-font-tracking);')],['button const .1px',D(B,'letter-spacing: var(--_label-text-font-tracking);',0,'letter-spacing: 0.1px;')],
+['fab reader',D(F,'letter-spacing: var(--_label-text-font-tracking);')],['fab const 0',D(F,'letter-spacing: var(--_label-text-font-tracking);',0,'letter-spacing: 0;')],
+['input reader',D(T,'letter-spacing: var(--_input-text-tracking);',0)],['affix reader',D(T,'letter-spacing: var(--_input-text-tracking);',1)],
+['support reader',D(T,'letter-spacing: var(--_supporting-text-tracking);')],['support reads input',D(T,'letter-spacing: var(--_supporting-text-tracking);',0,'letter-spacing: var(--_input-text-tracking);')],['tf label reader',D(T,'letter-spacing: var(--_label-text-tracking);')],
+...['label-text','overline','supporting-text','leading-avatar-label','trailing-supporting-text'].map(x=>['list '+x,D(L,`letter-spacing: var(--_${x}-tracking);`)])];
+for(const [n,[f,a,i,b]] of M){const p=W+f,s=fs.readFileSync(p,'utf8');const ps=s.split(a);if(ps.length<=i+1){console.log(n,'NOMATCH');continue}
+ fs.writeFileSync(p,ps.slice(0,i+1).join(a)+b+ps.slice(i+1).join(a));let o='';
+ const file=f.includes('button')?'button.spec':f.includes('fab')?'fab.spec':f.includes('text-field')?'text-field.spec':'list-item.spec';
+ try{o=execSync(`timeout 250 aube exec vitest run -c vitest.config.ts --project "spec*" ${file} 2>&1`,{cwd:W,encoding:'utf8',maxBuffer:1e8})}catch(e){o=e.stdout}finally{fs.writeFileSync(p,s)}
+ o=o.replace(/\x1b\[[0-9;]*m/g,'');const fails=new Set([...o.matchAll(/ FAIL .*?test\.ts(?::\d+)? > (.*)/g)].map(m=>m[1]));console.log(`${n}: ${o.match(/Tests  .*/)?.[0]} :: ${[...fails].slice(0,2).join(' | ')}`)}

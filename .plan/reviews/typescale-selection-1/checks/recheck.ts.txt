@@ -1,0 +1,15 @@
+// Reads only material-web's files and the fixtures, not the store.
+import fs from 'node:fs';
+const P=process.argv[2]!+'/pub2/';const F='/workspaces/worktrees/e/packages/tproc/tests/fixtures/';
+const {MATERIAL_WEB_TYPESCALE:T}=await import(F+'material-web-typescale.ts');const {MATERIAL_WEB_COLORS:C}=await import(F+'material-web-colors.ts');
+const parse=(f:string)=>[...fs.readFileSync(P+f,'utf8').matchAll(/^\/\/\/ (md\.[\w.-]+)[^\n]*\n(?:\/\/\/[^\n]*\n)*\$([\w-]+):\s*([^;]+);/gm)].map(m=>({token:m[1]!,v:m[2]!,raw:m[3]!.trim()}));
+const face=Object.fromEntries(parse('_md-ref-typeface.scss').map(x=>[x.v,x.raw]));
+const num=(s:string)=>{const m=s.match(/^(-?[\d.]+)(rem)?$/);return m?Number(m[1]):s};
+const pub=new Map<string,any>();
+for(const f of ['_md-sys-typescale.scss','_md-sys-typescale-emphasized.scss'])for(const x of parse(f)){const m=x.token.match(/^md\.sys\.typescale\.(.+)\.(font|weight|size|line-height|tracking)$/);if(!m)continue;const r=x.raw.match(/^md-ref-typeface\.\$([\w-]+)$/);pub.set(m[1]+'.'+m[2],num(r?face[r[1]!]!:x.raw))}
+const fx=new Map<string,any>();for(const [s,o] of Object.entries<any>(T))for(const [p,v] of Object.entries(o))fx.set(s+'.'+p,v);
+const cmp=(a:Map<string,any>,b:Map<string,any>)=>[...new Set([...a.keys(),...b.keys()])].filter(k=>a.get(k)!==b.get(k));
+console.log('type published',pub.size,'fixture',fx.size,'differ',cmp(pub,fx));
+const pc=new Map<string,any>();for(const x of parse('_md-sys-color.scss')){const v=x.raw;pc.set(x.token,v.startsWith('md-ref-palette.$')?'md.ref.palette.'+v.slice(16):v.startsWith('$')?'md.sys.color.'+v.slice(1):v)}
+const all=fs.readFileSync(P+'_md-sys-color.scss','utf8').match(/^\$[\w-]+:/gm)!.length;
+console.log('colour published',pc.size,'variables in file',all,'fixture',Object.keys(C).length,'differ',cmp(pc,new Map(Object.entries(C))));

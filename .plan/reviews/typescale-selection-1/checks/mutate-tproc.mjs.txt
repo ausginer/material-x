@@ -1,0 +1,24 @@
+import fs from 'node:fs';import {execSync} from 'node:child_process';
+const W='/workspaces/worktrees/e/packages/tproc/';
+const St='src/store/Store.ts',Cv='scripts/convert.ts',Rp='scripts/report.ts';
+const M=[
+['font variable',St,"font: 'static'","font: 'variable'"],['font ios.bold',St,"font: 'static'","font: 'ios.bold'"],
+['platform android',St,"platform: 'web'","platform: 'android'"],['platform ios',St,"platform: 'web'","platform: 'ios'"],
+['audience 1p',St,"audience: '3p'","audience: '1p.baseline'"],['motion standard',St,"'motion.scheme': 'expressive'","'motion.scheme': 'standard'"],
+['theme dark',St,"theme: 'light'","theme: 'dark'"],['contrast high',St,"contrast: 'default'","contrast: 'high.contrast'"],['device desktop',St,"device: 'mobile'","device: 'desktop'"],
+['lang large',St,"'language.height': 'small'","'language.height': 'extra.large'"],['ios elev',St,"'ios.dark.theme.elevation': 'none'","'ios.dark.theme.elevation': 'elevated'"],['ios weight',St,"'ios.weight.setting': 'default'","'ios.weight.setting': 'bold'"],
+['fallback first',St,"const entry = tree.find((candidate) => matchesContext(candidate, context));","const entry = tree.find((candidate) => matchesContext(candidate, context)) ?? tree[0];"],
+['some for every',St,".every(([group, tag])",".some(([group, tag])"],
+['ignore changes',St,"{ ...RENDERED_CONTEXT, ...changes }","{ ...RENDERED_CONTEXT }"],
+['changes replace',St,"{ ...RENDERED_CONTEXT, ...changes }","{ ...(changes ?? RENDERED_CONTEXT) } as ContextTags"],
+['untagged no match',St,"!contextTags ||","!!contextTags &&"],
+['value index 0',St,"token.values[entry.value]!","token.values[0]!"],
+['no-tree none',St,"return value && { value };","return undefined;"],
+['drop group check',Cv,"!Object.hasOwn(RENDERED_CONTEXT, name)","name === 'zzz'"],
+['drop selections',Cv,"  checkSelections(tokens);\n\n  for (const { table, token, child }","  for (const { table, token, child }"],
+['only >1',Cv,"count !== 1","count > 1"],['only 0',Cv,"count !== 1","count < 1"],
+];
+for(const [n,f,a,b] of M){const p=W+f,s=fs.readFileSync(p,'utf8');if(s.split(a).length!==2){console.log(n,'NOMATCH',s.split(a).length);continue}
+ fs.writeFileSync(p,s.replace(a,()=>b));let o='';try{o=execSync('timeout 200 aube exec vitest run -c vitest.config.ts 2>&1',{cwd:W,encoding:'utf8'})}catch(e){o=e.stdout}finally{fs.writeFileSync(p,s)}
+ o=o.replace(/\x1b\[[0-9;]*m/g,'');const fails=[...o.matchAll(/ FAIL .*? > (.*)/g)].map(m=>m[1]);
+ console.log(`${n}: ${o.match(/Tests .*/)?.[0]??o.slice(-200)} :: ${[...new Set(fails)].filter(x=>!/material-web publishes/.test(x)).slice(0,4).join(' | ')}`);}

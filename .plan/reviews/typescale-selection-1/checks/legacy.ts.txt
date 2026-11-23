@@ -1,0 +1,7 @@
+import {readFileSync,readdirSync} from 'node:fs';
+const R='/workspaces/worktrees/e/packages/tproc/';
+const {convert}=await import(R+'scripts/convert.ts');
+const D=process.argv[2]!;
+const order=['COLOR.20543ce18892f7d9','ELEVATION.20543ce18892f7d9','TOKEN_TYPE_UNSPECIFIED.20543ce18892f7d9','TYPOGRAPHY.20543ce18892f7d9',...['1c4257f8804f9478','41587918e51cca98','60990dd98dea0998','36500f77b86d20a5','0fe2282006ae098b','082d7fd6e058b011','624e8f2da4007fc8','31f16b44fe03b0c0','6acb269a58d5f93f','6c818a16475113bd'].map(x=>'TOKEN_TABLE.'+x)];
+const src=order.map(n=>{const [kind,componentId]=n.split('.');return {kind,componentId,table:JSON.parse(readFileSync(D+'/'+n+'.json','utf8'))}});
+const c=convert(src as any,{release:null,fetchDate:null,legacy:true});console.log('files',c.files.size,'conflicts',c.conflicts.length);

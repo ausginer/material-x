@@ -1,0 +1,245 @@
+Transcript of the probes in this directory, reviewer, 2026-11-23, slot e, d636f20a1. /workspaces/worktrees/e is the slot.
+
+== fixture.ts (material-web a0bab1d94, fetched here)
+{
+  brand: 'Roboto',
+  plain: 'Roboto',
+  'weight-bold': '700',
+  'weight-medium': '500',
+  'weight-regular': '400'
+}
+styles 15 values 75 differ 0 extra props false
+
+== entries.ts (raw JSON, own matcher)
+motion.scheme=standard [expressive,standard]
+platform=android [ios,compose,android,web]
+font=static [static,ios.bold,variable]
+theme=light [light,dark]
+audience=1p.baseline [3p,1p.baseline]
+device=mobile [tv,mobile,desktop,auto]
+contrast=default [high.contrast,medium.contrast,default]
+language.height=small [extra.large,large,medium,small]
+ios.dark.theme.elevation=none [elevated,none]
+ios.weight.setting=default [bold,default]
+groups not in C 0 C not in groups [] C tag not existing []
+not default: [
+  [ 'platform', 'web' ],
+  [ 'audience', '3p' ],
+  [ 'motion.scheme', 'expressive' ]
+]
+4304 { '1': 4286, notree: 18 } {
+  untag: 2034,
+  emptyTree: 0,
+  novals: 0,
+  missingVal: 0,
+  unknownTag: 0,
+  cascadeBad: 0
+}
+
+== chain.ts, this store, then the store at 246b64754
+old { cmp: 4157, undef: 76, comp: 129, bad: 22, nonColour: 22 } md.sys.typescale.emphasized.title-medium.font md.sys.typescale.emphasized.title-small.font md.sys.typescale.emphasized.label-large.font md.sys.typescale.title-medium.font md.sys.typescale.title-small.font md.sys.typescale.label-large.font md.comp.text-button.label-text.font md.comp.filled-button.label-text.font md.comp.outlined-button.label-text.font md.comp.elevated-button.label-text.font md.comp.filled-tonal-button.label-text.font md.comp.outlined-select.menu.list-item.label-text.font md.comp.filled-select.menu.list-item.label-text.font md.comp.filled-autocomplete.menu.list-item.label-text.font md.comp.outlined-autocomplete.menu.list-item.label-text.font md.comp.extended-fab.branded.label-text.font md.comp.extended-fab.primary.label-text.font md.comp.extended-fab.secondary.label-text.font md.comp.extended-fab.surface.label-text.font md.comp.extended-fab.tertiary.label-text.font md.comp.list.list-item.leading-avatar-label.font md.comp.slider.value-indicator.label.label-text.font
+new { cmp: 4157, undef: 30, comp: 129, bad: 0, nonColour: 0 } 
+old { cmp: 3849, undef: 76, comp: 113, bad: 21, nonColour: 21 } md.sys.typescale.emphasized.title-medium.font md.sys.typescale.emphasized.title-small.font md.sys.typescale.emphasized.label-large.font md.sys.typescale.title-medium.font md.sys.typescale.title-small.font md.sys.typescale.label-large.font md.comp.text-button.label-text.font md.comp.filled-button.label-text.font md.comp.outlined-button.label-text.font md.comp.elevated-button.label-text.font md.comp.filled-tonal-button.label-text.font md.comp.outlined-select.menu.list-item.label-text.font md.comp.filled-select.menu.list-item.label-text.font md.comp.filled-autocomplete.menu.list-item.label-text.font md.comp.outlined-autocomplete.menu.list-item.label-text.font md.comp.extended-fab.branded.label-text.font md.comp.extended-fab.primary.label-text.font md.comp.extended-fab.secondary.label-text.font md.comp.extended-fab.surface.label-text.font md.comp.extended-fab.tertiary.label-text.font md.comp.list.list-item.leading-avatar-label.font
+new { cmp: 3849, undef: 30, comp: 113, bad: 0, nonColour: 0 } 
+
+== conv.ts (tables refetched at 2026-11-19_06-20-01, in memory)
+2026-11-19_06-20-01 18
+files 124 identical 124 different []
+rename group font→typeface => COLOR.20543ce18892f7d9: typeface: contextTagGroups: is not a group of the rendered context
+rename tag static→fixed => TYPOGRAPHY.20543ce18892f7d9: md.sys.typescale.emphasized.display-small: contextualReferenceTree: has 0 entries for the rendered context, not one
+rename tag web→browser => COLOR.20543ce18892f7d9: md.sys.color.tertiary-fixed-dim: contextualReferenceTree: has 0 entries for the rendered context, not one
+rename tag 3p→external => COLOR.20543ce18892f7d9: md.sys.color.tertiary-fixed-dim: contextualReferenceTree: has 0 entries for the rendered context, not one
+rename tag tv (unused in context) => ACCEPTED
+name,dsdbVersion,_isResolved,revisionId,revisionCreateTime,state,displayName,description,revisionAuthor,tokenNamePrefix,carbonProject,parentVersions,custom,createTime,author,navigation,tokenSets,versions,version,components,componentDisplayGroups,connections,contextTagGroups,tags,tokens,displayGroups,values,settings,contextualReferenceTrees,parentVersionsMapping
+false designSystems/20543ce18892f7d9/tokenSets/2904362cb1f205af/tokens/20d3aa7d945376ab [ 'contextualReferenceTree' ]
+remove one whole tree's entries => COLOR.20543ce18892f7d9: md.sys.color.tertiary-fixed-dim: contextualReferenceTree: has 0 entries for the rendered context, not one
+duplicate an untagged entry => COLOR.20543ce18892f7d9: md.ref.palette.pink0: contextualReferenceTree: has 2 entries for the rendered context, not one
+add untagged to tagged => COLOR.20543ce18892f7d9: md.sys.color.tertiary-fixed-dim: contextualReferenceTree: has 2 entries for the rendered context, not one
+
+== tags.ts (each single change of the context)
+motion.scheme standard colour 0 other 6 none 0 md.sys.motion
+platform ios colour 50 other 18 none 0 md.sys.motion md.sys.typescale.emphasized md.sys.typescale
+platform compose colour 0 other 31 none 0 md.sys.motion md.sys.typescale.variable md.sys.typescale.variable.emphasized
+platform android colour 0 other 31 none 0 md.sys.motion md.sys.typescale.variable md.sys.typescale.variable.emphasized
+font ios.bold colour 0 other 19 none 0 md.sys.typescale
+font variable colour 0 other 51 none 0 md.ref.typeface md.sys.typescale.emphasized md.sys.typescale
+theme dark colour 34 other 0 none 0 
+audience 1p.baseline colour 9 other 93 none 0 md.ref.palette md.ref.typeface md.sys.typescale.emphasized md.sys.typescale
+device tv colour 0 other 0 none 0 
+device desktop colour 0 other 0 none 0 
+device auto colour 0 other 0 none 0 
+contrast high.contrast colour 30 other 0 none 0 
+contrast medium.contrast colour 30 other 0 none 0 
+language.height extra.large colour 0 other 15 none 0 md.ref.typeface
+language.height large colour 0 other 15 none 0 md.ref.typeface
+language.height medium colour 0 other 15 none 0 md.ref.typeface
+ios.dark.theme.elevation elevated colour 0 other 0 none 0 
+ios.weight.setting bold colour 0 other 0 none 0 
+
+== expr.ts (motion.scheme and other tags)
+motion.scheme: Sets motion scheme for all springs. | expressive(Expressive: Expressive motion scheme.); standard(Standard: Standard motion scheme.)
+platform: Defines iOS color and component overrides, and sets one easing motion token for all platforms (md.sys.motion.easing.emphasized) | ios(iOS: iOS component overrides, color scheme overrides, and motion tokens.); compose(Compose: Android Jetpack Compose motion token.); android(Android: Android Views motion token.); web(Web: Web motion token.)
+font: DEPRECATED. Use variable font tokens and iOS weight setting context! | static(Static: DEPRECATED. Don't use! - Static font tokens (like Google Sans, Roboto).); ios.bold(iOS bold: DEPRECATED. Use iOS weight setting content instead! - Bolds iOS weights by one level.); variable(Variable: DEPRECATED. Use variable font tokens instead! - Applies variable font (like Google Sans Flex, Roboto Flex).)
+theme: Sets light and dark theme ref color tokens. | light(Light: Light theme.); dark(Dark: Dark theme.)
+audience: Sets baseline blue (1P) or dynamic color (3P) and typography changes. Use "3P" to apply dynamic color to your product. | 3p(3P: Applies default dynamic color palette and Roboto typefaces. (Dynamic color resolves to a purple color scheme by default.)); 1p.baseline(1P Baseline: Applies custom baseline blue color palette and Google Sans typefaces.)
+device: Android Compose only. For adaptive design changes based on device or form factor. | tv(TV: TVs.); mobile(Mobile: Phones, foldables, and other handheld devices.); desktop(Desktop: Laptop, desktop, and other large monitors.); auto(Auto: Car screens.)
+contrast: Changes system color contrast based on user accessibility setting. For iOS "high contrast mode", use the medium contrast setting. | high.contrast(High contrast: High contrast levels. Not used on iOS.); medium.contrast(Medium contrast: Medium contrast levels. On iOS, use for High contrast mode.); default(Default: Default contrast levels.)
+language.height: Adjusts line-height axis based on script height. Details: https://carbon.googleplex.com/google-material-3/pages/typography/type-scale-tokens#43e323b2-7f17-411f-97ec-63980c89a19d | extra.large(Extra large: Around 100% taller: Nastaliq); large(Large: Around 30% taller: Burmese, Telugu); medium(Medium: Around 7% taller: Amharic, Arabic, Armenian, Bangla, Chinese, Gujarati, Hindi, Jap
+ios.dark.theme.elevation: For iOS dark mode "elevated" surface theme. Maps surface container tones one level brighter. Details: https://carbon.googleplex.com/google-material-3/pages/gm3-apple-platforms/ios-foundations-styles#37d7117c-a36e-48ac-b2b4-6547ba3019a5 | elevated(Elevated: Elevated theme on.); none(None: Elevated theme off.)
+ios.weight.setting: For the iOS "Bold" accessibility setting. Increases all weights by 100. | bold(Bold: Bold setting on.); default(Default: Bold setting off.)
+audience=3p audience=1p.baseline contrast=high.contrast ios.dark.theme.elevation=elevated platform=ios theme=dark contrast=medium.contrast theme=light ios.dark.theme.elevation=none platform=compose platform=android platform=web contrast=default motion.scheme=expressive motion.scheme=standard ios.weight.setting=bold ios.weight.setting=default language.height=extra.large language.height=large langua
+sets w/ expressive|baseline|m3e in name: [
+  'Color schemes|md.sys.color',
+  'Motion|md.sys.motion',
+  'Button (baseline)|md.comp.button',
+  'FAB - Size - Small|md.comp.fab.small',
+  '[Deprecated] FAB - Secondary, small|md.comp.fab.secondary.small',
+  'FAB - Color - Surface|md.comp.fab.surface',
+  'FAB - Color - Branded|md.comp.fab.branded',
+  '[Deprecated] FAB - Primary, small|md.comp.fab.primary.small',
+  '[Deprecated] FAB - Surface, small|md.fab.surface.small',
+  '[Deprecated] FAB - Tertiary, small|md.comp.fab.tertiary.small',
+  'Extended FAB - Color - Branded|md.comp.extended-fab.branded',
+  'Extended FAB - Color - Surface|md.comp.extended-fab.surface',
+  'Extended FAB - Size - Baseline|md.comp.extended-fab',
+  'Extended FAB - Size - Small|md.comp.extended-fab.small',
+  'Icon button (baseline)|md.comp.icon-button',
+  'List - Common|md.comp.list',
+  'List - Reveal|md.comp.list.reveal',
+  'List - Reorder|md.comp.list.reorder',
+  'App bar - Size - Medium (baseline)|md.comp.app-bar.medium',
+  'App bar - Size - Large (baseline)|md.comp.app-bar.large',
+  'App bar - Size - Small|md.comp.app-bar.small',
+  'Slider|md.comp.slider',
+  'Slider - Size - Xsmall|md.comp.slider.xsmall',
+  'Slider - Size - Small|md.comp.slider.small',
+  'Slider - Size - Medium|md.comp.slider.medium',
+  'Slider - Size - Large|md.comp.slider.large',
+  'Slider - Size - Xlarge|md.comp.slider.xlarge'
+]
+scheme old->new {
+  'undefined->undefined': 4233,
+  'expressive->expressive': 52,
+  'expressive->undefined': 1
+} lost [
+  'md.sys.motion.easing.emphasized',
+  'X md.sys.motion.easing.emphasized'
+]
+
+== compose.ts (androidx 1d46c08fb)
+compose typescale compared 120 missing 0
+ExpressiveMotionTokens 12 differ 0 VERSION: v0_14_0
+StandardMotionTokens 12 differ 0 VERSION: v0_14_0
+emphasized refs {}
+md.comp.button.xsmall.label-text {"tokenName":"md.sys.typescale.label-large"}
+md.comp.button.small.label-text {"tokenName":"md.sys.typescale.label-large"}
+md.comp.button.medium.label-text {"tokenName":"md.sys.typescale.title-medium"}
+md.comp.button.large.label-text {"tokenName":"md.sys.typescale.headline-small"}
+md.comp.button.xlarge.label-text {"tokenName":"md.sys.typescale.headline-large"}
+md.comp.extended-fab.small.label-text {"tokenName":"md.sys.typescale.title-medium"}
+md.comp.extended-fab.medium.label-text {"tokenName":"md.sys.typescale.title-large"}
+md.comp.extended-fab.large.label-text {"tokenName":"md.sys.typescale.headline-small"}
+md.comp.list.list-item.label-text {"tokenName":"md.sys.typescale.body-large.font"}
+md.comp.list.list-item.overline {"tokenName":"md.sys.typescale.label-small.font"}
+md.comp.list.list-item.supporting-text {"tokenName":"md.sys.typescale.body-medium.font"}
+md.comp.list.list-item.trailing-supporting-text {"tokenName":"md.sys.typescale.label-small.font"}
+md.comp.list.list-item.leading-avatar-label {"tokenName":"md.sys.typescale.title-medium.font"}
+md.comp.filled-text-field.input-text {"tokenName":"md.sys.typescale.body-large.font"}
+md.comp.filled-text-field.supporting-text {"tokenName":"md.sys.typescale.body-small.font"}
+
+== latest.ts (material-web a0bab1d94 tokens/versions/latest, design system 34.0.21)
+rendered compared 2018 not in store 2343 skipped 1475 differ 289
+typescale []
+motion [
+]
+rest [
+]
+typescale vars 423
+standard compared 2018 not in store 2343 skipped 1475 differ 249
+[]
+md-sys-motion.$spring-fast-spatial-damping 0.9
+md-sys-motion.$spring-default-spatial-stiffness 700
+OTHER 2 md.comp.button.xsmall.icon-label-space store=4px web=8px
+md.comp.slider.medium.active.handle.height store=52px web=44px
+of the differences, moved by the rule: 59 [
+]
+springs among 40
+typescale compared vars: 428 emph 210
+label mixins { same: 19 }
+
+== rond.ts
+md.sys.typescale.emphasized.headline-medium.rond old 100 new 0 variable 100
+emphasized weights 15
+
+== mutate-tproc.mjs (rows failed of 211; the full suite each time)
+font variable 25, ios.bold 11; platform android 1, ios 1; audience 24; motion standard 22; theme, contrast, device, language.height, ios.dark.theme.elevation, ios.weight.setting: 0; fallback 1; some 35; ignored changes 2; changes replace 1; untagged 39; value index 30; no-tree 30; group check dropped 1; selection check dropped 2; only >1 1; only 0 1
+
+== mutate-css.mjs, spec project, Chromium
+button reader 5, button constant 0.1px 3; FAB reader 3, constant 0 1; input 4; prefix and suffix 8; supporting text and counter 8, supporting text reading the input's 8; text field label 4; list label-text, overline, supporting-text, leading-avatar-label, trailing-supporting-text 2 each
+
+== rendered, Chromium; Firefox and WebKit are the same once quotes are removed
+theme | button xsmall | Roboto | 500 | 0.1px | 14px/20px | axes normal
+theme | button small | Roboto | 500 | 0.1px | 14px/20px | axes normal
+theme | button medium | Roboto | 500 | 0.15px | 16px/24px | axes normal
+theme | button large | Roboto | 400 | normal | 24px/32px | axes normal
+theme | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal
+theme | switch-button | Roboto | 500 | 0.1px | 14px/20px | axes normal
+theme | button text | Roboto | 500 | 0.1px | 14px/20px | axes normal
+theme | fab extended small | Roboto | 500 | 0.15px | 16px/20px | axes normal
+theme | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal
+theme | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal
+theme | list label | Roboto | 400 | 0.5px | 16px/24px | axes normal
+theme | list overline | Roboto | 500 | 0.5px | 11px/16px | axes normal
+theme | list support | Roboto | 400 | 0.25px | 14px/20px | axes normal
+theme | list trail | Roboto | 500 | 0.5px | 11px/16px | axes normal
+theme | list lead avatar-label | Roboto | 500 | 0.15px | 16px/24px | axes normal
+theme | text-field label | Roboto | 400 | 0.5px | 16px/24px | axes normal
+   input Roboto 400 0.5px
+theme | text-field support | Roboto | 400 | 0.4px | 12px/16px | axes normal
+   input Roboto 400 0.5px
+theme | link-button | Roboto | 500 | 0.1px | 14px/20px | axes normal
+theme | outlined tf counter | Roboto | 400 | 0.4px | 12px/16px | axes normal
+   input Roboto 400 0.5px
+theme | multiline suffix | Roboto | 400 | 0.5px | 16px/24px | axes normal
+theme | list-button label | Roboto | 400 | 0.5px | 16px/24px | axes normal
+theme | text-field prefix | Roboto | 400 | 0.5px | 16px/24px | axes normal
+   input Roboto 400 0.5px
+plain | button xsmall | Roboto | 500 | 0.1px | 14px/20px | axes normal
+plain | button small | Roboto | 500 | 0.1px | 14px/20px | axes normal
+plain | button medium | Roboto | 500 | 0.15px | 16px/24px | axes normal
+plain | button large | Roboto | 400 | normal | 24px/32px | axes normal
+plain | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal
+plain | switch-button | Roboto | 500 | 0.1px | 14px/20px | axes normal
+plain | button text | Roboto | 500 | 0.1px | 14px/20px | axes normal
+plain | fab extended small | Roboto | 500 | 0.15px | 16px/20px | axes normal
+plain | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal
+plain | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal
+plain | list label | Roboto | 400 | 0.5px | 16px/24px | axes normal
+plain | list overline | Roboto | 500 | 0.5px | 11px/16px | axes normal
+plain | list support | Roboto | 400 | 0.25px | 14px/20px | axes normal
+plain | list trail | Roboto | 500 | 0.5px | 11px/16px | axes normal
+plain | list lead avatar-label | Roboto | 500 | 0.15px | 16px/24px | axes normal
+plain | text-field label | Roboto | 400 | 0.5px | 16px/24px | axes normal
+   input Roboto 400 0.5px
+plain | text-field support | Roboto | 400 | 0.4px | 12px/16px | axes normal
+   input Roboto 400 0.5px
+plain | link-button | Roboto | 500 | 0.1px | 14px/20px | axes normal
+plain | outlined tf counter | Roboto | 400 | 0.4px | 12px/16px | axes normal
+   input Roboto 400 0.5px
+plain | multiline suffix | Roboto | 400 | 0.5px | 16px/24px | axes normal
+plain | list-button label | Roboto | 400 | 0.5px | 16px/24px | axes normal
+plain | text-field prefix | Roboto | 400 | 0.5px | 16px/24px | axes normal
+   input Roboto 400 0.5px
+
+== root typecheck: 8 runs, exit 0 each
+
+== recheck at 14ae04d81: recheck.ts (material-web's latest fetched again; the store isn't read)
+type published 150 fixture 150 differ []
+colour published 50 variables in file 50 fixture 50 differ []
+
+== recheck-mutate.mjs (selection and Store rows, 228)
+main's rule: type 58 (34 base, 24 emphasized), colour 39, line height 15, chain 1, Store 3
+theme dark: colour 34; contrast high and medium: colour 30 each; language.height medium, large and extra.large: line height 15 each; nothing else fails in these six
+font variable: type 48; font ios.bold: type 10; audience 1p.baseline: type 48, colour 9; platform ios: colour 50; platform android: the Store row alone
+device desktop, ios.dark.theme.elevation elevated, ios.weight.setting bold: none
+head, the whole tproc suite: 351 passed

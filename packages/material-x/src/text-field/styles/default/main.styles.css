@@ -227,6 +227,7 @@ slot:has-slotted {
     --md-text-field-input-line-height,
     var(--_input-text-line-height)
   );
+  letter-spacing: var(--_input-text-tracking);
   color: var(--_input-text-color);
   caret-color: var(--_caret-color);
 }
@@ -265,6 +266,7 @@ textarea.input {
     --md-text-field-input-line-height,
     var(--_input-text-line-height)
   );
+  letter-spacing: var(--_input-text-tracking);
   text-wrap: nowrap;
 }
 
@@ -405,6 +407,7 @@ textarea.input {
   font-size: var(--_supporting-text-size);
   font-weight: var(--_supporting-text-weight);
   line-height: var(--_supporting-text-line-height);
+  letter-spacing: var(--_supporting-text-tracking);
 }
 
 .support {

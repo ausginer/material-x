@@ -51,14 +51,52 @@ describe('Store', () => {
     ],
   });
 
-  it('should select the first entry whose tags include a given tag', () => {
-    expect(store.select(token)?.value).toEqual(token.values[1]);
+  it('should select the entry whose every tag the rendered context has', () => {
+    const contexts = [
+      { font: 'ios.bold', platform: 'web' },
+      { font: 'static', platform: 'ios' },
+      { font: 'static', platform: 'web' },
+    ];
+    const several = createToken({
+      values: contexts.map((contextTags, i) => ({ contextTags, numeric: i })),
+      contextualReferenceTree: contexts.map((contextTags, value) => ({
+        contextTags,
+        value,
+        referenceTree: { tokenName: 'md.comp.test.token' },
+        resolvedValue: { numeric: value },
+      })),
+    });
+
+    expect(store.select(several)?.value.numeric).toBe(2);
   });
 
-  it('should select the first entry when no tag matches', () => {
-    expect(store.select(token, ['web'])?.entry?.resolvedValue).toEqual({
-      numeric: 1,
+  it('should select the entry of another context that a caller names', () => {
+    expect(
+      store.select(token, { 'motion.scheme': 'standard' })?.value.numeric,
+    ).toBe(1);
+  });
+
+  it('should keep the rendered tags of the groups a caller leaves out', () => {
+    expect(store.select(token, { theme: 'dark' })?.value.numeric).toBe(2);
+  });
+
+  it('should select an entry that has no tag', () => {
+    const untagged = createToken({
+      values: [{ numeric: 4 }],
+      contextualReferenceTree: [
+        {
+          value: 0,
+          referenceTree: { tokenName: 'md.comp.test.token' },
+          resolvedValue: { numeric: 4 },
+        },
+      ],
     });
+
+    expect(store.select(untagged)?.value.numeric).toBe(4);
+  });
+
+  it('should select nothing when no entry matches the context', () => {
+    expect(store.select(token, { 'motion.scheme': 'none' })).toBeUndefined();
   });
 
   it('should select the first value of a token with no tree', () => {

@@ -649,6 +649,39 @@ describe('convert refusals', () => {
     );
   });
 
+  it('should refuse a tag group that the rendered context does not name', () => {
+    const table = createTable();
+    edit(
+      table,
+      ['system', 'contextTagGroups', 0, 'contextTagGroupName'],
+      'density',
+    );
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: density: contextTagGroups: is not a group of the rendered context',
+    );
+  });
+
+  it('should refuse a tree with no entry for the rendered context', () => {
+    const table = createTable();
+    edit(table, ['system', 'tags', 0, 'tagName'], 'standard');
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.a: contextualReferenceTree: has 0 entries for the rendered context, not one',
+    );
+  });
+
+  it('should refuse a tree with two entries for the rendered context', () => {
+    const table = createTable();
+    const entry = structuredClone(at(table, TREE));
+    Reflect.deleteProperty(entry, 'contextTags');
+    edit(table, [...TREE.slice(0, -1), 1], entry);
+    refuses(
+      table,
+      'TOKEN_TABLE.c1: md.comp.test.a: contextualReferenceTree: has 2 entries for the rendered context, not one',
+    );
+  });
+
   it('should refuse two tables of different versions', () => {
     expect(() =>
       convert(
