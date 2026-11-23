@@ -1,0 +1,17 @@
+/*
+ * Visually hidden and exposed to assistive technology. The box adds no
+ * scrollable overflow to any ancestor: a fixed box adds none unless an ancestor
+ * contains it, as a transformed one does. Then the box is at that ancestor's
+ * physical start corner, whatever the writing direction, and is no larger than
+ * it.
+ */
+.aria-notify {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(1px, 100%);
+  height: min(1px, 100%);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '../../../src/text-field/text-field.ts';
 
-describe('polyfills', () => {
+describe('has-slotted', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -12,7 +12,7 @@ describe('polyfills', () => {
 
     // The query makes the dev server load a fresh instance of the module.
     const url = new URL(
-      '../../../src/core/utils/polyfills.ts',
+      '../../../src/core/polyfills/has-slotted.ts',
       import.meta.url,
     );
     url.search = '?fresh-import';

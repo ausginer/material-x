@@ -1,0 +1,104 @@
+# RF-103 property 2 as amended. MX_TEST_ENGINES=chromium,firefox,webkit, tests/list/sortable-list -t 'other items change|announcement': 19 rows per engine, 12 of them new.
+
+## before, the sortable-list.ts of 333c9f7ae
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not… 246ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is … 146ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha… 592ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move… 600ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 136ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 592ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha… 600ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move… 601ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move… 592ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not… 295ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is … 384ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha… 667ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move… 727ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 144ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 697ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha… 719ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move… 899ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move… 821ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not… 197ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is … 145ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha… 576ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1465 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move… 597ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 134ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 612ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha… 598ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move… 586ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1474 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move… 578ms
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+Tests  27 failed | 30 passed | 246 skipped (303)
+
+## after
+Tests  57 passed | 246 skipped (303)
+
+## the repair with index === request.to in the wait
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is … 260ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 144ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 592ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha… 605ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move… 595ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move… 601ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is … 187ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 150ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 675ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha… 705ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move… 673ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move… 739ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is … 163ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 157ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 583ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha… 583ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move… 595ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1478 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move… 601ms
+AssertionError: expected '' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+Tests  18 failed | 39 passed | 246 skipped (303)
+
+## the repair with index !== result.request.from in onEnd
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not… 742ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha… 143ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move… 254ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not… 691ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha… 213ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move… 380ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not… 619ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha… 138ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1469 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move… 233ms
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+Tests  9 failed | 48 passed | 246 skipped (303)
+
+## after, material-x browser and spec, tests/list and tests/core/polyfills
+Tests  593 passed | 4 skipped (597)
+
+# Sizes, just size --json, Brotli. Every other row is that of size.txt's 'after'.
+list/sortable-list 8798 -> 8846
+complete 22740 -> 22848

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
@@ -1265,4 +1265,325 @@ document.body.dataset.ready = '';
       [0, 1],
     ]);
   });
+});
+
+describe('mx-sortable-list announcement', () => {
+  /** Moves the first of four items down one slot, for `commit` to answer. */
+  async function moveFirst(
+    commit: (event: ReorderEvent, list: HTMLElement) => void,
+  ): Promise<HTMLElement> {
+    const [list, [a]] = await createList(['A', 'B', 'C', 'D']);
+    list.addEventListener('reorder', (event) => {
+      commit(event as ReorderEvent, list);
+    });
+    a!.focus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, a!);
+    return list;
+  }
+
+  it('should announce nothing when the consumer never commits', async () => {
+    const list = await moveFirst(() => {});
+
+    expect([order(list), announcementOf(list)]).toEqual([
+      ['A', 'B', 'C', 'D'],
+      '',
+    ]);
+  });
+
+  it('should announce nothing for a pointer drop the consumer never commits', async () => {
+    const [list, [a, b]] = await createList(['A', 'B', 'C']);
+
+    await dragOnto(visualOf(a!), visualOf(b!));
+    await whenSettled(list, a!);
+
+    expect(announcementOf(list)).toBe('');
+  });
+
+  it("should announce the item's position when the consumer commits at another slot", async () => {
+    const list = await moveFirst(({ item }, target) => {
+      target.append(item);
+    });
+
+    expect(announcementOf(list)).toBe('Item 4 of 4.');
+  });
+
+  it("should announce the item's position when the consumer commits at another slot later", async () => {
+    const list = await moveFirst(({ item }, target) => {
+      setTimeout(() => {
+        target.append(item);
+      }, 100);
+    });
+
+    expect(announcementOf(list)).toBe('Item 4 of 4.');
+  });
+
+  it('should announce nothing when the consumer commits after the bound', async () => {
+    const list = await moveFirst(({ item, next }, target) => {
+      setTimeout(() => {
+        target.insertBefore(item, next);
+      }, 1500);
+    });
+    const atTheBound = order(list);
+    await expect
+      .poll(() => order(list), { timeout: 3000 })
+      .toEqual(['B', 'A', 'C', 'D']);
+    await nextFrame();
+
+    expect([atTheBound, announcementOf(list)]).toEqual([
+      ['A', 'B', 'C', 'D'],
+      '',
+    ]);
+  });
+
+  it('should announce nothing when the consumer removes the item', async () => {
+    // drag reports that the landing has no placeholder beside the removed item.
+    const report = vi.spyOn(window, 'reportError').mockImplementation(() => {});
+    onTestFinished(() => report.mockRestore());
+    const list = await moveFirst(({ item }) => {
+      item.remove();
+    });
+
+    expect(announcementOf(list)).toBe('');
+  });
+
+  it('should style the region without a style attribute', async () => {
+    const [list] = await createList([]);
+
+    expect(
+      list.shadowRoot!.querySelector('[aria-live]')!.hasAttribute('style'),
+    ).toBe(false);
+  });
+});
+
+describe('mx-sortable-list when other items change during the commit wait', () => {
+  type ChangeCase = Readonly<{
+    name: string;
+    /** The index of the item that moves down one slot in A, B, C, D. */
+    index: number;
+    respond: (
+      event: ReorderEvent,
+      list: HTMLElement,
+      items: readonly HTMLElement[],
+    ) => void;
+    announcement: string;
+    /** Whether the wait ends before the 500 ms bound. */
+    early: boolean;
+  }>;
+
+  function insertFirst(list: HTMLElement): void {
+    list.prepend(createItem('mx-list-item', 'Z', false));
+  }
+
+  const CHANGES: readonly ChangeCase[] = [
+    {
+      name: 'an item is inserted and the move is not committed',
+      index: 0,
+      respond: (_, list) => {
+        setTimeout(() => insertFirst(list), 50);
+      },
+      announcement: '',
+      early: false,
+    },
+    {
+      name: 'an item is inserted before the move is committed',
+      index: 0,
+      respond: ({ item, next }, list) => {
+        setTimeout(() => insertFirst(list), 50);
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 150);
+      },
+      announcement: 'Item 3 of 5.',
+      early: true,
+    },
+    {
+      name: 'an item is inserted in the task that commits the move',
+      index: 0,
+      respond: ({ item, next }, list) => {
+        list.insertBefore(item, next);
+        insertFirst(list);
+      },
+      announcement: 'Item 3 of 5.',
+      early: true,
+    },
+    {
+      name: 'another item is removed in the task that commits the move',
+      index: 2,
+      respond: ({ item, next }, list, [a]) => {
+        setTimeout(() => {
+          list.insertBefore(item, next);
+          a!.remove();
+        }, 50);
+      },
+      announcement: 'Item 3 of 3.',
+      early: true,
+    },
+    {
+      name: 'another item is removed before the move is committed',
+      index: 2,
+      respond: ({ item, next }, list, [a]) => {
+        setTimeout(() => a!.remove(), 50);
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 150);
+      },
+      announcement: 'Item 3 of 3.',
+      early: true,
+    },
+    {
+      name: 'the passed item is removed and the move is not committed',
+      index: 0,
+      respond: (_, _list, [, b]) => {
+        setTimeout(() => b!.remove(), 50);
+      },
+      announcement: '',
+      early: true,
+    },
+    {
+      name: 'the item leaves and returns at the proposed slot',
+      index: 1,
+      respond: ({ item, next }, list) => {
+        setTimeout(() => item.remove(), 50);
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 150);
+      },
+      announcement: 'Item 3 of 4.',
+      early: true,
+    },
+  ];
+
+  /** Returns the announcement, and whether the wait ended before its bound. */
+  async function moveDown({
+    index,
+    respond,
+  }: ChangeCase): Promise<readonly [announcement: string, early: boolean]> {
+    const [list, items] = await createList(['A', 'B', 'C', 'D']);
+    const item = items[index]!;
+    let proposed = Number.NaN;
+    list.addEventListener('reorder', (event) => {
+      proposed = performance.now();
+      respond(event as ReorderEvent, list, items);
+    });
+    item.focus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    await expect
+      .poll(() => isDragged(item), { interval: 10, timeout: 2000 })
+      .toBe(false);
+    const early = performance.now() - proposed < 400;
+    return [announcementOf(list), early];
+  }
+
+  it.each(CHANGES)(
+    'should announce only a real move when $name',
+    async (row) => {
+      const [announcement] = await moveDown(row);
+
+      expect(announcement).toBe(row.announcement);
+    },
+  );
+
+  it.each(CHANGES)(
+    'should end the wait only for the order of the proposed slot when $name',
+    async (row) => {
+      const [, early] = await moveDown(row);
+
+      expect(early).toBe(row.early);
+    },
+  );
+});
+
+describe('mx-sortable-list scrollable overflow', () => {
+  type ContainerCase = Readonly<{
+    name: string;
+    /** The styles of the boxes around the list, from the outermost. */
+    boxes: readonly string[];
+    /** The styles of the box before the list. */
+    pad?: string;
+    labels?: readonly string[];
+    /** The list's own direction, where it differs from its containers'. */
+    direction?: 'ltr' | 'rtl';
+  }>;
+
+  const CONTAINERS: readonly ContainerCase[] = [
+    {
+      name: 'an unpositioned scroll container',
+      boxes: ['height: 200px; overflow: auto'],
+    },
+    {
+      name: 'a scroll container in a transformed box',
+      boxes: ['transform: translateX(0)', 'height: 200px; overflow: auto'],
+    },
+    {
+      name: 'a scroll container in a fixed box',
+      boxes: [
+        'position: fixed; inset: 0 auto auto 0; width: 300px; height: 200px',
+        'height: 200px; overflow: auto',
+      ],
+    },
+    {
+      name: 'an empty transformed box',
+      boxes: ['width: 0; height: 0; transform: translateX(0)'],
+      pad: 'height: 0',
+      labels: [],
+    },
+    {
+      name: 'a right-to-left scroll container in a transformed box',
+      boxes: [
+        'direction: rtl; transform: translateX(0)',
+        'display: flex; width: 200px; overflow: auto',
+      ],
+      pad: 'flex: none; width: 3000px',
+    },
+    {
+      name: 'a left-to-right scroll container of a right-to-left list in a transformed box',
+      boxes: [
+        'transform: translateX(0)',
+        'display: flex; width: 200px; overflow: auto',
+      ],
+      pad: 'flex: none; width: 3000px',
+      direction: 'rtl',
+    },
+  ];
+
+  it.each(CONTAINERS)(
+    'should not change the overflow of any ancestor in $name',
+    async ({ boxes, pad = 'height: 3000px', labels = ['A'], direction }) => {
+      const [list] = await createList(labels);
+      list.dir = direction ?? '';
+      let container: HTMLElement = document.body;
+
+      for (const style of boxes) {
+        const box = document.createElement('div');
+        box.style.cssText = style;
+        container.append(box);
+        container = box;
+      }
+
+      const before = document.createElement('div');
+      before.style.cssText = pad;
+      container.append(before, list);
+      await nextFrame();
+      const measure = (): ReadonlyArray<readonly [number, number]> => {
+        const extents: Array<readonly [number, number]> = [];
+
+        for (
+          let ancestor: HTMLElement | null = list;
+          ancestor;
+          ancestor = ancestor.parentElement
+        ) {
+          extents.push([ancestor.scrollWidth, ancestor.scrollHeight]);
+        }
+
+        return extents;
+      };
+      const withRegion = measure();
+      list.shadowRoot!.querySelector('[aria-live]')!.remove();
+
+      expect(withRegion).toEqual(measure());
+    },
+  );
 });

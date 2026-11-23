@@ -1,0 +1,9 @@
+# tests/list tests/core/polyfills tests/text-field at 333c9f7ae, three engines
+ RUN  v5.1.0 /workspaces/worktrees/b/packages/material-x
+ Test Files  15 passed (15)
+      Tests  623 passed | 4 skipped (627)
+   Start at  09:36:49
+   Duration  77.00s (tests 92%, worker 4%, import 3%, setup 1%)
+real	1m18.741s
+user	0m39.328s
+sys	0m7.688s
