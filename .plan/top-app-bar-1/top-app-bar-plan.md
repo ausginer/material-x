@@ -11,9 +11,10 @@
 - **The store, on the shadow.** `md.comp.app-bar` has `on-scroll.container.elevation` (level 2) and no shadow color. The deprecated set it replaces had `md.comp.top-app-bar.small.on-scroll.container.shadow-color`, and upstream's deprecation message on it is: _"Bug: should not have been created. Remove any shadows on navigation bars."_
 - **[`scroll-state`](probes/scroll-state.mjs)** ([reading](checks/scroll-state.txt)), in Playwright's Chromium 158, Firefox 159 and WebKit 27.2:
   - `container-type: scroll-state` exists in Chromium only. `animation-timeline: scroll()` exists in the three.
-  - One `IntersectionObserver` on the document's root element follows the scroll position in every case tried: at each crossing of the start, from 1px, after a jump to the end and back, with `height: 100%` on `html` and `body`, with a body margin, in RTL with horizontal overflow, in a 100000px document, and in a frame whose own page is scrolled. 200 scroll steps away from the start make 1 callback. With a top margin of 1px, the `height: 100%` case loses the state, and with the default root the frame never gets it.
+  - One `IntersectionObserver` on the document's root element follows the scroll position in every case tried: at each crossing of the start, from 1px, after a jump to the end and back, with `height: 100%` on `html` and `body`, with a body margin, in RTL with horizontal overflow (not scrolled sideways), in a 100000px document, and in a frame whose own page is scrolled. 200 scroll steps away from the start make 1 callback. With a top margin of 1px, the `height: 100%` case loses the state, and with the default root the frame never gets it.
   - A sticky bar pins as a child of `body`. Inside a `<header>` of its own height it scrolls away (top −2000px), and inside a `<header>` with `display: contents` it pins. With `height: 100%` on `body` it scrolls away with the body.
   - Positioned content paints over a sticky bar with `z-index: auto`, and under one with `z-index: 1`.
+- **[`scroll-sideways`](probes/scroll-sideways.mjs)** ([reading](checks/scroll-sideways.txt)), in the same engines, with a 1280px viewport and 6000px content. With 0px sides, the state is off at every position from `scrollX` 1280 that is scrolled down, 15 of 40, because the root element's box is one viewport wide and has left the root's area. With sides as large as the top, none of the 40 is wrong, also in RTL, with `html { height: 100% }` and with `html { width: max-content }`, and 48 sideways steps away from the start make no callback.
 - **Limits:** scrolling was programmatic. Safari's overscroll and touch scrolling weren't read.
 
 ## The element
@@ -38,10 +39,11 @@
 
 ### The scrolled state
 
-**One `IntersectionObserver` per bar,** on `document.documentElement`, with `root: document`. The root's margins leave only the area above the scroll start, and the state is on while the root element reaches into it. The probe's observer is the pattern: a top margin too large for a page to exceed, `-100%` at the bottom, and a threshold just above 0.
+**One `IntersectionObserver` per bar,** on `document.documentElement`, with `root: document`. The root's margins leave only the area above the scroll start, and the state is on while the root element reaches into it. The probe's observer is the pattern: top and side margins too large for a page to exceed, `-100%` at the bottom, and a threshold just above 0.
 
 - **`root: document`** is required: with the default root, a frame's observer measures against the outermost page.
 - **The large top margin** is required: with a margin of 1px, `html { height: 100% }` leaves the strip again once the page has scrolled past it.
+- **The large side margins** are required (amended 2026-11-23, on Mx Implementer B's stop, relayed by the coordinator): with 0px, a page scrolled sideways by a viewport turns the state off while content is under the bar. `body { width: max-content }` is such a page whose bar is still in view. The alternative, the wide page as a recorded limit, isn't taken, because the margins cost a few bytes and nothing at run time.
 - **It starts at connect and stops at disconnect.** The first callback sets the initial state, also for a restored scroll position.
 - **No scroll listener and no layout read.** The state changes at a crossing only.
 - **The state is the platform's, as `:hover` is.** No consumer sets it and no event reports it.
@@ -104,6 +106,7 @@ In each engine at `RD-20`'s floor, with real scrolling of the document:
   - the state is off at the start, on after 1px and after a jump to the end, and off again at the start;
   - it is on when the bar connects to a scrolled page, and after a disconnect and a reconnect at another position it matches that position;
   - with `html { height: 100% }` it stays on past one viewport. **Witness:** the row fails with a top margin of 1px;
+  - with content wider than the viewport and `body { width: max-content }`, it stays on when the scrolled page is scrolled sideways past one viewport. **Witness:** the row fails with side margins of 0px;
   - many scroll steps away from the start change the host's states once, with no `scroll` listener added. **Witness:** the row fails with a scroll listener that sets the state;
   - the bar's top stays 0 on a scrolled page, positioned content stays under it, and a page's `position: static` unpins it;
   - the bar adds no role and no tab stop, the focus order is `lead`, headline, `trail`, and a consumer's `role="banner"` stands in Chromium's accessibility tree.

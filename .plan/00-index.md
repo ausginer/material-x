@@ -2402,6 +2402,8 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - **The shadow:** _"(а), и поехали"_ ("(a), and let's go"). He was asked whether the scrolled bar draws a shadow: (a) color only, which the architect recommended, or (b) color and the level-2 shadow that the landing plan named. So property 5 stands.
 - **The landmark:** he asked about it, and after the explanation said _"Да, тогда role="banner" выглядит правильнее всего"_ ("Yes, then role="banner" looks the most correct"). So property 6 stands: the page sets the role on the bar.
 
+**Amended 2026-11-23 by the architect, property 3's reading,** on Mx Implementer B's stop at the plan's boundary, relayed by the coordinator. The observer's side margins are as large as its top margin. With the plan's 0px sides the state was wrong in the three engines on a page scrolled sideways by a viewport or more, which the first reading hadn't scrolled, so _"in every case read"_ didn't cover it. With large sides it matches there too ([reading](top-app-bar-1/checks/scroll-sideways.txt)). The mechanism doesn't change, and the plan gains a row.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
