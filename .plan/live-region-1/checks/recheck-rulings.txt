@@ -1,0 +1,18 @@
+# Two cases tried for the ruling on recheck-1 and recheck-2 of #197. Read by the architect on 2026-11-23, in slot b at 9b132fd20.
+# Both were added to CHANGES in tests/list/sortable-list.browser.test.ts, as two rows each (announcement, wait), run with
+# MX_TEST_ENGINES=chromium,firefox,webkit -t PROBE, and removed after the run. Nothing was committed outside .plan/.
+#
+# returned: index 1 (B down, 1 to 2). item.remove() at 50 ms, list.insertBefore(item, next) at 150 ms. Expects "Item 3 of 4.", early.
+# twin of case 13: index 2 (C down). At 50 ms, D is inserted before C and A is appended. C isn't moved. The final order is B, D, C, A,
+#   the same as case 13's, where C is committed and A is appended. Expects no announcement, and the wait to the bound.
+
+## head
+      Tests  12 passed | 303 skipped (315)
+
+## without `index >= 0 &&` in the wait
+     × should announce only a real move when PROBE the item leaves and returns   (chromium)  expected '' to be 'Item 3 of 4.'
+     × should announce only a real move when PROBE the item leaves and returns   (firefox)   expected '' to be 'Item 3 of 4.'
+     × should announce only a real move when PROBE the item leaves and returns   (webkit)    expected '' to be 'Item 3 of 4.'
+      Tests  3 failed | 9 passed | 303 skipped (315)
+# The wait row of "returned" passes in both, because the wait ends before 400 ms in both.
+# The mutated run also printed drag: sortable/landing-placeholder-lost. The head's run printed none.
