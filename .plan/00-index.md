@@ -1842,6 +1842,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - The order: _"the mechanism lands first with today's data, normalized without fetching, and must leave material-x's generated CSS byte-identical. The first update to a dated release is a separate pull request. The plan's [steps](tokens-source-1/tokens-source-plan.md#plan) carry proofs P1–P9."_
 - The status asked the owner to answer `Q1`–`Q3` of the [plan](tokens-source-1/tokens-source-plan.md#owner-questions).
 
+**Dated 2026-11-23 by the implementer: property 9 implemented on `tproc/typescale-selection-1`,** with `RF-110`, not yet merged.
+
 #### RD-29 — Material's tables are removed from every commit, once, by a rewrite that the owner runs, and the record keeps a map from old commit hashes to new ones
 
 **Proposed 2026-11-20 by the architect,** on the owner's answer to `RD-28`'s `Q2`, relayed by the coordinator: _"Да, конечно, всё переписываем, не хватало мне ещё претензий от гугла"_ ("Yes, of course, we rewrite everything; claims from Google are the last thing I need"). He then added (translated): _"The old pull requests need checking too: the data may have survived there."_
@@ -4124,6 +4126,8 @@ Tier C, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **The axes:** _"`wght` equals its weight token"_ isn't so in every package. The extended FAB's small label has weight 700 and `'wght' 500`, because the two come from different entries. Under `font: static` no base style has axes, so nothing is emitted, and the ruling holds. The owner chose `font: static` the same day (`RF-110`'s Q2 (a)). A later move to `font: variable` would read the ruling again.
 - **The supporting text too:** the text field emits `supporting-text.tracking`, and its supporting text and counter don't read it, which this entry's list had missed. Under `font: static` it is 0.4 px. By this entry's required property they read it, in the same unit.
 
+**Dated 2026-11-23 by the implementer: the tracking implemented on `tproc/typescale-selection-1`,** with `RF-92` and `RF-110`, the supporting text and the counter included. The reverse colours, the list's copies and the axes stay open. Under `font: static` no package emits axes.
+
 #### RF-82 — No visual contract covers the text fields beyond their spacing
 
 Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#text-fields)'s reviewer's task 1 (`RD-34`), relayed by the coordinator. `RF-81` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -4271,6 +4275,12 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **What reads its tracking in that unit:** the button's and the FAB's labels; the text field's input, prefix and suffix, from `input-text.tracking`; and its supporting text and counter, from `supporting-text.tracking`. The text field's label and the list item's texts read theirs already.
 - **The rows above gain** the prefix, the suffix, the supporting text and the counter, and the list item's avatar label.
 - **The populated label's tracking isn't read,** as `RF-81` rules for its line height: it is the resting label's, scaled.
+
+**Dated 2026-11-23 by the implementer: implemented on `tproc/typescale-selection-1`, with `RF-110`, and not closed.** Requested by the coordinator for #146.
+
+- **Readers:** the button's and the FAB's labels; the text field's input, prefix and suffix; its supporting text and counter.
+- **Rows:** the button's five sizes, the extended FAB's three, the text field's typography rows with letter spacing and a counter, and the list item's five texts. The FAB's three size packages are registered with the bridge. The expected value is resolved in a probe in the same engine, which serializes 0 px as the rendered element does. The button's and the FAB's rows set a letter spacing on the host, so that a 0 px label that reads no token fails too.
+- **Witness:** with the readers removed, 28 rows fail. With the list item's rules removed, its 10 rows fail ([reading](typescale-selection-1/checks/implementation.txt)).
 
 #### RF-93 — Eleven relative links in this index resolve to nothing
 
@@ -4611,6 +4621,17 @@ Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1
 - **Q2 — Which `font` tag: `static` or `variable`?** The weights are the same in both.
   - **(a) `static`, recommended:** Roboto, with the published letter spacing. It is upstream's default tag, equals what material-web and Compose publish, and is the font that Storybook, the tests and the planned site load.
   - **(b) `variable`:** Roboto Flex, with 0 px letter spacing in every style, and variation axes. Upstream's text calls `static` deprecated and asks for variable tokens, while `static` is still its default. Storybook, the tests and the site would load Roboto Flex, and `RF-81`'s ruling on the axes would be read again.
+
+**Dated 2026-11-23 by the implementer: implemented on `tproc/typescale-selection-1`, with `RF-92`, and not closed.** Requested by the coordinator for #189, from `main` at `35ea25892`. The evidence is in [`implementation.txt`](typescale-selection-1/checks/implementation.txt).
+
+- **The reader:** `RENDERED_CONTEXT` in `src/store/Store.ts` names one tag for each of the 10 groups, and `store.select(token, changes?)` selects the entry that it agrees with, or nothing. `changes` names the groups that differ.
+- **The converter** refuses a tag group that `RENDERED_CONTEXT` doesn't name, and a token with a tree that has no entry or more than one. The report compares in this context, under _Selected values changed, in the rendered context_.
+- **Witnesses:** before the change, 34 of material-web's 75 values fail, and the chain row lists 22 tokens. The 22nd is the slider's `value-indicator.label.label-text.font`, which #188 added after the readings. After it, all pass.
+- **The compiled CSS:** the 5 stylesheets change exactly as the readings list, plus `RF-92`'s five declarations, and the other 30 are byte-identical.
+- **Rendered:** Chromium, Firefox and WebKit agree, on the unit's build, with the weights, the typefaces and the letter spacing of this entry's table.
+- **The fonts of the tests:** Roboto 400 and 500. No fixture renders 700 any more.
+- **Baselines:** the 11 of buttons and button groups change locally, and no other. They aren't recorded on this branch by the implementer.
+- **Owed:** the baselines' recording (`RD-13`), and Firefox and WebKit in CI for the whole suites. `test-architecture.md` still describes the old selection rule, in its _tproc is the tokenized visual source of truth_ paragraph and its data flow. It is project documentation, so it needs its own pull request.
 
 ## Questions
 

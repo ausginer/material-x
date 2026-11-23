@@ -1,0 +1,324 @@
+Readings for repo:RF-110 and repo:RF-92's implementation, by the implementer on 2026-11-23 in slot e, on tproc/typescale-selection-1, base 35ea25892 (main).
+
+== tproc witnesses (tests/selection.node.test.ts)
+base: 35 of 76 fail: 34 of the 75 material-web values (15 fonts, 10 weights, 9 trackings), and the chain row.
+The chain row lists 22 tokens, not RF-110's 21: the readings were taken at 246b64754, and #188 (6f13f0ad8) added md.comp.slider.value-indicator.label.label-text.font.
+head: 76 pass. Mutation font: 'variable' at head: 24 fail, as css-published.mjs read.
+
+== every single-group change of the context (27 tags), on the 4286 tokens with a tree: 0 tokens with no entry, 0 with more than one
+The tables before the store (a182ba6aa) still convert in legacy mode: 103 files.
+
+== material-x spec in Chromium
+with the readers of src/ removed: 28 fail (5 button labels, 3 FAB labels, 4 input, 4 prefix, 4 suffix, 4 supporting text, 4 counter).
+with the list item's letter-spacing rules removed: 10 fail (5 texts of two elements).
+
+== compiled CSS, 35 .css.ts: 5 differ from base; base < > head
+## src_button_styles_default_main.css.ts
+11,12c11,12
+<   --_label-text-font-name: var(--md-ref-typeface-plain, 'Google Sans Text');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-plain, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+14c14
+<   --_label-text-font-tracking: 0px;
+---
+>   --_label-text-font-tracking: 0.1px;
+16,18d15
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 700, 'slnt' 0, 'opsz' 14, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+78a76
+>   letter-spacing: var(--_label-text-font-tracking);
+## src_button_styles_size_main.css.ts
+15a16
+>   --_label-text-font-tracking: 0.15px;
+17,19d17
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 16, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+28,29c26,27
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+30a29
+>   --_label-text-font-tracking: 0px;
+32,34d30
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 24, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+44,45c40,41
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+46a43
+>   --_label-text-font-tracking: 0px;
+48,50d44
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 32, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+## src_fab_styles_extended_main.css.ts
+2,3c2,3
+<   --_label-text-font-name: var(--md-ref-typeface-plain, 'Google Sans Text');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-plain, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+5c5
+<   --_label-text-font-tracking: 0px;
+---
+>   --_label-text-font-tracking: 0.15px;
+7,9d6
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 16, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+53,54c50,51
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+58,60d54
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 24, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+68,69c62,63
+<   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto Flex');
+<   --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+---
+>   --_label-text-font-name: var(--md-ref-typeface-brand, 'Roboto');
+>   --_label-text-font-weight: var(--md-ref-typeface-weight-regular, 400);
+73,75d66
+<   --_label-text-variation-axes:
+<     'wdth' 100, 'wght' 500, 'slnt' 0, 'opsz' 22, 'GRAD' 0, 'ROND' 0, 'CRSV' 0,
+<     'HEXP' 0, 'FILL' 0;
+147a139
+>     letter-spacing: var(--_label-text-font-tracking);
+## src_list_styles_item_main.css.ts
+9c9
+<     'Google Sans Text'
+---
+>     'Roboto'
+12,13c12,13
+<     --md-ref-typeface-weight-bold,
+<     700
+---
+>     --md-ref-typeface-weight-medium,
+>     500
+16c16
+<   --_leading-avatar-label-type-font-tracking: 0px;
+---
+>   --_leading-avatar-label-type-font-tracking: 0.15px;
+18,22c18,19
+<   --_leading-avatar-label-font: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+<   --_leading-avatar-label-weight: var(--md-ref-typeface-weight-bold, 700);
+---
+>   --_leading-avatar-label-font: var(--md-ref-typeface-plain, 'Roboto');
+>   --_leading-avatar-label-weight: var(--md-ref-typeface-weight-medium, 500);
+25c22
+<   --_leading-avatar-label-tracking: 0px;
+---
+>   --_leading-avatar-label-tracking: 0.15px;
+29c26
+<   --_label-text-tracking: 0px;
+---
+>   --_label-text-tracking: 0.5px;
+31c28
+<   --_label-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_label-text-font: var(--md-ref-typeface-plain, 'Roboto');
+33,37c30,31
+<   --_trailing-supporting-text-tracking: 0px;
+<   --_supporting-text-type-font-name: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+---
+>   --_trailing-supporting-text-tracking: 0.5px;
+>   --_supporting-text-type-font-name: var(--md-ref-typeface-plain, 'Roboto');
+43c37
+<   --_supporting-text-type-font-tracking: 0px;
+---
+>   --_supporting-text-type-font-tracking: 0.25px;
+45c39
+<   --_supporting-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_supporting-text-font: var(--md-ref-typeface-plain, 'Roboto');
+49,51c43,45
+<   --_supporting-text-tracking: 0px;
+<   --_overline-tracking: 0px;
+<   --_overline-type-font-name: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_supporting-text-tracking: 0.25px;
+>   --_overline-tracking: 0.5px;
+>   --_overline-type-font-name: var(--md-ref-typeface-plain, 'Roboto');
+54c48
+<   --_overline-type-font-tracking: 0px;
+---
+>   --_overline-type-font-tracking: 0.5px;
+56c50
+<   --_overline-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_overline-font: var(--md-ref-typeface-plain, 'Roboto');
+62,65c56
+<   --_trailing-supporting-text-font: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+---
+>   --_trailing-supporting-text-font: var(--md-ref-typeface-plain, 'Roboto');
+68c59
+<     'Google Sans Text'
+---
+>     'Roboto'
+75c66
+<   --_trailing-supporting-text-type-font-tracking: 0px;
+---
+>   --_trailing-supporting-text-type-font-tracking: 0.5px;
+77,80c68
+<   --_label-text-type-font-name: var(
+<     --md-ref-typeface-plain,
+<     'Google Sans Text'
+<   );
+---
+>   --_label-text-type-font-name: var(--md-ref-typeface-plain, 'Roboto');
+83c71
+<   --_label-text-type-font-tracking: 0px;
+---
+>   --_label-text-type-font-tracking: 0.5px;
+## src_text-field_styles_default_main.css.ts
+2c2
+<   --_supporting-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_supporting-text-font: var(--md-ref-typeface-plain, 'Roboto');
+6c6
+<   --_supporting-text-tracking: 0px;
+---
+>   --_supporting-text-tracking: 0.4px;
+14c14
+<   --_label-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_label-text-font: var(--md-ref-typeface-plain, 'Roboto');
+18c18
+<   --_label-text-tracking: 0px;
+---
+>   --_label-text-tracking: 0.5px;
+28c28
+<   --_input-text-font: var(--md-ref-typeface-plain, 'Google Sans Text');
+---
+>   --_input-text-font: var(--md-ref-typeface-plain, 'Roboto');
+32c32
+<   --_input-text-tracking: 0px;
+---
+>   --_input-text-tracking: 0.5px;
+242a243
+>   letter-spacing: var(--_input-text-tracking);
+268a270
+>   letter-spacing: var(--_input-text-tracking);
+391a394
+>   letter-spacing: var(--_supporting-text-tracking);
+
+== size rows, base and head
+  button/button 4.92 kB brotlied  -> 4.84 kB brotlied
+  button/icon-button 5.18 kB brotlied  -> 5.09 kB brotlied
+  button/link-button 4.87 kB brotlied  -> 4.8 kB brotlied
+  button/switch-button 5.49 kB brotlied  -> 5.43 kB brotlied
+  button/switch-icon-button 5.9 kB brotlied  -> 5.82 kB brotlied
+  button/split-button 7.51 kB brotlied  -> 7.44 kB brotlied
+  button-group/button-group 3.11 kB brotlied  -> 3.03 kB brotlied
+  button-group/connected-button-group 3.89 kB brotlied  -> 3.8 kB brotlied
+  checkbox/checkbox 4.21 kB brotlied  -> 4.22 kB brotlied
+  fab/fab 4.19 kB brotlied  -> 4.11 kB brotlied
+  icon/icon 641 B brotlied  -> 641 B brotlied
+  list/list 663 B brotlied  -> 663 B brotlied
+  list/list-item 2.84 kB brotlied  -> 2.83 kB brotlied
+  list/list-button-item 4.83 kB brotlied  -> 4.82 kB brotlied
+  list/list-link-item 5.04 kB brotlied  -> 5.04 kB brotlied
+  list/sortable-list 8.7 kB brotlied  -> 8.7 kB brotlied
+  radio/radio 3.78 kB brotlied  -> 3.78 kB brotlied
+  text-field/multiline-text-field 4.45 kB brotlied  -> 4.43 kB brotlied
+  text-field/text-field 8.49 kB brotlied  -> 8.44 kB brotlied
+total: 22.72 kB brotlied -> 22.58 kB brotlied
+checkbox: its compiled stylesheet is unchanged. The build shortens private property names across the package, and two of its names move (--gx, --gy -> --gw, --gx).
+
+== visual project, Chromium, local: -actual- screenshots byte for byte, base against base2 and base against head
+same DIFF button-color-variants.png
+same DIFF button-enabled-and-disabled.png
+same DIFF button-focused.png
+same DIFF button-group-connected-selected.png
+same DIFF button-group-connected-sizes.png
+same DIFF button-group-standard-disabled.png
+same DIFF button-group-standard-sizes.png
+same DIFF button-hovered.png
+same DIFF button-icon-composition.png
+same DIFF button-sizes-and-shapes.png
+same DIFF button-switch-variants.png
+same same checkbox-disabled.png
+same same checkbox-hovered.png
+same same checkbox-states.png
+same same radio-disabled.png
+same same radio-focused.png
+same same radio-hovered.png
+same same radio-states.png
+The 19th row, the focused checkbox, passes against its baseline in all three runs and writes no file.
+
+== rendered, head, Chromium (the record's probe, with the text field's input, suffix and counter, the link button and the split button added)
+theme | button xsmall | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+theme | button small | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+theme | button medium | Roboto | 500 | 0.15px | 16px/24px | axes normal | width 126.42
+theme | button large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+theme | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal | width 246.70
+theme | switch-button | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+theme | button text | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+theme | fab extended small | Roboto | 500 | 0.15px | 16px/20px | axes normal | width 126.42
+theme | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal | width 169.61
+theme | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+theme | list label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+theme | list overline | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+theme | list support | Roboto | 400 | 0.25px | 14px/20px | axes normal | width 111.69
+theme | list trail | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+theme | list lead avatar-label | Roboto | 500 | 0.15px | 16px/24px | axes normal | width 126.42
+theme | text-field label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+theme | text-field support | Roboto | 400 | 0.4px | 12px/16px | axes normal | width 98.52
+theme | text-field suffix | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+theme | text-field counter | Roboto | 400 | 0.4px | 12px/16px | axes normal | width 98.52
+theme | link-button | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+theme | split-button | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+theme | text-field input | Roboto | 400 | 0.5px
+theme | text-field prefix | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+plain | button xsmall | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+plain | button small | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+plain | button medium | Roboto | 500 | 0.15px | 16px/24px | axes normal | width 126.42
+plain | button large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+plain | button xlarge | Roboto | 400 | normal | 32px/40px | axes normal | width 246.70
+plain | switch-button | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+plain | button text | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+plain | fab extended small | Roboto | 500 | 0.15px | 16px/20px | axes normal | width 126.42
+plain | fab extended medium | Roboto | 400 | normal | 22px/28px | axes normal | width 169.61
+plain | fab extended large | Roboto | 400 | normal | 24px/32px | axes normal | width 185.03
+plain | list label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+plain | list overline | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+plain | list support | Roboto | 400 | 0.25px | 14px/20px | axes normal | width 111.69
+plain | list trail | Roboto | 500 | 0.5px | 11px/16px | axes normal | width 92.88
+plain | list lead avatar-label | Roboto | 500 | 0.15px | 16px/24px | axes normal | width 126.42
+plain | text-field label | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+plain | text-field support | Roboto | 400 | 0.4px | 12px/16px | axes normal | width 98.52
+plain | text-field suffix | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+plain | text-field counter | Roboto | 400 | 0.4px | 12px/16px | axes normal | width 98.52
+plain | link-button | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+plain | split-button | Roboto | 500 | 0.1px | 14px/20px | axes normal | width 110.16
+plain | text-field input | Roboto | 400 | 0.5px
+plain | text-field prefix | Roboto | 400 | 0.5px | 16px/24px | axes normal | width 130.86
+
+== rendered, head, firefox: lines that differ from Chromium once quotes and widths are removed
+none
+
+== rendered, head, webkit: lines that differ from Chromium once quotes and widths are removed
+none

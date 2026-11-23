@@ -64,7 +64,7 @@ function bySet(
 /**
  * The differences from `before` to `after`: tokens added and removed,
  * deprecations added, and each token whose selected value, the one-hop
- * reference or literal for the default tags, changed. Each list is by token
+ * reference or literal in the rendered context, changed. Each list is by token
  * set, in the store's order.
  */
 export function diffStores(before: Store, after: Store): string[] {
@@ -111,7 +111,7 @@ export function diffStores(before: Store, after: Store): string[] {
     ...bySet('Tokens added', added),
     ...bySet('Tokens removed', removed),
     ...bySet('Deprecations added', deprecated),
-    ...bySet('Selected values changed, for expressive and web', changed),
+    ...bySet('Selected values changed, in the rendered context', changed),
   ];
 }
 

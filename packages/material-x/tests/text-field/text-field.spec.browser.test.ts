@@ -95,6 +95,7 @@ async function createField(
   for (const [slot, text] of [
     ['label', 'Label'],
     ['support', 'Support'],
+    ['counter', '0/9'],
     ['lead', 'L'],
     ['trail', 'T'],
     ['prefix', '$'],
@@ -412,6 +413,11 @@ const TYPOGRAPHY: readonly Typography[] = [
     element: (field) => getSlotted(field, 'support'),
   },
   {
+    name: 'counter',
+    prefix: 'supporting-text',
+    element: (field) => getSlotted(field, 'counter'),
+  },
+  {
     name: 'prefix',
     prefix: 'input-text',
     element: (field) => getSlotted(field, 'prefix'),
@@ -431,7 +437,7 @@ describe('text field typography contract', () => {
   it.each(TYPOGRAPHY_ROWS)(
     'should set the $tag $name $typography.name in its typeface',
     async ({ tag, outlined, typography, ...variant }) => {
-      const tokens = ['font', 'size', 'weight', 'line-height'].map(
+      const tokens = ['font', 'size', 'weight', 'line-height', 'tracking'].map(
         (name) => `${typography.prefix}.${name}`,
       );
       const values = await resolveTokens(
@@ -442,7 +448,7 @@ describe('text field typography contract', () => {
       const style = getComputedStyle(
         typography.element(await createField(tag, outlined)),
       );
-      const [font, size, weight, lineHeight] = tokens.map((token) =>
+      const [font, size, weight, lineHeight, tracking] = tokens.map((token) =>
         String(values[token]!),
       );
 
@@ -451,11 +457,13 @@ describe('text field typography contract', () => {
         size: style.fontSize,
         weight: style.fontWeight,
         lineHeight: style.lineHeight,
+        letterSpacing: style.letterSpacing,
       }).toEqual({
         family: resolveComputed('font-family', font!),
         size: size!,
         weight: resolveComputed('font-weight', weight!),
         lineHeight: lineHeight!,
+        letterSpacing: resolveComputed('letter-spacing', tracking!),
       });
     },
   );

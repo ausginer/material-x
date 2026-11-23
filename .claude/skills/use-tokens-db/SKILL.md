@@ -50,7 +50,7 @@ The types are in `packages/tproc/src/store/schema.ts`.
 | `store.getToken(tokenName)` | a `StoredToken` by its dotted name, or `undefined` |
 | `store.getTokenSet(token)` | the set that holds the token |
 | `store.isTokenDeprecated(token)` | `true` if the token has a `deprecationMessage` or its set's `displayName` starts with `[Deprecated]` |
-| `store.select(token, tags?)` | `{ value, entry? }`: the first contextual entry whose tags include any of `tags`, otherwise the first entry, with the value it starts from. `tags` defaults to `expressive` and `web`. A token with no tree selects its first value |
+| `store.select(token, changes?)` | `{ value, entry? }`: the contextual entry whose every tag the context has, with the value it starts from, or `undefined` when no entry matches. The context is `RENDERED_CONTEXT` (`store/Store.js`), one tag of every context tag group, with the tags that `changes` gives in place of its own. A token with no tree selects its first value |
 
 The CSS layer (`processToken`, `processTokenSet`, `resolve`) reads the default selection. `toCSSValue(value)`, from `processToken.ts`, maps one stored value to its CSS value without a store.
 
@@ -73,10 +73,10 @@ const set = store.sets.find((s) => s.displayName === 'Filled button');
 const tokens = set?.tokens.filter((t) => !store.isTokenDeprecated(t)) ?? [];
 ```
 
-Read a token's value for other tags:
+Read a token's value in another context, by naming the groups that differ:
 
 ```ts
-const dark = store.select(token, ['dark']);
+const dark = store.select(token, { theme: 'dark' });
 ```
 
 ## Updating the store
@@ -91,16 +91,17 @@ aube exec just update-tokens --current --report <file>
 - It fetches every table that the manifest lists from one dated release address, `_dsm/data/dsdb-m3/<release>/<KIND>.<componentId>.json`, and never from `latest`. `--current` first reads the release id from the site's bundle.
 - It converts the tables in memory. It refuses tables from different database versions, and a table that the converter can't read, and names the table, the token and the field. A raw table is never written.
 - **Every key is ruled.** `RECORD_KEYS` in `scripts/convert.ts` keeps or drops each key of each record, and the value-field specs beside it match `schema.ts` exactly. A key that upstream adds refuses the update and names its path, until it's ruled on in the record and added to one of the lists.
+- **One entry per token.** The converter refuses a context tag group that `RENDERED_CONTEXT` doesn't name, and a token with a tree for which that context has no entry or more than one, and names it. A new group needs a tag in `RENDERED_CONTEXT`, which is a decision for the record.
 - **Never commit a raw table.** The tables carry Google employees' personal data. `packages/tproc/.data/` is git-ignored, for a table that you keep by hand while debugging.
 - To add a component, add a row to `manifest.json`'s `tables` with its `kind` and `componentId`, then run an update. The site names a component's id in the page content it loads (`resourceName: components/<id>`).
 - **A token that several tables carry** is stored from the copy that covers every other: identical to it, or with no reference tree, equal in every other field but `values`, and with only `values` entries that each equal a different one of its own. A component table carries the system tokens it references as such partial copies. A token that no copy covers refuses the update and names both tables. The report counts the copies covered.
 - `--legacy <directory>` converted the tables committed before the store, once. Those tables mixed two database versions. So this mode lists each record that two tables convert differently, and each token that no copy covers, instead of refusing it, and keeps the first table's copy.
-- An update is a pull request that carries the report and the difference in material-x's generated CSS. `--report <file>` compares the conversion with the store it replaces: tokens added and removed, deprecations added, and each token whose selected value for `expressive` and `web` changed, with its old and new one-hop reference or literal, by token set.
+- An update is a pull request that carries the report and the difference in material-x's generated CSS. `--report <file>` compares the conversion with the store it replaces: tokens added and removed, deprecations added, and each token whose selected value in the rendered context changed, with its old and new one-hop reference or literal, by token set.
 - **A weekly check** (`.github/workflows/tokens.yml`) runs `scripts/check-release.ts`, which compares the database of the site's current release with the manifest's. A database the manifest doesn't record opens an issue labelled `tokens-release`, or comments on the open one. It never updates the store.
 
 ## Gotchas
 
 - `store.tokens` is a single-pass iterator. Read the getter again for each traversal.
-- The CSS layer renders only the `expressive` and `web` selection. Other contextual values are in the token's `contextualReferenceTree`: pass other tags to `select`.
+- The CSS layer renders only `RENDERED_CONTEXT`: `platform: web`, `audience: 3p`, `motion.scheme: expressive`, `font: static`, and upstream's default for every other group. Other contextual values are in the token's `contextualReferenceTree`: pass the groups that differ to `select`.
 - `md.sys.color.*` values come from `default-theme.json`, a Material Theme Builder export (`@ydinjs/tproc/theme.js`), and not from the store.
 - The store is generated: oxfmt ignores it, and GitHub folds its diffs. Don't edit it by hand, except to add a `tables` row before an update.
