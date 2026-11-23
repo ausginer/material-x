@@ -4647,6 +4647,14 @@ Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1
 - **Nothing else changes.** Tests only: the store, the reader, the 5 stylesheets and the 11 baselines stay as they are. A baselines pull request isn't affected. The record's witness bullet, _"a fixture of material-web's 75 values"_, reads as this paragraph from here on: 150 values of `latest`.
 - **Size of the addition:** _small_. The unit's stays _medium_.
 
+**Dated 2026-11-23 by the implementer: the ruled tests added in #196, on `96315a9bc`.** Tests and records only. The readings are at the end of [`implementation.txt`](typescale-selection-1/checks/implementation.txt).
+
+- **The fixture** is 150 values of material-web's `latest`, base and emphasized, in `tests/fixtures/material-web-typescale.ts`, with the header that the ruling names. On `main`'s rule, **58 of the 150 fail**: 30 fonts, 10 weights and 18 trackings, of which 34 are the base styles' and 24 the emphasized ones'. That takes the place of the 34 of 75 above.
+- **The rows for the tags:** `tests/fixtures/material-web-colors.ts` has the 50 references of `_md-sys-color.scss`, compared through `store.select`. `surface-tint` and `surface-tint-color` refer to `md.sys.color.primary`. The 15 `md.ref.typeface.<style>.line-height` are compared with the base styles' line heights. On `main`'s rule, 39 of the colours and all 15 line heights fail.
+- **Witnesses,** each tag changed alone in `RENDERED_CONTEXT`: `theme: dark` fails 34 rows, `contrast` 30 at either other tag, and `language.height` 15 at each of its three other tags. All 216 rows pass on the head.
+- **`reviewer-3`:** one run of the root typecheck failed in material-x before `d636f20a1` was committed, and its output wasn't kept. The reruns pass, and the cause isn't established.
+- **CI** at `d636f20a1` passed Firefox and WebKit for the whole suites, so that part of _Owed_ is met.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

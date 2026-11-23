@@ -4,6 +4,7 @@ import type { ProcessedTokenValue } from '../src/processTokenSet.ts';
 import { isLinkedToken, resolve } from '../src/resolve.ts';
 import store from '../src/store/index.ts';
 import type { StoredToken, StoredValue } from '../src/store/schema.ts';
+import { MATERIAL_WEB_COLORS } from './fixtures/material-web-colors.ts';
 import { MATERIAL_WEB_TYPESCALE } from './fixtures/material-web-typescale.ts';
 
 // These rows read the committed store, which the setup file replaces.
@@ -63,6 +64,31 @@ describe('rendered context', () => {
       expect(actual).toBe(value);
     }
   });
+
+  // The CSS layer takes the system colours from the theme, so these rows read
+  // the store.
+  it.each(Object.entries(MATERIAL_WEB_COLORS))(
+    'should select the reference that material-web publishes for %s',
+    (tokenName, reference) => {
+      expect(store.select(store.getToken(tokenName)!)?.value.tokenName).toBe(
+        reference,
+      );
+    },
+  );
+
+  it.each(
+    Object.entries(MATERIAL_WEB_TYPESCALE).filter(
+      ([style]) => !style.startsWith('emphasized.'),
+    ),
+  )(
+    'should give md.ref.typeface.%s.line-height the line height that material-web publishes for the base style',
+    (style, { 'line-height': lineHeight }) => {
+      expect(published(`md.ref.typeface.${style}.line-height`)).toBeCloseTo(
+        lineHeight,
+        6,
+      );
+    },
+  );
 
   it("should reach each literal token's own resolved value", () => {
     const different: string[] = [];

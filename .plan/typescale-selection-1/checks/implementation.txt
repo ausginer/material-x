@@ -322,3 +322,39 @@ none
 
 == rendered, head, webkit: lines that differ from Chromium once quotes and widths are removed
 none
+
+== the outside witness at material-web's latest (a0bab1d94), by the implementer on 2026-11-23, on 96315a9bc: 150 type values, 50 system colours, 15 typeface line heights and the chain row, 216 rows
+Each run changes src/store/Store.ts alone and puts it back. "main's rule" is the file at 35ea25892.
+== main's rule
+Tests  113 failed | 103 passed (216)
+published type values: 58 (fonts 30, weights 10, trackings 18; of them emphasized 24); colours: 39; typeface line heights: 15; chain: 1
+== theme: 'dark'
+Tests  34 failed | 182 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 34; typeface line heights: 0; chain: 0
+== contrast: 'medium.contrast'
+Tests  30 failed | 186 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 30; typeface line heights: 0; chain: 0
+== contrast: 'high.contrast'
+Tests  30 failed | 186 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 30; typeface line heights: 0; chain: 0
+== 'language.height': 'medium'
+Tests  15 failed | 201 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 0; typeface line heights: 15; chain: 0
+== 'language.height': 'large'
+Tests  15 failed | 201 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 0; typeface line heights: 15; chain: 0
+== 'language.height': 'extra.large'
+Tests  15 failed | 201 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 0; typeface line heights: 15; chain: 0
+== font: 'variable'
+Tests  48 failed | 168 passed (216)
+published type values: 48 (fonts 30, weights 0, trackings 18; of them emphasized 24); colours: 0; typeface line heights: 0; chain: 0
+== audience: '1p.baseline'
+Tests  57 failed | 159 passed (216)
+published type values: 48 (fonts 30, weights 0, trackings 18; of them emphasized 24); colours: 9; typeface line heights: 0; chain: 0
+== head
+Tests  216 passed (216)
+published type values: 0 (fonts 0, weights 0, trackings 0; of them emphasized 0); colours: 0; typeface line heights: 0; chain: 0
+
+== root typecheck, 2026-11-23
+One run of the root `aube exec just typecheck`, before d636f20a1 was committed, failed in @ydinjs/material-x:typecheck. Its output wasn't kept: only the failed task and the end of Nx's summary were printed. The next root run and material-x's own typecheck passed on the same source. The cause isn't established.
