@@ -312,10 +312,8 @@ export function useRipple(
   // An element out of the document shows no ripple, so its press ends.
   use(host, {
     disconnected() {
-      clearTimeout(touchDelayTimer);
       startEvent = null;
       state = INACTIVE;
-      checkBoundsAfterContextMenu = false;
       // Ends a fade that waits to start.
       animationGeneration += 1;
       scaleAnimation?.cancel();
@@ -382,6 +380,8 @@ export function useRipple(
       // Wait for a hold after touch delay
       state = TOUCH_DELAY;
 
+      // An earlier touch's timer would start this one early.
+      clearTimeout(touchDelayTimer);
       touchDelayTimer = setTimeout(() => {
         // State may have changed while waiting for the timeout.
         if (state !== TOUCH_DELAY) {

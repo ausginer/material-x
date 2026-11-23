@@ -143,15 +143,19 @@ function controlOf(element: HTMLElement): HTMLElement {
 }
 
 /** Playwright's mouse makes no touch, so the press is dispatched. */
-function touch(element: HTMLElement, pointerId: number): void {
+function touch(
+  element: HTMLElement,
+  pointerId: number,
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' = 'pointerdown',
+): void {
   controlOf(element).dispatchEvent(
-    new PointerEvent('pointerdown', {
+    new PointerEvent(type, {
       bubbles: true,
       composed: true,
       isPrimary: true,
       pointerType: 'touch',
       pointerId,
-      buttons: 1,
+      buttons: type === 'pointerdown' ? 1 : 0,
     }),
   );
 }
@@ -282,6 +286,17 @@ describe('useRipple when the host disconnects', () => {
     expect([early, rippleAnimations(element).length]).toEqual([0, 2]);
   });
 
+  it('should leave no animation on an element that is removed during its fade and put back', async () => {
+    const element = await create();
+
+    await clickUntilFade(element);
+    element.remove();
+    document.body.append(element);
+    await nextFrame();
+
+    expect(rippleAnimations(element)).toEqual([]);
+  });
+
   it('should leave no animation on an element that is put back', async () => {
     const element = await create();
 
@@ -294,6 +309,51 @@ describe('useRipple when the host disconnects', () => {
 
     expect(rippleAnimations(element)).toEqual([]);
   });
+});
+
+describe('useRipple when a touch follows another within its delay', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each([
+    {
+      name: 'a pointercancel',
+      end: (element: HTMLElement) => {
+        touch(element, 7, 'pointercancel');
+      },
+    },
+    {
+      name: 'a tap',
+      end: (element: HTMLElement) => {
+        touch(element, 7, 'pointerup');
+        controlOf(element).click();
+      },
+    },
+  ])(
+    'should give the second touch its whole delay after $name',
+    async ({ end }) => {
+      const element = await create();
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+      touch(element, 7);
+      vi.advanceTimersByTime(40);
+      end(element);
+      vi.advanceTimersByTime(20);
+      // The fade of the first touch, or the ripple of the tap, may still run.
+      const left = rippleAnimations(element);
+      const started = (): number =>
+        rippleAnimations(element).filter(
+          (animation) => !left.includes(animation) && !isFade(animation),
+        ).length;
+      touch(element, 9);
+      vi.advanceTimersByTime(140);
+      const early = started();
+      vi.advanceTimersByTime(20);
+
+      expect([early, started()]).toEqual([0, 2]);
+    },
+  );
 });
 
 describe('useRipple when a press starts during the fade', () => {
