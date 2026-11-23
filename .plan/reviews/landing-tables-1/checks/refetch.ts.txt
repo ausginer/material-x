@@ -1,0 +1,36 @@
+import {readFile,readdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const R='/workspaces/worktrees/f/packages/tproc/';
+const {convert,SITE_BASE_URL}=await import(R+'scripts/convert.ts');
+const {report}=await import(R+'scripts/report.ts');
+const {fetchText,readCurrentRelease}=await import(R+'scripts/site.ts');
+const {loadStore}=await import(R+'src/store/Store.ts');
+const OLD=new URL('file://'+import.meta.dirname+'/packages/tproc/tokens/'), NEW=new URL('file://'+R+'tokens/');
+const man=JSON.parse(await readFile(new URL('manifest.json',NEW),'utf8'));
+const oman=JSON.parse(await readFile(new URL('manifest.json',OLD),'utf8'));
+console.log('current site release',await readCurrentRelease(),'manifest',man.source.release??man.source);
+const rel='2026-11-19_06-20-01';
+const tables=await Promise.all(man.tables.map(async({kind,componentId}:any)=>({kind,componentId,table:JSON.parse(await fetchText(`${SITE_BASE_URL}${rel}/${kind}.${componentId}.json`))})));
+// raw independent reading of the four
+for(const t of tables.slice(-4)){const s=t.table.system; const ids=Object.keys(s);console.log(t.componentId,JSON.stringify(t.table).length,ids.join(','));
+ console.log(' ',s.name, 'sets',s.tokenSets?.map((x:any)=>x.tokenSetName+'|'+x.displayName).join('; '),'tokens',s.tokens?.length, 'deprecated', s.tokens?.filter((x:any)=>x.deprecationMessage!=null).length)
+ const c=s.components?.map((x:any)=>x.componentName??x.displayName??x.name);console.log('  components',c, s.version?.versionName)}
+const conv=convert(tables,{release:rel,fetchDate:man.fetchDate});
+let same=0,diff:string[]=[];for(const [p,txt] of conv.files){const f=await readFile(new URL(p,NEW),'utf8');f===txt?same++:diff.push(p)}
+console.log('reconvert vs committed same',same,'diff',diff,'conflicts',conv.conflicts.length);
+const disk=(await readdir(new URL('sets/',NEW))).length;console.log('disk sets',disk,'manifest files',man.files.length);
+// bytes
+let eq=0,bad=[] as string[];for(const f of oman.files){const a=await readFile(new URL(f.path,OLD)),b=await readFile(new URL(f.path,NEW));(a.equals(b)&&man.files.find((x:any)=>x.path===f.path)?.sha256===f.sha256)?eq++:bad.push(f.path)}
+console.log('old files equal',eq,bad);
+for(const f of man.files){if(createHash('sha256').update(await readFile(new URL(f.path,NEW))).digest('hex')!==f.sha256)console.log('sha bad',f.path)}
+const o=await loadStore(OLD),n=await loadStore(NEW);
+let cmp=0,bd=0;for(const t of o.tokens){const u=n.getToken(t.tokenName);cmp++;const j=JSON.stringify;if(!u||j(t)!==j(u)||j(o.select(t))!==j(n.select(u))||j(o.select(t,['dark']))!==j(n.select(u,['dark']))||o.isTokenDeprecated(t)!==n.isTokenDeprecated(u)||o.getTokenSet(t)?.tokenSetName!==n.getTokenSet(u)?.tokenSetName)bd++}
+console.log('tokens compared',cmp,'diff',bd,'new total',[...n.tokens].length,'sets',o.sets.length,n.sets.length);
+let tot=0,dep=0;const names=new Set<string>(o.sets.map((s:any)=>s.tokenSetName));
+let unresolved:any[]=[],danglingRef:any[]=[];
+for(const s of n.sets){if(names.has(s.tokenSetName))continue;tot+=s.tokens.length;const d=s.tokens.filter((t:any)=>n.isTokenDeprecated(t));dep+=d.length;console.log(s.tokenSetName,'|',s.displayName,s.tokens.length,d.length);
+ for(const t of s.tokens){const sel=n.select(t);const e=sel.entry;if(!e||e.resolvedValue===undefined&&e.resolvedCustomCompositeValue===undefined)unresolved.push([t.tokenName,n.isTokenDeprecated(t),JSON.stringify(sel).slice(0,160)]);
+  if(sel.value?.undefined!==undefined)console.log('  UNDEF',t.tokenName,n.isTokenDeprecated(t));
+  const ref=sel.value?.tokenName;if(ref&&!n.getToken(ref))danglingRef.push([t.tokenName,ref,n.isTokenDeprecated(t)]);
+  }}
+console.log(tot,dep);console.log('UNRESOLVED',unresolved);console.log('DANGLING',danglingRef);

@@ -1,0 +1,124 @@
+PR #188 at 6b8b538c8, base 986ad3719, run by the reviewer on 2026-11-23 in slot f. Raw tables held in memory only.
+
+== refetch.ts: a fresh fetch of release 2026-11-19_06-20-01, the previous store, the committed store
+current site release 2026-11-19_06-20-01 manifest 2026-11-19_06-20-01
+100ebfb4332adab1 2008681 name,dsdbVersion,_isResolved,revisionId,revisionCreateTime,state,displayName,description,revisionAuthor,tokenNamePrefix,carbonProject,parentVersions,custom,createTime,author,navigation,tokenSets,versions,version,components,componentDisplayGroups,connections,contextTagGroups,tags,tokens,displayGroups,values,settings,contextualReferenceTrees,parentVersionsMapping
+  designSystems/20543ce18892f7d9 sets md.comp.elevated-card|Card - Elevated; md.comp.filled-card|Card - Filled; md.comp.outlined-card|Card - Outlined tokens 130 deprecated 4
+  components [ 'Cards' ] 41.1.12
+3ec622835c7987b5 3845387 name,dsdbVersion,_isResolved,revisionId,revisionCreateTime,state,displayName,description,revisionAuthor,tokenNamePrefix,carbonProject,parentVersions,custom,createTime,author,navigation,tokenSets,versions,version,components,componentDisplayGroups,connections,contextTagGroups,tags,tokens,displayGroups,values,settings,contextualReferenceTrees,parentVersionsMapping
+  designSystems/20543ce18892f7d9 sets md.comp.app-bar|App bar - Common; md.comp.app-bar.medium|App bar - Size - Medium (baseline); md.comp.app-bar.large|App bar - Size - Large (baseline); md.comp.app-bar.small|App bar - Size - Small; md.comp.app-bar.large-flexible|App bar - Size - Large Flexible; md.comp.app-bar.medium-flexible|App bar - Size - Medium Flexible; md.comp.top-app-bar.small.centered|[Deprecated] Top app bar - Small, Center-aligned; md.comp.top-app-bar.small|[Deprecated] Top app bar - Small; md.comp.top-app-bar.medium|[Deprecated] Top app bar - Medium; md.comp.top-app-bar.large|[Deprecated] Top app bar -  Large tokens 275 deprecated 78
+  components [ 'App bars' ] 41.1.12
+0045edb815f2325e 2636743 name,dsdbVersion,_isResolved,revisionId,revisionCreateTime,state,displayName,description,revisionAuthor,tokenNamePrefix,carbonProject,parentVersions,custom,createTime,author,navigation,tokenSets,versions,version,components,componentDisplayGroups,connections,contextTagGroups,tags,tokens,displayGroups,values,settings,contextualReferenceTrees,parentVersionsMapping
+  designSystems/20543ce18892f7d9 sets md.comp.slider|Slider; md.comp.slider.xsmall|Slider - Size - Xsmall; md.comp.slider.small|Slider - Size - Small; md.comp.slider.medium|Slider - Size - Medium; md.comp.slider.large|Slider - Size - Large; md.comp.slider.xlarge|Slider - Size - Xlarge tokens 187 deprecated 43
+  components [ 'Sliders' ] 41.1.12
+77f7657eb270e53d 134362 name,dsdbVersion,_isResolved,revisionId,revisionCreateTime,state,displayName,description,revisionAuthor,tokenNamePrefix,carbonProject,parentVersions,custom,createTime,author,navigation,tokenSets,versions,version,components,componentDisplayGroups,connections,contextTagGroups,tags,tokens,displayGroups,values,settings,contextualReferenceTrees,parentVersionsMapping
+  designSystems/20543ce18892f7d9 sets md.comp.divider|Divider tokens 7 deprecated 0
+  components [ 'Divider' ] 41.1.12
+reconvert vs committed same 124 diff [] conflicts 0
+disk sets 122 manifest files 123
+old files equal 103 []
+tokens compared 3980 diff 0 new total 4304 sets 102 122
+md.comp.elevated-card | Card - Elevated 25 1
+md.comp.filled-card | Card - Filled 25 1
+md.comp.outlined-card | Card - Outlined 31 1
+md.comp.app-bar | App bar - Common 19 0
+md.comp.app-bar.medium | App bar - Size - Medium (baseline) 4 2
+md.comp.app-bar.large | App bar - Size - Large (baseline) 4 2
+md.comp.app-bar.small | App bar - Size - Small 7 1
+md.comp.app-bar.large-flexible | App bar - Size - Large Flexible 4 0
+md.comp.app-bar.medium-flexible | App bar - Size - Medium Flexible 4 0
+md.comp.top-app-bar.small.centered | [Deprecated] Top app bar - Small, Center-aligned 21 21
+md.comp.top-app-bar.small | [Deprecated] Top app bar - Small 19 19
+md.comp.top-app-bar.medium | [Deprecated] Top app bar - Medium 16 16
+md.comp.top-app-bar.large | [Deprecated] Top app bar -  Large 16 16
+md.comp.slider | Slider 96 43
+md.comp.slider.xsmall | Slider - Size - Xsmall 5 0
+md.comp.slider.small | Slider - Size - Small 5 0
+md.comp.slider.medium | Slider - Size - Medium 7 0
+md.comp.slider.large | Slider - Size - Large 7 0
+md.comp.slider.xlarge | Slider - Size - Xlarge 7 0
+md.comp.divider | Divider 2 0
+324 123
+UNRESOLVED []
+DANGLING []
+
+== report-regen.ts: the report regenerated from that conversion, against the committed one (heading levels ignored)
+report lines 489 not in committed [] extra [
+  'Token tables for card, app bars, slider and divider',
+  'Written by `node scripts/update-tokens.ts --release 2026-11-19_06-20-01 --report <file>` on 2026-11-23 (`repo:RD-47`, unit T). The proofs are in [`token-tables.txt`](token-tables.txt).'
+]
+reconvert vs committed same 124 diff [] conflicts 0
+
+== css-layer.ts: set, tokens, processed, resolved properties, tokens with no resolved value
+## md.comp.elevated-card 25 processed 25 resolved 25 missing []
+## md.comp.filled-card 25 processed 25 resolved 25 missing []
+## md.comp.outlined-card 31 processed 31 resolved 31 missing []
+## md.comp.app-bar 19 processed 19 resolved 22 missing []
+## md.comp.app-bar.medium 4 processed 4 resolved 14 missing []
+## md.comp.app-bar.large 4 processed 4 resolved 14 missing []
+## md.comp.app-bar.small 7 processed 7 resolved 22 missing []
+## md.comp.app-bar.large-flexible 4 processed 4 resolved 14 missing []
+## md.comp.app-bar.medium-flexible 4 processed 4 resolved 14 missing []
+## md.comp.top-app-bar.small.centered 21 processed 21 resolved 28 missing []
+## md.comp.top-app-bar.small 19 processed 19 resolved 26 missing []
+## md.comp.top-app-bar.medium 16 processed 16 resolved 23 missing []
+## md.comp.top-app-bar.large 16 processed 16 resolved 23 missing []
+## md.comp.slider 96 processed 96 resolved 103 missing []
+## md.comp.slider.xsmall 5 processed 5 resolved 5 missing []
+## md.comp.slider.small 5 processed 5 resolved 5 missing []
+## md.comp.slider.medium 7 processed 7 resolved 7 missing []
+## md.comp.slider.large 7 processed 7 resolved 7 missing []
+## md.comp.slider.xlarge 7 processed 7 resolved 7 missing []
+## md.comp.divider 2 processed 2 resolved 2 missing []
+(no MULTI line: no new token has more than one value entry)
+
+== replacements.ts
+md.comp.app-bar.medium.icon.size -> asset.comp.app-bar.icon.size NOT IN STORE 
+md.comp.app-bar.large.icon.size -> asset.comp.app-bar.icon.size NOT IN STORE 
+md.comp.app-bar.small.icon.size -> asset.comp.app-bar.icon.size NOT IN STORE 
+md.comp.slider.disabled.stop-indicator.color -> md.comp.slider.disabled.inactive.stop-indicator.container.color exists 
+md.comp.slider.disabled.stop-indicator.color-selected -> md.comp.slider.disabled.active.stop-indicator.container.color exists 
+md.comp.slider.with-tick-marks.inactive.container.opacity -> md.comp.slider.inactive.tick-marks.container.opacity NOT IN STORE 
+md.comp.slider.with-tick-marks.inactive.container.color -> md.comp.slider.inactive.tick-marks.container.color NOT IN STORE 
+md.comp.slider.with-tick-marks.active.container.opacity -> md.comp.slider.active.tick-marks.container.opacity NOT IN STORE 
+md.comp.slider.with-tick-marks.active.container.color -> md.comp.slider.active.tick-marks.container.color NOT IN STORE 
+md.comp.slider.with-tick-marks.disabled.container.opacity -> md.comp.slider.disabled.tick-marks.container.opacity NOT IN STORE 
+md.comp.slider.with-tick-marks.disabled.container.color -> md.comp.slider.disabled.tick-marks.container.color NOT IN STORE 
+md.comp.slider.label.label-text.font-size -> md.comp.slider.label.label-text.size exists (deprecated)
+existing tokens with a replacement 9 replacement not in store 0
+
+== typescale-weights.ts
+md.sys.typescale.emphasized.title-medium.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.title-small.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.body-large.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.body-medium.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.label-large.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.body-small.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.label-medium.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.emphasized.label-small.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.display-large.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+md.sys.typescale.display-medium.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+md.sys.typescale.display-small.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+md.sys.typescale.headline-large.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+md.sys.typescale.headline-medium.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+md.sys.typescale.headline-small.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+md.sys.typescale.title-medium.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.title-medium.weight css var(--md-ref-typeface-weight-bold, 700) 3p web 500
+md.sys.typescale.title-small.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.title-small.weight css var(--md-ref-typeface-weight-bold, 700) 3p web 500
+md.sys.typescale.body-large.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.body-medium.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.body-small.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.label-large.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.label-large.weight css var(--md-ref-typeface-weight-bold, 700) 3p web 500
+md.sys.typescale.label-medium.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.label-small.font css var(--md-ref-typeface-plain, "Google Sans Text") 3p web ["Roboto Flex"]|["Roboto"]
+md.sys.typescale.title-large.weight css var(--md-ref-typeface-weight-medium, 500) 3p web 400
+
+== material-x CSS, 35 css.ts through just debug, base store (redirect-store.mjs, read 35 times) against head store
+35 of 35 identical, none empty
+Control: md.comp.button.small container.height set to 99px in the redirected base store: button/styles/default/main.css.ts and size/main.css.ts differ
+
+== tproc suite
+13 files, 129 tests passed; typecheck exit 0
+== git merge-tree --write-tree HEAD origin/main (246b64754): clean

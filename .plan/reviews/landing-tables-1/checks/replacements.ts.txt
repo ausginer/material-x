@@ -1,0 +1,6 @@
+const R='/workspaces/worktrees/f/packages/tproc/';
+const {loadStore}=await import(R+'src/store/Store.ts');
+const n=await loadStore(new URL('file://'+R+'tokens/'));
+const NEW=/^md\.comp\.(app-bar|top-app-bar|slider|divider|elevated-card|filled-card|outlined-card)/;
+for(const s of n.sets){if(!NEW.test(s.tokenSetName))continue;for(const t of s.tokens){const r=(t.deprecationMessage as any)?.replacementTokenName;if(r)console.log(t.tokenName,'->',r,n.getToken(r)?'exists':'NOT IN STORE',n.getToken(r)&&n.isTokenDeprecated(n.getToken(r)!)?'(deprecated)':'')}}
+const old:any={};let c=0,m=0;for(const t of n.tokens){if(NEW.test(t.tokenName))continue;const r=(t.deprecationMessage as any)?.replacementTokenName;if(r){c++;if(!n.getToken(r))m++}}console.log('existing tokens with a replacement',c,'replacement not in store',m);
