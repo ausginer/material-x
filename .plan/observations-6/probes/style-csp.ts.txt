@@ -1,0 +1,42 @@
+// Run from packages/material-x, where `playwright` resolves.
+import { chromium, firefox, webkit } from 'playwright';
+
+const page = `<!doctype html>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-a'; style-src 'self'">
+<body><script nonce="a">
+const make = () => {
+  const host = document.createElement('div');
+  document.body.append(host);
+  return host.attachShadow({ mode: 'open' });
+};
+const read = (root) => getComputedStyle(root.querySelector('p')).position;
+const clone = (html) => {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
+  return tpl.content.cloneNode(true);
+};
+window.read = () => {
+  const attribute = make();
+  attribute.append(clone('<p style="position:fixed"></p>'));
+  const element = make();
+  element.append(clone('<style>p{position:fixed}</style><p></p>'));
+  const adopted = make();
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync('p{position:fixed}');
+  adopted.adoptedStyleSheets = [sheet];
+  adopted.append(clone('<p></p>'));
+  const cssom = make();
+  cssom.append(clone('<p></p>'));
+  cssom.querySelector('p').style.cssText = 'position:fixed';
+  return { 'style attribute in a cloned template': read(attribute), '<style> in a cloned template': read(element), adoptedStyleSheets: read(adopted), 'style.cssText': read(cssom) };
+};
+</script>`;
+
+for (const engine of [chromium, firefox, webkit]) {
+  const browser = await engine.launch();
+  const tab = await browser.newPage();
+  await tab.route('http://probe.test/', (route) => route.fulfill({ contentType: 'text/html', body: page }));
+  await tab.goto('http://probe.test/');
+  console.log(engine.name(), browser.version(), JSON.stringify(await tab.evaluate(() => (window as any).read())));
+  await browser.close();
+}

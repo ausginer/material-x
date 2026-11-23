@@ -1,0 +1,16 @@
+# Two readings for RF-103's amendment. Read by the architect on 2026-11-23 at ff1e2b42b.
+
+# ../probes/template-retention.mjs.txt, rolldown 1.3.2: an entry that calls only slots(), and a module that holds a compiled
+# template for another export. The default is how @ydinjs/material-x is published: its package.json has no sideEffects field.
+one module, two exports; default: template kept
+one module, two exports; sideEffects: false: template dropped
+a module of its own; default: template dropped
+a module of its own; sideEffects: false: template dropped
+
+# ../probes/style-csp.ts.txt: the computed position of a styled element in a shadow root, under a CSP with
+# style-src 'self'. "fixed" means the style applied, "static" that it was blocked.
+                                         Chromium 158.0.8127.18   Firefox 159.0   WebKit 27.2
+style attribute in a cloned template     fixed                    static          fixed
+<style> in a cloned template             static                   static          static
+adoptedStyleSheets                       fixed                    fixed           fixed
+style.cssText (the code today)           fixed                    fixed           fixed

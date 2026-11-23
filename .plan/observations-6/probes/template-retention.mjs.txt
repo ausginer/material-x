@@ -1,0 +1,34 @@
+// Run from the repository root, where `rolldown` resolves, as an .mjs file.
+import { rolldown } from 'rolldown';
+
+// What `tsdown` writes for a .tpl.html module (packages/material-x/list/list.tpl.html.js), with a marker.
+const template = `const tpl = document.createElement("template"); tpl.innerHTML = "<div>MARKER</div>"; export { tpl as default };`;
+
+const shapes = {
+  'one module, two exports': {
+    entry: `import { slots } from 'polyfills'; slots();`,
+    polyfills: `import tpl from 'template'; export function notify() { return tpl.content; } export function slots() { return 1; }`,
+  },
+  'a module of its own': {
+    entry: `import { slots } from 'polyfills'; slots();`,
+    polyfills: `export function slots() { return 1; }`,
+    live: `import tpl from 'template'; export function notify() { return tpl.content; }`,
+  },
+};
+
+for (const [name, modules] of Object.entries(shapes)) {
+  for (const sideEffects of [undefined, false]) {
+    const bundle = await rolldown({
+      input: 'entry',
+      plugins: [
+        {
+          name: 'virtual',
+          resolveId: (id) => ({ id, ...(sideEffects === false ? { moduleSideEffects: id === 'entry' } : {}) }),
+          load: (id) => (id === 'template' ? template : modules[id]),
+        },
+      ],
+    });
+    const { output } = await bundle.generate({ format: 'esm' });
+    console.log(`${name}; ${sideEffects === false ? 'sideEffects: false' : 'default'}: ${output[0].code.includes('MARKER') ? 'template kept' : 'template dropped'}`);
+  }
+}

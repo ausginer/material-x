@@ -1,0 +1,14 @@
+# Relative links in box-quad's Markdown that resolve to no file, or to no heading of the named file.
+# Read by the architect on 2026-11-23 at fa056ff71, with ../../observations-4/probes/index-links.mjs on each Markdown file of
+# 'git ls-files -z packages/box-quad'. Node v26.13.1.
+packages/box-quad/.plan/plan.md:5: missing ../../drag2/.plan/plan.md
+packages/box-quad/.plan/plan.md:13: missing contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:14: missing ../../drag2/.plan/contract/00-index.md
+packages/box-quad/.plan/plan.md:15: missing contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:16: missing contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:18: missing contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:23: missing ../../drag2/.plan/measurements/budget-rebases.md
+packages/box-quad/.plan/plan.md:59: missing contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:60: missing contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:231: missing ../../drag2/.plan/measurements/budget-rebases.md
+packages/box-quad/.plan/reviews/03-C-correctness-review.md:5: missing ../contract/03-failure-table.md:27

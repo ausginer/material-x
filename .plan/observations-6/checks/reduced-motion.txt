@@ -1,0 +1,37 @@
+# material-x under prefers-reduced-motion: reduce, against no-preference. Read by the architect on 2026-11-23 at bc37ef008,
+# in Playwright's Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2, with emulateReducedMotion. matchMedia reported the
+# emulated value in each engine. The durations are in ms.
+#   MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' <probe>
+
+## ../probes/reduced-motion-sweep.browser.test.ts.txt: the computed transitions are the same with and without the preference,
+## in each engine. They are these (the split button's nested buttons repeat the button's rows):
+button .host               border-radius, background-color, color, padding-inline   350 each
+split button mx-icon-button  border-radius   350
+split button mx-icon       transform   350
+checkbox control ::after   background-color, border-color   200
+fab host                   --_level   350
+extended fab .host         all   350
+extended fab .label        opacity   350
+list button item .host     border-radius   350
+radio .off                 color   200
+radio .on                  clip-path   200
+text field notch ::before, ::after   transform   150
+text field .prefix, .suffix  transform   350
+ripple ::before            opacity, background-color   15
+## The animations that start, the same with and without the preference in each engine:
+press on button            border-radius (4 longhands) 350; the ripple's two WAAPI animations 150 and 500
+press on checkbox, radio   the ripple's two WAAPI animations 150 and 500; radio also color 200
+press on list button item  border-radius (4 longhands) 350; the ripple's two WAAPI animations 150 and 500
+fab extended closed to open  column-gap, row-gap, grid-template-columns 350; opacity 350
+checkbox checked           check-reveal 200; background-color and border-color 200
+radio checked              clip-path 200; color 200
+text field focus, outlined, with an unassigned label   transform 150 twice (the notch)
+
+## ../probes/reduced-motion.browser.test.ts.txt: mx-sortable-list, ArrowDown on A. Each reading: matches, order,
+## the animations of A after the key press, and A's --_level (the frame times differ per run).
+chromium  false  BAC  --_level 650, two Animations 650     level 6.0 at 69 ms, 2.4 at 169 ms, 0.3 at 269 ms
+chromium  true   BAC  --_level 650                         level 5.3 at 77 ms, 1.9 at 177 ms, 0.1 at 277 ms
+firefox   false  BAC  --_level 650, two Animations 650     level 5.3 at 83 ms, 1.9 at 182 ms, 0.1 at 283 ms
+firefox   true   BAC  --_level 650                         level 5.3 at 74 ms, 1.9 at 174 ms, 0.1 at 274 ms
+webkit    false  BAC  --_level 650, two Animations 650     level 1.7 at 197 ms, 0.0 at 305 ms
+webkit    true   BAC  no animation                         level 0.0 in every frame
