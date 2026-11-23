@@ -65,7 +65,7 @@ const provider = createLetterProvider();
 
 const result = Object.fromEntries(
   Iterator.from(registry).map(
-    (prop) => [prop, `--${provider.next().value!}`] as const,
+    (prop) => [prop, `--mx-${provider.next().value!}`] as const,
   ),
 );
 

@@ -5065,6 +5065,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 
 **Amended 2026-11-23 by the architect,** on the owner's answer. Until then the prefix was an option that the architect recommended.
 
+**Dated 2026-11-23 by the implementer: implemented on `material-x/mx-prefix-1`, from `3aef04f7e`, for #218, and not closed.** Requested by the coordinator. `collect-props.ts` gives each name the prefix, and nothing else changes. The sources, the names after the prefix and their order are the same.
+
+- **The probe,** on the built package in Chromium, Firefox and WebKit ([before](mx-prefix-1/checks/before.txt), [after](mx-prefix-1/checks/after.txt), [probe](mx-prefix-1/probes/mangled-names.mjs), [the page's names](mx-prefix-1/probes/page-names.json)). Before, each of the page's `--bh`, `--hh`, `--an` and `--fn` has its effect. After, none has: the button's corner is 20 px, the unchecked checkbox's fill is transparent, the page's `var(--an, …)` takes its fallback inside the text field, and the page's `--fn: solid` computes to `solid`. With the new map's names, such as `--mx-bh`, all the effects are there, so a page that writes those names still collides, as stated above.
+- **The diagnosis's row for `--an` can't show the repair.** It reads `color`, and an invalid `var()` there inherits the suffix's color from the slot, so it gives the suffix's color with or without the leak. The probe has a row more, on `background-color` with a fallback. It gives the suffix's color before and the fallback after, so the leak that the diagnosis reported is real.
+- **The built files:** 100 JavaScript files hold 303 names that begin with `--`, and no private one without the prefix ([script](mx-prefix-1/probes/unprefixed.mjs)). The only name that is neither `--md-*` nor `--mx-*` is `--activate`, the switch buttons' command. `CSS.registerProperty` takes `--mx-fn`. The map holds 228 names, and 227 of them are in the built files. Source maps hold the sources' names, as before.
+- **Sizes:** `complete` 22746 to 22871, **+125**, and each row as the diagnosis's `mx-` column ([every row](mx-prefix-1/checks/sizes.txt)).
+- **Limits:** the unit adds no test, as this entry says, and the suites run the sources' `--_x` names, so they don't read the change. They weren't run.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
