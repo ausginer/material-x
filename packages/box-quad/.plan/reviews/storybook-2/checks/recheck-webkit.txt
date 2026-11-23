@@ -1,0 +1,34 @@
+# recheck-webkit-load.ts, against the same build, on 2026-11-23, at 8f598f500, from the repository root. Node v26.13.1.
+## webkit 27.2
+  height 900 box-quad as built: 0 of 10 loads raise a page error 
+  height 900 box-quad former declarations: 1 of 10 loads raise a page error ResizeObserver loop completed with undelivered notifications.
+  height 900 box-quad controls hidden: 1 of 10 loads raise a page error ResizeObserver loop completed with undelivered notifications.
+  height 900 button-group-standard--docs: 0 of 10 loads raise a page error 
+  height 900 button-group-connected--docs: 0 of 10 loads raise a page error 
+  height 900 button-regular--docs: 0 of 10 loads raise a page error 
+  height 900 button-icon--docs: 0 of 10 loads raise a page error 
+  height 900 button-link--docs: 0 of 10 loads raise a page error 
+  height 900 button-split--docs: 0 of 10 loads raise a page error 
+  height 900 button-switch--docs: 0 of 10 loads raise a page error 
+  height 900 button-switch-icon--docs: 0 of 10 loads raise a page error 
+  height 5200 box-quad as built: 8 of 10 loads raise a page error ResizeObserver loop completed with undelivered notifications.
+  height 5200 box-quad former declarations: 7 of 10 loads raise a page error ResizeObserver loop completed with undelivered notifications.
+  height 5200 box-quad controls hidden: 10 of 10 loads raise a page error ResizeObserver loop completed with undelivered notifications.
+  height 5200 button-group-standard--docs: 0 of 10 loads raise a page error 
+  height 5200 button-group-connected--docs: 0 of 10 loads raise a page error 
+  height 5200 button-regular--docs: 0 of 10 loads raise a page error 
+  height 5200 button-icon--docs: 0 of 10 loads raise a page error 
+  height 5200 button-link--docs: 0 of 10 loads raise a page error 
+  height 5200 button-split--docs: 0 of 10 loads raise a page error 
+  height 5200 button-switch--docs: 0 of 10 loads raise a page error 
+  height 5200 button-switch-icon--docs: 0 of 10 loads raise a page error 
+
+# recheck-webkit-main.ts: origin/main at 986ad3719, built in a scratch worktree, and 8f598f500, in turn
+375 x 900 docs page, main: 0 of 20 loads raise a page error
+375 x 900 docs page, pr: 1 of 20 loads raise a page error
+375 x 900 docs page, main: 2 of 20 loads raise a page error
+375 x 900 docs page, pr: 0 of 20 loads raise a page error
+375 x 5200 docs page, main: 3 of 8 loads raise a page error
+375 x 5200 docs page, pr: 4 of 8 loads raise a page error
+375 x 5200 docs page, main: 4 of 8 loads raise a page error
+375 x 5200 docs page, pr: 4 of 8 loads raise a page error

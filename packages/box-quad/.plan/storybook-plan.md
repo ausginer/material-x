@@ -1,6 +1,6 @@
 # Storybook stories for `@ydinjs/box-quad`
 
-**Status:** implemented on 2026-11-22 at `97b789f54` ([record](plan.md#record)). It was settled first. The owner answered the three questions on 2026-11-22 with the recommended option of each ([§4](#4-owners-answers)). The decisions are registered as `BQ-13` to `BQ-18` in [`plan.md`](plan.md)'s ledger, where they're the record, and this plan holds their required properties. [§9](#9-revisions) lists what each revision changed.
+**Status:** implemented on 2026-11-22 at `97b789f54` ([record](plan.md#record)). It was settled first. The owner answered the three questions on 2026-11-22 with the recommended option of each ([§4](#4-owners-answers)). The decisions are registered as `BQ-13` to `BQ-18` in [`plan.md`](plan.md)'s ledger, where they're the record, and this plan holds their required properties. [§9](#9-revisions) lists what each revision changed. **Amended on 2026-11-22 by [§10](#10-the-sliders-move-into-the-stories):** the stories are slow because every arg change re-renders Storybook's manager, and their sliders move into the stories. That amendment is settled, and it is implemented at `64c1d4459` ([record](plan.md#record)). The owner answered `SB-Q4` A on 2026-11-22, and the main slot's architect registered `SB-D8` as `BQ-19` and `BQ-20` and `SB-D9` as `BQ-21`, which supersede `BQ-14`, `BQ-16` and `BQ-18` ([record](plan.md#record)).
 
 - **Read at** `origin/main` `4fd8b9a67`, after the 1.0.0 release reading (#147).
 - **Written by** the architect in slot `b`, on `box-quad/storybook-1`. An architect outside the main slot proposes and doesn't record ([agent workflow](../../../.agents/docs/agent-workflow.md#parallel-units)). So the first revision gave local names: decisions `SB-D1` to `SB-D7` and owner questions `SB-Q1` to `SB-Q3`. **Registered by** the main slot's architect on 2026-11-22, in slot `b` on the coordinator's request: `SB-D1` to `SB-D6` are `BQ-13` to `BQ-18`, in that order. `SB-D7` applies `repo:RD-32` and is not a decision of its own (§3, last section). The questions keep their local names, because box-quad's register has no question series.
@@ -194,7 +194,7 @@ The owner answered on 2026-11-22, in chat, relayed by the coordinator: **`SB-Q1`
 
 ## 7. Not adopted
 
-- **In-canvas sliders and a select, as the demo has them.** Storybook args show the same controls, put the state in the URL, and match drag's stories.
+- **In-canvas sliders and a select, as the demo has them.** Storybook args show the same controls, put the state in the URL, and match drag's stories. _§10 reverses this for the sliders (`SB-D8`): with args, each step of a dragged slider re-renders the manager._
 - **A comparison with the native `getBoxQuads()` in the story.** Only Firefox has it, and only behind a preference. box-quad doesn't call it, and the story would report the browser, not the package. The recorded reading of `BQ-18` makes that comparison once.
 - **An MDX page for box-quad.** The README and the API reference already document the package. Each story's description carries what that story needs.
 - **A shadow-tree variant of _Nested Spaces_.** box-quad supports shadow trees and its tests cover them. It can be added later as an arg.
@@ -214,3 +214,142 @@ The owner answered on 2026-11-22, in chat, relayed by the coordinator: **`SB-Q1`
 
 - **2026-11-22, first revision:** the first plan, with `SB-D1` to `SB-D7` and `SB-Q1` to `SB-Q3`, at `a26a111c1`.
 - **2026-11-22, this revision, by the main slot's architect:** the owner's answers, all A, and the registration of `SB-D1` to `SB-D6` as `BQ-13` to `BQ-18`. The status, §3's headings and the text that said _pending_ or _recommends_, §4's title, §5's estimate, §6's steps and §7's list changed. No required property changed. §3's third, fourth and fifth sections said _"pending `SB-Q1`"_, _"pending `SB-Q3`"_ and _"pending `SB-Q2`"_, with the architect's recommendation. The fifth also said what MIT would require if demo text were copied. §5 also estimated about 150 and 60 lines for `SB-Q3` C. §8 doesn't change.
+- **2026-11-22, the amendment, by the architect in slot `b`, on `box-quad/storybook-2`:** [§10](#10-the-sliders-move-into-the-stories) and the status line were added. §7's first entry was annotated. It isn't deleted, because §10 cites it. Nothing else in §1 to §9 changed. `BQ-13` to `BQ-18` stay as registered until the main slot's architect registers `SB-D8` and `SB-D9`.
+- **2026-11-22, the registration of §10, by the main slot's architect:** the owner's answer `SB-Q4` A, and `SB-D8` and `SB-D9` registered as `BQ-19` to `BQ-21`. The status line, §10.3's two headings and §10.4's title changed, and §10.4 gained the answer. No required property changed. The headings said _"(`SB-D8`, amends `BQ-14` and `BQ-16`)"_ and _"(`SB-D9`, amends `BQ-18`)"_, §10.4's title said _"Owner's question"_, and the status line said that the amendment proposes the two decisions and asks `SB-Q4`.
+- **2026-11-22, §10 implemented, by the implementer:** the status line says that §10 is implemented at `64c1d4459`. It said _"That amendment is settled and not yet implemented."_
+
+## 10. The sliders move into the stories
+
+**Input:** the owner's report on 2026-11-22, relayed by the coordinator for work-queue item #169. He found the stories _"hellishly slow"_, and thought Storybook rather than box-quad was the cause. His suggestion was to put the sliders in the page instead of Storybook's controls. His DevTools trace of a _Live Demo_ slider drag is the evidence. He read its flame graph and found only `sb-manager` frames and no box-quad function.
+
+- **Read at** `origin/main` `23b245efb`, which holds #159's stories unchanged.
+- **Written by** the architect in slot `b`, on `box-quad/storybook-2`. As in the first revision, this slot proposes and doesn't record. The decisions have local names `SB-D8` and `SB-D9`, and the question is `SB-Q4`. The main slot's architect registers them.
+- **Evidence,** all in [`probes/storybook-demo/`](probes/storybook-demo/):
+  - [`trace-attribution.ts`](probes/storybook-demo/trace-attribution.ts) reads the owner's trace, with its output in [`trace-attribution.txt`](probes/storybook-demo/trace-attribution.txt). The 66 MB trace isn't tracked. It is `packages/box-quad/.plan/storybook-perf-trace.json` in the main checkout.
+  - [`controls-cost.ts`](probes/storybook-demo/controls-cost.ts) is the reproduction, with its output in [`controls-cost.txt`](probes/storybook-demo/controls-cost.txt).
+
+### 10.1 What the owner's trace shows
+
+The trace holds two same-origin frames in one renderer process: the manager page at `?path=/story/box-quad--live-demo` and its preview iframe. The owner dragged the _Rotation_ range in the Controls panel.
+
+- **The longest task, 582 ms, is the recording itself:** 579 ms of it is `CpuProfiler::StartProfiling`, before the drag.
+- **The drag** produced five `input` events. Over the following second the main thread was busy for 551 ms. Eleven tasks were longer than a 60 Hz frame, 338 ms in all, and the longest took 48 ms.
+- **Script time by frame,** from the `FunctionCall` events:
+
+  | Frame   | Script                                           |     Time |
+  | ------- | ------------------------------------------------ | -------: |
+  | Manager | `sb-manager/globals-runtime.js`                  | 373.7 ms |
+  | Manager | everything else                                  |   2.8 ms |
+  | Preview | Storybook, React and the preview's other scripts |   8.3 ms |
+  | Preview | `box-quad.stories.tsx`                           |   0.7 ms |
+
+- **CPU samples in the same window:** 362 ms manager, 26 ms preview, 1.6 ms box-quad, 49 ms garbage collection.
+- **Where the manager's time goes:** `globals-runtime.js` is the manager's bundled React and emotion. Its hottest named frames are emotion's style serialisation (`serializeStyles`, `handleInterpolation`, `insertStyles`), and the rest are minified React frames.
+
+**The owner's reading is confirmed.** The time is in the manager frame. The preview and box-quad together take about 2 % of the script time.
+
+### 10.2 The reproduction
+
+`controls-cost.ts` changes _Live Demo_'s `rotation` 60 times, one change per frame. It profiles the renderer and attributes each sample to the manager, the preview or box-quad by the URL of its nearest script frame. It also counts the transforms the target actually got. The reading is from a Storybook dev server in slot `b`, run in headless Chromium in the development container. So the absolute times are that machine's, and the ratios between rows are what the reading shows. The ranges below cover the three committed runs.
+
+| Scenario | Wall time | Manager | Preview | box-quad |
+| --- | --: | --: | --: | --: |
+| Controls panel's range, dragged | 7.5–8.0 s | 6.1–6.5 s | 374–446 ms | 34–40 ms |
+| The same, sidebar hidden (`&nav=false`) | 3.6–4.2 s | 2.7–3.1 s | 389–463 ms | 33–39 ms |
+| `updateStoryArgs` from the manager, no pointer | 2.1–2.5 s | 1.4–1.9 s | 350–464 ms | 32–43 ms |
+| The same, panel hidden (`&panel=false`) | 2.9–3.3 s | 2.3–2.7 s | 357–367 ms | 33–41 ms |
+| The same, sidebar hidden | 1.6–1.8 s | 1.0–1.2 s | 352–391 ms | 29–39 ms |
+| `updateStoryArgs` in `iframe.html`, no manager | 1.0 s | — | 286–346 ms | 32–39 ms |
+| **A range in the story, dragged on the manager page** | **2.0 s** | **3.6–8.6 ms** | **114–171 ms** | **50–63 ms** |
+| The transform written and the read repeated by hand | 1.0 s | — | 1–4 ms | 15–21 ms |
+
+How to read the table:
+
+- **The Controls drag costs the manager 100 to 110 ms per change** on this machine, and the main thread is idle for under 1 % of the drag. The owner's trace has the same split between the frames: manager to preview is about 14 to 1 in both. In the trace that is about 70 ms of manager script per `input` event.
+- **Every arg change re-renders the manager,** whichever way the change arrives. The pointer isn't the cause: an `updateStoryArgs` emitted with no pointer still costs 17 to 45 ms of manager time. Each change also makes the manager replace its URL once, to write `&args=`. A `history.replaceState` hook in the manager page showed it, called from the manager's router.
+- **Most of that time is the sidebar tree.** The hottest named manager frames are the tree's node (`Node2`), `getSidebarVisibleStatus`, `useContextMenu`, `withStatusColor`, `CollapseIcon2` and polished's colour functions. Hiding the sidebar roughly halves the drag's cost. Hiding the panel doesn't reduce it, and the Controls table's own components take a few milliseconds over all 60 changes.
+- **The preview and box-quad aren't the problem.** Storybook's args path inside the preview costs about 5 to 6 ms per change, including React's development build. box-quad's read and redraw cost about 1 ms per change or less in every scenario.
+- **A range inside the story removes the manager's cost.** Over 59 transforms its total manager time is 4 to 9 ms, and the main thread is idle for three quarters of the drag. That row's 2.0 s is the probe's own pace: Playwright's input round trip into the iframe plus one frame per step. The row was taken with a temporary prototype story that wraps _Live Demo_'s own view. `controls-cost.txt` gives its source, and it was deleted afterwards.
+
+The preview's theme decorator calls `top.history.replaceState` on every story render, so twice per arg change. A replace dispatches no event and the manager doesn't re-render for it. With `&theme=dark` the theme survived every arg change. So the decorator isn't a cause, and this amendment leaves it alone.
+
+### 10.3 Decisions
+
+#### The sliders are in the stories, and no story takes Storybook args: `BQ-19` and `BQ-20`
+
+It replaces `BQ-14`'s _Args_ property, its _"redrawn after every arg change"_, and `BQ-16`'s _"follows `BQ-14`'s rules for args"_.
+
+**Required properties:**
+
+- **Each slider is a native `<input type="range">` rendered by the story,** with a visible label and the current value beside it. Its `name` is the former arg's name. Its minimum, maximum, step and initial value are the former `argTypes` and `args`:
+  - _Live Demo_: `rotation` and `skew`;
+  - _Nested Spaces_: `ancestorRotation`, `ancestorZoom` and `targetRotation`;
+  - _Pointer Delta_: `ancestorRotation` and `ancestorZoom`.
+
+  _Failed Reads_ has no slider and doesn't change.
+
+- **A slider changes only the story's own state.** The value is state of the story's view. Changing it calls no Storybook API: no `args` or `argTypes` on the story, no `useArgs`, no `updateArgs`, and no channel event. So the manager doesn't learn of the change, and it doesn't re-render.
+- **The overlay and the readout follow every change before the next frame paints,** as `BQ-14` requires for arg changes today. The view's layout effect, keyed on the values, already does this.
+- **The sliders sit outside the geometry they control.** They aren't inside the stage, the rotated ancestor or the scroll container. So they don't move the target or the stage relative to each other, and they aren't transformed with them.
+- **Theme and keyboard:** the sliders take their colours from the preview's `--md-sys-color-*` tokens, as the stage does, and the native range keeps its keyboard behaviour.
+- **The descriptions** of _Live Demo_, _Nested Spaces_ and _Pointer Delta_ stop referring to args or the Controls panel. Each says what its sliders change.
+- **No args remain,** so the Controls panel is empty for box-quad's stories and the docs page has no controls table. `SB-Q4` B is the alternative.
+
+**Why:** §10.2's rows. A dragged slider changes its value about 60 times a second. Through args, each change costs the manager 17 to 110 ms on the probe's machine, so the drag can't keep up. Inside the story the manager's cost is under 0.2 ms per change. A preview-side fix can't remove the manager's re-render, because it happens in the manager.
+
+#### What the stories' reading measures: `BQ-21`
+
+- **`controls-cost.ts` is the before-and-after witness of `SB-D8`.**
+  - **Before:** the rows in `controls-cost.txt`. The implementer runs the script once more before changing the stories, so the before and after readings come from one machine.
+  - **After:** run against the implemented stories. The script then skips the two Controls rows and the three `updateStoryArgs` rows, and reads `in-story range` on _Live Demo_ itself, with no `MX_IN_STORY`.
+  - **Passes when** `in-story range` shows 59 transforms, under 60 ms of manager time for the 60 changes (1 ms per change), and a main thread idle for more than half of the drag's wall time. The prototype's row meets all three, at 4 to 9 ms and 74 to 81 % idle. The Controls drag fails the second and the third, at 6.1 to 6.5 s and under 1 % idle.
+- **`stories-reading.ts` sets values through the sliders, not through `&args=` URLs.** It sets the range's value and dispatches `input`, or uses the keyboard. Its witnesses and tolerances don't change: the Firefox overlay parity at the defaults and the four extremes, the Chromium and WebKit `getBoundingClientRect()` corners at rotation 0 and skew 0, and the _Pointer Delta_ drag within 1 px.
+- **The screenshots are retaken,** because the sliders change each story's layout.
+- **Typecheck, lint, `docs-build` and `docs-smoke`** stay as `BQ-18` gives them.
+
+### 10.4 Owner's answer
+
+#### Do the stories keep Storybook args as their initial values? (`SB-Q4`)
+
+**Answered on 2026-11-22: A,** relayed by the coordinator: _"it's mostly a dynamic demonstration anyway"_ (in translation).
+
+- **A (recommended): no.** The sliders' initial values are the demo's defaults, written in the story. There is one source of truth, and the Controls panel and the docs page show nothing that could disagree with the sliders. What is lost: a URL can't open a story at an arg set (`&args=rotation:30`). Only `stories-reading.ts` used that, and `SB-D9` moves it to the sliders.
+- **B: yes, hidden.** Each story keeps its `args` as the sliders' initial values and hides them from the Controls panel. The view remounts when the args change, so a URL with `&args=` still opens the story at those values. The cost is a mechanism that nothing visible shows, and a fact this plan hasn't established: whether Storybook still applies URL args to an arg that the panel hides. `stories-reading.ts` could then keep its URLs.
+
+### 10.5 Implementation steps
+
+1. The owner answers `SB-Q4`, and the main slot's architect registers `SB-D8` and `SB-D9`.
+2. **Before:** `node packages/box-quad/.plan/probes/storybook-demo/controls-cost.ts <origin>` against a dev server of the unchanged stories. Append the output to `controls-cost.txt` under a dated heading.
+3. **The stories:**
+   - one labelled range component in `box-quad.stories.tsx`, shared by the three stories;
+   - each view holds its values in React state with the former defaults;
+   - `args`, `argTypes` and the `render` arguments go;
+   - the descriptions change as `SB-D8` requires;
+   - a controls row goes in `stories.module.css`.
+4. **The reading:** `stories-reading.ts` sets values through the sliders. Rerun it, and replace its output and screenshots.
+5. **After:** `controls-cost.ts` against the implemented stories, appended under its own dated heading, with `SB-D9`'s pass condition checked against it.
+6. **The checks:** `aube exec just typecheck` and `aube exec just lint` in `packages/box-quad`, then `aube exec just docs-build` and `aube exec just docs-smoke` at the root.
+7. A dated paragraph in [`plan.md`](plan.md)'s record that names the commit and both readings.
+8. Push `box-quad/storybook-2`, and open the pull request with `Refs #169`.
+
+### 10.6 Size
+
+- **Published bytes don't change** (`BQ-13`): only `src/box-quad.stories.tsx`, `src/stories.module.css` and the probes change.
+- **Estimate:** about 40 lines added and 35 removed in the stories file, about 25 lines of CSS, and about 30 changed lines in `stories-reading.ts`. This is an estimate, not a measurement.
+
+### 10.7 Not adopted
+
+- **Throttling or skipping box-quad's reads.** They cost about 1 ms per change or less in every scenario, so there is nothing to save.
+- **Fewer re-renders in the preview on arg updates.** Storybook's args path inside the preview is about 5 to 6 ms per change. The manager's re-render is the cost, and the preview can't prevent it.
+- **Throttling the arg updates,** with a custom control or a debounced `updateArgs`. Every update still re-renders the manager for 17 to 110 ms, so the slider would step visibly, and the story would carry a manager-facing mechanism.
+- **Hiding the sidebar for these stories.** It halves the cost, which leaves about 50 ms per change. It would also take the sidebar away from the reader.
+- **Number fields in the Controls panel instead of ranges.** A typed value pays the manager's cost once, which is acceptable. But a number field is no reproduction of the demo's sliders, and it leaves the drag unfixed.
+- **Writing the transform imperatively instead of through React state.** In the preview, that path costs about 0.3 ms per change against React state's 3 to 4 ms in the development build, and both fit in a frame. React state keeps the view declarative, and its layout effect already meets `BQ-14`'s redraw rule.
+- **A Storybook upgrade or an upstream report** as this unit's fix. The manager's re-render on each arg update is Storybook's behaviour, and the fix doesn't depend on it changing.
+
+### 10.8 Not established
+
+- **Why the pointer path costs three to five times the channel path** in the manager. The profile doesn't separate the range's own handling from the re-render that follows. `SB-D8` removes both.
+- **Real browsers and GPU rendering:** the reproduction is headless Chromium with software rendering. The owner's trace, from his browser, has the same ratio between the manager and the preview.
+- **A built site:** the reproduction is a dev server, as the owner's trace is. The manager's bundle is prebuilt, so it is the same in a built site. The preview's React is the development build here, so the preview costs less in a built site.
+- **Other stories:** no other story in the repository has a range control. Any arg change elsewhere also re-renders the manager, once per click or keystroke. Whether a repository rule for continuous controls is wanted is outside this unit.

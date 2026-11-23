@@ -81,6 +81,38 @@
   }
 }
 
+/* The sliders sit above the stage, outside the geometry they change. */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  max-inline-size: 100%;
+}
+
+.range {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-inline-size: 100%;
+
+  & input {
+    inline-size: 200px;
+    min-inline-size: 80px;
+    margin: 0;
+    accent-color: var(--md-sys-color-primary);
+  }
+
+  & output {
+    min-inline-size: 5ch;
+    font-variant-numeric: tabular-nums;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+}
+
+.range-label {
+  min-inline-size: 9em;
+}
+
 /* Live Demo: the demo's geometry. */
 .demo-stage {
   inline-size: 640px;
@@ -128,8 +160,11 @@
 .nested-stage {
   inline-size: 560px;
   max-inline-size: 100%;
-  block-size: 440px;
-  padding: 72px;
+  block-size: 512px;
+  /* At 45 degrees and the least zoom, the ancestor rises 132px above its
+     untransformed place. The top padding keeps it inside the stage, so it
+     never covers the sliders. */
+  padding: 144px 72px 72px;
 }
 
 .nested-ancestor {

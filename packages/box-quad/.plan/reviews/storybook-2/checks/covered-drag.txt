@@ -1,0 +1,52 @@
+# covered-drag.ts, against the same dev server, on 2026-11-23, at 59967767a, from the repository root. Node v26.13.1.
+
+## chromium 158.0.8127.18
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 105, thumb covered at 0, worst 56 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 12; then ArrowRight: 13
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 13 dragged 40 px: 45; then ArrowRight: 45
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 8, thumb covered at 0, worst 17 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 105, thumb covered at 50, worst 56 % of the range (rotation 45, zoom 0.5)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: click on targetRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: -20; then ArrowRight: -19
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at -19 dragged 40 px: 13; then ArrowRight: 14
+
+## firefox 159.0
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 86, thumb covered at 0, worst 43 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 5; then ArrowRight: 6
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 6 dragged 40 px: 32; then ArrowRight: 33
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 2, thumb covered at 0, worst 8 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 86, thumb covered at 40, worst 43 % of the range (rotation 45, zoom 0.5)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: click on targetRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: -20; then ArrowRight: -19
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at -19 dragged 40 px: 6; then ArrowRight: 7
+
+## webkit 27.2
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 104, thumb covered at 0, worst 55 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 12; then ArrowRight: 13
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 13 dragged 40 px: 45; then ArrowRight: 45
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 5, thumb covered at 0, worst 11 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 104, thumb covered at 47, worst 55 % of the range (rotation 45, zoom 0.5)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: click on targetRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: -20; then ArrowRight: -19
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at -19 dragged 40 px: 13; then ArrowRight: 14

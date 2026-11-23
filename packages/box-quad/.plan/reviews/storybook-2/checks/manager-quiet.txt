@@ -1,0 +1,64 @@
+# manager-quiet.ts, against a Storybook dev server from slot b on 127.0.0.1:6126, on 2026-11-23, at 59967767a, from the repository root. Node v26.13.1.
+
+## chromium 158.0.8127.18
+  live-demo      rotation dragged                   manager mutations 2, replaceState 0, channel events [], ends at 55
+  live-demo      skew dragged                       manager mutations 0, replaceState 0, channel events [], ends at 20
+  live-demo      shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  live-demo      theme switched: values kept true, accent rgb(151, 217, 69)
+  live-demo      console errors and warnings: 1 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose.
+  live-demo      control: updateStoryArgs x 40      manager mutations 771, replaceState 39, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, sharedStateChanged-manager-storybook/interactions, storybook/instrumenter/sync, storyArgsUpdated, storyRendered, storyFinished, updateQueryParams]
+  nested-spaces  ancestorRotation dragged           manager mutations 2, replaceState 0, channel events [], ends at 45
+  nested-spaces  ancestorZoom dragged               manager mutations 0, replaceState 0, channel events [], ends at 2
+  nested-spaces  targetRotation dragged             manager mutations 0, replaceState 0, channel events [], ends at 45
+  nested-spaces  shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  nested-spaces  theme switched: values kept true, accent rgb(151, 217, 69)
+  nested-spaces  console errors and warnings: 1 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose.
+  nested-spaces  control: updateStoryArgs x 40      manager mutations 668, replaceState 39, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, sharedStateChanged-manager-storybook/interactions, storybook/instrumenter/sync, storyArgsUpdated, storyRendered, storyFinished, updateQueryParams]
+  pointer-delta  ancestorRotation dragged           manager mutations 2, replaceState 0, channel events [], ends at 180
+  pointer-delta  ancestorZoom dragged               manager mutations 0, replaceState 0, channel events [], ends at 2
+  pointer-delta  shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  pointer-delta  theme switched: values kept true, accent rgb(151, 217, 69)
+  pointer-delta  console errors and warnings: 1 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose.
+  pointer-delta  control: updateStoryArgs x 40      manager mutations 757, replaceState 38, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, sharedStateChanged-manager-storybook/interactions, storybook/instrumenter/sync, storyArgsUpdated, storyRendered, storyFinished, updateQueryParams]
+
+## firefox 159.0
+  live-demo      rotation dragged                   manager mutations 0, replaceState 0, channel events [], ends at 55
+  live-demo      skew dragged                       manager mutations 1, replaceState 0, channel events [], ends at 20
+  live-demo      shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  live-demo      theme switched: values kept true, accent rgb(151, 217, 69)
+  live-demo      console errors and warnings: 4 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose. | warning: [JavaScript Warning: "Permissions Policy: Skipping unsupported feature name “clipboard-write”." {file: "http://127.0.0.1:6126/sb-manager/globals-runtim | warning: [JavaScript Warning: "Permissions Policy: Skipping unsupported feature name “clipboard-write”." {file: "http://127.0.0.1:6126/sb-manager/globals-runtim | warning: [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content.
+  live-demo      control: updateStoryArgs x 40      manager mutations 857, replaceState 41, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, storybook/instrumenter/sync, sharedStateChanged-manager-storybook/interactions, storyRendered, storyFinished, storyArgsUpdated, updateQueryParams]
+  nested-spaces  ancestorRotation dragged           manager mutations 0, replaceState 0, channel events [], ends at 45
+  nested-spaces  ancestorZoom dragged               manager mutations 0, replaceState 0, channel events [], ends at 2
+  nested-spaces  targetRotation dragged             manager mutations 0, replaceState 0, channel events [], ends at 45
+  nested-spaces  shortcut keys on a slider          manager mutations 1, replaceState 0, channel events [], url unchanged: true
+  nested-spaces  theme switched: values kept true, accent rgb(151, 217, 69)
+  nested-spaces  console errors and warnings: 4 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose. | warning: [JavaScript Warning: "Permissions Policy: Skipping unsupported feature name “clipboard-write”." {file: "http://127.0.0.1:6126/sb-manager/globals-runtim | warning: [JavaScript Warning: "Permissions Policy: Skipping unsupported feature name “clipboard-write”." {file: "http://127.0.0.1:6126/sb-manager/globals-runtim | warning: [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content.
+  nested-spaces  control: updateStoryArgs x 40      manager mutations 880, replaceState 41, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, storybook/instrumenter/sync, sharedStateChanged-manager-storybook/interactions, storyArgsUpdated, storyRendered, storyFinished, updateQueryParams]
+  pointer-delta  ancestorRotation dragged           manager mutations 0, replaceState 0, channel events [], ends at 180
+  pointer-delta  ancestorZoom dragged               manager mutations 0, replaceState 0, channel events [], ends at 2
+  pointer-delta  shortcut keys on a slider          manager mutations 1, replaceState 0, channel events [], url unchanged: true
+  pointer-delta  theme switched: values kept true, accent rgb(151, 217, 69)
+  pointer-delta  console errors and warnings: 4 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose. | warning: [JavaScript Warning: "Permissions Policy: Skipping unsupported feature name “clipboard-write”." {file: "http://127.0.0.1:6126/sb-manager/globals-runtim | warning: [JavaScript Warning: "Permissions Policy: Skipping unsupported feature name “clipboard-write”." {file: "http://127.0.0.1:6126/sb-manager/globals-runtim | warning: [JavaScript Warning: "Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content.
+  pointer-delta  control: updateStoryArgs x 40      manager mutations 915, replaceState 41, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, storybook/instrumenter/sync, sharedStateChanged-manager-storybook/interactions, storyArgsUpdated, storyRendered, storyFinished, updateQueryParams]
+
+## webkit 27.2
+  live-demo      rotation dragged                   manager mutations 0, replaceState 0, channel events [], ends at 55
+  live-demo      skew dragged                       manager mutations 0, replaceState 0, channel events [], ends at 20
+  live-demo      shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  live-demo      theme switched: values kept true, accent rgb(151, 217, 69)
+  live-demo      console errors and warnings: 1 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose.
+  live-demo      control: updateStoryArgs x 40      manager mutations 401, replaceState 80, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, storyArgsUpdated, storybook/instrumenter/sync, sharedStateChanged-manager-storybook/interactions, updateQueryParams, storyRendered, storyFinished]
+  nested-spaces  ancestorRotation dragged           manager mutations 0, replaceState 0, channel events [], ends at 45
+  nested-spaces  ancestorZoom dragged               manager mutations 0, replaceState 0, channel events [], ends at 2
+  nested-spaces  targetRotation dragged             manager mutations 1, replaceState 0, channel events [], ends at 45
+  nested-spaces  shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  nested-spaces  theme switched: values kept true, accent rgb(151, 217, 69)
+  nested-spaces  console errors and warnings: 1 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose.
+  nested-spaces  control: updateStoryArgs x 40      manager mutations 309, replaceState 75, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, storyArgsUpdated, storybook/instrumenter/sync, sharedStateChanged-manager-storybook/interactions, updateQueryParams, storyRendered, storyFinished]
+  pointer-delta  ancestorRotation dragged           manager mutations 0, replaceState 0, channel events [], ends at 180
+  pointer-delta  ancestorZoom dragged               manager mutations 1, replaceState 0, channel events [], ends at 2
+  pointer-delta  shortcut keys on a slider          manager mutations 0, replaceState 0, channel events [], url unchanged: true
+  pointer-delta  theme switched: values kept true, accent rgb(151, 217, 69)
+  pointer-delta  console errors and warnings: 1 warning: The 'ariaLabel' prop on 'PopoverProvider' will become mandatory in Storybook 11. Provide a concise, accessible label describing the popover's purpose.
+  pointer-delta  control: updateStoryArgs x 40      manager mutations 397, replaceState 73, channel events [updateStoryArgs, storyRenderPhaseChanged, storybook/instrumenter/call, storyArgsUpdated, storybook/instrumenter/sync, sharedStateChanged-manager-storybook/interactions, updateQueryParams, storyRendered, storyFinished]

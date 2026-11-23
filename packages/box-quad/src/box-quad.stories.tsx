@@ -4,9 +4,13 @@
  * getBoxQuadsPolyfill by Jochen Kühner (MIT): its scenario and readings, written
  * for box-quad's API. None of the demo's markup, CSS or code is copied.
  *
+ * Each story's sliders are native ranges that change the story's own state and
+ * call no Storybook API. An arg change re-renders Storybook's manager, which
+ * costs far more per change than a dragged range can afford.
+ *
  * Each overlay is drawn imperatively from a layout effect that runs on every
- * arg change, a `ResizeObserver` callback or a `scroll` listener. All three run
- * before the next frame paints, so the polygon never lags the element it
+ * slider change, a `ResizeObserver` callback or a `scroll` listener. All three
+ * run before the next frame paints, so the polygon never lags the element it
  * outlines.
  *
  * A readout is written by changing its text node's data, which adds and
@@ -17,7 +21,13 @@
  * `ResizeObserver` loop error.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useLayoutEffect, useRef, type JSX, type RefObject } from 'react';
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type JSX,
+  type RefObject,
+} from 'react';
 import {
   ancestry,
   coordinates,
@@ -157,9 +167,50 @@ function writeReadout(readout: HTMLDListElement, quad: Quad | false): void {
   );
 }
 
-type LiveDemoArgs = Readonly<{ rotation: number; skew: number }>;
+type RangeProps = Readonly<{
+  label: string;
+  name: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  unit?: string;
+  onChange: (value: number) => void;
+}>;
 
-function LiveDemoView({ rotation, skew }: LiveDemoArgs): JSX.Element {
+/** A labelled native range with its current value beside it. */
+function Range({
+  label,
+  name,
+  min,
+  max,
+  step,
+  value,
+  unit = '',
+  onChange,
+}: RangeProps): JSX.Element {
+  return (
+    <label className={css['range']}>
+      <span className={css['range-label']}>{label}</span>
+      <input
+        type="range"
+        name={name}
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => {
+          onChange(Number(event.currentTarget.value));
+        }}
+      />
+      <output>{`${value}${unit}`}</output>
+    </label>
+  );
+}
+
+function LiveDemoView(): JSX.Element {
+  const [rotation, setRotation] = useState(-18);
+  const [skew, setSkew] = useState(8);
   const stageRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<SVGSVGElement>(null);
@@ -184,6 +235,28 @@ function LiveDemoView({ rotation, skew }: LiveDemoArgs): JSX.Element {
 
   return (
     <div className={css['story']}>
+      <div className={css['controls']}>
+        <Range
+          label="Rotation"
+          name="rotation"
+          min={-55}
+          max={55}
+          step={1}
+          value={rotation}
+          unit="°"
+          onChange={setRotation}
+        />
+        <Range
+          label="Skew"
+          name="skew"
+          min={-20}
+          max={20}
+          step={1}
+          value={skew}
+          unit="°"
+          onChange={setSkew}
+        />
+      </div>
       <div className={css['scroller']}>
         <div ref={stageRef} className={`${css['stage']} ${css['demo-stage']}`}>
           <span className={css['badge']}>relativeTo: demo stage</span>
@@ -216,28 +289,17 @@ function LiveDemoView({ rotation, skew }: LiveDemoArgs): JSX.Element {
  * untransformed border-box space, so the stage's scroll position doesn't change
  * them. box-quad measures the border box only, so the demo's _Box_ select has
  * no counterpart, and it keeps no cache, so neither has the cache toggle.
- * _Read_ is the read's one outcome, `true` or `false`.
+ * _Read_ is the read's one outcome, `true` or `false`. The sliders rotate and
+ * skew the target, and the overlay and the readout follow each change.
  */
-export const LiveDemo: StoryObj<LiveDemoArgs> = {
-  args: { rotation: -18, skew: 8 },
-  argTypes: {
-    rotation: { control: { type: 'range', min: -55, max: 55, step: 1 } },
-    skew: { control: { type: 'range', min: -20, max: 20, step: 1 } },
-  },
-  render: (args) => <LiveDemoView {...args} />,
+export const LiveDemo: StoryObj = {
+  render: () => <LiveDemoView />,
 };
 
-type NestedSpacesArgs = Readonly<{
-  ancestorRotation: number;
-  ancestorZoom: number;
-  targetRotation: number;
-}>;
-
-function NestedSpacesView({
-  ancestorRotation,
-  ancestorZoom,
-  targetRotation,
-}: NestedSpacesArgs): JSX.Element {
+function NestedSpacesView(): JSX.Element {
+  const [ancestorRotation, setAncestorRotation] = useState(12);
+  const [ancestorZoom, setAncestorZoom] = useState(1.25);
+  const [targetRotation, setTargetRotation] = useState(-20);
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -269,6 +331,37 @@ function NestedSpacesView({
 
   return (
     <div className={css['story']}>
+      <div className={css['controls']}>
+        <Range
+          label="Ancestor rotation"
+          name="ancestorRotation"
+          min={-45}
+          max={45}
+          step={1}
+          value={ancestorRotation}
+          unit="°"
+          onChange={setAncestorRotation}
+        />
+        <Range
+          label="Ancestor zoom"
+          name="ancestorZoom"
+          min={0.5}
+          max={2}
+          step={0.05}
+          value={ancestorZoom}
+          onChange={setAncestorZoom}
+        />
+        <Range
+          label="Target rotation"
+          name="targetRotation"
+          min={-45}
+          max={45}
+          step={1}
+          value={targetRotation}
+          unit="°"
+          onChange={setTargetRotation}
+        />
+      </div>
       <div ref={rootRef} className={`${css['stage']} ${css['nested-stage']}`}>
         <span className={css['badge']}>relativeTo: story root</span>
         <div
@@ -300,33 +393,16 @@ function NestedSpacesView({
  * into the untransformed story root, so the whole chain lies between the two,
  * and the overlay is redrawn as the container scrolls. box-quad doesn't clip:
  * a target scrolled out of sight still has a quad, and the overlay then draws
- * outside the scroll container.
+ * outside the scroll container. The sliders set the ancestor's rotation and
+ * zoom and the target's own rotation.
  */
-export const NestedSpaces: StoryObj<NestedSpacesArgs> = {
-  args: { ancestorRotation: 12, ancestorZoom: 1.25, targetRotation: -20 },
-  argTypes: {
-    ancestorRotation: {
-      control: { type: 'range', min: -45, max: 45, step: 1 },
-    },
-    ancestorZoom: {
-      control: { type: 'range', min: 0.5, max: 2, step: 0.05 },
-    },
-    targetRotation: {
-      control: { type: 'range', min: -45, max: 45, step: 1 },
-    },
-  },
-  render: (args) => <NestedSpacesView {...args} />,
+export const NestedSpaces: StoryObj = {
+  render: () => <NestedSpacesView />,
 };
 
-type PointerDeltaArgs = Readonly<{
-  ancestorRotation: number;
-  ancestorZoom: number;
-}>;
-
-function PointerDeltaView({
-  ancestorRotation,
-  ancestorZoom,
-}: PointerDeltaArgs): JSX.Element {
+function PointerDeltaView(): JSX.Element {
+  const [ancestorRotation, setAncestorRotation] = useState(30);
+  const [ancestorZoom, setAncestorZoom] = useState(1.5);
   const boxRef = useRef<HTMLDivElement>(null);
   const translationRef = useRef<HTMLOutputElement>(null);
 
@@ -383,6 +459,27 @@ function PointerDeltaView({
 
   return (
     <div className={css['story']}>
+      <div className={css['controls']}>
+        <Range
+          label="Ancestor rotation"
+          name="ancestorRotation"
+          min={-180}
+          max={180}
+          step={1}
+          value={ancestorRotation}
+          unit="°"
+          onChange={setAncestorRotation}
+        />
+        <Range
+          label="Ancestor zoom"
+          name="ancestorZoom"
+          min={0.5}
+          max={2}
+          step={0.05}
+          value={ancestorZoom}
+          onChange={setAncestorZoom}
+        />
+      </div>
       <div className={`${css['stage']} ${css['pointer-stage']}`}>
         <div
           className={css['pointer-ancestor']}
@@ -408,19 +505,11 @@ function PointerDeltaView({
  * `zoom`. On each move, `ancestry` reads the space the box inherits, and
  * `localDelta` turns the pointer's viewport delta into the change of the box's
  * `translate`, so the box stays under the pointer at any rotation and zoom.
- * `@ydinjs/drag` builds on these functions; this story uses them directly.
+ * `@ydinjs/drag` builds on these functions; this story uses them directly. The
+ * sliders set the ancestor's rotation and zoom.
  */
-export const PointerDelta: StoryObj<PointerDeltaArgs> = {
-  args: { ancestorRotation: 30, ancestorZoom: 1.5 },
-  argTypes: {
-    ancestorRotation: {
-      control: { type: 'range', min: -180, max: 180, step: 1 },
-    },
-    ancestorZoom: {
-      control: { type: 'range', min: 0.5, max: 2, step: 0.05 },
-    },
-  },
-  render: (args) => <PointerDeltaView {...args} />,
+export const PointerDelta: StoryObj = {
+  render: () => <PointerDeltaView />,
 };
 
 type FailedReadCase = Readonly<{ name: string; target: JSX.Element }>;
