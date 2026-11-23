@@ -2354,6 +2354,8 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Ready,** with nothing left to decide. **Size:** _small_, one file, one script header, and two sentences.
 
+**Dated 2026-11-23 by the implementer: implemented on `repo/tokens-notice-1`, and not closed.** Requested by the coordinator for #191. `packages/tproc/tokens/NOTICE` has property 2's text, `update-tokens.ts`'s header names it as the one file that the script doesn't write, and material-x's README has property 4's texts. No `license` field changes. A run of the update script at the manifest's release, `2026-11-19_06-20-01`, wrote 124 files. `NOTICE` kept its SHA-256, and no other store file changed. The landing page's sentence (property 5) is `RD-47`'s.
+
 #### RD-51 — A Material specification section is a wish for the landing page: `/spec/`, tokens and values first, all of Material in the store
 
 **Recorded 2026-11-23 by the architect, on `repo/register-observations-7`,** from the owner's answers of the same day in chat to the roadmap item [#190](https://github.com/ausginer/material-x/issues/190), relayed by the coordinator. `RD-50` is the entry before this one, so this is the next free number. **Not planned now:** the unit that takes it plans it here first. It isn't one of the landing plan's units, and nothing in `RD-47` to `RD-49` waits for it.
