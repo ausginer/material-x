@@ -1,0 +1,95 @@
+# The implementer's controls-cost.ts, three runs, against the same dev server, on 2026-11-23, at 59967767a, from the repository root. Node v26.13.1.
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6126
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2016	125	125	59	8.1	161.9	61.8	2.9	307.1	1475.8
+direct write	995	-	62	60	0.0	2.4	15.1	0.0	58.0	920.7
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6126
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	1997	123	123	59	5.6	143.3	62.5	0.8	272.5	1513.2
+direct write	1000	-	62	60	0.0	1.1	21.4	0.0	76.8	902.1
+controls: skipped, the story has no such range
+controls, sidebar hidden: skipped, the story has no such range
+channel, panel shown: skipped, the story takes no rotation arg
+channel, panel hidden: skipped, the story takes no rotation arg
+channel, sidebar hidden: skipped, the story takes no rotation arg
+preview only: skipped, the story takes no rotation arg
+Chromium 158.0.8127.18, 60 changes of rotation, one per frame, against http://127.0.0.1:6126
+scenario	wall ms	manager frames	preview frames	updates	manager ms	preview ms	box-quad ms	gc ms	program ms	idle ms
+in-story range	2008	123	123	59	6.7	165.7	70.1	2.4	271.1	1493.7
+direct write	994	-	62	60	0.0	1.2	14.8	1.1	57.7	919.9
+
+# stories-reading.ts: the output differs from the committed one in its three header lines only, and the eight screenshots are byte-equal. slider-errors.ts:
+
+## chromium 158.0.8127.18
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## firefox 159.0
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## webkit 27.2
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+No page error and no node change
+
+# The #159 feature proof's probes: resize-observer-errors.ts
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+# webkit-errors-all-stories.ts
+WebKit 27.2: 89 stories, 0 raise a page error
+
+# flex-basis of Pointer Delta's ancestorRotation at 1000 px: computed flex, input width, label width; as committed, then with 0 1 100px, 0 1 400px, 0 1 auto, 0 0 200px
+chromium [["0 1 200px",129,312.96875],["0 1 100px",100,283.96875],["0 1 400px",129,312.96875],["0 1 auto",129,312.96875],["0 0 200px",200,383.96875]]
+firefox [["0 1 200px",160,344],["0 1 100px",100,344],["0 1 400px",160,344],["0 1 auto",160,344],["0 0 200px",200,344]]
+webkit [["0 1 200px",129,312.96875],["0 1 100px",100,312.96875],["0 1 400px",129,312.96875],["0 1 auto",129,312.96875],["0 0 200px",200,312.96875]]

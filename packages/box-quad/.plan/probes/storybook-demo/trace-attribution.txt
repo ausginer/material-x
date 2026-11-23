@@ -1,0 +1,23 @@
+manager frame CE9C36: http://172.17.0.2:6006/?path=%2Fstory%2Fbox-quad--live-demo&theme=light
+preview frame 1D24EE: http://172.17.0.2:6006/iframe.html?id=box-quad--live-demo&viewMode=story
+
+trace span 6845 ms
+longest main-thread task: 582.3 ms at 4987 ms, of which 579.3 ms is CpuProfiler::StartProfiling
+drag window 5828 to 6841 ms (1013 ms): 5 input events, main thread busy 551 ms, 11 tasks over one 60 Hz frame totalling 338 ms, longest 48.0 ms
+
+FunctionCall time in the drag window, by frame and script:
+   373.7 ms	manager	sb-manager/globals-runtime.js
+     8.2 ms	preview	(other scripts)
+     1.4 ms	manager	(no url)
+     1.3 ms	manager	sb-manager/runtime.js
+     0.7 ms	preview	/packages/box-quad/src/box-quad.stories.tsx
+     0.1 ms	preview	(no url)
+     0.1 ms	manager	sb-addons/storybook-core-server-presets-0
+
+CPU samples in the drag window, by the nearest script frame:
+   460.6 ms	idle
+   362.4 ms	manager
+   113.3 ms	program
+    48.7 ms	gc
+    26.1 ms	preview
+     1.6 ms	box-quad

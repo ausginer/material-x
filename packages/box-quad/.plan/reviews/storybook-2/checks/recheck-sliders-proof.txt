@@ -1,0 +1,253 @@
+# sliders-proof.ts, against .docs, on 2026-11-23, at 8f598f500, from the repository root. Node v26.13.1.
+
+## chromium 158.0.8127.18
+  pass  live-demo rotation: 110 of 110 keyboard steps, last 55, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home -55, End 55, PageDown 44, PageUp 55, ArrowLeft 54, ArrowDown 53, ArrowUp 54
+  pass  live-demo rotation: pointer drag, 28 changes, ends at 0, worst miss 1.8e-4 px
+  pass  live-demo skew: 40 of 40 keyboard steps, last 20, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home -20, End 20, PageDown 16, PageUp 20, ArrowLeft 19, ArrowDown 18, ArrowUp 19
+  pass  live-demo skew: pointer drag, 28 changes, ends at 0, worst miss 0.0e+0 px
+  pass  live-demo: channel events from the preview: 0
+        aria:
+          - text: Rotation
+          - slider "Rotation": "0"
+          - status: 0°
+          - text: Skew
+          - slider "Skew": "0"
+          - status: 0°
+          - text: "relativeTo: demo stage Ancestor Target node"
+          - term: Read
+          - definition:
+            - status: "true"
+          - term: First point
+          - definition:
+            - status: (198.0, 174.0)
+          - term: Quad points
+          - definition:
+            - status: "p1: (198.00, 174.00) p2: (490.00, 174.00) p3: (490.00, 350.00) p4: (198.00, 350.00)"
+  pass  nested-spaces ancestorRotation: 90 of 90 keyboard steps, last 45, shown text differs: 0, longest shown 4 characters, worst overlay miss 3.1e-5 px
+        keys: Home -45, End 45, PageDown 36, PageUp 45, ArrowLeft 44, ArrowDown 43, ArrowUp 44
+  pass  nested-spaces ancestorRotation: pointer drag, 28 changes, ends at 0, worst miss 0.0e+0 px
+  pass  nested-spaces ancestorZoom: 30 of 30 keyboard steps, last 2, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home 0.5, End 2, PageDown 1.85, PageUp 2, ArrowLeft 1.95, ArrowDown 1.9, ArrowUp 1.95
+  pass  nested-spaces ancestorZoom: pointer drag, 23 changes, ends at 1.25, worst miss 1.5e-5 px
+  pass  nested-spaces targetRotation: 90 of 90 keyboard steps, last 45, shown text differs: 0, longest shown 4 characters, worst overlay miss 3.1e-5 px
+        keys: Home -45, End 45, PageDown 36, PageUp 45, ArrowLeft 44, ArrowDown 43, ArrowUp 44
+  pass  nested-spaces targetRotation: pointer drag, 28 changes, ends at 0, worst miss 3.1e-5 px
+  pass  nested-spaces: channel events from the preview: 0
+        aria:
+          - text: Ancestor rotation
+          - slider "Ancestor rotation": "0"
+          - status: 0°
+          - text: Ancestor zoom
+          - slider "Ancestor zoom": "1.25"
+          - status: "1.25"
+          - text: Target rotation
+          - slider "Target rotation": "0"
+          - status: 0°
+          - text: "relativeTo: story root Target"
+          - term: Read
+          - definition:
+            - status: "true"
+          - term: First point
+          - definition:
+            - status: (148.0, 310.0)
+          - term: Quad points
+          - definition:
+            - status: "p1: (148.00, 310.00) p2: (308.00, 310.00) p3: (308.00, 400.00) p4: (148.00, 400.00)"
+  pass  pointer-delta ancestorRotation: 360 of 360 keyboard steps, last 180, shown text differs: 0, longest shown 5 characters, worst overlay miss 0.0e+0 px
+        keys: Home -180, End 180, PageDown 144, PageUp 180, ArrowLeft 179, ArrowDown 178, ArrowUp 179
+  pass  pointer-delta ancestorRotation: pointer drag, 28 changes, ends at 0, worst miss 0.0e+0 px
+  pass  pointer-delta ancestorZoom: 30 of 30 keyboard steps, last 2, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home 0.5, End 2, PageDown 1.85, PageUp 2, ArrowLeft 1.95, ArrowDown 1.9, ArrowUp 1.95
+  pass  pointer-delta ancestorZoom: pointer drag, 23 changes, ends at 1.25, worst miss 0.0e+0 px
+  pass  pointer-delta: channel events from the preview: 0
+        aria:
+          - text: Ancestor rotation
+          - slider "Ancestor rotation": "0"
+          - status: 0°
+          - text: Ancestor zoom
+          - slider "Ancestor zoom": "1.25"
+          - status: "1.25"
+          - text: Drag me
+          - term: translate
+          - definition:
+            - status: (0.0, 0.0)
+  note  rotation -18: sliders named exactly "Rotation": 1; named "Rotation -18°": 0
+  note  rotation 30: sliders named exactly "Rotation": 1; named "Rotation 30°": 0
+  note  Blink slider: name "Rotation" value "30" focusable=true valuemin=-55 valuemax=55 valuetext=30
+  note  Blink status: name "" value "" live=polite
+  note  Blink slider: name "Skew" value "8" focusable=true valuemin=-20 valuemax=20 valuetext=8
+  note  Blink status: name "" value "" live=polite
+  note  Blink status: name "" value "" live=polite
+  note  Blink status: name "" value "" live=polite
+  note  Blink status: name "" value "" live=polite
+  docs  stories 10 [story--box-quad--live-demo--primary story--box-quad--live-demo--primary-inner story--box-quad--live-demo story--box-quad--live-demo-inner story--box-quad--nested-spaces story--box-quad--nested-spaces-inner story--box-quad--pointer-delta story--box-quad--pointer-delta-inner story--box-quad--failed-reads story--box-quad--failed-reads-inner], ranges 9, arg tables 0, empty-args text false
+  pass  docs: each range moves only its own story; ranges that didn't move 0, other ranges or polygons that changed 0
+  pass  unmount: live ResizeObservers/scroll listeners after each story: live-demo 1/0, nested-spaces 1/1, pointer-delta 0/0, failed-reads 4/0, live-demo 1/0, nested-spaces 1/1, failed-reads 4/0, pointer-delta 0/0; 52 observers created
+  pass  Pointer Delta at three slider pairs in one visit, distance (px): 30/1.5 0.000, -150/0.5 0.000, 95/2 0.000
+  pass  page and console errors: 0
+
+## firefox 159.0
+  pass  live-demo rotation: 110 of 110 keyboard steps, last 55, shown text differs: 0, longest shown 4 characters, worst overlay miss 4.6e-3 px
+        keys: Home -55, End 55, PageDown 44, PageUp 55, ArrowLeft 54, ArrowDown 53, ArrowUp 54
+  pass  live-demo rotation: pointer drag, 28 changes, ends at 0, worst miss 4.6e-3 px
+  pass  live-demo skew: 40 of 40 keyboard steps, last 20, shown text differs: 0, longest shown 4 characters, worst overlay miss 3.1e-5 px
+        keys: Home -20, End 20, PageDown 16, PageUp 20, ArrowLeft 19, ArrowDown 18, ArrowUp 19
+  pass  live-demo skew: pointer drag, 26 changes, ends at 0, worst miss 3.1e-5 px
+  pass  live-demo: channel events from the preview: 0
+        aria:
+          - text: Rotation
+          - slider "Rotation": "0"
+          - status: 0°
+          - text: Skew
+          - slider "Skew": "0"
+          - status: 0°
+          - text: "relativeTo: demo stage Ancestor Target node"
+          - term: Read
+          - definition:
+            - status: "true"
+          - term: First point
+          - definition:
+            - status: (198.0, 174.0)
+          - term: Quad points
+          - definition:
+            - status: "p1: (198.00, 174.00) p2: (490.00, 174.00) p3: (490.00, 350.00) p4: (198.00, 350.00)"
+  pass  nested-spaces ancestorRotation: 90 of 90 keyboard steps, last 45, shown text differs: 0, longest shown 4 characters, worst overlay miss 1.5e-5 px
+        keys: Home -45, End 45, PageDown 36, PageUp 45, ArrowLeft 44, ArrowDown 43, ArrowUp 44
+  pass  nested-spaces ancestorRotation: pointer drag, 28 changes, ends at 0, worst miss 6.6e-3 px
+  pass  nested-spaces ancestorZoom: 30 of 30 keyboard steps, last 2, shown text differs: 0, longest shown 4 characters, worst overlay miss 3.1e-5 px
+        keys: Home 0.5, End 2, PageDown 1.85, PageUp 2, ArrowLeft 1.95, ArrowDown 1.9, ArrowUp 1.95
+  pass  nested-spaces ancestorZoom: pointer drag, 23 changes, ends at 1.25, worst miss 3.1e-5 px
+  pass  nested-spaces targetRotation: 90 of 90 keyboard steps, last 45, shown text differs: 0, longest shown 4 characters, worst overlay miss 6.6e-3 px
+        keys: Home -45, End 45, PageDown 36, PageUp 45, ArrowLeft 44, ArrowDown 43, ArrowUp 44
+  pass  nested-spaces targetRotation: pointer drag, 28 changes, ends at 0, worst miss 6.6e-3 px
+  pass  nested-spaces: channel events from the preview: 0
+        aria:
+          - text: Ancestor rotation
+          - slider "Ancestor rotation": "0"
+          - status: 0°
+          - text: Ancestor zoom
+          - slider "Ancestor zoom": "1.25"
+          - status: "1.25"
+          - text: Target rotation
+          - slider "Target rotation": "0"
+          - status: 0°
+          - text: "relativeTo: story root Target"
+          - term: Read
+          - definition:
+            - status: "true"
+          - term: First point
+          - definition:
+            - status: (148.0, 310.0)
+          - term: Quad points
+          - definition:
+            - status: "p1: (148.00, 310.00) p2: (308.00, 310.00) p3: (308.00, 400.00) p4: (148.00, 400.00)"
+  pass  pointer-delta ancestorRotation: 360 of 360 keyboard steps, last 180, shown text differs: 0, longest shown 5 characters, worst overlay miss 0.0e+0 px
+        keys: Home -180, End 180, PageDown 144, PageUp 180, ArrowLeft 179, ArrowDown 178, ArrowUp 179
+  pass  pointer-delta ancestorRotation: pointer drag, 28 changes, ends at 0, worst miss 0.0e+0 px
+  pass  pointer-delta ancestorZoom: 30 of 30 keyboard steps, last 2, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home 0.5, End 2, PageDown 1.85, PageUp 2, ArrowLeft 1.95, ArrowDown 1.9, ArrowUp 1.95
+  pass  pointer-delta ancestorZoom: pointer drag, 23 changes, ends at 1.25, worst miss 0.0e+0 px
+  pass  pointer-delta: channel events from the preview: 0
+        aria:
+          - text: Ancestor rotation
+          - slider "Ancestor rotation": "0"
+          - status: 0°
+          - text: Ancestor zoom
+          - slider "Ancestor zoom": "1.25"
+          - status: "1.25"
+          - text: Drag me
+          - term: translate
+          - definition:
+            - status: (0.0, 0.0)
+  note  rotation -18: sliders named exactly "Rotation": 1; named "Rotation -18°": 0
+  note  rotation 30: sliders named exactly "Rotation": 1; named "Rotation 30°": 0
+  docs  stories 10 [story--box-quad--live-demo--primary story--box-quad--live-demo--primary-inner story--box-quad--live-demo story--box-quad--live-demo-inner story--box-quad--nested-spaces story--box-quad--nested-spaces-inner story--box-quad--pointer-delta story--box-quad--pointer-delta-inner story--box-quad--failed-reads story--box-quad--failed-reads-inner], ranges 9, arg tables 0, empty-args text false
+  pass  docs: each range moves only its own story; ranges that didn't move 0, other ranges or polygons that changed 0
+  pass  unmount: live ResizeObservers/scroll listeners after each story: live-demo 1/0, nested-spaces 1/1, pointer-delta 0/0, failed-reads 4/0, live-demo 1/0, nested-spaces 1/1, failed-reads 4/0, pointer-delta 0/0; 52 observers created
+  pass  Pointer Delta at three slider pairs in one visit, distance (px): 30/1.5 0.000, -150/0.5 0.000, 95/2 0.000
+  pass  page and console errors: 0
+
+## webkit 27.2
+  pass  live-demo rotation: 110 of 110 keyboard steps, last 55, shown text differs: 0, longest shown 4 characters, worst overlay miss 2.1e-4 px
+        keys: Home -55, End 55, PageDown 44, PageUp 55, ArrowLeft 54, ArrowDown 53, ArrowUp 54
+  pass  live-demo rotation: pointer drag, 28 changes, ends at 0, worst miss 1.8e-4 px
+  pass  live-demo skew: 40 of 40 keyboard steps, last 20, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home -20, End 20, PageDown 16, PageUp 20, ArrowLeft 19, ArrowDown 18, ArrowUp 19
+  pass  live-demo skew: pointer drag, 26 changes, ends at 0, worst miss 0.0e+0 px
+  pass  live-demo: channel events from the preview: 0
+        aria:
+          - text: Rotation
+          - slider "Rotation": "0"
+          - status: 0°
+          - text: Skew
+          - slider "Skew": "0"
+          - status: 0°
+          - text: "relativeTo: demo stage Ancestor Target node"
+          - term: Read
+          - definition:
+            - status: "true"
+          - term: First point
+          - definition:
+            - status: (198.0, 174.0)
+          - term: Quad points
+          - definition:
+            - status: "p1: (198.00, 174.00) p2: (490.00, 174.00) p3: (490.00, 350.00) p4: (198.00, 350.00)"
+  pass  nested-spaces ancestorRotation: 90 of 90 keyboard steps, last 45, shown text differs: 0, longest shown 4 characters, worst overlay miss 3.1e-5 px
+        keys: Home -45, End 45, PageDown 36, PageUp 45, ArrowLeft 44, ArrowDown 43, ArrowUp 44
+  pass  nested-spaces ancestorRotation: pointer drag, 28 changes, ends at 0, worst miss 7.6e-6 px
+  pass  nested-spaces ancestorZoom: 30 of 30 keyboard steps, last 2, shown text differs: 0, longest shown 4 characters, worst overlay miss 1.5e-5 px
+        keys: Home 0.5, End 2, PageDown 1.85, PageUp 2, ArrowLeft 1.95, ArrowDown 1.9, ArrowUp 1.95
+  pass  nested-spaces ancestorZoom: pointer drag, 23 changes, ends at 1.25, worst miss 1.5e-5 px
+  pass  nested-spaces targetRotation: 90 of 90 keyboard steps, last 45, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home -45, End 45, PageDown 36, PageUp 45, ArrowLeft 44, ArrowDown 43, ArrowUp 44
+  pass  nested-spaces targetRotation: pointer drag, 28 changes, ends at 0, worst miss 3.1e-5 px
+  pass  nested-spaces: channel events from the preview: 0
+        aria:
+          - text: Ancestor rotation
+          - slider "Ancestor rotation": "0"
+          - status: 0°
+          - text: Ancestor zoom
+          - slider "Ancestor zoom": "1.25"
+          - status: "1.25"
+          - text: Target rotation
+          - slider "Target rotation": "0"
+          - status: 0°
+          - text: "relativeTo: story root Target"
+          - term: Read
+          - definition:
+            - status: "true"
+          - term: First point
+          - definition:
+            - status: (148.0, 310.0)
+          - term: Quad points
+          - definition:
+            - status: "p1: (148.00, 310.00) p2: (308.00, 310.00) p3: (308.00, 400.00) p4: (148.00, 400.00)"
+  pass  pointer-delta ancestorRotation: 360 of 360 keyboard steps, last 180, shown text differs: 0, longest shown 5 characters, worst overlay miss 0.0e+0 px
+        keys: Home -180, End 180, PageDown 144, PageUp 180, ArrowLeft 179, ArrowDown 178, ArrowUp 179
+  pass  pointer-delta ancestorRotation: pointer drag, 28 changes, ends at 0, worst miss 0.0e+0 px
+  pass  pointer-delta ancestorZoom: 30 of 30 keyboard steps, last 2, shown text differs: 0, longest shown 4 characters, worst overlay miss 0.0e+0 px
+        keys: Home 0.5, End 2, PageDown 1.85, PageUp 2, ArrowLeft 1.95, ArrowDown 1.9, ArrowUp 1.95
+  pass  pointer-delta ancestorZoom: pointer drag, 23 changes, ends at 1.25, worst miss 0.0e+0 px
+  pass  pointer-delta: channel events from the preview: 0
+        aria:
+          - text: Ancestor rotation
+          - slider "Ancestor rotation": "0"
+          - status: 0°
+          - text: Ancestor zoom
+          - slider "Ancestor zoom": "1.25"
+          - status: "1.25"
+          - text: Drag me
+          - term: translate
+          - definition:
+            - status: (0.0, 0.0)
+  note  rotation -18: sliders named exactly "Rotation": 1; named "Rotation -18°": 0
+  note  rotation 30: sliders named exactly "Rotation": 1; named "Rotation 30°": 0
+  docs  stories 10 [story--box-quad--live-demo--primary story--box-quad--live-demo--primary-inner story--box-quad--live-demo story--box-quad--live-demo-inner story--box-quad--nested-spaces story--box-quad--nested-spaces-inner story--box-quad--pointer-delta story--box-quad--pointer-delta-inner story--box-quad--failed-reads story--box-quad--failed-reads-inner], ranges 9, arg tables 0, empty-args text false
+  pass  docs: each range moves only its own story; ranges that didn't move 0, other ranges or polygons that changed 0
+  pass  unmount: live ResizeObservers/scroll listeners after each story: live-demo 1/0, nested-spaces 1/1, pointer-delta 0/0, failed-reads 4/0, live-demo 1/0, nested-spaces 1/1, failed-reads 4/0, pointer-delta 0/0; 52 observers created
+  pass  Pointer Delta at three slider pairs in one visit, distance (px): 30/1.5 0.000, -150/0.5 0.000, 95/2 0.000
+  pass  page and console errors: 0
+
+Every check passes

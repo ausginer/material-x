@@ -1,0 +1,80 @@
+# Page errors with the sliders inside the stories, on 2026-11-22, from the repository root after aube exec just docs-build. Node v26.13.1.
+
+## node packages/box-quad/.plan/probes/storybook-demo/slider-errors.ts
+
+## chromium 158.0.8127.18
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## firefox 159.0
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## webkit 27.2
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+No page error and no node change
+
+## The feature proof's probes, unchanged: node packages/box-quad/.plan/reviews/storybook-1/probes/resize-observer-errors.ts
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## node packages/box-quad/.plan/reviews/storybook-1/probes/webkit-errors-all-stories.ts
+WebKit 27.2: 89 stories, 0 raise a page error
+
+## slider-errors.ts again, on 2026-11-23, at 67b7a39aa, after the repair of the feature proof's findings; .docs built from that tree. The two storybook-1 probes above were not rerun.
+
+## chromium 158.0.8127.18
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## firefox 159.0
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## webkit 27.2
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+No page error and no node change

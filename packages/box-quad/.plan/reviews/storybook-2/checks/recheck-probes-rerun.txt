@@ -1,0 +1,173 @@
+# The implementer's and this review's probes, rerun on 2026-11-23, at 8f598f500, from the repository root. Node v26.13.1.
+# covered-grid.ts, against .docs
+
+## chromium 158.0.8127.18
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+## firefox 159.0
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.1 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.1 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+## webkit 27.2
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+# covered-drag.ts, against .docs
+
+## chromium 158.0.8127.18
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+
+## firefox 159.0
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+
+## webkit 27.2
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+# layout.ts, against .docs. It reads the sideways scroll at the defaults only.
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+
+## firefox 159.0
+  width 1000 live-demo      page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+
+## webkit 27.2
+  width 1000 live-demo      page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+# stories-reading.ts: the output differs from the committed one in its three header lines only, and the eight screenshots are byte-equal
+# slider-errors.ts
+
+## chromium 158.0.8127.18
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## firefox 159.0
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+## webkit 27.2
+  live-demo      rotation, skew: 20 steps each, page errors: 0, childList records: 0
+  nested-spaces  ancestorRotation, ancestorZoom, targetRotation: 20 steps each, page errors: 0, childList records: 0
+  pointer-delta  ancestorRotation, ancestorZoom: 20 steps each, page errors: 0, childList records: 0
+
+No page error and no node change
+# storybook-1's resize-observer-errors.ts and webkit-errors-all-stories.ts
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## firefox 159.0
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+
+## webkit 27.2
+  width 1000 live-demo      page errors: 0; Storybook error display: false
+  width 1000 nested-spaces  page errors: 0; Storybook error display: false
+  width 1000 pointer-delta  page errors: 0; Storybook error display: false
+  width 1000 failed-reads   page errors: 0; Storybook error display: false
+  width 1000 docs           page errors: 0; Storybook error display: false
+  width 375 live-demo      page errors: 0; Storybook error display: false
+  width 375 nested-spaces  page errors: 0; Storybook error display: false
+  width 375 pointer-delta  page errors: 0; Storybook error display: false
+  width 375 failed-reads   page errors: 0; Storybook error display: false
+  width 375 docs           page errors: 0; Storybook error display: false
+WebKit 27.2: 89 stories, 0 raise a page error
