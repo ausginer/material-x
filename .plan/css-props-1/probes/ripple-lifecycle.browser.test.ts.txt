@@ -1,0 +1,85 @@
+import { expect, it, vi } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../../src/button/button.ts';
+import '../../../src/button/icon-button.ts';
+import '../../../src/button/link-button.ts';
+import '../../../src/button/switch-button.ts';
+import '../../../src/button/switch-icon-button.ts';
+import '../../../src/button/split-button.ts';
+import '../../../src/fab/fab.ts';
+import '../../../src/checkbox/checkbox.ts';
+import '../../../src/radio/radio.ts';
+import '../../../src/list/list-item.ts';
+import '../../../src/list/list-button-item.ts';
+import '../../../src/list/list-link-item.ts';
+import '../../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const errors: string[] = [];
+addEventListener('error', (e) => { errors.push('error: ' + e.message); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+addEventListener('unhandledrejection', (e) => { errors.push('rejection: ' + String((e.reason as Error)?.message)); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+const out: string[] = []; const log = (s: string, v: unknown) => { out.push(`P ${server.browser} ${s}: ${JSON.stringify(v)}`); };
+const take = () => errors.splice(0);
+const TAGS = ['mx-button', 'mx-icon-button', 'mx-link-button', 'mx-switch-button', 'mx-switch-icon-button', 'mx-fab', 'mx-checkbox', 'mx-radio', 'mx-list-button-item', 'mx-list-link-item'];
+const make = (tag: string) => { const e = document.createElement(tag); if (tag.includes('link')) e.setAttribute('href', '#x'); if (!/checkbox|radio/.test(tag)) e.textContent = 'A'; return e; };
+const target = (e: Element) => (e.shadowRoot!.querySelector('.host, input') ?? e) as HTMLElement;
+const touch = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 7, buttons: type === 'pointerup' ? 0 : 1 }));
+const mouse = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'mouse', pointerId: 1, buttons: 1 }));
+
+it('touch press, then removed within the touch delay', async () => {
+  for (const tag of TAGS) {
+    const e = make(tag); document.body.append(e); await wait(50);
+    touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(250);
+    log(`touch, removed at 50 ms, first use, ${tag}`, take());
+  }
+  const e = make('mx-button'); document.body.append(e); await wait(50);
+  mouse(e, 'pointerdown'); (target(e)).click(); await wait(500);
+  touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(250);
+  log('touch, removed at 50 ms, after an earlier press', take());
+  const f = make('mx-button'); document.body.append(f); await wait(50);
+  touch(f, 'pointerdown'); await wait(50); document.body.append(f); await wait(250);
+  log('touch, moved at 50 ms, first use', take());
+  f.remove();
+});
+it('press, then moved and removed before the fade', async () => {
+  for (const how of ['removed', 'moved', 'moved, then removed'] as const) {
+    const e = make('mx-button'); document.body.append(e); await wait(50);
+    mouse(e, 'pointerdown'); target(e).click(); await wait(20);
+    if (how !== 'removed') document.body.append(e);
+    if (how !== 'moved') { await wait(20); e.remove(); }
+    await wait(500);
+    log(`press, ${how}`, take());
+    e.remove();
+  }
+});
+
+it('a new press during the fade, and removal during the fade', async () => {
+  for (const how of ['press during the fade', 'removed during the fade', 'removed, put back, then pressed by touch', 'removed while held, put back']) {
+    const e = make('mx-button'); document.body.append(e); await wait(50);
+    if (how === 'removed, put back, then pressed by touch') {
+      touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(300); document.body.append(e); await wait(30);
+      target(e).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 9, buttons: 1 })); await wait(200);
+      log(how + ', running animations', [e.shadowRoot!.getAnimations().filter((a) => !(a instanceof CSSTransition)).length, take()]); e.remove(); await wait(300); take(); continue;
+    }
+    if (how === 'removed while held, put back') {
+      mouse(e, 'pointerdown'); await wait(300); e.remove(); await wait(30); document.body.append(e); await wait(600);
+      log(how + ', animations left', [e.shadowRoot!.getAnimations().filter((a) => !(a instanceof CSSTransition)).length, take()]); e.remove(); await wait(300); take(); continue;
+    }
+    mouse(e, 'pointerdown'); target(e).click(); await wait(290);
+    if (how === 'press during the fade') mouse(e, 'pointerdown'); else e.remove();
+    await wait(400); log(how, take()); e.remove(); await wait(300); take();
+  }
+});
+it('fade', async () => {
+  for (const tag of ['mx-button', 'mx-checkbox', 'mx-radio']) for (const seq of [['mouse'], ['keyboard'], ['mouse', 'keyboard'], ['keyboard', 'mouse']]) {
+    const e = make(tag); document.body.append(e); await wait(50); const res: string[] = [];
+    const rip = e.shadowRoot!.querySelector('.ripple')!; const orig = rip.animate.bind(rip);
+    (rip as any).animate = (k: any, o: any) => { const a = orig(k, o); if (k && !Array.isArray(k) && 'opacity' in k) { const eff = (a.effect as KeyframeEffect).getKeyframes(); const before = getComputedStyle(rip, '::after').opacity; res.push(`keyframes ${eff.length} first ${eff[0]!.opacity ?? 'implicit'}, painted at start ${before}`); } return a; };
+    for (const kind of seq) {
+      if (kind === 'mouse') { const r = target(e).getBoundingClientRect(); await userEvent.hover(target(e)); await commands.pointerPress(r.left + r.width / 2, r.top + r.height / 2); await commands.pointerRelease(); await wait(600); await userEvent.unhover(target(e)); }
+      else { target(e).focus(); await userEvent.keyboard(' '); await wait(600); }
+    }
+    log(`fade ${tag} ${seq.join('+')}`, res); e.remove(); take();
+  }
+}, 60000);
+it('report', () => { throw new Error('RES ' + out.join(' || ')); });

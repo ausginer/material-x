@@ -41,11 +41,21 @@ export type CSSPropsResult<
  * The requested CSS variables are resolved through `getComputedStyle(...)` and
  * parsed according to their per-property descriptions.
  *
+ * @remarks The variables are read at the first call of the returned function in
+ * a connection, and later calls return the same values until the host connects
+ * again. An error that a parser throws is thrown by that call, and the next
+ * call reads again. The hook is for a connected host: a call on a disconnected
+ * host with no values kept reads an empty style, so a parser may throw, and the
+ * caller ends its work when the host disconnects. It is for variables whose
+ * value doesn't depend on the host's state, because a later change of state
+ * doesn't reach the values.
+ *
  * @typeParam T - Mapping from consumer-facing keys to CSS prop descriptions.
  * @param host - Element whose computed CSS variables should be read.
  * @param props - Mapping from output keys to CSS prop descriptions.
  * @param target - Element passed to each parse callback.
- * @returns Readonly object containing parsed values under the same keys.
+ * @returns Function that returns a readonly object containing parsed values
+ *   under the same keys.
  */
 export function useCSSProps<
   const T extends Readonly<Record<PropertyKey, CSSPropDescription<any>>>,
@@ -54,17 +64,25 @@ export function useCSSProps<
   props: T,
   target: HTMLElement = host,
 ): () => CSSPropsResult<T> {
-  let result: Partial<Record<keyof T, string>>;
+  let result: Partial<Record<keyof T, unknown>> | null = null;
 
   useConnected(host, () => {
-    const styles = getComputedStyle(host);
-
-    result = {};
-
-    for (const [key, [name, parse]] of Object.entries(props)) {
-      result[key] = parse(styles.getPropertyValue(name).trim(), target, name);
-    }
+    result = null;
   });
 
-  return () => result as CSSPropsResult<T>;
+  return () => {
+    if (!result) {
+      const styles = getComputedStyle(host);
+      const values: Partial<Record<keyof T, unknown>> = {};
+
+      for (const [key, [name, parse]] of Object.entries(props)) {
+        values[key] = parse(styles.getPropertyValue(name).trim(), target, name);
+      }
+
+      // Assigned last, so that a read that throws isn't kept.
+      result = values;
+    }
+
+    return result as CSSPropsResult<T>;
+  };
 }

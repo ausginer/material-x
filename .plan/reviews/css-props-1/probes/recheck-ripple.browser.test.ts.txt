@@ -1,0 +1,108 @@
+import { expect, it, vi } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../../src/button/button.ts';
+import '../../../src/button/icon-button.ts';
+import '../../../src/button/link-button.ts';
+import '../../../src/button/switch-button.ts';
+import '../../../src/button/switch-icon-button.ts';
+import '../../../src/button/split-button.ts';
+import '../../../src/fab/fab.ts';
+import '../../../src/checkbox/checkbox.ts';
+import '../../../src/radio/radio.ts';
+import '../../../src/list/list-item.ts';
+import '../../../src/list/list-button-item.ts';
+import '../../../src/list/list-link-item.ts';
+import '../../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const errors: string[] = [];
+addEventListener('error', (e) => { errors.push('error: ' + e.message); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+addEventListener('unhandledrejection', (e) => { errors.push('rejection: ' + String((e.reason as Error)?.message)); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+const log = (s: string, v: unknown) => console.log(`P ${server.browser} ${s}: ${JSON.stringify(v)}`);
+const take = () => errors.splice(0);
+const TAGS = ['mx-button', 'mx-icon-button', 'mx-link-button', 'mx-switch-button', 'mx-switch-icon-button', 'mx-fab', 'mx-checkbox', 'mx-radio', 'mx-list-button-item', 'mx-list-link-item'];
+const make = (tag: string) => { const e = document.createElement(tag); if (tag.includes('link')) e.setAttribute('href', '#x'); if (!/checkbox|radio/.test(tag)) e.textContent = 'A'; return e; };
+const target = (e: Element) => (e.shadowRoot!.querySelector('.host, input') ?? e) as HTMLElement;
+const touch = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 7, buttons: type === 'pointerup' ? 0 : 1 }));
+const mouse = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'mouse', pointerId: 1, buttons: 1 }));
+
+it('touch press, then removed within the touch delay', async () => {
+  for (const tag of TAGS) {
+    const e = make(tag); document.body.append(e); await wait(50);
+    touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(250);
+    log(`touch, removed at 50 ms, first use, ${tag}`, take());
+  }
+  const e = make('mx-button'); document.body.append(e); await wait(50);
+  mouse(e, 'pointerdown'); (target(e)).click(); await wait(500);
+  touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(250);
+  log('touch, removed at 50 ms, after an earlier press', take());
+  const f = make('mx-button'); document.body.append(f); await wait(50);
+  touch(f, 'pointerdown'); await wait(50); document.body.append(f); await wait(250);
+  log('touch, moved at 50 ms, first use', take());
+  f.remove();
+});
+it('press, then moved and removed before the fade', async () => {
+  for (const how of ['removed', 'moved', 'moved, then removed'] as const) {
+    const e = make('mx-button'); document.body.append(e); await wait(50);
+    mouse(e, 'pointerdown'); target(e).click(); await wait(20);
+    if (how !== 'removed') document.body.append(e);
+    if (how !== 'moved') { await wait(20); e.remove(); }
+    await wait(500);
+    log(`press, ${how}`, take());
+    e.remove();
+  }
+});
+it('the opacity that the exit fade starts from', async () => {
+  for (const tag of TAGS) {
+    for (const orderOf of [['mouse'], ['keyboard'], ['mouse', 'keyboard'], ['keyboard', 'mouse']] as const) {
+      const e = make(tag); document.body.append(e); await wait(60);
+      const out: string[] = [];
+      const ripple = e.shadowRoot!.querySelector('.ripple')!;
+      const animate = ripple.animate.bind(ripple);
+      ripple.animate = (k, o) => { const op = (k as { opacity?: unknown[] }).opacity; const before = getComputedStyle(ripple, '::after').opacity; const an = animate(k, o); if (op !== undefined) { an.currentTime = 0; out.push(`keyframe ${JSON.stringify(op)}, painted ${before}, at the start ${getComputedStyle(ripple, '::after').opacity}`); } return an; };
+      const r = target(e).getBoundingClientRect();
+      for (const how of orderOf) {
+        if (how === 'mouse') { await commands.pointerMove(r.left + r.width / 2, r.top + r.height / 2, 2); await commands.pointerPress(r.left + r.width / 2, r.top + r.height / 2); await commands.pointerRelease(); await wait(450); await commands.pointerMove(700, 600, 2); await wait(60); }
+        else { target(e).focus(); await userEvent.keyboard(/link/.test(tag) ? '{Enter}' : ' '); await wait(450); }
+      }
+      log(`fade ${tag} ${orderOf.join('+')}`, out);
+      e.remove(); take();
+    }
+  }
+}, 120000);
+
+const anims = (e: Element) => e.shadowRoot!.getAnimations().filter((a) => !(a instanceof CSSTransition)).length;
+it('more', async () => {
+  for (const tag of ['mx-button', 'mx-checkbox', 'mx-fab', 'mx-list-button-item']) {
+    const e = make(tag); document.body.append(e); await wait(60);
+    await userEvent.dblClick(target(e)); await wait(600); log(`trusted double click ${tag}`, take());
+    for (let i = 0; i < 4; i += 1) { target(e).click(); await wait(290); } await wait(600); log(`four clicks 290 ms apart ${tag}`, [take(), anims(e)]);
+    e.remove();
+  }
+  { // the context-menu flag, over a removal and a put-back
+    const e = make('mx-button'); document.body.append(e); await wait(60);
+    const out = () => target(e).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 9, buttons: 1, clientX: 5000, clientY: 5000 }));
+    target(e).dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, composed: true, cancelable: true }));
+    await wait(400); e.remove(); document.body.append(e); await wait(60);
+    out(); await wait(250); log('context menu, put back, then a touch out of bounds: animations', anims(e)); e.remove(); take();
+  }
+  { // a release and a click after a put-back
+    const e = make('mx-button'); document.body.append(e); await wait(60);
+    const r = target(e).getBoundingClientRect();
+    await commands.pointerPress(r.left + 10, r.top + 10); e.remove(); document.body.append(e); await wait(60);
+    await commands.pointerRelease(); await wait(60); const n = anims(e); await wait(500);
+    target(e).click(); await wait(60); log('held, put back, released, then a click: animations', [n, anims(e), take()]); await wait(600); log('and after it fades', anims(e)); e.remove();
+  }
+  { // moveBefore isn't a disconnect
+    const e = make('mx-button') as HTMLElement; document.body.append(e); await wait(60);
+    const r = target(e).getBoundingClientRect(); await commands.pointerPress(r.left + 10, r.top + 10); await wait(60);
+    const b = document.body as HTMLElement & { moveBefore?: (n: Node, c: Node | null) => void };
+    const has = Boolean(b.moveBefore); const before = anims(e); if (has) b.moveBefore!(e, b.firstChild);
+    log('held, moveBefore: has it, animations before and after', [has, before, anims(e)]); await commands.pointerRelease(); await wait(700); log('moveBefore, after release', [anims(e), take()]); e.remove();
+  }
+  { // two quick touches: the first delay's timer
+    const e = make('mx-button'); document.body.append(e); await wait(60);
+    touch(e, 'pointerdown'); await wait(20); touch(e, 'pointercancel'); await wait(80); touch(e, 'pointerdown'); await wait(90);
+    log('a touch, a cancel and a touch 100 ms later: animations 90 ms into the second', anims(e)); await wait(400); e.remove(); take();
+  }
+}, 60000);

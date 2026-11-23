@@ -1,0 +1,21 @@
+import { expect, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../../src/button/button.ts';
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const log = (s: string, v: unknown) => console.log(`P ${server.browser} ${s}: ${JSON.stringify(v)}`);
+const make = () => { const e = document.createElement('mx-button'); e.textContent = 'A'; document.body.append(e); return e; };
+const t = (e: Element) => e.shadowRoot!.querySelector<HTMLElement>('.host')!;
+const anims = (e: Element) => e.shadowRoot!.getAnimations().filter((a) => !(a instanceof CSSTransition));
+addEventListener('unhandledrejection', (e) => { e.preventDefault(); e.stopImmediatePropagation(); }, true);
+it('extra', async () => {
+  { const e = make(); await wait(60); const r = t(e).getBoundingClientRect();
+    t(e).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, isPrimary: true, pointerType: 'mouse', pointerId: 1, buttons: 1 }));
+    e.remove(); document.body.append(e); await wait(60);
+    t(e).click(); await wait(30); log('held, put back, then a click: scale and drift', anims(e).length); await wait(700); e.remove(); void r; }
+  { const e = make(); await wait(60); t(e).click(); for (let i = 0; i < 60 && anims(e).length < 3; i += 1) await wait(10);
+    const during = anims(e).length; e.remove(); document.body.append(e); await wait(30); const at = anims(e).length; await wait(500);
+    log('removed during the fade and put back: animations during, after 30 ms, after 530 ms', [during, at, anims(e).length]); e.remove(); }
+  { const e = make(); await wait(60); t(e).dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, composed: true, cancelable: true })); await wait(400); e.remove(); document.body.append(e); await wait(60);
+    t(e).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 9, buttons: 1, clientX: 5000, clientY: 5000 })); await wait(250);
+    log('context menu, put back, touch outside: animations', anims(e).length); e.remove(); }
+});

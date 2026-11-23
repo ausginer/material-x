@@ -1,0 +1,43 @@
+import { expect, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../../src/button/button.ts';
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const out: string[] = []; const log = (s: string, v: unknown) => { out.push(`P ${server.browser} ${s}: ${JSON.stringify(v)}`); };
+addEventListener('unhandledrejection', (e) => { e.preventDefault(); e.stopImmediatePropagation(); }, true);
+const make = () => { const e = document.createElement('mx-button'); e.textContent = 'A'; document.body.append(e); return e; };
+const t = (e: Element) => e.shadowRoot!.querySelector<HTMLElement>('.host')!;
+const anims = (e: Element) => e.shadowRoot!.getAnimations().filter((a) => !(a instanceof CSSTransition));
+const touch = (e: Element, type: string, id: number) => t(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: id, buttons: type === 'pointerup' ? 0 : 1 }));
+it('touch', async () => {
+  for (const how of ['pointercancel', 'tap'] as const) {
+    const e = make(); await wait(60);
+    touch(e, 'pointerdown', 7); await wait(30);
+    if (how === 'pointercancel') touch(e, 'pointercancel', 7); else { touch(e, 'pointerup', 7); t(e).click(); }
+    const t0 = performance.now(); await wait(60); const before = new Set(anims(e));
+    touch(e, 'pointerdown', 9); const t1 = performance.now(); let at = -1;
+    while (performance.now() - t1 < 400) { if (anims(e).some((a) => !before.has(a) && !(a.effect as KeyframeEffect).getKeyframes().some((k) => 'opacity' in k))) { at = Math.round(performance.now() - t1); break; } await wait(5); }
+    log(`touch, ${how}, touch ${Math.round(t1 - t0)} ms later: its ripple starts after ms`, at); e.remove(); await wait(50);
+  }
+});
+async function release(how: string) {
+  const host = document.createElement('div'); document.body.append(host);
+  const e = make(); host.append(e); await wait(80); const ev: string[] = [];
+  for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click', 'pointerleave', 'pointercancel']) e.addEventListener(type, (x) => ev.push(`${type}${type === 'click' ? ':' + (x as MouseEvent).detail + (x.isTrusted ? ':trusted' : '') : ''}`));
+  document.addEventListener('click', (x) => ev.push('doc click on ' + (x.target as Element).localName), { once: true });
+  const r = t(e).getBoundingClientRect(); await commands.pointerPress(r.left + r.width / 2, r.top + r.height / 2); await wait(100);
+  const held = anims(e).length;
+  if (how === 'put back') { e.remove(); host.append(e); }
+  if (how === 'put back later') { e.remove(); await wait(50); host.append(e); }
+  if (how === 'moved by insertBefore') host.prepend(e);
+  if (how === 'moveBefore' && 'moveBefore' in host) (host as any).moveBefore(e, host.firstChild);
+  await wait(50); const mid = anims(e).length; await commands.pointerRelease(); await wait(60);
+  log(`release, ${how}: animations held/after the change/60 ms after the release, events`, [held, mid, anims(e).length, ev]); await wait(500);
+  host.remove();
+}
+it('release', async () => { for (const h of ['nothing', 'put back', 'put back later', 'moved by insertBefore', 'moveBefore']) await release(h);
+  // a plain native button, no component: does the engine click it?
+  const b = document.createElement('button'); b.textContent = 'N'; document.body.append(b); let n = 0; b.addEventListener('click', () => { n++; });
+  const r = b.getBoundingClientRect(); await commands.pointerPress(r.left + 5, r.top + 5); await wait(50); b.remove(); document.body.append(b); await wait(50); await commands.pointerRelease(); await wait(60); log('a native button, put back while held: clicks after the release', n); b.remove();
+});
+it('fade left', async () => { const e = make(); await wait(60); t(e).click(); for (let i = 0; i < 80 && anims(e).length < 3; i++) await wait(10); e.remove(); document.body.append(e); await wait(30); log('removed during its fade, put back: animations', anims(e).length); e.remove(); });
+it('report', () => { throw new Error('RES ' + out.join(' || ')); });

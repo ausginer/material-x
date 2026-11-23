@@ -495,6 +495,26 @@ describe('mx-sortable-list pointer', () => {
     expect(announcementOf(list)).toBe('Item 2 of 3.');
   });
 
+  it('should keep the landing duration of the first landing in a connection', async () => {
+    const [list, [a, b, c]] = await createList(['A', 'B', 'C']);
+    commitOnReorder(list);
+    const durations: unknown[] = [];
+    const visual = visualOf(a!);
+    const animate = visual.animate.bind(visual);
+    visual.animate = (keyframes, options) => {
+      durations.push((options as KeyframeAnimationOptions).duration);
+      return animate(keyframes, options);
+    };
+
+    await dragOnto(visual, visualOf(b!));
+    await whenSettled(list, a!);
+    list.style.setProperty('--_drag-duration', '0.01s');
+    await dragOnto(visual, visualOf(c!));
+    await whenSettled(list, a!);
+
+    expect(durations).toEqual([0, 0]);
+  });
+
   it.skipIf(server.provider !== 'playwright')(
     'should land with zero duration under reduced motion',
     async () => {
@@ -1135,6 +1155,47 @@ describe('mx-list-item focus', () => {
     a.focus();
 
     expect(document.activeElement).toBe(before);
+  });
+});
+
+describe('mx-sortable-list in a hidden iframe', () => {
+  it('should sort once the iframe it connected in is shown', async () => {
+    const frame = document.createElement('iframe');
+    frame.style.display = 'none';
+    const urls = [
+      new URL('../../src/list/list-item.ts', import.meta.url).href,
+      new URL('../../src/list/sortable-list.ts', import.meta.url).href,
+    ];
+    frame.srcdoc = `<script>window.errors = []; addEventListener('error', (event) => errors.push(event.message));</script>
+<mx-sortable-list><mx-list-item>A</mx-list-item><mx-list-item>B</mx-list-item></mx-sortable-list>
+<script type="module">
+for (const url of ${JSON.stringify(urls)}) await import(url);
+document.body.dataset.ready = '';
+</script>`;
+    document.body.append(frame);
+    onTestFinished(() => frame.remove());
+    await expect
+      .poll(() => frame.contentDocument?.body.dataset['ready'], {
+        timeout: 10_000,
+      })
+      .toBe('');
+    frame.style.display = 'block';
+    await nextFrame();
+    await nextFrame();
+    const list =
+      frame.contentDocument!.querySelector<HTMLElement>('mx-sortable-list')!;
+    const [a] = [...list.children] as HTMLElement[];
+    commitOnReorder(list);
+
+    a!.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => order(list)).toEqual(['B', 'A']);
+    await whenSettled(list, a!);
+
+    expect(
+      (frame.contentWindow as Window & Readonly<{ errors: readonly string[] }>)
+        .errors,
+    ).toEqual([]);
   });
 });
 

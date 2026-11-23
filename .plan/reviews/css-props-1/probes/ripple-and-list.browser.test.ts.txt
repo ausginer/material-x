@@ -1,0 +1,133 @@
+import { expect, it, vi } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../../src/button/button.ts';
+import '../../../src/button/icon-button.ts';
+import '../../../src/button/link-button.ts';
+import '../../../src/button/switch-button.ts';
+import '../../../src/button/switch-icon-button.ts';
+import '../../../src/button/split-button.ts';
+import '../../../src/fab/fab.ts';
+import '../../../src/checkbox/checkbox.ts';
+import '../../../src/radio/radio.ts';
+import '../../../src/list/list-item.ts';
+import '../../../src/list/list-button-item.ts';
+import '../../../src/list/list-link-item.ts';
+import '../../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const errors: string[] = [];
+addEventListener('error', (e) => { errors.push('error: ' + e.message); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+addEventListener('unhandledrejection', (e) => { errors.push('rejection: ' + String((e.reason as Error)?.message)); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+const log = (s: string, v: unknown) => console.log(`P ${server.browser} ${s}: ${JSON.stringify(v)}`);
+const take = () => errors.splice(0);
+const TAGS = ['mx-button', 'mx-icon-button', 'mx-link-button', 'mx-switch-button', 'mx-switch-icon-button', 'mx-fab', 'mx-checkbox', 'mx-radio', 'mx-list-button-item', 'mx-list-link-item'];
+const make = (tag: string) => { const e = document.createElement(tag); if (tag.includes('link')) e.setAttribute('href', '#x'); if (!/checkbox|radio/.test(tag)) e.textContent = 'A'; return e; };
+const target = (e: Element) => (e.shadowRoot!.querySelector('.host, input') ?? e) as HTMLElement;
+const touch = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 7, buttons: type === 'pointerup' ? 0 : 1 }));
+const mouse = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'mouse', pointerId: 1, buttons: 1 }));
+
+it('touch press, then removed within the touch delay', async () => {
+  for (const tag of TAGS) {
+    const e = make(tag); document.body.append(e); await wait(50);
+    touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(250);
+    log(`touch, removed at 50 ms, first use, ${tag}`, take());
+  }
+  const e = make('mx-button'); document.body.append(e); await wait(50);
+  mouse(e, 'pointerdown'); (target(e)).click(); await wait(500);
+  touch(e, 'pointerdown'); await wait(50); e.remove(); await wait(250);
+  log('touch, removed at 50 ms, after an earlier press', take());
+  const f = make('mx-button'); document.body.append(f); await wait(50);
+  touch(f, 'pointerdown'); await wait(50); document.body.append(f); await wait(250);
+  log('touch, moved at 50 ms, first use', take());
+  f.remove();
+});
+it('press, then moved and removed before the fade', async () => {
+  for (const how of ['removed', 'moved', 'moved, then removed'] as const) {
+    const e = make('mx-button'); document.body.append(e); await wait(50);
+    mouse(e, 'pointerdown'); target(e).click(); await wait(20);
+    if (how !== 'removed') document.body.append(e);
+    if (how !== 'moved') { await wait(20); e.remove(); }
+    await wait(500);
+    log(`press, ${how}`, take());
+    e.remove();
+  }
+});
+it('values at connect and at the first press', async () => {
+  const names = ['--_ripple-easing', '--_ripple-duration', '--_ripple-drift-easing', '--_ripple-drift-duration', '--_ripple-opacity'];
+  for (const tag of TAGS) {
+    const e = make(tag); document.body.append(e);
+    const atConnect = names.map((n) => getComputedStyle(e).getPropertyValue(n).trim());
+    await wait(50);
+    const r = target(e).getBoundingClientRect();
+    await userEvent.hover(target(e));
+    const hover = names.map((n) => getComputedStyle(e).getPropertyValue(n).trim());
+    await commands.pointerPress(r.left + r.width / 2, r.top + r.height / 2);
+    const pressed = names.map((n) => getComputedStyle(e).getPropertyValue(n).trim());
+    await commands.pointerRelease();
+    await wait(400);
+    const same = JSON.stringify(atConnect) === JSON.stringify(hover) && JSON.stringify(hover) === JSON.stringify(pressed);
+    log(`values ${tag}`, same ? ['same', atConnect[1], atConnect[4]] : [atConnect, hover, pressed]);
+    e.remove(); take();
+  }
+});
+it('list: parse error and reconnect', async () => {
+  const list = document.createElement('mx-sortable-list');
+  list.style.setProperty('--_drag-duration', 'oops');
+  const items = ['A', 'B', 'C'].map((t) => { const i = document.createElement('mx-list-item'); i.textContent = t; return i; });
+  list.append(...items);
+  list.addEventListener('reorder', (e) => { const { item, next } = e as unknown as { item: Node; next: Node }; list.insertBefore(item, next); });
+  const spy = vi.spyOn(window, 'reportError').mockImplementation((e) => { errors.push('reportError: ' + String((e as Error).message) + ' / ' + String(((e as Error).cause as Error)?.message)); });
+  document.body.append(list); await wait(60);
+  log('list, connect with an invalid duration', take());
+  const durations: unknown[] = [];
+  const animate = items[0]!.animate.bind(items[0]!);
+  items[0]!.animate = (k, o) => { durations.push((o as KeyframeAnimationOptions).duration); return animate(k, o); };
+  const order = () => [...list.children].filter((c) => !c.hasAttribute('data-drag-placeholder')).map((c) => c.textContent).join('');
+  const down = async () => { items[0]!.focus(); await userEvent.keyboard('{ArrowDown}'); await wait(200); };
+  const up = async () => { items[0]!.focus(); await userEvent.keyboard('{ArrowUp}'); await wait(200); };
+  const pdrag = async () => {
+    const c = (e: Element) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] as const; };
+    const [x, y] = c(items[0]!); await commands.pointerPress(x, y); await commands.pointerMove(x, y + 12, 3); await commands.pointerMove(x, y + 70, 8); await commands.pointerRelease(); await wait(300);
+  };
+  await pdrag();
+  log('list, pointer move with an invalid duration', [order(), items[0]!.matches(':state(drag)'), durations.splice(0), take(), list.shadowRoot!.querySelector('[aria-live]')!.textContent]);
+  list.style.setProperty('--_drag-duration', '0.05s');
+  await up(); await pdrag();
+  log('list, after the value is corrected', [order(), durations.splice(0), take()]);
+  list.style.setProperty('--_drag-duration', '0.09s');
+  await up(); await pdrag();
+  log('list, value changed in the connection', [order(), durations.splice(0), take()]);
+  list.remove(); document.body.append(list); await wait(60);
+  await up(); await pdrag();
+  log('list, after a reconnect', [order(), durations.splice(0), take()]);
+  await down();
+  spy.mockRestore(); list.remove();
+});
+async function frameRow(tag: string, module: string, kind: string) {
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'display:none;width:400px;height:200px';
+  frame.srcdoc = `<script>window.errors=[];addEventListener('error',(e)=>errors.push(e.message));addEventListener('unhandledrejection',(e)=>errors.push(String(e.reason)));</script><${tag} href="#x">A</${tag}><script type="module">await import(${JSON.stringify(module)});document.body.dataset.ready='';</script>`;
+  document.body.append(frame);
+  await expect.poll(() => frame.contentDocument?.body?.dataset['ready'], { timeout: 10000 }).toBe('');
+  const w = frame.contentWindow as Window & typeof globalThis & { errors: string[] };
+  const el = frame.contentDocument!.querySelector(tag) as HTMLElement;
+  const inner = el.shadowRoot!.querySelector<HTMLElement>('.host, input')!;
+  if (kind === 'click while hidden') { inner.click(); await wait(50); }
+  const hidden = [...w.errors];
+  frame.style.display = 'block'; await wait(60);
+  const o = frame.getBoundingClientRect(), r = inner.getBoundingClientRect();
+  await commands.pointerPress(o.left + frame.clientLeft + r.left + r.width / 2, o.top + frame.clientTop + r.top + r.height / 2);
+  await wait(100);
+  const n = el.shadowRoot!.getAnimations().filter((a) => !(a instanceof w.CSSTransition) && !(a instanceof w.CSSAnimation)).length;
+  await commands.pointerRelease(); await wait(400);
+  const res = [n, hidden, w.errors.slice(hidden.length)];
+  frame.remove(); take();
+  return res;
+}
+it('hidden iframe, other adopters', async () => {
+  const base = import.meta.url.slice(0, import.meta.url.indexOf('/tests/')) + '/src/';
+  const u = (p: string) => base + p + '.ts';
+  for (const [t, p] of [['mx-button', 'button/button'], ['mx-icon-button', 'button/icon-button'], ['mx-link-button', 'button/link-button'], ['mx-switch-button', 'button/switch-button'], ['mx-switch-icon-button', 'button/switch-icon-button'], ['mx-list-link-item', 'list/list-link-item'], ['mx-fab', 'fab/fab'], ['mx-checkbox', 'checkbox/checkbox'], ['mx-radio', 'radio/radio'], ['mx-list-button-item', 'list/list-button-item']] as const)
+    log(`iframe ${t}`, await frameRow(t, u(p), ''));
+  log('iframe mx-button, click while hidden', await frameRow('mx-button', u('button/button'), 'click while hidden'));
+}, 60000);

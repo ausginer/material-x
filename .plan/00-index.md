@@ -4614,6 +4614,12 @@ Tier C, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23
 - **Ready** for an implementer, after `RF-109`.
 - **Size:** _small_.
 
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, as its own commit after `RF-109`'s, for #181, and not closed.** `timing` is `useCSSProps(this, CSS_PROPS)`, with no wrapper. `onStart`'s read of `--_level` is unchanged.
+
+- **Rows** ([readings](css-props-1/checks/rows.txt)), two, in `tests/list/sortable-list.browser.test.ts`: a later landing in a connection keeps the first one's duration, which fails before the change in the three engines; and a list that connects in a hidden iframe sorts once it is shown. The second passes before the change too, as this entry says, and with this change on the old hook it fails in Firefox only. After both repairs, material-x's browser and spec projects pass in the three engines.
+- **Sizes,** Brotli ([reading](css-props-1/checks/size.txt)): `list/sortable-list` 8,701 → 8,772 B (+71), because its graph now contains the hook, and `complete` 22,733 → 22,653 B (−80). No other row differs from `RF-109`'s reading.
+- **Not checked:** Safari.
+
 #### RF-106 — `useCSSProps` declares its parsed values as strings
 
 Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator: _"И про врущий тип тоже"_ ("And about the lying type too"). `RF-105` is the entry before this one, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt)).
@@ -4624,6 +4630,8 @@ Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-2
 - **The unit:** `RF-109`'s, in the hook's commit, because `RF-109` rewrites the same local.
 - **Ready** for an implementer.
 - **Size:** _small_.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in `RF-109`'s commit, for #182, and not closed.** The local is `Partial<Record<keyof T, unknown>> | null`. core and material-x typecheck.
 
 #### RF-107 — material-x animates motion under `prefers-reduced-motion: reduce`
 
@@ -4686,7 +4694,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **What it shows:** `mx-button`, `mx-fab`, `mx-checkbox`, `mx-radio` and `mx-list-button-item` that connect in a `display: none` iframe report a `CSSVariableError`, and a press has no ripple after the iframe is shown. Clicks still arrive. Chromium and WebKit aren't affected. `mx-sortable-list` would join them with `RF-105`, and wouldn't sort.
 - **The owner:** _"Да, согласен попытать счастья с вариантом (б)"_ ("Yes, I agree to try my luck with option (b)"), about `RF-105`'s option (b).
 - **Required properties:**
-  1. The hook reads at the first call in a connection, and not at connect. Later calls in that connection return the same values. A connect discards them, so the next call reads again. The values stay available after a disconnect until then.
+  1. The hook reads at the first call in a connection, and not at connect. Later calls in that connection return the same values. A connect discards them, so the next call reads again. The values stay available after a disconnect until then. **The hook is for a connected host, and for variables whose value doesn't depend on its state.** A call on a disconnected host with no values kept reads an empty style, so its parser may throw. The caller ends its work at the disconnect. A caller whose variable changes with the host's state doesn't read it through the hook. The JSDoc says both.
   2. A parse error is thrown by the call, and not by `connectedCallback`. The host's other controllers connect. A read that throws isn't kept, so the next call reads again.
   3. The public signature doesn't change.
 - **Rows:** in core, the first call, the later calls, a reconnect, a change of the variable within a connection and after one, and a call that throws and then succeeds. The row that expects the throw from `connectedCallback()` moves to the call. In material-x, for an adopter of the ripple in a `display: none` iframe that is then shown, a press shows its ripple and reports no error. **Witness:** that row fails in Firefox before the repair, and the core rows for the first call and the throw fail in every engine.
@@ -4694,6 +4702,57 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **The unit:** this one, with `RF-106` in the same commit, because both rewrite the hook's local, and then `RF-105` as its own commit. `RF-103`'s unit doesn't wait for it. It edits `sortable-list.ts` in other places.
 - **Ready** for an implementer.
 - **Size:** _medium_: core's hook and its rows, and rows in material-x, in its own branch and pull request, with nothing to decide first.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, with `RF-106`, for #185 and #182, and not closed.** From `main` at `35ea25892`, requested by the coordinator. `useCSSProps`' connect callback only discards, and the returned function reads at its first call.
+
+- **Rows** ([readings](css-props-1/checks/rows.txt)): in core, nine replace the row that expected the throw from `connectedCallback()`. Six of them fail before the repair in each engine, and all pass after it. The three that pass before are later calls, a change within a connection, and the values after a disconnect, which the old hook had too. In material-x, `tests/core/animations/ripple.browser.test.ts` presses the five adopters after their iframe is shown: the five fail in Firefox before the repair, with the `CSSVariableError`, and pass in the three engines after it.
+- **Sizes,** Brotli ([reading](css-props-1/checks/size.txt)): the rows that contain the hook move by −4 to +52 B (`text-field/text-field` 8,486 → 8,538 B), and `complete` goes 22,724 → 22,733 B. core's two rows don't move, and neither contains the hook.
+
+**Ruled 2026-11-23 by the architect** on the [feature proof](reviews/css-props-1/feature-proof-claude.md) of #199 at `07943db4a`, relayed by the coordinator. The readings are in [`ripple-lifecycle.txt`](css-props-1/checks/ripple-lifecycle.txt), with the [probe](css-props-1/probes/ripple-lifecycle.browser.test.ts.txt) and the [trial edit](css-props-1/checks/ripple-trial.diff.txt), which isn't committed.
+
+- **The read at the first call stays.** Neither regression is the hook's timing as such. Each is the ripple's own use of it: work that outlives its host, and a variable that changes with state. With the two repairs below both are gone, and so is a mismatch that the base had. **The owner's choice of (b) isn't changed, so nothing is asked of him.** A read at connect that tolerates an empty value wasn't taken. It needs the read at first use too, for the values it found empty in the Firefox iframe. It would bring back the forced style computation at each connect, and it would leave both ripple faults in place where a connection has no values.
+- **`reviewer-1`: accepted, and repaired in this pull request, in the ripple.** A press ends when the host disconnects: the touch-delay timer and the fade start no animation and read no variable, the running animations are cancelled, and the state, the start event and the context-menu flag are reset.
+  - **Why the ripple and not the hook:** a hook that returned values after a disconnect would give the ripple values to animate a detached element with, and it can't give any when none were read. The ripple has nothing to show on an element that left the document.
+  - **The same repair covers two faults that the base has,** which the probe shows: after a touch press whose element is removed and put back, no later touch starts a ripple, because the old press's pointer id refuses the new one; and after an element that is removed while held is put back, two animations are still applied. With the trial both are gone.
+  - **A move disconnects too,** so it ends the press. The base kept it. The probe's moved press reports no error.
+  - **Rows,** per engine, in `tests/core/animations/ripple.browser.test.ts`: a touch press and a removal within the delay, a press with a move and then a removal before the fade, and a removal while the fade runs, each with no error; a touch after a removal and a put-back, which starts a ripple; and a put-back element with no animation left. **Witness:** the first two fail at `07943db4a` with the `CSSVariableError`, the touch after a put-back fails with no ripple, and the last fails with two animations.
+- **`reviewer-2`: accepted, and repaired in this pull request.** The fade starts from the opacity that the circle has when the fade starts, whatever came before. So it must not be read through the hook, by property 1. The keyframe at the start is left out, so that the browser takes the opacity in effect. In the trial the fade has one keyframe, and the painted opacity at its start follows the interaction (0.08 under hover, 0.1 otherwise) for `mx-button`, `mx-checkbox` and `mx-radio`, in the three engines and in the four orders of the proof. `--_ripple-opacity` leaves `CSS_PROPS`, and `parseNum`, whose only user it was, goes. The spec's requirement that the circle begins at the pressed-state opacity isn't touched.
+  - **On the base's own mismatch:** a mouse press faded from 0.1 while 0.08 was painted. That goes too, and isn't registered.
+  - **Rows:** the fade's first painted opacity equals the one before it, in each of the proof's four orders, for a button, a checkbox and a radio.
+- **`reviewer-3`: accepted.** The hook's rows grow because its added text is 32 bytes in the minified bundle of each. The spread from −4 to +52 B is Brotli 11's, and not a cost of the text field. `list/sortable-list` grows because its graph now has the hook's function; the module was already in it through `fns.ts`. The implementer reads the sizes again after the repair and states both in its new paragraph.
+- **The implementer:** the two ripple repairs, their rows, the JSDoc of `useCSSProps` as property 1 says, the new size reading, `RF-114`'s row, and the pull request's description, whose size lines change.
+- **`RF-106` and `RF-105`** aren't changed. The list's landing timing is read by drag at a landing, and the list destroys its controller at disconnect, so it needs no repair.
+- **Size:** the addition is _small_, and the unit stays _medium_.
+
+**Dated 2026-11-23 by the implementer: the rulings on `reviewer-1` to `reviewer-3` are implemented on `core/css-props-1`, in #199, and not closed.** Requested by the coordinator, from `4f8b0fbdf`. `main` at `2d1b5ca51` is merged in.
+
+- **`reviewer-1`:** the ripple's disconnect clears the touch-delay timer, resets the state, the start event and the context-menu flag, ends a waiting fade and cancels the three animations. The timer is cleared, not only refused by the state: otherwise the old timer starts a touch that follows a put-back early.
+- **`reviewer-2`:** the fade has one keyframe, `--_ripple-opacity` leaves `CSS_PROPS`, and `parseNum` goes. `parseMs` was then the only user of `createNumberParser`, so it has its body (`CONTRIBUTING.md` §2.1). The JSDoc of `useCSSProps` says what property 1 says.
+- **Rows** ([readings](css-props-1/checks/ripple-rows.txt)): `ripple.browser.test.ts` has 27 per engine, and all 81 pass. At `07943db4a`, 14 fail in each engine: the touch within the delay and the moved press, with the `CSSVariableError`; a fade that starts after a removal; a moved press that goes on; the touch after a put-back, with no ripple; that touch's whole delay; the two animations left after a put-back; `RF-114`'s; and the two orders with both interactions, for the three elements. On the base, the touch after a put-back, the animations left, `RF-114`'s row and three of the four fade orders fail in each engine. The order of a keyboard press alone agrees with the paint everywhere, and is a control. A removal during the fade passes before, as the ruling's reading has it, and fails without the catch.
+- **Witnesses,** in each of the three engines: the rows fail without the catch, without `clearTimeout`, without the generation's increment, and without the start event's reset.
+- **Sizes** ([reading](css-props-1/checks/size-ripple.txt)), in place of my first paragraph's and of `RF-105`'s, Brotli, from the base: `list/sortable-list` 8,701 → 8,756 B (+55), because its graph now has the hook's function, where the module was already in it through `fns.ts`; `text-field/text-field` 8,486 → 8,495 B; `complete` 22,724 → 22,658 B; and the other rows that contain the ripple −5 to +20 B. Each of those six that the bundle probe reads is larger than the base by 46 to 50 bytes minified: 32 of them are the hook's, and the rest is the ripple's. The spread is Brotli 11's. The rows without the ripple or the hook don't move.
+- **Suites,** on the merge of `main`, in three engines: core's browser project, 690 passed; material-x's browser and spec projects, 2,778 passed, 7 expected failures, 20 skipped. material-x's node project, 35 passed. Not checked: Safari, a real touch (the rows dispatch it), and the visual project.
+
+**Ruled 2026-11-23 by the architect** on the [recheck](reviews/css-props-1/feature-proof-claude.md#recheck-at-4bb981301) of #199 at `4bb981301`, relayed by the coordinator. The [reading](css-props-1/checks/ripple-recheck.txt), the [probe](css-props-1/probes/ripple-recheck.browser.test.ts.txt) and the [trial edit](css-props-1/checks/ripple-recheck-trial.diff.txt), which isn't committed, are at `c933bfd7b`.
+
+- **`reviewer-4`: each of the three statements gets a witness or goes.**
+  - **The state's reset** stays. With `RF-115`'s repair, the timer's clear leaves the disconnect, and the row of the touch that is removed within the delay fails without the reset, in the three engines. No new row.
+  - **The context-menu flag's reset goes,** and the ruling on `reviewer-1` no longer asks for it. The flag isn't the press's: it lives from a context menu to the next touch inside the element, with or without a removal. Its one effect after a put-back is that a touch dispatched to the element and outside its box starts no ripple, which is the flag's purpose.
+  - **The fade's cancel** stays, and gets a row per engine: an element removed during its fade and put back has no animation. Without the cancel it keeps one that fills forwards.
+- **`reviewer-5`: accepted.** The implementer's paragraph names the touch after a put-back, the animations left, `RF-114`'s row and three of the four fade orders as the rows that fail on the base. The fade after a removal, the moved press and the touch's whole delay fail there too, in each engine. That makes the 15 of the [reading](css-props-1/checks/ripple-rows.txt). The paragraph is read with this correction.
+- **Observation 1 is `RF-115`, and is repaired in this pull request.** It costs no statement: `clearTimeout` moves from the disconnect to where a touch arms its timer. The moved statement serves the put-back too.
+- **Observation 2, `moveBefore`, follows the ruling _"A move disconnects too, so it ends the press"_.** `ControlledElement` defines no `connectedMoveCallback`, so in Chromium and Firefox `moveBefore` runs the disconnect and the connect. WebKit has no `moveBefore`. A held press ended by it is accepted with that ruling. Why core's documented hook for it never runs is `RF-116`, and it changes nothing here. If `RF-116` gives elements a move without a disconnect, the press lives through `moveBefore`, as the base's did.
+- **Observation 3, the release after a put-back in Firefox, is explained, and nothing is owed.** Firefox dispatches a trusted `click` with `detail` 1 on the element that was put back, and Chromium and WebKit dispatch none. Firefox does so for a native `<button>` too, so the activation is the engine's and the consumer gets it. The ripple is new with this branch: on the base the state was still _waiting for the click_, so the click faded the held press. Now the press ended at the disconnect, and the click starts a ripple as any click without a press does. An activated element shows a ripple, so this is accepted. A filter on `detail` isn't taken, because it would hide an activation that happened.
+- **The implementer,** on this branch, after merging `main`: the two edits of the ripple (the timer's clear moves, the flag's reset goes), the row of the fade's cancel, `RF-115`'s rows, a new reading of the sizes, and a dated paragraph. Nothing else changes.
+- **Size of the addition:** _small_.
+
+**Dated 2026-11-23 by the implementer: the rulings on the recheck are implemented on `core/css-props-1`, in #199, with `RF-115`, and not closed.** Requested by the coordinator, from `55aa7ca2e`. `main` at `e37343f3a` is merged in, with one conflict, in `sortable-list.ts`'s imports, where both sides are kept.
+
+- **The ripple:** `clearTimeout` moved from the disconnect to where a touch arms its timer, and the disconnect's reset of the context-menu flag is gone. My earlier paragraph's sentence on the disconnect is read with this.
+- **Rows** ([readings](css-props-1/checks/ripple-115.txt)): three more per engine, 30 in all, and all 90 pass. The row of an element that is removed during its fade and put back passes before this edit, because the cancel was there, and fails without the cancel in the three engines.
+- **Witnesses,** in each of the three engines: without the state's reset, the row of the touch that is removed within the delay fails; without the moved clear, the put-back delay row and `RF-115`'s two fail.
+- **Sizes,** Brotli, against `main` at `e37343f3a`, in place of the earlier figures against `35ea25892`: `list/sortable-list` 8,846 → 8,906 B, `complete` 22,751 → 22,746 B, `text-field/text-field` 8,443 → 8,417 B, and the other rows that contain the ripple change by −22 to +30 B. The rows without the ripple or the hook don't move.
+- **Suites,** on the merge, in three engines: core's browser project, 690 passed; material-x's browser and spec projects, 2,934 passed, 7 expected failures, 20 skipped. material-x's node project, 35 passed. Not checked: Safari, a real touch, and the visual project outside CI.
 
 #### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
 
@@ -4836,6 +4895,47 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **The first reading owed:** in WebKit at 5200 px, where it is frequent, whether the error stays when the stories' observers are removed one at a time, and what the observations' targets are when it is raised. It ends with a cause, or with the record that the cause is Storybook's and not the stories'.
 - **Required property, once the cause is known:** box-quad's docs page raises no page error in WebKit over 40 loads at 5200 px, or the record states that the error is Storybook's and what would follow.
 - **Size:** _not known yet_: finding the cause is the work.
+
+#### RF-114 — A new press during the ripple's fade leaves an unhandled rejection
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the architect's reading for the rulings on #199's feature proof. `RF-113` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `071048978` ([reading](css-props-1/checks/ripple-lifecycle.txt), [probe](css-props-1/probes/ripple-lifecycle.browser.test.ts.txt)). `ripple.ts` isn't in #199's diff, so the base has it.
+
+- **What happens:** a press during the 150 ms exit fade of the previous one cancels the fade's animation. `endAnimation` awaits that animation's `finished`, which rejects with an `AbortError`. Nothing handles it, so the page gets an unhandled rejection, on `mx-button` in the three engines. A double click, or a key repeat, can reach it. No later behavior changes.
+- **Required property:** a press during the fade reports no error, and the new press has its ripple.
+- **The row:** a press at 290 ms after the first click, with no unhandled rejection, per engine. It fails before the repair.
+- **Repaired in #199,** because the repair of `reviewer-1` cancels the same animation at disconnect and has the same rejection. It doesn't wait for a pull request of its own.
+- **Ready** for #199's implementer.
+- **Size:** _small_.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in #199, for #202, and not closed.** The fade's `finished` handles its rejection. Two rows per engine press during the fade: no unhandled rejection, which fails before the repair in the three engines with the `AbortError`, and the new press's ripple, which passes before too ([readings](css-props-1/checks/ripple-rows.txt)). The row waits for the fade to start in place of 290 ms, so it doesn't depend on the host's speed.
+
+#### RF-115 — A touch soon after a short touch starts its ripple early
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here) of #199, relayed by the coordinator. `RF-114` is on this branch and is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c933bfd7b` ([reading](css-props-1/checks/ripple-recheck.txt), [probe](css-props-1/probes/ripple-recheck.browser.test.ts.txt)).
+
+- **What happens:** a touch waits 150 ms before its ripple starts, so that a swipe shows none. The timer of a touch that ended earlier isn't cleared, and the next touch's state is the one it checks. So a second touch, 90 ms after the first began, shows its ripple about 65 ms later instead of 150 ms. It happens after a `pointercancel`, as a scroll gives, and after a tap, on `mx-button` in the three engines, with the ripple of `07943db4a` too, which is the base's.
+- **Why it is a problem:** two swipes in a row over an element, or a double tap that becomes a scroll, show a ripple the delay exists to hide.
+- **Required property:** each touch has its whole delay, whatever came before it.
+- **The repair:** a touch that arms the timer clears the earlier one. The disconnect's clear is then not needed, and goes. The trial has the second touch start after 153 to 160 ms, and all 81 rows of the ripple pass.
+- **Rows,** per engine: a second touch within the delay of a touch that ended by `pointercancel`, and by a tap, has no animation before its own 150 ms, and two after it. **Witness:** both fail before the repair. The row _should give a touch after a put-back its whole delay_ fails without the new statement.
+- **Repaired in #199,** by the ruling in `RF-109`, because it replaces a statement of that pull request's repair at no cost.
+- **Ready** for #199's implementer.
+- **Size:** _small_.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in #199, for #204, and not closed.** A touch clears the earlier timer when it arms its own. The two rows per engine, after a `pointercancel` and after a tap, fail before the repair in the three engines, with two animations in place of none, and pass after it ([readings](css-props-1/checks/ripple-115.txt)). They use fake timers, and count only the second touch's own ripple, because the fade of the first touch and the ripple of the tap still run.
+
+#### RF-116 — Core's `moved` hook never runs, because browsers call `connectedMoveCallback`
+
+Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here) of #199, relayed by the coordinator. `RF-115` is the entry before this one, so this is the next free number. Read at `c933bfd7b` ([reading](css-props-1/checks/ripple-recheck.txt), [probe](css-props-1/probes/move-before.mjs.txt)).
+
+- **What happens:** `ControlledElement` has `movedCallback()`, documented as _"invoked when the host is moved within the DOM without being disconnected (for example via `moveBefore`)"_, and it dispatches the controllers' `moved` hook. The platform's name is `connectedMoveCallback`, and nothing calls `movedCallback`. So in Chromium and Firefox `moveBefore` runs `disconnected` and then `connected`, on every element of core and material-x, and `moved` never runs. WebKit has no `moveBefore`. The core row calls `movedCallback()` by hand, so it can't see this.
+- **Why it is a problem:** `moved` is public, and a consumer who registers a controller for it gets nothing. No package in this repository uses it.
+- **Required property:** what the hook's documentation says is what the platform does, and a row observes it with a real `moveBefore` in an engine that has one.
+- **Owner question Q1 — what should `moveBefore` do?** The choice changes public behavior, so nothing is decided.
+  - **(a) Delete `moved` and `movedCallback`. Recommended:** no consumer is known, no package uses it, and `moveBefore` keeps disconnecting, as it does today. A consumer's `moved` controllers lose a hook that never ran.
+  - **(b) Rename to `connectedMoveCallback`,** and dispatch `moved`. Then `moveBefore` stops disconnecting every controlled element. Each controller that does its work in `connected` and `disconnected` (contexts, events, observers, the sortable list's controller, the ripple) has to be read for a move, so it is a unit with a plan.
+- **It doesn't block** #199.
+- **Size:** _small_ for (a), and _large_ for (b).
 
 ## Questions
 

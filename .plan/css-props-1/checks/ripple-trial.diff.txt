@@ -1,0 +1,60 @@
+diff --git a/packages/material-x/src/core/animations/ripple/ripple.ts b/packages/material-x/src/core/animations/ripple/ripple.ts
+index 0479bb94e..aed63bcaa 100644
+--- a/packages/material-x/src/core/animations/ripple/ripple.ts
++++ b/packages/material-x/src/core/animations/ripple/ripple.ts
+@@ -10,8 +10,8 @@ import {
+   type CSSPropDescription,
+ } from '@ydinjs/core/controllers/useCSSProps.js';
+ import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+-import type { ControlledElement } from '@ydinjs/core/element.js';
+-import { identity, parseMs, parseNum } from '../../utils/fns.ts';
++import { use, type ControlledElement } from '@ydinjs/core/element.js';
++import { identity, parseMs } from '../../utils/fns.ts';
+ import css from './styles/main.css.ts' with { type: 'css' };
+ 
+ type Point = Readonly<{
+@@ -48,7 +48,6 @@ const CSS_PROPS = {
+   duration: ['--_ripple-duration', parseMs],
+   driftEasing: ['--_ripple-drift-easing', identity<string>],
+   driftDuration: ['--_ripple-drift-duration', parseMs],
+-  opacity: ['--_ripple-opacity', parseNum],
+ } as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
+ 
+ export type CSSProps = Readonly<{
+@@ -288,7 +287,7 @@ export function useRipple(
+ 
+     opacityAnimation?.cancel();
+     opacityAnimation = rippleElement.animate(
+-      { opacity: [cssProps().opacity, 0] },
++      { opacity: 0 },
+       {
+         pseudoElement: '::after',
+         duration: EXIT_OPACITY_DURATION_MS,
+@@ -296,7 +295,7 @@ export function useRipple(
+         fill: 'forwards',
+       },
+     );
+-    await opacityAnimation.finished;
++    await opacityAnimation.finished.catch(() => {});
+ 
+     if (generation !== animationGeneration) {
+       return;
+@@ -307,6 +306,18 @@ export function useRipple(
+     opacityAnimation.cancel();
+   };
+ 
++  use(host, {
++    disconnected() {
++      startEvent = null;
++      state = INACTIVE;
++      checkBoundsAfterContextMenu = false;
++      animationGeneration += 1;
++      scaleAnimation?.cancel();
++      moveAnimation?.cancel();
++      opacityAnimation?.cancel();
++    },
++  });
++
+   useEvents(host, {
+     click() {
+       if (

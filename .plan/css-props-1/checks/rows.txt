@@ -1,0 +1,94 @@
+# RF-109, RF-106 and RF-105: rows in Playwright's Chromium, Firefox and WebKit, MX_TEST_ENGINES=chromium,firefox,webkit.
+
+## core tests/controllers/useCSSProps, hook of 35ea25892
+× |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect 91ms
+× |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection 64ms
+× |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect 5ms
+× |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value 14ms
+→ expected [Function] to not throw an error but 'CSSVariableError: Invalid value for -…' was thrown
+× |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value 4ms
+× |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws 13ms
+× |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect 54ms
+× |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection 8ms
+× |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect 6ms
+× |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value 9ms
+→ expected [Function] to not throw an error but 'CSSVariableError: Invalid value for -…' was thrown
+× |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value 4ms
+× |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws 48ms
+× |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect 58ms
+× |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection 6ms
+× |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect 3ms
+× |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value 7ms
+→ expected [Function] to not throw an error but 'CSSVariableError: Invalid value for -…' was thrown
+× |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value 4ms
+× |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws 23ms
+AssertionError: expected [ '1px' ] to deeply equal []
+AssertionError: expected 1 to be 2 // Object.is equality
+AssertionError: expected 1 to be 2 // Object.is equality
+AssertionError: expected [Function] to not throw an error but 'CSSVariableError: Invalid value for -…' was thrown
+"CSSVariableError: Invalid value for --gap on element 'test-12'"
+AssertionError: expected function to throw an error, but it didn't
+AssertionError: expected function to throw an error, but it didn't
+AssertionError: expected [ '1px' ] to deeply equal []
+AssertionError: expected 1 to be 2 // Object.is equality
+AssertionError: expected 1 to be 2 // Object.is equality
+AssertionError: expected [Function] to not throw an error but 'CSSVariableError: Invalid value for -…' was thrown
+"CSSVariableError: Invalid value for --gap on element 'test-12'"
+AssertionError: expected function to throw an error, but it didn't
+AssertionError: expected function to throw an error, but it didn't
+AssertionError: expected [ '1px' ] to deeply equal []
+AssertionError: expected 1 to be 2 // Object.is equality
+AssertionError: expected 1 to be 2 // Object.is equality
+AssertionError: expected [Function] to not throw an error but 'CSSVariableError: Invalid value for -…' was thrown
+"CSSVariableError: Invalid value for --gap on element 'test-12'"
+AssertionError: expected function to throw an error, but it didn't
+AssertionError: expected function to throw an error, but it didn't
+CSSVariableError: Invalid value for --gap on element 'test-14'
+CSSVariableError: Invalid value for --gap on element 'test-14'
+CSSVariableError: Invalid value for --gap on element 'test-14'
+Tests  18 failed | 24 passed (42)
+Errors  3 errors
+
+## core browser project, repaired hook (failures and total)
+Tests  690 passed (690)
+
+## material-x tests/core/animations, hook of 35ea25892
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-button that connected in a hidden iframe 1775ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-fab that connected in a hidden iframe 1462ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-checkbox that connected in a hidden iframe 1380ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-radio that connected in a hidden iframe 1483ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-list-button-item that connected in a hidden iframe 1447ms
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
++     "CSSVariableError: Invalid value for --_ripple-duration on element 'mx-button'",
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
++     "CSSVariableError: Invalid value for --_ripple-duration on element 'mx-fab'",
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
++     "CSSVariableError: Invalid value for --_ripple-duration on element 'mx-checkbox'",
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
++     "CSSVariableError: Invalid value for --_ripple-duration on element 'mx-radio'",
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
++     "CSSVariableError: Invalid value for --_ripple-duration on element 'mx-list-button-item'",
+Tests  5 failed | 10 passed (15)
+
+## material-x tests/core/animations, repaired hook
+Tests  15 passed (15)
+
+## the two list rows, repaired hook, sortable-list.ts before RF-105
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection 841ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection 738ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection 334ms
+AssertionError: expected [ +0, 10, 10 ] to deeply equal [ +0, +0 ]
+AssertionError: expected [ +0, 10, 10 ] to deeply equal [ +0, +0 ]
+AssertionError: expected [ +0, 10, 10 ] to deeply equal [ +0, +0 ]
+Tests  3 failed | 3 passed | 228 skipped (234)
+
+## the two list rows, both repairs
+Tests  6 passed | 228 skipped (234)
+
+## the two list rows, RF-105 on the hook of 35ea25892
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1162 > mx-sortable-list in a hidden iframe > should sort once the iframe it connected in is shown 1609ms
+AssertionError: expected [ 'A', 'B' ] to deeply equal [ 'B', 'A' ]
+Tests  1 failed | 5 passed | 228 skipped (234)
+
+## material-x browser and spec projects, both repairs
+Tests  2712 passed | 7 expected fail | 20 skipped (2739)

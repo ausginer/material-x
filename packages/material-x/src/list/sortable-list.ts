@@ -1,4 +1,8 @@
 import { useProvider } from '@ydinjs/core/controllers/useContext.js';
+import {
+  useCSSProps,
+  type CSSPropDescription,
+} from '@ydinjs/core/controllers/useCSSProps.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
@@ -18,7 +22,7 @@ import {
 } from '@ydinjs/drag/sortable.js';
 import type { EmptyObject } from 'type-fest';
 import { useAriaNotifyPolyfill } from '../core/polyfills/aria-notify/aria-notify.ts';
-import { parseMs } from '../core/utils/fns.ts';
+import { identity, parseMs } from '../core/utils/fns.ts';
 import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
 import { handleOf, sortItem } from './sortable-item.ts';
 import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
@@ -30,6 +34,12 @@ import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
 const COMMIT_TIMEOUT = 500;
 
 const DRAG_STATE = 'drag';
+
+/** The landing's timing. */
+const CSS_PROPS = {
+  duration: ['--_drag-duration', parseMs],
+  easing: ['--_drag-easing', identity<string>],
+} as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
 export type ReorderEventInit = Readonly<{
   item: HTMLElement;
@@ -160,18 +170,7 @@ export default class SortableList extends SortableListConstructor {
       handle: (item) => handleOf(item) ?? item,
       landing: {
         ...landing(),
-        timing: () => {
-          const styles = getComputedStyle(this);
-
-          return {
-            duration: parseMs(
-              styles.getPropertyValue('--_drag-duration'),
-              this,
-              '--_drag-duration',
-            ),
-            easing: styles.getPropertyValue('--_drag-easing').trim(),
-          };
-        },
+        timing: useCSSProps(this, CSS_PROPS),
       },
       onStart: (item) => {
         dragged = item as ControlledElement;

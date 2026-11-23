@@ -1,0 +1,104 @@
+# tests/core/animations/ripple, three engines, 27 rows per engine. Files of the named commit in the tree of 4bb981301.
+## head 4bb981301
+      Tests  81 passed (81)
+## ripple.ts and fns.ts of 07943db4a
+      Tests  42 failed | 39 passed (81)
+ × |browser (chromium)| :193 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay
+ × |browser (chromium)| :205 > useRipple when the host disconnects > should report no error for a press whose element moves and leaves before the fade
+ × |browser (chromium)| :228 > useRipple when the host disconnects > should start no fade after a removal
+ × |browser (chromium)| :241 > useRipple when the host disconnects > should end a press whose element moves
+ × |browser (chromium)| :250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back
+ × |browser (chromium)| :269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay
+ × |browser (chromium)| :285 > useRipple when the host disconnects > should leave no animation on an element that is put back
+ × |browser (chromium)| :300 > useRipple when a press starts during the fade > should report no unhandled rejection
+ × |browser (chromium)| :387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser (chromium)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser (chromium)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :193 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay
+ × |browser/firefox (firefox)| :205 > useRipple when the host disconnects > should report no error for a press whose element moves and leaves before the fade
+ × |browser/firefox (firefox)| :228 > useRipple when the host disconnects > should start no fade after a removal
+ × |browser/firefox (firefox)| :241 > useRipple when the host disconnects > should end a press whose element moves
+ × |browser/firefox (firefox)| :250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back
+ × |browser/firefox (firefox)| :269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay
+ × |browser/firefox (firefox)| :285 > useRipple when the host disconnects > should leave no animation on an element that is put back
+ × |browser/firefox (firefox)| :300 > useRipple when a press starts during the fade > should report no unhandled rejection
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/webkit (webkit)| :193 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay
+ × |browser/webkit (webkit)| :205 > useRipple when the host disconnects > should report no error for a press whose element moves and leaves before the fade
+ × |browser/webkit (webkit)| :228 > useRipple when the host disconnects > should start no fade after a removal
+ × |browser/webkit (webkit)| :241 > useRipple when the host disconnects > should end a press whose element moves
+ × |browser/webkit (webkit)| :250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back
+ × |browser/webkit (webkit)| :269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay
+ × |browser/webkit (webkit)| :285 > useRipple when the host disconnects > should leave no animation on an element that is put back
+ × |browser/webkit (webkit)| :300 > useRipple when a press starts during the fade > should report no unhandled rejection
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press
+⎯⎯⎯⎯⎯⎯ Failed Tests 42 ⎯⎯⎯⎯⎯⎯⎯
+## base 35ea25892: ripple.ts, fns.ts, useCSSProps.ts, sortable-list.ts
+      Tests  50 failed | 31 passed (81)
+ × |browser (chromium)| :228 > useRipple when the host disconnects > should start no fade after a removal
+ × |browser (chromium)| :241 > useRipple when the host disconnects > should end a press whose element moves
+ × |browser (chromium)| :250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back
+ × |browser (chromium)| :269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay
+ × |browser (chromium)| :285 > useRipple when the host disconnects > should leave no animation on an element that is put back
+ × |browser (chromium)| :300 > useRipple when a press starts during the fade > should report no unhandled rejection
+ × |browser (chromium)| :387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser (chromium)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser (chromium)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press
+ × |browser (chromium)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :228 > useRipple when the host disconnects > should start no fade after a removal
+ × |browser/firefox (firefox)| :241 > useRipple when the host disconnects > should end a press whose element moves
+ × |browser/firefox (firefox)| :250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back
+ × |browser/firefox (firefox)| :269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay
+ × |browser/firefox (firefox)| :285 > useRipple when the host disconnects > should leave no animation on an element that is put back
+ × |browser/firefox (firefox)| :300 > useRipple when a press starts during the fade > should report no unhandled rejection
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press
+ × |browser/firefox (firefox)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/firefox (firefox)| :86 > useRipple > should show the press of mx-button that connected in a hidden iframe
+ × |browser/firefox (firefox)| :86 > useRipple > should show the press of mx-checkbox that connected in a hidden iframe
+ × |browser/firefox (firefox)| :86 > useRipple > should show the press of mx-fab that connected in a hidden iframe
+ × |browser/firefox (firefox)| :86 > useRipple > should show the press of mx-list-button-item that connected in a hidden iframe
+ × |browser/firefox (firefox)| :86 > useRipple > should show the press of mx-radio that connected in a hidden iframe
+ × |browser/webkit (webkit)| :228 > useRipple when the host disconnects > should start no fade after a removal
+ × |browser/webkit (webkit)| :241 > useRipple when the host disconnects > should end a press whose element moves
+ × |browser/webkit (webkit)| :250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back
+ × |browser/webkit (webkit)| :269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay
+ × |browser/webkit (webkit)| :285 > useRipple when the host disconnects > should leave no animation on an element that is put back
+ × |browser/webkit (webkit)| :300 > useRipple when a press starts during the fade > should report no unhandled rejection
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press
+ × |browser/webkit (webkit)| :387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press
+⎯⎯⎯⎯⎯⎯ Failed Tests 50 ⎯⎯⎯⎯⎯⎯⎯
+## head: material-x tests/button fab checkbox radio list core, browser and spec projects
+ Test Files  72 passed (72)
+      Tests  1819 passed | 1 expected fail | 4 skipped (1824)
