@@ -4663,6 +4663,19 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Sizes** ([reading](css-props-1/checks/size-ripple.txt)), in place of my first paragraph's and of `RF-105`'s, Brotli, from the base: `list/sortable-list` 8,701 → 8,756 B (+55), because its graph now has the hook's function, where the module was already in it through `fns.ts`; `text-field/text-field` 8,486 → 8,495 B; `complete` 22,724 → 22,658 B; and the other rows that contain the ripple −5 to +20 B. Each of those six that the bundle probe reads is larger than the base by 46 to 50 bytes minified: 32 of them are the hook's, and the rest is the ripple's. The spread is Brotli 11's. The rows without the ripple or the hook don't move.
 - **Suites,** on the merge of `main`, in three engines: core's browser project, 690 passed; material-x's browser and spec projects, 2,778 passed, 7 expected failures, 20 skipped. material-x's node project, 35 passed. Not checked: Safari, a real touch (the rows dispatch it), and the visual project.
 
+**Ruled 2026-11-23 by the architect** on the [recheck](reviews/css-props-1/feature-proof-claude.md#recheck-at-4bb981301) of #199 at `4bb981301`, relayed by the coordinator. The [reading](css-props-1/checks/ripple-recheck.txt), the [probe](css-props-1/probes/ripple-recheck.browser.test.ts.txt) and the [trial edit](css-props-1/checks/ripple-recheck-trial.diff.txt), which isn't committed, are at `c933bfd7b`.
+
+- **`reviewer-4`: each of the three statements gets a witness or goes.**
+  - **The state's reset** stays. With `RF-115`'s repair, the timer's clear leaves the disconnect, and the row of the touch that is removed within the delay fails without the reset, in the three engines. No new row.
+  - **The context-menu flag's reset goes,** and the ruling on `reviewer-1` no longer asks for it. The flag isn't the press's: it lives from a context menu to the next touch inside the element, with or without a removal. Its one effect after a put-back is that a touch dispatched to the element and outside its box starts no ripple, which is the flag's purpose.
+  - **The fade's cancel** stays, and gets a row per engine: an element removed during its fade and put back has no animation. Without the cancel it keeps one that fills forwards.
+- **`reviewer-5`: accepted.** The implementer's paragraph names the touch after a put-back, the animations left, `RF-114`'s row and three of the four fade orders as the rows that fail on the base. The fade after a removal, the moved press and the touch's whole delay fail there too, in each engine. That makes the 15 of the [reading](css-props-1/checks/ripple-rows.txt). The paragraph is read with this correction.
+- **Observation 1 is `RF-115`, and is repaired in this pull request.** It costs no statement: `clearTimeout` moves from the disconnect to where a touch arms its timer. The moved statement serves the put-back too.
+- **Observation 2, `moveBefore`, follows the ruling _"A move disconnects too, so it ends the press"_.** `ControlledElement` defines no `connectedMoveCallback`, so in Chromium and Firefox `moveBefore` runs the disconnect and the connect. WebKit has no `moveBefore`. A held press ended by it is accepted with that ruling. Why core's documented hook for it never runs is `RF-116`, and it changes nothing here. If `RF-116` gives elements a move without a disconnect, the press lives through `moveBefore`, as the base's did.
+- **Observation 3, the release after a put-back in Firefox, is explained, and nothing is owed.** Firefox dispatches a trusted `click` with `detail` 1 on the element that was put back, and Chromium and WebKit dispatch none. Firefox does so for a native `<button>` too, so the activation is the engine's and the consumer gets it. The ripple is new with this branch: on the base the state was still _waiting for the click_, so the click faded the held press. Now the press ended at the disconnect, and the click starts a ripple as any click without a press does. An activated element shows a ripple, so this is accepted. A filter on `detail` isn't taken, because it would hide an activation that happened.
+- **The implementer,** on this branch, after merging `main`: the two edits of the ripple (the timer's clear moves, the flag's reset goes), the row of the fade's cancel, `RF-115`'s rows, a new reading of the sizes, and a dated paragraph. Nothing else changes.
+- **Size of the addition:** _small_.
+
 #### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
 
 Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1 kept it on purpose, so that the generated CSS stayed the same. Registered on 2026-11-23 by the architect, on `repo/typescale-selection-1`, from `reviewer-1` of #188's feature proof (`.plan/reviews/landing-tables-1/feature-proof-claude.md`, on `tproc/landing-tables-1`), relayed by the coordinator, for #189. #188 didn't cause it and doesn't wait for it. `RF-109` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `246b64754` ([readings](typescale-selection-1/checks/readings.txt), [probes](typescale-selection-1/probes/)).
@@ -4784,6 +4797,32 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `c
 - **Size:** _small_.
 
 **Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in #199, for #202, and not closed.** The fade's `finished` handles its rejection. Two rows per engine press during the fade: no unhandled rejection, which fails before the repair in the three engines with the `AbortError`, and the new press's ripple, which passes before too ([readings](css-props-1/checks/ripple-rows.txt)). The row waits for the fade to start in place of 290 ms, so it doesn't depend on the host's speed.
+
+#### RF-115 — A touch soon after a short touch starts its ripple early
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here) of #199, relayed by the coordinator. `RF-114` is on this branch and is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c933bfd7b` ([reading](css-props-1/checks/ripple-recheck.txt), [probe](css-props-1/probes/ripple-recheck.browser.test.ts.txt)).
+
+- **What happens:** a touch waits 150 ms before its ripple starts, so that a swipe shows none. The timer of a touch that ended earlier isn't cleared, and the next touch's state is the one it checks. So a second touch, 90 ms after the first began, shows its ripple about 65 ms later instead of 150 ms. It happens after a `pointercancel`, as a scroll gives, and after a tap, on `mx-button` in the three engines, with the ripple of `07943db4a` too, which is the base's.
+- **Why it is a problem:** two swipes in a row over an element, or a double tap that becomes a scroll, show a ripple the delay exists to hide.
+- **Required property:** each touch has its whole delay, whatever came before it.
+- **The repair:** a touch that arms the timer clears the earlier one. The disconnect's clear is then not needed, and goes. The trial has the second touch start after 153 to 160 ms, and all 81 rows of the ripple pass.
+- **Rows,** per engine: a second touch within the delay of a touch that ended by `pointercancel`, and by a tap, has no animation before its own 150 ms, and two after it. **Witness:** both fail before the repair. The row _should give a touch after a put-back its whole delay_ fails without the new statement.
+- **Repaired in #199,** by the ruling in `RF-109`, because it replaces a statement of that pull request's repair at no cost.
+- **Ready** for #199's implementer.
+- **Size:** _small_.
+
+#### RF-116 — Core's `moved` hook never runs, because browsers call `connectedMoveCallback`
+
+Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here) of #199, relayed by the coordinator. `RF-115` is the entry before this one, so this is the next free number. Read at `c933bfd7b` ([reading](css-props-1/checks/ripple-recheck.txt), [probe](css-props-1/probes/move-before.mjs.txt)).
+
+- **What happens:** `ControlledElement` has `movedCallback()`, documented as _"invoked when the host is moved within the DOM without being disconnected (for example via `moveBefore`)"_, and it dispatches the controllers' `moved` hook. The platform's name is `connectedMoveCallback`, and nothing calls `movedCallback`. So in Chromium and Firefox `moveBefore` runs `disconnected` and then `connected`, on every element of core and material-x, and `moved` never runs. WebKit has no `moveBefore`. The core row calls `movedCallback()` by hand, so it can't see this.
+- **Why it is a problem:** `moved` is public, and a consumer who registers a controller for it gets nothing. No package in this repository uses it.
+- **Required property:** what the hook's documentation says is what the platform does, and a row observes it with a real `moveBefore` in an engine that has one.
+- **Owner question Q1 — what should `moveBefore` do?** The choice changes public behavior, so nothing is decided.
+  - **(a) Delete `moved` and `movedCallback`. Recommended:** no consumer is known, no package uses it, and `moveBefore` keeps disconnecting, as it does today. A consumer's `moved` controllers lose a hook that never ran.
+  - **(b) Rename to `connectedMoveCallback`,** and dispatch `moved`. Then `moveBefore` stops disconnecting every controlled element. Each controller that does its work in `connected` and `disconnected` (contexts, events, observers, the sortable list's controller, the ripple) has to be read for a move, so it is a unit with a plan.
+- **It doesn't block** #199.
+- **Size:** _small_ for (a), and _large_ for (b).
 
 ## Questions
 

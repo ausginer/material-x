@@ -1,0 +1,13 @@
+// Which callbacks moveBefore runs on a custom element that defines movedCallback, and on one that also defines connectedMoveCallback.
+import { createRequire } from 'node:module';
+const pw = createRequire('/workspaces/material-x/package.json')('playwright');
+for (const n of ['chromium', 'firefox', 'webkit']) {
+  const b = await pw[n].launch(); const p = await b.newPage();
+  console.log(n, b.version(), JSON.stringify(await p.evaluate(() => {
+    const run = (tag, extra) => { const log = []; const C = class extends HTMLElement { connectedCallback() { log.push('connected'); } disconnectedCallback() { log.push('disconnected'); } movedCallback() { log.push('movedCallback'); } };
+      if (extra) C.prototype.connectedMoveCallback = function () { log.push('connectedMoveCallback'); };
+      customElements.define(tag, C); const d = document.createElement('div'); document.body.append(d); const e = document.createElement(tag); d.append(document.createElement('i'), e); log.length = 0;
+      if (!('moveBefore' in d)) return 'no moveBefore'; d.moveBefore(e, d.firstChild); return log; };
+    return [run('x-a', false), run('x-b', true)]; })));
+  await b.close();
+}

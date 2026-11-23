@@ -1,0 +1,91 @@
+# Rulings on the recheck of #199, read by the architect on 2026-11-23 in slot c at c933bfd7b, with ../probes/ripple-recheck.browser.test.ts.txt in packages/material-x/tests/core/animations/ (it reports by a failing row). Playwright's engines, local. The touches are dispatched, the mouse is Playwright's.
+# 'before' has ripple.ts and fns.ts of 07943db4a, whose ripple.ts is the base's. 'trial' is ripple-recheck-trial.diff.txt, uncommitted: clearTimeout moves from the disconnect to where a touch arms its timer, and the context-menu flag's reset goes.
+## head
+P chromium touch, pointercancel, touch 61 ms later: its ripple starts after ms: 68
+P chromium touch, tap, touch 60 ms later: its ripple starts after ms: 68
+P chromium release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P chromium release, put back: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, put back later: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, moveBefore: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium a native button, put back while held: clicks after the release: 0
+P chromium removed during its fade, put back: animations: 0
+P firefox touch, pointercancel, touch 61 ms later: its ripple starts after ms: 63
+P firefox touch, tap, touch 60 ms later: its ripple starts after ms: 63
+P firefox release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, put back: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, put back later: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, moveBefore: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox a native button, put back while held: clicks after the release: 1
+P firefox removed during its fade, put back: animations: 0
+P webkit touch, pointercancel, touch 60 ms later: its ripple starts after ms: 63
+P webkit touch, tap, touch 63 ms later: its ripple starts after ms: 57
+P webkit release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P webkit release, put back: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, put back later: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, moveBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P webkit a native button, put back while held: clicks after the release: 0
+P webkit removed during its fade, put back: animations: 0
+## before
+P chromium touch, pointercancel, touch 60 ms later: its ripple starts after ms: 68
+P chromium touch, tap, touch 60 ms later: its ripple starts after ms: 67
+P chromium release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P chromium release, put back: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, put back later: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, moveBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium a native button, put back while held: clicks after the release: 0
+P chromium removed during its fade, put back: animations: 3
+P firefox touch, pointercancel, touch 61 ms later: its ripple starts after ms: 63
+P firefox touch, tap, touch 61 ms later: its ripple starts after ms: 62
+P firefox release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, put back: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, put back later: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, moveBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox a native button, put back while held: clicks after the release: 1
+P firefox removed during its fade, put back: animations: 3
+P webkit touch, pointercancel, touch 61 ms later: its ripple starts after ms: 61
+P webkit touch, tap, touch 63 ms later: its ripple starts after ms: 57
+P webkit release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P webkit release, put back: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, put back later: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, moveBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P webkit a native button, put back while held: clicks after the release: 0
+P webkit removed during its fade, put back: animations: 3
+## trial
+P chromium touch, pointercancel, touch 61 ms later: its ripple starts after ms: 156
+P chromium touch, tap, touch 61 ms later: its ripple starts after ms: 160
+P chromium release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P chromium release, put back: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, put back later: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium release, moveBefore: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P chromium a native button, put back while held: clicks after the release: 0
+P chromium removed during its fade, put back: animations: 0
+P firefox touch, pointercancel, touch 60 ms later: its ripple starts after ms: 155
+P firefox touch, tap, touch 60 ms later: its ripple starts after ms: 153
+P firefox release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, put back: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, put back later: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox release, moveBefore: animations held/after the change/60 ms after the release, events: [2,0,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P firefox a native button, put back while held: clicks after the release: 1
+P firefox removed during its fade, put back: animations: 0
+P webkit touch, pointercancel, touch 60 ms later: its ripple starts after ms: 154
+P webkit touch, tap, touch 63 ms later: its ripple starts after ms: 153
+P webkit release, nothing: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P webkit release, put back: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, put back later: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, moved by insertBefore: animations held/after the change/60 ms after the release, events: [2,0,0,["pointerdown","mousedown","pointerup","mouseup"]]
+P webkit release, moveBefore: animations held/after the change/60 ms after the release, events: [2,2,2,["pointerdown","mousedown","pointerup","mouseup","click:1:trusted","doc click on mx-button"]]
+P webkit a native button, put back while held: clicks after the release: 0
+P webkit removed during its fade, put back: animations: 0
+## tests/core/animations/ripple.browser.test.ts in the three engines: trial 81 of 81. Trial without the state's reset: 'a touch whose element is removed within the delay' fails in each engine, and nothing else. Trial without clearTimeout: 'a touch after a put-back its whole delay' fails in each engine, and nothing else.
+## ../probes/move-before.mjs.txt: the callbacks that moveBefore runs on an element that defines movedCallback, and on one that also defines connectedMoveCallback
+chromium 158.0.8127.18 [["disconnected","connected"],["connectedMoveCallback"]]
+firefox 159.0 [["disconnected","connected"],["connectedMoveCallback"]]
+webkit 27.2 ["no moveBefore","no moveBefore"]
