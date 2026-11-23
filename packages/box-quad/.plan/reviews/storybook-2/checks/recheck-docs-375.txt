@@ -1,0 +1,61 @@
+# recheck-docs-375.ts, against the same build, on 2026-11-23, at 8f598f500, from the repository root. Node v26.13.1.
+
+## chromium 158.0.8127.18
+  as built
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo--primary-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    nested overflow [_story_18ufo_2 visible +31; story--box-quad--nested-spaces-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ajbvrz visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--pointer-delta-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1bms4kk visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [] inside the block's right edge by []
+  former
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo--primary-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    nested overflow [_story_18ufo_2 visible +31; story--box-quad--nested-spaces-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1y81073 visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--pointer-delta-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1bms4kk visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [] inside the block's right edge by []
+  controls hidden
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    nested overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by []
+
+## firefox 159.0
+  as built
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo--primary-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    nested overflow [_story_18ufo_2 visible +31; story--box-quad--nested-spaces-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ajbvrz visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--pointer-delta-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1bms4kk visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [] inside the block's right edge by []
+  former
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo--primary-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    nested overflow [_story_18ufo_2 visible +31; story--box-quad--nested-spaces-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1y81073 visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--pointer-delta-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1bms4kk visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [] inside the block's right edge by []
+  controls hidden
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    nested overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by []
+
+## webkit 27.2
+  as built
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo--primary-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    nested overflow [_story_18ufo_2 visible +31; story--box-quad--nested-spaces-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ajbvrz visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--pointer-delta-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1bms4kk visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [] inside the block's right edge by []
+  former
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo--primary-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--live-demo-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1ugth4p visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    nested overflow [_story_18ufo_2 visible +31; story--box-quad--nested-spaces-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1y81073 visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1 | range 49, value -1]
+    overflow [_story_18ufo_2 visible +31; story--box-quad--pointer-delta-inner visible +31; sb-story visible +31; DIV visible +31; innerZoomElementWrapper visible +23; css-1bms4kk visible +23; docs-story auto +1] inside the block's right edge by [range 49, value -1 | range 49, value -1]
+    overflow [] inside the block's right edge by []
+  controls hidden
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    nested overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by [range 334, value 334 | range 334, value 334]
+    overflow [] inside the block's right edge by []

@@ -26,7 +26,7 @@ Everything ran in slot `b`, with Playwright's Chromium 158, Firefox 159 and WebK
 | Only the story's own state, no Storybook API | Yes | During a 40-move drag of each slider, in three engines: no manager channel event, no `history.replaceState`, and 0 to 2 manager DOM mutations. The control, 40 `updateStoryArgs` on the same page, makes 309 to 915 mutations and 38 to 80 `replaceState` calls. No channel event from the preview either. Storybook's shortcut keys on a focused slider don't reach the manager |
 | No `args` or `argTypes`; docs page without a controls table | Yes | Grep of the stories. The docs page has 0 args tables, and the Controls panel shows Storybook's _This story has no controls_ |
 | Overlay follows before the next frame paints | Yes | Read in the first `requestAnimationFrame` after each `input`: the worst miss between overlay and target bounds is 6.6e-3 px, in Firefox, over every value and the pointer drags of _Live Demo_ and _Nested Spaces_ |
-| Sliders outside the geometry they control | In the DOM yes. On screen not at every value | `reviewer-1`. No slider or stage moves while any slider is set across its range, and no page scrolls sideways at 1000, 375 or 320 px |
+| Sliders outside the geometry they control | In the DOM yes. On screen not at every value | `reviewer-1`. No slider or stage moves while any slider is set across its range, and no page scrolls sideways at 1000, 375 or 320 px _(corrected in the recheck: at the defaults)_ |
 | Docs mode with several stories | Yes | Nine ranges on one page, with _Live Demo_ rendered twice. Moving each changes one range and at most one overlay |
 | Cleanup on unmount | Yes | Eight story switches in one preview: the live `ResizeObserver`s and the story's `scroll` listener return to each story's own count, in three engines |
 | No `ResizeObserver` loop error, no console error | Yes | 0 page errors in `slider-errors.ts` and the #159 probes, and 0 page or console errors in `sliders-proof.ts`. On the dev server the only warnings come from Storybook's manager and from Firefox's own reporting. None is from the stories |
@@ -74,3 +74,39 @@ Each range's value is an `<output>`, so a polite live region in Blink's tree, be
 
 - **Findings:** `reviewer-1` (A), `reviewer-2` (C), `reviewer-3` (C). Nothing here needs a decision to be created, amended or superseded; whether `reviewer-1` is repaired in this pull request is the coordinator's and owner's call.
 - **Queue:** no change proposed. #169's _redraws without visible lag_ is met, and the issue stays in progress until the pull request merges.
+
+## Recheck at `8f598f500`
+
+**Read at** `8f598f500`, the pull request's head, with `main` at `986ad3719` merged in. The repair is `67b7a39aa`. The record is `62fe84105`. No file under `packages/box-quad/src`, `packages/core` or `.storybook` changes between `67b7a39aa` and the head. Engines and Node as above.
+
+**Verdict:** the three findings are repaired, the repair breaks nothing that was read, and `BQ-21` holds. One new finding, `reviewer-4`, is Tier C, comes from this review's own probe, and doesn't block the merge.
+
+**Scope:** the repair's two declarations and what they can change, on the built site in three engines. `recheck-stage.ts` reads each setting twice, as built and with the former declarations injected, so a difference is the repair's. The story ran at 1600, 1000, 700, 375 and 320 px and the docs page at 1600, 1000 and 375 px. In Firefox and WebKit, that probe takes every third rotation and zoom. `covered-grid.ts` takes every pair in each engine, at 1000 and 1600 px. The limits above still apply.
+
+| Finding | Verdict | Evidence |
+| --- | --- | --- |
+| `reviewer-1` (A) | **Closed** | [`covered-grid.ts`](checks/recheck-probes-rerun.txt) gives the committed output: 0 covered at all 2821 pairs, at 1000 and 1600 px, in three engines, 28.1 px clear at least. `covered-drag.ts`: the thumb drag that left −20 now gives 0. [`recheck-stage.ts`](checks/recheck-stage.txt): with the target at −45, −20 and 45 too, and down to 320 px, no range is covered, and none on the docs page, the other stories' ranges included. With the former declarations, ranges are covered at 1600, 1000 and 700 px and on the docs page, so the probe can fail. The 132 px in the stylesheet's comment is the geometry's: (416 sin 45° + 103 cos 45° − 103) / 2 |
+| — the enlarged stage | **Breaks nothing read** | The ancestor leaves the stage's left, right and bottom by the same amounts as before, at every width. Widths don't change. The stage is 512 px high, and the docs page at 375 px grows by 72 px. No slider, stage or page moves sideways in `layout.ts`. [`sliders-proof.ts`](checks/recheck-sliders-proof.txt) passes whole, docs mode and unmount included |
+| `reviewer-2` (C) | **Closed** | 200 px in the three engines at 1000 px and wider. 159 px at 375, 104 px at 320, and 80 px on the docs page at 375. The range adds no sideways scroll at any of these widths (`reviewer-4` has the limit of the earlier statement) |
+| `reviewer-3` (C) | **Closed** | Each of the seven rows of `controls-cost.txt` was compared with §10.2 again: the five columns the entry lists as out are all that are out, and `channel, panel hidden`'s box-quad time is one that this review missed. `64c1d4459`'s parent is `8b99db9d4`. The header names `BQ-21` |
+
+**`BQ-21` holds.** `stories-reading.ts` gives the committed digits, and all eight screenshots are byte-equal after its run. `slider-errors.ts` and `storybook-1`'s two probes, which the implementer didn't rerun, raise no page error. `typecheck`, `lint`, `docs-build` and `docs-smoke` (112 of 112) pass. `fmt-check` passes with this recheck's probes.
+
+**The 64 to 69 % idle share doesn't matter.** Three runs as built give 78, 79 and 76 % idle, and three interleaved runs with the former declarations give 77, 79 and 76 % ([reading](checks/recheck-controls-cost.txt)). So the repair isn't the cause. With 14 busy processes on the 12-core machine the same script gives 51 and 60 %, with native time up and more frames, as in the implementer's rows, and 78 % after they end. Their cause is therefore most likely load on the shared machine: at 07:31, three minutes after the implementer's record and before this recheck ran anything, its load averages were 14.7, 16.6 and 12.0 over 1, 5 and 15 minutes. The load during each of their runs was not read. Each run in the record and here meets the three conditions. The 51 % run shows that the idle condition can come close to its limit on a loaded machine.
+
+### reviewer-4 — Tier C: "no page scrolls sideways" is read at the sliders' defaults only
+
+- **Current behavior / contract:** `plan.md`'s 2026-11-23 entry says _"No page scrolls sideways"_ at 1000, 375 and 320 px, from this review's `layout.ts`. This review said the same. `layout.ts` reads it once, after each slider is back at its default.
+- **Why it is a problem:** the statement is wider than its reading. At 375 and 320 px, _Nested Spaces_' page does scroll sideways where the ancestor is steep and large. No requirement is violated: the same settings do it with the former declarations, and the ancestor's overflow is older than #169.
+- **Evidence / reproduction:** [`recheck-stage.txt`](checks/recheck-stage.txt), Chromium: 498 of 8463 settings at 375 px and 678 at 320 px, before and after alike, with the ancestor up to 44.5 and 52.6 px past the stage. Firefox and WebKit agree in their coarser sample. No slider is covered at any of them.
+- **Required property:** the record says what was read, at the defaults.
+
+### Observations, not findings
+
+- **Docs page at 375 px:** the docs block of each story with sliders scrolls sideways by 1 px, because the row (label, 80 px range, value) is wider than the block. It does so with the former declarations too, and not with the controls hidden ([reading](checks/recheck-docs-375.txt)). So it is #169's, and this review missed it. The text and range stay inside the block.
+- **WebKit's docs page at 375 px** raises `ResizeObserver loop completed with undelivered notifications` while loading, sometimes: 1 of 40 loads here and 2 of 40 on `main` in a 900 px high viewport, and 8 and 7 of 16 in a 5200 px one ([reading](checks/recheck-webkit.txt)). It also happens with the sliders hidden. It isn't this pull request's, and `storybook-1`'s probe, with one load per page, can miss it. It goes to the coordinator as a candidate for the work queue. Eight `button` docs pages never raised it.
+
+### Outcome of the recheck
+
+- **Findings:** `reviewer-1` to `reviewer-3` closed. `reviewer-4` (C) open, for the implementer's record. No decision needs to change.
+- **Pending:** the owner's merge, with `reviewer-4` at the coordinator's choice.
