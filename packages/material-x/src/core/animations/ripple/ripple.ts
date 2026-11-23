@@ -10,8 +10,8 @@ import {
   type CSSPropDescription,
 } from '@ydinjs/core/controllers/useCSSProps.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
-import type { ControlledElement } from '@ydinjs/core/element.js';
-import { identity, parseMs, parseNum } from '../../utils/fns.ts';
+import { use, type ControlledElement } from '@ydinjs/core/element.js';
+import { identity, parseMs } from '../../utils/fns.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 
 type Point = Readonly<{
@@ -48,7 +48,6 @@ const CSS_PROPS = {
   duration: ['--_ripple-duration', parseMs],
   driftEasing: ['--_ripple-drift-easing', identity<string>],
   driftDuration: ['--_ripple-drift-duration', parseMs],
-  opacity: ['--_ripple-opacity', parseNum],
 } as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
 export type CSSProps = Readonly<{
@@ -56,7 +55,6 @@ export type CSSProps = Readonly<{
   duration: number;
   driftEasing: string;
   driftDuration: number;
-  opacity: number;
 }>;
 
 function isTouch(event: PointerEvent): boolean {
@@ -189,6 +187,7 @@ export function useRipple(
   let animationGeneration = 0;
   let startEvent: PointerEvent | null = null;
   let checkBoundsAfterContextMenu = false;
+  let touchDelayTimer: ReturnType<typeof setTimeout> | undefined;
 
   const cssProps = useCSSProps(host, CSS_PROPS);
 
@@ -287,8 +286,10 @@ export function useRipple(
     }
 
     opacityAnimation?.cancel();
+    // No first keyframe, so that the fade starts from the opacity in effect,
+    // which depends on the host's state.
     opacityAnimation = rippleElement.animate(
-      { opacity: [cssProps().opacity, 0] },
+      { opacity: 0 },
       {
         pseudoElement: '::after',
         duration: EXIT_OPACITY_DURATION_MS,
@@ -296,7 +297,8 @@ export function useRipple(
         fill: 'forwards',
       },
     );
-    await opacityAnimation.finished;
+    // A new press or a disconnect cancels the fade, which rejects the promise.
+    await opacityAnimation.finished.catch(() => {});
 
     if (generation !== animationGeneration) {
       return;
@@ -306,6 +308,21 @@ export function useRipple(
     moveAnimation?.cancel();
     opacityAnimation.cancel();
   };
+
+  // An element out of the document shows no ripple, so its press ends.
+  use(host, {
+    disconnected() {
+      clearTimeout(touchDelayTimer);
+      startEvent = null;
+      state = INACTIVE;
+      checkBoundsAfterContextMenu = false;
+      // Ends a fade that waits to start.
+      animationGeneration += 1;
+      scaleAnimation?.cancel();
+      moveAnimation?.cancel();
+      opacityAnimation?.cancel();
+    },
+  });
 
   useEvents(host, {
     click() {
@@ -365,7 +382,7 @@ export function useRipple(
       // Wait for a hold after touch delay
       state = TOUCH_DELAY;
 
-      setTimeout(() => {
+      touchDelayTimer = setTimeout(() => {
         // State may have changed while waiting for the timeout.
         if (state !== TOUCH_DELAY) {
           return;

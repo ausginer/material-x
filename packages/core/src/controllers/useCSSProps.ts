@@ -44,7 +44,11 @@ export type CSSPropsResult<
  * @remarks The variables are read at the first call of the returned function in
  * a connection, and later calls return the same values until the host connects
  * again. An error that a parser throws is thrown by that call, and the next
- * call reads again.
+ * call reads again. The hook is for a connected host: a call on a disconnected
+ * host with no values kept reads an empty style, so a parser may throw, and the
+ * caller ends its work when the host disconnects. It is for variables whose
+ * value doesn't depend on the host's state, because a later change of state
+ * doesn't reach the values.
  *
  * @typeParam T - Mapping from consumer-facing keys to CSS prop descriptions.
  * @param host - Element whose computed CSS variables should be read.
