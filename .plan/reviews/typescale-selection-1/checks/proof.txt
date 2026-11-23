@@ -232,3 +232,14 @@ plain | text-field prefix | Roboto | 400 | 0.5px | 16px/24px | axes normal
    input Roboto 400 0.5px
 
 == root typecheck: 8 runs, exit 0 each
+
+== recheck at 14ae04d81: recheck.ts (material-web's latest fetched again; the store isn't read)
+type published 150 fixture 150 differ []
+colour published 50 variables in file 50 fixture 50 differ []
+
+== recheck-mutate.mjs (selection and Store rows, 228)
+main's rule: type 58 (34 base, 24 emphasized), colour 39, line height 15, chain 1, Store 3
+theme dark: colour 34; contrast high and medium: colour 30 each; language.height medium, large and extra.large: line height 15 each; nothing else fails in these six
+font variable: type 48; font ios.bold: type 10; audience 1p.baseline: type 48, colour 9; platform ios: colour 50; platform android: the Store row alone
+device desktop, ios.dark.theme.elevation elevated, ios.weight.setting bold: none
+head, the whole tproc suite: 351 passed

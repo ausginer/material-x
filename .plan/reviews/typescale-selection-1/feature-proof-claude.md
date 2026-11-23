@@ -77,3 +77,13 @@
 `.agents/docs/test-architecture.md` still describes the old selection. The record says that it gets its own pull request. `RD-28` property 8 says _"Until `RF-110`'s unit merges"_, which is the architect's to update after the merge.
 
 No other finding: the reader, the converter, the report, the skill, the fonts of `browser-setup.ts`, the readers and their rows are as the records require.
+
+## Recheck of the remediation
+
+**Read at** `14ae04d81`, against the architect's rulings in `RF-110` (`96315a9bc`). The diff from `407c12f12` was read in full. **Verdict: all three findings are resolved, with no new finding.** Scope: the three findings, the new fixtures and rows, and the record. The evidence is at the end of [`proof.txt`](checks/proof.txt).
+
+- **`reviewer-1`: resolved as ruled.** The 50 colour references equal `_md-sys-color.scss`'s 50 variables, and the 15 line height rows read the published base values. Changed alone in `RENDERED_CONTEXT`, `theme: dark` fails 34 rows, either other `contrast` 30, and each other `language.height` 15. No other row fails in those runs. `device` and the two iOS groups still fail none, as the ruling says. `platform: ios` now fails 50 colour rows as well as the synthetic row.
+- **`reviewer-2`: resolved as ruled.** I fetched the four files of `latest` again and compared them with the fixtures without reading the store: 150 of 150 type values and 50 of 50 colours are equal, with none missing or added. The headers have the source, the commit, version 34.0.21, the context tags, and the copyright and SPDX lines that the files carry. On `main`'s rule 58 of 150 (34 base, 24 emphasized), 39 of 50 and 15 of 15 fail, with the chain row. The record says that the springs aren't covered by a row, and why.
+- **`reviewer-3`: resolved.** The record, its readings and the pull request's description all state the failed run, that its output wasn't kept, and that the cause isn't established. The cause stays unknown.
+- **Only tests and records changed.** No source, script, store or material-x file differs from `d636f20a1`. tproc's suite passes (351), with its typecheck, formatting and lint. The earlier results for the stylesheets, the rows of material-x and the rendering therefore stand.
+- **Baselines:** none has landed, so I looked at no recorded image. CI for `14ae04d81` was still running when I read it.
