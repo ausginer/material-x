@@ -2404,6 +2404,13 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Amended 2026-11-23 by the architect, property 3's reading,** on Mx Implementer B's stop at the plan's boundary, relayed by the coordinator. The observer's side margins are as large as its top margin. With the plan's 0px sides the state was wrong in the three engines on a page scrolled sideways by a viewport or more, which the first reading hadn't scrolled, so _"in every case read"_ didn't cover it. With large sides it matches there too ([reading](top-app-bar-1/checks/scroll-sideways.txt)). The mechanism doesn't change, and the plan gains a row.
 
+**Amended 2026-11-23 by the architect, property 3's target,** on `reviewer-1` and `reviewer-2` of the [feature proof](reviews/top-app-bar-1/feature-proof-claude.md) of #211, relayed by the coordinator. The observer's target is now a box without size that the component keeps in the top layer, at the document's scroll start. It isn't the root element. The rest of property 3 stands: one observer, `root: document`, a change only at a crossing, no scroll listener and no layout read.
+
+- **Why:** the root element's place and size are the page's. The state was wrong, in the three engines, with a root that has no height or starts below the page's top, after a first correction for sideways scrolling. No page style moves a top-layer box, so the geometry isn't the page's any more. It is right on all 22 pages [read](top-app-bar-1/checks/mechanisms.txt), where the root element is wrong on 8.
+- **Not taken:** limits in the documentation; a `scroll` listener, which the landing plan's property 4 excludes; and a scroll-driven animation's events. Property 3's sentence on the animation, that it gives no state, isn't the reason any more: its events give one, and it is in `RD-20`'s floor. It is wrong in each engine in some case, and recalculates a style on each scroll frame.
+- **Costs:** one element in the shadow root, so property 1's shadow root holds it beside the three slots. A bar shown again at the start draws the scrolled color for one frame, by reasoning.
+- The plan holds the [dispositions](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-feature-proof-at-6dbdcbbd1) of all seven findings. `reviewer-3` is `RF-122`'s case, and owes nothing here.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

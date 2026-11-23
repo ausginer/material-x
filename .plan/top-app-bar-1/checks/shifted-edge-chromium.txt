@@ -1,0 +1,26 @@
+An earlier run of mechanisms.mjs, in Chromium only, with one more variant that the probe no longer has:
+the root-element observer with rootMargin '1000000px 1000000px -100.01%', threshold 0 and isIntersecting.
+io, edge above | plain (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0; calls over 200 steps 0
+io, edge above | html margin-top 46px (scrolls 4344): 4 of 15 wrong y1 y20 y45 x3000y1
+io, edge above | html relative top 20 (scrolls 4318): 2 of 15 wrong y1 x3000y1
+io, edge above | html margin-top -20px (scrolls 4278): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html margin-top 46px, bar at 46px (scrolls 4344): 4 of 15 wrong y1 y20 y45 x3000y1
+io, edge above | html padding-top 46px (scrolls 4344): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | body absolute (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html height 0 (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html height 100% (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html and body height 100% (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html zoom 1.5 (scrolls 6807): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html zoom .67 (scrolls 2642): 5 of 15 wrong initial y0 y0 y0 x2740y0
+io, edge above | html transform (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html transform 30px (scrolls 4328): 3 of 15 wrong y1 y20 x3000y1
+io, edge above | html contain paint (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x0y0
+io, edge above | html overflow-x hidden (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html display contents (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html absolute (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | html fixed (scrolls 0): 15 of 15 wrong initial y0 y0 y0 y0 y0 y0 y0 y0 y0 y0 y0 x0y0 x0y0 x0y0
+io, edge above | html rotated (scrolls 4391): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | animation none for all (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | reduced-motion reset (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io, edge above | body absolute in a 100px viewport: wrong initial y0 y0 y0 x3000y0
+io, edge above | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, false, false

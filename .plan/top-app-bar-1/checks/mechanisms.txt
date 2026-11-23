@@ -1,0 +1,194 @@
+## chromium 158.0.8127.18
+io | plain (scrolls 4298): 0 of 15 wrong ; calls over 200 steps 1
+io | html margin-top 46px (scrolls 4344): 4 of 15 wrong y1 y20 y45 x3000y1
+io | html relative top 20 (scrolls 4318): 3 of 15 wrong y1 y20 x3000y1
+io | html margin-top -20px (scrolls 4278): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html margin-top 46px, bar at 46px (scrolls 4344): 4 of 15 wrong y1 y20 y45 x3000y1
+io | body absolute (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html height 0 (scrolls 4298): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html transform 30px (scrolls 4328): 3 of 15 wrong y1 y20 x3000y1
+io | html rotated (scrolls 4391): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | body absolute in a 100px viewport: wrong initial y0 y0 y0 x3000y0
+io |  {
+  on: true,
+  hiddenAt0: false,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+io | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+top-layer box | plain (scrolls 4298): 0 of 15 wrong ; calls over 200 steps 1
+top-layer box | body absolute in a 100px viewport: wrong none
+top-layer box |  {
+  on: true,
+  hiddenAt0: true,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+top-layer box | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+animation events | plain (scrolls 4298): 0 of 15 wrong ; calls over 200 steps 1
+animation events | body absolute in a 100px viewport: wrong none
+animation events |  {
+  on: true,
+  hiddenAt0: true,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+animation events | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 1 calls, true, false
+listener | plain (scrolls 4298): 0 of 15 wrong ; calls over 200 steps 200
+listener | body absolute in a 100px viewport: wrong none
+listener |  {
+  on: true,
+  hiddenAt0: false,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+listener | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+pages with a wrong state, of all: {"io":[8,22],"top-layer box":[0,22],"animation events":[0,22],"listener":[0,22]}
+## firefox 159.0
+io | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 1
+io | html margin-top 46px (scrolls 4347): 4 of 15 wrong y1 y20 y45 x3000y1
+io | html relative top 20 (scrolls 4321): 3 of 15 wrong y1 y20 x3000y1
+io | html margin-top -20px (scrolls 4281): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html margin-top 46px, bar at 46px (scrolls 4347): 4 of 15 wrong y1 y20 y45 x3000y1
+io | body absolute (scrolls 4301): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html height 0 (scrolls 4301): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html transform 30px (scrolls 4331): 3 of 15 wrong y1 y20 x3000y1
+io | html rotated (scrolls 4394): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | body absolute in a 100px viewport: wrong initial y0 y0 y0 x3000y0
+io |  {
+  on: true,
+  hiddenAt0: false,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+io | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+top-layer box | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 1
+top-layer box | body absolute in a 100px viewport: wrong none
+top-layer box |  {
+  on: true,
+  hiddenAt0: true,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+top-layer box | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+animation events | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 1
+animation events | body absolute in a 100px viewport: wrong none
+animation events |  {
+  on: true,
+  hiddenAt0: true,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+animation events | after a screenshot with animations disabled at 0, then at 300, then at 0: true, 1 calls, true, true
+listener | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 200
+listener | body absolute in a 100px viewport: wrong none
+listener |  {
+  on: true,
+  hiddenAt0: false,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+listener | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+pages with a wrong state, of all: {"io":[8,22],"top-layer box":[0,22],"animation events":[0,22],"listener":[0,22]}
+## webkit 27.2
+io | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 1
+io | html margin-top 46px (scrolls 4347): 4 of 15 wrong y1 y20 y45 x3000y1
+io | html relative top 20 (scrolls 4321): 3 of 15 wrong y1 y20 x3000y1
+io | html margin-top -20px (scrolls 4281): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html margin-top 46px, bar at 46px (scrolls 4347): 4 of 15 wrong y1 y20 y45 x3000y1
+io | body absolute (scrolls 4301): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html height 0 (scrolls 4301): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | html transform 30px (scrolls 4331): 3 of 15 wrong y1 y20 x3000y1
+io | html rotated (scrolls 4394): 5 of 15 wrong initial y0 y0 y0 x3000y0
+io | body absolute in a 100px viewport: wrong initial y0 y0 y0 x3000y0
+io |  {
+  on: true,
+  hiddenAt0: false,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+io | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+top-layer box | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 1
+top-layer box | body absolute in a 100px viewport: wrong none
+top-layer box |  {
+  on: true,
+  hiddenAt0: true,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+top-layer box | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+animation events | plain (scrolls 4301): 1 of 15 wrong y4301; calls over 200 steps 1
+animation events | html margin-top 46px (scrolls 4347): 1 of 15 wrong y4347
+animation events | html relative top 20 (scrolls 4321): 1 of 15 wrong y4321
+animation events | html margin-top -20px (scrolls 4281): 1 of 15 wrong y4281
+animation events | html margin-top 46px, bar at 46px (scrolls 4347): 1 of 15 wrong y4347
+animation events | html padding-top 46px (scrolls 4347): 1 of 15 wrong y4347
+animation events | body absolute (scrolls 4301): 1 of 15 wrong y4301
+animation events | html height 0 (scrolls 4301): 1 of 15 wrong y4301
+animation events | html height 100% (scrolls 4301): 1 of 15 wrong y4301
+animation events | html and body height 100% (scrolls 4301): 1 of 15 wrong y4301
+animation events | html zoom 1.5 (scrolls 6812): 1 of 15 wrong y6812
+animation events | html zoom .67 (scrolls 2644): 2 of 15 wrong y2644 y2644
+animation events | html transform (scrolls 4301): 1 of 15 wrong y4301
+animation events | html transform 30px (scrolls 4331): 1 of 15 wrong y4331
+animation events | html contain paint (scrolls 4301): 1 of 15 wrong y4301
+animation events | html overflow-x hidden (scrolls 4301): 1 of 15 wrong y4301
+animation events | html display contents (scrolls 4301): 1 of 15 wrong y4301
+animation events | html absolute (scrolls 4301): 1 of 15 wrong y4301
+animation events | html rotated (scrolls 4394): 1 of 15 wrong y4394
+animation events | animation none for all (scrolls 4301): 1 of 15 wrong y4301
+animation events | reduced-motion reset (scrolls 4301): 1 of 15 wrong y4301
+animation events | body absolute in a 100px viewport: wrong y4921
+animation events |  {
+  on: true,
+  hiddenAt0: true,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+animation events | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 1 calls, true, false
+listener | plain (scrolls 4301): 0 of 15 wrong ; calls over 200 steps 200
+listener | body absolute in a 100px viewport: wrong none
+listener |  {
+  on: true,
+  hiddenAt0: false,
+  shownAt0: false,
+  shownAt300: true,
+  animations: 0,
+  finishedIdiom: 'settles',
+  afterFinishAt0: false
+}
+listener | after a screenshot with animations disabled at 0, then at 300, then at 0: false, 0 calls, true, false
+pages with a wrong state, of all: {"io":[8,22],"top-layer box":[0,22],"animation events":[21,22],"listener":[0,22]}

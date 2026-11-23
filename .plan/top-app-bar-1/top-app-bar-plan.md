@@ -1,6 +1,6 @@
 # `mx-top-app-bar` — plan
 
-**Status: decided as [`repo:RD-54`](../00-index.md). Ready for an implementer, and it doesn't wait for `mx-card`.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are ready for an implementer.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
 
 ## Readings
 
@@ -15,7 +15,19 @@
   - A sticky bar pins as a child of `body`. Inside a `<header>` of its own height it scrolls away (top −2000px), and inside a `<header>` with `display: contents` it pins. With `height: 100%` on `body` it scrolls away with the body.
   - Positioned content paints over a sticky bar with `z-index: auto`, and under one with `z-index: 1`.
 - **[`scroll-sideways`](probes/scroll-sideways.mjs)** ([reading](checks/scroll-sideways.txt)), in the same engines, with a 1280px viewport and 6000px content. With 0px sides, the state is off at every position from `scrollX` 1280 that is scrolled down, 15 of 40, because the root element's box is one viewport wide and has left the root's area. With sides as large as the top, none of the 40 is wrong, also in RTL, with `html { height: 100% }` and with `html { width: max-content }`, and 48 sideways steps away from the start make no callback.
-- **Limits:** scrolling was programmatic. Safari's overscroll and touch scrolling weren't read.
+- **[`mechanisms`](probes/mechanisms.mjs)** ([reading](checks/mechanisms.txt)), in the same engines, after the feature proof: the state against `scrollY > 0` at 15 positions on each of 22 pages, four ways.
+  - The observer on the root element is wrong on the same 8 pages in each engine. They are the proof's kinds, and a negative margin, a translated and a rotated root besides.
+  - **The observer on a box in the top layer is right on all 22, in each engine,** and runs once over 200 scroll steps.
+  - A scroll-driven animation read through its events is right on all 22 in Chromium and Firefox. In WebKit it is wrong on 21, off at the end of the page.
+  - A `scroll` listener is right on all 22, and runs 200 times.
+  - [An earlier run](checks/shifted-edge-chromium.txt) in Chromium had the root-element observer with its edge moved just above the start. It is wrong on all 22.
+- **[`mechanism-details`](probes/mechanism-details.mjs)** ([reading](checks/mechanism-details.txt)):
+  - **The box** is right in a frame, on a page that grows and shrinks, after a reload and a reconnect, under reduced motion, and in and after a screenshot with animations disabled. When a bar connects, the focus stays, an open `auto` popover stays open, no `toggle` event reaches the document, the document's size and the hit target at its corner are unchanged, and a modal dialog opens as before. WebKit's reload didn't restore a position, so it read nothing.
+  - **The animation** stays on when a scrolled page shrinks to one that doesn't scroll, in Chromium and WebKit. In Firefox a screenshot with animations disabled turns it on, and it stays on.
+  - **1000 scroll steps in Chromium:** the box and the root-element observer add no style recalculation and no measurable script. The animation adds 999 recalculations, about 11ms. The listener adds about 14ms of script.
+- **[`top-layer-box`](probes/top-layer-box.mjs)** ([reading](checks/top-layer-box.txt)): the box is right in RTL, in vertical writing, in a scrolled frame and after `moveBefore` (not in WebKit, which has none). Each requirement below, taken away, gives a wrong state in the three engines.
+- **Scroll-driven animations are Baseline** since 2026-10-27, newly available (webstatus.dev, read on 2026-11-23), so `RD-20`'s floor has them. That isn't why the animation isn't taken.
+- **Limits:** scrolling was programmatic, and the proof adds the wheel and the keyboard. Safari, its overscroll, touch scrolling and pinch zoom weren't read.
 
 ## The element
 
@@ -31,7 +43,7 @@
 
 ### Required properties
 
-1. **The host is the box** (the `.host` exception _The host is the box_). The shadow root holds the three slots and nothing else. The insets are on the slots, so a page's universal reset changes none of them, as in `RD-53`.
+1. **The host is the box** (the `.host` exception _The host is the box_). The shadow root holds the three slots and the scrolled state's box (amended 2026-11-23). The insets are on the slots, so a page's universal reset changes none of them, as in `RD-53`.
 2. **The host places itself:** `position: sticky` at `inset-block-start: 0`, with `z-index: 1`, so that positioned content scrolls under it. They are ordinary `:host` declarations, so a page rule on `mx-top-app-bar` overrides them, and `position: static` unpins it.
 3. **Layout:** the height is the token's 64px as a minimum. `lead` and `trail` keep their width, the headline takes the rest, and everything is centered on the block axis. Insets: the tokens' 4px at both edges, 4px between neighboring slots that have content, and `icon-button-space` between the actions. With no `lead`, the headline starts 16px from the edge, and with no `trail` it ends 16px from it. The spec gives no figure for an empty slot, so 16px is this plan's choice, the headline's inset in M3's medium bar.
 4. **The headline** takes the title's text style and color. A slotted heading takes that style too, with no margin, unless the page styles it. It isn't truncated and may wrap, and the bar then grows, because a narrow or zoomed page must not lose text.
@@ -39,21 +51,28 @@
 
 ### The scrolled state
 
-**One `IntersectionObserver` per bar,** on `document.documentElement`, with `root: document`. The root's margins leave only the area above the scroll start, and the state is on while the root element reaches into it. The probe's observer is the pattern: top and side margins too large for a page to exceed, `-100%` at the bottom, and a threshold just above 0.
+**One `IntersectionObserver` per bar,** on a box without size that the component places at the document's scroll start. The state is on while the box is outside the viewport's block axis. [`top-layer-box`](probes/top-layer-box.mjs) is the pattern. (Amended 2026-11-23. The target was the document's root element, [below](#disposition-of-the-feature-proof-at-6dbdcbbd1).)
 
+- **The box is in the top layer,** as a `popover="manual"` in the shadow tree that the component shows at connect. It is `position: absolute` at the start, so its containing block is the document's initial one. It scrolls with the document, and no page style moves it or reaches it. Outside the top layer the host, which is positioned, holds it, and the state is never on.
+- **It has no size, margin, border or padding, and it is `visibility: hidden`.** The user agent's popover styles set most of these. It takes no hit, no focus and no place in the accessibility tree.
+- **The state is the opposite of `isIntersecting`,** with no threshold. A box without size at the area's edge intersects it. From the box's top alone, a bar hidden at the start and shown at a scrolled position stays off.
 - **`root: document`** is required: with the default root, a frame's observer measures against the outermost page.
-- **The large top margin** is required: with a margin of 1px, `html { height: 100% }` leaves the strip again once the page has scrolled past it.
-- **The large side margins** are required (amended 2026-11-23, on Mx Implementer B's stop, relayed by the coordinator): with 0px, a page scrolled sideways by a viewport turns the state off while content is under the bar. `body { width: max-content }` is such a page whose bar is still in view. The alternative, the wide page as a recorded limit, isn't taken, because the margins cost a few bytes and nothing at run time.
-- **It starts at connect and stops at disconnect.** The first callback sets the initial state, also for a restored scroll position.
-- **No scroll listener and no layout read.** The state changes at a crossing only.
+- **Side margins too large for a page to exceed** are required: with 0px, a page scrolled sideways is on at the start. **The block margins are 0.** A top margin delays the state by its size.
+- **It starts at connect and stops at disconnect,** and the box is shown again at each connect, because a disconnect hides it. The first callback sets the initial state, also for a restored scroll position.
+- **No scroll listener and no layout read.** The state changes at a crossing only, which is property 4 of the landing plan.
 - **The state is the platform's, as `:hover` is.** No consumer sets it and no event reports it.
+
+**Costs:** one element and a few declarations. The bar's box counts as an open popover in its own shadow tree. While the bar is `display: none` its state is on. By reasoning and not by reading, a bar shown again at the start then draws the scrolled color for its first frame, and transitions to rest.
 
 **Not taken:**
 
+- **The root element as the target,** the first mechanism. Its place and size are the page's, so each page shape is a correction: the top margin, the side margins, and now an offset root and a root with no height. A margin can't follow an offset that the page changes, as at a breakpoint. The one patch for the second kind that was tried, a shifted edge, is wrong on every page in Chromium.
+- **Documenting these pages as limits.** `html { margin-top }` is how a page makes room for an admin bar, and it isn't invalid usage. The box is right there, at the cost above.
+- **A scroll-driven animation read through its events.** It is inside the floor, and this plan first dropped it because it gives no state, which its events do. It isn't taken because it is wrong in the three engines (readings above), and it recalculates a style on each scroll frame, which property 4 excludes.
+- **A `scroll` listener.** It is right everywhere and simplest, and it runs on each scroll frame, with a layout read. Property 4 excludes both, and the box meets it.
 - `scroll-state(stuck)`: Chromium only. It also styles only what is inside the bar, so a consumer couldn't use it.
-- A scroll-driven animation: every engine has it, but it gives no state to style against, and its progress is the scroll position, so the change has no duration of its own.
 - The bar as its own target, at `inset-block-start: -1px`: it moves the box by 1px, and it reports a stuck bar rather than a scrolled page.
-- A sentinel element: it would be in the page's tree, because anything in a sticky bar moves with it.
+- A sentinel in the page's tree. The top-layer box is a sentinel that isn't in it.
 
 **Scroll container:** the document's, by property 5 of the landing plan. In another scroll container the bar is sticky there and stays at rest.
 
@@ -103,19 +122,21 @@ The owner confirmed the role on the bar on 2026-11-23 (`RD-54`): _"Да, тог�
 In each engine at `RD-20`'s floor, with real scrolling of the document:
 
 - **`top-app-bar.browser.test.ts`:**
-  - the state is off at the start, on after 1px and after a jump to the end, and off again at the start;
+  - the state is off at the start, and then on after 1px and after a jump to the end, each a crossing from an observed off, and off again at the start. **Witness:** the 1px row fails with a top margin of 2px;
   - it is on when the bar connects to a scrolled page, and after a disconnect and a reconnect at another position it matches that position;
-  - with `html { height: 100% }` it stays on past one viewport. **Witness:** the row fails with a top margin of 1px;
-  - with content wider than the viewport and `body { width: max-content }`, it stays on when the scrolled page is scrolled sideways past one viewport. **Witness:** the row fails with side margins of 0px;
-  - many scroll steps away from the start change the host's states once, with no `scroll` listener added. **Witness:** the row fails with a scroll listener that sets the state;
+  - it is read at 0, at 1px, past one viewport and at 0 again, with each of `html { margin-top: 46px }`, `html { position: relative; top: 20px }`, `body { position: absolute; inset: 0 0 auto }`, `html { height: 0 }` and `html { height: 100% }`. **Witness:** the first four fail with the observer on the root element;
+  - with content wider than the viewport and `body { width: max-content }`, a page scrolled sideways past one viewport is off at the start and on when it is scrolled down too. **Witness:** the row fails with side margins of 0px;
+  - a scrolled page that becomes too short to scroll is off;
+  - a bar hidden with `display: none` at the start and shown at a scrolled position is on. **Witness:** the row fails with the state taken from the box's top;
+  - many scroll steps away from the start change the host's states once, with no `scroll` listener added to the document or the window. **Witness:** the row fails with a listener that does nothing, in either place, and with one that sets the state;
   - the bar's top stays 0 on a scrolled page, positioned content stays under it, and a page's `position: static` unpins it;
   - the bar adds no role and no tab stop, the focus order is `lead`, headline, `trail`, and a consumer's `role="banner"` stands in Chromium's accessibility tree.
 - **`top-app-bar.spec.browser.test.ts`,** with a contract for the package: the container's color at rest and scrolled, its corners and height; the headline's color and whole text style, for text and for a slotted `<h1>`; the slots' icon colors and size, on an `mx-icon`; the insets with and without `lead` and `trail`, with provenance for each literal, and in RTL; no shadow when scrolled; each CSS property; the insets under a page's universal reset; a long headline wraps and nothing is cut; the color change runs over the motion token's duration.
-- **`top-app-bar.visual.browser.test.ts`:** one screenshot, at rest and scrolled. The owner records its baseline (`RD-13`).
+- **`top-app-bar.visual.browser.test.ts`:** two screenshots, at rest and scrolled, because the state is the document's and one document can't show both (amended 2026-11-23; the plan said one). The owner records its baseline (`RD-13`).
 
 ### Stopping boundary
 
-The implementer stops and returns to the architect if the observer's state differs from the scroll position in an engine at the floor, or if a property can't hold with the host as the box.
+The implementer stops and returns to the architect if the state differs from the scroll position in an engine at the floor, or if a property can't hold with the host as the box.
 
 ## Owed after the merge
 
@@ -134,3 +155,31 @@ On `material-x/top-app-bar-1` from `49e4b9e9b`, for [#172](https://github.com/au
 - **Visual rows:** two screenshots, `top-app-bar-rest` and `top-app-bar-scrolled`, where the plan says one. The state is the document's, so one document can't show both, and the rows scroll for real. Both baselines are missing until the owner records them (`RD-13`).
 - **The space between slots and the 16px headline inset are literals of the token package,** with their provenance in the spec file, because no token gives them.
 - **`package.json`'s `files`** gains `top-app-bar`, which the build doesn't write itself.
+
+## Disposition of the feature proof at `6dbdcbbd1`
+
+By the architect, 2026-11-23, on the [report](../reviews/top-app-bar-1/feature-proof-claude.md) at `4b4d73016`, relayed by the coordinator. All seven findings are accepted.
+
+**The ruling on the mechanism.** Property 4 of the landing plan stands, and the mechanism stays one observer. Its target changes, because both corrections and both tier A findings have one cause: the observer read the scroll position from the root element's box, and the page owns that box. A box in the top layer has a place that no page style moves. The readings and the options not taken are [above](#the-scrolled-state). Nothing here is the owner's: no property that he answered changes.
+
+| Finding | Ruling |
+| --- | --- |
+| `reviewer-1` | **Accepted, repaired by the new target.** The box is right with a root element that has no height |
+| `reviewer-2` | **Accepted, repaired by the new target.** The state follows the scroll position, not the root's offset. With the bar's own `inset-block-start: 0` the bar may not be pinned yet when the state turns on, and that is the state's definition. No limit is documented for `reviewer-1` or `reviewer-2` |
+| `reviewer-3` | **Accepted as a case of `RF-122`** (`main` at `3aef04f7e`). **Nothing is owed here:** the owner chose that the reader declares what it reads, so the repair is the checkbox's, and the bar gets no slot reset. Until `RF-122` lands, an unchecked checkbox in the bar is an exception to `RD-47` property 1. Its row for the top app bar lands with whichever of the two lands second |
+| `reviewer-4` | **Accepted, and it survives.** The row fails when a listener is added to the document or to the window. **A row for a layout read or an `onscroll` handler isn't owed:** the count of state changes and the two listener places are what a later edit would plausibly break |
+| `reviewer-5` | **Accepted, and it survives,** with another witness. The thresholds are gone, so a top margin of 2px replaces them: the 1px row must fail |
+| `reviewer-6`, `reviewer-7` | **Accepted, unchanged.** The mechanism doesn't touch them |
+
+**The rows that change with the mechanism:** the `html { height: 100% }` row joins the pages row, the sideways row gains the start (at a scrolled position its witness no longer fails), the shadow root's row expects the three slots and the box, and the rows for a page that shrinks and a bar shown again are new. The other rows stay. The witness _a top margin of 1px fails the `html { height: 100% }` row_ is withdrawn.
+
+**For the implementer, also:**
+
+- the proof's [`pages.browser.test.ts`](../reviews/top-app-bar-1/probes/pages.browser.test.ts), rerun on the repaired bar in the three engines, reports no page as `BAD`;
+- the comment on the observer's options and the JSDoc say what is true now;
+- the component page's _Position_ names the common form of another scroll container, from the proof's _Not findings_: `overflow-x: hidden` on both `html` and `body` makes `body` one, so the bar scrolls away, and `overflow-x: clip` on `body` doesn't;
+- the size of `top-app-bar/top-app-bar` and of `complete`, again.
+
+**Two screenshots:** the _Tests_ section now says two. The reason in _Implemented_ is right.
+
+**Then a recheck** by the reviewer, of the state and the changed rows only. The [stopping boundary](#stopping-boundary) stands.
