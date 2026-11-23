@@ -5110,6 +5110,26 @@ Tier C, **closed at `3bbd506f6`**, read by the architect on 2026-11-21 at `82bfa
 - **Observed, not required:** with the row on CDP, no cycle appears in the `DRF-2` row's window either, although that row still moves with Playwright's mouse. When the cycle starts depends on the page's earlier held-button moves. The `DRF-2` row bounds `translate`'s bytes, not `handleEvent`'s, and it passed in every reading.
 - **Nothing stays open.** The row stays a measurement (`repo:RD-7`). Its comments say _"about 5 to 10"_ B per move, and the readings run from 3.51 to 10.67, within the "about". `DRF-48` closes with this entry.
 
+#### DRF-54 — In WebKit in CI, two arrow presses in a row moved an item one slot, once, with no change to drag
+
+Tier B, **open**: the instrument is unsound until the cause is known, and the tier becomes A if the package loses the press. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#194](https://github.com/ausginer/material-x/issues/194), relayed by the coordinator. `DRF-53` is the highest `DRF-` on any branch on `origin`, so this is the next free number. **No row is disabled.**
+
+- **What was observed** ([reading](../../../.plan/observations-7/checks/webkit-two-arrows.txt)): in `verify` run 45142741219 on #192, whose changes are records only, the `webkit` job's attempt 1 failed `consumer/drag/webkit` › `tests/focus.browser.test.ts` › `DRI-12` › _"should let two arrow presses in a row reorder twice"_, at `:29`. It expected `r1,r2,r0,r3`, and the list was `r1,r0,r2,r3`. Attempt 2 of the job passed.
+- **What it says:** one press moved the item one slot, and the other did nothing. The list doesn't show which press was lost, or where focus was, because the row's focus assertion is after the failed one. The result is the same when the first press is lost and when the second is.
+- **The rest of the run:** the row's other 12 in the file passed. In `browser/drag/webkit`, all 13 passed, the row among them. The sibling row for `end`, `order.browser.test.ts:88`, passed in both projects, and so did `keyboard.browser.test.ts` and `activation.browser.test.ts`. The code under test is the same: `packages/drag`, `packages/core` and `packages/box-quad` are identical at #192's head and at `35ea25892`.
+- **By reading, what could drop one press:**
+  - the command's whole operation is synchronous, and a second command is refused while a session is open (`Gesture.#command`). The consumer's `onReorder` and `accept` complete in the first press's pass, so a second press can be refused only if that pass didn't end;
+  - the press goes to the focused element. If focus isn't on `r0` when it arrives, no command is admitted. `restoreFocus` returns it only when the document's focus is on `body` or nothing;
+  - the first press can come before the frame has focus, because it is the first input of the file;
+  - the second press can arrive after the two frames that `frames()` waits. A press is a separate message from the runner to the browser.
+  - None of these is shown.
+- **Why it matters:** `DRI-12` is the rule that a reorder doesn't lose focus, so the row is the one that would catch a real loss. A row that fails with no change teaches readers to ignore it (compare `DRF-53`). In the package it would be a lost reorder for a keyboard user.
+- **The first reading owed:** in WebKit, locally (the image has its system libraries since `DRO-18`'s note of 2026-11-17), repeat the row in the `consumer` project, alone, in a run of the file, and beside busy processes. Record for each failure the order of `keydown` events the list sees, `document.activeElement` before and after each press, and the result at the end of the wait. Name the press that is lost and where it went. If it doesn't reproduce, the record says how many runs passed and under what load, and the entry stays open.
+- **The direction:** don't lengthen the wait to pass the row. A wait is a repair only after the reading shows that the press arrives late.
+- **Required property:** the row's result depends only on the code. Either the cause is known and repaired, in the test or in the package, or the record states what a run can't control.
+- **It doesn't block** any pull request. A rerun settles the gate.
+- **Size:** _not known yet_: the reading is small, and the repair depends on its result.
+
 #### DRF-55 — A landing is reported as a fault when the dropped item left its list during the verdict
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/live-region-1`, from `reviewer-2` of the [feature proof](../../../.plan/reviews/live-region-1/feature-proof-claude.md) of #197, relayed by the coordinator. `DRF-54` is on `repo/register-observations-7` (#195) and is the highest `DRF-` on any branch on `origin`, so this is the next free number. Read at `85051cf6c`, and the reading is in the proof's [`shifts.txt`](../../../.plan/reviews/live-region-1/checks/shifts.txt).
