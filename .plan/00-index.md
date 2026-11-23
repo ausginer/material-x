@@ -2382,6 +2382,23 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
 
+#### RD-53 — `mx-card` is a static container with one slot, its host is its box, and the divider doesn't come with it
+
+**Decided 2026-11-23 by the architect, on `material-x/card-1`,** on the coordinator's task for #171, as unit B of `RD-47`'s landing plan. `RD-52` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [plan](card-1/card-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** `mx-card` has one attribute, `variant` (`elevated` or `outlined`, and filled when omitted), the default slot, and four CSS properties: `--md-card-container-color`, `--md-card-container-shape`, `--md-card-outline-color` and `--md-card-padding`. It has no event, no part and no interactive attribute.
+2. **Its host is its box,** so it falls under the `.host` exception _The host is the box_, as `mx-list-item` does. The shadow root holds only the slot.
+3. **The slot draws the 16px padding and the outline,** so a page's universal reset changes neither. The outline takes no layout space and isn't a shadow. The card doesn't clip its content.
+4. **Elevation is the shared three layers,** drawn on a host box by one stylesheet that `mx-list-item` and `mx-card` both adopt. A single `box-shadow` list would save two pseudo-elements. It isn't adopted, because it paints differently from the other components' three boxes in all three engines ([reading](card-1/checks/card-box.txt)).
+5. **All three variants ship.** The landing plan kept cards from _elevated_ until `RF-77` was fixed. #152 (merged as `986ad3719`) fixed it, with `RF-78`.
+6. **It reads each set's enabled tokens,** and neither `icon.*`, the deprecated surface tint nor the interaction groups. It sets no text colour or font, because the sets have none.
+7. **No role, no tab stop and no activation,** as M3 says of a non-actionable card. What the consumer sets on the host stands. The interactive card isn't designed, and nothing here takes its vocabulary.
+8. **No divider in this unit.** No part of the page uses one, and `RD-47` adds a component when a page or a consumer asks for it.
+
+**Why.** M3 requires only the container, and its tokens specify only that. Slots for headlines or actions would be public surface with no specification behind it, and a slot can be added later without breaking a consumer, where one can't be removed. The card's use on the page, package entries and demo frames, needs a container that adds no semantics.
+
+**Costs.** A consumer writes its own headings and layout inside the card, and rounds a full-bleed image itself. `variant` is a new word beside `mx-button`'s `color`. `mx-list-item`'s stylesheet changes its source, though not its rendering.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
