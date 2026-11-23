@@ -1,0 +1,64 @@
+# #160 (256977dbc) merged in memory with #155 (origin/material-x/form-validation-1 at 8c1415490): git merge-tree --write-tree
+tree bad84643d10b03e13032723ed7dbc637a2535aaf, no conflict
+The merged tree's tests/text-field/text-field.spec.browser.test.ts still calls setValidity and checkValidity; its TextFieldCore.ts has no setValidity.
+
+## packages/core and packages/material-x at that tree in slot f, core built, the spec file run in three engines, then restored and core rebuilt
+files added for the run and removed after it:
+packages/core/src/traits/validatable.ts
+packages/core/tests/traits/validatable.browser.test.ts
+packages/core/tests/traits/validatable.declaration.test.ts
+packages/material-x/tests/validatable.browser.test.ts
+⎯⎯⎯⎯⎯⎯ Failed Tests 48 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  48 failed | 408 passed | 6 expected fail | 6 skipped (468)
+spec (chromium) | should draw the mx-multiline-text-field filled active indicator in its error colour
+spec (chromium) | should draw the mx-multiline-text-field filled input text in its error colour
+spec (chromium) | should draw the mx-multiline-text-field filled populated label in its error colour
+spec (chromium) | should draw the mx-multiline-text-field filled supporting text in its error colour
+spec (chromium) | should draw the mx-multiline-text-field outlined input text in its error colour
+spec (chromium) | should draw the mx-multiline-text-field outlined outline in its error colour
+spec (chromium) | should draw the mx-multiline-text-field outlined populated label in its error colour
+spec (chromium) | should draw the mx-multiline-text-field outlined supporting text in its error colour
+spec (chromium) | should draw the mx-text-field filled active indicator in its error colour
+spec (chromium) | should draw the mx-text-field filled input text in its error colour
+spec (chromium) | should draw the mx-text-field filled populated label in its error colour
+spec (chromium) | should draw the mx-text-field filled supporting text in its error colour
+spec (chromium) | should draw the mx-text-field outlined input text in its error colour
+spec (chromium) | should draw the mx-text-field outlined outline in its error colour
+spec (chromium) | should draw the mx-text-field outlined populated label in its error colour
+spec (chromium) | should draw the mx-text-field outlined supporting text in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled active indicator in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled input text in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled populated label in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled supporting text in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined input text in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined outline in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined populated label in its error colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined supporting text in its error colour
+spec/firefox (firefox) | should draw the mx-text-field filled active indicator in its error colour
+spec/firefox (firefox) | should draw the mx-text-field filled input text in its error colour
+spec/firefox (firefox) | should draw the mx-text-field filled populated label in its error colour
+spec/firefox (firefox) | should draw the mx-text-field filled supporting text in its error colour
+spec/firefox (firefox) | should draw the mx-text-field outlined input text in its error colour
+spec/firefox (firefox) | should draw the mx-text-field outlined outline in its error colour
+spec/firefox (firefox) | should draw the mx-text-field outlined populated label in its error colour
+spec/firefox (firefox) | should draw the mx-text-field outlined supporting text in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled active indicator in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled input text in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled populated label in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled supporting text in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined input text in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined outline in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined populated label in its error colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined supporting text in its error colour
+spec/webkit (webkit) | should draw the mx-text-field filled active indicator in its error colour
+spec/webkit (webkit) | should draw the mx-text-field filled input text in its error colour
+spec/webkit (webkit) | should draw the mx-text-field filled populated label in its error colour
+spec/webkit (webkit) | should draw the mx-text-field filled supporting text in its error colour
+spec/webkit (webkit) | should draw the mx-text-field outlined input text in its error colour
+spec/webkit (webkit) | should draw the mx-text-field outlined outline in its error colour
+spec/webkit (webkit) | should draw the mx-text-field outlined populated label in its error colour
+spec/webkit (webkit) | should draw the mx-text-field outlined supporting text in its error colour
+TypeError: field.setValidity is not a function
+
+## main's branch rules (gh api repos/ausginer/material-x/rules/branches/main): required_status_checks
+strict_required_status_checks_policy: false, required check: verify

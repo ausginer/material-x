@@ -76,7 +76,12 @@
   }
 
   .notched-outline {
-    --_notched-outline-border: var(--_outline-width) solid var(--_outline-color);
+    --_notched-outline-border: var(--_outline-width) solid
+      color-mix(
+        in srgb,
+        var(--_outline-color) calc(var(--_outline-opacity, 1) * 100%),
+        transparent
+      );
     --_notched-outline-border-radius: var(--_container-shape);
     --_notched-outline-notch-padding: var(--_label-populated-padding);
     --_notched-outline-start-width: var(--_padding-inline-start);

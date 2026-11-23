@@ -1,11 +1,25 @@
 :host(:disabled) {
-  .lead,
-  .trail,
-  .support,
-  .label,
-  .counter {
+  .input {
+    opacity: var(--_input-text-opacity);
+  }
+
+  .label {
     color: var(--_label-text-color);
-    fill: var(--_label-text-color);
     opacity: var(--_label-text-opacity);
+  }
+
+  .lead {
+    fill: var(--_leading-icon-color);
+    opacity: var(--_leading-icon-opacity);
+  }
+
+  .trail {
+    fill: var(--_trailing-icon-color);
+    opacity: var(--_trailing-icon-opacity);
+  }
+
+  .support,
+  .counter {
+    opacity: var(--_supporting-text-opacity);
   }
 }

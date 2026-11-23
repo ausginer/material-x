@@ -188,13 +188,25 @@ slot:has-slotted {
     var(--_container-shape-bottom-left);
 }
 
+/*
+ * The container and the active indicator are drawn at their own opacities, so
+ * neither reaches the other or the content.
+ */
 .notched-outline {
   grid-area: 1 / 1 / 2 / -1;
-  background-color: var(--_container-color);
-  opacity: var(--_container-opacity, 1);
+  background-color: color-mix(
+    in srgb,
+    var(--_container-color) calc(var(--_container-opacity, 1) * 100%),
+    transparent
+  );
   max-height: 100%;
   border-block-end: var(--_active-indicator-thickness) solid
-    var(--_active-indicator-color);
+    color-mix(
+      in srgb,
+      var(--_active-indicator-color)
+        calc(var(--_active-indicator-opacity, 1) * 100%),
+      transparent
+    );
 }
 
 /* =======================
@@ -243,8 +255,19 @@ textarea.input {
   visibility: hidden;
 }
 
+/* The prefix and the suffix are part of the input's line. */
 .prefix,
-.suffix,
+.suffix {
+  font-family: var(--_input-text-font);
+  font-weight: var(--_input-text-weight);
+  font-size: var(--_input-text-size);
+  line-height: var(
+    --md-text-field-input-line-height,
+    var(--_input-text-line-height)
+  );
+  text-wrap: nowrap;
+}
+
 .label {
   font-family: var(--_label-text-font);
   font-weight: var(--_label-text-weight);
@@ -257,6 +280,7 @@ textarea.input {
 
 .prefix {
   grid-area: P;
+  color: var(--_input-text-prefix-color);
   margin-inline-end: var(
     --md-text-field-prefix-gap,
     var(--_input-text-prefix-gap)
@@ -265,6 +289,7 @@ textarea.input {
 
 .suffix {
   grid-area: S;
+  color: var(--_input-text-suffix-color);
   margin-inline-start: var(
     --md-text-field-suffix-gap,
     var(--_input-text-suffix-gap)

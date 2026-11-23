@@ -1,0 +1,60 @@
+# The populated-label it.fails row. probes/label-centre.spec.browser.test.ts.txt reads the filled field's populated label centre below the container's top;
+# probes/fails-shape.py.txt applies one scratch change, runs the row (-t 'should centre the populated label'), and reverts it. Three engines.
+
+## centre, head 256977dbc
+PROBE mx-text-field {"centre":14.625,"expected":16,"height":14.25}
+PROBE mx-multiline-text-field {"centre":14.625,"expected":16,"height":14.25}
+ ✓ |spec (chromium)| mx-text-field
+ ✓ |spec (chromium)| mx-multiline-text-field
+PROBE mx-text-field {"centre":15.008331298828125,"expected":16,"height":14.25}
+PROBE mx-multiline-text-field {"centre":15.008331298828125,"expected":16,"height":14.25}
+ ✓ |spec/firefox (firefox)| mx-text-field
+ ✓ |spec/firefox (firefox)| mx-multiline-text-field
+PROBE mx-text-field {"centre":15,"expected":16,"height":14.25}
+ ✓ |spec/webkit (webkit)| mx-text-field
+PROBE mx-multiline-text-field {"centre":15,"expected":16,"height":14.25}
+ ✓ |spec/webkit (webkit)| mx-multiline-text-field
+
+## centre, populated label moved down 1.375 px (Chromium's difference)
+PROBE mx-text-field {"centre":16,"expected":16,"height":14.25}
+PROBE mx-multiline-text-field {"centre":16,"expected":16,"height":14.25}
+ ✓ |spec (chromium)| mx-text-field
+ ✓ |spec (chromium)| mx-multiline-text-field
+PROBE mx-text-field {"centre":16.375,"expected":16,"height":14.25}
+ ✓ |spec/firefox (firefox)| mx-text-field
+PROBE mx-multiline-text-field {"centre":16.375,"expected":16,"height":14.25}
+ ✓ |spec/firefox (firefox)| mx-multiline-text-field
+PROBE mx-text-field {"centre":16.375,"expected":16,"height":14.25}
+PROBE mx-multiline-text-field {"centre":16.375,"expected":16,"height":14.25}
+ ✓ |spec/webkit (webkit)| mx-text-field
+ ✓ |spec/webkit (webkit)| mx-multiline-text-field
+
+## centre, populated label moved down 1 px ((18 - 16) / 2, the line-box arithmetic)
+PROBE mx-text-field {"centre":15.625,"expected":16,"height":14.25}
+ ✓ |spec (chromium)| mx-text-field
+PROBE mx-multiline-text-field {"centre":15.625,"expected":16,"height":14.25}
+ ✓ |spec (chromium)| mx-multiline-text-field
+PROBE mx-text-field {"centre":16.008331298828125,"expected":16,"height":14.25}
+ ✓ |spec/firefox (firefox)| mx-text-field
+PROBE mx-multiline-text-field {"centre":16.008331298828125,"expected":16,"height":14.25}
+ ✓ |spec/firefox (firefox)| mx-multiline-text-field
+PROBE mx-text-field {"centre":16,"expected":16,"height":14.25}
+ ✓ |spec/webkit (webkit)| mx-text-field
+PROBE mx-multiline-text-field {"centre":16,"expected":16,"height":14.25}
+ ✓ |spec/webkit (webkit)| mx-multiline-text-field
+
+## the it.fails row under the 1.375 px change
+      Tests  2 failed | 4 expected fail | 462 skipped (468)
+
+## the it.fails row under the 1 px change (verbose)
+ ✓ |spec (chromium)| should centre the populated label in its line below the top padding
+ ✓ |spec (chromium)| should centre the populated label in its line below the top padding
+ ✓ |spec/firefox (firefox)| should centre the populated label in its line below the top padding
+ ✓ |spec/firefox (firefox)| should centre the populated label in its line below the top padding
+ × |spec/webkit (webkit)| should centre the populated label in its line below the top padding
+ × |spec/webkit (webkit)| should centre the populated label in its line below the top padding
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 4 expected fail | 462 skipped (468)
+
+## the it.fails row with its oracle token renamed to label-text.populated.no-such-token
+      Tests  6 expected fail | 462 skipped (468)

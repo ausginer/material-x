@@ -1,0 +1,78 @@
+# Rows read by the reviewer on 2026-11-22 in slot f at 256977dbc. Playwright 1.65.0, Node v26.13.1, MX_TEST_ENGINES=chromium,firefox,webkit.
+# From packages/material-x: vitest run -c vitest.config.ts --project 'spec*' tests/text-field/text-field.spec.browser.test.ts
+
+## head
+ Test Files  3 passed (3)
+      Tests  456 passed | 6 expected fail | 6 skipped (468)
+      2 spec (chromium) ↓
+    154 spec (chromium) ✓
+      2 spec/firefox (firefox) ↓
+    154 spec/firefox (firefox) ✓
+      2 spec/webkit (webkit) ↓
+    154 spec/webkit (webkit) ✓
+(the verbose ✓ count includes the expected fails; ↓ = the outlined it.fails rows, skipped)
+
+## witness: packages/material-x/src/text-field at 6a67badfd
+⎯⎯⎯⎯⎯⎯ Failed Tests 24 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  24 failed | 432 passed | 6 expected fail | 6 skipped (468)
+spec (chromium) | should draw the mx-multiline-text-field filled active indicator in its disabled colour
+spec (chromium) | should draw the mx-multiline-text-field filled input text in its disabled colour
+spec (chromium) | should draw the mx-multiline-text-field outlined input text in its disabled colour
+spec (chromium) | should draw the mx-multiline-text-field outlined outline in its disabled colour
+spec (chromium) | should draw the mx-text-field filled active indicator in its disabled colour
+spec (chromium) | should draw the mx-text-field filled input text in its disabled colour
+spec (chromium) | should draw the mx-text-field outlined input text in its disabled colour
+spec (chromium) | should draw the mx-text-field outlined outline in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled active indicator in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined outline in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field filled active indicator in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field filled input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field outlined input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field outlined outline in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled active indicator in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined outline in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field filled active indicator in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field filled input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field outlined input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field outlined outline in its disabled colour
+the outline rows' error:
+      3 Error: Missing token "outline.opacity" in state "disabled" of contract "text-field.outlined.disabled"
+
+## witness: the text field stylesheets at 6a67badfd, utils.ts at the head (outline.opacity rendered)
+⎯⎯⎯⎯⎯⎯ Failed Tests 24 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  24 failed | 432 passed | 6 expected fail | 6 skipped (468)
+spec (chromium) | should draw the mx-multiline-text-field filled active indicator in its disabled colour
+spec (chromium) | should draw the mx-multiline-text-field filled input text in its disabled colour
+spec (chromium) | should draw the mx-multiline-text-field outlined input text in its disabled colour
+spec (chromium) | should draw the mx-multiline-text-field outlined outline in its disabled colour
+spec (chromium) | should draw the mx-text-field filled active indicator in its disabled colour
+spec (chromium) | should draw the mx-text-field filled input text in its disabled colour
+spec (chromium) | should draw the mx-text-field outlined input text in its disabled colour
+spec (chromium) | should draw the mx-text-field outlined outline in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled active indicator in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field filled input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-multiline-text-field outlined outline in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field filled active indicator in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field filled input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field outlined input text in its disabled colour
+spec/firefox (firefox) | should draw the mx-text-field outlined outline in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled active indicator in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field filled input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-multiline-text-field outlined outline in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field filled active indicator in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field filled input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field outlined input text in its disabled colour
+spec/webkit (webkit) | should draw the mx-text-field outlined outline in its disabled colour
+      3 AssertionError: expected [ 25, 29, 19, 0.04 ] to deeply equal [ 25, 29, 19, 0.12 ]
+      3 AssertionError: expected [ 25, 29, 19, 0.04 ] to deeply equal [ 25, 29, 19, 0.38 ]
+      3 AssertionError: expected [ 25, 29, 19, 1 ] to deeply equal [ 25, 29, 19, 0.38 ]
+
+## the material-x browser and spec projects at the head
+ Test Files  75 passed (75)
+      Tests  2188 passed | 7 expected fail | 10 skipped (2205)

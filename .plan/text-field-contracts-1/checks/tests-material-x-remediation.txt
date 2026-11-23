@@ -1,0 +1,6 @@
+# material-x browser and spec projects, MX_TEST_ENGINES=chromium,firefox,webkit, --project 'browser*' --project 'spec*', on the merged tree with the remediation, slot f.
+ RUN  v5.1.0 /workspaces/worktrees/f/packages/material-x
+ Test Files  81 passed (81)
+      Tests  2658 passed | 7 expected fail | 20 skipped (2685)
+   Start at  11:16:41
+   Duration  192.98s (tests 89%, worker 6%, import 5%, setup 1%)
