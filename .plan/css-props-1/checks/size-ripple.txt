@@ -1,0 +1,32 @@
+# just size --json in packages/material-x, Brotli. base: 35ea25892. review: 07943db4a. now: the ripple's repair.
+row                                        base review    now
+button/button                              4917   4926   4920
+button/icon-button                         5177   5197   5186
+button/link-button                         4871   4897   4891
+button/switch-button                       5494   5504   5508
+button/switch-icon-button                  5901   5910   5906
+button/split-button                        7514   7510   7509
+button-group/button-group                  3114   3114   3114
+button-group/connected-button-group        3888   3888   3888
+checkbox/checkbox                          4215   4227   4221
+fab/fab                                    4188   4200   4194
+icon/icon                                   641    641    641
+list/list                                   663    663    663
+list/list-item                             2841   2841   2841
+list/list-button-item                      4835   4843   4846
+list/list-link-item                        5044   5057   5042
+list/sortable-list                         8701   8772   8756
+radio/radio                                3777   3789   3783
+text-field/multiline-text-field            4453   4453   4453
+text-field/text-field                      8486   8538   8495
+complete                                  22724  22653  22658
+
+# The minified bundle of each, ../../reviews/css-props-1/probes/bundle.mjs, now:
+text-field/text-field            raw 35915 gzip 9532 br11 8495 br9 9000 br5 9070 | useCSSProps module: true | icon-button: true
+text-field/multiline-text-field  raw 16795 gzip 4988 br11 4453 br9 4688 br5 4720 | useCSSProps module: false | icon-button: false
+button/button                    raw 17365 gzip 5518 br11 4920 br9 5203 br5 5221 | useCSSProps module: true | icon-button: false
+button/icon-button               raw 20379 gzip 5815 br11 5186 br9 5476 br5 5490 | useCSSProps module: true | icon-button: true
+button/link-button               raw 17389 gzip 5492 br11 4891 br9 5162 br5 5171 | useCSSProps module: true | icon-button: false
+button/split-button              raw 31302 gzip 8427 br11 7509 br9 7946 br5 8015 | useCSSProps module: true | icon-button: true
+checkbox/checkbox                raw 12686 gzip 4753 br11 4221 br9 4472 br5 4477 | useCSSProps module: true | icon-button: false
+list/sortable-list               raw 26902 gzip 9714 br11 8756 br9 9344 br5 9387 | useCSSProps module: true | icon-button: false

@@ -4654,6 +4654,15 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **`RF-106` and `RF-105`** aren't changed. The list's landing timing is read by drag at a landing, and the list destroys its controller at disconnect, so it needs no repair.
 - **Size:** the addition is _small_, and the unit stays _medium_.
 
+**Dated 2026-11-23 by the implementer: the rulings on `reviewer-1` to `reviewer-3` are implemented on `core/css-props-1`, in #199, and not closed.** Requested by the coordinator, from `4f8b0fbdf`. `main` at `2d1b5ca51` is merged in.
+
+- **`reviewer-1`:** the ripple's disconnect clears the touch-delay timer, resets the state, the start event and the context-menu flag, ends a waiting fade and cancels the three animations. The timer is cleared, not only refused by the state: otherwise the old timer starts a touch that follows a put-back early.
+- **`reviewer-2`:** the fade has one keyframe, `--_ripple-opacity` leaves `CSS_PROPS`, and `parseNum` goes. `parseMs` was then the only user of `createNumberParser`, so it has its body (`CONTRIBUTING.md` §2.1). The JSDoc of `useCSSProps` says what property 1 says.
+- **Rows** ([readings](css-props-1/checks/ripple-rows.txt)): `ripple.browser.test.ts` has 27 per engine, and all 81 pass. At `07943db4a`, 14 fail in each engine: the touch within the delay and the moved press, with the `CSSVariableError`; a fade that starts after a removal; a moved press that goes on; the touch after a put-back, with no ripple; that touch's whole delay; the two animations left after a put-back; `RF-114`'s; and the two orders with both interactions, for the three elements. On the base, the touch after a put-back, the animations left, `RF-114`'s row and three of the four fade orders fail in each engine. The order of a keyboard press alone agrees with the paint everywhere, and is a control. A removal during the fade passes before, as the ruling's reading has it, and fails without the catch.
+- **Witnesses,** in each of the three engines: the rows fail without the catch, without `clearTimeout`, without the generation's increment, and without the start event's reset.
+- **Sizes** ([reading](css-props-1/checks/size-ripple.txt)), in place of my first paragraph's and of `RF-105`'s, Brotli, from the base: `list/sortable-list` 8,701 → 8,756 B (+55), because its graph now has the hook's function, where the module was already in it through `fns.ts`; `text-field/text-field` 8,486 → 8,495 B; `complete` 22,724 → 22,658 B; and the other rows that contain the ripple −5 to +20 B. Each of those six that the bundle probe reads is larger than the base by 46 to 50 bytes minified: 32 of them are the hook's, and the rest is the ripple's. The spread is Brotli 11's. The rows without the ripple or the hook don't move.
+- **Suites,** on the merge of `main`, in three engines: core's browser project, 690 passed; material-x's browser and spec projects, 2,778 passed, 7 expected failures, 20 skipped. material-x's node project, 35 passed. Not checked: Safari, a real touch (the rows dispatch it), and the visual project.
+
 #### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
 
 Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1 kept it on purpose, so that the generated CSS stayed the same. Registered on 2026-11-23 by the architect, on `repo/typescale-selection-1`, from `reviewer-1` of #188's feature proof (`.plan/reviews/landing-tables-1/feature-proof-claude.md`, on `tproc/landing-tables-1`), relayed by the coordinator, for #189. #188 didn't cause it and doesn't wait for it. `RF-109` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `246b64754` ([readings](typescale-selection-1/checks/readings.txt), [probes](typescale-selection-1/probes/)).
@@ -4773,6 +4782,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `c
 - **Repaired in #199,** because the repair of `reviewer-1` cancels the same animation at disconnect and has the same rejection. It doesn't wait for a pull request of its own.
 - **Ready** for #199's implementer.
 - **Size:** _small_.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in #199, for #202, and not closed.** The fade's `finished` handles its rejection. Two rows per engine press during the fade: no unhandled rejection, which fails before the repair in the three engines with the `AbortError`, and the new press's ripple, which passes before too ([readings](css-props-1/checks/ripple-rows.txt)). The row waits for the fade to start in place of 290 ms, so it doesn't depend on the host's speed.
 
 ## Questions
 

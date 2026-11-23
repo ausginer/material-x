@@ -1,0 +1,218 @@
+# The ripple's rows, tests/core/animations, 27 per engine. MX_TEST_ENGINES=chromium,firefox,webkit.
+
+## ripple.ts and the hook of 35ea25892, the base
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 541ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:241 > useRipple when the host disconnects > should end a press whose element moves 126ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 722ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 92ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:285 > useRipple when the host disconnects > should leave no animation on an element that is put back 451ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:300 > useRipple when a press starts during the fade > should report no unhandled rejection 804ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press 775ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press 1391ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press 1417ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press 783ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press 1390ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press 1367ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press 768ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press 1390ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press 1367ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:86 > useRipple > should show the press of mx-button that connected in a hidden iframe 1415ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:86 > useRipple > should show the press of mx-fab that connected in a hidden iframe 1376ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:86 > useRipple > should show the press of mx-checkbox that connected in a hidden iframe 1244ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:86 > useRipple > should show the press of mx-radio that connected in a hidden iframe 1283ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:86 > useRipple > should show the press of mx-list-button-item that connected in a hidden iframe 1320ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 564ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:241 > useRipple when the host disconnects > should end a press whose element moves 261ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 871ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 130ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:285 > useRipple when the host disconnects > should leave no animation on an element that is put back 607ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:300 > useRipple when a press starts during the fade > should report no unhandled rejection 871ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press 862ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press 1506ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press 1611ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press 913ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press 1451ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press 1515ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press 884ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press 1470ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press 1591ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 541ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:241 > useRipple when the host disconnects > should end a press whose element moves 107ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 691ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 77ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:285 > useRipple when the host disconnects > should leave no animation on an element that is put back 412ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:300 > useRipple when a press starts during the fade > should report no unhandled rejection 820ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press 758ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press 1357ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press 1351ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press 738ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press 1358ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press 1349ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press 740ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press 1356ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press 1350ms
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ '0.1' ] to deeply equal [ '0.08' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.08', '0.1' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.1', '0.08' ]
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
+AssertionError: expected { pressed: false, …(1) } to deeply equal { pressed: true, errors: [] }
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ '0.1' ] to deeply equal [ '0.08' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.08', '0.1' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.1', '0.08' ]
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ '0.1' ] to deeply equal [ '0.08' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.08', '0.1' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.1', '0.08' ]
+Tests  50 failed | 31 passed (81)
+
+## ripple.ts and the hook of 07943db4a
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:193 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay 494ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:205 > useRipple when the host disconnects > should report no error for a press whose element moves and leaves before the fade 484ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 473ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:241 > useRipple when the host disconnects > should end a press whose element moves 132ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 688ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 92ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:285 > useRipple when the host disconnects > should leave no animation on an element that is put back 468ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:300 > useRipple when a press starts during the fade > should report no unhandled rejection 833ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press 1392ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press 1397ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press 1389ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press 1367ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press 1390ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press 1387ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:193 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay 512ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:205 > useRipple when the host disconnects > should report no error for a press whose element moves and leaves before the fade 558ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 554ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:241 > useRipple when the host disconnects > should end a press whose element moves 142ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 778ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 153ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:285 > useRipple when the host disconnects > should leave no animation on an element that is put back 567ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:300 > useRipple when a press starts during the fade > should report no unhandled rejection 860ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press 1490ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press 1698ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press 1508ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press 1551ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press 1464ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press 1525ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:193 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay 432ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:205 > useRipple when the host disconnects > should report no error for a press whose element moves and leaves before the fade 466ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 475ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:241 > useRipple when the host disconnects > should end a press whose element moves 102ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:250 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 687ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:269 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 82ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:285 > useRipple when the host disconnects > should leave no animation on an element that is put back 412ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:300 > useRipple when a press starts during the fade > should report no unhandled rejection 806ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a mouse press and a keyboard press 1390ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-button > should start from the painted opacity in a keyboard press and a mouse press 1358ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a mouse press and a keyboard press 1356ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-checkbox > should start from the painted opacity in a keyboard press and a mouse press 1353ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a mouse press and a keyboard press 1356ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:387 > useRipple fade > mx-radio > should start from the painted opacity in a keyboard press and a mouse press 1352ms
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ '0.08', '0.08' ] to deeply equal [ '0.08', '0.1' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.1', '0.08' ]
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [ …(2) ] to deeply equal []
+AssertionError: expected [ '0.08', '0.08' ] to deeply equal [ '0.08', '0.1' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.1', '0.08' ]
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ Animation{}, Animation{} ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ '0.08', '0.08' ] to deeply equal [ '0.08', '0.1' ]
+AssertionError: expected [ '0.1', '0.1' ] to deeply equal [ '0.1', '0.08' ]
+Tests  42 failed | 39 passed (81)
+
+## after the repair
+Tests  81 passed (81)
+
+## without the catch of finished (read with the first 26 rows per engine)
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:217 > useRipple when the host disconnects > should report no error for a removal during the fade 684ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:283 > useRipple when a press starts during the fade > should report no unhandled rejection 805ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:217 > useRipple when the host disconnects > should report no error for a removal during the fade 705ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:283 > useRipple when a press starts during the fade > should report no unhandled rejection 884ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:217 > useRipple when the host disconnects > should report no error for a removal during the fade 671ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:283 > useRipple when a press starts during the fade > should report no unhandled rejection 808ms
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+Tests  6 failed | 72 passed (78)
+
+## without clearTimeout (read with the first 26 rows per engine)
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:252 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 173ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:252 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 204ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:252 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 152ms
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+Tests  3 failed | 75 passed (78)
+
+## without the generation's increment at disconnect
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 580ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 720ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:228 > useRipple when the host disconnects > should start no fade after a removal 534ms
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+AssertionError: expected "animate" to be called 2 times, but got 3 times
+Tests  3 failed | 78 passed (81)
+
+## without startEvent = null (read with the first 26 rows per engine)
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:237 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 811ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:252 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 62ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:237 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 812ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:252 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 198ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:237 > useRipple when the host disconnects > should start the ripple of a touch after a removal and a put-back 728ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:252 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 83ms
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ +0, +0 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ +0, +0 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [] to have a length of 2 but got +0
+AssertionError: expected [ +0, +0 ] to deeply equal [ +0, 2 ]
+Tests  6 failed | 72 passed (78)
+
+## core browser project, on the merge of main
+Tests  690 passed (690)
+
+## material-x browser and spec projects, on the merge of main
+Tests  2778 passed | 7 expected fail | 20 skipped (2805)
