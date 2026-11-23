@@ -1,0 +1,5 @@
+:host(:state(outlined)) slot {
+  outline: var(--_outline-width) solid
+    var(--md-card-outline-color, var(--_outline-color));
+  outline-offset: calc(-1 * var(--_outline-width));
+}

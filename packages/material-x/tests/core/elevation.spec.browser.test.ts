@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { commands, page } from 'vitest/browser';
 import '../../src/button/button.ts';
+import '../../src/card/card.ts';
 import '../../src/fab/fab.ts';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
@@ -71,7 +72,7 @@ function renderedLayers(box: Element): ElevationLayers {
   };
 }
 
-/** The element that draws the shadow: the shadow `.host`, or a static item's host. */
+/** The element that draws the shadow: the shadow `.host`, or a host that is its box. */
 function boxOf(element: HTMLElement): HTMLElement {
   return element.shadowRoot!.querySelector<HTMLElement>('.host') ?? element;
 }
@@ -184,6 +185,54 @@ describe('mx-fab elevation layers', () => {
   });
 });
 
+describe('mx-card elevation layers', () => {
+  it('should draw the three elevation layers of its level', async () => {
+    const card = createCard('elevated');
+    document.body.append(card);
+    await nextFrame();
+    const { values } = await commands.resolveTokenContract({
+      contract: 'card.elevated',
+      state: 'default',
+      tokens: ['container.elevation', 'container.shadow-color'],
+    });
+
+    expect(renderedLayers(boxOf(card))).toEqual(
+      await expectedLayers(
+        values['container.elevation']!,
+        values['container.shadow-color']!,
+      ),
+    );
+  });
+
+  it('should draw its layers in its own shadow colour', async () => {
+    const card = createCard('elevated');
+    card.style.setProperty('--_container-shadow-color', OWN_SHADOW_COLOR);
+    document.body.append(card);
+    await nextFrame();
+    const { values } = await commands.resolveTokenContract({
+      contract: 'card.elevated',
+      state: 'default',
+      tokens: ['container.elevation'],
+    });
+
+    expect(renderedLayers(boxOf(card))).toEqual(
+      await expectedLayers(values['container.elevation']!, OWN_SHADOW_COLOR),
+    );
+  });
+
+  // A filled button sets no level, so it draws the level it inherits.
+  it('should not raise a filled button inside an elevated card', async () => {
+    const card = createCard('elevated');
+    const button = document.createElement('mx-button');
+    button.textContent = 'Button';
+    card.append(button);
+    document.body.append(card);
+    await nextFrame();
+
+    expect(layerAlphas(boxOf(button))).toEqual([0, 0, 0]);
+  });
+});
+
 function createSortableList(tag: string): readonly HTMLElement[] {
   const list = document.createElement('mx-sortable-list');
   list.style.setProperty('--_drag-duration', '0s');
@@ -290,7 +339,25 @@ const RESTING_CASES = [
       return button;
     },
   },
+  { name: 'filled mx-card', create: () => createCard(null) },
+  {
+    name: 'outlined mx-card',
+    create: () => {
+      const card = createCard('outlined');
+      // Two screenshots of an unchanged rounded outline can differ by 1 per
+      // channel in Chromium, and the rows compare the layers.
+      card.style.setProperty('--md-card-outline-color', 'transparent');
+      return card;
+    },
+  },
 ] as const;
+
+function createCard(variant: 'elevated' | 'outlined' | null): HTMLElement {
+  const card = document.createElement('mx-card');
+  card.variant = variant;
+  card.textContent = 'Card';
+  return card;
+}
 
 function createResting(tag: string): HTMLElement {
   const list = document.createElement('mx-list');

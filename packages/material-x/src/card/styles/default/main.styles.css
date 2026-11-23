@@ -1,0 +1,24 @@
+:host {
+  --_level: var(--_container-elevation);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--md-card-container-shape, var(--_container-shape));
+  background-color: var(--md-card-container-color, var(--_container-color));
+}
+
+/*
+ * The slot draws the padding and the outline, because a page rule such as a
+ * universal reset beats `:host` and none reaches the shadow tree.
+ *
+ * The content inherits the custom properties from the slot, so the slot resets
+ * those that another component reads without setting: a filled button would
+ * draw the card's shadow, and an unchecked checkbox its container color.
+ */
+slot {
+  --_level: 0;
+  --_container-color: initial;
+  display: block;
+  flex: 1 0 auto;
+  padding: var(--md-card-padding, 16px);
+  border-radius: inherit;
+}

@@ -1,0 +1,27 @@
+/*
+ * A host that is its component's box draws the elevation layers that the
+ * elevation stylesheet draws on `.host`: the penumbra on the host, and the
+ * umbra and the ambient on the pseudo-elements. The host's own stylesheet
+ * gives it the shape.
+ */
+:host {
+  position: relative;
+  box-shadow: var(--_elevation-penumbra);
+}
+
+:host::before,
+:host::after {
+  content: '';
+  border-radius: inherit;
+  inset: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+:host::before {
+  box-shadow: var(--_elevation-umbra);
+}
+
+:host::after {
+  box-shadow: var(--_elevation-ambient);
+}

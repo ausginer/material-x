@@ -1,0 +1,114 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './card.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-card';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ydinjs/material-x/card/card.js';";
+export const usageSnippet = `<mx-card variant="outlined">
+  <h3>Heading</h3>
+  <p>Supporting text</p>
+  <mx-button color="text">Details</mx-button>
+</mx-card>`;
+
+<Meta of={Stories} />
+
+# Card
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use to group content and actions about a single subject.
+- Use to set a group of content apart from the surface around it.
+
+## When not to use
+
+- When the whole container must act as one button or link: the card is not interactive.
+- For rows of similar items, which a list presents better.
+- To separate sections that spacing alone already separates.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+Omit `variant` for the filled card.
+
+<Canvas of={Stories.Variants} />
+
+## Content
+
+### Content with actions
+
+<Canvas of={Stories.ContentWithActions} />
+
+### Full-bleed media
+
+Set `--md-card-padding` to `0` for content that reaches the container's edge. The card does not clip its content, so that focus rings and popups stay visible. Round the corners of full-bleed media yourself.
+
+<Canvas of={Stories.FullBleedMedia} />
+
+## Accessibility
+
+- **Role:** The card is a plain container and has no role. Where it is an article or a list item, set the role on it, or put it inside the element that has that role.
+- **Name:** A card with a role such as `article` takes its name from the `aria-label` that you set on it.
+- **Keyboard:** The card is not a tab stop. Each link, button or other control inside it is.
+- **Headings:** Use heading elements of the level that fits the page.
+
+## Content guidelines
+
+- Keep a card to one subject.
+- Put the most important content first.
+- Align text to the start.
+- Leave at most 8px between cards.
+
+## Anatomy
+
+- `default` slot: the card's content.
+
+## Theming
+
+- Uses CSS custom properties for the container's color and shape, the outline's color, and the padding.
+- Sets no text color or font: the content inherits the page's.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview: [https://m3.material.io/components/cards/overview](https://m3.material.io/components/cards/overview)
+- Material 3 guidelines: [https://m3.material.io/components/cards/guidelines](https://m3.material.io/components/cards/guidelines)
+- Deltas:
+  - The card is static: it has no hover, focus, pressed, dragged or disabled state.
+  - The block padding is 16px, equal to the inline padding, because Material 3 gives none.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

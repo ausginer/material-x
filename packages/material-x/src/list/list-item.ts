@@ -3,6 +3,7 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import hostBoxStyles from '../core/styles/elevation/host-box.css.ts' with { type: 'css' };
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
   type ListItemCoreTraits,
@@ -42,7 +43,7 @@ const ListItemConstructor: Composed<
 export default class ListItem extends ListItemConstructor {
   constructor() {
     super();
-    useListItemCore(this, [staticBoxStyles, focusStyles]);
+    useListItemCore(this, [hostBoxStyles, staticBoxStyles, focusStyles]);
   }
 }
 
