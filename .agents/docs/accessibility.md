@@ -13,6 +13,7 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 - A visible focus indicator is drawn on `.host:focus-visible` with the focus-indicator tokens (`src/core/styles/focus/focus.styles.css`, `src/button/styles/default/main.styles.css`).
 - The switch variants' `.host` is a `<button type="button" role="switch">`. Its accessible name comes from its content, so `<mx-switch-button>Enabled</mx-switch-button>` is named _"Enabled"_. `aria-checked` is `"false"` from the first render and follows the host's `checked` (`src/button/switch-button.tpl.html`, `src/button/switch-icon-button.tpl.html`, `src/button/SwitchCore.ts`).
 - The switch variants are controlled, as `mx-checkbox` and `mx-radio` are. `Space`, `Enter`, a pointer click and a `<label>` that names the host fire `click`, then `input`, then `change`, and change no state. `aria-checked`, the `checked` custom state and the form value change only when the consumer sets `checked`, so assistive technology never announces a state that the switch doesn't draw (`src/button/SwitchCore.ts`). An application that wants the switch to toggle sets `checked` in a `change` handler.
+- The switch variants' `error` gives `.host` `aria-invalid="true"` and `required` gives it `aria-required="true"`. `useValidatable` writes them to the button directly, so neither state reaches a second node. Chromium's accessibility tree reports the button as invalid (`packages/core/src/traits/validatable.ts`, called from `src/button/SwitchCore.ts`; `tests/validatable.browser.test.ts`).
 
 ### Missing requirements
 
@@ -96,6 +97,7 @@ Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/fo
 
 - Native `<input type="radio">` is used inside the shadow root, so `Space` activation, `:disabled` semantics, and the `checked` state are built-in (`src/radio/radio.tpl.html`, `src/core/elements/CheckableCore.ts`).
 - Focus is delegated to the internal control via `delegatesFocus`, and a visible focus indicator is drawn on `:focus-visible` (`src/radio/radio.ts`, `src/radio/styles/default/main.css.ts`).
+- `error` gives the internal `<input>` `aria-invalid="true"` and `required` gives it `aria-required="true"`. `useValidatable` writes them to the input directly, so they reach it although the host's `aria-*` doesn't. Chromium's accessibility tree reports the radio as invalid (`packages/core/src/traits/validatable.ts`, called from `src/core/elements/CheckableCore.ts`; `tests/validatable.browser.test.ts`).
 - The element is form-associated and submits `value` under `name` when checked (`src/core/elements/CheckableCore.ts`).
 
 ### Missing requirements
@@ -112,7 +114,8 @@ These three gaps share one root cause and one intended fix: a grouping component
 
 - Native `<input>` and `<textarea>` are used for single- and multi-line entry, so core text input semantics and IME behavior are provided by the browser (`src/text-field/text-field.tpl.html`, `src/text-field/multiline-text-field.tpl.html`).
 - Focus delegation is enabled at shadow root creation, so pointer/focus interaction targets the internal editable field (`src/text-field/TextFieldCore.ts`).
-- `disabled`, `inputmode`, and `type` are forwarded to the internal field, preserving core native field behavior for those attributes (`src/text-field/TextFieldCore.ts`, `src/text-field/text-field.ts`).
+- `disabled`, `inputmode`, `readonly` and `type` are forwarded to the internal field, preserving core native field behavior for those attributes (`src/text-field/TextFieldCore.ts`, `src/text-field/text-field.ts`).
+- `error` gives the internal field `aria-invalid="true"` and `required` gives it `aria-required="true"`, written to the field directly by `useValidatable`. Chromium's accessibility tree reports the field as invalid and required (`packages/core/src/traits/validatable.ts`, called from `src/text-field/TextFieldCore.ts`; `tests/validatable.browser.test.ts`).
 - Host `aria-*` attributes are mirrored to the internal field via `useARIATransfer`, allowing consumer-provided ARIA naming/description/state (`src/text-field/TextFieldCore.ts`, `src/core/controllers/useARIA.ts`).
 - Slot observers conditionally add/remove `label`, `support`, and `counter` IDs in `aria-labelledby` / `aria-describedby` only when slot content is present and when the corresponding host ARIA attribute is not explicitly set; fallback IDs are also restored immediately when host `aria-labelledby` / `aria-describedby` is removed at runtime (`src/text-field/TextFieldCore.ts`, `src/core/controllers/useARIA.ts`, `src/core/controllers/useSlot.ts`).
 - The visible shadow-DOM label is now natively associated with the internal control via `for="field"` and matching internal `id="field"`, so label activation behavior such as clicking the label to focus the field is preserved for both single-line and multiline variants (`src/text-field/text-field-core.tpl.html`, `src/text-field/text-field.tpl.html`, `src/text-field/multiline-text-field.tpl.html`).
@@ -120,4 +123,4 @@ These three gaps share one root cause and one intended fix: a grouping component
 
 ### Missing requirements
 
-- Native text-field attributes important for accessibility and form UX (for example `required`, `readonly`, `autocomplete`, and other native constraint/input hints) are not forwarded to the internal `<input>`/`<textarea>`, because only `disabled`, `inputmode`, and `type` are transferred (`src/text-field/TextFieldCore.ts`, `src/text-field/text-field.ts`). [Docs]
+- `autocomplete` and the native constraint attributes `minlength`, `maxlength`, `pattern`, `min`, `max` and `step` are not forwarded to the internal `<input>`/`<textarea>`. The constraint attributes are left out by design: validation is the consumer's, through `setCustomValidity`, and the field has no native validators. `required` announces the field as required and doesn't block submission (`src/text-field/TextFieldCore.ts`). [Docs]
