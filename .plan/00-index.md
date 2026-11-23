@@ -1812,7 +1812,13 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
      - **A token that more than one table carries is stored from the copy that covers every other,** and a token for which no copy does is refused. A copy covers another when the two are identical, or when the other has no `contextualReferenceTree`, equals it in every other field but `values`, and has only `values` entries that each equal a different one of its own. Ruled on 2026-11-20 ([step 2 rulings](tokens-source-1/tokens-source-plan.md#step-2)). Until then, this said: _"A token that two tables convert differently is allowed only in step 1's legacy conversion of today's mixed snapshot. There the table `DB.load()` reads first wins, and each conflict is listed."_
   6. An update is a pull request carrying a report: tokens added and removed, deprecations added, and each changed one-hop reference and literal for `expressive` and `web`, by token set, with the difference in material-x's generated CSS. The report is saved in that pull request's record.
   7. The component list is explicit, one manifest row per component id.
-  8. **The CSS layer** (`processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable`, `selector`) reads the reader and keeps its surface. Its value mapping is one exported pure function from a stored value to a CSS value. The reader's selection rule is today's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry.
+  8. **The CSS layer** (`processToken`, `processTokenSet`, `TokenPackage`, `resolve`, `variable`, `selector`) reads the reader and keeps its surface. Its value mapping is one exported pure function from a stored value to a CSS value. Its selection rule is property 9's. Until `RF-110`'s unit merges, `main` has step 1's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry.
+  9. **One complete context selects, and no tag order does** (`RF-110`).
+     - **The rendered context names one tag for every context tag group:** `platform: web`, `audience: 3p`, `motion.scheme: expressive`, `theme: light`, `contrast: default`, `device: mobile`, `language.height: small`, `ios.dark.theme.elevation: none`, `ios.weight.setting: default`, and `font: static`, which the owner chose on 2026-11-23 (`RF-110`'s Q2 (a)). Each tag but the first three is upstream's default. All are written out, so a change of upstream's default doesn't change what tproc renders. A move to `variable`, if upstream makes it, is a separate decision.
+     - **The selected entry is the one whose tags the context agrees with.** A token with no tree selects its first value, as today. There is no fallback to the first entry.
+     - **A caller asks for another context** by naming the groups that differ, such as `theme: dark`, and not by a list of tags.
+     - **The converter refuses** a tag group that the context doesn't name, and a token with a tree for which the context has no entry or more than one, and names it. At the store's release, each of the 3962 tokens with a tree has exactly one.
+     - **The update report,** property 6, compares selections in this context.
 - **Order:**
   - **Step 1** converts today's committed tables in a legacy mode without fetching, deletes them, and switches tproc to the store. It must leave material-x's generated CSS byte-identical, and the reader must give the same value, reference tree and resolved value as `DB` for every token. It merges before `RD-29`'s rewrite.
   - **Step 2,** after step 1, updates to a dated release in its own pull request.
@@ -1822,6 +1828,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 **Why.** The database is Material's authority, and its export is the only public form of it with every property tproc renders: contextual values, one-hop references, reference trees, token sets and deprecation. What made the reading fragile was that tproc followed `latest`, kept no record of what it took, fetched during test runs and compared nothing on change. Each of these is fixed without leaving the source. A dated address makes a release consistent and repeatable while the site keeps it, and the committed store doesn't depend on how long that is.
 
 - **Why a converted store and not pruned tables.** An allow list of fields keeps out personal data, and any field upstream adds, by construction, where pruning removes only the fields someone thought of. A store named by token set, with tag names in place of ids, can be read and diffed by a person, which the tables' internal ids prevent. The CSS layer is unchanged, so step 1's byte-identical CSS remains a complete safety net for what material-x renders. Parity with `DB` covers the rest.
+
+**Amended 2026-11-23 by the architect: property 9 is new,** from `RF-110`, with the owner's answers to its Q1 and Q2, and isn't implemented. Property 8 said: _"The reader's selection rule is today's: the first contextual entry whose tags include any of `expressive` and `web`, otherwise the first entry."_ The plan's [reader section](tokens-source-1/tokens-source-plan.md#the-reader-and-the-css-layer) had left a stricter rule, _"such as requiring every group to match"_, to a separate decision. Property 9 is that decision.
 
 **What it said before the amendment.**
 
@@ -2261,6 +2269,8 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 5. **The type scale is generated for the page from tproc's `md.sys.typescale` tokens,** for the styles the page uses, with font family, weight, size, line height and letter spacing. The page loads Roboto, Roboto Mono and Material Symbols as Storybook does.
 
 **Why.** Material Theme Builder's exports carry colours only ([reading](landing-1/checks/mtb-export.txt)), so a type scale has to come from somewhere, and tproc's tokens are the ones the components use. Keeping the theme in the site leaves the library and its baselines alone. The JSON is the form the repository already reads, and generating from it gives the system rule and the override from one file. The CSS export's class selectors would need both written by hand. The plan's [_Answered questions_](landing-1/landing-plan.md#answered-questions) hold the options weighed.
+
+**Dated 2026-11-23 by the architect: property 5 waits for `RF-110`.** On `main`, 10 of the 15 `md.sys.typescale` styles that the page would generate have a weight too heavy by one level, and the body and label styles name a 1P typeface. `RF-110`'s unit goes before the component units and the site. The landing plan's [Order](landing-1/landing-plan.md#order) has it as unit S. This entry's requirements don't change. The owner chose `font: static` (`RF-110`'s Q2 (a)), so the page loads Roboto, as property 5 says.
 
 #### RD-49 — A seed-colour theme picker is a unit after the site, generating the scheme in the page with `@material/material-color-utilities`
 
@@ -4108,6 +4118,12 @@ Tier C, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Rows:** `RF-82`'s typography rows for the prefix and the suffix, and two colour rows each against `input-text.prefix.color` and `input-text.suffix.color`, for both variants and both fields. They pass before and after, because the values are equal today, as the ruling says. So they guard the change rather than witness it.
 - **The rest of this entry** is open: the reverse colours, the list's copies and the axes.
 
+**Dated 2026-11-23 by the architect: `RF-110` changes two premises, and no ruling.**
+
+- **Tracking:** _"Every value is 0 px today"_ comes from the wrong entry. Under `RD-28` property 9 with `font: static`, the button's label has 0.1 px, and the text field's input 0.5 px. So the change that reads them is visible, and goes with `RF-110`'s unit.
+- **The axes:** _"`wght` equals its weight token"_ isn't so in every package. The extended FAB's small label has weight 700 and `'wght' 500`, because the two come from different entries. Under `font: static` no base style has axes, so nothing is emitted, and the ruling holds. The owner chose `font: static` the same day (`RF-110`'s Q2 (a)). A later move to `font: variable` would read the ruling again.
+- **The supporting text too:** the text field emits `supporting-text.tracking`, and its supporting text and counter don't read it, which this entry's list had missed. Under `font: static` it is 0.4 px. By this entry's required property they read it, in the same unit.
+
 #### RF-82 — No visual contract covers the text fields beyond their spacing
 
 Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#text-fields)'s reviewer's task 1 (`RD-34`), relayed by the coordinator. `RF-81` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -4249,6 +4265,12 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Carried with it:** `RF-81`'s ruling on tracking. The button, the FAB and the text field read it.
 - **Ready** for an implementer. The reviewer's task 11 was waiting for a ruling first, and `RF-81` is that ruling. The other half of that task, replacing `button.color.spec`'s literal elevation row, is `RF-86`'s.
 - **Size:** _small_.
+
+**Dated 2026-11-23 by the architect: carried by `RF-110`'s unit, and no longer ready by itself.** Under `RD-28` property 9 the tracking values aren't 0 px, so this entry's change moves the buttons' and the FAB's labels. In one unit, the button baselines are recorded once. Until this, it was _"Ready for an implementer"_. The owner chose one unit and `font: static` the same day (`RF-110`'s Q1 (a) and Q2 (a)), so it is **ready as part of `RF-110`'s unit.**
+
+- **What reads its tracking in that unit:** the button's and the FAB's labels; the text field's input, prefix and suffix, from `input-text.tracking`; and its supporting text and counter, from `supporting-text.tracking`. The text field's label and the list item's texts read theirs already.
+- **The rows above gain** the prefix, the suffix, the supporting text and the counter, and the list item's avatar label.
+- **The populated label's tracking isn't read,** as `RF-81` rules for its line height: it is the resting label's, scaled.
 
 #### RF-93 — Eleven relative links in this index resolve to nothing
 
@@ -4523,6 +4545,72 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **The unit:** this one, with `RF-106` in the same commit, because both rewrite the hook's local, and then `RF-105` as its own commit. `RF-103`'s unit doesn't wait for it. It edits `sortable-list.ts` in other places.
 - **Ready** for an implementer.
 - **Size:** _medium_: core's hook and its rows, and rows in material-x, in its own branch and pull request, with nothing to decide first.
+
+#### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
+
+Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1 kept it on purpose, so that the generated CSS stayed the same. Registered on 2026-11-23 by the architect, on `repo/typescale-selection-1`, from `reviewer-1` of #188's feature proof (`.plan/reviews/landing-tables-1/feature-proof-claude.md`, on `tproc/landing-tables-1`), relayed by the coordinator, for #189. #188 didn't cause it and doesn't wait for it. `RF-109` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `246b64754` ([readings](typescale-selection-1/checks/readings.txt), [probes](typescale-selection-1/probes/)).
+
+- **What happens:** upstream's contextual entries each name a tag for several groups, and the reader takes the first entry that has `expressive` or `web` among its tags. The other groups are then whatever comes first. Where no entry has either tag, the reader takes the first entry of all.
+- **Where it differs** from the entry of a complete 3P web context, at the store's release:
+
+  | Group that decides | What is selected | Tokens |
+  | --- | --- | --- |
+  | `font` | `ios.bold`, which bolds by one level and which upstream deprecates, for the weights and `wght` axes; `variable` for the tracking, which is 0 px there | 10 base weights, 9 `wght` axes, an emphasized `rond` axis, and the tracking of 9 base and 9 emphasized styles |
+  | `audience` | `1p.baseline`, Google's own products, for `md.ref.typeface.plain`: `Google Sans Text` | 1 |
+  | `font` | `variable` for `md.ref.typeface.brand`: `Roboto Flex` beside the plain typeface's static one | 1 |
+  | `platform` | `ios` for every expressive spring, whose value is `undefined`, so the CSS layer drops it | 12 |
+  | `language.height` | `extra.large`, Nastaliq's line heights, such as 120 px for `display-large` | 15 `md.ref.typeface.*.line-height` |
+  | `theme`, `contrast`, `audience` | dark and high-contrast entries | 40 `md.sys.color` tokens |
+  - 97 one-hop values change outside `md.sys.color`, and 133 component tokens in 38 sets resolve to another value that isn't a colour. The springs, the line heights and the colours reach none of material-x's stylesheets today: no compiled sheet changes for the springs, no component token resolves to another line height, and the CSS layer takes colours from the theme. They reach the reader's other callers, and `processTokenSet`'s.
+
+- **Not one wrong weight but a mixture.** A selected entry's own resolved value and the value that the CSS layer reaches hop by hop differ for 21 font names, because each hop is chosen alone.
+- **What M3 publishes:** material-web's export names its context, _"Audience: 3P"_ and _"Platform: Web"_. It gives the 15 base styles' font, weight, size, line height and tracking. The CSS layer differs from it in 34 of 75 values: 15 fonts, 10 weights and 9 trackings. Compose's export has the sizes, weights, line heights and trackings of the base and emphasized styles, and differs in 28 of 120. **The complete context with `font: static` differs in none of either.** With `font: variable` the weights agree, and the font and the 9 trackings don't.
+- **Reviewer's list confirmed:** display and headline (500 for 400), `title-large` (500 for 400), `title-medium`, `title-small` and `label-large` (700 for 500).
+- **What a user sees,** rendered in Chromium, Firefox and WebKit, which agree on all 36 rows apart from text widths and the quotes around a family. Now, then in the complete context with `font: static`:
+
+  | Text | Now | Then |
+  | --- | --- | --- |
+  | Button and switch button, extra small to medium | 700 | 500 |
+  | Button, large and extra large | 500 | 400 |
+  | Extended FAB: small; medium and large | 700; 500 | 500; 400 |
+  | List item's label, supporting text, overline and trailing text | letter spacing 0 | 0.5, 0.25, 0.5 and 0.5 px |
+  | List item's avatar label | 700, 0 | 500, 0.15 px |
+  | Text field's label | letter spacing 0 | 0.5 px |
+  | All of these, on a page with no theme | `Google Sans Text` or `Roboto Flex` | `Roboto` |
+  - On a page that sets `--md-ref-typeface-plain` and `--md-ref-typeface-brand`, as Storybook and the tests do, the family doesn't change. With no theme and no such font installed, the browser draws its default font. `Roboto` has that limit too.
+  - The link button and the split button share the button's stylesheets and weren't rendered.
+
+- **What else changes:** 5 of material-x's 35 compiled stylesheets: the button's default and size, the extended FAB, the list item and the text field. Icon buttons, checkboxes and radios have no text of their own. Of the 19 baselines, the 11 of buttons and button groups change, and no checkbox or radio baseline does. That is a local Chromium reading of the screenshots, byte for byte against a second run of the base, because the committed baselines are the runner's (`RD-13`).
+- **The tests can't see it.** `button.spec`'s font weight and family rows and `text-field.spec`'s typography rows take their expected value from the same selection. With the rule replaced, material-x's browser and spec suites pass in the three engines, and its node suite passes. Only a source outside tproc can judge the selection.
+
+**Decided 2026-11-23 by the architect:** `RD-28` property 9. **Answered 2026-11-23 by the owner** in chat, relayed by the coordinator: _"Q1: (a)"_, _"Q2: (a)"_. So one unit changes every component, with `font: static`. Until then the entry waited for the answers. The owner knows that going back to `variable`, if upstream moves to it, is a separate decision (the coordinator's wording, not his ruling).
+
+- **Required properties:**
+  1. `RD-28` property 9, in the reader, the converter, the report and the `use-tokens-db` skill. `material-x` and the visual contracts keep the CSS layer's surface.
+  2. The CSS layer's 15 base styles have the values that material-web's export gives for font, weight, size, line height and tracking.
+  3. For every token with a tree and a literal value, the value that the CSS layer reaches equals the selected entry's resolved value.
+  4. material-x's other 30 compiled stylesheets are byte-identical, and the 5 change only as the readings list and as `RF-92` requires.
+  5. `RF-92`'s tracking rules and rows land in the same unit (see its note).
+  6. `tests/support/browser-setup.ts` loads the faces that the fixtures render: Roboto 400 and 500. Today it loads 500 and 700, and 400 would be drawn from the 500 face.
+- **Witnesses:**
+  - A tproc node row compares the CSS layer with a fixture of material-web's 75 values, which names its source file, commit and context. It fails in 34 on `main`. **This fixture is the only literal oracle.** It judges the selection and isn't a visual contract, so `RD-34`'s rule on literals doesn't apply to it.
+  - A node row asserts property 3 for the store. It fails for 21 tokens on `main`, and it would pass with any one consistent context. So it doesn't replace the first.
+  - Reader rows for the selection, a named other context, and no match. Converter rows for each refusal.
+  - The rendered reading, repeated on the unit's build in three engines, and the 11 baselines proposed by the recording workflow (`RD-13`). An unlisted baseline that changes is a new difference.
+- **Where it goes:** its own branch and pull request, unit S of the landing plan's [Order](landing-1/landing-plan.md#order), **before H, B, C and the site**, because each would read and record these styles. It is independent of #188: on #188's store each of the 4286 tokens with a tree has exactly one entry too. Nothing else waits.
+- **Not decided here:** a generic family after `Roboto`.
+- **Ready** for an implementer, with `RF-92`. Nothing is left to decide.
+- **Size:** _medium_, with `RF-92`: one rule in tproc with its refusals and rows, a setup change, 11 baselines, and `RF-92`'s rules and rows.
+
+**Owner questions, answered: Q1 (a) and Q2 (a).**
+
+- **Q1 — Does the change reach all components at once?**
+  - **(a) One unit, recommended:** weights, typeface and letter spacing change together in every component, and the 11 baselines are recorded once. Button and FAB labels get lighter, letters get up to 0.5 px wider apart, and a label's width changes by a few pixels.
+  - **(b) Two units:** weights first, and the typeface and letter spacing after. The first unit needs another complete context, such as Google's own (1P), which has the right weights but names `Google Sans` for the brand typeface. So the typefaces change twice, and the baselines are recorded twice.
+  - **(c) Leave the current values.** The components keep weights that no Material 3 web context publishes, and the top app bar, the card, the slider and the site inherit them.
+- **Q2 — Which `font` tag: `static` or `variable`?** The weights are the same in both.
+  - **(a) `static`, recommended:** Roboto, with the published letter spacing. It is upstream's default tag, equals what material-web and Compose publish, and is the font that Storybook, the tests and the planned site load.
+  - **(b) `variable`:** Roboto Flex, with 0 px letter spacing in every style, and variation axes. Upstream's text calls `static` deprecated and asks for variable tokens, while `static` is still its default. Storybook, the tests and the site would load Roboto Flex, and `RF-81`'s ruling on the axes would be read again.
 
 ## Questions
 

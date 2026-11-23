@@ -1,0 +1,8 @@
+import fs from 'node:fs';
+const R='/workspaces/worktrees/d/packages/tproc/';
+const {default:store}=await import(R+'store/index.js');const {default:pt}=await import(R+'processToken.js');const {resolve}=await import(R+'resolve.js');
+const mw=fs.readFileSync(process.argv[2]+'/pub/mw.scss','utf8');const ref={'weight-bold':700,'weight-medium':500,'weight-regular':400,brand:'Roboto',plain:'Roboto'};
+const E=k=>{const m=mw.match(new RegExp(`'${k}':\\s*(?:map\\.get\\(\\$deps, 'md-ref-typeface', '([^']+)'\\)|if\\(\\$exclude-hardcoded-values, null, ([-\\d.]+)rem\\))`));return m[1]?ref[m[1]]:Number(m[2])*16};
+let n=0;const bad={};for(const r of ['display','headline','title','body','label'])for(const s of ['large','medium','small'])for(const k of ['font','weight','size','line-height','tracking']){const t=`md.sys.typescale.${r}-${s}.${k}`;const css=String(resolve(t,pt(store.getToken(t))));const v=css.replace(/^var\([^,]+, (.*)\)$/,'$1').replace(/"|px/g,'');const e=E(`${r}-${s}-${k}`);n++;if(typeof e==='number'?Math.abs(Number(v)-e)>1e-6:v!==e)(bad[k]??=[]).push(`${r}-${s}`)}
+console.log('CSS layer vs material-web v0_192:',n,'compared,',Object.values(bad).flat().length,'differ',JSON.stringify(Object.fromEntries(Object.entries(bad).map(([k,v])=>[k,v.length]))));
+const axes=[...store.tokens].filter(t=>/^md\.sys\.typescale\.[a-z-]+$/.test(t.tokenName)).map(t=>Object.keys(pt(t)??{}).includes('variation-axes'));console.log('base composites with variation axes',axes.filter(Boolean).length,'of',axes.length);

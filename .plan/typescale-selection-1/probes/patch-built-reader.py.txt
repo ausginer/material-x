@@ -1,0 +1,15 @@
+import sys
+s=open(sys.argv[1]).read()
+a=s.index("	select(token, tags = DEFAULT_TAGS) {"); b=s.index("export { DEFAULT_TAGS")
+new='''	select(token, tags) {
+		const c = { ...Object.fromEntries(this.tagGroups.map((g) => [g.contextTagGroupName, g.defaultTag])), platform: "web", audience: "3p", "motion.scheme": "expressive", ...JSON.parse(process.env.PROBE_CTX ?? "{}") };
+		const tree = token.contextualReferenceTree;
+		const m = tree?.filter(({ contextTags }) => Object.entries(contextTags ?? {}).every(([k, v]) => c[k] === v));
+		if (tree && m.length !== 1) throw new Error(`${token.tokenName}: ${m.length} entries`);
+		const entry = m?.[0];
+		const value = token.values[entry ? entry.value : 0];
+		return value ? { value, entry } : void 0;
+	}
+};
+'''
+open(sys.argv[2],'w').write(s[:a]+new+s[b:])

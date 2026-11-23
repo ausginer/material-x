@@ -1,0 +1,21 @@
+const R='/workspaces/worktrees/d/packages/tproc/';
+const {default:store}=await import(R+'src/store/index.ts');
+const {toCSSValue}=await import(R+'src/processToken.ts');
+const defaults:any=Object.fromEntries(store.tagGroups.map((g:any)=>[g.contextTagGroupName,g.defaultTag]));
+const mk=(o:any)=>({...defaults,platform:'web',audience:'3p','motion.scheme':'expressive',...o});
+const pick=(t:any,c:any)=>{const e=(t.contextualReferenceTree??[]).find((e:any)=>Object.entries(e.contextTags??{}).every(([k,v])=>c[k]===v));return {entry:e,value:t.values[e?e.value:0]}};
+const css=(v:any)=>JSON.stringify(toCSSValue(v));
+const C=mk({});const V=mk({font:'variable'});
+const lit=(e:any)=>JSON.stringify(e?.resolvedValue??e?.resolvedCustomCompositeValue);
+for(const [n,c] of [['static',C],['variable',V]] as any){
+ const ch:any={};let idx=0,res=0;
+ for(const t of store.tokens){const a=store.select(t)!,b=pick(t,c);
+  if(store.getTokenSet(t).tokenSetName==='md.sys.color')continue;
+  if(css(a.value)!==css(b.value)){idx++;const s=store.getTokenSet(t).tokenSetName;(ch[s]??=[]).push([t.tokenName,css(a.value),css(b.value),JSON.stringify(a.entry?.contextTags),JSON.stringify(b.entry?.contextTags)]);}
+  if(lit(a.entry)!==lit(b.entry))res++;
+ }
+ console.log('=====',n,'one-hop changes (no md.sys.color)',idx,'resolvedValue changes of selected entry',res);
+ for(const s in ch){console.log(s,ch[s].length);for(const r of ch[s].slice(0,n==='static'?60:4))console.log('   ',r.join('  '))}
+}
+// color changes
+let col=0;for(const t of store.tokens){if(store.getTokenSet(t).tokenSetName!=='md.sys.color')continue;const a=store.select(t)!,b=pick(t,C);if(css(a.value)!==css(b.value)||lit(a.entry)!==lit(b.entry))col++;}console.log('md.sys.color differing',col);

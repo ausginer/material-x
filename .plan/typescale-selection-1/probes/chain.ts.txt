@@ -1,0 +1,22 @@
+const R='/workspaces/worktrees/d/packages/tproc/';
+const {default:store}=await import(R+'src/store/index.ts');
+const defaults:any=Object.fromEntries(store.tagGroups.map((g:any)=>[g.contextTagGroupName,g.defaultTag]));
+const mk=(o:any)=>({...defaults,platform:'web',audience:'3p','motion.scheme':'expressive',...o});
+const ctx=(c:any)=>(t:any)=>{const e=t.contextualReferenceTree?.find((e:any)=>Object.entries(e.contextTags??{}).every(([k,v])=>c[k]===v));return {value:t.values[e?e.value:0],entry:e}};
+const chain=(t:any,sel:any)=>{let v=sel(t).value;const seen=new Set();while(v?.tokenName){if(seen.has(v.tokenName))return 'CYCLE';seen.add(v.tokenName);const n=store.getToken(v.tokenName);if(!n)return 'MISSING';v=sel(n).value}return v};
+const norm=(v:any)=>{const {contextTags,specificityScore,...r}=v??{};return JSON.stringify(r)};
+const cov=new Map<string,number>();
+for(const [n,sel] of [['first match',(t:any)=>store.select(t)],['static',ctx(mk({}))],['variable',ctx(mk({font:'variable'}))],['standard motion',ctx(mk({'motion.scheme':'standard'}))]] as any){
+ let cmp=0;const bad:string[]=[];let comp=0,col=0;
+ for(const t of store.tokens){const s=sel(t);if(!s.entry)continue;const v=chain(t,sel);
+  if(!s.entry.resolvedValue||v?.type||v?.customComposite){comp++;continue}
+  cmp++; if(norm(v)!==norm(s.entry.resolvedValue))bad.push(t.tokenName);}
+ const by:any={};for(const b of bad){const t=store.getToken(b)!;const k=t.tokenValueType;by[k]=(by[k]??0)+1}
+ console.log(n,'compared',cmp,'composites skipped',comp,'chain≠entry.resolvedValue',bad.length,JSON.stringify(by));
+ const nc=bad.filter(b=>store.getToken(b)!.tokenValueType!=='COLOR');console.log('   non-colour',nc.slice(0,6).join(', '));
+}
+// sets/components whose font family/weight/tracking chain changes by selection
+const now=(t:any)=>store.select(t),st=ctx(mk({}));const sets:any={};
+for(const t of store.tokens){if(!t.tokenName.startsWith('md.comp'))continue;if(store.getTokenSet(t).tokenSetName==='md.sys.color'||t.tokenValueType==='COLOR')continue;const a=norm(chain(t,now)),b=norm(chain(t,st));if(a!==b){const s=store.getTokenSet(t).tokenSetName;(sets[s]??=[]).push(t.tokenName.slice(s.length+1)+':'+t.tokenValueType)}}
+console.log(Object.keys(sets).length,'component sets with a changed non-colour chain');const types:any={};for(const s in sets)for(const x of sets[s]){const k=x.split(':')[1];types[k]=(types[k]??0)+1}console.log(types);for(const s in sets)console.log(s,sets[s].length,sets[s].slice(0,6).join(' '));
+let c=0;const cs:string[]=[];for(const t of store.tokens){if(t.tokenName.startsWith('md.sys.color')){const a=store.select(t)!.entry,b=st(t).entry;if(JSON.stringify(a?.resolvedValue)!==JSON.stringify(b?.resolvedValue)){c++;cs.push(t.tokenName+' '+JSON.stringify(a?.contextTags))}}}console.log('sys.color resolved differ',c,cs.slice(0,3));
