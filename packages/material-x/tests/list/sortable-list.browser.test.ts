@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
@@ -1265,4 +1265,186 @@ document.body.dataset.ready = '';
       [0, 1],
     ]);
   });
+});
+
+describe('mx-sortable-list announcement', () => {
+  /** Moves the first of four items down one slot, for `commit` to answer. */
+  async function moveFirst(
+    commit: (event: ReorderEvent, list: HTMLElement) => void,
+  ): Promise<HTMLElement> {
+    const [list, [a]] = await createList(['A', 'B', 'C', 'D']);
+    list.addEventListener('reorder', (event) => {
+      commit(event as ReorderEvent, list);
+    });
+    a!.focus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, a!);
+    return list;
+  }
+
+  it('should announce nothing when the consumer never commits', async () => {
+    const list = await moveFirst(() => {});
+
+    expect([order(list), announcementOf(list)]).toEqual([
+      ['A', 'B', 'C', 'D'],
+      '',
+    ]);
+  });
+
+  it('should announce nothing for a pointer drop the consumer never commits', async () => {
+    const [list, [a, b]] = await createList(['A', 'B', 'C']);
+
+    await dragOnto(visualOf(a!), visualOf(b!));
+    await whenSettled(list, a!);
+
+    expect(announcementOf(list)).toBe('');
+  });
+
+  it("should announce the item's position when the consumer commits at another slot", async () => {
+    const list = await moveFirst(({ item }, target) => {
+      target.append(item);
+    });
+
+    expect(announcementOf(list)).toBe('Item 4 of 4.');
+  });
+
+  it("should announce the item's position when the consumer commits at another slot later", async () => {
+    const list = await moveFirst(({ item }, target) => {
+      setTimeout(() => {
+        target.append(item);
+      }, 100);
+    });
+
+    expect(announcementOf(list)).toBe('Item 4 of 4.');
+  });
+
+  it('should announce nothing when the consumer commits after the bound', async () => {
+    const list = await moveFirst(({ item, next }, target) => {
+      setTimeout(() => {
+        target.insertBefore(item, next);
+      }, 1500);
+    });
+    const atTheBound = order(list);
+    await expect
+      .poll(() => order(list), { timeout: 3000 })
+      .toEqual(['B', 'A', 'C', 'D']);
+    await nextFrame();
+
+    expect([atTheBound, announcementOf(list)]).toEqual([
+      ['A', 'B', 'C', 'D'],
+      '',
+    ]);
+  });
+
+  it('should announce nothing when the consumer removes the item', async () => {
+    // drag reports that the landing has no placeholder beside the removed item.
+    const report = vi.spyOn(window, 'reportError').mockImplementation(() => {});
+    onTestFinished(() => report.mockRestore());
+    const list = await moveFirst(({ item }) => {
+      item.remove();
+    });
+
+    expect(announcementOf(list)).toBe('');
+  });
+
+  it('should style the region without a style attribute', async () => {
+    const [list] = await createList([]);
+
+    expect(
+      list.shadowRoot!.querySelector('[aria-live]')!.hasAttribute('style'),
+    ).toBe(false);
+  });
+});
+
+describe('mx-sortable-list scrollable overflow', () => {
+  type ContainerCase = Readonly<{
+    name: string;
+    /** The styles of the boxes around the list, from the outermost. */
+    boxes: readonly string[];
+    /** The styles of the box before the list. */
+    pad?: string;
+    labels?: readonly string[];
+    /** The list's own direction, where it differs from its containers'. */
+    direction?: 'ltr' | 'rtl';
+  }>;
+
+  const CONTAINERS: readonly ContainerCase[] = [
+    {
+      name: 'an unpositioned scroll container',
+      boxes: ['height: 200px; overflow: auto'],
+    },
+    {
+      name: 'a scroll container in a transformed box',
+      boxes: ['transform: translateX(0)', 'height: 200px; overflow: auto'],
+    },
+    {
+      name: 'a scroll container in a fixed box',
+      boxes: [
+        'position: fixed; inset: 0 auto auto 0; width: 300px; height: 200px',
+        'height: 200px; overflow: auto',
+      ],
+    },
+    {
+      name: 'an empty transformed box',
+      boxes: ['width: 0; height: 0; transform: translateX(0)'],
+      pad: 'height: 0',
+      labels: [],
+    },
+    {
+      name: 'a right-to-left scroll container in a transformed box',
+      boxes: [
+        'direction: rtl; transform: translateX(0)',
+        'display: flex; width: 200px; overflow: auto',
+      ],
+      pad: 'flex: none; width: 3000px',
+    },
+    {
+      name: 'a left-to-right scroll container of a right-to-left list in a transformed box',
+      boxes: [
+        'transform: translateX(0)',
+        'display: flex; width: 200px; overflow: auto',
+      ],
+      pad: 'flex: none; width: 3000px',
+      direction: 'rtl',
+    },
+  ];
+
+  it.each(CONTAINERS)(
+    'should not change the overflow of any ancestor in $name',
+    async ({ boxes, pad = 'height: 3000px', labels = ['A'], direction }) => {
+      const [list] = await createList(labels);
+      list.dir = direction ?? '';
+      let container: HTMLElement = document.body;
+
+      for (const style of boxes) {
+        const box = document.createElement('div');
+        box.style.cssText = style;
+        container.append(box);
+        container = box;
+      }
+
+      const before = document.createElement('div');
+      before.style.cssText = pad;
+      container.append(before, list);
+      await nextFrame();
+      const measure = (): ReadonlyArray<readonly [number, number]> => {
+        const extents: Array<readonly [number, number]> = [];
+
+        for (
+          let ancestor: HTMLElement | null = list;
+          ancestor;
+          ancestor = ancestor.parentElement
+        ) {
+          extents.push([ancestor.scrollWidth, ancestor.scrollHeight]);
+        }
+
+        return extents;
+      };
+      const withRegion = measure();
+      list.shadowRoot!.querySelector('[aria-live]')!.remove();
+
+      expect(withRegion).toEqual(measure());
+    },
+  );
 });

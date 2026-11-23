@@ -17,6 +17,7 @@ import {
   type SortableController,
 } from '@ydinjs/drag/sortable.js';
 import type { EmptyObject } from 'type-fest';
+import { useAriaNotifyPolyfill } from '../core/polyfills/aria-notify/aria-notify.ts';
 import { parseMs } from '../core/utils/fns.ts';
 import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
 import { handleOf, sortItem } from './sortable-item.ts';
@@ -116,14 +117,8 @@ export default class SortableList extends SortableListConstructor {
   constructor() {
     super();
     useListCore(this);
-    const live = document.createElement('div');
-    live.setAttribute('aria-live', 'polite');
-    // Visually hidden and exposed to assistive technology. No stylesheet of
-    // the list's reaches it, so the styles are inline.
-    live.style.cssText =
-      'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap';
-    this.shadowRoot!.append(live);
 
+    const notify = useAriaNotifyPolyfill(this);
     const slot = this.shadowRoot!.querySelector<HTMLSlotElement>('slot')!;
     const read = (): readonly ControlledElement[] =>
       slot
@@ -166,11 +161,19 @@ export default class SortableList extends SortableListConstructor {
         toggleState(internals(dragged), DRAG_STATE, true);
       },
       onEnd: (result) => {
-        toggleState(internals(dragged!), DRAG_STATE, false);
+        const item = dragged!;
+        toggleState(internals(item), DRAG_STATE, false);
         dragged = null;
 
         if (result.type === 'accepted') {
-          live.textContent = `Item ${result.request.to + 1} of ${items.length}.`;
+          // An accepted move can end with the item unmoved, at another slot,
+          // or out of the list, so its position is read here.
+          const current = read();
+          const index = current.indexOf(item);
+
+          if (index >= 0 && index !== result.request.from) {
+            notify(`Item ${index + 1} of ${current.length}.`);
+          }
         }
       },
       onReorder: (request, { signal }) => {

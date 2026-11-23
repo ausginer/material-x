@@ -1,0 +1,152 @@
+# The rows of RF-103 (tests/list/sortable-list.browser.test.ts, -t 'announcement|overflow'), from packages/material-x:
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' tests/list/sortable-list -t 'announcement|overflow' --reporter=verbose
+# 'before' is the rows on b80d944d0, the move alone. Each other block is one edit of the repair.
+
+## before
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 856ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 819ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 597ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 597ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1609ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 605ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1348 > mx-sortable-list announcement > should style the region without a style attribute 82ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 100ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 97ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 103ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 102ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 101ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 104ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 824ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 1156ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 790ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 877ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1878ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 771ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1348 > mx-sortable-list announcement > should style the region without a style attribute 131ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 229ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 137ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 125ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 173ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 352ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 280ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 847ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 673ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 613ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 629ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1630ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 712ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1348 > mx-sortable-list announcement > should style the region without a style attribute 151ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 148ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 124ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 137ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 204ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 195ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1411 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 146ms
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 56 ], [ 300, 3056 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ +0, +0 ], [ 1, 1 ], …(2) ] to deeply equal [ [ +0, +0 ], [ +0, +0 ], …(2) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 56 ], [ 300, 3056 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ +0, +0 ], [ 1, 1 ], …(2) ] to deeply equal [ [ +0, +0 ], [ +0, +0 ], …(2) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 56 ], [ 300, 3056 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ +0, +0 ], [ 1, 1 ], …(2) ] to deeply equal [ [ +0, +0 ], [ +0, +0 ], …(2) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+Tests  39 failed | 228 skipped (267)
+
+## after
+Tests  39 passed | 228 skipped (267)
+
+## aria-notify.ctr.css without top and left
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 166ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 95ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 96ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 155ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 186ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 138ms
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+Tests  6 failed | 33 passed | 228 skipped (267)
+
+## 1px instead of min(1px, 100%)
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 156ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 172ms
+AssertionError: expected [ [ +0, +0 ], [ 1, 1 ], …(2) ] to deeply equal [ [ +0, +0 ], [ +0, +0 ], …(2) ]
+AssertionError: expected [ [ +0, +0 ], [ 1, 1 ], …(2) ] to deeply equal [ [ +0, +0 ], [ +0, +0 ], …(2) ]
+Tests  2 failed | 37 passed | 228 skipped (267)
+
+## bottom -1px and right 0 instead of top 0 and left 0
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 176ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 89ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 105ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 156ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 169ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 145ms
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+Tests  6 failed | 33 passed | 228 skipped (267)
+
+## sortable-list.ts without index >= 0
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 654ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 730ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 627ms
+AssertionError: expected 'Item 0 of 3.' to be '' // Object.is equality
+AssertionError: expected 'Item 0 of 3.' to be '' // Object.is equality
+AssertionError: expected 'Item 0 of 3.' to be '' // Object.is equality
+Tests  3 failed | 36 passed | 228 skipped (267)
+
+## sortable-list.ts without index !== result.request.from
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 764ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 821ms
+× |browser (chromium)| tests/list/sortable-list.browser.test.ts:1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1601ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 790ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 972ms
+× |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1689ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 757ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 628ms
+× |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1636ms
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 1 of 3.' to be '' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 1 of 3.' to be '' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected 'Item 1 of 3.' to be '' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+Tests  9 failed | 30 passed | 228 skipped (267)
