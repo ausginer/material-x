@@ -1,0 +1,91 @@
+# RF-115 and the recheck's rows: tests/core/animations, 30 rows per engine, on the merge of main e37343f3a.
+
+## before, the ripple.ts of 55aa7ca2e
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a pointercancel 166ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a tap 72ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a pointercancel 169ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a tap 103ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a pointercancel 101ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a tap 64ms
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+Tests  6 failed | 84 passed (90)
+
+## after
+Tests  90 passed (90)
+
+## without the fade's cancel at disconnect
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:289 > useRipple when the host disconnects > should leave no animation on an element that is removed during its fade and put back 435ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:289 > useRipple when the host disconnects > should leave no animation on an element that is removed during its fade and put back 419ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:289 > useRipple when the host disconnects > should leave no animation on an element that is removed during its fade and put back 357ms
+AssertionError: expected [ Animation{} ] to deeply equal []
+AssertionError: expected [ Animation{} ] to deeply equal []
+AssertionError: expected [ Animation{} ] to deeply equal []
+Tests  3 failed | 87 passed (90)
+
+## without the state's reset at disconnect
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:197 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay 473ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:197 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay 522ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:197 > useRipple when the host disconnects > should report no error for a touch whose element is removed within the delay 416ms
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal []
+Tests  3 failed | 87 passed (90)
+
+## without the moved clearTimeout
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:273 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 206ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a pointercancel 70ms
+× |browser (chromium)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a tap 69ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:273 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 155ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a pointercancel 71ms
+× |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a tap 151ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:273 > useRipple when the host disconnects > should give a touch after a put-back its whole delay 115ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a pointercancel 67ms
+× |browser/webkit (webkit)| tests/core/animations/ripple.browser.test.ts:334 > useRipple when a touch follows another within its delay > should give the second touch its whole delay after a tap 64ms
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+AssertionError: expected [ 2, 2 ] to deeply equal [ +0, 2 ]
+Tests  9 failed | 81 passed (90)
+
+## core browser project
+Tests  690 passed (690)
+
+## material-x browser and spec projects
+Tests  2934 passed | 7 expected fail | 20 skipped (2961)
+
+# just size --json in packages/material-x, Brotli. main: the core and material-x sources of e37343f3a in this tree.
+row                                        main    now
+button/button                              4841   4840
+button/icon-button                         5087   5117
+button/link-button                         4799   4801
+button/switch-button                       5426   5429
+button/switch-icon-button                  5819   5797
+button/split-button                        7444   7448
+button-group/button-group                  3034   3034
+button-group/connected-button-group        3800   3800
+checkbox/checkbox                          4218   4221
+fab/fab                                    4113   4112
+icon/icon                                   641    641
+list/list                                   663    663
+list/list-item                             2848   2848
+list/list-button-item                      4834   4839
+list/list-link-item                        5041   5041
+list/sortable-list                         8846   8906
+radio/radio                                3776   3779
+text-field/multiline-text-field            4429   4429
+text-field/text-field                      8443   8417
+complete                                  22751  22746
+
+# The minified bundles, now:
+text-field/text-field            raw 35601 gzip 9430 br11 8417 br9 8907 br5 8976 | useCSSProps module: true | icon-button: true
+text-field/multiline-text-field  raw 16843 gzip 4993 br11 4429 br9 4697 br5 4733 | useCSSProps module: false | icon-button: false
+button/button                    raw 17003 gzip 5425 br11 4840 br9 5119 br5 5123 | useCSSProps module: true | icon-button: false
+button/icon-button               raw 20017 gzip 5721 br11 5117 br9 5383 br5 5399 | useCSSProps module: true | icon-button: true
+button/link-button               raw 17027 gzip 5401 br11 4801 br9 5075 br5 5085 | useCSSProps module: true | icon-button: false
+button/split-button              raw 30940 gzip 8328 br11 7448 br9 7847 br5 7911 | useCSSProps module: true | icon-button: true
+checkbox/checkbox                raw 12681 gzip 4750 br11 4221 br9 4469 br5 4475 | useCSSProps module: true | icon-button: false
+list/sortable-list               raw 27384 gzip 9884 br11 8906 br9 9490 br5 9536 | useCSSProps module: true | icon-button: false

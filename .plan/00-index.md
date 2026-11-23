@@ -4746,6 +4746,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **The implementer,** on this branch, after merging `main`: the two edits of the ripple (the timer's clear moves, the flag's reset goes), the row of the fade's cancel, `RF-115`'s rows, a new reading of the sizes, and a dated paragraph. Nothing else changes.
 - **Size of the addition:** _small_.
 
+**Dated 2026-11-23 by the implementer: the rulings on the recheck are implemented on `core/css-props-1`, in #199, with `RF-115`, and not closed.** Requested by the coordinator, from `55aa7ca2e`. `main` at `e37343f3a` is merged in, with one conflict, in `sortable-list.ts`'s imports, where both sides are kept.
+
+- **The ripple:** `clearTimeout` moved from the disconnect to where a touch arms its timer, and the disconnect's reset of the context-menu flag is gone. My earlier paragraph's sentence on the disconnect is read with this.
+- **Rows** ([readings](css-props-1/checks/ripple-115.txt)): three more per engine, 30 in all, and all 90 pass. The row of an element that is removed during its fade and put back passes before this edit, because the cancel was there, and fails without the cancel in the three engines.
+- **Witnesses,** in each of the three engines: without the state's reset, the row of the touch that is removed within the delay fails; without the moved clear, the put-back delay row and `RF-115`'s two fail.
+- **Sizes,** Brotli, against `main` at `e37343f3a`, in place of the earlier figures against `35ea25892`: `list/sortable-list` 8,846 → 8,906 B, `complete` 22,751 → 22,746 B, `text-field/text-field` 8,443 → 8,417 B, and the other rows that contain the ripple change by −22 to +30 B. The rows without the ripple or the hook don't move.
+- **Suites,** on the merge, in three engines: core's browser project, 690 passed; material-x's browser and spec projects, 2,934 passed, 7 expected failures, 20 skipped. material-x's node project, 35 passed. Not checked: Safari, a real touch, and the visual project outside CI.
+
 #### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
 
 Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1 kept it on purpose, so that the generated CSS stayed the same. Registered on 2026-11-23 by the architect, on `repo/typescale-selection-1`, from `reviewer-1` of #188's feature proof (`.plan/reviews/landing-tables-1/feature-proof-claude.md`, on `tproc/landing-tables-1`), relayed by the coordinator, for #189. #188 didn't cause it and doesn't wait for it. `RF-109` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `246b64754` ([readings](typescale-selection-1/checks/readings.txt), [probes](typescale-selection-1/probes/)).
@@ -4913,6 +4921,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `c
 - **Repaired in #199,** by the ruling in `RF-109`, because it replaces a statement of that pull request's repair at no cost.
 - **Ready** for #199's implementer.
 - **Size:** _small_.
+
+**Dated 2026-11-23 by the implementer: implemented on `core/css-props-1`, in #199, for #204, and not closed.** A touch clears the earlier timer when it arms its own. The two rows per engine, after a `pointercancel` and after a tap, fail before the repair in the three engines, with two animations in place of none, and pass after it ([readings](css-props-1/checks/ripple-115.txt)). They use fake timers, and count only the second touch's own ripple, because the fade of the first touch and the ripple of the tap still run.
 
 #### RF-116 — Core's `moved` hook never runs, because browsers call `connectedMoveCallback`
 
