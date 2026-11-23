@@ -131,9 +131,9 @@ describe('diffStores', () => {
     );
 
     expect(
-      section(lines, 'Selected values changed, for expressive and web'),
+      section(lines, 'Selected values changed, in the rendered context'),
     ).toEqual([
-      '## Selected values changed, for expressive and web: 1',
+      '## Selected values changed, in the rendered context: 1',
       `### \`${SET}\``,
       '- `a`: `{"tokenName":"md.sys.old"}` → `{"tokenName":"md.sys.new"}`',
     ]);
@@ -153,7 +153,7 @@ describe('diffStores', () => {
     });
 
     expect(diffStores(storeOf(before), storeOf(changed))).toContain(
-      '## Selected values changed, for expressive and web: 0',
+      '## Selected values changed, in the rendered context: 0',
     );
   });
 });

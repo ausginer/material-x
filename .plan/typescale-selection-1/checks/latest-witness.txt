@@ -1,0 +1,45 @@
+# Outside witnesses for the rendered context, from material-web tokens/versions/latest/sass at a0bab1d94 (design system 34.0.21, audience 3p, font static, platform web).
+# Read by the architect on 2026-11-23 at 407c12f12, with ../probes/latest-witness.ts.txt (it takes a directory with col.scss, ts.scss and em.scss, the _md-sys-color, _md-sys-typescale and _md-sys-typescale-emphasized files).
+# 'colour' compares each md.sys.color token's one-hop reference with the published one (surface-tint and surface-tint-color differ only in how the file writes its own $primary).
+# So each count of differences includes those two: the real ones are 0 in the rendered context, 34 with the dark theme, 30 with either higher contrast, and 0 with another language height.
+# 'line heights' compares md.ref.typeface.<style>.line-height with the published line height of the base style.
+{} colour same 48 of 50 differ 2 [
+  'md.sys.color.surface-tint md.sys.color.primary != $primary',
+  'md.sys.color.surface-tint-color md.sys.color.primary != $primary'
+]
+{"theme":"dark"} colour same 14 of 50 differ 36 [
+  'md.sys.color.background md.ref.palette.neutral6 != md.ref.palette.neutral98',
+  'md.sys.color.error md.ref.palette.error80 != md.ref.palette.error40',
+  'md.sys.color.error-container md.ref.palette.error30 != md.ref.palette.error90',
+  'md.sys.color.inverse-on-surface md.ref.palette.neutral20 != md.ref.palette.neutral95'
+]
+{"contrast":"high.contrast"} colour same 18 of 50 differ 32 [
+  'md.sys.color.error md.ref.palette.error20 != md.ref.palette.error40',
+  'md.sys.color.error-container md.ref.palette.error30 != md.ref.palette.error90',
+  'md.sys.color.inverse-on-surface md.ref.palette.neutral100 != md.ref.palette.neutral95',
+  'md.sys.color.on-background md.ref.palette.neutral0 != md.ref.palette.neutral10'
+]
+{"contrast":"medium.contrast"} colour same 18 of 50 differ 32 [
+  'md.sys.color.error md.ref.palette.error30 != md.ref.palette.error40',
+  'md.sys.color.error-container md.ref.palette.error40 != md.ref.palette.error90',
+  'md.sys.color.inverse-on-surface md.ref.palette.neutral100 != md.ref.palette.neutral95',
+  'md.sys.color.on-background md.ref.palette.neutral0 != md.ref.palette.neutral10'
+]
+{"language.height":"medium"} colour same 48 of 50 differ 2 [
+  'md.sys.color.surface-tint md.sys.color.primary != $primary',
+  'md.sys.color.surface-tint-color md.sys.color.primary != $primary'
+]
+{} line heights same 15 of 15
+{"language.height":"medium"} line heights same 0 of 15
+{"language.height":"large"} line heights same 0 of 15
+emphasized 0 base 75
+ts 75 styles 15 [
+  'md.sys.typescale.body-large|line-height|1.5rem',
+  'md.sys.typescale.body-large|size|1rem',
+  'md.sys.typescale.body-large|tracking|0.03125rem'
+] in store 75
+em 75 styles 15 [
+  'md.sys.typescale.emphasized.body-large|line-height|1.5rem',
+  'md.sys.typescale.emphasized.body-large|size|1rem',
+  'md.sys.typescale.emphasized.body-large|tracking|0.03125rem'
+] in store 75

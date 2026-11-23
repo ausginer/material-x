@@ -1,0 +1,75 @@
+import { expect, it, describe, vi } from 'vitest';
+import { commands, userEvent, server } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/sortable-list.ts';
+import type { ReorderEvent } from '../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const mk = (t: string) => { const i = document.createElement('mx-list-item'); i.textContent = t; return i; };
+type L = HTMLElement;
+const region = (l: L) => l.shadowRoot!.querySelector<HTMLElement>('[aria-live]')!;
+const order = (l: L) => [...l.children].filter((c) => !c.hasAttribute('data-drag-placeholder')).map((c) => c.textContent).join('');
+async function run(opts: { token?: boolean; key?: string; idx?: number; pointer?: boolean; commit?: (e: ReorderEvent, l: L, items: HTMLElement[]) => void; during?: (l: L, items: HTMLElement[]) => Promise<void> }) {
+  const list = document.createElement('mx-sortable-list');
+  if (!opts.token) list.style.setProperty('--_drag-duration', '0s');
+  const items = ['A', 'B', 'C', 'D'].map(mk);
+  list.append(...items); document.body.append(list);
+  list.addEventListener('reorder', (e) => opts.commit?.(e as ReorderEvent, list, items));
+  const texts: string[] = []; const t0 = performance.now();
+  new MutationObserver(() => texts.push(`${region(list).textContent}@${order(list)}`)).observe(region(list), { childList: true, characterData: true, subtree: true });
+  const errs: string[] = [];
+  const spy = vi.spyOn(window, 'reportError').mockImplementation((e) => { errs.push(String((e as Error)?.message ?? e)); });
+  await wait(100);
+  const it = items[opts.idx ?? 0]!;
+  let endAt = 0; let liftAt = 0;
+  if (opts.pointer) {
+    const c = (e: Element) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] as const; };
+    const [x, y] = c(it);
+    await commands.pointerPress(x, y); await commands.pointerMove(x, y + 12, 3);
+    const [, y2] = c(items[1]!); await commands.pointerMove(x, y2 + 10, 8); await commands.pointerRelease();
+  } else { it.focus(); await userEvent.keyboard(opts.key ?? '{ArrowDown}'); }
+  liftAt = performance.now();
+  await opts.during?.(list, items);
+  while (it.matches(':state(drag)') && performance.now() - liftAt < 4000) await wait(5);
+  endAt = performance.now() - liftAt;
+  await wait(1200);
+  const res = { texts, final: order(list), errs, endMs: Math.round(endAt) };
+  spy.mockRestore(); list.remove();
+  return res;
+}
+const at = (ms: number) => (e: ReorderEvent, l: L) => { setTimeout(() => l.insertBefore(e.item, e.next), ms); };
+it('shift', async () => {
+  const R: Record<string, unknown> = {};
+  const ins = (e: ReorderEvent, l: L) => l.insertBefore(e.item, e.next);
+  R['1 never'] = await run({});
+  R['2 uncommitted A, Z prepended at 100'] = await run({ commit: (_, l) => { setTimeout(() => l.prepend(mk('Z')), 100); } });
+  R['3 C committed and A removed, one task'] = await run({ idx: 2, commit: (e, l, i) => { setTimeout(() => { ins(e, l); i[0]!.remove(); }, 50); } });
+  R['4 A removed at 50, C committed at 150'] = await run({ idx: 2, commit: (e, l, i) => { setTimeout(() => i[0]!.remove(), 50); setTimeout(() => ins(e, l), 150); } });
+  R['5 uncommitted A, Z Y prepended, D removed, W appended, apart'] = await run({ commit: (_, l, i) => { setTimeout(() => l.prepend(mk('Z')), 40); setTimeout(() => i[3]!.remove(), 80); setTimeout(() => l.prepend(mk('Y')), 120); setTimeout(() => l.append(mk('W')), 160); } });
+  R['6 C committed, Z prepended, A B removed, W appended, one task'] = await run({ idx: 2, commit: (e, l, i) => { setTimeout(() => { ins(e, l); l.prepend(mk('Z')); i[0]!.remove(); i[1]!.remove(); l.append(mk('W')); }, 50); } });
+  R['7 the same, apart, commit last'] = await run({ idx: 2, commit: (e, l, i) => { setTimeout(() => { l.prepend(mk('Z')); i[0]!.remove(); }, 40); setTimeout(() => { i[1]!.remove(); l.append(mk('W')); }, 90); setTimeout(() => ins(e, l), 160); } });
+  R['8 D up uncommitted, A B removed'] = await run({ idx: 3, key: '{ArrowUp}', commit: (_, _l, i) => { setTimeout(() => { i[0]!.remove(); i[1]!.remove(); }, 50); } });
+  R['9 D up committed, A B removed, Z prepended'] = await run({ idx: 3, key: '{ArrowUp}', commit: (e, l, i) => { setTimeout(() => { ins(e, l); i[0]!.remove(); i[1]!.remove(); l.prepend(mk('Z')); }, 50); } });
+  R['10 A down uncommitted, consumer moves D first'] = await run({ commit: (_, l, i) => { setTimeout(() => l.prepend(i[3]!), 100); } });
+  R['11 A down uncommitted, consumer moves D before C'] = await run({ commit: (_, l, i) => { setTimeout(() => l.insertBefore(i[3]!, i[2]!), 100); } });
+  R['12 A down committed, consumer moves D before C'] = await run({ commit: (e, l, i) => { setTimeout(() => { ins(e, l); l.insertBefore(i[3]!, i[2]!); }, 100); } });
+  R['13 C down committed, consumer moves A last, one task'] = await run({ idx: 2, commit: (e, l, i) => { setTimeout(() => { ins(e, l); l.append(i[0]!); }, 50); } });
+  R['14 C down committed at once, consumer moves A last at 50'] = await run({ idx: 2, commit: (e, l, i) => { ins(e, l); setTimeout(() => l.append(i[0]!), 50); } });
+  R['15 consumer moves A last at 50, C committed at 150'] = await run({ idx: 2, commit: (e, l, i) => { setTimeout(() => l.append(i[0]!), 50); setTimeout(() => ins(e, l), 150); } });
+  R['16 A committed at 50, removed at 100'] = await run({ commit: (e, l) => { setTimeout(() => ins(e, l), 50); setTimeout(() => e.item.remove(), 100); } });
+  R['17 A committed and removed in one task'] = await run({ commit: (e, l) => { setTimeout(() => { ins(e, l); e.item.remove(); }, 50); } });
+  R['18 A removed at 50, returned committed at 150'] = await run({ commit: (e, l) => { setTimeout(() => e.item.remove(), 50); setTimeout(() => ins(e, l), 150); } });
+  R['19 A removed at 50, returned at its own place at 150'] = await run({ commit: (e, l) => { setTimeout(() => e.item.remove(), 50); setTimeout(() => l.prepend(e.item), 150); } });
+  R['20 B removed at 50, returned in place at 100, A committed at 200'] = await run({ commit: (e, l, i) => { setTimeout(() => i[1]!.remove(), 50); setTimeout(() => l.insertBefore(i[1]!, i[2]!), 100); setTimeout(() => ins(e, l), 200); } });
+  R['21 all others replaced by new items, A committed'] = await run({ commit: (e, l, i) => { setTimeout(() => { l.replaceChildren(mk('b'), e.item, mk('c'), mk('d')); }, 50); } });
+  R['22 all others replaced, only A left at index 0'] = await run({ commit: (e, l) => { setTimeout(() => { l.replaceChildren(e.item); }, 50); } });
+  R['23 A committed at the end, Z prepended'] = await run({ commit: (e, l) => { setTimeout(() => { l.append(e.item); l.prepend(mk('Z')); }, 50); } });
+  R['24 A down, Z prepended, committed at 700'] = await run({ commit: (e, l) => { setTimeout(() => l.prepend(mk('Z')), 50); setTimeout(() => ins(e, l), 700); } });
+  R['25 C down, A removed, rejected'] = await run({ idx: 2, commit: (e, l, i) => { e.preventDefault(); ins(e, l); i[0]!.remove(); } });
+  R['26 Z inserted between A and B, uncommitted'] = await run({ commit: (_, l, i) => { setTimeout(() => l.insertBefore(mk('Z'), i[1]!), 50); } });
+  R['27 Z inserted at the slot, A committed before Z: B A Z C D'] = await run({ commit: (e, l) => { setTimeout(() => { ins(e, l); e.item.after(mk('Z')); }, 50); } });
+  R['28 pointer A past B, committed with B removed'] = await run({ pointer: true, commit: (e, l, i) => { setTimeout(() => { ins(e, l); i[1]!.remove(); }, 50); } });
+  R['29 pointer A, Z prepended at 50, uncommitted'] = await run({ pointer: true, commit: (_, l) => { setTimeout(() => l.prepend(mk('Z')), 50); } });
+  R['30 pointer A, Z prepended at 50, committed at 150'] = await run({ pointer: true, commit: (e, l) => { setTimeout(() => l.prepend(mk('Z')), 50); setTimeout(() => ins(e, l), 150); } });
+  await commands.writeFile(`./zz-recheck-${server.browser}.txt`, Object.entries(R).map(([k, v]) => `${k} ${JSON.stringify(v)}`).join('\n') + '\n');
+}, 200000);

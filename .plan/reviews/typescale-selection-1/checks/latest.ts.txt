@@ -1,0 +1,29 @@
+import fs from 'node:fs';import {pathToFileURL} from 'node:url';
+const D=process.argv[2]!+'/pub/latest/';
+const T='/workspaces/worktrees/e/packages/tproc/src/';
+const {loadStore}=await import(T+'store/Store.ts');const {toCSSValue}=await import(T+'processToken.ts');
+const store=await loadStore(pathToFileURL('/workspaces/worktrees/e/packages/tproc/tokens/'));
+const vars=new Map<string,[string,string]>();
+for(const f of fs.readdirSync(D)){if(/__/.test(f))continue;const s=fs.readFileSync(D+f,'utf8');const mod=f.slice(1,-5);
+ for(const m of s.matchAll(/\/\/\/ (md\.[\w.-]+)[^\n]*\n(?:\/\/\/[^\n]*\n)*\$([\w-]+):\s*([^;]+);/g))vars.set(mod+'.$'+m[2],[m[1]!,m[3]!.trim()]);}
+const lit=(v:string):string=>{const r=v.match(/^([\w-]+\.\$[\w-]+)$/);return r&&vars.has(r[1]!)?lit(vars.get(r[1]!)![1]):v};
+const norm=(v:string)=>{let x=v.replace(/"/g,"'").trim();const r=x.match(/^(-?[\d.]+)rem$/);if(r)return String(+(Number(r[1])*16).toFixed(4))+'px';const ax=x.match(/^'\w+' (-?[\d.]+)$/);if(ax)return ax[1]!;const n=x.match(/^(-?[\d.]+)(px|ms|%)?$/);if(n)return String(+Number(n[1]).toFixed(4))+(n[2]??'');return x.replace(/'/g,'')};
+const num=(s:string)=>s==='0px'?'0':s;
+const stat:any={};const set=(mode:any,label:string)=>{let cmp=0,nf=0,skip=0;const diff:string[]=[];
+ for(const [k,[name,raw]] of vars){const t=store.getToken(name);if(!t){nf++;continue}if(/^md\.sys\.color|palette/.test(name))continue;
+  const r=store.select(t,mode)?.entry?.resolvedValue;if(!r||r.type){skip++;continue}const c=toCSSValue(r);if(typeof c!=='string'){skip++;continue}
+  const a=norm(c),b=norm(lit(raw));if(c==='full'||/^#|var|rgb|color/.test(b)||/\(/.test(b)&&!/cubic/.test(b)){skip++;continue}
+  cmp++;if(num(a)!==num(b))diff.push(`${name} store=${a} web=${b}`)}
+ console.log(label,'compared',cmp,'not in store',nf,'skipped',skip,'differ',diff.length);return diff};
+const d=set({},'rendered');const f=(re:RegExp)=>d.filter(x=>re.test(x));
+console.log('typescale',f(/typescale|typeface/));console.log('motion',f(/spring|motion/).slice(0,40));console.log('rest',f(/^(?!.*(spring|motion|typescale|typeface))/).slice(0,60));
+const ts=[...vars.values()].filter(([n])=>/^md\.sys\.typescale\./.test(n)).length;console.log('typescale vars',ts);
+const d2=set({'motion.scheme':'standard'},'standard');console.log(d2.filter(x=>/spring/.test(x)).slice(0,4));
+for(const n of ['md.sys.motion.spring.fast.spatial.damping','md.sys.motion.spring.default.spatial.stiffness'])for(const [k,v] of vars)if(v[0]===n)console.log(k,v[1]);
+console.log('OTHER',f(/^(?!.*(spring|motion|typescale|typeface|elevation|surface-tint))/).length,f(/^(?!.*(spring|motion|typescale|typeface|elevation|surface-tint))/).join('\n'));
+const oldSel=(t:any)=>{const tr=t.contextualReferenceTree;const e=tr?.find((e:any)=>e.contextTags&&Object.values(e.contextTags).some((x:any)=>['expressive','web'].includes(x)))??tr?.[0];return e};
+const ch=d.filter(x=>{const t=store.getToken(x.split(' ')[0]!)!;return JSON.stringify(oldSel(t)?.resolvedValue)!==JSON.stringify(store.select(t)?.entry?.resolvedValue)});console.log('of the differences, moved by the rule:',ch.length,ch.filter(x=>!/spring/.test(x)));
+const ch2=d.filter(x=>/spring/.test(x)).length;console.log('springs among',ch2);
+console.log('typescale compared vars:',[...vars.values()].filter(([n])=>/^md\.(sys\.typescale|ref\.typeface)\./.test(n)&&store.getToken(n)).length,'emph',[...vars.values()].filter(([n])=>/typescale\.emphasized/.test(n)).length);
+// component label-text mixins
+for(const f0 of fs.readdirSync(D)){const s=fs.readFileSync(D+f0,'utf8');for(const m of s.matchAll(/\/\/\/ (md\.comp\.[\w.-]+)[^\n]*\n@mixin [\w-]+ \{\s*@include md-sys-typescale(-emphasized)?\.([\w-]+);/g)){const t=store.getToken(m[1]!);if(!t)continue;const v=(store.select(t)!.value as any).tokenName??'';const exp='md.sys.typescale.'+(m[2]?'emphasized.':'')+m[3];(stat as any)[v===exp?'same':'diff']=((stat as any)[v===exp?'same':'diff']??0)+1;if(v!==exp)console.log(m[1],v,exp)}}console.log('label mixins',stat);

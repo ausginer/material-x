@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+const S=process.argv[2]!;
+const {MATERIAL_WEB_TYPESCALE:F}=await import('/workspaces/worktrees/e/packages/tproc/tests/fixtures/material-web-typescale.ts');
+const src=fs.readFileSync(S+'/pub/_md-sys-typescale.scss','utf8');
+const ref=fs.readFileSync(S+'/pub/_md-ref-typeface.scss','utf8');
+const refs:any={};for(const m of ref.matchAll(/'([\w-]+)': if\(\$exclude-hardcoded-values, null, \(?([\w]+)\)?\)/g))refs[m[1]!]=m[2];
+console.log(refs);
+const pub:any={};
+for(const m of src.matchAll(/'([a-z-]+)-(font|weight|size|line-height|tracking)':\s*(?:map\.get\(\$deps,\s*'md-ref-typeface',\s*'([\w-]+)'\)|if\(\s*\$exclude-hardcoded-values,\s*null,\s*(-?[\d.]+)(rem)?\s*\))/g)){
+ const v=m[3]?refs[m[3]]:m[4]; (pub[m[1]!]??={})[m[2]!]=isNaN(Number(v))?v:Number(v);}
+let n=0,bad=0;for(const s of new Set([...Object.keys(pub),...Object.keys(F)]))for(const p of ['font','weight','size','line-height','tracking']){n++;if(pub[s]?.[p]!==F[s]?.[p]){bad++;console.log(s,p,pub[s]?.[p],F[s]?.[p])}}
+console.log('styles',Object.keys(pub).length,'values',n,'differ',bad, 'extra props',Object.values(F).some((x:any)=>Object.keys(x).length!==5));

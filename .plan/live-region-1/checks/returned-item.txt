@@ -1,0 +1,69 @@
+# The case "the item leaves and returns at the proposed slot" of recheck-2 of #197, by the implementer on 2026-11-23, in slot b.
+# On 9895c985c (the merge of main at 5259fe368) with the case added. Chromium, Firefox and WebKit together, browser project,
+# tests/list/sortable-list, -t "other items change". sortable-list.ts was changed for the two last runs and put back.
+## head
+      Tests  42 passed | 267 skipped (309)
+ packages/material-x/src/list/sortable-list.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## without index >= 0 in the wait
+     × should announce only a real move when the item leaves and returns at the prop… 236ms
+     × should announce only a real move when the item leaves and returns at the prop… 195ms
+     × should announce only a real move when the item leaves and returns at the prop… 197ms
+AssertionError: expected '' to be 'Item 3 of 4.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 4.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 4.' // Object.is equality
+DragFault: drag: sortable/landing-placeholder-lost
+DragFault: drag: sortable/landing-placeholder-lost
+DragFault: drag: sortable/landing-placeholder-lost
+DragFault: drag: sortable/landing-placeholder-lost
+DragFault: drag: sortable/landing-placeholder-lost
+DragFault: drag: sortable/landing-placeholder-lost
+      Tests  3 failed | 39 passed | 267 skipped (309)
+## sortable-list.ts of 333c9f7ae
+     × should announce only a real move when an item is inserted and the move is not… 291ms
+     × should announce only a real move when an item is inserted before the move is … 152ms
+     × should announce only a real move when another item is removed in the task tha… 595ms
+     × should announce only a real move when another item is removed before the move… 607ms
+     × should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 136ms
+     × should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 584ms
+     × should end the wait only for the order of the proposed slot when another item is removed in the task tha… 598ms
+     × should end the wait only for the order of the proposed slot when another item is removed before the move… 598ms
+     × should end the wait only for the order of the proposed slot when the passed item is removed and the move… 588ms
+     × should announce only a real move when an item is inserted and the move is not… 318ms
+     × should announce only a real move when an item is inserted before the move is … 286ms
+     × should announce only a real move when another item is removed in the task tha… 650ms
+     × should announce only a real move when another item is removed before the move… 712ms
+     × should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 148ms
+     × should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 665ms
+     × should end the wait only for the order of the proposed slot when another item is removed in the task tha… 878ms
+     × should end the wait only for the order of the proposed slot when another item is removed before the move… 886ms
+     × should end the wait only for the order of the proposed slot when the passed item is removed and the move… 787ms
+     × should announce only a real move when an item is inserted and the move is not… 265ms
+     × should announce only a real move when an item is inserted before the move is … 163ms
+     × should announce only a real move when another item is removed in the task tha… 580ms
+     × should announce only a real move when another item is removed before the move… 591ms
+     × should end the wait only for the order of the proposed slot when an item is inserted and the move is not… 129ms
+     × should end the wait only for the order of the proposed slot when an item is inserted in the task that co… 585ms
+     × should end the wait only for the order of the proposed slot when another item is removed in the task tha… 594ms
+     × should end the wait only for the order of the proposed slot when another item is removed before the move… 578ms
+     × should end the wait only for the order of the proposed slot when the passed item is removed and the move… 578ms
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 5.' to be 'Item 3 of 5.' // Object.is equality
+AssertionError: expected '' to be 'Item 3 of 3.' // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+      Tests  27 failed | 15 passed | 267 skipped (309)
+
+## material-x, tests/list and tests/core/polyfills, every project, three engines, with sortable-list.ts put back
+ Test Files  16 passed (16)
+      Tests  610 passed | 4 skipped (614)

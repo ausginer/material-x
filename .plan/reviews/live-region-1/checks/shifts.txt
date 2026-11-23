@@ -1,0 +1,67 @@
+# Other items' changes during the commit wait, with ../probes/shifts.browser.test.ts.txt. 'base' has list/sortable-list.ts of 35ea25892 in the same tree.
+## head, 333c9f7ae
+ RUN  v5.1.0 /workspaces/worktrees/b/packages/material-x
+RES chromium {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":507},
+"uncommitted A, Z prepended at 100ms":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":98},
+"C committed down and A removed, one task":{"texts":[],"final":"BDC","errs":[],"endMs":502},
+"A removed at 50ms, C committed down at 150ms":{"texts":[],"final":"BDC","errs":[],"endMs":499},
+"A committed at once, Z prepended in the same task":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":495},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":494},
+"remove item at 100ms":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":504},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+TREE chromium <div aria-live="polite" class="aria-notify"></div> role=2 sheets, style=null, vis=visible/block; plain list has region: false
+RES firefox {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":496},
+"uncommitted A, Z prepended at 100ms":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":100},
+"C committed down and A removed, one task":{"texts":[],"final":"BDC","errs":[],"endMs":503},
+"A removed at 50ms, C committed down at 150ms":{"texts":[],"final":"BDC","errs":[],"endMs":502},
+"A committed at once, Z prepended in the same task":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":500},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":498},
+"remove item at 100ms":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":497},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+TREE firefox <div aria-live="polite" class="aria-notify"></div> role=2 sheets, style=null, vis=visible/block; plain list has region: false
+RES webkit {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":501},
+"uncommitted A, Z prepended at 100ms":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":100},
+"C committed down and A removed, one task":{"texts":[],"final":"BDC","errs":[],"endMs":494},
+"A removed at 50ms, C committed down at 150ms":{"texts":[],"final":"BDC","errs":[],"endMs":506},
+"A committed at once, Z prepended in the same task":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":499},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":498},
+"remove item at 100ms":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":482},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+TREE webkit <div aria-live="polite" class="aria-notify"></div> role=2 sheets, style=null, vis=visible/block; plain list has region: false
+ Test Files  3 passed (3)
+      Tests  6 passed (6)
+   Start at  09:50:07
+   Duration  46.87s (tests 95%, worker 3%, import 1%)
+## base
+ RUN  v5.1.0 /workspaces/worktrees/b/packages/material-x
+RES chromium {"never":{"texts":["Item 2 of 4.@ABCD"],"final":"ABCD","errs":[],"endMs":504},
+"uncommitted A, Z prepended at 100ms":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":98},
+"C committed down and A removed, one task":{"texts":["Item 4 of 3.@BDC"],"final":"BDC","errs":[],"endMs":500},
+"A removed at 50ms, C committed down at 150ms":{"texts":["Item 4 of 3.@BDC"],"final":"BDC","errs":[],"endMs":490},
+"A committed at once, Z prepended in the same task":{"texts":["Item 2 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":499},
+"remove item":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":505},
+"remove item at 100ms":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":498},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+TREE chromium <div aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;"></div> role=1 sheets, style=position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;, vis=visible/block; plain list has region: false
+RES firefox {"never":{"texts":["Item 2 of 4.@ABCD"],"final":"ABCD","errs":[],"endMs":499},
+"uncommitted A, Z prepended at 100ms":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":99},
+"C committed down and A removed, one task":{"texts":["Item 4 of 3.@BDC"],"final":"BDC","errs":[],"endMs":501},
+"A removed at 50ms, C committed down at 150ms":{"texts":["Item 4 of 3.@BDC"],"final":"BDC","errs":[],"endMs":499},
+"A committed at once, Z prepended in the same task":{"texts":["Item 2 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":499},
+"remove item":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":500},
+"remove item at 100ms":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":502},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+TREE firefox <div aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;"></div> role=1 sheets, style=position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;, vis=visible/block; plain list has region: false
+RES webkit {"never":{"texts":["Item 2 of 4.@ABCD"],"final":"ABCD","errs":[],"endMs":501},
+"uncommitted A, Z prepended at 100ms":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":105},
+"C committed down and A removed, one task":{"texts":["Item 4 of 3.@BDC"],"final":"BDC","errs":[],"endMs":503},
+"A removed at 50ms, C committed down at 150ms":{"texts":["Item 4 of 3.@BDC"],"final":"BDC","errs":[],"endMs":502},
+"A committed at once, Z prepended in the same task":{"texts":["Item 2 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":502},
+"remove item":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":505},
+"remove item at 100ms":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":508},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+TREE webkit <div aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;"></div> role=1 sheets, style=position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;, vis=visible/block; plain list has region: false
+ Test Files  3 passed (3)
+      Tests  6 passed (6)
+   Start at  09:50:56
+   Duration  46.61s (tests 95%, worker 3%, import 2%)

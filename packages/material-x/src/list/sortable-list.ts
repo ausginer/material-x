@@ -21,6 +21,7 @@ import {
   type SortableController,
 } from '@ydinjs/drag/sortable.js';
 import type { EmptyObject } from 'type-fest';
+import { useAriaNotifyPolyfill } from '../core/polyfills/aria-notify/aria-notify.ts';
 import { identity, parseMs } from '../core/utils/fns.ts';
 import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
 import { handleOf, sortItem } from './sortable-item.ts';
@@ -115,7 +116,7 @@ const SortableListConstructor: Composed<
  *   proposes. It carries `item`, `from`, `to`, `previous` and `next`, and
  *   `list.insertBefore(event.item, event.next)` applies it. The list never
  *   moves an item itself. The item stays lifted until the list's children
- *   show it at `to`, so the consumer may commit in the handler or later, as in
+ *   show the move, so the consumer may commit in the handler or later, as in
  *   a framework render. After 500 ms the item lands where the DOM has it.
  *   `preventDefault()` rejects the move, and the item lands home.
  *
@@ -126,14 +127,8 @@ export default class SortableList extends SortableListConstructor {
   constructor() {
     super();
     useListCore(this);
-    const live = document.createElement('div');
-    live.setAttribute('aria-live', 'polite');
-    // Visually hidden and exposed to assistive technology. No stylesheet of
-    // the list's reaches it, so the styles are inline.
-    live.style.cssText =
-      'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap';
-    this.shadowRoot!.append(live);
 
+    const notify = useAriaNotifyPolyfill(this);
     const slot = this.shadowRoot!.querySelector<HTMLSlotElement>('slot')!;
     const read = (): readonly ControlledElement[] =>
       slot
@@ -146,7 +141,28 @@ export default class SortableList extends SortableListConstructor {
     let items: readonly ControlledElement[] = [];
     let dragged: ControlledElement | null = null;
     let commit: (() => void) | null = null;
+    /** The items of the last proposal in its order, without the moved one. */
+    let others: readonly ControlledElement[] = [];
     let controller: SortableController | null = null;
+
+    /**
+     * Whether the item at `index` of `current` has the order of `slot` among the
+     * other items of the proposal that are still in the list. Items that came or
+     * left since the proposal shift its index without moving it.
+     */
+    const isAtSlot = (
+      current: readonly ControlledElement[],
+      index: number,
+      slot: number,
+    ): boolean => {
+      const before = new Set(others);
+      const now = new Set(current);
+
+      return (
+        current.slice(0, index).filter((other) => before.has(other)).length ===
+        others.slice(0, slot).filter((other) => now.has(other)).length
+      );
+    };
 
     const config: SortableConfig = {
       items: () => items,
@@ -165,14 +181,24 @@ export default class SortableList extends SortableListConstructor {
         toggleState(internals(dragged), DRAG_STATE, true);
       },
       onEnd: (result) => {
-        toggleState(internals(dragged!), DRAG_STATE, false);
+        const item = dragged!;
+        toggleState(internals(item), DRAG_STATE, false);
         dragged = null;
 
         if (result.type === 'accepted') {
-          live.textContent = `Item ${result.request.to + 1} of ${items.length}.`;
+          // An accepted move can end with the item unmoved, at another slot,
+          // or out of the list, so its position is read here.
+          const current = read();
+          const index = current.indexOf(item);
+
+          if (index >= 0 && !isAtSlot(current, index, result.request.from)) {
+            notify(`Item ${index + 1} of ${current.length}.`);
+          }
         }
       },
       onReorder: (request, { signal }) => {
+        others = items.filter((other) => other !== request.item);
+
         if (!this.dispatchEvent(new ReorderEvent(request))) {
           return ReorderResolution.reject();
         }
@@ -186,9 +212,10 @@ export default class SortableList extends SortableListConstructor {
           const timer = setTimeout(done, COMMIT_TIMEOUT);
 
           commit = () => {
-            if (
-              read().indexOf(request.item as ControlledElement) === request.to
-            ) {
+            const current = read();
+            const index = current.indexOf(request.item as ControlledElement);
+
+            if (index >= 0 && isAtSlot(current, index, request.to)) {
               done();
             }
           };

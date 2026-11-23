@@ -1,0 +1,303 @@
+# Announcements and overflow at 333c9f7ae, with ../probes/announcements-and-overflow.browser.test.ts.txt in packages/material-x/tests/list/:
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' --silent=false tests/list/<probe>
+# RES: texts is what the region was given, with the order then. endMs is when the drag state ended. OV: each ancestor's and the document's scroll size, with the region (holding 500 characters) and after its removal. WIT: the region with the inline styles given.
+ RUN  v5.1.0 /workspaces/worktrees/b/packages/material-x
+RES chromium {"never, token landing":{"texts":[],"final":"ABCD","errs":[],"endMs":495},
+"commit at once, token":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":0},
+"commit 400, token landing":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":405},
+"commit 520, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":506},
+"commit 560, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":492},
+"commit 600, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":491},
+"commit 700, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":490},
+"commit 800, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":505},
+"commit 900, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":502},
+"commit 520, pointer, token":{"texts":[],"final":"BACD","errs":[],"endMs":497},
+"reject":{"texts":[],"final":"ABCD","errs":[],"endMs":0},
+"reject but moves":{"texts":[],"final":"BCDA","errs":[],"endMs":0},
+"uncommitted + prepend":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":98},
+"uncommitted C up + remove A":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":[],"endMs":495},
+"committed + remove B in landing":{"texts":["Item 2 of 4.@BACD"],"final":"ACD","errs":[],"endMs":0},
+"committed + remove B at once":{"texts":[],"final":"ACD","errs":[],"endMs":500},
+"committed + prepend Z":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":498},
+"ArrowUp on C uncommitted + remove A":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":[],"endMs":103},
+"ArrowUp on C commit":{"texts":["Item 2 of 4.@ACBD"],"final":"ACBD","errs":[],"endMs":51},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":499},
+"remove item later":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":493},
+"move to other list":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":505},
+"escape in commit wait":{"texts":[],"final":"ABCD","errs":[],"endMs":15},
+"pointer never":{"texts":[],"final":"ABCD","errs":[],"endMs":498},
+"pointer commit":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":46},
+"pointer elsewhere":{"texts":["Item 4 of 4.@BCDA"],"final":"BCDA","errs":[],"endMs":494}}
+OV chromium transformed scroller: same fixed inset(50%) 1px 1px
+OV chromium filter>scroller: same fixed inset(50%) 1px 1px
+OV chromium contain:layout>scroller: same fixed inset(50%) 1px 1px
+OV chromium contain:paint>scroller: same fixed inset(50%) 1px 1px
+OV chromium container-type>scroller: same fixed inset(50%) 1px 1px
+OV chromium will-change>scroller: same fixed inset(50%) 1px 1px
+OV chromium perspective>scroller: same fixed inset(50%) 1px 1px
+OV chromium backdrop-filter>scroller: same fixed inset(50%) 1px 1px
+OV chromium contained in transformed h0 at end: same fixed inset(50%) 1px 1px
+OV chromium scale 100: same fixed inset(50%) 1px 1px
+OV chromium vertical-rl transformed scroller: same fixed inset(50%) 1px 1px
+OV chromium rtl transformed scroller: same fixed inset(50%) 1px 1px
+OV chromium 0.4px transformed: same fixed inset(50%) 0.390625px 0.390625px
+OV chromium border transformed: same fixed inset(50%) 0px 0px
+OV chromium inline filter: same fixed inset(50%) 1px 1px
+OV chromium rotated: same fixed inset(50%) 1px 1px
+OV chromium grid: same fixed inset(50%) 1px 1px
+WIT chromium
+T>S position:fixed;top:0;left:0: same
+T>S position:fixed: [[1232,56],[1232,3056],[1232,3001],[1280,3025],[1280,3025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+T>S position:fixed;top:5000px;left:0: [[1232,56],[1232,3056],[1232,5001],[1280,5025],[1280,5025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+T>S position:fixed;top:0;left:5000px: [[1232,56],[1232,3056],[5001,200],[5025,768],[5025,768]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+T>S position:fixed;bottom:-900px;left:0: same
+T>S position:absolute;top:0;left:0: same
+T>S position:absolute: [[1232,56],[1232,3056],[1232,3001],[1280,3025],[1280,3025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+TS position:fixed;top:0;left:0: same
+TS position:fixed: same
+TS position:fixed;top:5000px;left:0: [[1232,56],[1232,5001],[1280,768],[1280,768]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+TS position:fixed;top:0;left:5000px: [[1232,56],[5001,3056],[1280,768],[1280,768]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+TS position:fixed;bottom:-900px;left:0: same
+TS position:absolute;top:0;left:0: same
+TS position:absolute: same
+S>T position:fixed;top:0;left:0: same
+S>T position:fixed: same
+S>T position:fixed;top:5000px;left:0: [[50,56],[50,5001],[1232,5001],[1280,768],[1280,768]] vs [[50,56],[50,3056],[1232,3056],[1280,768],[1280,768]]
+S>T position:fixed;top:0;left:5000px: [[50,56],[5001,3056],[5001,3056],[1280,768],[1280,768]] vs [[50,56],[50,3056],[1232,3056],[1280,768],[1280,768]]
+S>T position:fixed;bottom:-900px;left:0: same
+S>T position:absolute;top:0;left:0: same
+S>T position:absolute: same
+S position:fixed;top:0;left:0: same
+S position:fixed: same
+S position:fixed;top:5000px;left:0: same
+S position:fixed;top:0;left:5000px: same
+S position:fixed;bottom:-900px;left:0: same
+S position:absolute;top:0;left:0: same
+S position:absolute: [[1232,56],[1232,3056],[1280,768],[1280,3025]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+T in page position:fixed;top:0;left:0: same
+T in page position:fixed: same
+T in page position:fixed;top:5000px;left:0: [[1232,56],[1232,5001],[1280,5025],[1280,5025]] vs [[1232,56],[1232,3056],[1280,3104],[1280,3104]]
+T in page position:fixed;top:0;left:5000px: [[1232,56],[5001,3056],[5025,3104],[5025,3104]] vs [[1232,56],[1232,3056],[1280,3104],[1280,3104]]
+T in page position:fixed;bottom:-900px;left:0: same
+T in page position:absolute;top:0;left:0: same
+T in page position:absolute: same
+RES firefox {"never, token landing":{"texts":[],"final":"ABCD","errs":[],"endMs":498},
+"commit at once, token":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":1},
+"commit 400, token landing":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":403},
+"commit 520, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":499},
+"commit 560, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":502},
+"commit 600, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":496},
+"commit 700, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":500},
+"commit 800, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":502},
+"commit 900, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":501},
+"commit 520, pointer, token":{"texts":[],"final":"BACD","errs":[],"endMs":500},
+"reject":{"texts":[],"final":"ABCD","errs":[],"endMs":0},
+"reject but moves":{"texts":[],"final":"BCDA","errs":[],"endMs":0},
+"uncommitted + prepend":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":101},
+"uncommitted C up + remove A":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":[],"endMs":503},
+"committed + remove B in landing":{"texts":["Item 2 of 4.@BACD"],"final":"ACD","errs":[],"endMs":0},
+"committed + remove B at once":{"texts":[],"final":"ACD","errs":[],"endMs":499},
+"committed + prepend Z":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":498},
+"ArrowUp on C uncommitted + remove A":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":[],"endMs":99},
+"ArrowUp on C commit":{"texts":["Item 2 of 4.@ACBD"],"final":"ACBD","errs":[],"endMs":51},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":499},
+"remove item later":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":498},
+"move to other list":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":499},
+"escape in commit wait":{"texts":[],"final":"ABCD","errs":[],"endMs":31},
+"pointer never":{"texts":[],"final":"ABCD","errs":[],"endMs":503},
+"pointer commit":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":54},
+"pointer elsewhere":{"texts":["Item 4 of 4.@BCDA"],"final":"BCDA","errs":[],"endMs":488}}
+OV firefox transformed scroller: same fixed inset(50%) 1px 1px
+OV firefox filter>scroller: same fixed inset(50%) 1px 1px
+OV firefox contain:layout>scroller: same fixed inset(50%) 1px 1px
+OV firefox contain:paint>scroller: same fixed inset(50%) 1px 1px
+OV firefox container-type>scroller: same fixed inset(50%) 1px 1px
+OV firefox will-change>scroller: same fixed inset(50%) 1px 1px
+OV firefox perspective>scroller: same fixed inset(50%) 1px 1px
+OV firefox backdrop-filter>scroller: same fixed inset(50%) 1px 1px
+OV firefox contained in transformed h0 at end: same fixed inset(50%) 1px 1px
+OV firefox scale 100: same fixed inset(50%) 1px 1px
+OV firefox vertical-rl transformed scroller: same fixed inset(50%) 1px 1px
+OV firefox rtl transformed scroller: same fixed inset(50%) 1px 1px
+OV firefox 0.4px transformed: same fixed inset(50%) 0.4px 0.4px
+OV firefox border transformed: same fixed inset(50%) 0px 0px
+OV firefox inline filter: DIFF [[[1232,56],[0,1],[1232,66],[1280,768],[1280,768]],[[1232,56],[0,0],[1232,66],[1280,768],[1280,768]]] fixed inset(50%) 0px 1px
+OV firefox rotated: same fixed inset(50%) 1px 1px
+OV firefox grid: same fixed inset(50%) 1px 1px
+WIT firefox
+T>S position:fixed;top:0;left:0: same
+T>S position:fixed: [[1232,56],[1232,3056],[1232,3001],[1280,3025],[1280,3025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+T>S position:fixed;top:5000px;left:0: [[1232,56],[1232,3056],[1232,5001],[1280,5025],[1280,5025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+T>S position:fixed;top:0;left:5000px: [[1232,56],[1232,3056],[5001,200],[5025,768],[5025,768]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+T>S position:fixed;bottom:-900px;left:0: same
+T>S position:absolute;top:0;left:0: same
+T>S position:absolute: [[1232,56],[1232,3056],[1232,3001],[1280,3025],[1280,3025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+TS position:fixed;top:0;left:0: same
+TS position:fixed: same
+TS position:fixed;top:5000px;left:0: [[1232,56],[1232,5001],[1280,768],[1280,768]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+TS position:fixed;top:0;left:5000px: [[1232,56],[5001,3056],[1280,768],[1280,768]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+TS position:fixed;bottom:-900px;left:0: same
+TS position:absolute;top:0;left:0: same
+TS position:absolute: same
+S>T position:fixed;top:0;left:0: same
+S>T position:fixed: same
+S>T position:fixed;top:5000px;left:0: [[50,56],[50,5001],[1232,5001],[1280,768],[1280,768]] vs [[50,56],[50,3056],[1232,3056],[1280,768],[1280,768]]
+S>T position:fixed;top:0;left:5000px: [[50,56],[5001,3056],[5001,3056],[1280,768],[1280,768]] vs [[50,56],[50,3056],[1232,3056],[1280,768],[1280,768]]
+S>T position:fixed;bottom:-900px;left:0: same
+S>T position:absolute;top:0;left:0: same
+S>T position:absolute: same
+S position:fixed;top:0;left:0: same
+S position:fixed: same
+S position:fixed;top:5000px;left:0: same
+S position:fixed;top:0;left:5000px: same
+S position:fixed;bottom:-900px;left:0: same
+S position:absolute;top:0;left:0: same
+S position:absolute: [[1232,56],[1232,3056],[1280,768],[1280,3025]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+T in page position:fixed;top:0;left:0: same
+T in page position:fixed: same
+T in page position:fixed;top:5000px;left:0: [[1232,56],[1232,5001],[1280,5025],[1280,5025]] vs [[1232,56],[1232,3056],[1280,3104],[1280,3104]]
+T in page position:fixed;top:0;left:5000px: [[1232,56],[5001,3056],[5025,3104],[5025,3104]] vs [[1232,56],[1232,3056],[1280,3104],[1280,3104]]
+T in page position:fixed;bottom:-900px;left:0: same
+T in page position:absolute;top:0;left:0: same
+T in page position:absolute: same
+RES webkit {"never, token landing":{"texts":[],"final":"ABCD","errs":[],"endMs":494},
+"commit at once, token":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":0},
+"commit 400, token landing":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":399},
+"commit 520, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":503},
+"commit 560, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":499},
+"commit 600, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":484},
+"commit 700, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":502},
+"commit 800, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":500},
+"commit 900, token landing":{"texts":[],"final":"BACD","errs":[],"endMs":501},
+"commit 520, pointer, token":{"texts":[],"final":"BACD","errs":[],"endMs":512},
+"reject":{"texts":[],"final":"ABCD","errs":[],"endMs":0},
+"reject but moves":{"texts":[],"final":"BCDA","errs":[],"endMs":0},
+"uncommitted + prepend":{"texts":["Item 2 of 5.@ZABCD"],"final":"ZABCD","errs":[],"endMs":102},
+"uncommitted C up + remove A":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":[],"endMs":502},
+"committed + remove B in landing":{"texts":["Item 2 of 4.@BACD"],"final":"ACD","errs":[],"endMs":0},
+"committed + remove B at once":{"texts":[],"final":"ACD","errs":[],"endMs":500},
+"committed + prepend Z":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":504},
+"ArrowUp on C uncommitted + remove A":{"texts":["Item 2 of 3.@BCD"],"final":"BCD","errs":[],"endMs":100},
+"ArrowUp on C commit":{"texts":["Item 2 of 4.@ACBD"],"final":"ACBD","errs":[],"endMs":52},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":506},
+"remove item later":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":501},
+"move to other list":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":505},
+"escape in commit wait":{"texts":[],"final":"ABCD","errs":[],"endMs":5},
+"pointer never":{"texts":[],"final":"ABCD","errs":[],"endMs":506},
+"pointer commit":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":55},
+"pointer elsewhere":{"texts":["Item 4 of 4.@BCDA"],"final":"BCDA","errs":[],"endMs":501}}
+OV webkit transformed scroller: same fixed inset(50%) 1px 1px
+OV webkit filter>scroller: same fixed inset(50%) 1px 1px
+OV webkit contain:layout>scroller: same fixed inset(50%) 1px 1px
+OV webkit contain:paint>scroller: same fixed inset(50%) 1px 1px
+OV webkit container-type>scroller: same fixed inset(50%) 1px 1px
+OV webkit will-change>scroller: same fixed inset(50%) 1px 1px
+OV webkit perspective>scroller: same fixed inset(50%) 1px 1px
+OV webkit backdrop-filter>scroller: same fixed inset(50%) 1px 1px
+OV webkit contained in transformed h0 at end: same fixed inset(50%) 1px 1px
+OV webkit scale 100: same fixed inset(50%) 1px 1px
+OV webkit vertical-rl transformed scroller: same fixed inset(50%) 1px 1px
+OV webkit rtl transformed scroller: same fixed inset(50%) 1px 1px
+OV webkit 0.4px transformed: same fixed inset(50%) 0.390625px 0.390625px
+OV webkit border transformed: same fixed inset(50%) 0px 0px
+OV webkit inline filter: same fixed inset(50%) 0px 1px
+OV webkit rotated: same fixed inset(50%) 1px 1px
+OV webkit grid: same fixed inset(50%) 1px 1px
+WIT webkit
+T>S position:fixed;top:0;left:0: same
+T>S position:fixed: same
+T>S position:fixed;top:5000px;left:0: same
+T>S position:fixed;top:0;left:5000px: same
+T>S position:fixed;bottom:-900px;left:0: same
+T>S position:absolute;top:0;left:0: same
+T>S position:absolute: [[1232,56],[1232,3056],[1232,3001],[1280,3025],[1280,3025]] vs [[1232,56],[1232,3056],[1232,200],[1280,768],[1280,768]]
+TS position:fixed;top:0;left:0: same
+TS position:fixed: same
+TS position:fixed;top:5000px;left:0: same
+TS position:fixed;top:0;left:5000px: same
+TS position:fixed;bottom:-900px;left:0: same
+TS position:absolute;top:0;left:0: same
+TS position:absolute: same
+S>T position:fixed;top:0;left:0: same
+S>T position:fixed: same
+S>T position:fixed;top:5000px;left:0: same
+S>T position:fixed;top:0;left:5000px: same
+S>T position:fixed;bottom:-900px;left:0: same
+S>T position:absolute;top:0;left:0: same
+S>T position:absolute: same
+S position:fixed;top:0;left:0: same
+S position:fixed: same
+S position:fixed;top:5000px;left:0: same
+S position:fixed;top:0;left:5000px: same
+S position:fixed;bottom:-900px;left:0: same
+S position:absolute;top:0;left:0: same
+S position:absolute: [[1232,56],[1232,3056],[1280,768],[1280,3025]] vs [[1232,56],[1232,3056],[1280,768],[1280,768]]
+T in page position:fixed;top:0;left:0: same
+T in page position:fixed: same
+T in page position:fixed;top:5000px;left:0: same
+T in page position:fixed;top:0;left:5000px: same
+T in page position:fixed;bottom:-900px;left:0: same
+T in page position:absolute;top:0;left:0: same
+T in page position:absolute: same
+ Test Files  3 passed (3)
+      Tests  57 passed (57)
+   Start at  09:41:13
+   Duration  145.39s (tests 98%, worker 1%, import 1%)
+
+# Landing of 400 ms, linear, with ../probes/landing.browser.test.ts.txt
+ RUN  v5.1.0 /workspaces/worktrees/b/packages/material-x
+RES chromium {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":490},
+"at once":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":0},
+"commit 480":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":482},
+"commit 550":{"texts":[],"final":"BACD","errs":[],"endMs":495},
+"commit 600":{"texts":[],"final":"BACD","errs":[],"endMs":493},
+"commit 700":{"texts":[],"final":"BACD","errs":[],"endMs":491},
+"commit 800":{"texts":[],"final":"BACD","errs":[],"endMs":504},
+"commit 1000":{"texts":[],"final":"BACD","errs":[],"endMs":486},
+"pointer commit 700":{"texts":[],"final":"BACD","errs":[],"endMs":495},
+"pointer commit 1000":{"texts":[],"final":"BACD","errs":[],"endMs":497},
+"committed at once, B removed 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ACD","errs":[],"endMs":0},
+"committed at once, A removed 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"BCD","errs":[],"endMs":0},
+"committed at once, prepend Z 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ZBACD","errs":[],"endMs":0},
+"committed at once, returned home 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ABCD","errs":[],"endMs":0},
+"two presses":{"texts":["Item 2 of 4.@BACD","Item 3 of 4.@BCAD"],"final":"BCAD","errs":[],"endMs":1722},
+"press during landing":{"texts":["Item 2 of 4.@BACD","Item 3 of 4.@BCAD"],"final":"BCAD","errs":[],"endMs":1116},
+"uncommitted then press in landing":{"texts":[],"final":"ABCD","errs":[],"endMs":2215}}
+RES firefox {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":499},
+"at once":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":0},
+"commit 480":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":484},
+"commit 550":{"texts":[],"final":"BACD","errs":[],"endMs":501},
+"commit 600":{"texts":[],"final":"BACD","errs":[],"endMs":499},
+"commit 700":{"texts":[],"final":"BACD","errs":[],"endMs":502},
+"commit 800":{"texts":[],"final":"BACD","errs":[],"endMs":500},
+"commit 1000":{"texts":[],"final":"BACD","errs":[],"endMs":500},
+"pointer commit 700":{"texts":[],"final":"BACD","errs":[],"endMs":503},
+"pointer commit 1000":{"texts":[],"final":"BACD","errs":[],"endMs":502},
+"committed at once, B removed 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ACD","errs":[],"endMs":0},
+"committed at once, A removed 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"BCD","errs":[],"endMs":0},
+"committed at once, prepend Z 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ZBACD","errs":[],"endMs":0},
+"committed at once, returned home 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ABCD","errs":[],"endMs":0},
+"two presses":{"texts":["Item 2 of 4.@BACD","Item 3 of 4.@BCAD"],"final":"BCAD","errs":[],"endMs":1722},
+"press during landing":{"texts":["Item 2 of 4.@BACD","Item 3 of 4.@BCAD"],"final":"BCAD","errs":[],"endMs":1112},
+"uncommitted then press in landing":{"texts":[],"final":"ABCD","errs":[],"endMs":2209}}
+RES webkit {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":502},
+"at once":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":0},
+"commit 480":{"texts":["Item 2 of 4.@BACD"],"final":"BACD","errs":[],"endMs":484},
+"commit 550":{"texts":[],"final":"BACD","errs":[],"endMs":505},
+"commit 600":{"texts":[],"final":"BACD","errs":[],"endMs":501},
+"commit 700":{"texts":[],"final":"BACD","errs":[],"endMs":501},
+"commit 800":{"texts":[],"final":"BACD","errs":[],"endMs":501},
+"commit 1000":{"texts":[],"final":"BACD","errs":[],"endMs":506},
+"pointer commit 700":{"texts":[],"final":"BACD","errs":[],"endMs":504},
+"pointer commit 1000":{"texts":[],"final":"BACD","errs":[],"endMs":506},
+"committed at once, B removed 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ACD","errs":[],"endMs":0},
+"committed at once, A removed 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"BCD","errs":[],"endMs":0},
+"committed at once, prepend Z 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ZBACD","errs":[],"endMs":0},
+"committed at once, returned home 100ms later":{"texts":["Item 2 of 4.@BACD"],"final":"ABCD","errs":[],"endMs":0},
+"two presses":{"texts":["Item 2 of 4.@BACD","Item 3 of 4.@BCAD"],"final":"BCAD","errs":[],"endMs":1710},
+"press during landing":{"texts":["Item 2 of 4.@BACD","Item 3 of 4.@BCAD"],"final":"BCAD","errs":[],"endMs":1116},
+"uncommitted then press in landing":{"texts":[],"final":"ABCD","errs":[],"endMs":2206}}
+ Test Files  3 passed (3)
+      Tests  3 passed (3)
+   Start at  09:44:02
+   Duration  100.81s (tests 98%, worker 1%, import 1%)

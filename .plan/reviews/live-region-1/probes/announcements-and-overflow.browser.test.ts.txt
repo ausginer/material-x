@@ -1,0 +1,119 @@
+import { expect, it, describe, vi } from 'vitest';
+import { commands, userEvent, server } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/sortable-list.ts';
+import type { ReorderEvent } from '../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const mk = (t: string) => { const i = document.createElement('mx-list-item'); i.textContent = t; return i; };
+type L = HTMLElement;
+const region = (l: L) => l.shadowRoot!.querySelector<HTMLElement>('[aria-live]')!;
+const order = (l: L) => [...l.children].filter((c) => !c.hasAttribute('data-drag-placeholder')).map((c) => c.textContent).join('');
+async function run(opts: { token?: boolean; key?: string; idx?: number; pointer?: boolean; commit?: (e: ReorderEvent, l: L, items: HTMLElement[]) => void; during?: (l: L, items: HTMLElement[]) => Promise<void> }) {
+  const list = document.createElement('mx-sortable-list');
+  if (!opts.token) list.style.setProperty('--_drag-duration', '0s');
+  const items = ['A', 'B', 'C', 'D'].map(mk);
+  list.append(...items); document.body.append(list);
+  list.addEventListener('reorder', (e) => opts.commit?.(e as ReorderEvent, list, items));
+  const texts: string[] = []; const t0 = performance.now();
+  new MutationObserver(() => texts.push(`${region(list).textContent}@${order(list)}`)).observe(region(list), { childList: true, characterData: true, subtree: true });
+  const errs: string[] = [];
+  const spy = vi.spyOn(window, 'reportError').mockImplementation((e) => { errs.push(String((e as Error)?.message ?? e)); });
+  await wait(100);
+  const it = items[opts.idx ?? 0]!;
+  let endAt = 0; let liftAt = 0;
+  if (opts.pointer) {
+    const c = (e: Element) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] as const; };
+    const [x, y] = c(it);
+    await commands.pointerPress(x, y); await commands.pointerMove(x, y + 12, 3);
+    const [, y2] = c(items[1]!); await commands.pointerMove(x, y2 + 10, 8); await commands.pointerRelease();
+  } else { it.focus(); await userEvent.keyboard(opts.key ?? '{ArrowDown}'); }
+  liftAt = performance.now();
+  await opts.during?.(list, items);
+  while (it.matches(':state(drag)') && performance.now() - liftAt < 4000) await wait(5);
+  endAt = performance.now() - liftAt;
+  await wait(1200);
+  const res = { texts, final: order(list), errs, endMs: Math.round(endAt) };
+  spy.mockRestore(); list.remove();
+  return res;
+}
+const at = (ms: number) => (e: ReorderEvent, l: L) => { setTimeout(() => l.insertBefore(e.item, e.next), ms); };
+it('announcements', async () => {
+  const R: Record<string, unknown> = {};
+  R['never, token landing'] = await run({ token: true });
+  R['commit at once, token'] = await run({ token: true, commit: at(0) });
+  for (const ms of [400, 520, 560, 600, 700, 800, 900]) R[`commit ${ms}, token landing`] = await run({ token: true, commit: at(ms) });
+  R['commit 520, pointer, token'] = await run({ token: true, pointer: true, commit: at(560) });
+  R['reject'] = await run({ commit: (e) => e.preventDefault() });
+  R['reject but moves'] = await run({ commit: (e, l) => { e.preventDefault(); l.append(e.item); } });
+  R['uncommitted + prepend'] = await run({ commit: (_, l) => { setTimeout(() => l.prepend(mk('Z')), 100); } });
+  R['uncommitted C up + remove A'] = await run({ idx: 2, key: '{ArrowDown}', commit: (_, l, i) => { setTimeout(() => i[0]!.remove(), 100); } });
+  R['committed + remove B in landing'] = await run({ token: true, commit: (e, l, i) => { l.insertBefore(e.item, e.next); setTimeout(() => i[1]!.remove(), 50); } });
+  R['committed + remove B at once'] = await run({ commit: (e, l, i) => { l.insertBefore(e.item, e.next); i[1]!.remove(); } });
+  R['committed + prepend Z'] = await run({ commit: (e, l) => { l.insertBefore(e.item, e.next); l.prepend(mk('Z')); } });
+  R['ArrowUp on C uncommitted + remove A'] = await run({ idx: 2, key: '{ArrowUp}', commit: (_, l, i) => { setTimeout(() => i[0]!.remove(), 100); } });
+  R['ArrowUp on C commit'] = await run({ idx: 2, key: '{ArrowUp}', commit: at(50) });
+  R['remove item'] = await run({ commit: (e) => e.item.remove() });
+  R['remove item later'] = await run({ commit: (e) => { setTimeout(() => e.item.remove(), 100); } });
+  R['move to other list'] = await run({ commit: (e) => { const o = document.createElement('mx-sortable-list'); document.body.append(o); o.append(e.item); } });
+  R['escape in commit wait'] = await run({ during: async () => { await userEvent.keyboard('{Escape}'); } });
+  R['pointer never'] = await run({ pointer: true });
+  R['pointer commit'] = await run({ pointer: true, commit: at(50) });
+  R['pointer elsewhere'] = await run({ pointer: true, commit: (e, l) => l.append(e.item) });
+  console.log(`RES ${server.browser} ` + JSON.stringify(R, null, 0).replace(/},"/g, '},\n"'));
+}, 120000);
+
+describe('overflow', () => {
+  const G = 'height:200px;overflow:auto';
+  const C: Array<[string, string[], string, string]> = [
+    ['transformed scroller', ['transform:translateX(0);' + G], 'height:3000px', ''],
+    ['filter>scroller', ['filter:blur(0)', G], 'height:3000px', ''],
+    ['contain:layout>scroller', ['contain:layout', G], 'height:3000px', ''],
+    ['contain:paint>scroller', ['contain:paint', G], 'height:3000px', ''],
+    ['container-type>scroller', ['container-type:inline-size', G], 'height:3000px', ''],
+    ['will-change>scroller', ['will-change:transform', G], 'height:3000px', ''],
+    ['perspective>scroller', ['perspective:100px', G], 'height:3000px', ''],
+    ['backdrop-filter>scroller', ['backdrop-filter:blur(1px)', G], 'height:3000px', ''],
+    ['contained in transformed h0 at end', [G, 'transform:translateX(0)'], 'height:0', 'TAIL'],
+    ['scale 100', [G, 'transform:scale(3);transform-origin:0 0'], 'height:300px', ''],
+    ['vertical-rl transformed scroller', ['writing-mode:vertical-rl;transform:translateX(0);height:200px;width:200px;overflow:auto'], 'width:3000px;height:10px', ''],
+    ['rtl transformed scroller', ['direction:rtl;transform:translateX(0);width:200px;overflow:auto;display:flex'], 'flex:none;width:3000px', ''],
+    ['0.4px transformed', ['transform:translateX(0);width:.4px;height:.4px;overflow:auto'], 'height:0', ''],
+    ['border transformed', ['transform:translateX(0);border:20px solid;width:0;height:0'], 'height:0', ''],
+    ['inline filter', ['display:block', 'display:inline;filter:blur(0)'], 'height:10px', ''],
+    ['rotated', [G, 'transform:rotate(45deg)'], 'height:100px', ''],
+    ['grid', ['display:grid;height:100px;overflow:auto;transform:translateX(0)'], 'height:3000px', ''],
+  ];
+  it.each(C)('%s', async (name, boxes, pad) => {
+    const list = document.createElement('mx-sortable-list');
+    list.append(mk('A'));
+    let c: HTMLElement = document.body;
+    for (const s of boxes) { const b = document.createElement('div'); b.style.cssText = s; c.append(b); c = b; }
+    const p = document.createElement('div'); p.style.cssText = pad; c.append(p, list);
+    await wait(50);
+    region(list).textContent = 'Item 2 of 4. ' + 'long text '.repeat(50);
+    const m = () => { const o: number[][] = []; for (let a: HTMLElement | null = list; a; a = a.parentElement) o.push([a.scrollWidth, a.scrollHeight]); return o; };
+    const w = m(); const cs = getComputedStyle(region(list)); const pos = [cs.position, cs.clipPath, cs.width, cs.height].join(' ');
+    region(list).remove(); const wo = m();
+    console.log(`OV ${server.browser} ${name}: ${JSON.stringify(w) === JSON.stringify(wo) ? 'same' : 'DIFF ' + JSON.stringify([w, wo])} ${pos}`);
+    document.body.replaceChildren();
+  });
+  // What positions make a fixed box add overflow in each engine.
+  it('witness', async () => {
+    const out: string[] = [];
+    for (const [boxes, label] of [[['transform:translateX(0)', G], 'T>S'], [['transform:translateX(0);' + G], 'TS'], [[G, 'transform:translateX(0);width:50px;height:50px'], 'S>T'], [[G], 'S'], [['transform:translateX(0)'], 'T in page']] as const)
+      for (const css of ['position:fixed;top:0;left:0', 'position:fixed', 'position:fixed;top:5000px;left:0', 'position:fixed;top:0;left:5000px', 'position:fixed;bottom:-900px;left:0', 'position:absolute;top:0;left:0', 'position:absolute']) {
+        let c: HTMLElement = document.body;
+        for (const s of boxes) { const b = document.createElement('div'); b.style.cssText = s; c.append(b); c = b; }
+        const p = document.createElement('div'); p.style.height = '3000px';
+        const list = document.createElement('mx-sortable-list'); list.append(mk('A')); c.append(p, list);
+        await wait(20);
+        region(list).style.cssText = css + ';' + (css.includes('top') || css.includes('bottom') ? '' : 'top:auto;left:auto;') + 'width:1px;height:1px';
+        const m = () => { const o: number[][] = []; for (let a: HTMLElement | null = list; a; a = a.parentElement) o.push([a.scrollWidth, a.scrollHeight]); return JSON.stringify(o); };
+        const w = m(); region(list).remove(); const wo = m();
+        out.push(`${label} ${css}: ${w === wo ? 'same' : w + ' vs ' + wo}`);
+        document.body.replaceChildren();
+      }
+    console.log(`WIT ${server.browser}\n` + out.join('\n'));
+  }, 60000);
+});

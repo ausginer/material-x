@@ -1,0 +1,46 @@
+diff --git a/packages/material-x/src/list/sortable-list.ts b/packages/material-x/src/list/sortable-list.ts
+index 30c9d1f05..755b011e3 100644
+--- a/packages/material-x/src/list/sortable-list.ts
++++ b/packages/material-x/src/list/sortable-list.ts
+@@ -131,6 +131,17 @@ export default class SortableList extends SortableListConstructor {
+     let items: readonly ControlledElement[] = [];
+     let dragged: ControlledElement | null = null;
+     let commit: (() => void) | null = null;
++    let others: readonly ControlledElement[] = [];
++    const showsAt = (
++      current: readonly ControlledElement[],
++      item: ControlledElement,
++      gap: number,
++    ): boolean => {
++      const index = current.indexOf(item);
++      const kept = (list: readonly ControlledElement[], from: readonly ControlledElement[]): number =>
++        list.filter((other) => from.includes(other)).length;
++      return index >= 0 && kept(current.slice(0, index), others) === kept(others.slice(0, gap), current);
++    };
+     let controller: SortableController | null = null;
+ 
+     const config: SortableConfig = {
+@@ -171,12 +182,13 @@ export default class SortableList extends SortableListConstructor {
+           const current = read();
+           const index = current.indexOf(item);
+ 
+-          if (index >= 0 && index !== result.request.from) {
++          if (index >= 0 && !showsAt(current, item, result.request.from)) {
+             notify(`Item ${index + 1} of ${current.length}.`);
+           }
+         }
+       },
+       onReorder: (request, { signal }) => {
++        others = items.filter((other) => other !== request.item);
+         if (!this.dispatchEvent(new ReorderEvent(request))) {
+           return ReorderResolution.reject();
+         }
+@@ -191,7 +203,7 @@ export default class SortableList extends SortableListConstructor {
+ 
+           commit = () => {
+             if (
+-              read().indexOf(request.item as ControlledElement) === request.to
++              showsAt(read(), request.item as ControlledElement, request.to)
+             ) {
+               done();
+             }

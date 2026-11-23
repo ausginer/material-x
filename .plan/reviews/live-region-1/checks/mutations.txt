@@ -1,0 +1,145 @@
+# One edit of the source at 333c9f7ae per block, rows -t 'announce|overflow' of tests/list/sortable-list in the three engines (45 tests). Each edit was reverted.
+## absolute with top and left
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+      Tests  45 passed | 222 skipped (267)
+ Test Files  3 passed (3)
+## absolute without top and left
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+      Tests  15 failed | 30 passed | 222 skipped (267)
+ Test Files  3 failed (3)
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 89ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 88ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 90ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 109ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 156ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 145ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 95ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 312ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 303ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 146ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 79ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 90ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 100ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 97ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 123ms
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 56 ], [ 300, 3056 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+## no position
+ 1 file changed, 1 deletion(-)
+      Tests  15 failed | 30 passed | 222 skipped (267)
+ Test Files  3 failed (3)
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 95ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 94ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 99ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 83ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 173ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 313ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 110ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 273ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 356ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 162ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 95ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 121ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 78ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 79ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 131ms
+AssertionError: expected [ [ 1232, 58 ], [ 1232, 3058 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 58 ], [ 1232, 3058 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 58 ], [ 300, 3058 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 58 ], [ 3043, 58 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+## no stylesheet
+ 1 file changed, 1 deletion(-)
+      Tests  15 failed | 30 passed | 222 skipped (267)
+ Test Files  3 failed (3)
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 107ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 89ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 95ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 106ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 155ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 127ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 102ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 288ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 241ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 137ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 96ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 86ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 97ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 94ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 120ms
+AssertionError: expected [ [ 1232, 58 ], [ 1232, 3058 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 58 ], [ 1232, 3058 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 58 ], [ 300, 3058 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 58 ], [ 3043, 58 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+## proposed position announced
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+      Tests  6 failed | 39 passed | 222 skipped (267)
+ Test Files  3 failed (3)
+ × |browser (chromium)| :1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 643ms
+ × |browser (chromium)| :1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 607ms
+ × |browser/firefox (firefox)| :1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 767ms
+ × |browser/firefox (firefox)| :1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 938ms
+ × |browser/webkit (webkit)| :1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 664ms
+ × |browser/webkit (webkit)| :1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 586ms
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+## items instead of read (first occurrence, in onEnd)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+      Tests  45 passed | 222 skipped (267)
+ Test Files  3 passed (3)
+## no accepted check
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+      Tests  45 passed | 222 skipped (267)
+ Test Files  3 passed (3)
+## base sortable-list.ts
+ 1 file changed, 9 insertions(+), 12 deletions(-)
+      Tests  39 failed | 6 passed | 222 skipped (267)
+ Test Files  3 failed (3)
+ × |browser (chromium)| :1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 661ms
+ × |browser (chromium)| :1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 818ms
+ × |browser (chromium)| :1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 598ms
+ × |browser (chromium)| :1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 598ms
+ × |browser (chromium)| :1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1610ms
+ × |browser (chromium)| :1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 590ms
+ × |browser (chromium)| :1351 > mx-sortable-list announcement > should style the region without a style attribute 77ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 93ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 104ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 108ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 87ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 95ms
+ × |browser (chromium)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 84ms
+ × |browser/firefox (firefox)| :1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 862ms
+ × |browser/firefox (firefox)| :1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 1016ms
+ × |browser/firefox (firefox)| :1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 737ms
+ × |browser/firefox (firefox)| :1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 758ms
+ × |browser/firefox (firefox)| :1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1719ms
+ × |browser/firefox (firefox)| :1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 671ms
+ × |browser/firefox (firefox)| :1351 > mx-sortable-list announcement > should style the region without a style attribute 118ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 140ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 140ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 125ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 207ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 140ms
+ × |browser/firefox (firefox)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 132ms
+ × |browser/webkit (webkit)| :1286 > mx-sortable-list announcement > should announce nothing when the consumer never commits 630ms
+ × |browser/webkit (webkit)| :1295 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits 610ms
+ × |browser/webkit (webkit)| :1304 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot 587ms
+ × |browser/webkit (webkit)| :1312 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later 590ms
+ × |browser/webkit (webkit)| :1322 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound 1628ms
+ × |browser/webkit (webkit)| :1340 > mx-sortable-list announcement > should announce nothing when the consumer removes the item 577ms
+ × |browser/webkit (webkit)| :1351 > mx-sortable-list announcement > should style the region without a style attribute 75ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a left-to-right scroll container of a r… 94ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a right-to-left scroll container in a t… 88ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a fixed box 98ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in a scroll container in a transformed box 82ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an empty transformed box 91ms
+ × |browser/webkit (webkit)| :1414 > mx-sortable-list scrollable overflow > should not change the overflow of any ancestor in an unpositioned scroll container 83ms
+AssertionError: expected 'Item 2 of 3.' to be '' // Object.is equality
+AssertionError: expected 'Item 2 of 4.' to be 'Item 4 of 4.' // Object.is equality
+AssertionError: expected [ [ 'A', 'B', 'C', 'D' ], …(1) ] to deeply equal [ [ 'A', 'B', 'C', 'D' ], '' ]
+AssertionError: expected [ [ +0, +0 ], [ 1, 1 ], …(2) ] to deeply equal [ [ +0, +0 ], [ +0, +0 ], …(2) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(2) ]
+AssertionError: expected [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ] to deeply equal [ [ 1232, 56 ], [ 1232, 3056 ], …(3) ]
+AssertionError: expected [ [ 300, 56 ], [ 300, 3056 ], …(3) ] to deeply equal [ [ 300, 56 ], [ 300, 3056 ], …(3) ]
+AssertionError: expected [ [ 43, 56 ], [ 3043, 56 ], …(3) ] to deeply equal [ [ 43, 56 ], [ 3043, 56 ], …(3) ]
+AssertionError: expected true to be false // Object.is equality

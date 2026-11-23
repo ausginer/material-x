@@ -1,0 +1,16 @@
+import { readFileSync } from 'node:fs';
+const { default: store } = await import('/workspaces/worktrees/e/packages/tproc/src/store/index.ts');
+const S = process.argv[2];
+const col = [...readFileSync(S+'/col.scss','utf8').matchAll(/^\/\/\/ (md\.sys\.color\.[\w.-]+)[^\n]*\n(?:\/\/\/[^\n]*\n)*\$[\w-]+:\s*([^;]+);/gmu)];
+const bySet = (c: any) => { let same=0; const d: string[]=[]; for (const [,n,v] of col) { const t = store.getToken(n!); const got = t && (store.select(t,c)?.value as any)?.tokenName; const want = v!.startsWith('md-ref-palette.') ? 'md.ref.palette.'+v!.slice(16) : v; if (got===want) same++; else d.push(`${n} ${got} != ${want}`);} return [same,d] as const; };
+for (const c of [{}, {theme:'dark'},{contrast:'high.contrast'},{contrast:'medium.contrast'},{'language.height':'medium'}]) { const [s,d]=bySet(c); console.log(JSON.stringify(c), 'colour same', s, 'of', col.length, 'differ', d.length, d.slice(0,4)); }
+const ts = readFileSync(S+'/ts.scss','utf8');
+const lh = [...ts.matchAll(/^\/\/\/ md\.sys\.typescale\.([\w-]+)\.line-height .*\n\$[\w-]+: ([\d.]+)rem;/gmu)];
+for (const c of [{}, {'language.height':'medium'},{'language.height':'large'}]) { let same=0,n=0; for (const [,k,v] of lh) { const t=store.getToken(`md.ref.typeface.${k}.line-height`); if(!t) continue; n++; if ((store.select(t,c)?.value as any).lineHeight.value===Number(v)*16) same++; } console.log(JSON.stringify(c),'line heights same',same,'of',n); }
+console.log('emphasized', [...ts.matchAll(/^\/\/\/ (md\.sys\.typescale\.emphasized\.[\w-]+)\.(font|weight|size|line-height|tracking) /gmu)].length, 'base', [...ts.matchAll(/^\/\/\/ (md\.sys\.typescale\.(?!emphasized)[\w-]+)\.(font|weight|size|line-height|tracking) /gmu)].length);
+
+// second probe: base and emphasized variables of latest, and the store's tokens
+import { readFileSync } from 'node:fs';
+const { default: store } = await import('/workspaces/worktrees/e/packages/tproc/src/store/index.ts');
+const S=process.argv[2]; const A=/^\/\/\/ (md\.sys\.typescale\.[\w.-]+?)\.(font|weight|size|line-height|tracking)[ (][^\n]*\n(?:\/\/\/[^\n]*\n)*\$[\w-]+:\s*([^;]+);/gmu;
+for (const f of ['ts','em']) { const r=[...readFileSync(`${S}/${f}.scss`,'utf8').matchAll(A)]; console.log(f, r.length, 'styles', new Set(r.map(x=>x[1])).size, r.slice(0,3).map(x=>x.slice(1).join('|')), 'in store', r.filter(x=>store.getToken(`${x[1]}.${x[2]}`)).length); }

@@ -8,6 +8,7 @@
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-font-name);
     font-weight: var(--_label-text-font-weight);
+    letter-spacing: var(--_label-text-font-tracking);
     cursor: default;
     user-select: none;
     gap: 0;

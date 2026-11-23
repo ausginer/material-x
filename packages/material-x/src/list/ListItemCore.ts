@@ -4,8 +4,8 @@ import { type ControlledElement, internals } from '@ydinjs/core/element.js';
 import type { Composed } from '@ydinjs/core/traits/composition.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
+import { useHasSlottedPolyfill } from '../core/polyfills/has-slotted.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
-import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
 import {
