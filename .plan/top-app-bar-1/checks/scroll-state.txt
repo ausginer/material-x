@@ -1,0 +1,87 @@
+## chromium 158.0.8127.18
+{
+  'container-type: scroll-state': true,
+  'animation-timeline: scroll()': true
+}
+plain:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+html height 100%:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+html and body height 100%:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+rtl, wide:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+body margin 20px:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@4384  0:false@0  jump:true@3000  0:false@0
+100000px tall:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@99344  0:false@0  jump:true@3000  0:false@0
+frame, its page scrolled:
+  initial:false  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 1 callbacks, true  end:true@4664  0:false@0  jump:true@3000  0:false@0
+COUNTERFACTUAL top margin 1px, html height 100%:
+  initial:true  1:true@1  0:false@0  0.5:true@1  0:false@0  200 steps: 2 callbacks, false  end:false@4344  0:false@0  jump:false@3000  0:false@0
+COUNTERFACTUAL default root, in a frame:
+  initial:false  1:false@1  0:false@0  0.5:false@1  0:false@0  200 steps: 0 callbacks, false  end:false@4664  0:false@0  jump:false@3000  0:false@0
+sticky, direct child of body: top 0
+sticky, in a header: top -2000
+sticky, in a header with display: contents: top 0
+sticky, body height 100%: top -1344
+z-index auto over positioned content: content
+z-index 1 over positioned content: bar
+## firefox 159.0
+{
+  'container-type: scroll-state': false,
+  'animation-timeline: scroll()': true
+}
+plain:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+html height 100%:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+html and body height 100%:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+rtl, wide:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+body margin 20px:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@4384  0:false@0  jump:true@3000  0:false@0
+100000px tall:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@99344  0:false@0  jump:true@3000  0:false@0
+frame, its page scrolled:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 1 callbacks, true  end:true@4664  0:false@0  jump:true@3000  0:false@0
+COUNTERFACTUAL top margin 1px, html height 100%:
+  initial:false  1:true@1  0:false@0  0.5:true@0.5  0:false@0  200 steps: 2 callbacks, false  end:false@4344  0:false@0  jump:false@3000  0:false@0
+COUNTERFACTUAL default root, in a frame:
+  initial:false  1:false@1  0:false@0  0.5:false@0.5  0:false@0  200 steps: 0 callbacks, false  end:false@4664  0:false@0  jump:false@3000  0:false@0
+sticky, direct child of body: top 0
+sticky, in a header: top -2000
+sticky, in a header with display: contents: top 0
+sticky, body height 100%: top -1344
+z-index auto over positioned content: content
+z-index 1 over positioned content: bar
+## webkit 27.2
+{
+  'container-type: scroll-state': false,
+  'animation-timeline: scroll()': true
+}
+plain:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+html height 100%:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+html and body height 100%:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+rtl, wide:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@4344  0:false@0  jump:true@3000  0:false@0
+body margin 20px:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@4384  0:false@0  jump:true@3000  0:false@0
+100000px tall:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@99344  0:false@0  jump:true@3000  0:false@0
+frame, its page scrolled:
+  initial:false  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 1 callbacks, true  end:true@4664  0:false@0  jump:true@3000  0:false@0
+COUNTERFACTUAL top margin 1px, html height 100%:
+  initial:true  1:true@1  0:false@0  0.5:false@0  0:false@0  200 steps: 2 callbacks, false  end:false@4344  0:false@0  jump:false@3000  0:false@0
+COUNTERFACTUAL default root, in a frame:
+  initial:false  1:false@1  0:false@0  0.5:false@0  0:false@0  200 steps: 0 callbacks, false  end:false@4664  0:false@0  jump:false@3000  0:false@0
+sticky, direct child of body: top 0
+sticky, in a header: top -2000
+sticky, in a header with display: contents: top 0
+sticky, body height 100%: top -1344
+z-index auto over positioned content: content
+z-index 1 over positioned content: bar

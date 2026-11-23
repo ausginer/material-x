@@ -2382,6 +2382,21 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
 
+#### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
+
+**Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** the default slot is the headline, with `lead` and `trail` beside it. There is one public custom state, `:state(scrolled)`, and two CSS properties, the container's color at rest and on scroll. There is no attribute, event or part. Its host is its box.
+2. **The host places itself,** with `position: sticky` at the block start and `z-index: 1`, so a page writes no code. A page rule on the element overrides it.
+3. **The state comes from one `IntersectionObserver`** on the document's root element, with `root: document`. It changes only when the scroll position crosses the start, with no scroll listener and no layout read. It matches the scroll position in Chromium, Firefox and WebKit in every case [read](top-app-bar-1/checks/scroll-state.txt). `scroll-state()` is in Chromium only, and a scroll-driven animation gives neither a state to style against nor a change with a duration of its own.
+4. **The state is the platform's, as `:hover` is.** It is derived from the scroll position, so the controlled principle doesn't apply to it.
+5. **Scrolled is a color change only, and it amends the landing plan's property 3.** M3's spec shows and describes a color change, and upstream's message on the replaced set's shadow color is _"Bug: should not have been created. Remove any shadows on navigation bars."_ `container.elevation` and `on-scroll.container.elevation` of `md.comp.app-bar` are excluded by this ruling (`RD-34`). The color transitions over M3's default effects duration.
+6. **No landmark.** The page sets `role="banner"` on the bar. A `<header>` around it would unpin it, unless the header is `display: contents`.
+
+**Why.** The owner requires a sticky header, and property 2 asks for it with no page code. Only an observer gives a state that a consumer can style against, in every engine, with no work per frame. The shadow is a parity question, as the shadow color was in `RF-77`, and upstream answers it.
+
+**Costs.** A `<header>` wrapper needs a style of its own, and a pinned bar needs the page's `scroll-padding-block-start`. Without a shadow, content in `surface-container` shows no edge under the bar. The bar follows the document's scroll only. `mx-icon-button` keeps its own icon color in `lead`, where M3's token differs.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

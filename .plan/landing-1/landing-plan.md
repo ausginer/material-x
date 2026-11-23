@@ -127,6 +127,8 @@ The owner requires a sticky header. M3's top app bar is that header. Pinned, it 
 5. **The page's scroll container by default.** A bar inside another scroll container is a later option.
 6. **Its landmark is the page's.** A page puts one `banner` landmark around its header. Whether the element exposes `banner` itself is the plan's decision, because a bar inside a region isn't a page's banner.
 
+**Dated 2026-11-23 by the architect: `RD-54` decides the unit and amends property 3.** On scroll the container's color changes, and its elevation isn't drawn. Upstream calls a shadow on these bars a bug, and the spec shows none. `RD-54` answers properties 2 to 6 with the [plan](../top-app-bar-1/top-app-bar-plan.md).
+
 **Waits:** the medium and large variants, collapsing as the page scrolls, hiding on scroll down and showing on scroll up, and the search app bar.
 
 ## Where the page lives and how it is built
