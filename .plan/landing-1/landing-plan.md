@@ -180,7 +180,7 @@ The owner asked for a colour picker _"as in material-web"_, as a separate improv
 Decided by `RD-47`. Each unit is one branch and one pull request.
 
 1. **T — the token tables** (tproc, small): rows for the card variants, the small top app bar, the slider and the divider in `manifest.json`, and one update at the manifest's current release, so no existing token changes. **It goes first, on its own,** so that the three component units don't each regenerate the store and conflict.
-2. **S — the typescale selection** (tproc and material-x, medium): `RF-110`, before any unit that reads a text style. It doesn't depend on T. Added on 2026-11-23.
+2. **S — the typescale selection** (tproc and material-x, medium): `RF-110` with `RF-92`, before any unit that reads a text style. It doesn't depend on T. Added on 2026-11-23. The owner chose one unit for all components and `font: static` the same day, so the page loads Roboto.
 3. **After T and S, in parallel** (material-x, each with its stories and the full definition of done):
    - **B — `mx-card`** (medium). The divider can come with it.
    - **H — `mx-top-app-bar`** (medium): [the properties above](#top-app-bar-the-first-sets-third-component), in a short plan of its own.
