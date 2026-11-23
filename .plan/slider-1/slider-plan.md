@@ -1,6 +1,6 @@
 # mx-slider — plan
 
-**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with no question open.** Ready for implementation once the main slot's architect mints [the entries](#proposed-record-entries). Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan. No record identifier is minted or amended here, and [the proposed entries](#proposed-record-entries) are for the main slot's architect.
+**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with no question open.** It is [`repo:RD-55`](../00-index.md), and ready for implementation. Where the entry and this plan differ, the entry governs. Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan, and [the last section](#proposed-record-entries) gives the addresses of the entries that were minted from them.
 
 **The unit:** one element, `mx-slider`, a continuous slider with one value. It is horizontal. The range slider, stops and the vertical slider wait ([what stays possible](#what-stays-possible)).
 
@@ -105,7 +105,7 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 
 - **The order is the text field's where it has a source,** and a native input's for `aria-label` over `<label>`.
 - **One owner of `aria-labelledby` on the input.** The element references and the attribute are one state, so a mirrored string erases the references. The transform given to `useARIA` drops `aria-labelledby` and `aria-describedby`, and the slider resolves them itself, after the mirror has run. Required: each combination, each removal or addition at run time, and filling the slot at run time, gives the table's name. The prototype did, with a second observer created after the mirror's.
-- **`aria-describedby`** is resolved the same way, for the same reason: the mirrored ids describe nothing. The text field's host carries the description, and its control doesn't. Read in Chromium and Firefox.
+- **`aria-describedby`** is resolved the same way, for the same reason: the mirrored ids describe nothing. The text field's host carries the description, and its control doesn't (read in Chromium). The slider's prototype was read in Chromium and Firefox.
 - **When references and labels are read:** when the slider connects, when an `aria-*` attribute of the host or the slot changes, and when the input takes focus. **A `<label>` or a referenced element that appears later is read at the next of these.** A move resolves nothing.
 - **A click on the slot's content or on a `<label>` focuses the slider** (read for both in all three engines).
 - **`aria-valuenow`, `aria-valuemin` and `aria-valuemax` aren't mirrored.** In Chromium they replace the native range's own: with a host `aria-valuenow="5"` the control reports 5 while the value is −18. This is the one mirrored group with no counterpart in a text field.
@@ -137,7 +137,7 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 - **The form value** is the input's string, set on connection and on each change. Its cost in a move isn't separable from the readings' noise.
 - **Reset** restores the `value` attribute, or the midpoint, and clears what the user set.
 - **`disabled`, by attribute or by a fieldset,** disables the input. `formDisabled` fires for both, and `:disabled` already reads the new state inside it in all three engines. Core's controller passes no argument, so the component reads `matches(':disabled')`, and `useDisableable` isn't needed.
-- **State restoration is absent,** as in the text fields, because core drops the arguments of `formStateRestoreCallback` (`SL-F2`).
+- **State restoration is absent,** as in the text fields, because core drops the arguments of `formStateRestoreCallback` (`repo:RF-120`).
 
 ## SL-D6 — Anatomy, sizes and states
 
@@ -278,7 +278,14 @@ Named by its label slot or by a `<label>`, the slider has one named node (and Fi
 
 ## Proposed record entries
 
-For the main slot's architect to mint. Nothing in the index is edited here.
+Minted on 2026-11-23 by the main slot's architect, at `eaff88884`. The text below is the proposal as it stood, and the entries govern:
+
+| Proposal                           | Entry                            |
+| ---------------------------------- | -------------------------------- |
+| `SL-D1` to `SL-D9`, with Q1 and Q2 | `repo:RD-55`                     |
+| The note for `RF-94`               | a dated note in `repo:RF-94`     |
+| `SL-F1`                            | `repo:RF-119`, run and confirmed |
+| `SL-F2`                            | `repo:RF-120`, run and confirmed |
 
 - **A decision entry for `SL-D1` to `SL-D9`,** pointing here, with the owner's answers to Q1 and Q2. Q1 (a) also makes the slider the second exception in `architecture.md` §Components.
 - **For `RF-94`, a dated note, and no new finding.** The entry already holds the duplicate node (`FV-F2`) and the unnamed checkbox and radio (`FV-F1`), and its required property is the one that the slider doesn't meet yet. The note adds:

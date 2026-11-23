@@ -2382,6 +2382,28 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
 
+#### RD-55 — `mx-slider` is a native range whose value is the user's, and it mirrors host `aria-*` as the text fields do
+
+**Decided 2026-11-23, on `material-x/slider-1`,** for #173, as unit C of `RD-47`'s landing plan. Mx Architect B wrote the [plan](slider-1/slider-plan.md) and proposed this entry, on the coordinator's task. The architect read the plan and minted the entry at `eaff88884`. `RD-54` is the highest `RD-` on any branch on `origin` (`material-x/top-app-bar-1`), so this is the next free number. The plan's `SL-D1` to `SL-D9` hold each decision with its readings, what wasn't adopted and what wasn't measured.
+
+1. **The control (`SL-D1`)** is an `<input type="range">` in the shadow tree: the focus target, the pointer target and the accessible node. It falls under the `.host` exception _The focus target can't be a container_. An ARIA slider isn't taken, because Firefox gives assistive technology no way to set its value, by reading of its source.
+2. **The surface (`SL-D2`):** `value`, `min`, `max`, `step`, `size`, `indicator`, `valuetext`, `name`, `disabled`, and `Validatable`'s `error` and `required`; the slot `label`, the part `impl` and four color properties. `value` is a number.
+3. **The value is the user's (`SL-D2`),** as a text field's text is. This is the second exception to the controlled principle in `architecture.md`, by the owner's answer to Q1. `value`, `min`, `max` and `step` give the same result in whatever order they are set.
+4. **Events (`SL-D3`)** are plain `Event`s (`RD-52`). A press that the browser turns into a scroll restores the value.
+5. **The name (`SL-D4`)** comes from a host `aria-labelledby`, the `label` slot, a host `aria-label` or a `<label>`, in that order. Host `aria-*` is mirrored, so a host `aria-label` leaves a second named node. The owner accepted it for now, and its repair is `RF-94`'s.
+6. **Forms (`SL-D5`), anatomy and states (`SL-D6`), direction (`SL-D7`), the cost of a move (`SL-D8`) and tokens (`SL-D9`)** are the plan's. The drawing comes from one custom property on an inner element, a move reads no layout, and no deprecated token is read.
+
+**The owner's answers,** of 2026-11-23, in chat, relayed by the coordinator:
+
+- **Q1, whose the value is:** _"q1 a"_, the user's.
+- **Q2, what a host's `aria-label` does:** _"Безобразие, но тогда делаем как в text-field. Решать, как починить, будем потом (добавь в ишуи)"_ ("An outrage, but then we do it as in text-field. How to fix it, we'll decide later (add it to the issues)"). It is the plan's (c), and the plan had recommended (a).
+
+**Why.** A pointer move is as frequent as a frame, and the owner's reason for the text fields' exception, that speed matters more than the principle, applies to it. The native range gives the arithmetic, the keyboard, touch and the accessible node, and only drawing is left.
+
+**Costs.** The horizontal arrow keys don't mirror in RTL in WebKit. WebKit drops `change` if an `input` handler rewrites the value. `RF-94`'s second node gains one more element. A slider doesn't restore its value after a navigation until `RF-120`.
+
+**Checked by the architect when minting.** The plan reads the value indicator's 10px inline padding through a subagent, and calls its full corner an inference. Both are in Material Components for Android's source at `3a2969935`: `Widget.Material3.Slider.Label` has `paddingStart` and `paddingEnd` of 10dp, and inherits `ShapeAppearance.Material3.Corner.Full` from `Widget.Material3.Tooltip`. Its block padding is the token `value-indicator.active.bottom-space`, as in the plan. These are the literals' provenance.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -4397,6 +4419,29 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Order:** the form-validation unit doesn't wait for this entry, because `useValidatable` writes the control directly. The two units overlap in `useCheckableCore` only, and the second to land merges the first. The owner confirmed that they are separate units (plan, _Inputs_).
 - **Size:** _large_. A decision on the label mechanism comes before implementation.
 
+**Dated 2026-11-23 by the architect, from the [slider plan](slider-1/slider-plan.md) of Mx Architect B (`RD-55`), relayed by the coordinator. No finding is added.**
+
+- **The owner's answer** (`RD-55`, Q2): `mx-slider` mirrors host `aria-*` as the text fields do, the second node is accepted there for now, and how to repair it is decided later, here. `mx-slider` joins the elements that the repair covers, by its plan until it is built.
+- **Every element with a control, read as built, with a host `aria-label="A"`** ([readings](slider-1/checks/mirroring.txt)), the same in Chromium, Firefox and WebKit. This replaces _"By reading, every `useARIA` adopter does the same"_:
+
+  | Elements | Control | Host |
+  | --- | --- | --- |
+  | `mx-button`, `mx-icon-button`, `mx-link-button`, `mx-switch-button`, `mx-switch-icon-button`, `mx-fab`, `mx-text-field`, `mx-multiline-text-field` | named `A` | a second node named `A`: `generic` in Chromium and Firefox, `group` in WebKit |
+  | `mx-list-button-item`, `mx-list-link-item` | named `A` | its own `listitem`, named `A` as well. The node is the item's and stays. Only its name is repeated |
+  | `mx-checkbox`, `mx-radio` | unnamed | named `A`: `generic` or `group` |
+
+  `mx-split-button`, the groups, `mx-list` and `mx-list-item` weren't read.
+
+- **More of the same cause, read on `mx-text-field`:** a host `aria-labelledby` names nothing, and a `<label>` leaves the control unnamed, in the three engines. A host `aria-describedby` doesn't describe the control, read in Chromium only. The ids don't resolve, which settles that point of _Not established_.
+- **What carries a light-DOM reference to a shadow control, in the three engines,** on the slider's prototype: the element references, `ariaLabelledByElements` and `ariaDescribedByElements` (the latter read in Chromium and Firefox). This answers how a light-DOM label reaches a shadow control. They don't hide the host.
+- **Possible repairs of the second node. None is chosen:**
+  - **Move the attribute:** the component sets the name on the control and removes `aria-label` from the host. One named node in the three engines. It edits the consumer's attributes, and a framework or a test can't read it back.
+  - **A plain attribute in place of `aria-label`,** such as `label`: one named node in the three engines, read on the prototype. A consumer who writes `aria-label` is where they are now, and it is new surface on every element.
+  - **The host as the accessible control,** through its internals: one named node in the three engines for a slider role, and `<label for>` works by itself. The native control inside would leave the accessibility tree and stop taking focus, so its behavior is written by hand. `RD-55` rejects it for the slider. It wasn't weighed for the others.
+  - **Role `none` on the host** isn't a repair: every engine ignores it while the host has `aria-label` or `aria-labelledby`.
+  - **The platform's reference target** for shadow roots, once it is Baseline. Not read.
+- **The size and the unit** stay as they are, and the unit's plan decides.
+
 #### RF-95 — `mx-checkbox` draws no error appearance
 
 Tier A, **open**. It applies once #155 merges, because that unit gives `mx-checkbox` its `error` attribute and `:state(error)`. Registered on 2026-11-22 by the architect, on `repo/register-observations-4`, from [#149](https://github.com/ausginer/material-x/issues/149), relayed by the coordinator. The finding was proposed as `FV-F3` in the [form-validation plan](https://github.com/ausginer/material-x/blob/be7d4c3b5/.plan/form-validation-1/form-validation-plan.md#8-proposed-findings) §8, on `material-x/form-validation-1` at `be7d4c3b5` (#155), not yet on `main`. `RF-94` is the highest `RF-` on any branch on `origin`, so this is the next free number. In the code at `6a67badfd`, the architect confirmed that the token grouping in `checkbox/styles/utils.ts` returns `null` for any token name that has an `error` part.
@@ -5028,3 +5073,44 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   - The disposition rejected reconciling on the switch's own `value`, because that makes the group a second writer that reacts to consumer writes. A reactive value would change that premise. It wouldn't make the group a second writer.
 - **What answers it:** a design unit for reactive values in `@ydinjs/core`, when the owner orders one. The stronger invariant would then be a decision of its own. Until then, the ruling stands.
 - **Routed** to the owner, through the work queue (`RD-22`), as not for now.
+
+#### RF-119 — A control in a disabled fieldset isn't disabled
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F1` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-118` is the highest `RF-` on any branch on `origin`, so this is the next free number. Run on the elements as built from `92a386a17`, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](observations-9/checks/form-and-hidden.txt), [probe](observations-9/probes/form-and-hidden.mjs)).
+
+- **What happens,** in a `<fieldset disabled>`: the host of `mx-button`, `mx-icon-button`, `mx-switch-button`, `mx-switch-icon-button`, `mx-checkbox`, `mx-radio`, `mx-text-field` and `mx-multiline-text-field` matches `:disabled`, and its native control doesn't. Each control takes focus, from a script and from Tab, in the three engines. A native `<input>` in the same fieldset takes neither.
+  - **The keyboard operates it.** Space on the checkbox, the radio and the switches dispatches `input` and `change` in the three engines, and `click` in Chromium. Space on a button dispatches `click` in Chromium only.
+  - **Typing changes the text fields,** in the three engines. Firefox dispatches no `input` on the host for it.
+  - **The pointer doesn't.** A click on any of them dispatches nothing.
+- **`mx-fab` isn't form-associated,** so its host doesn't match `:disabled` either, and it acts on the keyboard and the pointer in the three engines. A native `<button>` in the fieldset would be disabled.
+- **The cause:** the control is in a shadow tree, and a fieldset disables only its own tree's controls. The platform tells the host through `formDisabledCallback(disabled)`. Core drops that argument and no component listens. `useDisableable` transfers only the host's attribute.
+- **Why it is a problem:** a form that disables a section while it submits leaves the section editable from the keyboard. Nothing in it is submitted, so what the user types is lost.
+- **Required property:** in each engine at `RD-20`'s floor, a control is disabled while its own `disabled` attribute, a fieldset or its button group says so. Then its native control is disabled, takes no focus and no input, and draws its disabled state. Removing one source leaves the others in force. The `disabled` attribute and property keep what the consumer wrote.
+- **For the unit's plan:** whether core passes the argument to `formDisabled` controllers, or components read `:disabled` as the slider does (`RD-55`, `SL-D5`); and whether `mx-fab` becomes form-associated. `ButtonCore`'s group context writes `target.disabled` from two of the sources, so it has to learn the third.
+- **Not read:** `mx-split-button`, controls in groups, and the drawing.
+- **Size:** _medium_.
+
+#### RF-120 — A form control doesn't restore its value after a navigation
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F2` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-119` is the entry before this one, so this is the next free number. Same [reading](observations-9/checks/form-and-hidden.txt) and [probe](observations-9/probes/form-and-hidden.mjs).
+
+- **What happens:** type into `mx-text-field` and `mx-multiline-text-field`, check `mx-checkbox` and `mx-switch-button`, follow a link and go back, with the page not kept in the back/forward cache. In Chromium, Firefox and WebKit the native `<input>` and checkbox beside them have their values back. All four elements are empty or unchecked.
+- **The cause:** each engine calls `formStateRestoreCallback(state, 'restore')`. Core's `formStateRestoreCallback` takes no argument, so `formStateRestore` controllers get neither the state nor the reason, and no component registers one. Autofill uses the same callback.
+- **Why it is a problem:** a user who goes back to a half-filled form loses what they typed, and not in the native fields beside it.
+- **Required property:** in each engine at `RD-20`'s floor, an element whose value is the user's has that value back after a navigation that restores a native field's: the text fields, and `mx-slider` (`RD-55`). Its form value, `value` and drawing agree. No event is fired, as for a native field.
+- **Not owed by the controlled elements:** the checkbox, the radio and the switches show what the consumer sets, and nothing else changes it (`architecture.md`). The consumer restores the state that it owns. Core passes the arguments to every controller, so a consumer's subclass can.
+- **Not established, and for the unit to settle first:** in this reading Firefox handed both text fields the state `on`, and not `typed`. `on` is the form value of the checkbox and the switch. Why isn't read: the probe defines the elements after the page is parsed, and the order may matter. A repair that writes the state it is given would put `on` in a text field there. Autofill wasn't read.
+- **Order:** it changes the same core callbacks as `RF-119` may. The second to land merges the first.
+- **Size:** _medium_: two callbacks' arguments in core, the text fields, and rows that navigate.
+
+#### RF-121 — `hidden` doesn't hide any material-x element
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, relayed by the coordinator. The architect saw it by reading while planning `mx-card` (#171). `RF-120` is the entry before this one, so this is the next free number. Same [reading](observations-9/checks/form-and-hidden.txt) and [probe](observations-9/probes/form-and-hidden.mjs).
+
+- **What happens:** every element with the `hidden` attribute is still rendered, in Chromium, Firefox and WebKit: all 19 entries of `files.json`, from `mx-button` to `mx-sortable-list`.
+- **The cause:** each component declares a `display` on `:host`, and an author declaration beats the user agent's `[hidden] { display: none }`.
+- **Why it is a problem:** `hidden` is how a page and a framework hide an element, and it also keeps it from assistive technology. Here it does neither, with no error.
+- **Required property:** in each engine at `RD-20`'s floor, a material-x element with `hidden` isn't rendered, whatever state it is in. A page's own `display` on the element still wins, as it does over a native element's `hidden`. `hidden="until-found"` isn't `display: none`, so the rule leaves it out. What a `display: contents` host does with it isn't read.
+- **Where:** a rule in a sheet that `useCore` adopts is one place for every element. `RF-107`'s repair needs such a sheet as well, and the second to land uses the first one's. The rule has to beat each component's conditional `:host(…)` display, and the rows decide.
+- **Rows:** each element in `files.json`, and one whose state gives it another display. A new element's row is added with it: `mx-card`, `mx-top-app-bar` and `mx-slider` are planned and have the same cause.
+- **Size:** _small_.
