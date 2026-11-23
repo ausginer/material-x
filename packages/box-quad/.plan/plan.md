@@ -74,7 +74,7 @@ The package's argument, alternatives, measurements and findings. The current-sta
 
 ### 2026-11-23 — the feature proof of the in-story sliders is repaired
 
-The implementer repaired the three findings of the [feature proof](reviews/storybook-2/feature-proof-claude.md) (read at `59967767a`) on `box-quad/storybook-2`, on the coordinator's request for pull request #177. The stories' repair is at `67b7a39aa`, and `main` is merged in at `d8c3d1d0e`. No decision changes.
+The implementer repaired the first three findings of the [feature proof](reviews/storybook-2/feature-proof-claude.md) (read at `59967767a`) on `box-quad/storybook-2`, on the coordinator's request for pull request #177. The stories' repair is at `67b7a39aa`, and `main` is merged in at `d8c3d1d0e`. No decision changes.
 
 **Disposition of the review:**
 
@@ -84,8 +84,9 @@ The implementer repaired the three findings of the [feature proof](reviews/story
 
   The review's `covered-drag.ts`, unchanged, reproduced its committed readings before. After, it finds no covered range or thumb. At 1000 px, rotation 45 and zoom 0.5, dragging _Target rotation_'s thumb from −20 by 40 px left −20 before and gives 0 after, in the three engines. `covered-grid.ts` hit-tests one point per 4 by 3 px of each range.
 
-- **`reviewer-2` (C): repaired.** The range declares `inline-size: 200px` in place of the flex basis, and shrinks to 80 px at least. At 1000 px it is 200 px wide in the three engines. The review's `layout.ts`, unchanged, reads 159 px at 375 px, 104 px at 320 px, and 80 px on the docs page at 375 px. No page scrolls sideways, and no slider or stage moves while a slider does.
+- **`reviewer-2` (C): repaired.** The range declares `inline-size: 200px` in place of the flex basis, and shrinks to 80 px at least. At 1000 px it is 200 px wide in the three engines. The review's `layout.ts`, unchanged, reads 159 px at 375 px, 104 px at 320 px, and 80 px on the docs page at 375 px. No slider or stage moves while a slider does. With every slider at its default, no page scrolls sideways at 1000, 375 or 320 px. _Corrected 2026-11-23 on `reviewer-4`: this entry said that no page scrolls sideways, and `layout.ts` reads that at the defaults only._
 - **`reviewer-3` (C): corrected.** Two statements in the 2026-11-22 entry below are corrected in place, with one more out-of-range cell than the review lists (`channel, panel hidden`'s box-quad time). `stories-reading.ts`'s header names `BQ-21`. No decision's wording changes.
+- **`reviewer-4` (C), from the [recheck](reviews/storybook-2/feature-proof-claude.md#recheck-at-8f598f500) at `8f598f500`, which closed the other three: accepted and corrected.** The statement under `reviewer-2` above is narrowed to the defaults. At 375 and 320 px, _Nested Spaces_' page does scroll sideways where the ancestor is steep and large: at 498 and 678 of 8463 settings in Chromium, with the former declarations too ([reading](reviews/storybook-2/checks/recheck-stage.txt)). No slider is covered there. Nothing required it not to scroll, and no source changes.
 
 **`BQ-21`'s acceptance, rerun:**
 
