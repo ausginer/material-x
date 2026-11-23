@@ -46,6 +46,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     elevation,
     fabColor,
     fabExtended,
+    topAppBar,
   ] = await Promise.all([
     import('../../src/button/styles/size/tokens.ts'),
     import('../../src/button/styles/default/tokens.ts'),
@@ -64,6 +65,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     import('../../src/core/styles/elevation/tokens.ts'),
     import('../../src/fab/styles/color/tokens.ts'),
     import('../../src/fab/styles/extended/tokens.ts'),
+    import('../../src/top-app-bar/styles/default/tokens.ts'),
   ]);
 
   // Both group token arrays are indexed by `BUTTON_GROUP_SIZES`:
@@ -104,6 +106,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'fab.extended.small': fabExtended.extendedTokens[0]!,
     'fab.extended.medium': fabExtended.extendedTokens.at(-1)!,
     'fab.extended.large': fabExtended.extendedTokens.at(-2)!,
+    'top-app-bar.default': topAppBar.topAppBarTokens,
     'icon-button.color.filled':
       icon.variantTokens[icon.VARIANTS.indexOf('filled')]!,
     'icon-button.color.tonal':

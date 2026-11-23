@@ -120,3 +120,17 @@ The implementer stops and returns to the architect if the observer's state diffe
 ## Owed after the merge
 
 In the documentation unit that `RD-53`'s plan describes: `architecture.md` (the component list, and _The host is the box_), `accessibility.md` and the README's list. One unit may carry both components.
+
+## Implemented 2026-11-23
+
+On `material-x/top-app-bar-1` from `49e4b9e9b`, for [#172](https://github.com/ausginer/material-x/issues/172). No visual run and no Safari run was made.
+
+- **Tests:** the bar's behavior and spec rows pass in Playwright's Chromium, Firefox and WebKit. The whole material-x run passes in the three, and the node project passes after the build.
+- **Witnesses, each in the three engines:**
+  - A top margin of 1px fails only the `html { height: 100% }` row.
+  - Side margins of 0px fail only the sideways row.
+  - An added scroll listener that sets the state fails the steps row, and the row that keeps the state while the bar is disconnected.
+- **Size, Brotli:** `top-app-bar/top-app-bar` 1357 B. `complete` goes from 22736 to 23160 B (+424 B), measured by taking the entry out of `files.json`.
+- **Visual rows:** two screenshots, `top-app-bar-rest` and `top-app-bar-scrolled`, where the plan says one. The state is the document's, so one document can't show both, and the rows scroll for real. Both baselines are missing until the owner records them (`RD-13`).
+- **The space between slots and the 16px headline inset are literals of the token package,** with their provenance in the spec file, because no token gives them.
+- **`package.json`'s `files`** gains `top-app-bar`, which the build doesn't write itself.

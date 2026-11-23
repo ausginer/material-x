@@ -1,0 +1,80 @@
+:host {
+  position: sticky;
+  inset-block-start: 0;
+  /* Positioned content that follows the bar scrolls under it. */
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-block-size: var(--_container-height);
+  border-radius: var(--_container-shape-top-left)
+    var(--_container-shape-top-right) var(--_container-shape-bottom-right)
+    var(--_container-shape-bottom-left);
+  background-color: var(
+    --md-top-app-bar-container-color,
+    var(--_container-color)
+  );
+  transition: background-color var(--_scroll-duration) var(--_scroll-easing);
+}
+
+:host(:state(scrolled)) {
+  background-color: var(
+    --md-top-app-bar-on-scroll-container-color,
+    var(--_container-color)
+  );
+}
+
+/*
+ * The insets are margins of the slots rather than the host's padding, because a
+ * page rule such as a universal reset beats `:host` and none reaches the shadow
+ * tree.
+ */
+.lead,
+.trail {
+  display: none;
+  flex: none;
+  align-items: center;
+  gap: var(--_icon-button-space);
+  font-size: var(--_icon-size);
+}
+
+.lead:has-slotted,
+.trail:has-slotted {
+  display: flex;
+}
+
+.lead {
+  margin-inline: var(--_leading-space) var(--_between-space);
+  color: var(--_leading-icon-color);
+}
+
+.trail {
+  margin-inline: var(--_between-space) var(--_trailing-space);
+  color: var(--_trailing-icon-color);
+}
+
+.headline {
+  display: block;
+  flex: 1;
+  min-inline-size: 0;
+  margin-inline: var(--_headline-space);
+  color: var(--_title-color);
+  font-family: var(--_title-font-font-name);
+  font-size: var(--_title-font-font-size);
+  font-weight: var(--_title-font-font-weight);
+  line-height: var(--_title-font-line-height);
+  letter-spacing: var(--_title-font-font-tracking);
+  overflow-wrap: anywhere;
+}
+
+.headline::slotted(:is(h1, h2, h3, h4, h5, h6)) {
+  margin: 0;
+  font: inherit;
+}
+
+.lead:has-slotted + .headline {
+  margin-inline-start: 0;
+}
+
+.headline:has(+ .trail:has-slotted) {
+  margin-inline-end: 0;
+}
