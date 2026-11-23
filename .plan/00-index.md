@@ -2290,7 +2290,7 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 #### RD-50 — The token store carries a notice that its data is Google's, and material-x's README says that the specification is Google's
 
-**Decided 2026-11-23 by the architect, on `repo/register-observations-7`,** for [#191](https://github.com/ausginer/material-x/issues/191), on the owner's answer of the same day in chat, relayed by the coordinator: _"Да, конечно. Можно и в README написать, что material-x старается полностью соответствовать спеке, а спека идёт от гугла"_ ("Yes, of course. The README can also say that material-x tries to follow the specification fully, and that the specification comes from Google"). `RD-49` is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented.** This is not a legal opinion.
+**Decided 2026-11-23 by the architect, on `repo/register-observations-7`,** for [#191](https://github.com/ausginer/material-x/issues/191), on the owner's answer of the same day in chat, relayed by the coordinator: _"Да, конечно. Можно и в README написать, что material-x старается полностью соответствовать спеке, а спека идёт от гугла"_ ("Yes, of course. The README can also say that material-x tries to follow the specification fully, and that the specification comes from Google"). `RD-49` is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented, and ready for an implementer** on `repo/tokens-notice-1`. Q1 was answered on 2026-11-23 (below). This is not a legal opinion.
 
 **What Google's pages say** ([reading](observations-7/checks/m3-licence.txt), [probe](observations-7/probes/m3-licence.mjs.txt)), read on 2026-11-23:
 
@@ -2322,7 +2322,8 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
    Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0
    CC BY 4.0:  https://creativecommons.org/licenses/by/4.0/
 
-   [the sentence that Q1 decides]
+   This project uses the data as Material 3 content under those licenses,
+   and follows the conditions of both.
 
    The data is modified: packages/tproc/scripts/convert.ts converts Google's
    tables to these files, and leaves out internal ids, revisions, authors and
@@ -2331,19 +2332,27 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
    This project isn't affiliated with, sponsored by or endorsed by Google.
    ```
 
-3. **With Q1 (a),** the sentence is _"This project uses the data as Material 3 content under those licenses, and follows the conditions of both."_ The notice meets what both ask: it names the author, the source, the licences and the changes. The repository's root `LICENSE` is the Apache text.
+3. **The sentence of Q1 (a)** is in property 2's text. The notice meets what both licences ask: it names the author, the source, the licences and the changes. The repository's root `LICENSE` is the Apache text.
 4. **material-x's README:** _"inspired by Material Design 3 (Expressive)"_ becomes _"for Material Design 3 (Expressive)"_. After the first paragraph it gains: _"Material X aims to follow the [Material Design 3 specification](https://m3.material.io) fully. Google creates and publishes the specification. Material X is an independent project and isn't affiliated with, sponsored by or endorsed by Google."_ It names Google and Material Design only to say where the specification comes from. It uses no Google logo and no other Google branding.
 5. **No package's `license` field changes.** material-x ships values that the build derives from the store, and its README goes with the package, so the attribution does too. The landing page (`RD-47`) carries the sentence of property 4 when it presents material-x.
 
 **Why here and not at the root.** The notice is about one directory's data, which is Google's. A root `NOTICE` would speak for the repository's own code, and Apache's section 4(d) would oblige everyone who redistributes the repository to carry it.
 
-**Owner question Q1 — may the notice say that the data is used under the site's licence?** The pages don't say whether the sentence includes the token tables.
+**Owner question Q1, answered: (a).** On 2026-11-23, in chat, relayed by the coordinator: _"Q1: (a) давай этот, наверное 🤔 Мы же, по сути, не сами таблицы используем, а те токены, которые они сами же ставят на спеку 🤔"_ ("Q1: (a), let's take this one, I suppose 🤔 After all, we don't really use the tables themselves, but the tokens that they put on the spec themselves 🤔").
+
+- **His reason, checked against the store's content** ([reading](tokens-notice-1/checks/site-modules.txt), [probe](tokens-notice-1/probes/site-modules.mjs.txt)). It holds for most of the store and not for all of it. The store keeps whole tables, and the site's modules offer a part of each:
+  - **Sets:** of 120 named sets, 99 are offered by a module of the 21 pages read. The 21 that aren't are the baseline button and icon button, the deprecated and branded FAB sets, the FAB's small size, the text field's autocompletes and selects, the list's reorder and reveal, and the variable type scales. Another page may offer some of them.
+  - **Contexts:** the modules offer `3P`, `Android`, `Compose`, `Web`, `Static`, light and dark, the contrasts, the language heights and both motion schemes. The store also has the values of `iOS`, `1P Baseline`, `Variable`, `iOS bold`, the device tags and the two iOS settings.
+  - **What material-x renders** is the `web`, `3p` and `static` context (`RD-28` property 9), whose tags the site's modules do offer.
+- **Why the sentence stays:** it says how the project uses the data and quotes the site. It doesn't say that each value is on a page. The tables are the ones that the site's own pages load. The difference doesn't make it untrue, so his answer isn't put to him again. A notice that limits itself to what the pages show would need a smaller store, which `Q3` of the tokens-source plan and `RD-51`'s Q3 don't ask for.
+
+**The question as asked — may the notice say that the data is used under the site's licence?** The pages don't say whether the sentence includes the token tables.
 
 - **(a) Yes, with the sentence quoted. Recommended:** the notice quotes Google and says how the project reads it. It claims no more than the quote.
 - **(b) The source and Google's authorship only,** with no statement of how the project uses the data. Property 2 without the bracketed line.
 - **(c) Ask Google first,** on the material-web issue tracker, and publish the notice without the line until an answer comes. The question is the owner's to post.
 
-**The README change doesn't wait for Q1.** Nothing of the notice except the bracketed line does, so (b) can land first. **Size:** _small_, one file, one script header, and two sentences.
+**Ready,** with nothing left to decide. **Size:** _small_, one file, one script header, and two sentences.
 
 #### RD-51 — A Material specification section is a wish for the landing page: `/spec/`, tokens and values first, all of Material in the store
 
