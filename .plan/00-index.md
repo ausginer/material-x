@@ -4383,27 +4383,24 @@ Tier C, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23
 - **What happens:** `sortable-list.ts`'s `timing` calls `getComputedStyle(this)` and parses `--_drag-duration` and `--_drag-easing` at each landing. Until #90, `mx-list` read both through core's `useCSSProps`, as `ripple.ts` does for its own.
 - **The owner approves the change:** _"Да, приватные переменные пользователь трогать не должен. […] Да, отправляем."_ ("Yes, a user shouldn't touch the private variables. […] Yes, let's send it.") The two are private, and only `list/styles/default/tokens.ts` sets them.
 - **Required property:** the list reads both through `useCSSProps`, with its own descriptions (`parseMs` and `identity`). The hook's result has the shape that `Landing.timing` returns, so it is passed as `timing` with no wrapper.
-- **Accepted effects,** as the owner was told: the values are read once per connection. A later change to the private variables reaches the landing only after a reconnect, while the items' transition of `--_level` follows it. A parse error surfaces at connect.
+- **Accepted effects,** as the owner was told: the values are read once per connection. A later change to the private variables reaches the landing only after a reconnect, while the items' transition of `--_level` follows it. A parse error surfaced at connect as the owner was told, and with `RF-109` it surfaces at the first landing.
 - **Not part of it:** `onStart`'s `getComputedStyle(dragged).getPropertyValue('--_level')`, which WebKit needs ([reading](list-roles-1/checks/lift-rise.txt)).
 - **`RD-31`** needs no amendment: its property 4 doesn't say when the two are read. The [plan's](list-sortable-1/list-sortable-plan.md) section 4 said _"at each landing"_, without a reason, and is amended.
 - **Checked with a trial edit, not committed:** core and material-x typecheck. The rows of `tests/list` and `tests/core/elevation.spec` pass unchanged in the three engines. They set `--_drag-duration` before the list connects.
-- **Found by the architect, and not known when the owner approved:** in Firefox, a list that connects in a `display: none` iframe never sorts, also after the iframe is shown, until it reconnects. Firefox gives no computed value there, so `parseMs` throws in `useCSSProps`' connect hook. The error ends the host's `connectedCallback`, before the controllers after it. Today the list sorts there in the three engines. Chromium and WebKit aren't affected by the change. By reading, not by running, each adopter of the ripple has the same throw in Firefox today.
-- **Question to the owner,** routed on 2026-11-23:
-  - **(a)** accept this case with the change;
-  - **(b)** `useCSSProps` reads at the first call in a connection and not at connect. The values are still one reading per connection, and a parse error surfaces at the first use instead of at connect. It repairs the ripple's adopters too. It changes core's hook, and it is a unit of its own that comes before this one;
-  - **(c)** leave `sortable-list.ts` as it is, and close this entry.
-  - **The architect recommends (b):** it keeps the one mechanism, and a read at connect fails for a host that isn't rendered yet, which is the hook's defect and not the list's.
-- **The unit:** `RF-103`'s, as its own commit, because it is the same file. `RF-103` doesn't wait for the answer. If the answer is (b), this goes in the unit that changes the hook or after it.
-- **Size:** _small_, for (a). _Medium_ with (b).
+- **Found by the architect, and not known when the owner approved:** in Firefox, a list that connects in a `display: none` iframe never sorts, also after the iframe is shown, until it reconnects. Firefox gives no computed value there, so `parseMs` throws in `useCSSProps`' connect hook. The error ends the host's `connectedCallback`, before the controllers after it. Today the list sorts there in the three engines. Chromium and WebKit aren't affected by the change. Each adopter of the ripple has the same throw in Firefox today (`RF-109`).
+- **Answered by the owner on 2026-11-23,** relayed by the coordinator: **(b)**, that `useCSSProps` reads at the first call in a connection and not at connect. _"Да, согласен попытать счастья с вариантом (б)"_ ("Yes, I agree to try my luck with option (b)"). `RF-109` is that change. Options (a), to accept the Firefox case, and (c), to leave `sortable-list.ts` as it is, aren't taken. The hidden-iframe case is repaired by `RF-109`, so it isn't an accepted effect here.
+- **The unit:** `RF-109`'s, as its own commit after the hook's. It isn't `RF-103`'s, which would wait for the hook.
+- **Ready** for an implementer, after `RF-109`.
+- **Size:** _small_.
 
 #### RF-106 — `useCSSProps` declares its parsed values as strings
 
 Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator: _"И про врущий тип тоже"_ ("And about the lying type too"). `RF-105` is the entry before this one, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt)).
 
 - **What happens:** `packages/core/src/controllers/useCSSProps.ts` has `let result: Partial<Record<keyof T, string>>`, and the parsers return any type, numbers included. It compiles because the constraint of `T` is `CSSPropDescription<any>`. `71a516e92` replaced `CSSPropsResult<T>`, which was true of the value. There is no effect at run time.
-- **Required property:** the local's type says what it holds. The runtime and the public signature don't change.
+- **Required property:** the local's type says what it holds. This entry changes neither the runtime nor the public signature.
 - **A type that compiles:** `Partial<Record<keyof T, unknown>>`. `Record<string, unknown>` doesn't, because `keyof T` can't index it.
-- **The unit:** `RF-103`'s, as its own commit, whatever `RF-105`'s answer is. It needs core's typecheck and nothing else.
+- **The unit:** `RF-109`'s, in the hook's commit, because `RF-109` rewrites the same local.
 - **Ready** for an implementer.
 - **Size:** _small_.
 
@@ -4423,7 +4420,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   - The animated property decides, not the token. The button animates `background-color` with a spatial token, and the checkbox its `clip-path` with an effects one.
   - One entry for the package. The list is repaired first, and not in `RF-103`'s unit.
   - **The preference wins over the public `--md-*-duration` overrides.** Motion is instant whatever duration the consumer sets, and color and opacity still use the consumer's. _"да, ведь reduced-motion задаётся скорее всего юзером, а переменные выставляются девелопером"_ ("yes, because reduced-motion is most likely set by the user, and the variables are set by the developer").
-- **How the policy reads for the FAB:** its `--_level` transition on hover is elevation level, so it is motion, by the animated property. The architect reads it so, and the policy's words name the drag's flight only.
+- **The FAB's hover elevation is covered, as the owner ruled on 2026-11-23,** relayed by the coordinator: under `reduce` the hover shadow is instant too. _"Думаю, да 🤔 Раз уж тут все движения режутся"_ ("I think so 🤔 Since all movement is being cut here anyway"). Its `--_level` transition is elevation level, by the animated property.
 - **Required properties:**
   1. In each engine at `RD-20`'s floor, under `reduce`, a transition or an animation of a motion property in a material-x element has zero duration, whatever `--md-*-duration` the consumer sets. One of a color or of an opacity keeps its duration. Without the preference nothing changes.
   2. A resting appearance doesn't depend on an animation's end, as the checkbox's selected state already doesn't.
@@ -4433,7 +4430,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   - In the ripple `matchMedia` is read at the press, as drag reads it at each landing.
   - In the list both `--_level` transitions of `item/main.styles.css` are covered. The `!important` one is too.
 - **Rows** emulate the preference and observe each component's animation durations, and the resting appearance with no animation. The rows of color and opacity, and one `--md-*-duration` override for each element that has one, show that the preference wins for motion and not for color or opacity. They don't run in Safari, where the preference can't be emulated (`RD-12` property 5). **Witness:** the motion rows fail before the repair in the three engines. The list's `--_level` row after an arrow key fails in Chromium and Firefox, and WebKit's has to be one that does start the transition, such as a lift.
-- **The mechanism the owner favors:** a Lightning CSS visitor in `@ydinjs/vite-custom-element-assets`, which holds `hasSlottedFallbackVisitor` already, so that no component can forget the preference. The explainer session named it as an alternative, with the cost _"magic in the build and extra bytes in each file"_. _"На самом деле я даже за [...] Магия - да, но зато 100% не забудешь. Хорошая идея, мне нравится! Да, отправляй оба"_ ("I'm actually for it [...] Magic, yes, but you 100% can't forget. Good idea, I like it! Yes, send both"; "both" is this and `RF-108`). So the point of one shared rule or one per component is settled: neither is written by hand. What the visitor writes is the question below.
+- **The mechanism the owner favors:** a Lightning CSS visitor in `@ydinjs/vite-custom-element-assets`, which holds `hasSlottedFallbackVisitor` already, so that no component can forget the preference. The explainer session named it as an alternative, with the cost _"magic in the build and extra bytes in each file"_. _"На самом деле я даже за [...] Магия - да, но зато 100% не забудешь. Хорошая идея, мне нравится! Да, отправляй оба"_ ("I'm actually for it [...] Magic, yes, but you 100% can't forget. Good idea, I like it! Yes, send both"; "both" is this and `RF-108`). So the point of one shared rule or one per component is settled: neither is written by hand. What the visitor writes is below.
 - **The first proposal,** which the owner saw: one media rule in a shared sheet that `useCore` adopts, `@media (prefers-reduced-motion: reduce) { :host { --_motion: 0 } }`, and each motion transition's duration as `calc(<duration> * var(--_motion, 1))`, written by hand.
 - **Feasibility, as the explainer session read it, and as the architect checked it** ([readings](observations-6/checks/motion-visitor.txt)):
   - The package has 20 rules with a `transition` or an `animation` outside `@keyframes`, with 24 such declarations, at `23b245efb` and today. Most hold `var()` and arrive as tokens. The property is the first identifier of each comma segment, and by convention the first `var()` is the duration.
@@ -4441,12 +4438,10 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   - By reading, every material-x element goes through `useCore`.
 - **Proposed by the explainer session for the plan to weigh, not rulings:** a transition that the visitor can't classify (`all`, no property, an unknown property) fails the build. `transition-property` in the same rule is honored, so the text field label's one `transition-duration` is split per property. `font-size` counts as motion. Every `animation` counts as motion unless its keyframes change only color or opacity. An `infinite` animation needs a ruling of its own, and none exists today.
 - **Limits:** the ripple's animations are in JavaScript, so `matchMedia` at the press stays. The visitor sees source CSS only.
-- **Question to the owner,** routed on 2026-11-23, replacing the one on a shared rule: what the visitor writes.
-  - **(a) `@media (prefers-reduced-motion: reduce)` blocks,** each with the rule's motion transitions at zero duration. This is the visitor as it was first named to the owner.
-  - **(b) The multiplier in each motion duration,** and the one media rule stays hand-written in the sheet that `useCore` adopts. The owner hasn't seen this version.
-  - **The architect recommends (b).** Both can't be forgotten. (a) repeats each selector and the cascade it stands in, the `!important` case among them, and it adds a block to each file. (b) leaves the rule where it is and adds a factor. Its cost is that every motion duration reads a variable, with and without the preference.
+- **What the visitor writes, answered by the owner on 2026-11-23,** relayed by the coordinator from the explainer session: **the multiplier in each motion duration,** and the one media rule stays hand-written in the sheet that `useCore` adopts. To _"the visitor writes the multiplier, not `@media`"_ he said _"А я думал, ты про это и говорил..."_ ("And I thought that's what you were talking about..."). The explainer session reads it as agreement, because it is how he understood the visitor when he chose it. The architect had recommended the same. `@media (prefers-reduced-motion: reduce)` blocks in each rule aren't taken: they repeat each selector and the cascade it stands in, the `!important` case among them, and they add a block to each file.
 - **Amended 2026-11-23 by the architect,** on the owner's words above, relayed by the coordinator. The architect's recommendation of a media rule in each component is withdrawn. It held that a shared rule couldn't leave color and opacity alone, and it didn't consider a multiplier in each duration, which does.
 - **For the repair to see:** the ripple's minimum visible time (225 ms) is measured from the scale animation's `currentTime`. A zero duration holds it at 0, so by reading every release would wait the full 225 ms, however long the press was.
+- **No owner question is open.** The plan weighs the proposed properties above.
 - **The unit:** a plan comes before implementation. The list is first, then the components, and the plan decides how that order fits with one visitor. `RF-108` comes before it or with it. `RF-103`'s unit doesn't wait.
 - **Size:** _large_.
 
@@ -4461,6 +4456,23 @@ Tier A, **open**, pre-existing since `4f25be60b` (#2). Registered on 2026-11-23 
 - **Order:** before `RF-107`'s unit or with it, because a visitor that can't classify `all` fails the build.
 - **Ready** for an implementer.
 - **Size:** _small_.
+
+#### RF-109 — In Firefox, `useCSSProps` throws at connect in a hidden iframe, and the host's later controllers don't start
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from the owner's answer to `RF-105`'s question, relayed by the coordinator. `RF-108` is the entry before this one, so this is the next free number. Read at `0c0e8527e` ([readings](observations-6/checks/css-props-lazy.txt), [probe](observations-6/probes/hidden-iframe-ripple.browser.test.ts.txt)).
+
+- **What happens:** `useCSSProps` reads at connect. In Firefox a computed custom property of an element in a `display: none` iframe is empty, so `parseMs` throws. The error ends the host's `connectedCallback`, and the controllers registered after the hook don't connect.
+- **What it shows:** `mx-button`, `mx-fab`, `mx-checkbox`, `mx-radio` and `mx-list-button-item` that connect in a `display: none` iframe report a `CSSVariableError`, and a press has no ripple after the iframe is shown. Clicks still arrive. Chromium and WebKit aren't affected. `mx-sortable-list` would join them with `RF-105`, and wouldn't sort.
+- **The owner:** _"Да, согласен попытать счастья с вариантом (б)"_ ("Yes, I agree to try my luck with option (b)"), about `RF-105`'s option (b).
+- **Required properties:**
+  1. The hook reads at the first call in a connection, and not at connect. Later calls in that connection return the same values. A connect discards them, so the next call reads again. The values stay available after a disconnect until then.
+  2. A parse error is thrown by the call, and not by `connectedCallback`. The host's other controllers connect. A read that throws isn't kept, so the next call reads again.
+  3. The public signature doesn't change.
+- **Rows:** in core, the first call, the later calls, a reconnect, a change of the variable within a connection and after one, and a call that throws and then succeeds. The row that expects the throw from `connectedCallback()` moves to the call. In material-x, for an adopter of the ripple in a `display: none` iframe that is then shown, a press shows its ripple and reports no error. **Witness:** that row fails in Firefox before the repair, and the core rows for the first call and the throw fail in every engine.
+- **Checked with a trial edit, not committed:** the properties above make the five elements and the list work in the three engines. The browser and spec suites of material-x pass, and in core only the row that moves fails. A reading at connect forced the style of each element, and by reading the new hook forces it at first use only.
+- **The unit:** this one, with `RF-106` in the same commit, because both rewrite the hook's local, and then `RF-105` as its own commit. `RF-103`'s unit doesn't wait for it. It edits `sortable-list.ts` in other places.
+- **Ready** for an implementer.
+- **Size:** _medium_: core's hook and its rows, and rows in material-x, in its own branch and pull request, with nothing to decide first.
 
 ## Questions
 
