@@ -4429,19 +4429,38 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   2. A resting appearance doesn't depend on an animation's end, as the checkbox's selected state already doesn't.
   3. A change to the preference takes effect for the next transition or press, without a reconnect.
 - **Constraints, proposed by the explainer session, not rulings; the architect accepts them:**
-  - In CSS the media query acts on the transition or the animation, not on a duration variable, because `useCSSProps` reads a variable once per connection (`RF-105`).
+  - In CSS the preference never acts on a variable that JavaScript reads, because `useCSSProps` reads a variable once per connection (`RF-105`). So `--_drag-duration` doesn't change under the preference.
   - In the ripple `matchMedia` is read at the press, as drag reads it at each landing.
-  - In the list the rule covers both `--_level` transitions of `item/main.styles.css`, and the one that overrides the `!important` is `!important` too.
+  - In the list both `--_level` transitions of `item/main.styles.css` are covered. The `!important` one is too.
 - **Rows** emulate the preference and observe each component's animation durations, and the resting appearance with no animation. The rows of color and opacity, and one `--md-*-duration` override for each element that has one, show that the preference wins for motion and not for color or opacity. They don't run in Safari, where the preference can't be emulated (`RD-12` property 5). **Witness:** the motion rows fail before the repair in the three engines. The list's `--_level` row after an arrow key fails in Chromium and Firefox, and WebKit's has to be one that does start the transition, such as a lift.
-- **Two things the repair has to see:**
-  - The extended FAB's `.host` sets `transition-property` before the `transition` shorthand, which resets it to `all`. The computed value is `all` for 350 ms, so it isn't limited to the grid and the gap. The color and opacity part of `all` is to keep its duration under `reduce` if the repair keeps it.
-  - The ripple's minimum visible time (225 ms) is measured from the scale animation's `currentTime`. A zero duration holds it at 0, so by reading every release would wait the full 225 ms, however long the press was.
-- **Question to the owner,** routed on 2026-11-23: where the rule is.
-  - **(a) One rule in a shared stylesheet** that every component adopts.
-  - **(b) A `@media (prefers-reduced-motion: reduce)` rule in each component's stylesheet,** beside its transitions, and one read in the ripple, which the components share.
-  - **The architect recommends (b).** The policy goes by property, and CSS can't remove a property from a component's `transition-property` list. A shared rule can set one duration for every property, which makes color and opacity instant too. Or it can set the list to colors and opacity, which gives the durations of the component's list to them, so a list item whose only transition is `border-radius` starts to animate its color. Each rule in (b) says what the component still animates. Its cost is that a new component can forget it, which property 1's rows for each component catch. The ripple and the notched outline are shared, so they have one rule each.
-- **The unit:** a plan comes before implementation. The list is first, then the components. `RF-103`'s unit doesn't wait.
+- **The mechanism the owner favors:** a Lightning CSS visitor in `@ydinjs/vite-custom-element-assets`, which holds `hasSlottedFallbackVisitor` already, so that no component can forget the preference. The explainer session named it as an alternative, with the cost _"magic in the build and extra bytes in each file"_. _"На самом деле я даже за [...] Магия - да, но зато 100% не забудешь. Хорошая идея, мне нравится! Да, отправляй оба"_ ("I'm actually for it [...] Magic, yes, but you 100% can't forget. Good idea, I like it! Yes, send both"; "both" is this and `RF-108`). So the point of one shared rule or one per component is settled: neither is written by hand. What the visitor writes is the question below.
+- **The first proposal,** which the owner saw: one media rule in a shared sheet that `useCore` adopts, `@media (prefers-reduced-motion: reduce) { :host { --_motion: 0 } }`, and each motion transition's duration as `calc(<duration> * var(--_motion, 1))`, written by hand.
+- **Feasibility, as the explainer session read it, and as the architect checked it** ([readings](observations-6/checks/motion-visitor.txt)):
+  - The package has 20 rules with a `transition` or an `animation` outside `@keyframes`, with 24 such declarations, at `23b245efb` and today. Most hold `var()` and arrive as tokens. The property is the first identifier of each comma segment, and by convention the first `var()` is the duration.
+  - On a minimal page the multiplier makes motion instant and leaves color alone, for a duration with and without a consumer's override, for a registered property on the host and for an `!important` rule, in the three engines ([probe](observations-6/probes/motion-multiplier.ts.txt)).
+  - By reading, every material-x element goes through `useCore`.
+- **Proposed by the explainer session for the plan to weigh, not rulings:** a transition that the visitor can't classify (`all`, no property, an unknown property) fails the build. `transition-property` in the same rule is honored, so the text field label's one `transition-duration` is split per property. `font-size` counts as motion. Every `animation` counts as motion unless its keyframes change only color or opacity. An `infinite` animation needs a ruling of its own, and none exists today.
+- **Limits:** the ripple's animations are in JavaScript, so `matchMedia` at the press stays. The visitor sees source CSS only.
+- **Question to the owner,** routed on 2026-11-23, replacing the one on a shared rule: what the visitor writes.
+  - **(a) `@media (prefers-reduced-motion: reduce)` blocks,** each with the rule's motion transitions at zero duration. This is the visitor as it was first named to the owner.
+  - **(b) The multiplier in each motion duration,** and the one media rule stays hand-written in the sheet that `useCore` adopts. The owner hasn't seen this version.
+  - **The architect recommends (b).** Both can't be forgotten. (a) repeats each selector and the cascade it stands in, the `!important` case among them, and it adds a block to each file. (b) leaves the rule where it is and adds a factor. Its cost is that every motion duration reads a variable, with and without the preference.
+- **Amended 2026-11-23 by the architect,** on the owner's words above, relayed by the coordinator. The architect's recommendation of a media rule in each component is withdrawn. It held that a shared rule couldn't leave color and opacity alone, and it didn't consider a multiplier in each duration, which does.
+- **For the repair to see:** the ripple's minimum visible time (225 ms) is measured from the scale animation's `currentTime`. A zero duration holds it at 0, so by reading every release would wait the full 225 ms, however long the press was.
+- **The unit:** a plan comes before implementation. The list is first, then the components, and the plan decides how that order fits with one visitor. `RF-108` comes before it or with it. `RF-103`'s unit doesn't wait.
 - **Size:** _large_.
+
+#### RF-108 — The extended FAB transitions every property, not only the grid and the gap
+
+Tier A, **open**, pre-existing since `4f25be60b` (#2). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from the explainer session through the coordinator. `RF-107` is the entry before this one, so this is the next free number. Read at `3410bba45` ([readings](observations-6/checks/motion-visitor.txt), [probe](observations-6/probes/fab-transition-all.browser.test.ts.txt)).
+
+- **What happens:** `fab/styles/extended/main.styles.css` gives the extended FAB's `.host` `transition-property: grid-template-columns, gap`, and then the `transition` shorthand, which resets the list to `all`. The computed value is `all 0.35s`. `.label` in the same file has the two in the right order.
+- **What it shows,** in Chromium, Firefox and WebKit: a `box-shadow` transition starts on hover, on top of the host's own `--_level` transition, so the elevation is animated twice. In Chromium and WebKit the shadow hasn't settled 660 ms after the hover, while the level is at its end. The focus outline's color and offset transition for 350 ms, and so does the padding when a consumer sets `--md-fab-container-height`. A plain `mx-fab` does none of these.
+- **Why Tier A:** a user sees it. The elevation lags, and the focus outline moves, without a rule that says so.
+- **Required property:** the rule transitions the properties that it names and no other. Rows observe the transitions that start on a hover, on a keyboard focus and on an override of the container's height, for an extended FAB, in each engine at `RD-20`'s floor. **Witness:** the three rows fail before the repair.
+- **Order:** before `RF-107`'s unit or with it, because a visitor that can't classify `all` fails the build.
+- **Ready** for an implementer.
+- **Size:** _small_.
 
 ## Questions
 
