@@ -112,9 +112,18 @@ function corners(element: Element): readonly string[] {
   ];
 }
 
-/** The outline that the slot draws, and the edge it is drawn inside. */
+/**
+ * The outline that the card draws, and the edge it is drawn inside. It reads
+ * whichever of the host and the slot draws one, so that only the row under a
+ * page's reset depends on which of them does.
+ */
 function outlineOf(card: Card): Readonly<Record<string, string>> {
-  const style = getComputedStyle(getSlot(card));
+  const slot = getSlot(card);
+  const style = getComputedStyle(
+    [card, slot].find(
+      (element) => getComputedStyle(element).outlineStyle !== 'none',
+    ) ?? slot,
+  );
 
   return {
     color: style.outlineColor,

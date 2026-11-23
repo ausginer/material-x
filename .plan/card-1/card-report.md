@@ -40,3 +40,17 @@ Brotli bytes from `size-limit`, built at `ccf5a4fef` and at the implementation w
 
 - **The owner:** records the baseline, by adding the label `record-baselines` to the pull request and merging the proposal from `baselines/material-x/card-1`. Before adding the label, the owner reads the branch's changes under `.github/`: there are none.
 - **After the merge:** the plan's documentation unit.
+
+## Disposition of the feature proof at `2ab9738ee`
+
+**Dated 2026-11-23 by the implementer,** on the coordinator's task, for `reviewer-3` and `reviewer-4` of the [feature proof](../reviews/card-1/feature-proof-claude.md). Only tests and this record change. `reviewer-1` goes to the architect, and `reviewer-2` is `repo:RF-121` (#215). Neither is touched.
+
+- **`reviewer-3`: accepted, repaired.** Four rows in `elevation.spec.browser.test.ts`, _should cover the host's box with the umbra/ambient of `mx-card`/`mx-list-item`_, read the pseudo-element's box and not its `box-shadow`: that it has one, that it is absolutely positioned at the host's edges with the host's size, and that it has the host's radius. The host is 200×80 with a shape of 10px set through the public property.
+  - **Witness:** without `content`, `inset` or `border-radius`, or either `position`, all four rows fail and no other does. With the box of one pseudo-element removed, that pseudo-element's two rows fail, alone.
+  - **Limit:** the rows read the layout box. A layer that has its box and isn't painted for another reason, such as `visibility`, `opacity` or `z-index`, passes them. They name the two host-box components, so a third one needs a case of its own.
+- **`reviewer-4`: accepted, repaired in the row.** `outlineOf` now reads the outline of whichever of the host and the slot draws one. With the outline on the host, only _should keep the outline under a page's universal reset_ fails, where three rows failed before, so the row now proves that the reset doesn't remove the outline. The plan's witness, _"the row fails with the padding or the outline on the host"_, holds for the outline through this row alone.
+  - **The reading that the property rests on** is the proof's: under the reset the host's outline is `none 0px` and the slot's is `solid 1px`, in the three engines ([geometry](../reviews/card-1/checks/geometry.txt)). It replaces the statement under _Verification_ that the host's outline wasn't read and that the rows don't prove the reset.
+  - **The change's other effect:** _should render no outline_ on the filled and elevated cards now reads the host too.
+- **Readings:** [every mutation's failing rows](checks/witnesses-2.txt), in Chromium, Firefox and WebKit, by [`mutate.mjs`](probes/mutate.mjs). Its first group is the unchanged source: `tests/card` with `tests/core/elevation.spec`, 65 passed in Chromium, 62 passed and 3 skipped in Firefox and in WebKit. `outline drawn outside` and `slot does not stretch` still fail their rows.
+- **Checks:** format, lint and the typecheck of material-x pass for the changed test files.
+- **Not run:** the rest of the suite, the visual project and Safari.

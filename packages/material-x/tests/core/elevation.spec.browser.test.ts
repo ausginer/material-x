@@ -233,6 +233,58 @@ describe('mx-card elevation layers', () => {
   });
 });
 
+/**
+ * A layer's computed `box-shadow` is the declared one whether or not its
+ * pseudo-element has a box, so these rows read the box. A pseudo-element with
+ * no box has no used size.
+ */
+describe('host-box elevation layers', () => {
+  const create = {
+    'mx-card': () => createCard('elevated'),
+    'mx-list-item': () => createResting('mx-list-item'),
+  } as const;
+
+  it.each([
+    { tag: 'mx-card', pseudo: '::before', layer: 'umbra' },
+    { tag: 'mx-card', pseudo: '::after', layer: 'ambient' },
+    { tag: 'mx-list-item', pseudo: '::before', layer: 'umbra' },
+    { tag: 'mx-list-item', pseudo: '::after', layer: 'ambient' },
+  ] as const)(
+    "should cover the host's box with the $layer of $tag",
+    async ({ tag, pseudo }) => {
+      const fixture = create[tag]();
+      const host = componentOf(fixture);
+      // A shape that no corner of the pseudo-element has by default, and a size
+      // that no ancestor has.
+      host.style.setProperty(`--md-${tag.slice(3)}-container-shape`, '10px');
+      host.style.setProperty('inline-size', '200px');
+      host.style.setProperty('block-size', '80px');
+      await mount(fixture);
+
+      const { display, position, top, left, width, height, borderRadius } =
+        getComputedStyle(host, pseudo);
+
+      expect({
+        display,
+        position,
+        top,
+        left,
+        width,
+        height,
+        borderRadius,
+      }).toEqual({
+        display: 'block',
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        width: '200px',
+        height: '80px',
+        borderRadius: '10px',
+      });
+    },
+  );
+});
+
 function createSortableList(tag: string): readonly HTMLElement[] {
   const list = document.createElement('mx-sortable-list');
   list.style.setProperty('--_drag-duration', '0s');
