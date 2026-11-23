@@ -1357,6 +1357,133 @@ describe('mx-sortable-list announcement', () => {
   });
 });
 
+describe('mx-sortable-list when other items change during the commit wait', () => {
+  type ChangeCase = Readonly<{
+    name: string;
+    /** The index of the item that moves down one slot in A, B, C, D. */
+    index: number;
+    respond: (
+      event: ReorderEvent,
+      list: HTMLElement,
+      items: readonly HTMLElement[],
+    ) => void;
+    announcement: string;
+    /** Whether the wait ends before the 500 ms bound. */
+    early: boolean;
+  }>;
+
+  function insertFirst(list: HTMLElement): void {
+    list.prepend(createItem('mx-list-item', 'Z', false));
+  }
+
+  const CHANGES: readonly ChangeCase[] = [
+    {
+      name: 'an item is inserted and the move is not committed',
+      index: 0,
+      respond: (_, list) => {
+        setTimeout(() => insertFirst(list), 50);
+      },
+      announcement: '',
+      early: false,
+    },
+    {
+      name: 'an item is inserted before the move is committed',
+      index: 0,
+      respond: ({ item, next }, list) => {
+        setTimeout(() => insertFirst(list), 50);
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 150);
+      },
+      announcement: 'Item 3 of 5.',
+      early: true,
+    },
+    {
+      name: 'an item is inserted in the task that commits the move',
+      index: 0,
+      respond: ({ item, next }, list) => {
+        list.insertBefore(item, next);
+        insertFirst(list);
+      },
+      announcement: 'Item 3 of 5.',
+      early: true,
+    },
+    {
+      name: 'another item is removed in the task that commits the move',
+      index: 2,
+      respond: ({ item, next }, list, [a]) => {
+        setTimeout(() => {
+          list.insertBefore(item, next);
+          a!.remove();
+        }, 50);
+      },
+      announcement: 'Item 3 of 3.',
+      early: true,
+    },
+    {
+      name: 'another item is removed before the move is committed',
+      index: 2,
+      respond: ({ item, next }, list, [a]) => {
+        setTimeout(() => a!.remove(), 50);
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 150);
+      },
+      announcement: 'Item 3 of 3.',
+      early: true,
+    },
+    {
+      name: 'the passed item is removed and the move is not committed',
+      index: 0,
+      respond: (_, _list, [, b]) => {
+        setTimeout(() => b!.remove(), 50);
+      },
+      announcement: '',
+      early: true,
+    },
+  ];
+
+  /** Returns the announcement, and whether the wait ended before its bound. */
+  async function moveDown({
+    index,
+    respond,
+  }: ChangeCase): Promise<readonly [announcement: string, early: boolean]> {
+    const [list, items] = await createList(['A', 'B', 'C', 'D']);
+    const item = items[index]!;
+    let proposed = Number.NaN;
+    list.addEventListener('reorder', (event) => {
+      proposed = performance.now();
+      respond(event as ReorderEvent, list, items);
+    });
+    item.focus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    await expect
+      .poll(() => isDragged(item), { interval: 10, timeout: 2000 })
+      .toBe(false);
+    const early = performance.now() - proposed < 400;
+    return [announcementOf(list), early];
+  }
+
+  it.each(CHANGES)(
+    'should announce only a real move when $name',
+    async (row) => {
+      const [announcement] = await moveDown(row);
+
+      expect(announcement).toBe(row.announcement);
+    },
+  );
+
+  it.each(CHANGES)(
+    'should end the wait only for the order of the proposed slot when $name',
+    async (row) => {
+      const [, early] = await moveDown(row);
+
+      expect(early).toBe(row.early);
+    },
+  );
+});
+
 describe('mx-sortable-list scrollable overflow', () => {
   type ContainerCase = Readonly<{
     name: string;

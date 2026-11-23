@@ -4459,6 +4459,14 @@ Tier A, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23
 - **The unit's size stays** _medium_. The repair in it is _small_.
 - **Order with #199** (`core/css-props-1`): the conflict is in `sortable-list.ts`'s imports only, and either merges first.
 
+**Dated 2026-11-23 by the implementer: the amended property 2 is implemented on `material-x/live-region-1`, in #197, and not closed.** Requested by the coordinator, from `610b9838b`. It replaces my paragraph's statement that positions are compared literally.
+
+- **The rule:** `onReorder` keeps the proposal's other items in their order, before it dispatches the event. One function compares the number of them before the item now with that number before a slot of the proposal, counting only the items in the list at both times. `onEnd` announces when the result differs for `from`, and the wait ends when it is equal for `to`. An item that isn't in the list neither ends the wait nor is announced. The `reorder` JSDoc follows the property.
+- **Rows** ([readings](live-region-1/checks/real-move.txt)): 12 per engine, the announcement and the wait of six cases: an insertion with no commit, before the commit, and in the commit's task; another item's removal in the commit's task and before the commit; and the passed item's removal with no commit. With the literal comparison of `333c9f7ae`, nine of the 12 fail in each engine. The three that pass there are the announcement of the insertion in the commit's task, the wait of the insertion before the commit, which ended early for the wrong reason, and the announcement of the passed item's removal. All 12 pass after the repair in the three engines.
+- **Witnesses,** in the three engines together: the literal comparison in the wait alone fails 18 rows, and in the announcement alone nine.
+- **Sizes,** Brotli: `list/sortable-list` 8,798 → 8,846 B (+48) and `complete` 22,740 → 22,848 B (+108). Every other row is unchanged. From the base, `list/sortable-list` is +145 B.
+- **Not checked:** Safari, a screen reader (#150), and material-x's tests outside `tests/list` and `tests/core/polyfills` in this pass. The row that silences drag's report stays (`drag:DRF-55`).
+
 #### RF-104 — Eleven relative links in box-quad's record resolve to nothing
 
 Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from [#176](https://github.com/ausginer/material-x/issues/176), relayed by the coordinator. The architect saw it while registering the Storybook decisions on `box-quad/storybook-2` (#177). `RF-103` is the entry before this one, so this is the next free number. Read at `fa056ff71` ([reading](observations-6/checks/box-quad-links.txt), [probe](observations-4/probes/index-links.mjs)).
