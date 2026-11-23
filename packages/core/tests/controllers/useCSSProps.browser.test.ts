@@ -113,24 +113,110 @@ describe('useCSSProps', () => {
     expect(Object.keys(props())).toEqual(['a', 'b']);
   });
 
-  it('should surface CSSVariableError for invalid parsed values', () => {
-    const [element] = setupCSSProps({
-      duration: [
-        '--duration',
-        (value, target, name) => {
-          const result = parseFloat(value);
+  describe('when it reads', () => {
+    function setupGap(
+      value: string,
+    ): readonly [
+      element: ControlledElement,
+      gap: () => number,
+      parsed: readonly string[],
+    ] {
+      const parsed: string[] = [];
+      const [element, props] = setupCSSProps({
+        gap: [
+          '--gap',
+          (current, target, name) => {
+            parsed.push(current);
+            const result = parseFloat(current);
 
-          if (isNaN(result)) {
-            throw new CSSVariableError(name, target);
-          }
+            if (isNaN(result)) {
+              throw new CSSVariableError(name, target);
+            }
 
-          return result;
-        },
-      ],
+            return result;
+          },
+        ],
+      });
+
+      element.style.setProperty('--gap', value);
+      return [element, () => props().gap, parsed];
+    }
+
+    it('should not read at connect', () => {
+      const [element, , parsed] = setupGap('1px');
+      document.body.append(element);
+
+      expect(parsed).toEqual([]);
     });
 
-    element.style.setProperty('--duration', 'oops');
+    it('should read at the first call in a connection', () => {
+      const [element, gap] = setupGap('1px');
+      document.body.append(element);
+      element.style.setProperty('--gap', '2px');
 
-    expect(() => element.connectedCallback()).toThrow(CSSVariableError);
+      expect(gap()).toBe(2);
+    });
+
+    it('should return the same values to later calls in a connection', () => {
+      const [element, props] = setupCSSProps({
+        gap: ['--gap', (value) => value],
+      });
+      document.body.append(element);
+
+      expect(props()).toBe(props());
+    });
+
+    it('should ignore a change of the variable after the first call in a connection', () => {
+      const [element, gap] = setupGap('1px');
+      document.body.append(element);
+      gap();
+      element.style.setProperty('--gap', '2px');
+
+      expect(gap()).toBe(1);
+    });
+
+    it('should read again at the first call after a reconnect', () => {
+      const [element, gap] = setupGap('1px');
+      document.body.append(element);
+      gap();
+      element.remove();
+      document.body.append(element);
+      element.style.setProperty('--gap', '2px');
+
+      expect(gap()).toBe(2);
+    });
+
+    it('should keep the values after a disconnect', () => {
+      const [element, gap] = setupGap('1px');
+      document.body.append(element);
+      gap();
+      element.style.setProperty('--gap', '2px');
+      element.remove();
+
+      expect(gap()).toBe(1);
+    });
+
+    it('should not throw from connectedCallback for an invalid value', () => {
+      const [element] = setupGap('oops');
+
+      expect(() => element.connectedCallback()).not.toThrow();
+    });
+
+    it('should surface CSSVariableError from the call for an invalid value', () => {
+      const [element, gap] = setupGap('1px');
+      document.body.append(element);
+      element.style.setProperty('--gap', 'oops');
+
+      expect(gap).toThrow(CSSVariableError);
+    });
+
+    it('should read again after a call that throws', () => {
+      const [element, gap] = setupGap('oops');
+      document.body.append(element);
+      expect(gap).toThrow(CSSVariableError);
+      element.style.setProperty('--gap', '2px');
+
+      expect(gap()).toBe(2);
+    });
   });
 });
