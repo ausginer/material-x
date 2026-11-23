@@ -1,14 +1,14 @@
 # mx-slider — plan
 
-**Status: ready for the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), and then for implementation.** Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`. It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan. No record identifier is minted or amended here, and [the proposed entries](#proposed-record-entries) are for the main slot's architect.
+**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with no question open.** Ready for implementation once the main slot's architect mints [the entries](#proposed-record-entries). Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan. No record identifier is minted or amended here, and [the proposed entries](#proposed-record-entries) are for the main slot's architect.
 
 **The unit:** one element, `mx-slider`, a continuous slider with one value. It is horizontal. The range slider, stops and the vertical slider wait ([what stays possible](#what-stays-possible)).
 
 ## The answer in short
 
 - **A native `<input type="range">` in the shadow tree is the control** (`SL-D1`). It owns the pointer, touch, the keyboard, the arithmetic and the accessible node. It is transparent, and the component draws everything from one custom property.
-- **The slider's value is the user's, as a text field's text is** (`SL-D2`, the owner's Q1). `value` is a number.
-- **The name comes from a `label` slot or from a `<label>`** (`SL-D4`). No host `aria-*` is read or copied, so the slider has one named node instead of `RF-94`'s two (one case in Firefox remains). What the host's `aria-label` does is the owner's Q2.
+- **The slider's value is the user's, as a text field's text is** (`SL-D2`, the owner's answer to Q1). `value` is a number.
+- **The name comes from a host `aria-labelledby`, the `label` slot, a host `aria-label` or a `<label>`, in that order** (`SL-D4`). Host `aria-*` is mirrored, as the text fields mirror it, so a host `aria-label` also leaves the second named node of `RF-94`. The owner accepted that for now (Q2).
 - **A value change costs 36, 94 and 284 µs of style and layout** in Chromium, Firefox and WebKit, and reads no layout (`SL-D8`).
 - **No prototype checkpoint is needed** ([why](#prototype-checkpoint)).
 
@@ -18,11 +18,12 @@
 
 ## Readings
 
-Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on Linux, headless. The probes are standalone pages, because no slider exists.
+Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on Linux, headless. The probes are standalone pages, because no slider exists. `mirroring.ts` bundles the packages as built in slot c from `81671c1ad`, which changes no source of `92a386a17`.
 
 | Probe | Readings |
 | --- | --- |
 | [`naming.ts`](probes/naming.ts) | [`naming.txt`](checks/naming.txt) — each engine's own accessibility tree |
+| [`mirroring.ts`](probes/mirroring.ts) | [`mirroring.txt`](checks/mirroring.txt) — the same trees, for the amendment: every built element with a control, and a prototype with core's built `useARIA`, in the text field's form and this plan's |
 | [`interaction.ts`](probes/interaction.ts) | [`interaction.txt`](checks/interaction.txt) — drags, keys, events, touch |
 | [`drawing.ts`](probes/drawing.ts) | [`drawing.txt`](checks/drawing.txt) — geometry, states, `:disabled` |
 | [`move-cost.ts`](probes/move-cost.ts) | [`move-cost.txt`](checks/move-cost.txt) — cost of one change |
@@ -71,7 +72,7 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 - **Public custom properties:** `--md-slider-active-track-color`, `--md-slider-inactive-track-color`, `--md-slider-handle-color` and `--md-slider-stop-indicator-color`. With the first two and the last `transparent`, a page's gradient behind the slider shows through. `RD-49` property 5 draws the strip beside the slider and needs none of them.
 - **Parts and slots:** `impl` on the input, and the slot `label`.
 
-**Whose the value is.** The owner's Q1. The recommended answer, (a), is planned here: the value is the user's input, the second exception to the controlled principle after the text fields.
+**Whose the value is.** The user's, as the owner answered to Q1 (a). It is the second exception to the controlled principle after the text fields.
 
 - `value` reads the current value. The consumer may set it at any time, also inside an `input` handler and in the middle of a drag, and the drag goes on.
 - The `value` attribute is the initial value. It is followed until the user moves the slider or a script sets `value`, as in `TextFieldCore`. The property doesn't reflect.
@@ -91,26 +92,44 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 
 ## SL-D4 — Name and accessibility
 
-`RF-94`'s shape is a control that can't be named, or a host that becomes a second named node. The readings, per source of the name:
+**The owner's answer to Q2: as the text field.** Host `aria-*` is mirrored to the input with core's `useARIA`, and the second named node is accepted for now, as `RF-94`'s. The slider follows the text field's rule, except where a reading shows that it doesn't work.
 
-| Source | Control | Host |
-| --- | --- | --- |
-| `<label for>` around a `label` slot, in the shadow tree | named in all three | no name in any. WebKit has an unnamed `group` |
-| A wrapping `<label>`, given to the input as `ariaLabelledByElements`, host role `none` | named in all three | not exposed in Chromium, Firefox or WebKit |
-| `<label for>`, the same | named in all three | not exposed in Chromium and WebKit. **Firefox keeps a `generic` node with the name** |
-| Host `aria-label` or `aria-labelledby`, mirrored | named in all three | a second named node in all three, with role `none` too |
-| Host `aria-label`, moved to the input and removed from the host | named in all three | no name in any |
+**The name, first match wins.** Each row was read in all three engines, with 14 combinations of sources in [`mirroring.txt`](checks/mirroring.txt).
 
-**Decision.**
+|  | Source | How | The text field |
+| --- | --- | --- | --- |
+| 1 | Host `aria-labelledby` | `input.ariaLabelledByElements` is the host's `ariaLabelledByElements` | **Differs.** It mirrors the ids, which the shadow tree doesn't have, so the host's reference names nothing. The field is unnamed, or falls to its slot or `aria-label` |
+| 2 | The `label` slot, when it has an element | `input.ariaLabelledByElements` is the shadow label | The same: its slot wins over a host `aria-label` |
+| 3 | Host `aria-label` | mirrored | The same |
+| 4 | `<label>`, wrapping or `for` | `input.ariaLabelledByElements` is `internals.labels` | **Differs.** It has no such source: a `<label>` leaves the field unnamed |
 
-1. **The `label` slot,** inside a shadow `<label for>`. This is the text fields' slot name. Its content is the visible label above the track. A click on it focuses the slider.
-2. **A `<label>`,** wrapping or with `for`. The component sets `input.ariaLabelledByElements` to `internals.labels`. A click on it focuses the slider in all three engines. The element references reach from a shadow tree to its host's tree, which a mirrored id can't, so this also answers one of `RF-94`'s open points: _how a light-DOM label reaches a shadow control_. The labels are read when the slider connects and when it takes focus. **A label added later, to a slider that hasn't taken focus since, isn't read.** Labels that the page holds when the slider connects or upgrades are, whatever their order.
-3. **If both exist, the `<label>` elements name it,** because the accessible-name computation takes an element reference before a native label. This combination wasn't read.
-4. **The host's role is `none`,** through its internals. The host has no name or value of its own.
-5. **`disabled`, the value, its bounds and `aria-valuetext`** are the input's.
-6. **Host `aria-*` isn't read** (Q2).
+- **The order is the text field's where it has a source,** and a native input's for `aria-label` over `<label>`.
+- **One owner of `aria-labelledby` on the input.** The element references and the attribute are one state, so a mirrored string erases the references. The transform given to `useARIA` drops `aria-labelledby` and `aria-describedby`, and the slider resolves them itself, after the mirror has run. Required: each combination, each removal or addition at run time, and filling the slot at run time, gives the table's name. The prototype did, with a second observer created after the mirror's.
+- **`aria-describedby`** is resolved the same way, for the same reason: the mirrored ids describe nothing. The text field's host carries the description, and its control doesn't. Read in Chromium and Firefox.
+- **When references and labels are read:** when the slider connects, when an `aria-*` attribute of the host or the slot changes, and when the input takes focus. **A `<label>` or a referenced element that appears later is read at the next of these.** A move resolves nothing.
+- **A click on the slot's content or on a `<label>` focuses the slider** (read for both in all three engines).
+- **`aria-valuenow`, `aria-valuemin` and `aria-valuemax` aren't mirrored.** In Chromium they replace the native range's own: with a host `aria-valuenow="5"` the control reports 5 while the value is −18. This is the one mirrored group with no counterpart in a text field.
+- **`valuetext` against a host `aria-valuetext`:** the host's wins on the control, and removing it restores `valuetext`, as the text field's fallbacks do. The value indicator always shows `valuetext` or the number, so a consumer that sets `aria-valuetext` says something else to assistive technology on purpose. Read in Firefox: `H` for both, `V` after the removal. CDP gives Chromium's native value for a range whatever its `aria-valuetext`, also for a light-DOM one, and WebKit's inspector gives none. So neither was read there.
+- **The other attributes are mirrored as they are,** `aria-invalid` and `aria-required` among them. The documentation says to set `error` instead, as the text field's does.
 
-Validation: `useValidatable` puts `aria-invalid` on the input. It also puts `aria-required` there when `required` is set, which the slider role doesn't define. A range always has a value, so `required` means nothing here, as on a native range, and the documentation says so.
+**The host node.** Its role is `none`, through its internals. A text field's host has no role.
+
+| Sources present | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- |
+| The slot alone | not exposed | not exposed | an unnamed `group`, role or no role |
+| A wrapping `<label>` alone | not exposed | not exposed | not exposed |
+| `<label for>` alone | not exposed | `generic`, named | not exposed |
+| The slot and a `<label>` | not exposed | `generic`, named, for `for`; not exposed for a wrapping one | `group`, named |
+| A host `aria-label` or `aria-labelledby`, with anything | `generic`, named | `generic`, named | `group`, named |
+| A host `aria-describedby` | `generic`, described | `generic` | `group`, named by the description |
+| A host `aria-invalid` | not exposed | `generic` | `group` |
+
+- **So role `none` earns its place in Chromium only,** and only without `aria-*`: it hides the `generic` host that a text field leaves. In the other two it changes no row of the table. It costs one internals field, and it stays.
+- **A host `aria-label` beside a filled slot gives two names:** the control has the slot's, and the host node has the `aria-label`. This is the text field's today. The documentation says to use one of them.
+
+**Disabled, the value and its bounds** are the input's.
+
+**Validation:** `useValidatable` puts `aria-invalid` on the input. It also puts `aria-required` there when `required` is set, which the slider role doesn't define. A range always has a value, so `required` means nothing here, as on a native range, and the documentation says so.
 
 ## SL-D5 — Forms
 
@@ -148,7 +167,7 @@ The drawing uses logical properties only, so it follows the computed direction, 
 
 ## SL-D8 — What a pointer move costs
 
-Per `input`: one read of the input's value, one `setProperty` on `.track`, one `setFormValue`, the indicator's text if it is set, and the native range's own work. **No layout or style is read, and no attribute is written.** Style and layout for one change, flushed, as the median of 20 rounds of 500, on a page of 1000 elements:
+Per `input`: one read of the input's value, one `setProperty` on `.track`, one `setFormValue`, the indicator's text if it is set, and the native range's own work. **No layout or style is read, and the component writes no host attribute.** A consumer that sets `valuetext` on each move writes one, and `useARIA`'s observer runs a callback that finds no `aria-*` name. Style and layout for one change, flushed, as the median of 20 rounds of 500, on a page of 1000 elements:
 
 |  | Chromium | Firefox | WebKit |
 | --- | --- | --- | --- |
@@ -198,7 +217,10 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 7. A fractional step over seven presses.
 8. Chromium, by emulated touch: a vertical pan scrolls and leaves the value as it was, with no `change`. A horizontal drag isn't restored. **Witness:** without the restoration the first one fails.
 9. Form: name, `FormData`, reset, disabled by attribute and by fieldset, under pointer and Tab; validity through `setCustomValidity`; `error` and `required`.
-10. Name, from each engine's own accessibility tree through the probe's readers where the suite has none: each source, once, on the control; the host unnamed; `<label for>`'s Firefox node as a known row. Also `aria-valuetext` and disabled. Chromium's through CDP, as `list-roles` does; Firefox and WebKit by the committed probe, rerun on the built element.
+10. Name, from each engine's own accessibility tree: each of the four sources alone; each pair; three sources; each source added and removed at run time; the slot filled at run time. The control's name is `SL-D4`'s. **Witness:** with the text field's transform, the `aria-labelledby` and `<label>` rows fail.
+    - The host: not exposed where `SL-D4`'s table says so. **The named host under a host `aria-label` is a known row for each engine, pinned as `RF-94`'s,** so `RF-94`'s repair reverses it.
+    - A host `aria-describedby` describes the control. A host `aria-valuenow` doesn't change the reported value in Chromium (**witness:** without the exclusion it reports 5). A host `aria-valuetext` wins over `valuetext`, and its removal restores it.
+    - Chromium through CDP in the suite, as the list roles are. Firefox and WebKit by the committed probe, rerun on the built element, with Firefox's value and description from `nsIAccessible`. `aria-valuetext` in Chromium and WebKit is asserted as the input's attribute, because their readers don't give it.
 11. The label click focuses the input, for the slot, the wrapping label and `for`.
 12. The value indicator is shown on a press and on keyboard focus and not otherwise, with `valuetext`'s text.
 13. No scrollable overflow at either end, in both directions.
@@ -220,12 +242,15 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 ## Not measured
 
 - Physical touch, iOS Safari and Android. iOS's touch area is a reading of WebKit's source. Emulated touch ran in Chromium only.
-- A screen reader or any assistive technology. The accessibility trees were read, not heard.
+- A screen reader or any assistive technology. The accessibility trees were read, not heard, so nothing here says whether the second named node is announced.
+- `aria-valuetext`'s effect in Chromium and WebKit, and descriptions in WebKit: their readers don't give them.
 - Paint in Firefox and WebKit, and frames there. The host was shared, and the figures are of headless software rendering, good for comparing the variants.
 - The element's bundle size, and the demo's work for each `input`.
 - Forced colors, the value indicator's drawing and the corners. No probe drew them.
 
-## Questions for the owner
+## Answered questions
+
+Answered by the owner on 2026-11-23, in chat, relayed by the coordinator. The options are kept as asked.
 
 ### Q1 — Whose is the value?
 
@@ -235,23 +260,56 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 - (b) The consumer's, as a checkbox's: the handle moves only when the consumer sets `value` in answer to an event. The consumer has to learn the proposed number. An `input` is a plain `Event` (`RD-52`), so the component needs a named event class of its own, or `input` and `change` would report the old number. Each move waits for the consumer's render before the handle moves. The native `change` can't be used either: after a revert it doesn't fire in Chromium or WebKit, and in WebKit not even when the value is committed in the next frame. So the component would track each gesture's end itself.
 - (c) The consumer's while a `controlled` attribute is set, and the user's otherwise. Two models in one element, and both costs.
 
-**Why (a).** The owner decided the text fields' exception on speed: _"this is already a question of performance. Speed matters more than the principle."_ A pointer move is as frequent as a frame. (a) needs no new event, uses the platform's `change`, and a consumer that does want a controlled slider sets `value` in its handler, which works in the middle of a drag.
+**Answered: (a).** _"q1 a"_.
+
+**Why (a) was recommended.** The owner decided the text fields' exception on speed: _"this is already a question of performance. Speed matters more than the principle."_ A pointer move is as frequent as a frame. (a) needs no new event, uses the platform's `change`, and a consumer that does want a controlled slider sets `value` in its handler, which works in the middle of a drag.
 
 ### Q2 — What does a host's `aria-label` do?
 
 Named by its label slot or by a `<label>`, the slider has one named node (and Firefox's second one with `for`). A host `aria-label` can't be honored without a second named node unless the component removes it from the host.
 
-- **(a) Nothing: the documentation says to use the slot or a `<label>`. Recommended.** It costs a trap: `<mx-slider aria-label="Hue">` leaves the slider unnamed, and a named generic host beside it.
+- (a) Nothing: the documentation says to use the slot or a `<label>`. Recommended. It costs a trap: `<mx-slider aria-label="Hue">` leaves the slider unnamed, and a named generic host beside it.
 - (b) The component moves it: it sets the name on the input and removes the attribute. One named node in all three engines. It costs a component that edits the attributes its consumer wrote, which [`attribute-vs-state-styling.md`](../../.agents/docs/attribute-vs-state-styling.md) avoids, and a framework or a test that reads `aria-label` back finds none.
-- (c) The component copies it, as `useARIA` does. The slider is named, and the host is a second named node in all three engines. This is `RF-94`'s `FV-F2`, repeated.
+- **(c) The component copies it, as `useARIA` does.** The slider is named, and the host is a second named node in all three engines. This is `RF-94`'s `FV-F2`, repeated. **Chosen.**
 
-**Why (a).** M3 gives a slider a visible label, and both consumers have one. `RF-94`'s unit has to choose between (b) and (c) for the whole package, and (a) leaves that choice open: adding a source of the name later breaks no one. **If the owner wants the slider safe against the trap now, (b) is the one that keeps one node.** The slider then sets the package's precedent.
+**Answered: (c).** The owner first asked whether the `label` slot inside `<label for>` already covers it, as in the text field, and whether the duplicate node can be switched off for a screen reader. The coordinator explained from the readings that role `none` is ignored while a host `aria-label` is present, that `aria-hidden` hides the input too, and that removing the attribute is the only thing that worked. He answered: _"Безобразие, но тогда делаем как в text-field. Решать, как починить, будем потом (добавь в ишуи)"_ ("An outrage, but then we do it as in text-field. How to fix it, we'll decide later (add it to the issues)"). [#148](https://github.com/ausginer/material-x/issues/148) is `RF-94`'s issue and covers it.
+
+`aria-hidden` on the host wasn't probed: that it hides the subtree is its definition.
 
 ## Proposed record entries
 
 For the main slot's architect to mint. Nothing in the index is edited here.
 
 - **A decision entry for `SL-D1` to `SL-D9`,** pointing here, with the owner's answers to Q1 and Q2. Q1 (a) also makes the slider the second exception in `architecture.md` §Components.
-- **For `RF-94`:** a dated note that `ariaLabelledByElements` carries a light-DOM label to a shadow control in all three engines, that the host's role `none` hides the host node for a wrapping label, that Firefox keeps it for `for`, and that nothing but removing the attribute hides it for `aria-label` ([readings](checks/naming.txt)).
+- **For `RF-94`, a dated note, and no new finding.** The entry already holds the duplicate node (`FV-F2`) and the unnamed checkbox and radio (`FV-F1`), and its required property is the one that the slider doesn't meet yet. The note adds:
+  - **The owner's answer to Q2:** the slider mirrors host `aria-*` as the text fields do, the second node is accepted for now, and how to repair it is decided later. `mx-slider` joins the elements that the repair covers. Until it is built, `RF-94` lists it by this plan.
+  - **Every element with a control, read as built, with a host `aria-label="A"`** ([readings](checks/mirroring.txt)), the same in all three engines:
+
+    | Elements | Control | Host |
+    | --- | --- | --- |
+    | `mx-button`, `mx-icon-button`, `mx-link-button`, `mx-switch-button`, `mx-switch-icon-button`, `mx-fab`, `mx-text-field`, `mx-multiline-text-field` | named `A` | a second node named `A`: `generic` in Chromium and Firefox, `group` in WebKit |
+    | `mx-list-button-item`, `mx-list-link-item` | named `A` | its own `listitem`, named `A` as well. The node is the item's and stays. Only its name is repeated |
+    | `mx-checkbox`, `mx-radio` | unnamed | named `A`: `generic` or `group` |
+
+    `mx-split-button`, the groups, `mx-list` and `mx-list-item` weren't read.
+
+  - **More of the same cause, read on `mx-text-field`:** a host `aria-labelledby` names nothing, so the field is unnamed (or falls to its slot). A host `aria-describedby` doesn't describe the control. A `<label>` leaves the control unnamed. This closes the entry's first _not established_ point for the ids: they don't resolve.
+  - **What carries a light-DOM reference to a shadow control, in all three:** the element references, `ariaLabelledByElements` and `ariaDescribedByElements`. This answers the entry's _how a light-DOM label reaches a shadow control_. They don't hide the host.
+  - **Possible repairs of the second node. None is chosen:**
+    - **Move the attribute:** the component sets the name on the control and removes `aria-label` from the host. One named node in all three engines. It edits the consumer's attributes, and a framework or a test can't read it back.
+    - **A plain attribute in place of `aria-label`,** such as `label`: one named node in all three engines, read on the prototype, with nothing to remove. A consumer who writes `aria-label` is where they are now, and it is new surface on every element.
+    - **The host as the accessible control,** through its internals: one named node in all three engines for a slider role (read), and `<label for>` works by itself. The native control inside would have to leave the accessibility tree and stop taking focus, so its behavior is written by hand. `SL-D1` rejects it for the slider because of Firefox. It wasn't weighed for the others.
+    - **Role `none` on the host** isn't a repair: every engine ignores it while the host has `aria-label` or `aria-labelledby`. It hides a Chromium host that has neither.
+    - **The platform's reference target** for shadow roots, when it is Baseline. Not read here, and it isn't Baseline to the architect's knowledge.
+  - **Size and the unit** are the entry's. Its plan decides.
 - **`SL-F1`, proposed, by reading only:** core's `formDisabled` passes no argument, and `useDisableable` reads only the host's attribute. So `mx-checkbox`, `mx-radio` and the other form controls in a `<fieldset disabled>` match `:disabled`, while their native control doesn't, because it isn't in the fieldset's tree. It may stay reachable and operable by keyboard. Not run.
 - **`SL-F2`, proposed, by reading only:** core's `formStateRestore` passes neither the state nor the reason, so no form control can restore its value after a navigation or from autofill. The slider has the same limit.
+
+## Revisions
+
+- **2026-11-23, `81671c1ad`:** the first plan, with Q1 and Q2 open.
+- **2026-11-23, this revision,** for the owner's answers:
+  - Q1 (a) and Q2 (c) answered. Q2's recommended answer, (a), isn't taken;
+  - `SL-D4` rewritten: host `aria-*` is mirrored; the order of the four names, with the slot now before a `<label>`; `aria-labelledby` and `aria-describedby` by element reference; the three value attributes excluded; `valuetext` against `aria-valuetext`; the host node per combination;
+  - row 10 rewritten, and `SL-D8` and _Not measured_ adjusted;
+  - the proposed finding for `RF-94` is a dated note there.
