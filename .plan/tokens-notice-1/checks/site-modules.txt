@@ -1,0 +1,70 @@
+# What the specification site's token modules offer, against the committed store. Read by the architect on 2026-11-23 at 5259fe368, release 2026-11-19_06-20-01.
+# ../probes/site-modules.mjs.txt <store directory> <page>..., on the 21 pages below. A module's configuration lists the sets and the context tags it offers. A module with no set list offers every set of its table.
+# Limits: sets are matched by display name. Only these pages were read, so a set may be offered by another page. The tags are the union over all modules.
+components/buttons/specs token modules 2
+components/floating-action-button/specs token modules 2
+components/text-fields/specs token modules 1
+components/extended-fab/specs token modules 2
+components/icon-buttons/specs token modules 2
+components/button-groups/specs token modules 1
+components/split-button/specs token modules 2
+  no set list, so every set of TOKEN_TABLE 31f16b44fe03b0c0 Checkbox
+components/checkbox/specs token modules 1
+  no set list, so every set of TOKEN_TABLE 6acb269a58d5f93f Radio Button
+components/radio-button/specs token modules 1
+components/lists/specs token modules 2
+components/cards/specs token modules 1
+  no set list, so every set of TOKEN_TABLE 07341534518f78d0 Search - View, Search - Bar
+components/app-bars/specs token modules 3
+  no set list, so every set of TOKEN_TABLE 0045edb815f2325e Slider, Slider - Size - Xsmall, Slider - Size - Small, Slider - Size - Medium, Slider - Size - Large, Slider - Size - Xlarge
+components/sliders/specs token modules 1
+  no set list, so every set of TOKEN_TABLE 77f7657eb270e53d Divider
+components/divider/specs token modules 1
+styles/typography/type-scale-tokens token modules 4
+styles/typography/fonts token modules 4
+styles/color/static/baseline token modules 1
+  no set list, so every set of ELEVATION 20543ce18892f7d9 Elevation
+styles/elevation/tokens token modules 1
+styles/shape/corner-radius-scale token modules 1
+styles/motion/overview/specs token modules 1
+foundations/interaction/states/state-layers token modules 1
+module kinds [
+  'TOKEN_TABLE',
+  'TYPOGRAPHY',
+  'COLOR',
+  'ELEVATION',
+  'TOKEN_TYPE_UNSPECIFIED'
+] context tags offered [
+  '3P',          'Android',
+  'Compose',     'Dark',
+  'Default',     'Expressive',
+  'Extra large', 'High contrast',
+  'Large',       'Light',
+  'Medium',      'Medium contrast',
+  'None',        'Small',
+  'Standard',    'Static',
+  'Web'
+]
+store sets 122 named 120 offered by a module (by display name) 99 not offered 21
+md.comp.button | Button (baseline)
+md.comp.fab.branded | FAB - Color - Branded
+md.comp.fab.branded.large | [Deprecated] FAB - Branded, large
+md.comp.fab.primary.large | [Deprecated] FAB - Primary, large
+md.comp.fab.primary.small | [Deprecated] FAB - Primary, small
+md.comp.fab.secondary.large | [Deprecated] FAB - Secondary, large
+md.comp.fab.secondary.small | [Deprecated] FAB - Secondary, small
+md.comp.fab.small | FAB - Size - Small
+md.comp.fab.surface.large | [Deprecated] FAB - Surface, large
+md.comp.fab.tertiary.large | [Deprecated] FAB - Tertiary, large
+md.comp.fab.tertiary.small | [Deprecated] FAB - Tertiary, small
+md.comp.filled-autocomplete | Text field - Autocomplete, filled
+md.comp.filled-select | Text field - Select, filled
+md.comp.icon-button | Icon button (baseline)
+md.comp.list.reorder | List - Reorder
+md.comp.list.reveal | List - Reveal
+md.comp.outlined-autocomplete | Text field - Autocomplete, outlined
+md.comp.outlined-select | Text field - Select, outlined
+md.fab.surface.small | [Deprecated] FAB - Surface, small
+md.sys.typescale.variable.emphasized | Type scale - Variable Emphasized
+md.sys.typescale.variable | Type scale - Variable
+store tags [["motion.scheme",["Expressive","Standard"]],["platform",["iOS","Compose","Android","Web"]],["font",["Static","iOS bold","Variable"]],["theme",["Light","Dark"]],["audience",["3P","1P Baseline"]],["device",["TV","Mobile","Desktop","Auto"]],["contrast",["High contrast","Medium contrast","Default"]],["language.height",["Extra large","Large","Medium","Small"]],["ios.dark.theme.elevation",["Elevated","None"]],["ios.weight.setting",["Bold","Default"]]]

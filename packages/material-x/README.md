@@ -1,6 +1,8 @@
 # @ydinjs/material-x
 
-Material X is a set of framework-agnostic Web Components inspired by Material Design 3 (Expressive), with a token-driven styling system.
+Material X is a set of framework-agnostic Web Components for Material Design 3 (Expressive), with a token-driven styling system.
+
+Material X aims to follow the [Material Design 3 specification](https://m3.material.io) fully. Google creates and publishes the specification. Material X is an independent project and isn't affiliated with, sponsored by or endorsed by Google.
 
 Project status: early-stage / pre-release.
 
