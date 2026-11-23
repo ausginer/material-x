@@ -1,0 +1,9 @@
+// Compiled extended sheet, before and after removing one allow-list row, plus which sheets a shared selector edit touches.
+const root = process.argv[2];
+const st = root + '/packages/material-x/src/fab/styles/';
+const u = await import(st + 'utils.ts');
+for (const n of ['default', 'color', 'size', 'tonal', 'extended']) {
+  const m: any = await import(st + n + '/tokens.ts');
+  const packs = Object.values(m).flat().filter((x: any) => x && typeof x === 'object' && 'value' in x);
+  console.log('## ' + n + '\n' + u.renderFABStylesInOrder(packs));
+}

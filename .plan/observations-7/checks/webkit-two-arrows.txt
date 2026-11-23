@@ -1,0 +1,53 @@
+# verify run 45142741219, pull request #192, head c3a508509 (tree: packages/drag, core and box-quad as at 35ea25892), attempt 1, the webkit job.
+# Copied on 2026-11-23 by the architect from the coordinator's copy of the job log, escape sequences removed. Attempt 2 of the job passed (the run's job list).
+# 1. Every row of focus, order, keyboard and activation.browser.test.ts, in each project of the job
+287: ✓  browser/drag/webkit (webkit)  tests/activation.browser.test.ts (11 tests) 750ms
+288: ✓  browser/drag/webkit (webkit)  tests/keyboard.browser.test.ts (14 tests | 1 skipped) 516ms
+319: ✓  browser/drag/webkit (webkit)  tests/focus.browser.test.ts (13 tests) 673ms
+328: ✓  browser/drag/webkit (webkit)  tests/order.browser.test.ts (5 tests) 205ms
+487: ✓  consumer/drag/webkit (webkit)  tests/activation.browser.test.ts (11 tests) 753ms
+488: ✓  consumer/drag/webkit (webkit)  tests/keyboard.browser.test.ts (14 tests | 1 skipped) 513ms
+507: ❯  consumer/drag/webkit (webkit)  tests/focus.browser.test.ts (13 tests | 1 failed) 724ms
+530: ✓  consumer/drag/webkit (webkit)  tests/order.browser.test.ts (5 tests) 207ms
+557: FAIL   consumer/drag/webkit (webkit)  tests/focus.browser.test.ts > drag:DRI-12 focus > should let two arrow presses in a row reorder twice
+# 2. The failing file's rows, in the consumer project
+ ✓  consumer/drag/webkit (webkit)  tests/verdict.browser.test.ts (12 tests) 1713ms
+ ❯  consumer/drag/webkit (webkit)  tests/focus.browser.test.ts (13 tests | 1 failed) 724ms
+   ❯ drag:DRI-12 focus (13)
+     × should let two arrow presses in a row reorder twice 87ms
+     ✓ should keep focus through a pointer reorder 74ms
+     ✓ should restore focus after an async verdict 64ms
+     ✓ should leave focus where the user moved it during a verdict 33ms
+     ✓ should restore focus inside an open shadow root 31ms
+     ✓ should restore focus to a descendant of the item 112ms
+     ✓ should keep focus when the lift promotes an autofocus descendant 25ms
+     ✓ should leave nothing focused when an autofocus descendant is promoted with nothing focused 41ms
+     ✓ should not restore focus on destruction 4ms
+     ✓ should not scroll on a pointer restore 75ms
+     ✓ should scroll a keyboard restore of an off-screen row into view 32ms
+     ✓ should keep :focus-visible on a keyboard restore 32ms
+     ✓ should restore a pointer drop without :focus-visible 112ms
+# 3. The failure and the totals
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   consumer/drag/webkit (webkit)  tests/focus.browser.test.ts > drag:DRI-12 focus > should let two arrow presses in a row reorder twice
+AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+
+Expected: "r1,r2,r0,r3"
+Received: "r1,r0,r2,r3"
+
+ ❯ tests/focus.browser.test.ts:29:25
+     27|     await commands.keyPress('ArrowDown');
+     28|     await frames();
+     29|     expect(order(list)).toBe('r1,r2,r0,r3');
+       |                         ^
+     30|     expect(document.activeElement).toBe(row('r0'));
+     31|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 113 passed (114)
+      Tests  1 failed | 2203 passed | 2 expected fail | 28 skipped (2234)
+   Start at  08:58:49
+   Duration  181.39s (tests 95%, worker 3%, import 1%, setup 1%)
