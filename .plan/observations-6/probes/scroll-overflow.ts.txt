@@ -1,0 +1,5 @@
+// Run from packages/material-x, where `playwright` resolves.
+import { chromium, firefox, webkit } from 'playwright';
+const mk=(pos:string)=>`<!doctype html><style>body{margin:0}.sc{height:200px;overflow:auto}.pad{height:3000px}</style><div class=sc><div class=pad></div><x-l><div>a</div></x-l></div><script>customElements.define('x-l',class extends HTMLElement{constructor(){super();const s=this.attachShadow({mode:'open'});s.innerHTML='<style>:host{display:flex;flex-direction:column;gap:2px}</style><slot></slot>';const l=document.createElement('div');l.style.cssText='position:${pos};width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap';s.append(l)}})</script>`;
+for (const b of [chromium, firefox, webkit]) { const br=await b.launch(); for (const pos of ['absolute','fixed']) { const p=await br.newPage({viewport:{width:800,height:600}}); await p.setContent(mk(pos)); console.log(b.name(),pos, await p.evaluate(()=>[document.documentElement.scrollHeight, document.querySelector('.sc')!.scrollHeight])); } await br.close(); }
+// chromium/firefox/webkit: absolute -> document scrollHeight 3001; fixed -> 600 (viewport 600).

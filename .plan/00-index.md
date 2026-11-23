@@ -4323,6 +4323,50 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Order:** with `RF-101` or after it (above). It doesn't block #151.
 - **Size:** _small_. The disabled rule and the rows, for one family.
 
+#### RF-103 — `mx-sortable-list` announces moves that didn't happen, and its live region can add page scroll
+
+Tier A, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from [#178](https://github.com/ausginer/material-x/issues/178), relayed by the coordinator. An architect session that explained the element to the owner saw both defects, and the owner asked for the registration. `RF-102` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed both at `fa056ff71` ([readings](observations-6/checks/announcements.txt), and the probes [uncommitted move](observations-6/probes/uncommitted-move.browser.test.ts.txt), [scroll overflow](observations-6/probes/scroll-overflow.ts.txt) and [both on the real element](observations-6/probes/announcement-and-overflow.browser.test.ts.txt)).
+
+- **What happens, the announcement:** `onEnd` announces `request.to`, the proposed slot, and doesn't read where the item is. After the 500 ms bound the verdict is accepted even when the slot doesn't show the move, and the item lands where the DOM has it. In Chromium, Firefox and WebKit, <kbd>ArrowDown</kbd> on A in A, B, C, D announces _"Item 2 of 4."_ in each of these:
+  - the consumer never commits, and A is still item 1;
+  - the consumer commits A at the end, at once or after 100 ms, and A is item 4;
+  - the consumer commits A at the proposed slot after 800 ms, and A is item 1 at the announcement.
+- **What happens, the overflow:** the region is `position: absolute`, and neither the host nor anything in its shadow root is positioned. So the region's containing block can be outside a scroll container that isn't positioned either, and the region isn't clipped by that container. With the list after 3,000 px of content in an unpositioned 200 px scroll container, the document's `scrollHeight` is 3,025 px with `mx-sortable-list` and 768 px with `mx-list`, in a 720 px viewport, in the three engines. 768 px is the test page's own height.
+- **Why it is a problem:** a screen-reader user, who can't see the order, is told of a move that didn't happen, or of a wrong position. A page gets empty scroll from an element that shows nothing.
+- **Against `RD-31`:** its property 4 has the region announce _"each accepted move by position"_. The code takes the accepted verdict for a move. A verdict accepted at the bound can have no move, and the position is the item's. So the code breaks that item, and the item needs no amendment.
+- **Required properties:**
+  1. When the list announces a drop, the position is the item's position among the list's slotted items at that moment, and the count is their number at that moment.
+  2. Nothing is announced when the item is then still at the position it was proposed from. So a consumer that commits after the bound gets no announcement.
+  3. The region doesn't change the scrollable overflow of any ancestor or of the document.
+  4. The region is in a template of its own, passed through `useCore`'s list of templates, and isn't built in the constructor (the owner, below). `mx-list`'s modules contain neither that template nor the region's styles.
+- **Rows:** properties 1 and 2 with a consumer that never commits, with one that commits at another slot, and with one that commits at the proposed slot; property 3 with the list at the end of an unpositioned scroll container, for the document's and the container's `scrollHeight`. They pass in each engine at `RD-20`'s floor. **Witness:** the rows with no commit and with another slot, and the document's overflow row, fail before the repair in the three engines.
+- **The owner's rulings,** relayed by the coordinator from the explainer session, without quotes:
+  - The region is its own `.tpl.html`, passed through `useCore`'s list of templates, and isn't built in the constructor.
+  - `Element.ariaNotify` isn't adopted now, because it isn't reliable yet. The code carries a TODO to replace the region with it once it is.
+- **Additions, not rulings.** The explainer session proposed them, and the architect accepts both:
+  - The region's styles go in a stylesheet, not in `cssText`. `useListCore` takes the sortable list's extra template and stylesheet, because it builds the list's shadow root.
+  - The TODO names its condition: Playwright's WebKit has the method, and a check with VoiceOver passes (#150, [mdn/browser-compat-data#29610](https://github.com/mdn/browser-compat-data/issues/29610)). Today Playwright's Chromium 158 and Firefox 159 have the method, and its WebKit 27.2 doesn't.
+- **Not decided:** how the position is kept out of the overflow. The minimal page with `position: fixed` adds nothing to the document, and a transformed ancestor contains a fixed box, so property 3's rows decide and not the value.
+- **Not established, and not part of this finding:** text that stays in the region after it is announced; the same text twice in a row; competition with the focus restore after a move; and the announcement's fixed English. #150 covers the screen-reader half.
+- **Ready** for an implementer.
+- **Size:** _medium_: a new template and stylesheet, `useListCore`'s signature, and rows in three engines, with nothing to decide first.
+
+#### RF-104 — Eleven relative links in box-quad's record resolve to nothing
+
+Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from [#176](https://github.com/ausginer/material-x/issues/176), relayed by the coordinator. The architect saw it while registering the Storybook decisions on `box-quad/storybook-2` (#177). `RF-103` is the entry before this one, so this is the next free number. Read at `fa056ff71` ([reading](observations-6/checks/box-quad-links.txt), [probe](observations-4/probes/index-links.mjs)).
+
+- **What happens:** ten links are in `packages/box-quad/.plan/plan.md`:
+  - Four point into the deleted `packages/drag2/.plan`: one to `plan.md`, one to `contract/00-index.md` and two to `measurements/budget-rebases.md`. `3228d1f07` (#24) deleted the package. All three files exist at its parent, `dbdfaf80f`.
+  - Six point to `contract/05-cache-semantics.md`, which `bfd2832db` (#10) deleted with the cache. It exists at that commit's parent, `9884b1fb1`.
+  - The eleventh is in `reviews/03-C-correctness-review.md` and ends in `03-failure-table.md:27`. The file exists, and `:27` isn't a link to a line.
+- **A correction to the issue:** it says the ten links point into a retired drag package review folder. None does. Four point into the deleted drag2 package, at files that aren't reviews, and six point to a deleted contract file of box-quad's own. The issue doesn't name the eleventh.
+- **Why it isn't `RF-93`:** `RF-93`'s property is one file's, `.plan/00-index.md`, and it is ready as it stands. Six of these links have another cause, and the repair's order differs.
+- **Required property:** every relative link in box-quad's Markdown resolves to a file, and to a heading of that file where it names an anchor. A link to a file that `main` no longer holds is a permalink to a commit that holds it.
+- **The repair:** the four drag2 links become permalinks at `dbdfaf80f`, the six become permalinks at `9884b1fb1`, and the eleventh loses `:27`. This is a citation corrected in place, so it changes no entry's meaning. **Witness:** afterwards the probe reports nothing for each Markdown file of `packages/box-quad`.
+- **Order:** after #177, because it edits `plan.md`. Its `plan.md` has the same ten broken links and adds none.
+- **Ready.** It can go with any record unit, after #177.
+- **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
