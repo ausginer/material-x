@@ -2399,6 +2399,13 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Costs.** A consumer writes its own headings and layout inside the card, and rounds a full-bleed image itself. `variant` is a new word beside `mx-button`'s `color`. `mx-list-item`'s stylesheet changes its source, though not its rendering.
 
+**Dated 2026-11-23 by the architect: `variant` is the specification's word, and the owner accepted it,** relayed by the coordinator, with the implementation authorized. He asked because `mx-button`'s `variant` was renamed to `color` to follow the specification. Each element follows its own page, and the architect read them the same day:
+
+- **Cards:** _"Three variants:"_ ([overview](https://m3.material.io/components/cards/overview)), _"There are three card variants:"_ ([guidelines](https://m3.material.io/components/cards/guidelines)) and _"Select a component variant below"_ ([specs](https://m3.material.io/components/cards/specs)).
+- **Buttons:** _"Two variants: default and toggle"_ and _"Five color options: elevated, filled, tonal, outlined, and text"_ ([overview](https://m3.material.io/components/buttons/overview)).
+
+So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specification's own difference between the two components, and not a departure from it.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
