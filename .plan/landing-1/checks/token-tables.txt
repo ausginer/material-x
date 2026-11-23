@@ -1,0 +1,60 @@
+RD-47 unit T, by the implementer, 2026-11-23, on tproc/landing-tables-1 from
+origin/main 986ad3719. The tables were read in memory, and no raw table is kept.
+
+== Component ids
+Each id is the `components/<id>` of design system 20543ce18892f7d9 in the page
+content of release 2026-11-19_06-20-01 (the site's carbonVersion on this day):
+cards 100ebfb4332adab1, app-bars 3ec622835c7987b5, sliders 0045edb815f2325e,
+divider 77f7657eb270e53d. All four tables report database 41.1.12, version
+4ae102170fee99b1, the manifest's.
+
+== The update
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+Wrote 124 files, with 0 conflicts. 324 tokens added, 0 removed, 0 selected
+values changed. The 123 deprecations added are all of added tokens.
+A second run: identical store, 0 added, 0 removed, 0 changed.
+
+== Existing sets, and the sets added
+Every file of the store at 986ad3719 compared with the store after, by bytes and
+by the manifests' SHA-256, and every token through the reader:
+before: 103 files, byte-identical after: 103 (3980 tokens); differing: 0 
+relative order of the files kept: true
+rows kept as prefix: true source equal: true
+reader: 3980 tokens compared, selection, deprecation or set differs: 0
+md.comp.elevated-card | Card - Elevated | 25 tokens, 1 deprecated
+md.comp.filled-card | Card - Filled | 25 tokens, 1 deprecated
+md.comp.outlined-card | Card - Outlined | 31 tokens, 1 deprecated
+md.comp.app-bar | App bar - Common | 19 tokens, 0 deprecated
+md.comp.app-bar.medium | App bar - Size - Medium (baseline) | 4 tokens, 2 deprecated
+md.comp.app-bar.large | App bar - Size - Large (baseline) | 4 tokens, 2 deprecated
+md.comp.app-bar.small | App bar - Size - Small | 7 tokens, 1 deprecated
+md.comp.app-bar.large-flexible | App bar - Size - Large Flexible | 4 tokens, 0 deprecated
+md.comp.app-bar.medium-flexible | App bar - Size - Medium Flexible | 4 tokens, 0 deprecated
+md.comp.top-app-bar.small.centered | [Deprecated] Top app bar - Small, Center-aligned | 21 tokens, 21 deprecated
+md.comp.top-app-bar.small | [Deprecated] Top app bar - Small | 19 tokens, 19 deprecated
+md.comp.top-app-bar.medium | [Deprecated] Top app bar - Medium | 16 tokens, 16 deprecated
+md.comp.top-app-bar.large | [Deprecated] Top app bar -  Large | 16 tokens, 16 deprecated
+md.comp.slider | Slider | 96 tokens, 43 deprecated
+md.comp.slider.xsmall | Slider - Size - Xsmall | 5 tokens, 0 deprecated
+md.comp.slider.small | Slider - Size - Small | 5 tokens, 0 deprecated
+md.comp.slider.medium | Slider - Size - Medium | 7 tokens, 0 deprecated
+md.comp.slider.large | Slider - Size - Large | 7 tokens, 0 deprecated
+md.comp.slider.xlarge | Slider - Size - Xlarge | 7 tokens, 0 deprecated
+md.comp.divider | Divider | 2 tokens, 0 deprecated
+total 324, deprecated 123
+names unique: true 4304
+
+== material-x CSS
+The 35 tracked css.ts through `aube exec just debug`, with the store of
+986ad3719 and with the new one: 35 of 35 identical, none empty.
+
+== Personal data
+git grep -e emailAddress -e gaiaId -- packages/tproc/tokens: nothing. Files with
+an email address pattern: 0.
+
+== Suites
+tproc: 13 files, 129 passed. material-x, its package recipe after _test-builds:
+30 files, 939 passed, 2 expected fail. Typecheck in tproc and material-x: exit 0.
+A material-x run before build:prepare failed 3 files on a stale property map
+(--_default-shadow-color is not collected), with either store.
+No visual, Firefox or WebKit run locally: the pull request's gate runs them.
