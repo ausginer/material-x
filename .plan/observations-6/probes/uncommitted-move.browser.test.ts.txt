@@ -1,0 +1,18 @@
+// Place in packages/material-x/tests/list/ as *.browser.test.ts.
+import { expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/list/sortable-list.ts';
+import '../../src/list/list-item.ts';
+it('probe: uncommitted move', async () => {
+  const list = document.createElement('mx-sortable-list');
+  const items = ['A','B','C'].map((t) => { const i = document.createElement('mx-list-item'); i.textContent = t; return i; });
+  list.append(...items); document.body.append(list);
+  await new Promise((r) => setTimeout(r, 100));
+  items[0]!.focus();
+  const events: unknown[] = [];
+  list.addEventListener('reorder', (e) => events.push((e as any).to));
+  await userEvent.keyboard('{ArrowDown}');
+  await new Promise((r) => setTimeout(r, 1500));
+  // Received in Chromium at 23b245efb: [["A","B","C"],[1],"Item 2 of 3."]
+  expect([[...list.children].map((c) => c.textContent), events, list.shadowRoot!.querySelector('[aria-live]')!.textContent]).toEqual('SHOW');
+});

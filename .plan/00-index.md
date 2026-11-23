@@ -4373,6 +4373,157 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Order:** with `RF-101` or after it (above). It doesn't block #151.
 - **Size:** _small_. The disabled rule and the rows, for one family.
 
+#### RF-103 — `mx-sortable-list` announces moves that didn't happen, and its live region can add page scroll
+
+Tier A, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from [#178](https://github.com/ausginer/material-x/issues/178), relayed by the coordinator. An architect session that explained the element to the owner saw both defects, and the owner asked for the registration. `RF-102` is the highest `RF-` on any branch on `origin`, so this is the next free number. The architect confirmed both at `fa056ff71` ([readings](observations-6/checks/announcements.txt), and the probes [uncommitted move](observations-6/probes/uncommitted-move.browser.test.ts.txt), [scroll overflow](observations-6/probes/scroll-overflow.ts.txt) and [both on the real element](observations-6/probes/announcement-and-overflow.browser.test.ts.txt)).
+
+- **What happens, the announcement:** `onEnd` announces `request.to`, the proposed slot, and doesn't read where the item is. After the 500 ms bound the verdict is accepted even when the slot doesn't show the move, and the item lands where the DOM has it. In Chromium, Firefox and WebKit, <kbd>ArrowDown</kbd> on A in A, B, C, D announces _"Item 2 of 4."_ in each of these:
+  - the consumer never commits, and A is still item 1;
+  - the consumer commits A at the end, at once or after 100 ms, and A is item 4;
+  - the consumer commits A at the proposed slot after 800 ms, and A is item 1 at the announcement.
+- **What happens, the overflow:** the region is `position: absolute`, and neither the host nor anything in its shadow root is positioned. So the region's containing block can be outside a scroll container that isn't positioned either, and the region isn't clipped by that container. With the list after 3,000 px of content in an unpositioned 200 px scroll container, the document's `scrollHeight` is 3,025 px with `mx-sortable-list` and 768 px with `mx-list`, in a 720 px viewport, in the three engines. 768 px is the test page's own height.
+- **Why it is a problem:** a screen-reader user, who can't see the order, is told of a move that didn't happen, or of a wrong position. A page gets empty scroll from an element that shows nothing.
+- **Against `RD-31`:** its property 4 has the region announce _"each accepted move by position"_. The code takes the accepted verdict for a move. A verdict accepted at the bound can have no move, and the position is the item's. So the code breaks that item, and the item needs no amendment.
+- **Required properties:**
+  1. When the list announces a drop, the position is the item's position among the list's slotted items at that moment, and the count is their number at that moment.
+  2. Nothing is announced when the item is then still at the position it was proposed from. So a consumer that commits after the bound gets no announcement.
+  3. The region doesn't change the scrollable overflow of any ancestor or of the document.
+  4. The region is a module of its own (the owner, below). It exports one function, like `useAriaNotifyPolyfill(host): (message: string) => void`, which adds its own template and stylesheet to the host's shadow root. `sortable-list.ts` calls it once and then uses the returned function, as in `notify('Item 2 of 3.')`. The function's module, the `.tpl.html` template and the stylesheet are in `packages/material-x/src/core/polyfills/aria-notify/`. File names aren't ruled. `useListCore`'s signature doesn't change.
+  5. The list computes the position and decides whether to announce. The module only writes the string into the region. It has no queue, no priority and no detection of browsers or features.
+  6. The module is separate from `useHasSlottedPolyfill`'s. There is no barrel, and neither module imports the other. So no list row other than `list/sortable-list`'s, and no text field row, contains the region's template or stylesheet.
+  7. The styles come through `adoptedStyleSheets`, not through a `style` attribute in the markup. `useNotchedOutline` adds its template and stylesheet the same way.
+  8. `core/utils/polyfills.ts` becomes `core/polyfills/has-slotted.ts`, with no behavior change. Its importers are `list/ListItemCore.ts` and `text-field/TextFieldCore.ts`, and no other source file imports it. `tests/core/utils/polyfills.browser.test.ts` follows it, with its path to the module.
+- **Rows:** properties 1 and 2 with a consumer that never commits, with one that commits at another slot, and with one that commits at the proposed slot; property 3 with the list at the end of an unpositioned scroll container, for the document's and the container's `scrollHeight`. They pass in each engine at `RD-20`'s floor. **Witness:** the rows with no commit and with another slot, and the document's overflow row, fail before the repair in the three engines.
+- **The owner's rulings,** relayed by the coordinator from the explainer session on 2026-11-23, as the session summarized them, with his words:
+  - **The region is a module of its own,** as property 4 has it. The module carries the TODO to adopt `Element.ariaNotify`, which isn't adopted now because it isn't reliable yet. The replacement is `this.ariaNotify(...)`, with the module deleted. _"Да, согласен, давай так и сделаем"_ ("Yes, agreed, let's do that").
+  - **No `ariaNotify` polyfill dependency** (`@github/arianotify-polyfill`), and no switching by browser or feature detection. Every engine has the one live region until one replacement in all of them. _"я согласен с твоими аргументами"_ ("I agree with your arguments").
+  - **Two modules in `core/polyfills/`,** one each, in material-x's own `core`: `has-slotted.ts` and `aria-notify/`. The cost is two imports and the path in one test. Nothing moves to `@ydinjs/core`. _"А. Да, пусть будут два файла"_ ("A. Yes, let there be two files") and _"Окей, если это core самого material-x, тогда всё норм"_ ("OK, if it's material-x's own core, then it's all fine"). The option not taken leaves `useHasSlottedPolyfill` in `core/utils/polyfills.ts`, with the new module in `core/utils/aria-notify/`.
+- **Properties 5 to 7, and property 4's unchanged `useListCore`,** are the explainer session's proposals that the owner agreed to. The architect checked their grounds ([readings](observations-6/checks/live-region-module.txt), [retention probe](observations-6/probes/template-retention.mjs.txt), [CSP probe](observations-6/probes/style-csp.ts.txt)):
+  - **Property 6:** a compiled template is module-level code with a side effect. A minimal rolldown build of an entry that calls only another export of the same module keeps the template, and drops it when the template's function is in a module of its own. material-x's `package.json` has no `sideEffects` field. `ListItemCore` and `TextFieldCore` import `useHasSlottedPolyfill`'s module, so every list item and text field would carry the region (`CONTRIBUTING.md` §7, `RD-31` property 7).
+  - **Property 7:** under a CSP whose `style-src` has no `'unsafe-inline'`, a `style` attribute in a cloned template is blocked in Firefox and applied in Chromium and WebKit, and `adoptedStyleSheets` applies in the three. So the attribute's ground is Firefox's. Today's `style.cssText` isn't blocked in any of them.
+- **`CONTRIBUTING.md` §2.1:** the function has one call site. It stays as the boundary for the replacement, and the size report notes it.
+- **The TODO's condition:** Playwright's WebKit has the method, and a check with VoiceOver passes (#150, [mdn/browser-compat-data#29610](https://github.com/mdn/browser-compat-data/issues/29610)). The explainer session proposed it and the architect accepts it. It isn't a ruling. Today Playwright's Chromium 158 and Firefox 159 have the method, and its WebKit 27.2 doesn't.
+- **Not decided:** how the position is kept out of the overflow. The minimal page with `position: fixed` adds nothing to the document, and a transformed ancestor contains a fixed box, so property 3's rows decide and not the value.
+- **Not established, and not part of this finding:** text that stays in the region after it is announced; the same text twice in a row; competition with the focus restore after a move; and the announcement's fixed English. #150 covers the screen-reader half.
+- **The move (property 8) goes in this unit, as its own commit before the region's.** The architect decides it, on the explainer session's recommendation. The owner chose the folder for the two modules together, and a pure move of one file with two importers and one test doesn't need a pull request of its own. As a separate commit it reads as a move, and it shows no size change by itself.
+- **Ready** for an implementer.
+- **Size:** _medium_: a new module with a template and a stylesheet, a moved file, and rows in three engines.
+- **Amended 2026-11-23 by the architect,** on the rulings above, relayed by the coordinator. They replaced the owner's earlier ruling, that the region is its own `.tpl.html` passed through `useCore`'s list of templates. They also withdrew an addition of the explainer session's, that `useListCore` takes the sortable list's extra template and stylesheet. The template is still a `.tpl.html` of its own, the stylesheet still replaces `cssText`, and property 4 as first written is replaced by properties 4 to 7. **Amended again the same day,** on the owner's answer about the modules' paths, relayed by the coordinator: properties 4, 6 and 8, the ruling on the two modules, the decision on the move, and the entry is ready.
+
+#### RF-104 — Eleven relative links in box-quad's record resolve to nothing
+
+Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from [#176](https://github.com/ausginer/material-x/issues/176), relayed by the coordinator. The architect saw it while registering the Storybook decisions on `box-quad/storybook-2` (#177). `RF-103` is the entry before this one, so this is the next free number. Read at `fa056ff71` ([reading](observations-6/checks/box-quad-links.txt), [probe](observations-4/probes/index-links.mjs)).
+
+- **What happens:** ten links are in `packages/box-quad/.plan/plan.md`:
+  - Four point into the deleted `packages/drag2/.plan`: one to `plan.md`, one to `contract/00-index.md` and two to `measurements/budget-rebases.md`. `3228d1f07` (#24) deleted the package. All three files exist at its parent, `dbdfaf80f`.
+  - Six point to `contract/05-cache-semantics.md`, which `bfd2832db` (#10) deleted with the cache. It exists at that commit's parent, `9884b1fb1`.
+  - The eleventh is in `reviews/03-C-correctness-review.md` and ends in `03-failure-table.md:27`. The file exists, and `:27` isn't a link to a line.
+- **A correction to the issue:** it says the ten links point into a retired drag package review folder. None does. Four point into the deleted drag2 package, at files that aren't reviews, and six point to a deleted contract file of box-quad's own. The issue doesn't name the eleventh.
+- **Why it isn't `RF-93`:** `RF-93`'s property is one file's, `.plan/00-index.md`, and it is ready as it stands. Six of these links have another cause, and the repair's order differs.
+- **Required property:** every relative link in box-quad's Markdown resolves to a file, and to a heading of that file where it names an anchor. A link to a file that `main` no longer holds is a permalink to a commit that holds it.
+- **The repair:** the four drag2 links become permalinks at `dbdfaf80f`, the six become permalinks at `9884b1fb1`, and the eleventh loses `:27`. This is a citation corrected in place, so it changes no entry's meaning. **Witness:** afterwards the probe reports nothing for each Markdown file of `packages/box-quad`.
+- **Order:** after #177, because it edits `plan.md`. Its `plan.md` has the same ten broken links and adds none.
+- **Ready.** It can go with any record unit, after #177.
+- **Size:** _small_.
+
+#### RF-105 — `mx-sortable-list` parses its landing timing by hand instead of through `useCSSProps`
+
+Tier C, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator. `RF-104` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt), [probe](observations-6/probes/hidden-iframe.browser.test.ts.txt)).
+
+- **What happens:** `sortable-list.ts`'s `timing` calls `getComputedStyle(this)` and parses `--_drag-duration` and `--_drag-easing` at each landing. Until #90, `mx-list` read both through core's `useCSSProps`, as `ripple.ts` does for its own.
+- **The owner approves the change:** _"Да, приватные переменные пользователь трогать не должен. […] Да, отправляем."_ ("Yes, a user shouldn't touch the private variables. […] Yes, let's send it.") The two are private, and only `list/styles/default/tokens.ts` sets them.
+- **Required property:** the list reads both through `useCSSProps`, with its own descriptions (`parseMs` and `identity`). The hook's result has the shape that `Landing.timing` returns, so it is passed as `timing` with no wrapper.
+- **Accepted effects,** as the owner was told: the values are read once per connection. A later change to the private variables reaches the landing only after a reconnect, while the items' transition of `--_level` follows it. A parse error surfaced at connect as the owner was told, and with `RF-109` it surfaces at the first landing.
+- **Not part of it:** `onStart`'s `getComputedStyle(dragged).getPropertyValue('--_level')`, which WebKit needs ([reading](list-roles-1/checks/lift-rise.txt)).
+- **`RD-31`** needs no amendment: its property 4 doesn't say when the two are read. The [plan's](list-sortable-1/list-sortable-plan.md) section 4 said _"at each landing"_, without a reason, and is amended.
+- **Checked with a trial edit, not committed:** core and material-x typecheck. The rows of `tests/list` and `tests/core/elevation.spec` pass unchanged in the three engines. They set `--_drag-duration` before the list connects.
+- **Found by the architect, and not known when the owner approved:** in Firefox, a list that connects in a `display: none` iframe never sorts, also after the iframe is shown, until it reconnects. Firefox gives no computed value there, so `parseMs` throws in `useCSSProps`' connect hook. The error ends the host's `connectedCallback`, before the controllers after it. Today the list sorts there in the three engines. Chromium and WebKit aren't affected by the change. Each adopter of the ripple has the same throw in Firefox today (`RF-109`).
+- **Answered by the owner on 2026-11-23,** relayed by the coordinator: **(b)**, that `useCSSProps` reads at the first call in a connection and not at connect. _"Да, согласен попытать счастья с вариантом (б)"_ ("Yes, I agree to try my luck with option (b)"). `RF-109` is that change. Options (a), to accept the Firefox case, and (c), to leave `sortable-list.ts` as it is, aren't taken. The hidden-iframe case is repaired by `RF-109`, so it isn't an accepted effect here.
+- **The unit:** `RF-109`'s, as its own commit after the hook's. It isn't `RF-103`'s, which would wait for the hook.
+- **Ready** for an implementer, after `RF-109`.
+- **Size:** _small_.
+
+#### RF-106 — `useCSSProps` declares its parsed values as strings
+
+Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator: _"И про врущий тип тоже"_ ("And about the lying type too"). `RF-105` is the entry before this one, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt)).
+
+- **What happens:** `packages/core/src/controllers/useCSSProps.ts` has `let result: Partial<Record<keyof T, string>>`, and the parsers return any type, numbers included. It compiles because the constraint of `T` is `CSSPropDescription<any>`. `71a516e92` replaced `CSSPropsResult<T>`, which was true of the value. There is no effect at run time.
+- **Required property:** the local's type says what it holds. This entry changes neither the runtime nor the public signature.
+- **A type that compiles:** `Partial<Record<keyof T, unknown>>`. `Record<string, unknown>` doesn't, because `keyof T` can't index it.
+- **The unit:** `RF-109`'s, in the hook's commit, because `RF-109` rewrites the same local.
+- **Ready** for an implementer.
+- **Size:** _small_.
+
+#### RF-107 — material-x animates motion under `prefers-reduced-motion: reduce`
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator. `RF-106` is the entry before this one, so this is the next free number. Read at `bc37ef008` ([readings](observations-6/checks/reduced-motion.txt), probes [sortable list](observations-6/probes/reduced-motion.browser.test.ts.txt) and [sweep](observations-6/probes/reduced-motion-sweep.browser.test.ts.txt)).
+
+- **What happens:** `reduced-motion` appears once in `packages/material-x/src`, in a comment of the checkbox's stylesheet. No stylesheet has the media query and no script reads it. Only drag's `landing()` honors the preference in material-x: the list's flight has zero duration.
+- **Confirmed in Chromium, Firefox and WebKit:** every computed transition is the same with and without the preference. So are the animations that start on a press, on a check and on a FAB's opening.
+  - **Motion that still animates:** the button's border radius and padding; the split button's border radius and icon rotation; the list button item's border radius; the checkbox's `clip-path` keyframes; the radio's `clip-path`; the extended FAB's grid columns and gaps, and the FAB's `--_level`; the outlined text field's notch and the prefix's and suffix's `transform`; the ripple's scale and drift.
+  - **The list item's `--_level`:** in Chromium and Firefox it still transitions for 650 ms after an arrow key, while the flight is instant. WebKit starts no transition in that reading. `item/main.styles.css` declares the transition twice, and the one under `:host(:popover-open)` is `!important`.
+  - **By reading only:** the text field's label (`translate`, `scale`, `font-size`), the list link item, and the button family's other elements.
+- **Why it is a problem:** a user asks the system for less motion and gets it from almost every component, for 150 to 650 ms each time.
+- **The owner:** _"Слушай, а ведь это тоже на баг тянет... По идее, там должен стоять некий if, который будет обнулять тайминг..."_ ("Listen, this looks like a bug too... In theory there should be some kind of `if` there that zeroes the timing..."). To the policy and to one entry for the package: _"да, отправляй. Я об этом вообще не думал, а это довольно глобальный косяк в accessibility"_ ("yes, send it. I hadn't thought about this at all, and it's a rather global accessibility slip").
+- **The policy the owner agreed to:**
+  - Under `reduce`, motion is instant, and color and opacity still animate. Motion is position, size, rotation, `clip-path`, `border-radius`, padding, and the elevation level, which goes with the drag's flight.
+  - The animated property decides, not the token. The button animates `background-color` with a spatial token, and the checkbox its `clip-path` with an effects one.
+  - One entry for the package. The list is repaired first, and not in `RF-103`'s unit.
+  - **The preference wins over the public `--md-*-duration` overrides.** Motion is instant whatever duration the consumer sets, and color and opacity still use the consumer's. _"да, ведь reduced-motion задаётся скорее всего юзером, а переменные выставляются девелопером"_ ("yes, because reduced-motion is most likely set by the user, and the variables are set by the developer").
+- **The FAB's hover elevation is covered, as the owner ruled on 2026-11-23,** relayed by the coordinator: under `reduce` the hover shadow is instant too. _"Думаю, да 🤔 Раз уж тут все движения режутся"_ ("I think so 🤔 Since all movement is being cut here anyway"). Its `--_level` transition is elevation level, by the animated property.
+- **Required properties:**
+  1. In each engine at `RD-20`'s floor, under `reduce`, a transition or an animation of a motion property in a material-x element has zero duration, whatever `--md-*-duration` the consumer sets. One of a color or of an opacity keeps its duration. Without the preference nothing changes.
+  2. A resting appearance doesn't depend on an animation's end, as the checkbox's selected state already doesn't.
+  3. A change to the preference takes effect for the next transition or press, without a reconnect.
+- **Constraints, proposed by the explainer session, not rulings; the architect accepts them:**
+  - In CSS the preference never acts on a variable that JavaScript reads, because `useCSSProps` reads a variable once per connection (`RF-105`). So `--_drag-duration` doesn't change under the preference.
+  - In the ripple `matchMedia` is read at the press, as drag reads it at each landing.
+  - In the list both `--_level` transitions of `item/main.styles.css` are covered. The `!important` one is too.
+- **Rows** emulate the preference and observe each component's animation durations, and the resting appearance with no animation. The rows of color and opacity, and one `--md-*-duration` override for each element that has one, show that the preference wins for motion and not for color or opacity. They don't run in Safari, where the preference can't be emulated (`RD-12` property 5). **Witness:** the motion rows fail before the repair in the three engines. The list's `--_level` row after an arrow key fails in Chromium and Firefox, and WebKit's has to be one that does start the transition, such as a lift.
+- **The mechanism the owner favors:** a Lightning CSS visitor in `@ydinjs/vite-custom-element-assets`, which holds `hasSlottedFallbackVisitor` already, so that no component can forget the preference. The explainer session named it as an alternative, with the cost _"magic in the build and extra bytes in each file"_. _"На самом деле я даже за [...] Магия - да, но зато 100% не забудешь. Хорошая идея, мне нравится! Да, отправляй оба"_ ("I'm actually for it [...] Magic, yes, but you 100% can't forget. Good idea, I like it! Yes, send both"; "both" is this and `RF-108`). So the point of one shared rule or one per component is settled: neither is written by hand. What the visitor writes is below.
+- **The first proposal,** which the owner saw: one media rule in a shared sheet that `useCore` adopts, `@media (prefers-reduced-motion: reduce) { :host { --_motion: 0 } }`, and each motion transition's duration as `calc(<duration> * var(--_motion, 1))`, written by hand.
+- **Feasibility, as the explainer session read it, and as the architect checked it** ([readings](observations-6/checks/motion-visitor.txt)):
+  - The package has 20 rules with a `transition` or an `animation` outside `@keyframes`, with 24 such declarations, at `23b245efb` and today. Most hold `var()` and arrive as tokens. The property is the first identifier of each comma segment, and by convention the first `var()` is the duration.
+  - On a minimal page the multiplier makes motion instant and leaves color alone, for a duration with and without a consumer's override, for a registered property on the host and for an `!important` rule, in the three engines ([probe](observations-6/probes/motion-multiplier.ts.txt)).
+  - By reading, every material-x element goes through `useCore`.
+- **Proposed by the explainer session for the plan to weigh, not rulings:** a transition that the visitor can't classify (`all`, no property, an unknown property) fails the build. `transition-property` in the same rule is honored, so the text field label's one `transition-duration` is split per property. `font-size` counts as motion. Every `animation` counts as motion unless its keyframes change only color or opacity. An `infinite` animation needs a ruling of its own, and none exists today.
+- **Limits:** the ripple's animations are in JavaScript, so `matchMedia` at the press stays. The visitor sees source CSS only.
+- **What the visitor writes, answered by the owner on 2026-11-23,** relayed by the coordinator from the explainer session: **the multiplier in each motion duration,** and the one media rule stays hand-written in the sheet that `useCore` adopts. To _"the visitor writes the multiplier, not `@media`"_ he said _"А я думал, ты про это и говорил..."_ ("And I thought that's what you were talking about..."). The explainer session reads it as agreement, because it is how he understood the visitor when he chose it. The architect had recommended the same. `@media (prefers-reduced-motion: reduce)` blocks in each rule aren't taken: they repeat each selector and the cascade it stands in, the `!important` case among them, and they add a block to each file.
+- **Amended 2026-11-23 by the architect,** on the owner's words above, relayed by the coordinator. The architect's recommendation of a media rule in each component is withdrawn. It held that a shared rule couldn't leave color and opacity alone, and it didn't consider a multiplier in each duration, which does.
+- **For the repair to see:** the ripple's minimum visible time (225 ms) is measured from the scale animation's `currentTime`. A zero duration holds it at 0, so by reading every release would wait the full 225 ms, however long the press was.
+- **No owner question is open.** The plan weighs the proposed properties above.
+- **The unit:** a plan comes before implementation. The list is first, then the components, and the plan decides how that order fits with one visitor. `RF-108` comes before it or with it. `RF-103`'s unit doesn't wait.
+- **Size:** _large_.
+
+#### RF-108 — The extended FAB transitions every property, not only the grid and the gap
+
+Tier A, **open**, pre-existing since `4f25be60b` (#2). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from the explainer session through the coordinator. `RF-107` is the entry before this one, so this is the next free number. Read at `3410bba45` ([readings](observations-6/checks/motion-visitor.txt), [probe](observations-6/probes/fab-transition-all.browser.test.ts.txt)).
+
+- **What happens:** `fab/styles/extended/main.styles.css` gives the extended FAB's `.host` `transition-property: grid-template-columns, gap`, and then the `transition` shorthand, which resets the list to `all`. The computed value is `all 0.35s`. `.label` in the same file has the two in the right order.
+- **What it shows,** in Chromium, Firefox and WebKit: a `box-shadow` transition starts on hover, on top of the host's own `--_level` transition, so the elevation is animated twice. In Chromium and WebKit the shadow hasn't settled 660 ms after the hover, while the level is at its end. The focus outline's color and offset transition for 350 ms, and so does the padding when a consumer sets `--md-fab-container-height`. A plain `mx-fab` does none of these.
+- **Why Tier A:** a user sees it. The elevation lags, and the focus outline moves, without a rule that says so.
+- **Required property:** the rule transitions the properties that it names and no other. Rows observe the transitions that start on a hover, on a keyboard focus and on an override of the container's height, for an extended FAB, in each engine at `RD-20`'s floor. **Witness:** the three rows fail before the repair.
+- **Order:** before `RF-107`'s unit or with it, because a visitor that can't classify `all` fails the build.
+- **Ready** for an implementer.
+- **Size:** _small_.
+
+#### RF-109 — In Firefox, `useCSSProps` throws at connect in a hidden iframe, and the host's later controllers don't start
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from the owner's answer to `RF-105`'s question, relayed by the coordinator. `RF-108` is the entry before this one, so this is the next free number. Read at `0c0e8527e` ([readings](observations-6/checks/css-props-lazy.txt), [probe](observations-6/probes/hidden-iframe-ripple.browser.test.ts.txt)).
+
+- **What happens:** `useCSSProps` reads at connect. In Firefox a computed custom property of an element in a `display: none` iframe is empty, so `parseMs` throws. The error ends the host's `connectedCallback`, and the controllers registered after the hook don't connect.
+- **What it shows:** `mx-button`, `mx-fab`, `mx-checkbox`, `mx-radio` and `mx-list-button-item` that connect in a `display: none` iframe report a `CSSVariableError`, and a press has no ripple after the iframe is shown. Clicks still arrive. Chromium and WebKit aren't affected. `mx-sortable-list` would join them with `RF-105`, and wouldn't sort.
+- **The owner:** _"Да, согласен попытать счастья с вариантом (б)"_ ("Yes, I agree to try my luck with option (b)"), about `RF-105`'s option (b).
+- **Required properties:**
+  1. The hook reads at the first call in a connection, and not at connect. Later calls in that connection return the same values. A connect discards them, so the next call reads again. The values stay available after a disconnect until then.
+  2. A parse error is thrown by the call, and not by `connectedCallback`. The host's other controllers connect. A read that throws isn't kept, so the next call reads again.
+  3. The public signature doesn't change.
+- **Rows:** in core, the first call, the later calls, a reconnect, a change of the variable within a connection and after one, and a call that throws and then succeeds. The row that expects the throw from `connectedCallback()` moves to the call. In material-x, for an adopter of the ripple in a `display: none` iframe that is then shown, a press shows its ripple and reports no error. **Witness:** that row fails in Firefox before the repair, and the core rows for the first call and the throw fail in every engine.
+- **Checked with a trial edit, not committed:** the properties above make the five elements and the list work in the three engines. The browser and spec suites of material-x pass, and in core only the row that moves fails. A reading at connect forced the style of each element, and by reading the new hook forces it at first use only.
+- **The unit:** this one, with `RF-106` in the same commit, because both rewrite the hook's local, and then `RF-105` as its own commit. `RF-103`'s unit doesn't wait for it. It edits `sortable-list.ts` in other places.
+- **Ready** for an implementer.
+- **Size:** _medium_: core's hook and its rows, and rows in material-x, in its own branch and pull request, with nothing to decide first.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

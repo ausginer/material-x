@@ -1,0 +1,203 @@
+# Nested Spaces' sliders before and after the repair of reviewer-1, on 2026-11-23, each against a built docs site served on loopback. Node v26.13.1.
+
+# covered-grid.ts, before, stories at ed2546316
+
+## chromium 158.0.8127.18
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor -43.8 px (rotation -45, zoom 0.5); range widths 129, 129, 129
+    ancestorRotation  covered at 33 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 267 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor -43.8 px (rotation -45, zoom 0.5); range widths 129, 129, 129
+    ancestorRotation  covered at 267 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+## firefox 159.0
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor -43.9 px (rotation -45, zoom 0.5); range widths 160, 160, 160
+    ancestorRotation  covered at 27 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 279 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor -43.9 px (rotation -45, zoom 0.5); range widths 160, 160, 160
+    ancestorRotation  covered at 279 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+## webkit 27.2
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor -43.8 px (rotation -45, zoom 0.5); range widths 129, 129, 129
+    ancestorRotation  covered at 41 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 321 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor -43.8 px (rotation -45, zoom 0.5); range widths 129, 129, 129
+    ancestorRotation  covered at 321 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+# covered-grid.ts, after, at 67b7a39aa; the same output again at the merge d8c3d1d0e
+
+## chromium 158.0.8127.18
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+## firefox 159.0
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.1 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.1 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+## webkit 27.2
+  width 1000: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+  width 1600: 2821 pairs, 2821 applied; least distance from the controls to the ancestor 28.2 px (rotation -45, zoom 0.5); range widths 200, 200, 200
+    ancestorRotation  covered at 0 pairs
+    ancestorZoom      covered at 0 pairs
+    targetRotation    covered at 0 pairs
+
+# the review's covered-drag.ts, unchanged, before, stories at ed2546316
+
+## chromium 158.0.8127.18
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 105, thumb covered at 0, worst 56 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 12; then ArrowRight: 13
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 13 dragged 40 px: 45; then ArrowRight: 45
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 8, thumb covered at 0, worst 17 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 105, thumb covered at 50, worst 56 % of the range (rotation 45, zoom 0.5)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: click on targetRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: -20; then ArrowRight: -19
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at -19 dragged 40 px: 13; then ArrowRight: 14
+
+## firefox 159.0
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 86, thumb covered at 0, worst 43 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 5; then ArrowRight: 6
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 6 dragged 40 px: 32; then ArrowRight: 33
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 2, thumb covered at 0, worst 8 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 86, thumb covered at 40, worst 43 % of the range (rotation 45, zoom 0.5)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: click on targetRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: -20; then ArrowRight: -19
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at -19 dragged 40 px: 6; then ArrowRight: 7
+
+## webkit 27.2
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 104, thumb covered at 0, worst 55 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 12; then ArrowRight: 13
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 13 dragged 40 px: 45; then ArrowRight: 45
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 5, thumb covered at 0, worst 11 % of the range (rotation 45, zoom 0.5)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 104, thumb covered at 47, worst 55 % of the range (rotation 45, zoom 0.5)
+    ancestorRotation End, zoom 0.5: click on ancestorRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: click on targetRotation at its covered pixel (topmost: _nested-ancestor_1hzor_167) changes it: false
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: -20; then ArrowRight: -19
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at -19 dragged 40 px: 13; then ArrowRight: 14
+
+# the review's covered-drag.ts, unchanged, after, at 67b7a39aa
+
+## chromium 158.0.8127.18
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+
+## firefox 159.0
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+
+## webkit 27.2
+  width 1600, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+  width 1000, 1456 pairs of ancestor rotation and zoom
+    ancestorRotation  partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorZoom      partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    targetRotation    partly covered at 0, thumb covered at 0, worst 0 % of the range (-)
+    ancestorRotation End, zoom 0.5: targetRotation's thumb at -20 dragged 40 px: 0; then ArrowRight: 1
+    ancestorRotation Home, zoom 0.5: targetRotation's thumb at 1 dragged 40 px: 21; then ArrowRight: 22
+
+# the review's layout.ts, unchanged, after, at 67b7a39aa; its before reading is reviews/storybook-2/checks/layout.txt
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+
+## firefox 159.0
+  width 1000 live-demo      page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+
+## webkit 27.2
+  width 1000 live-demo      page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 200 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0

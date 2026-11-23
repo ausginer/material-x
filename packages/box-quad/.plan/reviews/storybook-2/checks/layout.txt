@@ -1,0 +1,40 @@
+# layout.ts, against the same dev server, on 2026-11-23, at 59967767a, from the repository root. Node v26.13.1.
+
+## chromium 158.0.8127.18
+  width 1000 live-demo      page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+
+## firefox 159.0
+  width 1000 live-demo      page scrolls sideways false, smallest range 160 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 160 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 160 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 160 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 159 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+
+## webkit 27.2
+  width 1000 live-demo      page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 nested-spaces  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 pointer-delta  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 1000 docs           page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 live-demo      page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 nested-spaces  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 pointer-delta  page scrolls sideways false, smallest range 129 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 375 docs           page scrolls sideways false, smallest range 80 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 live-demo      page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 nested-spaces  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0
+  width 320 pointer-delta  page scrolls sideways false, smallest range 104 px, shown values past the right edge 0, samples where a slider or stage moved 0

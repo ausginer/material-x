@@ -1,0 +1,20 @@
+# RF-105 and RF-106, read by the architect on 2026-11-23 at a225b7dde, with a trial edit that isn't committed:
+#   sortable-list.ts: timing: useCSSProps(this, CSS_PROPS), with CSS_PROPS = { duration: ['--_drag-duration', parseMs],
+#   easing: ['--_drag-easing', identity<string>] }; useCSSProps.ts: let result: Partial<Record<keyof T, unknown>>.
+# Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2 (Playwright's).
+
+# Typecheck with the trial edit: packages/core and packages/material-x pass.
+# With `let result: Record<string, unknown>` instead, core fails: useCSSProps.ts(65,7) TS2536.
+
+# material-x tests/list and tests/core/elevation.spec, three engines, with the sortable-list.ts trial edit:
+#   15 files passed, 530 tests passed, 4 skipped.
+
+# ../probes/hidden-iframe.browser.test.ts.txt: a list connects in an iframe, which is shown before ArrowDown on item A.
+# The number of reorder events, and the iframe's errors.
+                                   iframe display: block     iframe display: none at connect
+before     Chromium                1                         1
+before     Firefox                 1                         1
+before     WebKit                  1                         1
+trial      Chromium                1                         1
+trial      Firefox                 1                         0, CSSVariableError: Invalid value for --_drag-duration on element 'mx-sortable-list'
+trial      WebKit                  1                         1

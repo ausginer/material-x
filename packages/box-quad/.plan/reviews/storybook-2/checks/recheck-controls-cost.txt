@@ -1,0 +1,13 @@
+# controls-cost.ts's in-story range row, against a dev server of 8f598f500, on 2026-11-23, one run at a time after one discarded run. Node v26.13.1.
+# columns: wall ms, manager frames, preview frames, updates, manager ms, preview ms, box-quad ms, gc ms, program ms, idle ms
+# 'former' is the same script with the former range and stage declarations injected in every frame. Load is the 1-minute average of a 12-core machine.
+08:12:43 load 2.88 controls-cost: in-story range	2014	124	124	59	10.6	136.7	54.2	2.6	244.5	1566.9
+08:13:18 load 3.62 former: in-story range	2014	124	124	59	6.5	143.9	54.9	2.7	248.8	1558.9
+08:13:52 load 4.62 controls-cost: in-story range	2001	123	123	59	5.5	133.4	52.8	0.2	226.3	1583.3
+08:14:27 load 4.03 former: in-story range	2008	124	124	59	7.1	117.5	48.9	0.0	246.6	1589.3
+08:15:01 load 4.42 controls-cost: in-story range	2010	124	124	59	7.9	139.2	55.2	0.7	270.5	1537.5
+08:15:37 load 4.84 former: in-story range	2010	124	124	59	5.6	157.5	57.2	1.2	268.9	1521.6
+# with 14 busy processes started beside it for 120 s; the third run is after they ended
+08:16:16 load 5.78 contended: in-story range	4030	223	223	59	24.1	312.0	222.4	2.2	1427.9	2055.3
+08:17:34 load 19.45 contended: in-story range	2709	163	163	59	8.0	208.5	125.5	0.8	736.5	1633.1
+08:18:31 load 18.15 contended: in-story range	2004	123	123	59	3.8	133.7	52.9	1.1	246.4	1567.5

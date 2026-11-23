@@ -1,0 +1,44 @@
+// Place in packages/material-x/tests/fab/ as *.browser.test.ts.
+import { expect, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import '../../src/fab/fab.ts';
+
+const wait = (ms: number) => new Promise((resolve) => { setTimeout(resolve, ms); });
+
+it('probe: transitions of the fab', async () => {
+  const out: Record<string, unknown> = {};
+  for (const markup of ['<mx-fab>F</mx-fab>', '<mx-fab extended="open">F</mx-fab>']) {
+    const box = document.createElement('div');
+    box.style.padding = '40px';
+    box.innerHTML = markup;
+    document.body.append(box);
+    await wait(100);
+    const fab = box.querySelector('mx-fab')!;
+    const host = fab.shadowRoot!.querySelector<HTMLElement>('.host')!;
+    const read = () => host.getAnimations().map((a) => `${(a as CSSTransition).transitionProperty ?? 'other'} ${a.effect!.getTiming().duration}`);
+    const computed = getComputedStyle(host);
+    const transitions = `${computed.transitionProperty} ${computed.transitionDuration}`;
+    const { left, top, width, height } = host.getBoundingClientRect();
+    const resting = computed.boxShadow;
+    await commands.pointerMove(left + width / 2, top + height / 2, 3);
+    await wait(60);
+    const hover = read();
+    const lag: string[] = [];
+    for (let i = 0; i < 6; i += 1) { lag.push(`${getComputedStyle(fab).getPropertyValue('--_level')}|${computed.boxShadow === resting ? 'same' : 'moved'}`); await wait(100); }
+    const shadow350 = computed.boxShadow;
+    await wait(800);
+    const settled = shadow350 === computed.boxShadow;
+    const t: Record<string, unknown> = { transitions, hover, lag, 'shadow settled by 660 ms': settled };
+    await userEvent.tab();
+    await wait(40);
+    t['keyboard focus'] = read();
+    await wait(500);
+    fab.style.setProperty('--md-fab-container-height', '80px');
+    await wait(40);
+    t['container-height override'] = read();
+    out[markup] = t;
+    await commands.pointerMove(0, 0, 1);
+    box.remove();
+  }
+  expect(JSON.stringify(out, null, 1)).toBe('');
+});

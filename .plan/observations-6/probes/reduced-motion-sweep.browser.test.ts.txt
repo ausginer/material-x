@@ -1,0 +1,78 @@
+// Place in packages/material-x/tests/ as *.browser.test.ts.
+import { expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../src/button/button.ts';
+import '../src/button/split-button.ts';
+import '../src/checkbox/checkbox.ts';
+import '../src/fab/fab.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-item.ts';
+import '../src/radio/radio.ts';
+import '../src/text-field/text-field.ts';
+
+const MARKUP = `<mx-button>B</mx-button>
+<mx-split-button></mx-split-button>
+<mx-checkbox></mx-checkbox>
+<mx-fab extended="closed">F</mx-fab>
+<mx-list-item>L</mx-list-item>
+<mx-list-button-item>L</mx-list-button-item>
+<mx-radio></mx-radio>
+<mx-text-field outlined><label>Name</label></mx-text-field>`;
+
+const wait = (ms: number) => new Promise((resolve) => { setTimeout(resolve, ms); });
+
+function transitions(root: ParentNode): string[] {
+  const found: string[] = [];
+  for (const element of root.querySelectorAll('*')) {
+    for (const pseudo of [undefined, '::before', '::after']) {
+      const { transitionProperty, transitionDuration } = getComputedStyle(element, pseudo);
+      if (transitionDuration.split(', ').some((part) => parseFloat(part) > 0))
+        found.push(`${element.localName}.${element.className}${pseudo ?? ''}: ${transitionProperty} ${transitionDuration}`);
+    }
+    if (element.shadowRoot) found.push(...transitions(element.shadowRoot));
+  }
+  return found;
+}
+
+/** The animations that a press and a release on each element start. */
+async function animationsOnPress(host: Element): Promise<string[]> {
+  const { left, top, width, height } = host.shadowRoot!.querySelector('.host, .control, input')!.getBoundingClientRect();
+  const target = host.shadowRoot!;
+  await commands.pointerPress(left + width / 2, top + height / 2);
+  await wait(40);
+  const names = (list: readonly Animation[]) => list.map((a) => `${(a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName ?? 'WAAPI'} ${a.effect!.getTiming().duration}`);
+  const pressed = names(target.getAnimations());
+  await commands.pointerRelease();
+  await wait(40);
+  const released = names(target.getAnimations());
+  await wait(800);
+  return [...pressed.map((name) => `press ${name}`), ...released.map((name) => `release ${name}`)];
+}
+
+it('probe: sweep', async () => {
+  const out: Record<string, unknown> = {};
+  for (const reduce of [false, true]) {
+    await commands.emulateReducedMotion(reduce);
+    const box = document.createElement('div');
+    box.innerHTML = MARKUP;
+    document.body.append(box);
+    await wait(100);
+    const readings: Record<string, unknown> = { matches: matchMedia('(prefers-reduced-motion: reduce)').matches, computed: transitions(box) };
+    for (const tag of ['mx-button', 'mx-checkbox', 'mx-radio', 'mx-list-button-item'])
+      readings[tag] = await animationsOnPress(box.querySelector(tag)!);
+    const started = async (tag: string, change: (element: HTMLElement) => void) => {
+      const element = box.querySelector<HTMLElement>(tag)!;
+      change(element);
+      await wait(40);
+      return [...element.shadowRoot!.getAnimations(), ...element.getAnimations({ subtree: true })].map((a) => `${(a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName ?? 'WAAPI'} ${a.effect!.getTiming().duration}`);
+    };
+    readings['mx-fab open'] = await started('mx-fab', (e) => e.setAttribute('extended', 'open'));
+    readings['mx-checkbox checked'] = await started('mx-checkbox', (e) => e.setAttribute('checked', ''));
+    readings['mx-radio checked'] = await started('mx-radio', (e) => e.setAttribute('checked', ''));
+    readings['mx-text-field focus'] = await started('mx-text-field', (e) => e.focus());
+    out[reduce ? 'reduce' : 'no-preference'] = readings;
+    box.remove();
+  }
+  await commands.emulateReducedMotion(false);
+  expect(JSON.stringify({ equalComputed: JSON.stringify((out['reduce'] as any).computed) === JSON.stringify((out['no-preference'] as any).computed), ...out }, null, 1)).toBe('');
+});
