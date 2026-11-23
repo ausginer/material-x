@@ -19,6 +19,7 @@ const SPECIAL_TOKENS = {
   'press.easing': motionEffects['expressive.fast-spatial'],
   'ripple.color': CSSVariable.ref('state-layer.color'),
   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
+  'shadow.color': 'md.comp.list.reorder.list-item.shadow-color',
 };
 
 const SPECIAL_DISABLED_TOKENS = {

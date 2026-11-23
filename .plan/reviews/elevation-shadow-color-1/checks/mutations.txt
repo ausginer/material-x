@@ -1,0 +1,247 @@
+Note: m2 to m5 ran before P3 was added to the probe, so they count 63 rows; head, base and m1 count 72.
+Mutations against PR #152 at afa794ea7, slot e. Each run: tests/core/elevation.spec.browser.test.ts (15 rows) and probes/rf77-rf78-probe.spec.browser.test.ts (P1 4 rows, P2 2 rows, P3 3 rows, run from tests/core/zz-rf77-probe.spec.browser.test.ts), in Chromium, Firefox and WebKit through MX_TEST_ENGINES=chromium,firefox,webkit --project 'spec*'. probes/mutate.sh applied each mutation; the sources were restored from HEAD after each.
+
+# mutation: head
+:host {
+  --_default-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level), 1) * 20%), transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level), 1) * 14%), transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level), 1) * 12%), transparent);;
+}
+      Tests  72 passed (72)
+ Test Files  6 passed (6)
+
+# mutation: base
+:host {
+  --_shadow-color: var(--md-sys-color-surface-tint, #3F6900);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color) 20%, transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color) 14%, transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color) 12%, transparent);;
+}
+      Tests  34 failed | 38 passed (72)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:90 > mx-button elevation layers > should draw the three elevation layers of its resting level
+ FAIL  |spec (chromium)| tests/core/zz-rf77-probe.spec.browser.test.ts:70 > P2: the component token wins over the elevation package > elevated mx-button draws its layers in its own container.shadow-color
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint filled mx-button as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-button-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-link-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:90 > mx-button elevation layers > should draw the three elevation layers of its resting level
+ FAIL  |spec/firefox (firefox)| tests/core/zz-rf77-probe.spec.browser.test.ts:70 > P2: the component token wins over the elevation package > elevated mx-button draws its layers in its own container.shadow-color
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:90 > mx-button elevation layers > should draw the three elevation layers of its resting level
+ FAIL  |spec/webkit (webkit)| tests/core/zz-rf77-probe.spec.browser.test.ts:70 > P2: the component token wins over the elevation package > elevated mx-button draws its layers in its own container.shadow-color
+ Test Files  6 failed (6)
+ ❯ |spec (chromium)| tests/core/elevation.spec.browser.test.ts (15 tests | 9 failed) 2463ms
+ ❯ |spec (chromium)| tests/core/zz-rf77-probe.spec.browser.test.ts (9 tests | 1 failed) 1706ms
+ ❯ |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts (15 tests | 13 failed) 3282ms
+ ❯ |spec/firefox (firefox)| tests/core/zz-rf77-probe.spec.browser.test.ts (9 tests | 1 failed) 1254ms
+ ❯ |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts (15 tests | 9 failed) 1988ms
+ ❯ |spec/webkit (webkit)| tests/core/zz-rf77-probe.spec.browser.test.ts (9 tests | 1 failed) 1377ms
+AssertionError: expected 'color(srgb 0.247059 0.411765 0 / 0.14…' to match /rgba?\(255, 0, 0|color\(srgb 1 0 0/u
+AssertionError: expected [ 0.14, 0.2, 0.12 ] to deeply equal [ +0, +0, +0 ]
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+
+# mutation: m1-default-only
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..ab52aead5 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -14,10 +14,7 @@ function multiply(multiplier: number): string {
+  * stylesheets are adopted in.
+  */
+ function mix(percent: number): string {
+-  const color = CSSVariable.ref(
+-    'shadow-color',
+-    CSSVariable.ref('default-shadow-color'),
+-  );
++  const color = CSSVariable.ref('shadow-color');
+ 
+   return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
+ }
+@@ -41,7 +38,7 @@ const ambient = createShadowColor(1.5, 2, 12);
+ function createPackage() {
+   return t
+     .set({
+-      'default-shadow-color': 'md.sys.color.shadow',
++      'shadow-color': 'md.sys.color.shadow',
+       'elevation.umbra': umbra,
+       'elevation.penumbra': penumbra,
+       'elevation.ambient': ambient,
+:host {
+  --_shadow-color: var(--md-sys-color-shadow, #000000);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color) calc(min(var(--_level), 1) * 20%), transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color) calc(min(var(--_level), 1) * 14%), transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color) calc(min(var(--_level), 1) * 12%), transparent);;
+}
+      Tests  3 failed | 69 passed (72)
+ FAIL  |spec (chromium)| tests/core/zz-rf77-probe.spec.browser.test.ts:70 > P2: the component token wins over the elevation package > elevated mx-button draws its layers in its own container.shadow-color
+ FAIL  |spec/firefox (firefox)| tests/core/zz-rf77-probe.spec.browser.test.ts:70 > P2: the component token wins over the elevation package > elevated mx-button draws its layers in its own container.shadow-color
+ FAIL  |spec/webkit (webkit)| tests/core/zz-rf77-probe.spec.browser.test.ts:70 > P2: the component token wins over the elevation package > elevated mx-button draws its layers in its own container.shadow-color
+ Test Files  3 failed | 3 passed (6)
+ ❯ |spec (chromium)| tests/core/zz-rf77-probe.spec.browser.test.ts (9 tests | 1 failed) 1527ms
+ ❯ |spec/firefox (firefox)| tests/core/zz-rf77-probe.spec.browser.test.ts (9 tests | 1 failed) 1337ms
+ ❯ |spec/webkit (webkit)| tests/core/zz-rf77-probe.spec.browser.test.ts (9 tests | 1 failed) 1351ms
+AssertionError: expected 'color(srgb 0 0 0 / 0.14) 0px 0.75px 0…' to match /rgba?\(255, 0, 0|color\(srgb 1 0 0/u
+
+# mutation: m2-no-list-token
+diff --git a/packages/material-x/src/list/styles/item/tokens.ts b/packages/material-x/src/list/styles/item/tokens.ts
+index cfcb1dc00..ac9663c87 100644
+--- a/packages/material-x/src/list/styles/item/tokens.ts
++++ b/packages/material-x/src/list/styles/item/tokens.ts
+@@ -19,7 +19,6 @@ const SPECIAL_TOKENS = {
+   'press.easing': motionEffects['expressive.fast-spatial'],
+   'ripple.color': CSSVariable.ref('state-layer.color'),
+   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
+-  'shadow.color': 'md.comp.list.reorder.list-item.shadow-color',
+ };
+ 
+ const SPECIAL_DISABLED_TOKENS = {
+:host {
+  --_default-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level), 1) * 20%), transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level), 1) * 14%), transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level), 1) * 12%), transparent);;
+}
+      Tests  9 failed | 54 passed (63)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+ Test Files  3 failed | 3 passed (6)
+ ❯ |spec (chromium)| tests/core/elevation.spec.browser.test.ts (15 tests | 3 failed) 2164ms
+ ❯ |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts (15 tests | 3 failed) 2244ms
+ ❯ |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts (15 tests | 3 failed) 1901ms
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+
+# mutation: m3-no-level-scale
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..77a794454 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -19,7 +19,7 @@ function mix(percent: number): string {
+     CSSVariable.ref('default-shadow-color'),
+   );
+ 
+-  return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
++  return `color-mix(in srgb, ${color} ${percent}%, transparent);`;
+ }
+ 
+ function createShadowColor(
+:host {
+  --_default-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) 20%, transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) 14%, transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) 12%, transparent);;
+}
+      Tests  19 failed | 44 passed (63)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint filled mx-button as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-button-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-link-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ Test Files  3 failed | 3 passed (6)
+ ❯ |spec (chromium)| tests/core/elevation.spec.browser.test.ts (15 tests | 5 failed) 2258ms
+ ❯ |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts (15 tests | 9 failed) 3358ms
+ ❯ |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts (15 tests | 5 failed) 1937ms
+AssertionError: expected [ 0.14, 0.2, 0.12 ] to deeply equal [ +0, +0, +0 ]
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+AssertionError: expected false to be true // Object.is equality
+
+# mutation: m4-step
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..8590d644c 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -19,7 +19,7 @@ function mix(percent: number): string {
+     CSSVariable.ref('default-shadow-color'),
+   );
+ 
+-  return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
++  return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')} * 1000, 1) * ${percent}%), transparent);`;
+ }
+ 
+ function createShadowColor(
+:host {
+  --_default-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level) * 1000, 1) * 20%), transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level) * 1000, 1) * 14%), transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level) * 1000, 1) * 12%), transparent);;
+}
+      Tests  3 failed | 60 passed (63)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+ Test Files  3 failed | 3 passed (6)
+ ❯ |spec (chromium)| tests/core/elevation.spec.browser.test.ts (15 tests | 1 failed) 2158ms
+ ❯ |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts (15 tests | 1 failed) 2161ms
+ ❯ |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts (15 tests | 1 failed) 1883ms
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+
+# mutation: m5-third
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..d6694bd10 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -19,7 +19,7 @@ function mix(percent: number): string {
+     CSSVariable.ref('default-shadow-color'),
+   );
+ 
+-  return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
++  return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')} / 3, 1) * ${percent}%), transparent);`;
+ }
+ 
+ function createShadowColor(
+:host {
+  --_default-shadow-color: var(--md-sys-color-shadow, #000000);
+  --_elevation-umbra: 0 calc(var(--_level) * 0.5px) calc(var(--_level) * 0.7px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level) / 3, 1) * 20%), transparent);;
+  --_elevation-penumbra: 0 calc(var(--_level) * 0.75px) calc(var(--_level) * 0.75px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level) / 3, 1) * 14%), transparent);;
+  --_elevation-ambient: 0 calc(var(--_level) * 1.5px) calc(var(--_level) * 2px) 0 color-mix(in srgb, var(--_shadow-color, var(--_default-shadow-color)) calc(min(var(--_level) / 3, 1) * 12%), transparent);;
+}
+      Tests  63 passed (63)
+ Test Files  6 passed (6)
+

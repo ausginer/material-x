@@ -1,0 +1,13 @@
+# Witness for the link item's colour row (RF-77, reviewer-3): the row with --_shadow-color: rgb(255, 0, 0) set on the item's host, after its --_level and transition.
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'spec*' tests/core/elevation.spec.browser.test.ts
++ * own `--_container-shadow-color`, it tells the component's colour apart from
++    button.style.setProperty('--_container-shadow-color', OWN_SHADOW_COLOR);
++    fab.style.setProperty('--_container-shadow-color', OWN_SHADOW_COLOR);
++    item.style.setProperty('--_shadow-color', 'rgb(255, 0, 0)');
+      Tests  3 failed | 48 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:239 > mx-list items elevation layers > should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:239 > mx-list items elevation layers > should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:239 > mx-list items elevation layers > should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)
+ Test Files  3 failed (3)
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
