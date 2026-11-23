@@ -2371,6 +2371,17 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - **What it needs from other entries:** the store's complete context (`RD-28` property 9), and `RD-50`'s notice on every page that shows Google's data. A page that shows the guidelines' texts needs its own reading of the licence. The sentence that `RD-50` quotes does name guidelines. Such a page names Google and links to the original beside each text.
 - **Not decided:** the pages' structure, the plain files for tools, and how far the store grows.
 
+#### RD-52 — An event with data of its own is a named class, and every other event is a plain `Event`
+
+**Decided 2026-11-23 by the architect, on `repo/register-observations-8`,** on the owner's approval in chat of the same day, relayed by Mx Architect Explainer through the coordinator. He first asked: _"а может, тогда наоборот createEventNotifier не нужен? Я вполне мог перемудрить... Может, сделать подход с ReorderEvent общим?"_ ("then maybe, the other way round, createEventNotifier isn't needed? I could well have over-engineered it... Maybe make the ReorderEvent approach the common one?"). The Explainer proposed this rule, and he approved it together with `RF-118`: _"Ага, кидай 😁 Люблю удалять лишний код!"_ ("Yep, send it 😁 I love deleting needless code!"). `RD-51` is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** `RF-117` is its unit.
+
+1. **An event that carries data of its own has a named class** that extends `Event` and states its name and flags itself. `ReorderEvent` and core's private `ContextEvent` are the two today.
+2. **An event with no data is a plain `Event`.** There is no base class and no factory for either kind. An `input`, a `change` or another platform name that a component dispatches stays a plain `Event`, as the platform's own is.
+3. **Each dispatch states its own flags,** so the reader sees them there. Two dispatches of the same event repeat them (`CONTRIBUTING.md` §2.2).
+4. **Where the rule is written:** a bullet in `CONTRIBUTING.md`, Part I, _Shape_, with a row in its change record. `RF-117`'s unit writes it, because it isn't true of the code before that. The wording: _"Dispatch an event that carries data of its own as an instance of a named class extending `Event`. Dispatch an event without data as a plain `Event`. State the event's flags where it is dispatched or in its class, with no shared defaults, base class or factory."_
+
+**Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -4936,6 +4947,58 @@ Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by th
   - **(b) Rename to `connectedMoveCallback`,** and dispatch `moved`. Then `moveBefore` stops disconnecting every controlled element. Each controller that does its work in `connected` and `disconnected` (contexts, events, observers, the sortable list's controller, the ripple) has to be read for a move, so it is a unit with a plan.
 - **It doesn't block** #199.
 - **Size:** _small_ for (a), and _large_ for (b).
+
+#### RF-117 — `createEventNotifier` and `DEFAULT_EVENT_INIT` are a factory for events that a plain `Event` states
+
+Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the deletion (`RD-52` has his words). `RF-116` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Each claim below was read at `04047237e`.
+
+- **What is there:** `@ydinjs/core/utils/DOM.js` exports `createEventNotifier`, `DEFAULT_EVENT_INIT`, `EventDefinitions` and `EventNotifier`. It has two configured notifiers, core's in `useRovingTabindex.ts` and material-x's `notify` in `core/utils/events.ts`.
+  - **Five calls,** for seven dispatches: `SwitchCore` (`input`, `change`), `split-button` (`secondaryaction`), `CheckableCore` (`change`), `TextFieldCore` (`change`), and `useRovingTabindex` (`input`, `change`).
+  - **Every definition overrides the defaults,** and each says `cancelable: false`. Only `reorder` has the defaults' three flags, and it doesn't use the notifier: `ReorderEvent` passes `DEFAULT_EVENT_INIT` to its own constructor.
+  - **`input` and `change` are defined twice,** identically, in core and in material-x.
+  - **The notifier can't serve `reorder`:** it creates a plain `Event` with no data and returns nothing, and the list needs `dispatchEvent`'s result to reject a move.
+- **No published use:** the npm registry answers 404 for `@ydinjs/core` and for `@ydinjs/material-x`.
+- **Required properties:**
+  1. `RD-52`.
+  2. The four exports leave `DOM.js`, with the rows of `tests/utils/DOM.browser.test.ts` that are theirs (the one of `DEFAULT_EVENT_INIT` and the three of the notifier) and the README's example of them. `toggleState` stays in that example. `notify` leaves material-x's `core/utils/events.ts`. No alias is kept (`CONTRIBUTING.md` §8).
+  3. `ReorderEvent` states `bubbles`, `cancelable` and `composed` itself.
+  4. Every event keeps its flags and its order. The rows that assert them pass unchanged: `useRovingTabindex` (the flags and the order of both events), `SwitchCore`, `CheckableCore`, `split-button`, `text-field` and `ReorderEvent`'s. Each of the seven dispatches has such a row today.
+  5. `CONTRIBUTING.md` has `RD-52`'s bullet and its change-record row.
+- **The witness:** the rows of property 4, with the flags changed one at a time at each dispatch, fail. This is the unit's discriminating check, because no row is added.
+- **Sizes** are measured on every material-x row and reported. A reduction is expected, and none is claimed. If a row grows, it is reported, and the owner's approval of the deletion doesn't depend on it.
+- **Not part of it:** `ContextEvent`, whose class and constant already follow `RD-52`, and the other exports of `DOM.js`.
+- **Depends on nothing.** Goes before `RF-118`, so that `ReorderEvent` is edited once.
+- **Ready.**
+- **Size:** _small_.
+
+#### RF-118 — `mx-sortable-list`'s constructor mixes the state of four lifetimes, and retains removed items
+
+Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
+
+- **What is there:** one closure in `SortableList`'s constructor holds the state of the element (`items`, the slot, the config), of a connection (`controller`), of a drag (`dragged`) and of a proposal (`others`, `commit`). It is about 150 lines, and the protocol with `@ydinjs/drag` is the largest part of it.
+- **The retention, by reading:** `onReorder` writes `others`, `isAtSlot` reads it for `onEnd` and for the wait, and nothing clears it. So the list keeps the other items of its last proposal, with those that the consumer has since removed, until the next proposal. They are removed elements held by a live list, and the count is bounded by one proposal. `commit` is cleared when the wait is done, also when the controller is destroyed, because the destruction aborts the verdict's signal. Not measured.
+- **The owner's words:** _"Как будто бы тут напрашивается отдельный контроллер, который заведует большей частью вещей, связанных с @ydinjs/drag"_ ("It looks as if a separate controller is called for here, one that manages most of the things related to @ydinjs/drag"). On the Explainer's option that the hook take a callback: _"я бы propose переместил в useSortable - в том смысле, что хук и так знает про хост и про его возможность диспатчить ивенты, функция выглядит излишней церемонией"_ ("I would move propose into useSortable, in the sense that the hook already knows the host and that it can dispatch events, so the function looks like needless ceremony"). The rest of the shape is the Explainer's, and it reports that the owner approved it.
+- **Required properties:**
+  1. **The constructor is `super(); useListCore(this); useSortable(this);`** The element's documentation, public types and definition stay in `sortable-list.ts`.
+  2. **`useSortable(host): void`,** with no options, in `src/list/` beside `sortable-item.ts`. It owns the collection and `invalidate`, the controller of each connection, the `drag` state, the handle rule, the landing, the dispatch of `ReorderEvent`, the announcement (`useAriaNotifyPolyfill`), and the context's provider.
+  3. **One object per proposal** holds the request, the other items, the is-at-slot test, and the commit wait with its timer and signal. One `proposal: … | null` replaces `others` and `commit`. It is cleared at the drag's end and at the disconnect, and not before `onEnd` has read it. A class or a closure is open (`CONTRIBUTING.md` §10). Without this cut the first only moves the closure.
+  4. **`ReorderEvent` and `ReorderEventInit` move to a module of their own** in `src/list/`, so that the hook and the element import it with no cycle. `sortable-list.ts` re-exports both, so their public address doesn't change.
+  5. **The hook is material-x's, in `src/list/`.** It isn't `@ydinjs/core`'s, which would then depend on drag (`RD-31`), nor `@ydinjs/drag`'s, which doesn't know `ControlledElement`, nor material-x's `src/core`, which has no second user. It takes no option for a user that doesn't exist (§2.2). Its single call site is kept under §2.1 as the boundary between the element's public API and the drag protocol, and the size report says so.
+  6. **Only `sortable-list` imports the hook** (§7). `RD-31` property 3's test over the built package holds.
+  7. **`onStart`'s `getComputedStyle(dragged).getPropertyValue('--_level')`** stays with its comment.
+- **No behavior change.** What keeps it so, and the rows don't show by themselves:
+  - the registration order of the controllers (`useListCore`, the live region, `useCSSProps`, the provider, the slot and the connection) stays, because `connected` and `disconnected` run in that order;
+  - a slot change after the wait has ended, and before `onEnd`, must not end it again. Today `commit` is `null` by then, and a proposal that is kept until `onEnd` has to be inert;
+  - a disconnect usually applies the destruction at once, so the signal aborts and the proposal is cleared after it. A disconnect inside the `reorder` handler comes while drag's pass runs, so the destruction is applied after the handler returns, and the abort comes after `disconnected`. In both, no proposal is left and its timer ends.
+- **Acceptance:** the browser rows of `sortable-list` pass without edits, except an import path if one changes. The `list/sortable-list` size row is measured. The built `custom-elements.json` and `react.d.ts` are read for `ReorderEvent`'s new module, before and after.
+- **Checked against the neighbours:**
+  - **`drag:DRF-55`** is drag's, and changes no line of the hook. Its unit drops the `reportError` spy from one row of `sortable-list.browser.test.ts`, so either order is fine, and the second merges one test file.
+  - **`RF-103`** as merged: its property 4 says that `sortable-list.ts` calls `useAriaNotifyPolyfill` once. From this unit on, the hook does, once, and the property is read so. Its properties 1, 2, 5 and 7, with the count among the surviving others, move unchanged into the proposal object.
+  - **`RF-105`** as merged: the landing's timing is the result of `useCSSProps`, passed without a wrapper. It stays so, in the hook. `RF-109`'s rule that the hook reads for a connected host holds, because drag asks for the timing at a landing.
+  - **`RD-31`** names no module for the list's own code, so it needs no amendment.
+- **Depends on `RF-117`,** for `ReorderEvent`.
+- **Ready,** after `RF-117`.
+- **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
 
 ## Questions
 
