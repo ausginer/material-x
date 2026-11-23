@@ -1,0 +1,36 @@
+# chromium 158.0.8127.18
+  native     median 11.4 us, min 9.8, max 22.8
+  inset      median 33.0 us, min 27.2, max 89.2
+  paint      median 37.4 us, min 30.2, max 61.0
+  attribute  median 30.8 us, min 27.8, max 35.8
+  text       median 35.2 us, min 32.2, max 58.4
+  form       median 30.6 us, min 26.4, max 49.8
+  all        median 36.2 us, min 31.6, max 48.2
+  host       median 148.4 us, min 124.8, max 181.2
+  frames idle       task 198 us, style 0, layout 0
+  frames native     task 1011 us, style 0, layout 117
+  frames inset      task 1544 us, style 216, layout 124
+  frames paint      task 1388 us, style 235, layout 105
+  frames attribute  task 1442 us, style 189, layout 112
+  frames text       task 1821 us, style 309, layout 180
+  frames form       task 1561 us, style 250, layout 116
+  frames all        task 1716 us, style 379, layout 156
+  frames host       task 2104 us, style 784, layout 116
+# firefox 159.0
+  native     median 2.0 us, min 0.0, max 6.0
+  inset      median 74.0 us, min 66.0, max 98.0
+  paint      median 52.0 us, min 44.0, max 108.0
+  attribute  median 82.0 us, min 72.0, max 106.0
+  text       median 92.0 us, min 78.0, max 118.0
+  form       median 76.0 us, min 66.0, max 146.0
+  all        median 94.0 us, min 80.0, max 134.0
+  host       median 164.0 us, min 150.0, max 190.0
+# webkit 27.2
+  native     median 24.0 us, min 22.0, max 54.0
+  inset      median 236.0 us, min 210.0, max 270.0
+  paint      median 264.0 us, min 240.0, max 338.0
+  attribute  median 246.0 us, min 222.0, max 288.0
+  text       median 282.0 us, min 252.0, max 316.0
+  form       median 236.0 us, min 214.0, max 272.0
+  all        median 284.0 us, min 252.0, max 302.0
+  host       median 640.0 us, min 582.0, max 706.0
