@@ -1,6 +1,6 @@
 # Private custom properties and what inherits them
 
-**Status: a diagnosis, with no repair.** `repo:RF-122` and `repo:RF-123` register it, and RF-122's question is the owner's. Written by the architect on 2026-11-23, on `repo/private-props-1` from `origin/main` at `92a386a17`, on the coordinator's task. It started from `mx-card`'s [report](https://github.com/ausginer/material-x/blob/34bcd4e75/.plan/card-1/card-report.md) (`material-x/card-1` at `34bcd4e75`, #213).
+**Status: a diagnosis, with no repair. Answered by the owner on 2026-11-23:** R for `repo:RF-122`, and the `--mx-` prefix for `repo:RF-123`. Those entries govern. They hold his words, the extent (every exposed property) and what each unit waits for. Written by the architect on 2026-11-23, on `repo/private-props-1` from `origin/main` at `92a386a17`, on the coordinator's task. It started from `mx-card`'s [report](https://github.com/ausginer/material-x/blob/34bcd4e75/.plan/card-1/card-report.md) (`material-x/card-1` at `34bcd4e75`, #213).
 
 **The owner, 2026-11-23, in chat,** relayed by the coordinator: _"Ауч... Да, это проблема, надо начинать, видимо, делать префиксы по имени компонента..."_ ("Ouch... Yes, that's a problem, it looks like we have to start prefixing by the component's name..."), completed with _"(или трейта)"_ ("(or the trait's)").
 
