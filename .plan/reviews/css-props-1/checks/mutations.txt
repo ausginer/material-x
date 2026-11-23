@@ -1,0 +1,103 @@
+# One edit of the source at 07943db4a per block, reverted after it. core: tests/controllers/useCSSProps. 'mx:' lines: material-x's ripple and list rows, -t 'hidden iframe|landing duration', after a core build.
+## base hook, RF-105 kept
+ 1 file changed, 8 insertions(+), 22 deletions(-)
+      Tests  18 failed | 24 passed (42)
+     Errors  3 errors
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+mx:       Tests  6 failed | 15 passed | 228 skipped (249)
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-button that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-checkbox that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-fab that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-list-button-item that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-radio that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1162 > mx-sortable-list in a hidden iframe > should sort once the iframe it connected in is shown
+## base hook and base sortable-list.ts
+ 2 files changed, 21 insertions(+), 34 deletions(-)
+      Tests  18 failed | 24 passed (42)
+     Errors  3 errors
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:145 > useCSSProps > when it reads > should not read at connect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:152 > useCSSProps > when it reads > should read at the first call in a connection
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:199 > useCSSProps > when it reads > should not throw from connectedCallback for an invalid value
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:205 > useCSSProps > when it reads > should surface CSSVariableError from the call for an invalid value
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+mx:       Tests  8 failed | 13 passed | 228 skipped (249)
+mx:  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-button that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-checkbox that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-fab that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-list-button-item that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/core/animations/ripple.browser.test.ts:83 > useRipple > should show the press of mx-radio that connected in a hidden iframe
+mx:  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+mx:  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+## base sortable-list.ts on the new hook
+ 1 file changed, 13 insertions(+), 12 deletions(-)
+      Tests  42 passed (42)
+mx:       Tests  3 failed | 18 passed | 228 skipped (249)
+mx:  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+mx:  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+mx:  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+## no discard at connect
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+      Tests  3 failed | 39 passed (42)
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:178 > useCSSProps > when it reads > should read again at the first call after a reconnect
+mx:       Tests  21 passed | 228 skipped (249)
+## nothing kept
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+      Tests  9 failed | 33 passed (42)
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:160 > useCSSProps > when it reads > should return the same values to later calls in a connection
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:169 > useCSSProps > when it reads > should ignore a change of the variable after the first call in a connection
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:189 > useCSSProps > when it reads > should keep the values after a disconnect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:160 > useCSSProps > when it reads > should return the same values to later calls in a connection
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:169 > useCSSProps > when it reads > should ignore a change of the variable after the first call in a connection
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:189 > useCSSProps > when it reads > should keep the values after a disconnect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:160 > useCSSProps > when it reads > should return the same values to later calls in a connection
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:169 > useCSSProps > when it reads > should ignore a change of the variable after the first call in a connection
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:189 > useCSSProps > when it reads > should keep the values after a disconnect
+mx:       Tests  3 failed | 18 passed | 228 skipped (249)
+mx:  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+mx:  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+mx:  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:498 > mx-sortable-list pointer > should keep the landing duration of the first landing in a connection
+## kept before the parse
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+      Tests  3 failed | 39 passed (42)
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:213 > useCSSProps > when it reads > should read again after a call that throws
+## discard at disconnect too
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+      Tests  3 failed | 39 passed (42)
+ × |browser (chromium)| tests/controllers/useCSSProps.browser.test.ts:189 > useCSSProps > when it reads > should keep the values after a disconnect
+ × |browser/firefox (firefox)| tests/controllers/useCSSProps.browser.test.ts:189 > useCSSProps > when it reads > should keep the values after a disconnect
+ × |browser/webkit (webkit)| tests/controllers/useCSSProps.browser.test.ts:189 > useCSSProps > when it reads > should keep the values after a disconnect

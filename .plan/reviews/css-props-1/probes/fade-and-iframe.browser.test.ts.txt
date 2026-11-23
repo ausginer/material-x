@@ -1,0 +1,76 @@
+import { expect, it, vi } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../../src/button/button.ts';
+import '../../../src/button/icon-button.ts';
+import '../../../src/button/link-button.ts';
+import '../../../src/button/switch-button.ts';
+import '../../../src/button/switch-icon-button.ts';
+import '../../../src/button/split-button.ts';
+import '../../../src/fab/fab.ts';
+import '../../../src/checkbox/checkbox.ts';
+import '../../../src/radio/radio.ts';
+import '../../../src/list/list-item.ts';
+import '../../../src/list/list-button-item.ts';
+import '../../../src/list/list-link-item.ts';
+import '../../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const errors: string[] = [];
+addEventListener('error', (e) => { errors.push('error: ' + e.message); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+addEventListener('unhandledrejection', (e) => { errors.push('rejection: ' + String((e.reason as Error)?.message)); e.preventDefault(); e.stopImmediatePropagation(); }, true);
+const log = (s: string, v: unknown) => console.log(`P ${server.browser} ${s}: ${JSON.stringify(v)}`);
+const take = () => errors.splice(0);
+const TAGS = ['mx-button', 'mx-icon-button', 'mx-link-button', 'mx-switch-button', 'mx-switch-icon-button', 'mx-fab', 'mx-checkbox', 'mx-radio', 'mx-list-button-item', 'mx-list-link-item'];
+const make = (tag: string) => { const e = document.createElement(tag); if (tag.includes('link')) e.setAttribute('href', '#x'); if (!/checkbox|radio/.test(tag)) e.textContent = 'A'; return e; };
+const target = (e: Element) => (e.shadowRoot!.querySelector('.host, input') ?? e) as HTMLElement;
+const touch = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'touch', pointerId: 7, buttons: type === 'pointerup' ? 0 : 1 }));
+const mouse = (e: Element, type: string) => target(e).dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, isPrimary: true, pointerType: 'mouse', pointerId: 1, buttons: 1 }));
+
+
+it('the opacity that the exit fade starts from', async () => {
+  for (const tag of TAGS) {
+    for (const orderOf of [['mouse'], ['keyboard'], ['mouse', 'keyboard'], ['keyboard', 'mouse']] as const) {
+      const e = make(tag); document.body.append(e); await wait(60);
+      const out: string[] = [];
+      const ripple = e.shadowRoot!.querySelector('.ripple')!;
+      const animate = ripple.animate.bind(ripple);
+      ripple.animate = (k, o) => { const op = (k as { opacity?: unknown[] }).opacity; if (op) out.push(`fade from ${String(op[0])}, painted ${getComputedStyle(ripple, '::after').opacity}`); return animate(k, o); };
+      const r = target(e).getBoundingClientRect();
+      for (const how of orderOf) {
+        if (how === 'mouse') { await commands.pointerMove(r.left + r.width / 2, r.top + r.height / 2, 2); await commands.pointerPress(r.left + r.width / 2, r.top + r.height / 2); await commands.pointerRelease(); await wait(450); await commands.pointerMove(700, 600, 2); await wait(60); }
+        else { target(e).focus(); await userEvent.keyboard(/link/.test(tag) ? '{Enter}' : ' '); await wait(450); }
+      }
+      log(`fade ${tag} ${orderOf.join('+')}`, out);
+      e.remove(); take();
+    }
+  }
+}, 120000);
+async function frameRow(tag: string, module: string, kind: string) {
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'display:none;width:400px;height:200px';
+  frame.srcdoc = `<script>window.errors=[];addEventListener('error',(e)=>errors.push(e.message));addEventListener('unhandledrejection',(e)=>errors.push(String(e.reason)));</script><${tag} href="#x">A</${tag}><script type="module">await import(${JSON.stringify(module)});document.body.dataset.ready='';</script>`;
+  document.body.append(frame);
+  await expect.poll(() => frame.contentDocument?.body?.dataset['ready'], { timeout: 10000 }).toBe('');
+  const w = frame.contentWindow as Window & typeof globalThis & { errors: string[] };
+  const el = frame.contentDocument!.querySelector(tag) as HTMLElement;
+  el.addEventListener('click', (e) => { e.preventDefault(); });
+  const inner = el.shadowRoot!.querySelector<HTMLElement>('.host, input')!;
+  if (kind === 'click while hidden') { inner.click(); await wait(50); }
+  const hidden = [...w.errors];
+  frame.style.display = 'block'; await wait(60);
+  const o = frame.getBoundingClientRect(), r = inner.getBoundingClientRect();
+  await commands.pointerPress(o.left + frame.clientLeft + r.left + r.width / 2, o.top + frame.clientTop + r.top + r.height / 2);
+  await wait(100);
+  const n = el.shadowRoot!.getAnimations().filter((a) => !(a instanceof w.CSSTransition) && !(a instanceof w.CSSAnimation)).length;
+  await commands.pointerRelease(); await wait(400);
+  const res = [n, hidden, w.errors.slice(hidden.length)];
+  frame.remove(); take();
+  return res;
+}
+it('hidden iframe, other adopters', async () => {
+  const base = import.meta.url.slice(0, import.meta.url.indexOf('/tests/')) + '/src/';
+  const u = (p: string) => base + p + '.ts';
+  for (const [t, p] of [['mx-button', 'button/button'], ['mx-icon-button', 'button/icon-button'], ['mx-link-button', 'button/link-button'], ['mx-switch-button', 'button/switch-button'], ['mx-switch-icon-button', 'button/switch-icon-button'], ['mx-list-link-item', 'list/list-link-item'], ['mx-fab', 'fab/fab'], ['mx-checkbox', 'checkbox/checkbox'], ['mx-radio', 'radio/radio'], ['mx-list-button-item', 'list/list-button-item']] as const)
+    log(`iframe ${t}`, await frameRow(t, u(p), ''));
+  log('iframe mx-button, click while hidden', await frameRow('mx-button', u('button/button'), 'click while hidden'));
+}, 60000);
