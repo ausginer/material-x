@@ -1,0 +1,267 @@
+## clean: passed 185 failed 0
+## T top margin 1px: passed 182 failed 3
+   3x mx-top-app-bar scrolled state should stay on past one viewport with html { height: 100% }
+## T side margins 0: passed 182 failed 3
+   3x mx-top-app-bar scrolled state should stay on when a wide page is scrolled sideways past one viewport
+## T scroll listener sets state: passed 179 failed 6
+   3x mx-top-app-bar scrolled state should keep its value while the bar is disconnected
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+## T default root: passed 152 failed 33
+   3x mx-top-app-bar scrolled state should be on after 1px
+   3x mx-top-app-bar scrolled state should be on after a jump to the end
+   3x mx-top-app-bar scrolled state should be on when the bar connects to a scrolled page
+   3x mx-top-app-bar scrolled state should match a scrolled position when the bar reconnects there
+   3x mx-top-app-bar scrolled state should stay on past one viewport with html { height: 100% }
+   3x mx-top-app-bar scrolled state should stay on when a wide page is scrolled sideways past one viewport
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+   3x mx-top-app-bar container contract should render the on-scroll container color when scrolled
+   3x mx-top-app-bar container contract should draw no shadow when scrolled
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+   3x mx-top-app-bar CSS properties should render --md-top-app-bar-on-scroll-container-color when scrolled
+## T threshold 0.01: passed 185 failed 0
+## T threshold 0.0005: passed 185 failed 0
+## T isIntersecting: passed 185 failed 0
+## T bottom margin 0: passed 170 failed 15
+   3x mx-top-app-bar scrolled state should be off at the document's start
+   3x mx-top-app-bar scrolled state should be off again at the start
+   3x mx-top-app-bar scrolled state should match the start when the bar reconnects there
+   3x mx-top-app-bar scrolled state should keep its value while the bar is disconnected
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+## T never observes: passed 152 failed 33
+   3x mx-top-app-bar scrolled state should be on after 1px
+   3x mx-top-app-bar scrolled state should be on after a jump to the end
+   3x mx-top-app-bar scrolled state should be on when the bar connects to a scrolled page
+   3x mx-top-app-bar scrolled state should match a scrolled position when the bar reconnects there
+   3x mx-top-app-bar scrolled state should stay on past one viewport with html { height: 100% }
+   3x mx-top-app-bar scrolled state should stay on when a wide page is scrolled sideways past one viewport
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+   3x mx-top-app-bar container contract should render the on-scroll container color when scrolled
+   3x mx-top-app-bar container contract should draw no shadow when scrolled
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+   3x mx-top-app-bar CSS properties should render --md-top-app-bar-on-scroll-container-color when scrolled
+## T no disconnect: passed 179 failed 6
+   3x mx-top-app-bar scrolled state should keep its value while the bar is disconnected
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+## T observes once in ctor: passed 179 failed 6
+   3x mx-top-app-bar scrolled state should keep its value while the bar is disconnected
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+## T disconnect clears the state: passed 185 failed 0
+## T first entry: passed 185 failed 0
+## T internals role banner: passed 184 failed 1
+   1x mx-top-app-bar accessibility Chromium's accessibility tree should expose no landmark of its own
+## T role attribute at connect: passed 152 failed 33
+   3x mx-top-app-bar scrolled state should be on after 1px
+   3x mx-top-app-bar scrolled state should be on after a jump to the end
+   3x mx-top-app-bar scrolled state should be on when the bar connects to a scrolled page
+   3x mx-top-app-bar scrolled state should match a scrolled position when the bar reconnects there
+   3x mx-top-app-bar scrolled state should stay on past one viewport with html { height: 100% }
+   3x mx-top-app-bar scrolled state should stay on when a wide page is scrolled sideways past one viewport
+   3x mx-top-app-bar scrolled state should change once over many scroll steps away from the start
+   3x mx-top-app-bar container contract should render the on-scroll container color when scrolled
+   3x mx-top-app-bar container contract should draw no shadow when scrolled
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+   3x mx-top-app-bar CSS properties should render --md-top-app-bar-on-scroll-container-color when scrolled
+## T host tabindex: passed 185 failed 0
+## T scroll listener only: passed 185 failed 0
+## T onscroll reads layout: passed 185 failed 0
+## C no sticky: passed 179 failed 6
+   3x mx-top-app-bar position should stay at the top of a scrolled page
+   3x mx-top-app-bar position should keep positioned content under it
+## C position fixed: passed 185 failed 0
+## C sticky important: passed 182 failed 3
+   3x mx-top-app-bar position should be unpinned by a page's position: static
+## C no z-index: passed 182 failed 3
+   3x mx-top-app-bar position should keep positioned content under it
+## C no inset: passed 179 failed 6
+   3x mx-top-app-bar position should stay at the top of a scrolled page
+   3x mx-top-app-bar position should keep positioned content under it
+## C no border-radius: passed 185 failed 0
+## C border-radius 4px: passed 173 failed 12
+   3x mx-top-app-bar container contract should render the top-left corner
+   3x mx-top-app-bar container contract should render the top-right corner
+   3x mx-top-app-bar container contract should render the bottom-right corner
+   3x mx-top-app-bar container contract should render the bottom-left corner
+## C no min-block-size: passed 182 failed 3
+   3x mx-top-app-bar container contract should render the container height
+## C fixed block-size: passed 179 failed 6
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C no transition: passed 182 failed 3
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+## C transition 100ms: passed 182 failed 3
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+## C transition linear: passed 182 failed 3
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+## C transition all: passed 185 failed 0
+## C no rest property: passed 182 failed 3
+   3x mx-top-app-bar CSS properties should render --md-top-app-bar-container-color at rest
+## C no scrolled property: passed 182 failed 3
+   3x mx-top-app-bar CSS properties should render --md-top-app-bar-on-scroll-container-color when scrolled
+## C scrolled ignores state: passed 182 failed 3
+   3x mx-top-app-bar CSS properties should render --md-top-app-bar-on-scroll-container-color when scrolled
+## C shadow when scrolled: passed 182 failed 3
+   3x mx-top-app-bar container contract should draw no shadow when scrolled
+## C drop-shadow when scrolled: passed 185 failed 0
+## C host not centered: passed 182 failed 3
+   3x mx-top-app-bar icon contract should center the content on the block axis
+## C slots not centered: passed 185 failed 0
+## C no gap: passed 185 failed 0
+## C gap 2px: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+## C no icon size: passed 179 failed 6
+   3x mx-top-app-bar icon contract should render the lead icon size
+   3x mx-top-app-bar icon contract should render the trail icon size
+## C no lead color: passed 182 failed 3
+   3x mx-top-app-bar icon contract should render the lead icon color
+## C no trail color: passed 182 failed 3
+   3x mx-top-app-bar icon contract should render the trail icon color
+## C lead takes trail color: passed 182 failed 3
+   3x mx-top-app-bar icon contract should render the lead icon color
+## C lead edge 0: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+## C lead between 0: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+## C trail between 0: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+## C trail edge 0: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+## C headline space 0: passed 167 failed 18
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract ltr should place the content with a headline only
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with a headline only
+## C physical margins: passed 179 failed 6
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+## C physical lead: passed 185 failed 0
+## C lead rule off: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+## C trail rule off: passed 173 failed 12
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+## C empty slots displayed: passed 167 failed 18
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract ltr should place the content with a headline only
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with a headline only
+## C edge insets on host: passed 173 failed 12
+   3x mx-top-app-bar inset contract should keep the insets under a page's universal reset with lead and trail
+   3x mx-top-app-bar inset contract should keep the insets under a page's universal reset with no lead
+   3x mx-top-app-bar inset contract should keep the insets under a page's universal reset with no trail
+   3x mx-top-app-bar inset contract should keep the insets under a page's universal reset with a headline only
+## C headline no color: passed 179 failed 6
+   3x mx-top-app-bar headline contract color should apply to text
+   3x mx-top-app-bar headline contract color should apply to a slotted h1
+## C headline no font-family: passed 185 failed 0
+## C headline no font-size: passed 179 failed 6
+   3x mx-top-app-bar headline contract font-size should apply to text
+   3x mx-top-app-bar headline contract font-size should apply to a slotted h1
+## C headline no font-weight: passed 179 failed 6
+   3x mx-top-app-bar headline contract font-weight should apply to text
+   3x mx-top-app-bar headline contract font-weight should apply to a slotted h1
+## C headline no line-height: passed 179 failed 6
+   3x mx-top-app-bar headline contract line-height should apply to text
+   3x mx-top-app-bar headline contract line-height should apply to a slotted h1
+## C headline no letter-spacing: passed 179 failed 6
+   3x mx-top-app-bar headline contract letter-spacing should apply to text
+   3x mx-top-app-bar headline contract letter-spacing should apply to a slotted h1
+## C slotted margin: passed 182 failed 3
+   3x mx-top-app-bar headline contract should leave a slotted h1 with no margin
+## C slotted font: passed 173 failed 12
+   3x mx-top-app-bar headline contract font-size should apply to a slotted h1
+   3x mx-top-app-bar headline contract font-weight should apply to a slotted h1
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C slotted important: passed 182 failed 3
+   3x mx-top-app-bar headline contract should let the page's rule style a slotted h1
+## C slotted font-size only: passed 182 failed 3
+   3x mx-top-app-bar headline contract font-weight should apply to a slotted h1
+## C no overflow-wrap: passed 182 failed 3
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C no min-inline-size: passed 185 failed 0
+## C nowrap: passed 179 failed 6
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C ellipsis: passed 179 failed 6
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C headline clips one line: passed 179 failed 6
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C headline clips two lines: passed 179 failed 6
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+## C slots shrink: passed 185 failed 0
+## C headline no flex: passed 161 failed 24
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract ltr should place the content with a headline only
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with a headline only
+## H order: passed 155 failed 30
+   3x mx-top-app-bar accessibility should hold only its three slots in its shadow root
+   3x mx-top-app-bar accessibility should take focus in the order lead, headline, trail
+   3x mx-top-app-bar headline contract should wrap a long headline of words without a cut
+   3x mx-top-app-bar headline contract should wrap a long headline of one long word without a cut
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+## H wrapper: passed 158 failed 27
+   3x mx-top-app-bar accessibility should hold only its three slots in its shadow root
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract ltr should place the content with a headline only
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with a headline only
+## K between 5px: passed 167 failed 18
+   3x mx-top-app-bar inset contract ltr should place the content with lead and trail
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with lead and trail
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+## K headline 15px: passed 167 failed 18
+   3x mx-top-app-bar inset contract ltr should place the content with no lead
+   3x mx-top-app-bar inset contract ltr should place the content with no trail
+   3x mx-top-app-bar inset contract ltr should place the content with a headline only
+   3x mx-top-app-bar inset contract rtl should place the content with no lead
+   3x mx-top-app-bar inset contract rtl should place the content with no trail
+   3x mx-top-app-bar inset contract rtl should place the content with a headline only
+## K no scrolled state: passed 179 failed 6
+   3x mx-top-app-bar container contract should render the on-scroll container color when scrolled
+   3x mx-top-app-bar container contract should change the color over the motion duration and easing
+## K excluded elevation read: passed 185 failed 0
+DONE
