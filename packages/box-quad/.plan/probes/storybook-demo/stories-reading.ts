@@ -1,5 +1,5 @@
 /**
- * `BQ-18`'s reading of the box-quad stories, on the built docs site.
+ * `BQ-21`'s reading of the box-quad stories, on the built docs site.
  *
  * - Firefox, with `layout.css.getBoxQuads.enabled`: _Live Demo_'s overlay
  *   corners, mapped to the viewport through the SVG's `getScreenCTM()`, against
