@@ -1,0 +1,152 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import LinkTo from '@storybook/addon-links/react';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './slider.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-slider';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ydinjs/material-x/slider/slider.js';";
+export const usageSnippet = `<mx-slider name="volume" value="40">
+  <span slot="label">Volume</span>
+</mx-slider>`;
+export const unitSnippet = `slider.addEventListener('input', () => {
+  slider.valuetext = \`\${slider.value}°\`;
+});`;
+
+<Meta of={Stories} />
+
+# Slider
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use for a value from a range, such as volume or brightness, where the effect is seen at once.
+- Use where the approximate position matters more than the exact number.
+
+## When not to use
+
+- For an exact number, which a text field takes better.
+- For a choice between a few options, which a button group or radios present better.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Sizes
+
+Omit `size` for the extra small slider.
+
+<Canvas of={Stories.Sizes} />
+
+### Value indicator
+
+Set `indicator` to show the value above the handle while the handle is held or has keyboard focus.
+
+<Canvas of={Stories.ValueIndicator} />
+
+For a value with a unit, set `valuetext` in the `input` handler. The indicator shows it, and assistive technology reads it:
+
+<Source code={unitSnippet} language="ts" />
+
+### Right to left
+
+<Canvas of={Stories.RightToLeft} />
+
+### Over a gradient
+
+<Canvas of={Stories.OverGradient} />
+
+## States
+
+<Canvas of={Stories.Disabled} />
+
+Use the live example below to inspect interaction states:
+
+- press and hold to inspect the held handle
+- move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
+- use the arrow keys, `Page Up`, `Page Down`, `Home` and `End`
+
+<LinkTo kind="Slider" story="Playground">
+  Playground
+</LinkTo>
+
+## Value and events
+
+- **The value is the user's.** The handle follows the pointer and the keyboard by itself, and `value` reads the current number. Set `value` at any time, also in an `input` handler during a drag. Setting it fires no event.
+- **The `value` attribute** is the initial value. The slider follows it until the user moves the handle or a script sets `value`, and takes it again on a form reset.
+- **`value`, `min`, `max` and `step`** give the same result in any order.
+- **`input`** fires at each move and **`change`** when the user commits the value. Both are plain events: read `value` from the element.
+- If an `input` handler rewrites the value, take the final value from `input`. WebKit then fires no `change`.
+- **A touch that becomes a scroll** restores the value, and fires `input` again if it changed.
+
+## Validation
+
+- `setCustomValidity(message)` makes the element invalid. It has no native validators.
+- Set `error` rather than `aria-invalid` on the host. It matches `:state(error)` and announces the control as invalid. It draws no error appearance.
+- A slider always has a value, so `required` has no meaning for it.
+
+## Accessibility
+
+- **Name:** Use the `label` slot or a `<label>`. If several sources are present, the order is a host `aria-labelledby`, the slot, a host `aria-label`, a `<label>`.
+- **`aria-label` on the host** also names the host's own accessible node, so some assistive technology may meet the name twice. Don't use it with the slot or a `<label>`.
+- **A late `<label>`:** A `<label>` or a referenced element that appears after the slider is read when the slider takes focus.
+- **Keyboard:** The native range's keys. In WebKit the horizontal arrow keys don't mirror from right to left: `ArrowRight` increases the value there.
+- **Value:** `valuetext` is announced in place of the number. A host `aria-valuetext` replaces it for assistive technology only.
+
+## Content guidelines
+
+- Keep the label short.
+- Give the bounds in the label or beside the slider if they aren't obvious.
+
+## Anatomy
+
+- `label` slot: the slider's name.
+- `impl` CSS part: the internal native range, which is transparent.
+
+## Theming
+
+- Uses CSS custom properties for the colors of the tracks, the handle and the stop indicator.
+- With the tracks and the stop indicator transparent, a background behind the slider shows through.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview: [https://m3.material.io/components/sliders/overview](https://m3.material.io/components/sliders/overview)
+- Material 3 guidelines: [https://m3.material.io/components/sliders/guidelines](https://m3.material.io/components/sliders/guidelines)
+- Deltas:
+  - The slider is horizontal, continuous and has one value. The range slider, stops, the inset icon and the vertical slider aren't available.
+  - The value indicator's inline padding and corner are Material Components for Android's, because Material 3 gives no token for them.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

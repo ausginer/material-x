@@ -1,0 +1,23 @@
+# First table: built-move-cost.ts alone, with the host loaded. Second: each engine's move-cost.ts (native, inset, all) directly before built-move-cost.ts (native, plain, indicator), load average 8.5 to 5.7.
+# chromium 158.0.8127.18
+  native     median 38.6 us, min 15.8, max 60.4
+  plain      median 171.0 us, min 63.4, max 548.8
+  indicator  median 264.4 us, min 85.2, max 880.6
+# firefox 159.0
+  native     median 14.0 us, min 4.0, max 36.0
+  plain      median 512.0 us, min 202.0, max 954.0
+  indicator  median 622.0 us, min 248.0, max 1636.0
+# webkit 27.2
+  native     median 42.0 us, min 30.0, max 112.0
+  plain      median 484.0 us, min 366.0, max 762.0
+  indicator  median 612.0 us, min 410.0, max 920.0
+
+# chromium, adjacent
+  move-cost  native 17.6 (min 13.0), inset 71.8 (33.8), all 58.8 (39.4)
+  built      native 20.2 (min 16.2), plain 80.2 (62.2), indicator 93.8 (82.8)
+# firefox, adjacent
+  move-cost  native 6.0 (min 2.0), inset 174.0 (102.0), all 168.0 (124.0)
+  built      native 14.0 (min 6.0), plain 352.0 (232.0), indicator 490.0 (284.0)
+# webkit, adjacent
+  move-cost  native 44.0 (min 26.0), inset 418.0 (264.0), all 484.0 (326.0)
+  built      native 56.0 (min 28.0), plain 428.0 (354.0), indicator 464.0 (398.0)

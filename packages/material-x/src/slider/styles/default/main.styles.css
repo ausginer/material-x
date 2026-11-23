@@ -1,0 +1,259 @@
+/*
+ * Public CSS custom properties
+ *
+ * `--md-slider-active-track-color`
+ * `--md-slider-inactive-track-color`
+ * `--md-slider-handle-color`
+ * `--md-slider-stop-indicator-color`
+ *   Each wins over its part's color in every state. With the tracks and the
+ *   stop indicator transparent, a gradient behind the slider shows through.
+ */
+
+:host {
+  display: block;
+}
+
+.label {
+  display: block;
+}
+
+.track {
+  /* The centre of the handle and of the native thumb, which travel together. */
+  --_center: calc(
+    var(--_thumb-width) / 2 + var(--_fraction) * (100% - var(--_thumb-width))
+  );
+  /* The length of the track from each edge to the space beside the handle. */
+  --_active-track-size: max(
+    0px,
+    var(--_center) - var(--_handle-width) / 2 -
+      var(--_active-handle-leading-space)
+  );
+  --_inactive-track-size: max(
+    0px,
+    100% - var(--_center) - var(--_handle-width) / 2 -
+      var(--_active-handle-trailing-space)
+  );
+
+  position: relative;
+  block-size: var(--_active-handle-height);
+
+  &::before,
+  &::after {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  &::before {
+    inset-block: calc(
+      (var(--_active-handle-height) - var(--_active-track-height)) / 2
+    );
+    inset-inline-start: 0;
+    inline-size: var(--_active-track-size);
+    border-start-start-radius: var(--_active-track-shape-leading);
+    border-end-start-radius: var(--_active-track-shape-leading);
+    border-start-end-radius: var(
+      --_active-track-inner-corner-corner-size-top-right
+    );
+    border-end-end-radius: var(
+      --_active-track-inner-corner-corner-size-bottom-right
+    );
+    background-color: var(
+      --md-slider-active-track-color,
+      var(--_active-track-color)
+    );
+    opacity: var(--_active-track-opacity, 1);
+  }
+
+  /*
+   * The inactive track's background holds the stop indicator: the content box
+   * is the indicator's square at the inline end, which makes its place follow
+   * the direction. Both shrink with the track, so a short track is never
+   * longer than its paddings.
+   */
+  &::after {
+    --_stop-color: color-mix(
+      in srgb,
+      var(--md-slider-stop-indicator-color, var(--_stop-indicator-color))
+        calc(var(--_stop-indicator-opacity, 1) * 100%),
+      transparent
+    );
+
+    inset-block: calc(
+      (var(--_active-handle-height) - var(--_inactive-track-height)) / 2
+    );
+    inset-inline-end: 0;
+    inline-size: var(--_inactive-track-size);
+    padding-block: calc(
+      (var(--_inactive-track-height) - var(--_stop-indicator-size)) / 2
+    );
+    padding-inline: max(
+        0px,
+        var(--_inactive-track-size) - var(--_stop-indicator-trailing-space) -
+          var(--_stop-indicator-size)
+      )
+      min(var(--_inactive-track-size), var(--_stop-indicator-trailing-space));
+    border-start-start-radius: var(
+      --_active-track-inner-corner-corner-size-top-right
+    );
+    border-end-start-radius: var(
+      --_active-track-inner-corner-corner-size-bottom-right
+    );
+    border-start-end-radius: var(--_inactive-track-shape-trailing);
+    border-end-end-radius: var(--_inactive-track-shape-trailing);
+    background:
+      radial-gradient(
+          closest-side,
+          var(--_stop-color) calc(100% - 0.25px),
+          transparent calc(100% + 0.25px)
+        )
+        content-box no-repeat,
+      color-mix(
+        in srgb,
+        var(--md-slider-inactive-track-color, var(--_inactive-track-color))
+          calc(var(--_inactive-track-opacity, 1) * 100%),
+        transparent
+      );
+  }
+}
+
+/* The native range is transparent, and its thumb has the handle's width. */
+.input {
+  all: unset;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0;
+  touch-action: pan-y;
+
+  &::-webkit-slider-runnable-track {
+    block-size: 100%;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: var(--_thumb-width);
+    block-size: 100%;
+  }
+
+  &::-moz-range-thumb {
+    box-sizing: border-box;
+    inline-size: var(--_thumb-width);
+    block-size: var(--_active-handle-height);
+    border: 0;
+  }
+
+  &:disabled {
+    pointer-events: none;
+  }
+}
+
+.handle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--_center) - var(--_handle-width) / 2);
+  inline-size: var(--_handle-width);
+  border-radius: var(--_handle-shape);
+  background-color: var(--md-slider-handle-color, var(--_handle-color));
+  opacity: var(--_handle-opacity, 1);
+  pointer-events: none;
+}
+
+.input:focus-visible ~ .handle {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
+}
+
+/*
+ * The value indicator. While it isn't shown it has no box, so a slider at the
+ * page's edge has no scrollable overflow. Equal negative insets with auto
+ * margins centre it on the handle in either direction.
+ */
+:host(:state(indicator)) .handle::after {
+  content: attr(data-value);
+  display: none;
+  position: absolute;
+  z-index: 1;
+  inset-block-end: calc(100% + var(--_value-indicator-active-bottom-space));
+  inset-inline: -100vw;
+  inline-size: max-content;
+  margin-inline: auto;
+  /* The inline padding and the full corner are Material Components for Android's. */
+  padding: var(--_value-indicator-active-bottom-space) 10px;
+  border-radius: calc(
+    var(--_value-indicator-label-label-text-line-height) / 2 +
+      var(--_value-indicator-active-bottom-space)
+  );
+  background-color: var(--_value-indicator-container-color);
+  color: var(--_value-indicator-label-label-text-color);
+  font-family: var(--_value-indicator-label-label-text-font);
+  font-size: var(--_value-indicator-label-label-text-size);
+  font-weight: var(--_value-indicator-label-label-text-weight);
+  line-height: var(--_value-indicator-label-label-text-line-height);
+  letter-spacing: var(--_value-indicator-label-label-text-tracking);
+  opacity: 0;
+  transition:
+    opacity var(--_value-indicator-duration) var(--_value-indicator-easing),
+    display var(--_value-indicator-duration) allow-discrete;
+}
+
+:host(:state(indicator)) .input:is(:active, :focus-visible) ~ .handle::after {
+  display: block;
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+/*
+ * Forced colors replace every background color, and the native range is
+ * transparent, so each part takes a system color.
+ */
+@media (forced-colors: active) {
+  .track {
+    --_part-color: CanvasText;
+
+    forced-color-adjust: none;
+
+    &:has(.input:disabled) {
+      --_part-color: GrayText;
+    }
+
+    &::before {
+      background-color: Highlight;
+    }
+
+    &::after {
+      --_stop-color: Canvas;
+
+      background-color: var(--_part-color);
+    }
+
+    &:has(.input:disabled)::before {
+      background-color: GrayText;
+    }
+  }
+
+  .track::before,
+  .handle {
+    opacity: 1;
+  }
+
+  .handle {
+    background-color: var(--_part-color);
+  }
+
+  .input:focus-visible ~ .handle {
+    outline-color: Highlight;
+  }
+
+  :host(:state(indicator)) .handle::after {
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+}

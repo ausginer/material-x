@@ -48,6 +48,7 @@ const { Valuable } = await import('@ydinjs/core/traits/valuable.js');
 const { ButtonLike } = await import('../src/button/ButtonCore.ts');
 const { IconButtonLike } = await import('../src/button/IconButtonCore.ts');
 const { FABLike } = await import('../src/fab/fab.ts');
+const { SliderLike } = await import('../src/slider/slider.ts');
 const { SplitButtonLike } = await import('../src/button/split-button.ts');
 const { ButtonGroupLike } =
   await import('../src/button-group/ButtonGroupCore.ts');
@@ -68,6 +69,7 @@ const TRAITS: Readonly<Record<string, unknown>> = {
   ButtonLike,
   IconButtonLike,
   FABLike,
+  SliderLike,
   SplitButtonLike,
   ButtonGroupLike,
   Indeterminable,

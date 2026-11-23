@@ -39,6 +39,8 @@ type AxNode = Readonly<{
   ignored: boolean;
   role?: Readonly<{ value: string }>;
   name?: Readonly<{ value: string }>;
+  description?: Readonly<{ value: string }>;
+  value?: Readonly<{ value: unknown }>;
   properties?: ReadonlyArray<
     Readonly<{ name: string; value: Readonly<{ value?: unknown }> }>
   >;
@@ -48,11 +50,15 @@ type AxNode = Readonly<{
 
 /**
  * One node of the tree that the command returns. `properties` holds the
- * node's CDP properties by name, such as `invalid` and `required`.
+ * node's CDP properties by name, such as `invalid` and `required`. Only the
+ * tree's root can be `ignored`.
  */
 export type AccessibilityNode = Readonly<{
+  ignored: boolean;
   role: string;
   name: string;
+  description: string;
+  value: unknown;
   properties: Readonly<Record<string, unknown>>;
   children: readonly AccessibilityNode[];
 }>;
@@ -150,16 +156,23 @@ export const accessibilityBrowserCommands: Readonly<
           return child.ignored ? childrenOf(child) : [toTree(child)];
         });
       const toTree = (node: AxNode): AccessibilityNode => ({
+        ignored: node.ignored,
         role: node.role?.value ?? '',
         name: node.name?.value ?? '',
+        description: node.description?.value ?? '',
+        value: node.value?.value,
         properties: Object.fromEntries(
           (node.properties ?? []).map(({ name, value }) => [name, value.value]),
         ),
         children: childrenOf(node),
       });
 
+      // A node that the tree has no entry for is as ignored as one marked so.
       return toTree(
-        nodes.find((node) => node.backendDOMNodeId === backendNodeId)!,
+        nodes.find((node) => node.backendDOMNodeId === backendNodeId) ?? {
+          nodeId: '',
+          ignored: true,
+        },
       );
     },
   ),

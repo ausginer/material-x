@@ -17,6 +17,7 @@
     "list/list-link-item",
     "list/sortable-list",
     "radio/radio",
+    "slider/slider",
     "text-field/multiline-text-field",
     "text-field/text-field"
   ],

@@ -35,12 +35,20 @@ interface ActionChain {
   perform(skipRelease?: boolean): Promise<void>;
 }
 
+interface CdpSession {
+  send(method: string, params?: unknown): Promise<unknown>;
+  detach(): Promise<void>;
+}
+
+interface Page {
+  readonly mouse: Mouse;
+  emulateMedia(options: Readonly<Record<string, string>>): Promise<void>;
+  context(): { newCDPSession(page: Page): Promise<CdpSession> };
+}
+
 type Context = Readonly<{
   provider: Readonly<{ name: string }>;
-  page: Readonly<{
-    mouse: Mouse;
-    emulateMedia(options: Readonly<{ reducedMotion: string }>): Promise<void>;
-  }>;
+  page: Page;
   browser: Readonly<{
     action(
       type: 'pointer',
@@ -61,6 +69,8 @@ const POINTER = {
   id: 'material-x-pointer',
   parameters: { pointerType: 'mouse' },
 } as const;
+
+const TOUCH_MOVES = 10;
 
 export const inputBrowserCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
@@ -109,6 +119,54 @@ export const inputBrowserCommands: Readonly<
       await page.emulateMedia({
         reducedMotion: reduced ? 'reduce' : 'no-preference',
       });
+    },
+  ),
+  emulateForcedColors: defineBrowserCommand<[boolean]>(
+    async (context, forced): Promise<void> => {
+      const { provider, page } = context as unknown as Context;
+
+      if (provider.name !== 'playwright') {
+        throw new Error('emulateForcedColors needs Playwright');
+      }
+
+      await page.emulateMedia({ forcedColors: forced ? 'active' : 'none' });
+    },
+  ),
+  // `Input.dispatchTouchEvent` goes through Chromium's own gesture recognition,
+  // so a pan scrolls the page and cancels the pointer, as a finger's does.
+  touchDrag: defineBrowserCommand<[number, number, number, number]>(
+    async (context, x, y, dx, dy): Promise<void> => {
+      const { provider, page } = context as unknown as Context;
+
+      if (provider.name !== 'playwright') {
+        throw new Error('touchDrag needs Playwright');
+      }
+
+      const cdp = await page.context().newCDPSession(page);
+
+      try {
+        await cdp.send('Input.dispatchTouchEvent', {
+          type: 'touchStart',
+          touchPoints: [{ x, y }],
+        });
+
+        for (let i = 1; i <= TOUCH_MOVES; i += 1) {
+          // oxlint-disable-next-line no-await-in-loop -- one move at a time
+          await cdp.send('Input.dispatchTouchEvent', {
+            type: 'touchMove',
+            touchPoints: [
+              { x: x + (dx * i) / TOUCH_MOVES, y: y + (dy * i) / TOUCH_MOVES },
+            ],
+          });
+        }
+
+        await cdp.send('Input.dispatchTouchEvent', {
+          type: 'touchEnd',
+          touchPoints: [],
+        });
+      } finally {
+        await cdp.detach();
+      }
     },
   ),
   pointerRelease: defineBrowserCommand<[]>(async (context): Promise<void> => {

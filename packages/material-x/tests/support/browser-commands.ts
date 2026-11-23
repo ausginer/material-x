@@ -18,6 +18,13 @@ declare module 'vitest/browser' {
     pointerMove(x: number, y: number, steps: number): Promise<void>;
     /** Emulates `prefers-reduced-motion`. Playwright only. */
     emulateReducedMotion(reduced: boolean): Promise<void>;
+    /** Emulates `forced-colors`. Playwright only. */
+    emulateForcedColors(forced: boolean): Promise<void>;
+    /**
+     * Drags one emulated finger from the viewport point by the distance.
+     * Chromium only.
+     */
+    touchDrag(x: number, y: number, dx: number, dy: number): Promise<void>;
     /** Releases the button that {@link pointerPress} holds. */
     pointerRelease(): Promise<void>;
     /**
