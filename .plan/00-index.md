@@ -4376,6 +4376,37 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Ready.** It can go with any record unit, after #177.
 - **Size:** _small_.
 
+#### RF-105 — `mx-sortable-list` parses its landing timing by hand instead of through `useCSSProps`
+
+Tier C, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator. `RF-104` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt), [probe](observations-6/probes/hidden-iframe.browser.test.ts.txt)).
+
+- **What happens:** `sortable-list.ts`'s `timing` calls `getComputedStyle(this)` and parses `--_drag-duration` and `--_drag-easing` at each landing. Until #90, `mx-list` read both through core's `useCSSProps`, as `ripple.ts` does for its own.
+- **The owner approves the change:** _"Да, приватные переменные пользователь трогать не должен. […] Да, отправляем."_ ("Yes, a user shouldn't touch the private variables. […] Yes, let's send it.") The two are private, and only `list/styles/default/tokens.ts` sets them.
+- **Required property:** the list reads both through `useCSSProps`, with its own descriptions (`parseMs` and `identity`). The hook's result has the shape that `Landing.timing` returns, so it is passed as `timing` with no wrapper.
+- **Accepted effects,** as the owner was told: the values are read once per connection. A later change to the private variables reaches the landing only after a reconnect, while the items' transition of `--_level` follows it. A parse error surfaces at connect.
+- **Not part of it:** `onStart`'s `getComputedStyle(dragged).getPropertyValue('--_level')`, which WebKit needs ([reading](list-roles-1/checks/lift-rise.txt)).
+- **`RD-31`** needs no amendment: its property 4 doesn't say when the two are read. The [plan's](list-sortable-1/list-sortable-plan.md) section 4 said _"at each landing"_, without a reason, and is amended.
+- **Checked with a trial edit, not committed:** core and material-x typecheck. The rows of `tests/list` and `tests/core/elevation.spec` pass unchanged in the three engines. They set `--_drag-duration` before the list connects.
+- **Found by the architect, and not known when the owner approved:** in Firefox, a list that connects in a `display: none` iframe never sorts, also after the iframe is shown, until it reconnects. Firefox gives no computed value there, so `parseMs` throws in `useCSSProps`' connect hook. The error ends the host's `connectedCallback`, before the controllers after it. Today the list sorts there in the three engines. Chromium and WebKit aren't affected by the change. By reading, not by running, each adopter of the ripple has the same throw in Firefox today.
+- **Question to the owner,** routed on 2026-11-23:
+  - **(a)** accept this case with the change;
+  - **(b)** `useCSSProps` reads at the first call in a connection and not at connect. The values are still one reading per connection, and a parse error surfaces at the first use instead of at connect. It repairs the ripple's adopters too. It changes core's hook, and it is a unit of its own that comes before this one;
+  - **(c)** leave `sortable-list.ts` as it is, and close this entry.
+  - **The architect recommends (b):** it keeps the one mechanism, and a read at connect fails for a host that isn't rendered yet, which is the hook's defect and not the list's.
+- **The unit:** `RF-103`'s, as its own commit, because it is the same file. `RF-103` doesn't wait for the answer. If the answer is (b), this goes in the unit that changes the hook or after it.
+- **Size:** _small_, for (a). _Medium_ with (b).
+
+#### RF-106 — `useCSSProps` declares its parsed values as strings
+
+Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator: _"И про врущий тип тоже"_ ("And about the lying type too"). `RF-105` is the entry before this one, so this is the next free number. Read at `a225b7dde` ([readings](observations-6/checks/landing-timing.txt)).
+
+- **What happens:** `packages/core/src/controllers/useCSSProps.ts` has `let result: Partial<Record<keyof T, string>>`, and the parsers return any type, numbers included. It compiles because the constraint of `T` is `CSSPropDescription<any>`. `71a516e92` replaced `CSSPropsResult<T>`, which was true of the value. There is no effect at run time.
+- **Required property:** the local's type says what it holds. The runtime and the public signature don't change.
+- **A type that compiles:** `Partial<Record<keyof T, unknown>>`. `Record<string, unknown>` doesn't, because `keyof T` can't index it.
+- **The unit:** `RF-103`'s, as its own commit, whatever `RF-105`'s answer is. It needs core's typecheck and nothing else.
+- **Ready** for an implementer.
+- **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
