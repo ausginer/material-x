@@ -1,0 +1,56 @@
+import { expect, it, describe, vi } from 'vitest';
+import { commands, userEvent, server } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/sortable-list.ts';
+import type { ReorderEvent } from '../../src/list/sortable-list.ts';
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const mk = (t: string) => { const i = document.createElement('mx-list-item'); i.textContent = t; return i; };
+type L = HTMLElement;
+const region = (l: L) => l.shadowRoot!.querySelector<HTMLElement>('[aria-live]')!;
+const order = (l: L) => [...l.children].filter((c) => !c.hasAttribute('data-drag-placeholder')).map((c) => c.textContent).join('');
+async function run(opts: { token?: boolean; key?: string; idx?: number; pointer?: boolean; commit?: (e: ReorderEvent, l: L, items: HTMLElement[]) => void; during?: (l: L, items: HTMLElement[]) => Promise<void> }) {
+  const list = document.createElement('mx-sortable-list');
+  if (!opts.token) list.style.setProperty('--_drag-duration', '400ms'); list.style.setProperty('--_drag-easing','linear');
+  const items = ['A', 'B', 'C', 'D'].map(mk);
+  list.append(...items); document.body.append(list);
+  list.addEventListener('reorder', (e) => opts.commit?.(e as ReorderEvent, list, items));
+  const texts: string[] = []; const t0 = performance.now();
+  new MutationObserver(() => texts.push(`${region(list).textContent}@${order(list)}`)).observe(region(list), { childList: true, characterData: true, subtree: true });
+  const errs: string[] = [];
+  const spy = vi.spyOn(window, 'reportError').mockImplementation((e) => { errs.push(String((e as Error)?.message ?? e)); });
+  await wait(100);
+  const it = items[opts.idx ?? 0]!;
+  let endAt = 0; let liftAt = 0;
+  if (opts.pointer) {
+    const c = (e: Element) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] as const; };
+    const [x, y] = c(it);
+    await commands.pointerPress(x, y); await commands.pointerMove(x, y + 12, 3);
+    const [, y2] = c(items[1]!); await commands.pointerMove(x, y2 + 10, 8); await commands.pointerRelease();
+  } else { it.focus(); await userEvent.keyboard(opts.key ?? '{ArrowDown}'); }
+  liftAt = performance.now();
+  await opts.during?.(list, items);
+  while (it.matches(':state(drag)') && performance.now() - liftAt < 4000) await wait(5);
+  endAt = performance.now() - liftAt;
+  await wait(1200);
+  const res = { texts, final: order(list), errs, endMs: Math.round(endAt) };
+  spy.mockRestore(); list.remove();
+  return res;
+}
+const at = (ms: number) => (e: ReorderEvent, l: L) => { setTimeout(() => l.insertBefore(e.item, e.next), ms); };
+it('landing window', async () => {
+  const R: Record<string, unknown> = {};
+  R['never'] = await run({});
+  R['at once'] = await run({ commit: at(0) });
+  for (const ms of [480, 550, 600, 700, 800, 1000]) R[`commit ${ms}`] = await run({ commit: at(ms) });
+  R['pointer commit 700'] = await run({ pointer: true, commit: at(700) });
+  R['pointer commit 1000'] = await run({ pointer: true, commit: at(1000) });
+  R['committed at once, B removed 100ms later'] = await run({ commit: (e, l, i) => { l.insertBefore(e.item, e.next); setTimeout(() => i[1]!.remove(), 100); } });
+  R['committed at once, A removed 100ms later'] = await run({ commit: (e, l) => { l.insertBefore(e.item, e.next); setTimeout(() => e.item.remove(), 100); } });
+  R['committed at once, prepend Z 100ms later'] = await run({ commit: (e, l) => { l.insertBefore(e.item, e.next); setTimeout(() => l.prepend(mk('Z')), 100); } });
+  R['committed at once, returned home 100ms later'] = await run({ commit: (e, l) => { l.insertBefore(e.item, e.next); setTimeout(() => l.prepend(e.item), 100); } });
+  R['two presses'] = await run({ commit: at(0), during: async () => { await wait(700); await userEvent.keyboard('{ArrowDown}'); await wait(1000); } });
+  R['press during landing'] = await run({ commit: at(0), during: async () => { await wait(100); await userEvent.keyboard('{ArrowDown}'); await wait(1000); } });
+  R['uncommitted then press in landing'] = await run({ during: async () => { await wait(600); await userEvent.keyboard('{ArrowDown}'); await wait(1600); } });
+  console.log(`RES ${server.browser} ` + JSON.stringify(R, null, 0).replace(/},"/g, '},\n"'));
+}, 120000);

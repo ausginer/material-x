@@ -1,0 +1,71 @@
+# Import order: the original position of the moved import, at 333c9f7ae
+diff --git a/packages/material-x/src/list/ListItemCore.ts b/packages/material-x/src/list/ListItemCore.ts
+index 40c4dacc7..c40130181 100644
+--- a/packages/material-x/src/list/ListItemCore.ts
++++ b/packages/material-x/src/list/ListItemCore.ts
+@@ -5,6 +5,6 @@ import type { Composed } from '@ydinjs/core/traits/composition.js';
+ import { toggleState } from '@ydinjs/core/utils/DOM.js';
+ import '../core/styles/elevation/elevation.runtime.ts';
+-import { useHasSlottedPolyfill } from '../core/polyfills/has-slotted.ts';
+ import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
++import { useHasSlottedPolyfill } from '../core/polyfills/has-slotted.ts';
+ import { useCore } from '../core/utils/useCore.ts';
+ import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
+diff --git a/packages/material-x/src/text-field/TextFieldCore.ts b/packages/material-x/src/text-field/TextFieldCore.ts
+index ecc365de8..1b3c93fd4 100644
+--- a/packages/material-x/src/text-field/TextFieldCore.ts
++++ b/packages/material-x/src/text-field/TextFieldCore.ts
+@@ -44,6 +44,6 @@ import type { Valuable, ValuableProps } from '@ydinjs/core/traits/valuable.js';
+ import { toggleState } from '@ydinjs/core/utils/DOM.js';
+ import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
+-import { useHasSlottedPolyfill } from '../core/polyfills/has-slotted.ts';
+ import { notify } from '../core/utils/events.ts';
++import { useHasSlottedPolyfill } from '../core/polyfills/has-slotted.ts';
+ import { useCore } from '../core/utils/useCore.ts';
+ import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
+67f6a50b2041b172cd40ac3dba874dcbf65bce3a2055ab2341d46d9d285e6656  src/list/ListItemCore.ts
+1d5f3a69b53a426a27808dfa7d346fdcab33852449c12a2928ddbaa9c7d2eb91  src/text-field/TextFieldCore.ts
+## fmt-check
+oxfmt -c ../../.oxfmtrc.json --check src/list/ListItemCore.ts src/text-field/TextFieldCore.ts
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 2ms on 2 files using 12 threads.
+exit 0
+## fmt
+oxfmt -c ../../.oxfmtrc.json src/list/ListItemCore.ts src/text-field/TextFieldCore.ts
+Finished in 2ms on 2 files using 12 threads.
+exit 0
+67f6a50b2041b172cd40ac3dba874dcbf65bce3a2055ab2341d46d9d285e6656  src/list/ListItemCore.ts
+1d5f3a69b53a426a27808dfa7d346fdcab33852449c12a2928ddbaa9c7d2eb91  src/text-field/TextFieldCore.ts
+## lint
+oxlint src/list/ListItemCore.ts src/text-field/TextFieldCore.ts
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts src/list/ListItemCore.ts src/text-field/TextFieldCore.ts
+
+/workspaces/worktrees/b/packages/material-x/src/list/ListItemCore.ts
+  8:1  error  `../core/polyfills/has-slotted.ts` import should occur before import of `../core/styles/elevation/elevation.css.ts`  import-x/order
+
+/workspaces/worktrees/b/packages/material-x/src/text-field/TextFieldCore.ts
+  47:1  error  `../core/polyfills/has-slotted.ts` import should occur before import of `../core/utils/events.ts`  import-x/order
+
+✖ 2 problems (2 errors, 0 warnings)
+  2 errors and 0 warnings potentially fixable with the `--fix` option.
+
+error: recipe `lint` failed on line 93 with exit code 1
+exit 1
+## lint-fix
+oxlint --fix src/list/ListItemCore.ts src/text-field/TextFieldCore.ts
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix src/list/ListItemCore.ts src/text-field/TextFieldCore.ts
+exit 0
+80d58d006ef4ceb8f24fec203722d31f79db75093c9fc909de492ae4cfad0271  src/list/ListItemCore.ts
+8b1d9894fee56a0cf43ae9924f8d9421a12e4b6035104e745255728d3e48ebf8  src/text-field/TextFieldCore.ts
+## control: a misformatted line is reported
+oxfmt -c ../../.oxfmtrc.json --check src/list/ListItemCore.ts
+Checking formatting...
+
+src/list/ListItemCore.ts (0ms)
+
+Format issues found in above 1 files. Run without `--check` to fix.
+Finished in 1ms on 1 files using 12 threads.
+error: recipe `fmt-check` failed on line 88 with exit code 1
+exit 1
