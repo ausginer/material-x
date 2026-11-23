@@ -76,3 +76,59 @@
 - **Current behaviour.** RF-109's paragraph says the rows that contain the hook move by −4 to +52 B, and RF-105's says `list/sortable-list` grows _"because its graph now contains the hook"_. The first is right and gives no cause, so +52 B reads as a cost of the text field. The added text is 32 bytes in every row, and the spread is Brotli 11's. For the second, the module was in the list's graph on the base too, through `fns.ts`, for `CSSVariableError`. What is new is the function.
 - **Required property.** The record says what the bytes are.
 - **Routing.** To the implementer, optional.
+
+## Recheck at `4bb981301`
+
+**Files were read at:** `4bb981301`, in slot `c`: `fa509f2e0` (the repair), `e9b7aeab6` (the merge of `main` at `2d1b5ca51`) and `4bb981301` (the record). **Subject:** the rulings at `4f8b0fbdf` in `repo:RF-109` and `repo:RF-114`, and the implementer's second dated paragraph. Probes and mutations were removed after their runs, and the last build in slot `c` is the head's.
+
+**Verdict: `reviewer-1`, `reviewer-2` and RF-114 are repaired as ruled, in the three engines, and `reviewer-3` is answered. The claimed rows, counts and sizes reproduce, and the merge kept both sides.** Two new tier C findings and one pre-existing observation are below. None stops the merge.
+
+### What was checked
+
+- **`reviewer-1`** ([`recheck-ripple.txt`](checks/recheck-ripple.txt), [probe](probes/recheck-ripple.browser.test.ts.txt)). The proof's own probe, at the new head: 45 of 45 readings report nothing. That is the touch press removed within the delay on ten elements, the touch after an earlier press, the moved touch, and the press that is removed, moved, or moved and removed, in each engine.
+- **`reviewer-2`.** In ten elements and the four orders, the fade has the one keyframe 0, and the painted opacity at its start equals the one before it. It is 0.08 under hover and 0.1 otherwise for the five button types, the checkbox and the radio, and 0.1 for the FAB and the list items. The three engines agree on every line. `--_ripple-opacity` is read by no TypeScript and stays in `main.styles.css`, and `parseNum` and `createNumberParser` are gone. `parseMs` keeps its behavior.
+- **RF-114.** Four clicks 290 ms apart report three `AbortError` rejections at `07943db4a`, on `mx-button`, `mx-checkbox`, `mx-fab` and `mx-list-button-item` in each engine, and none at the head. A trusted double click reports none in either tree, because its second click comes before the fade.
+- **`reviewer-3`** is answered by the new size bullet and the pull request's description.
+- **The JSDoc** of `useCSSProps` says both limits of property 1. The diff of core's source against `07943db4a` is that comment alone.
+- **Rows** ([`recheck-rows.txt`](checks/recheck-rows.txt)). 81 of 81 pass at the head. With `ripple.ts` and `fns.ts` of `07943db4a`, 14 fail in each engine, and they are the ones the record names. With the base's files 15 fail in each engine, and five more in Firefox, which are the hidden-iframe rows.
+- **The part beyond the trial edit** ([`recheck-mutations.txt`](checks/recheck-mutations.txt)). Each statement of the disconnect was removed alone:
+
+  | Removed | Rows that fail, in each engine |
+  | --- | --- |
+  | `clearTimeout` | The touch after a put-back has its whole delay |
+  | The start event's reset | The touch after a put-back, and its whole delay |
+  | The generation's increment | No fade after a removal |
+  | The scale's cancel, or the drift's | A moved press ends, and no animation is left |
+  | The catch on `finished` | The removal during the fade, and the unhandled rejection |
+  | `clearTimeout` and the state's reset | The touch within the delay, and the whole delay |
+  | The state's reset, the context-menu flag's, or the fade's cancel | **None** (`reviewer-4`) |
+  | The whole callback's body | Six rows |
+
+  So the timer's clear, the generation and the start event's reset are each necessary, and each has a row. With a first keyframe of 0.1, nine fade rows fail in each engine.
+
+- **The merge.** The index's changed lines from `fa509f2e0` and from `main` are each identical to the two sides' own. The remerge difference is the one conflict, both of whose sides are kept, with RF-114 after RF-113. No identifier is claimed twice.
+- **Nothing else moved.** Against `2d1b5ca51` the branch changes the hook, `ripple.ts`, `fns.ts`, `sortable-list.ts`, their tests and records. `sortable-list.ts` and its tests are unchanged since `07943db4a`, and so are RF-105's and RF-106's entries.
+- **Sizes** ([`recheck-sizes.txt`](checks/recheck-sizes.txt)). All 20 rows and the eight bundles reproduce. From the base: `list/sortable-list` +55, `text-field/text-field` +9, `complete` −66, the other ripple rows −5 to +20 B, and no other row. The six bundles grow by 46 (text field) or 50 bytes minified, 32 of them the hook's.
+- **Suites and gates.** material-x's `button`, `fab`, `checkbox`, `radio`, `list` and `core`, browser and spec projects: 1,819 passed, 1 expected fail, 4 skipped. core's browser project: 690 passed. Typecheck in both packages, `fmt-check`, `lint` and `git diff --check` are clean. CI passes every job that ran at `4bb981301`. I didn't rerun the 2,778 of the whole projects or the node project.
+- **Against today's `main`,** `e37343f3a`, with #197 and #196 merged, the one conflict is the import lines of `sortable-list.ts`. I didn't run that merge.
+
+### Findings of the recheck
+
+#### reviewer-4
+
+**Tier C. Three of the disconnect's statements have no row that fails without them.** They are the state's reset, the context-menu flag's reset and the fade's cancel.
+
+- **Evidence.** Each removed alone passes 81 of 81. Each has an effect, the same in the three engines. Without the state's reset, a click after a held press is put back starts one animation in place of two. Without the fade's cancel, an element removed during its fade and put back still has an animation 530 ms later. Without the flag's reset, a touch outside the box after a context menu and a put-back starts nothing.
+- **Contract.** The ruling requires all three, and the code has them. Its list of rows doesn't ask for them, so this isn't a departure. The record doesn't claim witnesses for them.
+- **Required property.** A change that loses one of the three fails a row, or the gap is accepted.
+- **Routing.** To the architect or the coordinator, optional.
+
+#### reviewer-5
+
+**Tier C. The record's list of the rows that fail on the base leaves out three.** It names the touch after a put-back, the animations left, RF-114's row and three of the four fade orders. The fade after a removal, the moved press and the whole delay fail there too, in each engine, in the implementer's own [reading](../../css-props-1/checks/ripple-rows.txt) and in mine. The count for `07943db4a` is right. **Routing:** to the implementer, optional.
+
+### Observed, and not introduced here
+
+- **A touch that follows a cancelled touch within its delay starts early.** A touch, a `pointercancel` and a touch 100 ms later: the second has its two animations 90 ms in, in place of 150, because the first press's timer isn't cleared when the press ends without a disconnect. It reads the same with `ripple.ts` of `07943db4a`, which is the base's. Tier A by consequence, small and pre-existing. The rulings cover the disconnect only. **Routing:** to the architect, to register or refuse.
+- **`moveBefore` ends a press.** A held press on `mx-button` loses its two animations at `moveBefore` in Chromium and Firefox, and kept them at `07943db4a`. WebKit has no `moveBefore`. The elements define no `connectedMoveCallback`, so the platform runs their disconnect and connect callbacks. This follows the ruling's _"a move disconnects too"_. Core documents a `movedCallback` for `moveBefore`, and no source in core or material-x defines a `connectedMoveCallback`.
+- **A release after a put-back, in Firefox,** starts a ripple where the other engines start none: 60 ms after the release the element has two animations. Reading the code, a `click` on an inactive press starts one, as a keyboard click does. I didn't read whether Firefox dispatched that click.
