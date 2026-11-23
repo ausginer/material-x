@@ -59,6 +59,7 @@ async function sizeTokens(testCase: ButtonSizeCase) {
       'label-text.line-height',
       'label-text.font-weight',
       'label-text.font-name',
+      'label-text.font-tracking',
       'leading-space',
       'trailing-space',
       'icon.size',
@@ -137,6 +138,20 @@ describe.each(BUTTON_SIZE_CASES)(
         resolveComputed(
           'font-family',
           String(expected.values['label-text.font-name']),
+        ),
+      );
+    });
+
+    it('should render the tokenized label tracking', async () => {
+      const expected = await sizeTokens(testCase);
+      const button = createButton(testCase);
+      // The label would inherit this if it didn't read its own tracking.
+      button.style.letterSpacing = '3px';
+
+      expect(getComputedStyle(getImplementation(button)).letterSpacing).toBe(
+        resolveComputed(
+          'letter-spacing',
+          String(expected.values['label-text.font-tracking']),
         ),
       );
     });

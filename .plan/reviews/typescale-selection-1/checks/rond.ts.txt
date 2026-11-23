@@ -1,0 +1,7 @@
+import {pathToFileURL} from 'node:url';
+const {loadStore}=await import('/workspaces/worktrees/e/packages/tproc/src/store/Store.ts');
+const store=await loadStore(pathToFileURL('/workspaces/worktrees/e/packages/tproc/tokens/'));
+const oldSel=(t:any)=>{const tr=t.contextualReferenceTree;return tr?.find((e:any)=>e.contextTags&&Object.values(e.contextTags).some((x:any)=>['expressive','web'].includes(x)))??tr?.[0]};
+const v=(e:any)=>e?.resolvedValue?.axisValue?.value??0;
+for(const t of store.tokens)if(/typescale\..*\.rond$/.test(t.tokenName)){const o=v(oldSel(t)),n=v(store.select(t)!.entry),x=v(store.select(t,{font:'variable'})?.entry);if(o!==n||n!==x)console.log(t.tokenName,'old',o,'new',n,'variable',x)}
+let c=0;for(const t of store.tokens){if(/typescale\.emphasized/.test(t.tokenName)&&/weight$/.test(t.tokenName)){c++;const o=(oldSel(t) as any).resolvedValue.fontWeight,n=(store.select(t)!.entry!.resolvedValue as any).fontWeight;if(o!==n)console.log(t.tokenName,o,n)}}console.log('emphasized weights',c);

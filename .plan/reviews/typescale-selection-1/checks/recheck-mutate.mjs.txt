@@ -1,0 +1,13 @@
+import fs from 'node:fs';import {execSync} from 'node:child_process';
+const W='/workspaces/worktrees/e/packages/tproc/',p=W+'src/store/Store.ts',s=fs.readFileSync(p,'utf8');
+const a=s.indexOf('    const context = { ...RENDERED_CONTEXT, ...changes };'),b=s.indexOf('    return entry && { value');
+const old=s.slice(0,a)+`    void changes;
+    const entry = tree.find(({ contextTags }) => contextTags && Object.values(contextTags).some((tag) => ['expressive', 'web'].includes(tag))) ?? tree[0];
+`+s.slice(b);
+const r=(x,y)=>{if(s.split(x).length!==2)throw Error(x);return s.replace(x,y)};
+const M=[['main rule',old],['theme dark',r("theme: 'light'","theme: 'dark'")],['contrast high',r("contrast: 'default'","contrast: 'high.contrast'")],['contrast medium',r("contrast: 'default'","contrast: 'medium.contrast'")],
+['lang medium',r("'language.height': 'small'","'language.height': 'medium'")],['lang large',r("'language.height': 'small'","'language.height': 'large'")],['lang xl',r("'language.height': 'small'","'language.height': 'extra.large'")],
+['font variable',r("font: 'static'","font: 'variable'")],['font ios.bold',r("font: 'static'","font: 'ios.bold'")],['audience 1p',r("audience: '3p'","audience: '1p.baseline'")],['platform ios',r("platform: 'web'","platform: 'ios'")],['platform android',r("platform: 'web'","platform: 'android'")],['device',r("device: 'mobile'","device: 'desktop'")],['ios elev',r("'ios.dark.theme.elevation': 'none'","'ios.dark.theme.elevation': 'elevated'")],['ios weight',r("'ios.weight.setting': 'default'","'ios.weight.setting': 'bold'")]];
+try{for(const [n,t] of M){fs.writeFileSync(p,t);let o='';try{o=execSync('timeout 200 aube exec vitest run -c vitest.config.ts tests/selection.node.test.ts tests/store 2>&1',{cwd:W,encoding:'utf8',maxBuffer:1e8})}catch(e){o=e.stdout}
+ o=o.replace(/\x1b\[[0-9;]*m/g,'');const f=[...new Set([...o.matchAll(/ FAIL .*? > (.*)/g)].map(m=>m[1]))];const c=(re)=>f.filter(x=>re.test(x)).length;
+ console.log(n,'| type',c(/should give (?!md\.ref)/),'colour',c(/should select the reference/),'lineheight',c(/give md\.ref/),'chain',c(/own resolved/),'Store',c(/Store >|^should/)-0, '| base',c(/should give (?!md\.ref|emph)/),'|',o.match(/^\s+Tests  .*$/m)?.[0].trim())}}finally{fs.writeFileSync(p,s)}

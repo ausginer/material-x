@@ -1842,6 +1842,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - The order: _"the mechanism lands first with today's data, normalized without fetching, and must leave material-x's generated CSS byte-identical. The first update to a dated release is a separate pull request. The plan's [steps](tokens-source-1/tokens-source-plan.md#plan) carry proofs P1–P9."_
 - The status asked the owner to answer `Q1`–`Q3` of the [plan](tokens-source-1/tokens-source-plan.md#owner-questions).
 
+**Dated 2026-11-23 by the implementer: property 9 implemented on `tproc/typescale-selection-1`,** with `RF-110`, not yet merged.
+
 #### RD-29 — Material's tables are removed from every commit, once, by a rewrite that the owner runs, and the record keeps a map from old commit hashes to new ones
 
 **Proposed 2026-11-20 by the architect,** on the owner's answer to `RD-28`'s `Q2`, relayed by the coordinator: _"Да, конечно, всё переписываем, не хватало мне ещё претензий от гугла"_ ("Yes, of course, we rewrite everything; claims from Google are the last thing I need"). He then added (translated): _"The old pull requests need checking too: the data may have survived there."_
@@ -4205,6 +4207,8 @@ Tier C, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **The axes:** _"`wght` equals its weight token"_ isn't so in every package. The extended FAB's small label has weight 700 and `'wght' 500`, because the two come from different entries. Under `font: static` no base style has axes, so nothing is emitted, and the ruling holds. The owner chose `font: static` the same day (`RF-110`'s Q2 (a)). A later move to `font: variable` would read the ruling again.
 - **The supporting text too:** the text field emits `supporting-text.tracking`, and its supporting text and counter don't read it, which this entry's list had missed. Under `font: static` it is 0.4 px. By this entry's required property they read it, in the same unit.
 
+**Dated 2026-11-23 by the implementer: the tracking implemented on `tproc/typescale-selection-1`,** with `RF-92` and `RF-110`, the supporting text and the counter included. The reverse colours, the list's copies and the axes stay open. Under `font: static` no package emits axes.
+
 #### RF-82 — No visual contract covers the text fields beyond their spacing
 
 Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#text-fields)'s reviewer's task 1 (`RD-34`), relayed by the coordinator. `RF-81` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -4352,6 +4356,12 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **What reads its tracking in that unit:** the button's and the FAB's labels; the text field's input, prefix and suffix, from `input-text.tracking`; and its supporting text and counter, from `supporting-text.tracking`. The text field's label and the list item's texts read theirs already.
 - **The rows above gain** the prefix, the suffix, the supporting text and the counter, and the list item's avatar label.
 - **The populated label's tracking isn't read,** as `RF-81` rules for its line height: it is the resting label's, scaled.
+
+**Dated 2026-11-23 by the implementer: implemented on `tproc/typescale-selection-1`, with `RF-110`, and not closed.** Requested by the coordinator for #146.
+
+- **Readers:** the button's and the FAB's labels; the text field's input, prefix and suffix; its supporting text and counter.
+- **Rows:** the button's five sizes, the extended FAB's three, the text field's typography rows with letter spacing and a counter, and the list item's five texts. The FAB's three size packages are registered with the bridge. The expected value is resolved in a probe in the same engine, which serializes 0 px as the rendered element does. The button's and the FAB's rows set a letter spacing on the host, so that a 0 px label that reads no token fails too.
+- **Witness:** with the readers removed, 28 rows fail. With the list item's rules removed, its 10 rows fail ([reading](typescale-selection-1/checks/implementation.txt)).
 
 #### RF-93 — Eleven relative links in this index resolve to nothing
 
@@ -4750,6 +4760,39 @@ Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1
 - **Q2 — Which `font` tag: `static` or `variable`?** The weights are the same in both.
   - **(a) `static`, recommended:** Roboto, with the published letter spacing. It is upstream's default tag, equals what material-web and Compose publish, and is the font that Storybook, the tests and the planned site load.
   - **(b) `variable`:** Roboto Flex, with 0 px letter spacing in every style, and variation axes. Upstream's text calls `static` deprecated and asks for variable tokens, while `static` is still its default. Storybook, the tests and the site would load Roboto Flex, and `RF-81`'s ruling on the axes would be read again.
+
+**Dated 2026-11-23 by the implementer: implemented on `tproc/typescale-selection-1`, with `RF-92`, and not closed.** Requested by the coordinator for #189, from `main` at `35ea25892`. The evidence is in [`implementation.txt`](typescale-selection-1/checks/implementation.txt).
+
+- **The reader:** `RENDERED_CONTEXT` in `src/store/Store.ts` names one tag for each of the 10 groups, and `store.select(token, changes?)` selects the entry that it agrees with, or nothing. `changes` names the groups that differ.
+- **The converter** refuses a tag group that `RENDERED_CONTEXT` doesn't name, and a token with a tree that has no entry or more than one. The report compares in this context, under _Selected values changed, in the rendered context_.
+- **Witnesses:** before the change, 34 of material-web's 75 values fail, and the chain row lists 22 tokens. The 22nd is the slider's `value-indicator.label.label-text.font`, which #188 added after the readings. After it, all pass.
+- **The compiled CSS:** the 5 stylesheets change exactly as the readings list, plus `RF-92`'s five declarations, and the other 30 are byte-identical.
+- **Rendered:** Chromium, Firefox and WebKit agree, on the unit's build, with the weights, the typefaces and the letter spacing of this entry's table.
+- **The fonts of the tests:** Roboto 400 and 500. No fixture renders 700 any more.
+- **Baselines:** the 11 of buttons and button groups change locally, and no other. They aren't recorded on this branch by the implementer.
+- **Owed:** the baselines' recording (`RD-13`), and Firefox and WebKit in CI for the whole suites. `test-architecture.md` still describes the old selection rule, in its _tproc is the tokenized visual source of truth_ paragraph and its data flow. It is project documentation, so it needs its own pull request.
+
+**Ruled 2026-11-23 by the architect** on `reviewer-1` and `reviewer-2` of the [feature proof](reviews/typescale-selection-1/feature-proof-claude.md) of #196 at `d636f20a1`, relayed by the coordinator. Neither changes the selection, `RD-28` property 9 or the owner's answers. The architect's [reading](typescale-selection-1/checks/latest-witness.txt) is at `407c12f12`.
+
+- **`reviewer-2`: accepted.** The outside witness moves from `v0_192` to material-web's `tokens/versions/latest/sass` at the same commit, `a0bab1d94`, and covers the emphasized styles too. `latest` is design system 34.0.21 and names `audience: 3p`, `font: static` and `platform: web`, which `v0_192` doesn't for `font`.
+  - **The fixture is 150 values:** font, weight, size, line height and tracking of the 15 base and the 15 emphasized styles, from `_md-sys-typescale.scss` and `_md-sys-typescale-emphasized.scss`, with `_md-ref-typeface.scss` for the references. All 30 styles are in the store. The header names the files, the commit, the version and the context tags, and carries the files' copyright line and `SPDX-License-Identifier: Apache-2.0`.
+  - **The implementer reports** how many of the 150 fail on `main`'s rule, in the place of the 34 of 75.
+  - **On the owner's remark** that material-web is M3 and material-x is M3 Expressive: the two specifications differ, and this witness's claim is narrow. It covers the base and emphasized type styles in material-web's own Expressive-era export, in which the feature proof compared 428 type values and found none that differs. It doesn't judge the springs: `latest`'s context names no motion scheme, so it publishes the standard ones. The feature proof compared the 12 springs of `md.sys.motion` with Compose's `ExpressiveMotionTokens`, and they agree. No row holds that, because no sheet of material-x reads them. The first unit that reads a spring gets one.
+- **`reviewer-1`: accepted for the three tags that select values,** in this pull request. The rows take their values from outside, as property 2 does, so they don't repeat the store or the constant:
+  - **`theme` and `contrast`:** each `md.sys.color` token of `latest`'s `_md-sys-color.scss` has, as its selected one-hop reference, the one that the file publishes. The architect's comparison agrees for all 50: `surface-tint` and `surface-tint-color` refer to `md.sys.color.primary`, which the file writes as its own `$primary`, and the probe counts those two as differences. Changing the theme to dark changes 34 of the 50, and either higher contrast 30, so a change fails the row.
+  - **`language.height`:** each `md.ref.typeface.<style>.line-height` selects the line height that the base style publishes in the fixture. 15 of 15 agree, and none does with `medium` or `large`.
+  - **`device`, `ios.dark.theme.elevation` and `ios.weight.setting` get no row.** They change no token at this release, and the required property is about a change of a selected value. A row that repeats the constant would pass whatever it selects.
+  - **Witnesses:** changing `theme`, `contrast` and `language.height` in `RENDERED_CONTEXT`, one at a time, fails the new rows. The colours go through the reader (`store.select`), because the CSS layer takes them from the theme.
+- **Nothing else changes.** Tests only: the store, the reader, the 5 stylesheets and the 11 baselines stay as they are. A baselines pull request isn't affected. The record's witness bullet, _"a fixture of material-web's 75 values"_, reads as this paragraph from here on: 150 values of `latest`.
+- **Size of the addition:** _small_. The unit's stays _medium_.
+
+**Dated 2026-11-23 by the implementer: the ruled tests added in #196, on `96315a9bc`.** Tests and records only. The readings are at the end of [`implementation.txt`](typescale-selection-1/checks/implementation.txt).
+
+- **The fixture** is 150 values of material-web's `latest`, base and emphasized, in `tests/fixtures/material-web-typescale.ts`, with the header that the ruling names. On `main`'s rule, **58 of the 150 fail**: 30 fonts, 10 weights and 18 trackings, of which 34 are the base styles' and 24 the emphasized ones'. That takes the place of the 34 of 75 above.
+- **The rows for the tags:** `tests/fixtures/material-web-colors.ts` has the 50 references of `_md-sys-color.scss`, compared through `store.select`. `surface-tint` and `surface-tint-color` refer to `md.sys.color.primary`. The 15 `md.ref.typeface.<style>.line-height` are compared with the base styles' line heights. On `main`'s rule, 39 of the colours and all 15 line heights fail.
+- **Witnesses,** each tag changed alone in `RENDERED_CONTEXT`: `theme: dark` fails 34 rows, `contrast` 30 at either other tag, and `language.height` 15 at each of its three other tags. All 216 rows pass on the head.
+- **`reviewer-3`:** one run of the root typecheck failed in material-x before `d636f20a1` was committed, and its output wasn't kept. The reruns pass, and the cause isn't established.
+- **CI** at `d636f20a1` passed Firefox and WebKit for the whole suites, so that part of _Owed_ is met.
 
 #### RF-111 — The small extended FAB's label has a 20 px line height, and its own label token gives 24 px
 

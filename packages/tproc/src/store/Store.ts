@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import type {
+  ContextTags,
   ContextualEntry,
   Manifest,
   StoredContext,
@@ -10,8 +11,52 @@ import type {
   StoredValue,
 } from './schema.ts';
 
-/** The context tags the CSS layer renders. */
-export const DEFAULT_TAGS: readonly string[] = ['expressive', 'web'];
+/** The context tag groups that upstream's tables name. */
+export type ContextTagGroupName =
+  | 'platform'
+  | 'audience'
+  | 'motion.scheme'
+  | 'theme'
+  | 'contrast'
+  | 'device'
+  | 'language.height'
+  | 'ios.dark.theme.elevation'
+  | 'ios.weight.setting'
+  | 'font';
+
+/**
+ * The context the CSS layer renders: one tag of every context tag group. The
+ * tags that are upstream's defaults are written out too, so that a change of
+ * upstream's default doesn't change what is rendered.
+ */
+export const RENDERED_CONTEXT: Readonly<Record<ContextTagGroupName, string>> = {
+  platform: 'web',
+  audience: '3p',
+  'motion.scheme': 'expressive',
+  theme: 'light',
+  contrast: 'default',
+  device: 'mobile',
+  'language.height': 'small',
+  'ios.dark.theme.elevation': 'none',
+  'ios.weight.setting': 'default',
+  font: 'static',
+};
+
+/** The context tag groups whose tag differs from the rendered context's. */
+export type ContextChanges = Readonly<
+  Partial<Record<ContextTagGroupName, string>>
+>;
+
+/** Whether `context` has each of the entry's tags. */
+export function matchesContext(
+  { contextTags }: ContextualEntry,
+  context: ContextTags,
+): boolean {
+  return (
+    !contextTags ||
+    Object.entries(contextTags).every(([group, tag]) => context[group] === tag)
+  );
+}
 
 export type StoreData = Readonly<{
   context: StoredContext;
@@ -153,28 +198,24 @@ export class Store {
   }
 
   /**
-   * Chooses the first contextual entry whose tags include any of `tags`, and
-   * otherwise the first entry. A token with no tree selects its first value.
+   * Selects the token's contextual entry for the rendered context, with the
+   * tags that `changes` gives in place of its own. It selects nothing when the
+   * token has a tree and no entry for that context. A token with no tree
+   * selects its first value.
    */
   // A query of the reader, beside the ones that read its indexes.
   // oxlint-disable-next-line class-methods-use-this
-  select(
-    token: StoredToken,
-    tags: readonly string[] = DEFAULT_TAGS,
-  ): Selection | undefined {
+  select(token: StoredToken, changes?: ContextChanges): Selection | undefined {
     const tree = token.contextualReferenceTree;
-    const entry =
-      tree?.find(({ contextTags }) => {
-        if (!contextTags) {
-          return false;
-        }
 
-        const names = Object.values(contextTags);
-        return tags.some((tag) => names.includes(tag));
-      }) ?? tree?.[0];
+    if (!tree) {
+      const [value] = token.values;
+      return value && { value };
+    }
 
-    const value = token.values[entry ? entry.value : 0];
+    const context = { ...RENDERED_CONTEXT, ...changes };
+    const entry = tree.find((candidate) => matchesContext(candidate, context));
 
-    return value ? { value, entry } : undefined;
+    return entry && { value: token.values[entry.value]!, entry };
   }
 }

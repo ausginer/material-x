@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+// independent of Store.ts: own matcher, raw JSON
+const R='/workspaces/worktrees/e/packages/tproc/tokens/';
+const ctx=JSON.parse(fs.readFileSync(R+'context.json','utf8'));
+const groups=ctx.contextTagGroups??ctx;
+const G:any[]=Array.isArray(groups)?groups:Object.values(groups).find(Array.isArray) as any[];
+console.log(G.map(g=>g.contextTagGroupName+'='+g.defaultTag+' ['+g.tags.map((t:any)=>t.tagName).join(',')+']').join('\n'));
+const C:any={platform:'web',audience:'3p','motion.scheme':'expressive',theme:'light',contrast:'default',device:'mobile','language.height':'small','ios.dark.theme.elevation':'none','ios.weight.setting':'default',font:'static'};
+console.log('groups not in C',G.filter(g=>!(g.contextTagGroupName in C)).length,'C not in groups',Object.keys(C).filter(k=>!G.some(g=>g.contextTagGroupName===k)),'C tag not existing',Object.entries(C).filter(([k,v])=>!G.find(g=>g.contextTagGroupName===k)?.tags.some((t:any)=>t.tagName===v)));
+console.log('not default:',Object.entries(C).filter(([k,v])=>G.find(g=>g.contextTagGroupName===k)?.defaultTag!==v));
+const all:any[]=[];for(const f of fs.readdirSync(R+'sets')){const s=JSON.parse(fs.readFileSync(R+'sets/'+f,'utf8'));for(const t of s.tokens??[])all.push(t)}
+const hist:any={};let untag=0,emptyTree=0,novals=0,missingVal=0,cascadeBad=0,unknownTag=0;
+const spec=(v:any)=>v.specificityScore??0;
+for(const t of all){const tr=t.contextualReferenceTree;if(!t.values?.length)novals++;if(!tr){hist.notree=(hist.notree??0)+1; if(t.values.length>1)hist.notreeMulti=(hist.notreeMulti??0)+1;continue}
+ if(!tr.length)emptyTree++;
+ const m=tr.filter((e:any)=>Object.entries(e.contextTags??{}).every(([k,v])=>C[k]===v));hist[m.length]=(hist[m.length]??0)+1;
+ for(const e of tr){if(!e.contextTags)untag++;if(!t.values[e.value])missingVal++;for(const [k,v] of Object.entries(e.contextTags??{}))if(!G.find(g=>g.contextTagGroupName===k)?.tags.some((x:any)=>x.tagName===v))unknownTag++}
+ // value cascade: most specific matching value entry
+ const vm=t.values.map((v:any,i:number)=>[v,i]).filter(([v]:any)=>Object.entries(v.contextTags??{}).every(([k,x])=>C[k]===x)).sort((a:any,b:any)=>spec(b[0])-spec(a[0]));
+ if(vm.length===0||vm[0][1]!==m[0]?.value){cascadeBad++;if(cascadeBad<4)console.log('cascade',t.tokenName,JSON.stringify(vm.map((x:any)=>[x[1],x[0].contextTags,x[0].specificityScore])),m[0]?.value)}}
+console.log(all.length,hist,{untag,emptyTree,novals,missingVal,unknownTag,cascadeBad});

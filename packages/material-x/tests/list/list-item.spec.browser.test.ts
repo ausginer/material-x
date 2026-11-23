@@ -230,3 +230,39 @@ describe.each(INTERACTIVE_ITEMS)('%s press transition contract', (tag) => {
     });
   });
 });
+
+const TEXTS = [
+  { name: 'label', slot: 'label', token: 'label-text.tracking' },
+  { name: 'overline', slot: 'overline', token: 'overline.tracking' },
+  {
+    name: 'supporting text',
+    slot: 'support',
+    token: 'supporting-text.tracking',
+  },
+  {
+    name: 'trailing text',
+    slot: 'trail',
+    token: 'trailing-supporting-text.tracking',
+  },
+  {
+    name: 'avatar label',
+    slot: 'lead',
+    token: 'leading-avatar-label.tracking',
+  },
+] as const;
+
+describe.each(INTERACTIVE_ITEMS)('%s tracking contract', (tag) => {
+  it.each(TEXTS)(
+    'should render the $name at its tracking',
+    async ({ slot, token }) => {
+      const values = await resolveTokens('default', [token]);
+      const item = await createItem(tag);
+      item.querySelector('[slot="lead"]')!.toggleAttribute('data-avatar', true);
+      const [text] = getSlot(item, slot).assignedElements();
+
+      expect(getComputedStyle(text!).letterSpacing).toBe(
+        resolveComputed('letter-spacing', String(values[token])),
+      );
+    },
+  );
+});

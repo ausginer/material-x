@@ -70,6 +70,7 @@
     var(--_label-text-line-height)
   );
   font-family: var(--_label-text-font-name);
+  letter-spacing: var(--_label-text-font-tracking);
   place-items: center;
   place-content: center;
   gap: var(--md-button-icon-label-space, var(--_icon-label-space));

@@ -1,0 +1,18 @@
+import {pathToFileURL} from 'node:url';
+const {loadStore}=await import('/workspaces/worktrees/e/packages/tproc/src/store/Store.ts');
+const store=await loadStore(pathToFileURL(process.argv[2]!+'/'));
+const oldSel=(t:any)=>{const tr=t.contextualReferenceTree;const e=tr?.find((e:any)=>e.contextTags&&Object.values(e.contextTags).some((x:any)=>['expressive','web'].includes(x)))??tr?.[0];return {value:t.values[e?e.value:0],entry:e}};
+const strip=(v:any)=>{const {contextTags,specificityScore,...r}=v??{};return JSON.stringify(Object.entries(r).sort())};
+for(const [n,sel] of [['old',oldSel],['new',(t:any)=>store.select(t)]] as any){
+ let cmp=0,nul=0,comp=0,noval=0;const bad:string[]=[],badComp:string[]=[];
+ for(const t of store.tokens){const s=sel(t);const r=s?.entry?.resolvedValue;
+  if(!t.contextualReferenceTree)continue;
+  if(!r){comp++;continue}
+  const reach=(x:any):any=>{const v=sel(x).value;return v.tokenName?reach(store.getToken(v.tokenName)):v};
+  const v=reach(t); if(r.type){comp++;continue}
+  cmp++; if(r.undefined!==undefined)nul++;
+  if(strip(v)!==strip(r)){bad.push(t.tokenName)}}
+ const isCol=(b:string)=>store.getToken(b).tokenValueType==='COLOR';
+ const nc=bad.filter(b=>!isCol(b));
+ console.log(n,{cmp,undef:nul,comp,bad:bad.length,nonColour:nc.length},nc.join(' '));
+}

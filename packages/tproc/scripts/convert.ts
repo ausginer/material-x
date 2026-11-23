@@ -22,6 +22,7 @@ import {
   type StoredToken,
   type StoredValue,
 } from '../src/store/schema.ts';
+import { matchesContext, RENDERED_CONTEXT } from '../src/store/Store.ts';
 
 export const SITE_BASE_URL = 'https://m3.material.io/_dsm/data/dsdb-m3/';
 
@@ -1127,6 +1128,29 @@ function checkReferences(
 }
 
 /**
+ * Refuses a token with a tree for which the rendered context doesn't have
+ * exactly one entry. The reader selects the entry that matches, so a second one
+ * would leave the choice to the order of the entries.
+ */
+function checkSelections(
+  tokens: ReadonlyMap<string, Readonly<{ table: string; token: StoredToken }>>,
+): void {
+  for (const { table, token } of tokens.values()) {
+    const count = token.contextualReferenceTree?.filter((entry) =>
+      matchesContext(entry, RENDERED_CONTEXT),
+    ).length;
+    if (count != null && count !== 1) {
+      refuse(
+        table,
+        token.tokenName,
+        'contextualReferenceTree',
+        `has ${count} entries for the rendered context, not one`,
+      );
+    }
+  }
+}
+
+/**
  * Converts database tables into tproc's store, in memory. The tables are read
  * in the given order. A token that several tables carry is taken from the copy
  * that covers every other, and any other record from the first table. Nothing
@@ -1382,6 +1406,19 @@ export function convert(
   }
 
   checkReferences(tokens);
+
+  for (const [name, { table }] of tagGroups) {
+    if (!Object.hasOwn(RENDERED_CONTEXT, name)) {
+      refuse(
+        table,
+        name,
+        'contextTagGroups',
+        'is not a group of the rendered context',
+      );
+    }
+  }
+
+  checkSelections(tokens);
 
   for (const { table, token, child } of unresolvedChildren) {
     if (!legacy) {
