@@ -1,0 +1,114 @@
+// Platform probe: a minimal form-associated element that reproduces
+// TextFieldCore's validity mechanism on origin/main (internals created in the
+// constructor, an <input> in a delegatesFocus shadow root, `type` transferred,
+// checkValidity/reportValidity overridden to toggle the `error` state,
+// setValidity(flags, message) -> internals.setValidity(flags, message, this)).
+import { chromium, firefox, webkit } from 'playwright';
+
+const page = `
+<form id="f"><mx-probe id="p" name="q"></mx-probe><input id="n" name="n" type="email"></form>
+<script>
+class P extends HTMLElement {
+  static formAssociated = true;
+  static observedAttributes = ['type'];
+  #i = this.attachInternals();
+  constructor() {
+    super();
+    const r = this.attachShadow({ mode: 'open', delegatesFocus: true });
+    r.innerHTML = '<input id="field" class="input">';
+    this.field = r.querySelector('input');
+    this.field.addEventListener('input', () => this.#i.setFormValue(this.field.value));
+  }
+  attributeChangedCallback(n, o, v) { if (n === 'type') v == null ? this.field.removeAttribute('type') : this.field.setAttribute('type', v); }
+  get value() { return this.field.value; }
+  set value(v) { this.field.value = v ?? ''; this.#i.setFormValue(v); }
+  get internals() { return this.#i; }
+  checkValidity() { window.calls.push('check'); const v = this.#i.checkValidity(); this.#i.states[v ? 'delete' : 'add']('error'); return v; }
+  reportValidity() { window.calls.push('report'); const v = this.#i.reportValidity(); this.#i.states[v ? 'delete' : 'add']('error'); return v; }
+  setValidity(f, m) { this.#i.setValidity(f, m, this); }
+}
+window.calls = [];
+customElements.define('mx-probe', P);
+</script>`;
+
+async function run(type) {
+  const browser = await type.launch();
+  const p = await browser.newPage();
+  await p.setContent(page);
+  const out = await p.evaluate(async () => {
+    const r = {};
+    const f = document.getElementById('f');
+    const el = document.getElementById('p');
+    const native = document.getElementById('n');
+    const invalids = [];
+    el.addEventListener('invalid', (e) => invalids.push(e.cancelable));
+    let submitted = 0;
+    f.addEventListener('submit', (e) => { e.preventDefault(); submitted++; });
+
+    // 1. host API surface
+    r.hostApi = ['validity', 'validationMessage', 'willValidate', 'setCustomValidity', 'form', 'labels']
+      .map((k) => k + ':' + (k in el));
+
+    // 2. internal input has no form owner
+    r.internalFormOwner = el.field.form === null ? 'null' : 'outer form';
+
+    // 3. type=email typeMismatch is lost
+    el.setAttribute('type', 'email');
+    el.field.value = 'foo';
+    el.field.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    native.value = 'foo';
+    r.email = {
+      internalTypeMismatch: el.field.validity.typeMismatch,
+      hostValid: el.internals.validity.valid,
+      nativeTypeMismatch: native.validity.typeMismatch,
+    };
+    native.value = '';
+    r.email.formData = new FormData(f).get('q');
+
+    // 4. untouched field's form value (RF-74 already covers; recorded for context)
+    // 5. custom invalidity + form submission
+    el.setValidity({ customError: true }, 'Bad');
+    window.calls = [];
+    f.requestSubmit();
+    r.submit = {
+      submitted, invalidEvents: invalids.slice(), hostMethodCalls: window.calls.slice(),
+      errorState: el.internals.states.has('error'),
+      hostMatchesInvalid: el.matches(':invalid'),
+      hostMatchesUserInvalid: (() => { try { return el.matches(':user-invalid'); } catch (e) { return 'unsupported'; } })(),
+      activeIsInternal: el.shadowRoot.activeElement === el.field,
+    };
+    invalids.length = 0;
+    window.calls = [];
+    r.formCheck = { result: f.checkValidity(), hostMethodCalls: window.calls.slice(), invalidEvents: invalids.slice() };
+
+    // 6. error state is only refreshed by the overridden methods
+    el.checkValidity();
+    const afterCheck = el.internals.states.has('error');
+    el.setValidity({});
+    r.stale = { afterCheck, afterClearingValidity: el.internals.states.has('error') };
+
+    // 7. readonly / disabled on the host bar it from constraint validation
+    el.setValidity({ customError: true }, 'Bad');
+    el.setAttribute('readonly', '');
+    r.readonly = { willValidate: el.internals.willValidate, internalReadOnly: el.field.readOnly };
+    el.removeAttribute('readonly');
+    el.setAttribute('disabled', '');
+    r.disabled = { willValidate: el.internals.willValidate };
+    el.removeAttribute('disabled');
+
+    // 8. aria-invalid on the internal field while invalid
+    r.ariaInvalid = el.field.getAttribute('aria-invalid');
+
+    // 9. user-invalid on a native input after submit attempt, for comparison
+    native.required = true; native.value = '';
+    f.requestSubmit();
+    r.nativeUserInvalidAfterSubmit = native.matches(':user-invalid');
+    return r;
+  });
+  await browser.close();
+  return out;
+}
+
+for (const t of [chromium, firefox, webkit]) {
+  console.log(t.name(), JSON.stringify(await run(t), null, 1));
+}

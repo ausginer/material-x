@@ -1,0 +1,31 @@
+# probes/opacity-substitution.node.test.ts.txt, copied to tests/list/ for this run and removed after it, beside the row's own file.
+# aube exec just test --project node <probe> tests/list/list-item-opacity-tokens.node.test.ts --reporter=verbose
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.label-text.opacity the opacity the sheet renders 3ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.leading-icon.opacity the opacity the sheet renders 1ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.trailing-icon.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.overline.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.supporting-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.label-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.leading-icon.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.trailing-icon.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.overline.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.supporting-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/list-item-opacity-tokens.node.test.ts:31 > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.trailing-supporting-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.label-text.opacity the opacity the sheet renders 2ms
+ × |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.leading-icon.opacity the opacity the sheet renders 3ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.trailing-icon.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.overline.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.supporting-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.label-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.leading-icon.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.trailing-icon.opacity the opacity the sheet renders 0ms
+ × |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.overline.opacity the opacity the sheet renders 2ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.supporting-text.opacity the opacity the sheet renders 0ms
+ ✓ |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.trailing-supporting-text.opacity the opacity the sheet renders 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.leading-icon.opacity the opacity the sheet renders
+AssertionError: expected undefined to deeply equal { opacity: 0.38 }
+ FAIL  |node| tests/list/rf71-opacity-substitution-probe.node.test.ts > list item disabled content opacity tokens > should give md.comp.list.list-item.selected.disabled.overline.opacity the opacity the sheet renders
+AssertionError: expected { opacity: 0.5 } to deeply equal { opacity: 0.38 }
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 20 passed (22)

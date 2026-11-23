@@ -23,6 +23,7 @@
     "traits/nameable",
     "traits/selectable",
     "traits/typeable",
+    "traits/validatable",
     "traits/valuable",
     "utils/DOM",
     "utils/runtime"

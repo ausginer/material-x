@@ -1,0 +1,48 @@
+# Why #160's text-field size rows move more over main at 23b245efb than over 6a67badfd. Slot f, 2026-11-22. Brotli bytes, `just size-reading` (probes/read-state.sh.txt).
+# Trees. old main: packages/core/{src,files.json,package.json} and packages/material-x/src at 6a67badfd. old head: the same, with src/text-field at 256977dbc.
+#        main: 0eee212bd with src/text-field at origin/main. head: 0eee212bd. The tree was restored to 0eee212bd and was clean after each step.
+# "pinned": .scripts/css/collect-props.ts patched (probes/pin-names.py.txt, reverted) to keep a given map's short names and append new names after them.
+#           So --_outline-opacity gets --ht, and no other name moves.
+# Each unpinned reading equals its committed file: size-before-fix.json, size-after-fix.json, size-remediation-main.json, size-remediation-head.json. A second head reading is identical.
+
+row                                         text-field   multiline    complete     
+old main                                    8266         4153         22295        
+old head                                    8283         4197         22386        
+old head, pinned to old main                8300         4200         22343        
+main                                        8440         4366         22651        
+head                                        8535         4455         22692        
+head, pinned to main                        8500         4432         22654        
+main, pinned to old main                    8450         4366         22654        
+head, pinned to old main                    8514         4432         22708        
+
+# Deltas
+old base: total                             +17          +44          +91          
+old base: content (pinned)                  +34          +47          +48          
+old base: renaming                          -17          -3           +43          
+new base: total                             +95          +89          +41          
+new base: content (pinned to main)          +60          +66          +3           
+new base: renaming                          +35          +23          +38          
+new base: content (pinned to old main)      +64          +66          +54          
+
+# The branch's own output is the same on both bases.
+# probes/remap.ts (build-base read as main): on the new base, as on the old, every built material-x .js equals main's build byte for byte (59) or after mapping
+#   short names back (38), except text-field/styles/default/main.css.js and text-field/styles/outlined/main.css.js.
+# Those two files are byte-identical between the bases, on the main side and on the head side (cmp):
+#   default/main.css.js  6568 -> 6917 raw (+349), 1540 -> 1586 Brotli alone (+46)
+#   outlined/main.css.js 1911 -> 1977 raw (+66),   557 ->  597 Brotli alone (+40)
+# Names: 227 -> 228 on both bases, --_outline-opacity added at index 8 (--i), 219 renamed.
+# Between old main and main, 8 short names differ, from #151's list styles (4936e77b9):
+#   --_container-expressive-shape --cw->--cr, --_overline-color --cx->--cs, --_trailing-supporting-text-color --cy->--ct, --_elevation-penumbra --cr->--cu, --_top-space --cs->--cv, --_bottom-space --ct->--cw, --_leading-space --cu->--cx, --_trailing-space --cv->--cy
+# Pinned to old main's map, the built .js files that differ between old head and head are #155's and #151's only:
+#   button/SwitchCore.js
+#   button/switch-button.js
+#   button/switch-icon-button.js
+#   checkbox/checkbox.js
+#   core/elements/CheckableCore.js
+#   list/styles/item/interactive-box.css.js
+#   list/styles/item/main.css.js
+#   radio/radio.js
+#   text-field/TextFieldCore.js
+#   text-field/multiline-text-field.js
+#   text-field/text-field.js
+# The snapshots hold material-x's build only. The rows also bundle @ydinjs/core, whose traits/validatable.js is #155's too (TextFieldCore.js imports it).

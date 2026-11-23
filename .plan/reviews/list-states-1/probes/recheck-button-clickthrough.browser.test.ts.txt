@@ -1,0 +1,32 @@
+// Recheck probe for RF-71 (#151), outside its scope: does a press on a disabled
+// button-family element reach what lies beneath it? Scratch: copied into
+// packages/material-x/tests/list/ for its run, removed after it.
+import { describe, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../../src/button/button.ts';
+import '../../src/button/link-button.ts';
+import { nextFrame } from '../browser.ts';
+
+describe('disabled button click-through', () => {
+  it.each(['mx-button', 'mx-link-button'])('%s', async (tag) => {
+    const wrapper = document.createElement('div');
+    wrapper.style.padding = '8px';
+    const el = document.createElement(tag);
+    el.setAttribute('href', '#t');
+    el.append('Label');
+    el.toggleAttribute('disabled', true);
+    wrapper.append(el);
+    document.body.append(wrapper);
+    await nextFrame();
+    const box = el.shadowRoot!.querySelector('.host')!.getBoundingClientRect();
+    const [x, y] = [box.left + box.width / 2, box.top + box.height / 2];
+    const seen: string[] = [];
+    for (const type of ['pointerdown', 'click']) wrapper.addEventListener(type, (e) => seen.push(`${type}@${(e.target as Element).localName}`));
+    const hit = document.elementFromPoint(x, y)?.localName ?? null;
+    await commands.pointerPress(x, y);
+    await commands.pointerRelease();
+    await nextFrame();
+    // oxlint-disable-next-line no-console
+    console.log(`PROBE ${tag} ${JSON.stringify({ display: getComputedStyle(el).display, hit, seen })}`);
+  });
+});

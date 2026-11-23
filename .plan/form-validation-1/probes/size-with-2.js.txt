@@ -1,0 +1,26 @@
+const I = new WeakMap();
+export const internals = (e) => I.get(e);
+const anchors = new WeakMap();
+export function useValidatable(host, target) {
+  anchors.set(host, target);
+  const prev = host.onAttr;
+  host.onAttr = (n, o, v) => {
+    prev?.(n, o, v);
+    if (n === 'error') {
+      const on = v != null;
+      on ? internals(host).states.add('error') : internals(host).states.delete('error');
+      target.ariaInvalid = on ? 'true' : null;
+    }
+  };
+}
+export class El extends HTMLElement { static observedAttributes = ['checked']; constructor(){ super(); I.set(this, this.attachInternals()); } attributeChangedCallback(n,o,v){ this.onAttr?.(n,o,v); } }
+export class A extends El { static formAssociated = true; static observedAttributes = ['checked','error']; get checked(){return this.hasAttribute('checked')} set checked(v){this.toggleAttribute('checked', !!v)}
+  get error(){return this.hasAttribute('error')} set error(v){this.toggleAttribute('error', !!v)}
+  get validity(){return internals(this).validity} get validationMessage(){return internals(this).validationMessage} get willValidate(){return internals(this).willValidate} get form(){return internals(this).form} get labels(){return internals(this).labels}
+  checkValidity(){return internals(this).checkValidity()} reportValidity(){return internals(this).reportValidity()} setCustomValidity(m){internals(this).setValidity({customError:!!m},m,anchors.get(this))}
+  constructor(){ super(); useValidatable(this, this); } }
+export class B extends El { static formAssociated = true; static observedAttributes = ['checked','error']; get checked(){return this.hasAttribute('checked')} set checked(v){this.toggleAttribute('checked', !!v)}
+  get error(){return this.hasAttribute('error')} set error(v){this.toggleAttribute('error', !!v)}
+  get validity(){return internals(this).validity} get validationMessage(){return internals(this).validationMessage} get willValidate(){return internals(this).willValidate} get form(){return internals(this).form} get labels(){return internals(this).labels}
+  checkValidity(){return internals(this).checkValidity()} reportValidity(){return internals(this).reportValidity()} setCustomValidity(m){internals(this).setValidity({customError:!!m},m,anchors.get(this))}
+  constructor(){ super(); useValidatable(this, this); } }

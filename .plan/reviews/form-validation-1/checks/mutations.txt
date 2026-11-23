@@ -1,0 +1,24 @@
+# probes/mutations-three-engines.py.txt: the implementer's .plan/form-validation-1/probes/mutations.py.txt with both row commands in the three engines.
+# python3 -I mutations-three-engines.py M1 M5 M11 M15. Each count is the three engines together.
+M1 checkValidity toggles :state(error) (the deleted override) => material-x: 12 failed | 314 passed | 16 skipped (342)
+M5 required validates (valueMissing) => core: 3 failed | 36 passed (39) | material-x: 18 failed | 308 passed | 16 skipped (342)
+M11 willValidate always true => core: 39 passed (39) | material-x: 42 failed | 284 passed | 16 skipped (342)
+M15 reportValidity always true => core: 3 failed | 36 passed (39) | material-x: 326 passed | 16 skipped (342)
+
+## M11 alone, Chromium, failing rows (vitest run -c vitest.config.ts --project browser tests/validatable.browser.test.ts)
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  14 failed | 100 passed (114)
+mx-checkbox validity > should not validate a disabled host
+mx-checkbox validity > should not validate a host in a disabled fieldset
+mx-multiline-text-field readonly > should make the internal field read-only and the host not validate
+mx-multiline-text-field validity > should not validate a disabled host
+mx-multiline-text-field validity > should not validate a host in a disabled fieldset
+mx-radio validity > should not validate a disabled host
+mx-radio validity > should not validate a host in a disabled fieldset
+mx-switch-button validity > should not validate a disabled host
+mx-switch-button validity > should not validate a host in a disabled fieldset
+mx-switch-icon-button validity > should not validate a disabled host
+mx-switch-icon-button validity > should not validate a host in a disabled fieldset
+mx-text-field readonly > should make the internal field read-only and the host not validate
+mx-text-field validity > should not validate a disabled host
+mx-text-field validity > should not validate a host in a disabled fieldset

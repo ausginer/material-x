@@ -1,0 +1,35 @@
+# just size-reading at the head, at the base (packages/core/src, core's files.json and package.json, and packages/material-x/src at 836d72d99), and at the head again, in slot d.
+# The second head reading is byte-identical to the first. Brotli bytes: base, head, delta.
+box-quad:index                                     1182   1182 +0
+core:element                                        275    275 +0
+core:emitter                                        198    198 +0
+material-x:button/button                           4907   4907 +0
+material-x:button/icon-button                      5175   5175 +0
+material-x:button/link-button                      4877   4877 +0
+material-x:button/switch-button                    5280   5496 +216
+material-x:button/switch-icon-button               5661   5890 +229
+material-x:button/split-button                     7507   7507 +0
+material-x:button-group/button-group               3115   3115 +0
+material-x:button-group/connected-button-group     3862   3862 +0
+material-x:checkbox/checkbox                       3968   4218 +250
+material-x:fab/fab                                 4179   4179 +0
+material-x:icon/icon                                641    641 +0
+material-x:list/list                                661    661 +0
+material-x:list/list-item                          2830   2830 +0
+material-x:list/list-button-item                   4649   4649 +0
+material-x:list/list-link-item                     4866   4866 +0
+material-x:list/sortable-list                      8698   8698 +0
+material-x:radio/radio                             3515   3775 +260
+material-x:text-field/multiline-text-field         4153   4366 +213
+material-x:text-field/text-field                   8266   8450 +184
+material-x:complete                               22295  22509 +214
+drag:draggable alone                               2189   2189 +0
+drag:draggable + lift                              3932   3932 +0
+drag:example: resize handle                        3265   3265 +0
+drag:example: drop zone                            4570   4570 +0
+drag:example: canvas group                         3261   3261 +0
+drag:freeDrag                                      4984   4984 +0
+drag:freeDrag + bounds + landing                   5465   5465 +0
+drag:sortable + y                                  6533   6533 +0
+drag:sortable + xy                                 6484   6484 +0
+drag:complete                                      7143   7143 +0

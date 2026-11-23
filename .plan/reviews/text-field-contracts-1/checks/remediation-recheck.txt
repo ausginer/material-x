@@ -1,0 +1,48 @@
+# Recheck of the remediation of #160 at 0eee212bd, slot f, 2026-11-22. Playwright 1.65.0's Chromium, Firefox and WebKit, Vitest 5.1.0, Node 26.13.1.
+# Each mutation was a scratch edit, reverted after its run. The tree was clean after each step.
+
+## The spec file, MX_TEST_ENGINES=chromium,firefox,webkit vitest run --project 'spec*' --reporter=verbose tests/text-field/text-field.spec.browser.test.ts
+### head
+ Test Files  3 passed (3)
+      Tests  456 passed | 6 expected fail (462)
+### noerror
+⎯⎯⎯⎯⎯⎯ Failed Tests 36 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed (3)
+      Tests  36 failed | 420 passed | 6 expected fail (462)
+### renamed
+ Test Files  3 failed (3)
+      Tests  456 passed | 6 skipped (462)
+### moved
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed (3)
+      Tests  6 failed | 456 passed (462)
+# noerror: line 135 'field.setAttribute('error', '');' replaced with a comment. The 36 failing rows equal section (a)'s list in remediation-witnesses.txt (diff of the sorted lists is empty).
+# The 12 input text error rows (4 per engine) pass with no error set:
+  1  ✓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field filled input text in its error colour
+  1  ✓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-multiline-text-field outlined input text in its error colour
+  1  ✓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field filled input text in its error colour
+  1  ✓ |spec (chromium)| tests/text-field/text-field.spec.browser.test.ts:314 > text field colour contract > should draw the mx-text-field outlined input text in its error colour
+  ...
+# renamed: line 566 'label-text.populated.line-height' renamed in the beforeAll. Each of the 6 blocks fails with:
+Error: Missing token "label-text.populated.line-height-renamed" in state "default" of contract "text-field.default"
+# moved: '+ 1px' after var(--_container-focus-padding-block) in the populated label's translate (styles/default/main.styles.css). each of the 6 runs reports 'Expect test to fail', position-row failures: 6
+
+## Rest and error tokens of the colour rows (probes/rest-error-tokens.ts.txt, error state 'error.default' as STATE_PATHS gives)
+text-field.default   input-text.color             equal var(--md-sys-color-on-surface, #191D13) | var(--md-sys-color-on-surface, #191D13)
+text-field.default   label-text.color             differs var(--md-sys-color-on-surface-variant, #424937) | var(--md-sys-color-error, #BA1A1A)
+text-field.default   supporting-text.color        differs var(--md-sys-color-on-surface-variant, #424937) | var(--md-sys-color-error, #BA1A1A)
+text-field.default   active-indicator.color       differs var(--md-sys-color-on-surface-variant, #424937) | var(--md-sys-color-error, #BA1A1A)
+text-field.outlined  input-text.color             equal var(--md-sys-color-on-surface, #191D13) | var(--md-sys-color-on-surface, #191D13)
+text-field.outlined  label-text.color             differs var(--md-sys-color-on-surface-variant, #424937) | var(--md-sys-color-error, #BA1A1A)
+text-field.outlined  supporting-text.color        differs var(--md-sys-color-on-surface-variant, #424937) | var(--md-sys-color-error, #BA1A1A)
+text-field.outlined  outline.color                differs var(--md-sys-color-outline, #727A66) | var(--md-sys-color-error, #BA1A1A)
+
+## Typecheck, aube exec just typecheck in packages/material-x
+head: exit 0
+line 135 replaced with field.setValidity({ customError: true }, 'Error'): exit 1
+tests/text-field/text-field.spec.browser.test.ts(135,11): error TS2551: Property 'setValidity' does not exist on type 'MultilineTextField | TextField'. Did you mean 'validity'?
+lint of the spec file at the head: exit 0
+
+## The material-x browser and spec projects, three engines
+ Test Files  81 passed (81)
+      Tests  2658 passed | 7 expected fail | 20 skipped (2685)

@@ -1,0 +1,122 @@
+# Material Theme Builder: what its exports contain
+
+Read by the architect on 2026-11-22 from the builder's deployed bundle, with no browser:
+  curl -sSL https://material-foundation.github.io/material-theme-builder/main.dart.js
+  bytes: 7540746  sha256: 1a8b8b05bab6814fa5a4b235928d3caba2fe54748cfe68299eacc4b76c673a1b
+
+## Export formats the bundle names
+"Android Views (XML)"
+"Flutter (Dart)"
+"Material Theme (JSON)"
+"Web (CSS)"
+
+## Web (CSS): the archive's entries and the writer of each file (verbatim excerpt)
+m.D(0,A.Gr("css/light.css",p.qP("light",c.gdc().gfo())))
+m.D(0,A.Gr("css/light-hc.css",p.qP("light-high-contrast",c.gdc().ghI())))
+m.D(0,A.Gr("css/light-mc.css",p.qP("light-medium-contrast",c.gdc().giv())))
+m.D(0,A.Gr("css/dark.css",p.qP("dark",c.gd8().gfo())))
+m.D(0,A.Gr("css/dark-hc.css",p.qP("dark-high-contrast",c.gd8().ghI())))
+m.D(0,A.Gr("css/dark-mc.css",p.qP("dark-medium-contrast",c.gd8().giv())))
+o=A.GD(A.aT5().mi(m),t.Cm)
+s=3
+return A.V(o,$async$fu)
+case 3:n=e
+q=new A.OI(c.d+".zip",new Uint8Array(A.dJ(n)))
+s=1
+break
+case 1:return A.R(q,r)}})
+return A.S($async$fu,r)},
+qP(a5,a6){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2=new A.cj(""),a3=a2.a=""+("."+a5+" {\n"),a4=a6.i4()
+for(s=$.b7V,r=0;r<49;++r){q=s[r]
+p=A.M1(q).H8()
+o=A.H0(p,"_","-")
+p=a4.i(0,q)
+p.toString
+n=A.af(p)
+a3=a2.a=a3+("  "+("--md-sys-color-"+o)+": rgb("+A.p(n.b*255)+" "+A.p(n.c*255)+" "+A.p(n.d*255))
+p=n.a
+a3=(p!==1?a2.a=a3+(" / "+A.p(p)):a3)+");\n"
+a2.a=a3}a3=this.a
+a3===$&&A.f()
+s=a3.length
+if(s!==0)for(p=t.j,m=t.z,l=t.Ei,k=t.f,r=0;r<a3.length;a3.length===s||(0,A.L)(a3),++r){j={}
+i=a3[r]
+h=j.a=""
+g=a5.split("-")
+for(f=0;f<g.length;++f)if(f===0){e=h+g[f]
+j.a=e
+h=e}else{d=g[f]
+e=h+(d[0].toUpperCase()+B.j.bQ(d,1))
+j.a=e
+h=e}c=k.a(A.b7H(new A.SC(J.QU(p.a(i.i(0,"schemes")),new A.aSy(j),m),l)))
+b=["color","onColor","colorContainer","onColorContainer"]
+for(h=J.aF(c),a=0;a<4;++a){q=b[a]
+d=A.M1(J.dK(i.i(0,"name"))).H8()
+d=A.H0(d,"_","-")
+a0=A.M1(q).H8()
+a0=A.H0(a0,"_","-")
+n=h.i(c,q)
+a1=J.d4(n)
+a0="  "+("--md-extended-color-"+(d+"-"+a0))+": rgb("+A.p(J.b6s(a1.gfY(n),255))+" "+A.p(n.ghs()*255)+" "+A.p(J.b6s(a1.ge1(n),255))
+a0=a2.a+=a0
+if(!J.j(a1.geo(n),1))d=a2.a=a0+(" / "+A.p(a1.geo(n)))
+else d=a0
+a2.a=d+");\n"}}a3=a2.a+="}\n"
+return a3.charCodeAt(0)==
+
+## Material Theme (JSON): the top-level keys it writes (verbatim excerpt)
+b.p(0,"seed",s)
+r=A.b(["primary",s],d,d)
+q=a.r
+if(q!=null)r.p(0,f,A.Fp(A.aE(q),!0))
+q=a.w
+if(q!=null)r.p(0,e,A.Fp(A.aE(q),!0))
+q=a.x
+if(q!=null)r.p(0,"error",A.Fp(A.aE(q),!0))
+q=a.y
+if(q!=null)r.p(0,"neutral",A.Fp(A.aE(q),!0))
+q=a.z
+if(q!=null)r.p(0,"neutralVariant",A.Fp(A.aE(q),!0))
+b.p(0,"coreColors",r)
+p=[]
+for(q=a.CW,o=q.length,n=0;n<q.length;q.length===o||(0,A.L)(q),++n){m=q[n]
+l=A.E(d,c)
+l.p(0,"name",m.a)
+l.p(0,"color",A.Fp(A.aE(m.d),!0))
+k=m.b
+if(k!=null)l.p(0,g,k)
+else l.p(0,g,"")
+l.p(0,"harmonized",m.c)
+p.push(l)}b.p(0,"extendedColors",p)
+j=A.E(d,c)
+j.p(0,"light",h.qt(a.gdc().gfo()))
+j.p(0,"light-medium-contrast",h.qt(a.gdc().giv()))
+j.p(0,"light-high-contrast",h.qt(a.gdc().ghI()))
+j.p(0,"dark",h.qt(a.gd8().gfo()))
+j.p(0,"dark-medium-contrast",h.qt(a.gd8().giv()))
+j.p(0,"dark-high-contrast",h.qt(a.gd8().ghI()))
+b.p(0,"schemes",j)
+i=A.E(d,c)
+i.p(0,"primary",h.yt(a.gtW().a))
+i.p(0,f,h.yt(a.gtW().b))
+i.p(0,e,h.yt(a.gtW().c))
+i.p(0,"neutral",h.yt(a.gtW().e))
+i.p(0,"neutral-variant",h.yt(a.gtW().f))
+b.p(0,"palettes",i)
+return A.bFl(b,null,"    ")},
+yt(a){var s,r,q=t.N,p=A.E(q,q)
+for(q=t.nw,s=new A.cn(B.pP,q),s=new A.b6(s,s.gv(0),q.h("b6<aL.E>")),q=q.h("aL.E");s.u();){r=s.d
+if(r==null)r=q.a(r)
+p.p(0,B.q.l(r),A.Fp(a.eu(0,r),!0))}return p},
+qt(a){var s,r,q,p=A.E(t.N,t.z)
+for(s=a.i4(),s=s.ge5(s),s=s.gae(s);s.u();){r=s.gJ(s)
+q=J.d4(r)
+p.p(0,q.gdz(r),A.Fp(q.gk(r),!0))}return p}}
+A.ajs.prototype={}
+A.a_X.prototype={
+H(){return"ContrastLevel."+this.b}}
+A.aSf.prototype={
+fu(a,b,c)
+
+## Occurrences of 'typescale' in the bundle
+0

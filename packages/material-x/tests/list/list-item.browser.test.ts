@@ -1,8 +1,9 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
 import { nextFrame, pixels } from '../browser.ts';
 
 function createItem(
@@ -165,3 +166,112 @@ describe('mx-list-item slotted content', () => {
     expect(await getVideoSize()).toEqual([smallWidth, smallHeight]);
   });
 });
+
+function centerOf(element: HTMLElement): readonly [number, number] {
+  const { left, top, width, height } = element.getBoundingClientRect();
+  return [left + width / 2, top + height / 2];
+}
+
+describe.each(['mx-list-button-item', 'mx-list-link-item'] as const)(
+  '%s disabled pointer input',
+  (tag) => {
+    afterEach(async () => {
+      // A row that fails mid-press leaves the button down.
+      await commands.pointerRelease().catch(() => {});
+    });
+
+    const createDisabledItem = async (): Promise<HTMLElement> => {
+      const element = createItem(tag);
+      element.setAttribute('href', '#target');
+      element.toggleAttribute('disabled', true);
+      await nextFrame();
+      return element;
+    };
+
+    /** A disabled item alone in an `mx-list`, inside a wrapper `<div>`. */
+    const createDisabledItemInList = async (): Promise<
+      readonly [item: HTMLElement, wrapper: HTMLElement]
+    > => {
+      const element = await createDisabledItem();
+      const wrapper = document.createElement('div');
+      const list = document.createElement('mx-list');
+      list.append(element);
+      wrapper.append(list);
+      document.body.append(wrapper);
+      await nextFrame();
+      return [element, wrapper];
+    };
+
+    it('should keep its shape while hovered', async () => {
+      const element = await createDisabledItem();
+      const control = getControl(element);
+      const rest = getComputedStyle(control).borderTopLeftRadius;
+
+      await commands.pointerMove(...centerOf(element), 1);
+      await nextFrame();
+
+      expect(getComputedStyle(control).borderTopLeftRadius).toBe(rest);
+    });
+
+    it('should keep its shape while pressed', async () => {
+      const element = await createDisabledItem();
+      const control = getControl(element);
+      const rest = getComputedStyle(control).borderTopLeftRadius;
+
+      await commands.pointerPress(...centerOf(element));
+      await nextFrame();
+
+      expect(getComputedStyle(control).borderTopLeftRadius).toBe(rest);
+    });
+
+    it('should start no ripple when pressed', async () => {
+      const element = await createDisabledItem();
+
+      await commands.pointerPress(...centerOf(element));
+      await nextFrame();
+
+      expect(element.shadowRoot!.getAnimations()).toEqual([]);
+    });
+
+    it('should dispatch no click from a pointer press', async () => {
+      const element = await createDisabledItem();
+      const clicks: Event[] = [];
+      element.addEventListener('click', (event) => {
+        clicks.push(event);
+      });
+
+      await commands.pointerPress(...centerOf(element));
+      await commands.pointerRelease();
+      await nextFrame();
+
+      expect(clicks).toEqual([]);
+    });
+
+    it('should dispatch no click to an ancestor of the list', async () => {
+      const [element, wrapper] = await createDisabledItemInList();
+      const clicks: Event[] = [];
+      wrapper.addEventListener('click', (event) => {
+        clicks.push(event);
+      });
+
+      await commands.pointerPress(...centerOf(element));
+      await commands.pointerRelease();
+      await nextFrame();
+
+      expect(clicks).toEqual([]);
+    });
+
+    it('should target the item with the press', async () => {
+      const [element, wrapper] = await createDisabledItemInList();
+      const targets: EventTarget[] = [];
+      wrapper.addEventListener('pointerdown', (event) => {
+        targets.push(event.target!);
+      });
+
+      await commands.pointerPress(...centerOf(element));
+      await nextFrame();
+
+      expect(targets).toEqual([element]);
+    });
+  },
+);

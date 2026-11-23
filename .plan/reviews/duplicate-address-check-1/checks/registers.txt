@@ -1,0 +1,7 @@
+Every tracked Markdown file outside reviews/ with a heading that the resolver's ENTRY pattern matches, at 910aee555:
+$ git grep -c -E '^#### [A-Za-z][A-Za-z0-9]*-[0-9]+( — .+)?$' -- '*.md' | grep -v /reviews/
+.plan/00-index.md:128
+packages/drag/.plan/00-index.md:144
+packages/drag/.plan/contract.md:21
+
+Packages with a .plan/: packages/box-quad/.plan packages/drag/.plan 

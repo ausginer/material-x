@@ -1,0 +1,19 @@
+# Scratch: make collect-props.ts keep the short names of a pinned map and append new names after them.
+import sys, pathlib
+p = pathlib.Path(sys.argv[1]); pin = sys.argv[2]
+s = p.read_text()
+old = """const result = Object.fromEntries(
+  Iterator.from(registry).map(
+    (prop) => [prop, `--${provider.next().value!}`] as const,
+  ),
+);"""
+new = """const pinned: Record<string, string> = JSON.parse(await readFile('%s', 'utf8'));
+const used = new Set(Object.values(pinned));
+const fresh = (): string => { for (;;) { const n = `--${provider.next().value!}`; if (!used.has(n)) return n; } };
+const result = Object.fromEntries(
+  Iterator.from(registry).map(
+    (prop) => [prop, pinned[prop] ?? fresh()] as const,
+  ),
+);""" % pin
+assert s.count(old) == 1
+p.write_text(s.replace(old, new))

@@ -44,12 +44,24 @@ const SwitchButtonConstructor: Composed<
  *
  * @summary Switch buttons expose button visuals with switch semantics.
  *
+ * @description
+ * **Validation.** The element has no native validators. `setCustomValidity()`
+ * sets its validity and the `error` attribute sets its error display. Nothing
+ * else changes either, a form reset included. Set `error` and `required`
+ * rather than `aria-invalid` and `aria-required` on the host.
+ *
  * @attr {"outlined"|"elevated"|"tonal"} color - Visual style variant. Omit to
  * use the default filled style.
  * @attr {"xsmall"|"medium"|"large"|"xlarge"} size - Button size. Omit to use
  * the default (small) size.
  * @attr {"round"|"square"} shape - Button shape. Omit to use round corners.
  * @attr {boolean} disabled - Disables interaction and form participation.
+ * @attr {boolean} error - Shows the error display: `:state(error)`, and the
+ *   control announced as invalid. Material defines no error appearance for
+ *   it, so it draws nothing.
+ *   Set by the consumer only.
+ * @attr {boolean} required - Announces the control as required. It doesn't
+ *   change validity, block submission or make `:required` match.
  * @attr {boolean} checked - Current switch checked state.
  * @attr {string} value - Submitted form value.
  *
@@ -70,6 +82,8 @@ const SwitchButtonConstructor: Composed<
  * @cssprop --md-button-press-easing - Overrides press transition easing.
  *
  * @event click - Fired when the button is activated.
+ * @event invalid - Fired at the host when a validity check finds it invalid.
+ *   It doesn't bubble and is cancelable.
  * @event input - Fired after `click` when the switch is activated. The switch
  * is controlled: activation doesn't change `checked`.
  * @event change - Fired after `input` when the switch is activated.

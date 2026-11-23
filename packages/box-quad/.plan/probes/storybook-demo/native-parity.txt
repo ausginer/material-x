@@ -1,0 +1,11 @@
+Firefox 159.0, layout.css.getBoxQuads.enabled
+variant  rotation skew  ok    max |box-quad - native| (px)
+demo      -18      8  true  1.53e-2
+  box-quad p1 (166.18, 227.25) p2 (443.88, 137.02) p3 (521.80, 296.77) p4 (244.10, 387.00)
+  native   p1 (166.19, 227.25) p2 (443.90, 137.01) p3 (521.81, 296.75) p4 (244.10, 386.99)
+demo        0      0  true  0.00e+0
+demo      -55    -20  true  7.87e-3
+demo       55     20  true  7.86e-3
+demo       33     -7  true  2.69e-3
+nested    -18      8  true  1.30e+2
+nested     55    -20  true  1.30e+2

@@ -1,0 +1,31 @@
+# Rows read by the reviewer on 2026-11-22 in slot d at be7d4c3b5, Playwright 1.65.0, Node v26.13.1, MX_TEST_ENGINES=chromium,firefox,webkit.
+
+## core: aube exec vitest run --reporter=verbose tests/traits/validatable.browser.test.ts tests/traits/validatable.declaration.test.ts tests/traits/attribute-traits.declaration.test.ts (packages/core)
+ Test Files  5 passed (5)
+      Tests  63 passed (63)
+     13 browser (chromium) tests/traits/validatable.browser.test.ts
+     13 browser/firefox (firefox) tests/traits/validatable.browser.test.ts
+     13 browser/webkit (webkit) tests/traits/validatable.browser.test.ts
+     20 declaration tests/traits/attribute-traits.declaration.test.ts
+      4 declaration tests/traits/validatable.declaration.test.ts
+
+## material-x: vitest run -c vitest.config.ts --project 'browser*' --reporter=verbose tests/validatable.browser.test.ts
+      Tests  326 passed | 16 skipped (342)
+    114 browser (chromium) ✓
+      8 browser/firefox (firefox) ↓
+    106 browser/firefox (firefox) ✓
+      8 browser/webkit (webkit) ↓
+    106 browser/webkit (webkit) ✓
+(↓ = skipped: row 11, Chromium's accessibility tree through CDP)
+
+## core full suite: aube exec vitest run (packages/core)
+ Test Files  72 passed (72)
+      Tests  728 passed (728)
+
+## material-x default run: vitest run -c vitest.config.ts (browser, spec and node projects; the visual project isn't declared without MX_TEST_VISUAL=1)
+ Test Files  77 passed (77)
+      Tests  2082 passed | 1 expected fail | 20 skipped (2103)
+
+## typecheck after aube exec just build in packages/core: aube exec just typecheck in packages/core and packages/material-x
+core: exit 0
+material-x: exit 0

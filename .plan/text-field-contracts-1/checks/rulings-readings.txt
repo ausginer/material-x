@@ -1,0 +1,33 @@
+# The architect's readings for the rulings on the feature proof's reviewer-1 and reviewer-2, in slot f at 031942ef1 (the head, 256977dbc, plus the proof's record).
+# Each probe was copied into packages/material-x/tests/text-field/ for its run and removed after it; the scratch CSS change was reverted.
+# Playwright's Chromium, Firefox and WebKit, Vitest 5.1.0.
+
+## The populated label's line box (probes/rf97-line-box.spec.browser.test.ts.txt), at the head
+# lineBox: the label's <slot> in .label, which carries the line height and the transform. span: the slotted span, which the row reads.
+# Offsets in px below .notched-outline's top. The tokens place the centre at 8 + 16 / 2 = 16.
+# PROBE lines are in engine order, two fields each: Chromium, Firefox, WebKit.
+PROBE mx-text-field {"lineBox":{"top":6,"bottom":24,"centre":15,"height":18},"span":{"centre":14.625,"height":14.25}}
+PROBE mx-multiline-text-field {"lineBox":{"top":6,"bottom":24,"centre":15,"height":18},"span":{"centre":14.625,"height":14.25}}
+PROBE mx-text-field {"lineBox":{"top":6,"bottom":24,"centre":15,"height":18},"span":{"centre":15.0083,"height":14.25}}
+PROBE mx-multiline-text-field {"lineBox":{"top":6,"bottom":24,"centre":15,"height":18},"span":{"centre":15.0083,"height":14.25}}
+PROBE mx-text-field {"lineBox":{"top":6,"bottom":24,"centre":15,"height":18},"span":{"centre":15,"height":14.25}}
+PROBE mx-multiline-text-field {"lineBox":{"top":6,"bottom":24,"centre":15,"height":18},"span":{"centre":15,"height":14.25}}
+      Tests  6 passed (6)
+
+## The same, with the populated label's translate moved down 1 px in styles/default/main.styles.css (scratch, reverted)
+PROBE mx-text-field {"lineBox":{"top":7,"bottom":25,"centre":16,"height":18},"span":{"centre":15.625,"height":14.25}}
+PROBE mx-multiline-text-field {"lineBox":{"top":7,"bottom":25,"centre":16,"height":18},"span":{"centre":15.625,"height":14.25}}
+PROBE mx-text-field {"lineBox":{"top":7,"bottom":25,"centre":16,"height":18},"span":{"centre":16.0083,"height":14.25}}
+PROBE mx-multiline-text-field {"lineBox":{"top":7,"bottom":25,"centre":16,"height":18},"span":{"centre":16.0083,"height":14.25}}
+PROBE mx-text-field {"lineBox":{"top":7,"bottom":25,"centre":16,"height":18},"span":{"centre":16,"height":14.25}}
+PROBE mx-multiline-text-field {"lineBox":{"top":7,"bottom":25,"centre":16,"height":18},"span":{"centre":16,"height":14.25}}
+      Tests  6 passed (6)
+
+## Whether fails inverts a hook's error (probes/fails-hook.spec.browser.test.ts.txt), Chromium
+# beforeAll's error fails the file; beforeEach's error is inverted into an expected fail.
+ ↓ |spec (chromium)| tests/text-field/fails-hook.spec.browser.test.ts:7 > beforeAll throws > row
+ ✓ |spec (chromium)| tests/text-field/fails-hook.spec.browser.test.ts:12 > beforeEach throws > row 306ms
+ FAIL  |spec (chromium)| tests/text-field/fails-hook.spec.browser.test.ts:5 > beforeAll throws
+Error: missing oracle
+ Test Files  1 failed (1)
+      Tests  1 expected fail | 1 skipped (2)

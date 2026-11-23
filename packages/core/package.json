@@ -96,6 +96,10 @@
       "types": "./traits/typeable.d.ts",
       "default": "./traits/typeable.js"
     },
+    "./traits/validatable.js": {
+      "types": "./traits/validatable.d.ts",
+      "default": "./traits/validatable.js"
+    },
     "./traits/valuable.js": {
       "types": "./traits/valuable.d.ts",
       "default": "./traits/valuable.js"

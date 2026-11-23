@@ -1,0 +1,80 @@
+# Recheck of RF-71's repairs at 54168b0b1, read by the reviewer on 2026-11-22 in slot c. Playwright 1.65.0, Node v26.13.1, MX_TEST_ENGINES=chromium,firefox,webkit.
+
+## The list item rows at the head (spec, browser and node projects)
+ Test Files  7 passed (7)
+      Tests  176 passed (176)
+     19 browser (chromium) tests/list/list-item.browser.test.ts ✓
+     19 browser/firefox (firefox) tests/list/list-item.browser.test.ts ✓
+     19 browser/webkit (webkit) tests/list/list-item.browser.test.ts ✓
+     11 node tests/list/list-item-opacity-tokens.node.test.ts ✓
+     36 spec (chromium) tests/list/list-item.spec.browser.test.ts ✓
+     36 spec/firefox (firefox) tests/list/list-item.spec.browser.test.ts ✓
+     36 spec/webkit (webkit) tests/list/list-item.spec.browser.test.ts ✓
+
+## Witness: tests/list/list-item.browser.test.ts with interactive-box.styles.css at 7271c5b9f
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  12 failed | 45 passed (57)
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:250 > mx-list-button-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:250 > mx-list-link-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:264 > mx-list-button-item disabled pointer input > should target the item with the press
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:264 > mx-list-link-item disabled pointer input > should target the item with the press
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:250 > mx-list-button-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:250 > mx-list-link-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:264 > mx-list-button-item disabled pointer input > should target the item with the press
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:264 > mx-list-link-item disabled pointer input > should target the item with the press
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:250 > mx-list-button-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:250 > mx-list-link-item disabled pointer input > should dispatch no click to an ancestor of the list
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:264 > mx-list-button-item disabled pointer input > should target the item with the press
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:264 > mx-list-link-item disabled pointer input > should target the item with the press
+
+## probes/recheck-opacity.node.test.ts.txt: the node row with a differing token (state-layer, 0.1) and a missing token added
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 11 passed (13)
+ FAIL  |node| tests/list/rf71-recheck-opacity.node.test.ts:34 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.state-layer.opacity the opacity the sheet renders
+ FAIL  |node| tests/list/rf71-recheck-opacity.node.test.ts:34 > list item disabled content opacity tokens > should give md.comp.list.list-item.disabled.no-such-token.opacity the opacity the sheet renders
+AssertionError: expected { opacity: 0.1 } to deeply equal { opacity: 0.38 }
+AssertionError: expected undefined to deeply equal { opacity: 0.38 }
+
+## probes/recheck-boundary.browser.test.ts.txt: a disabled item alone in an mx-list inside a wrapper div, listeners on the wrapper in both phases
+## seen = type:phase@target at the wrapper. sameLook = shape, container, label colour, leading icon colour and label opacity unchanged from rest. Count = engines.
+
+### head (head = 54168b0b1, 7271 = src/list at 7271c5b9f, base = src/list at f1387729d)
+      Tests  12 passed (12)
+      3 PROBE mx-list-button-item selected=false {"seen":["pointerdown:capture@mx-list-button-item","pointerdown:bubble@mx-list-button-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-button-item selected=true {"seen":["pointerdown:capture@mx-list-button-item","pointerdown:bubble@mx-list-button-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-link-item selected=false {"seen":["pointerdown:capture@mx-list-link-item","pointerdown:bubble@mx-list-link-item","mousedown:capture@mx-list-link-item","mousedown:bubble@mx-list-link-item","click:capture@mx-list-link-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"mx-list-link-item","focusWithin":true,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-link-item selected=true {"seen":["pointerdown:capture@mx-list-link-item","pointerdown:bubble@mx-list-link-item","mousedown:capture@mx-list-link-item","mousedown:bubble@mx-list-link-item","click:capture@mx-list-link-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"mx-list-link-item","focusWithin":true,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+
+### 7271 (head = 54168b0b1, 7271 = src/list at 7271c5b9f, base = src/list at f1387729d)
+      Tests  12 passed (12)
+      3 PROBE mx-list-button-item selected=false {"seen":["pointerdown:capture@mx-list","pointerdown:bubble@mx-list","mousedown:capture@mx-list","mousedown:bubble@mx-list","click:capture@mx-list","click:bubble@mx-list"],"hoverMatches":false,"activeMatches":false,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-button-item selected=true {"seen":["pointerdown:capture@mx-list","pointerdown:bubble@mx-list","mousedown:capture@mx-list","mousedown:bubble@mx-list","click:capture@mx-list","click:bubble@mx-list"],"hoverMatches":false,"activeMatches":false,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-link-item selected=false {"seen":["pointerdown:capture@mx-list","pointerdown:bubble@mx-list","mousedown:capture@mx-list","mousedown:bubble@mx-list","click:capture@mx-list","click:bubble@mx-list"],"hoverMatches":false,"activeMatches":false,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-link-item selected=true {"seen":["pointerdown:capture@mx-list","pointerdown:bubble@mx-list","mousedown:capture@mx-list","mousedown:bubble@mx-list","click:capture@mx-list","click:bubble@mx-list"],"hoverMatches":false,"activeMatches":false,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+
+### base (head = 54168b0b1, 7271 = src/list at 7271c5b9f, base = src/list at f1387729d)
+      Tests  12 passed (12)
+      3 PROBE mx-list-button-item selected=false {"seen":["pointerdown:capture@mx-list-button-item","pointerdown:bubble@mx-list-button-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-button-item selected=true {"seen":["pointerdown:capture@mx-list-button-item","pointerdown:bubble@mx-list-button-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"body","focusWithin":false,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-link-item selected=false {"seen":["pointerdown:capture@mx-list-link-item","pointerdown:bubble@mx-list-link-item","mousedown:capture@mx-list-link-item","mousedown:bubble@mx-list-link-item","click:capture@mx-list-link-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"mx-list-link-item","focusWithin":true,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+      3 PROBE mx-list-link-item selected=true {"seen":["pointerdown:capture@mx-list-link-item","pointerdown:bubble@mx-list-link-item","mousedown:capture@mx-list-link-item","mousedown:bubble@mx-list-link-item","click:capture@mx-list-link-item"],"hoverMatches":true,"activeMatches":true,"focus":{"active":"mx-list-link-item","focusWithin":true,"focusVisible":false},"sameLook":{"hovered":true,"pressed":true,"after":true}
+
+## probes/recheck-link-focus.browser.test.ts.txt at the head
+      Tests  6 passed (6)
+      3 PROBE mx-link-button {"active":"body","inner":null,"tabIndex":-1,"href":null,"events":[]}
+      3 PROBE mx-list-link-item {"active":"mx-list-link-item","inner":"a","tabIndex":-1,"href":null,"events":["focusin"]}
+
+## probes/recheck-button-clickthrough.browser.test.ts.txt at the head (the button stylesheets are main's)
+      Tests  6 passed (6)
+      3 PROBE mx-button {"display":"contents","hit":"div","seen":["pointerdown@div","click@div"]}
+      3 PROBE mx-link-button {"display":"contents","hit":"div","seen":["pointerdown@div","click@div"]}
+
+## The material-x browser, spec and node projects at the head
+ Test Files  78 passed (78)
+      Tests  1911 passed | 1 expected fail | 4 skipped (1916)
+
+## just size-reading at the head, against .plan/list-states-1/checks/size-after-fix.json (7271c5b9f) and size-after-repair.json
+material-x:list/list-button-item	7271c5b9f 4822	head 4820	delta -2	committed 4820
+material-x:list/list-link-item	7271c5b9f 5039	head 5035	delta -4	committed 5035
+material-x:complete	7271c5b9f 22392	head 22386	delta -6	committed 22386
+rows 33, rows where this reading and size-after-repair.json disagree: 0; every other row equals 7271c5b9f's

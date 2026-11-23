@@ -1,0 +1,82 @@
+// Platform probe for the form-validation plan. A minimal form-associated
+// element with an internal <input> in a delegatesFocus shadow root; the trait's
+// proposed surface is written by hand: the native names forwarded to
+// ElementInternals, and setCustomValidity(message) mapped to setValidity.
+// Run: node plan-probe.mjs, with Playwright resolvable from the working tree.
+import { chromium, firefox, webkit } from 'playwright';
+
+const page = `
+<form id="f"><fieldset id="fs"><mx-probe id="p" name="q"></mx-probe></fieldset></form>
+<label for="p" id="l">Label</label>
+<script>
+class P extends HTMLElement {
+  static formAssociated = true;
+  #i = this.attachInternals();
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open', delegatesFocus: true }).innerHTML = '<input id="field">';
+    this.field = this.shadowRoot.querySelector('input');
+  }
+  get validity() { return this.#i.validity; }
+  get validationMessage() { return this.#i.validationMessage; }
+  get willValidate() { return this.#i.willValidate; }
+  get form() { return this.#i.form; }
+  get labels() { return this.#i.labels; }
+  checkValidity() { return this.#i.checkValidity(); }
+  reportValidity() { return this.#i.reportValidity(); }
+  setCustomValidity(m) { this.#i.setValidity({ customError: !!m }, m, this.field); }
+  rawSetValidity(f, m, a) { this.#i.setValidity(f, m, a); }
+}
+customElements.define('mx-probe', P);
+</script>`;
+
+async function run(type) {
+  const browser = await type.launch();
+  const p = await browser.newPage();
+  await p.setContent(page);
+  const out = await p.evaluate(() => {
+    const r = {};
+    const f = document.getElementById('f');
+    const fs = document.getElementById('fs');
+    const el = document.getElementById('p');
+    const seen = [];
+    el.addEventListener('invalid', (e) => seen.push({ bubbles: e.bubbles, composed: e.composed, cancelable: e.cancelable }));
+    let bubbledToForm = 0;
+    f.addEventListener('invalid', () => bubbledToForm++);
+    let submitted = 0;
+    f.addEventListener('submit', (e) => { e.preventDefault(); submitted++; });
+
+    r.initial = { valid: el.validity.valid, message: el.validationMessage, willValidate: el.willValidate, matchesValid: el.matches(':valid') };
+    r.formAndLabels = { form: el.form === f, labels: [...el.labels].map((l) => l.id) };
+
+    el.setCustomValidity('Bad');
+    f.requestSubmit();
+    r.afterCustom = {
+      customError: el.validity.customError, valid: el.validity.valid, message: el.validationMessage,
+      matchesInvalid: el.matches(':invalid'), formMatchesInvalid: f.matches(':invalid'),
+      submitted, invalidEvents: seen.slice(), bubbledToForm,
+    };
+
+    f.reset();
+    r.afterReset = { customError: el.validity.customError, message: el.validationMessage };
+
+    try { el.rawSetValidity({ customError: true }, '', el.field); r.flagWithEmptyMessage = 'no throw'; }
+    catch (e) { r.flagWithEmptyMessage = e.name; }
+
+    fs.disabled = true;
+    r.disabledFieldset = { willValidate: el.willValidate, checkValidity: el.checkValidity() };
+    fs.disabled = false;
+
+    el.setCustomValidity('');
+    r.cleared = { valid: el.validity.valid, message: el.validationMessage, matchesInvalid: el.matches(':invalid') };
+    f.requestSubmit();
+    r.cleared.submitted = submitted;
+    return r;
+  });
+  await browser.close();
+  return out;
+}
+
+for (const t of [chromium, firefox, webkit]) {
+  console.log(t.name(), JSON.stringify(await run(t)));
+}

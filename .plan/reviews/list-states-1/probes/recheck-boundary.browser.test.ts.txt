@@ -1,0 +1,77 @@
+// Recheck probe for RF-71 (#151) at 54168b0b1: what a press on a disabled item
+// gives an ancestor's bubbling and capture listeners, where focus goes, and
+// whether a selected, disabled item's shape and colours change while hovered or
+// pressed. Scratch: copied into packages/material-x/tests/list/ for its run,
+// removed after it.
+import { afterEach, describe, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
+import { nextFrame } from '../browser.ts';
+
+function log(name: string, value: unknown): void {
+  // oxlint-disable-next-line no-console
+  console.log(`PROBE ${name} ${JSON.stringify(value)}`);
+}
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  await commands.pointerMove(0, 0, 1).catch(() => {});
+});
+
+async function fixture(tag: string, selected: boolean) {
+  const wrapper = document.createElement('div');
+  wrapper.style.padding = '8px';
+  const list = document.createElement('mx-list');
+  const item = document.createElement(tag);
+  item.setAttribute('href', '#t');
+  item.style.setProperty('--md-list-item-press-duration', '0s');
+  const lead = document.createElement('mx-icon');
+  lead.slot = 'lead';
+  item.append(lead, 'label');
+  item.toggleAttribute('selected', selected);
+  item.toggleAttribute('disabled', true);
+  list.append(item);
+  wrapper.append(list);
+  document.body.append(wrapper);
+  await nextFrame();
+  const r = item.getBoundingClientRect();
+  return { wrapper, item, at: [r.left + r.width / 2, r.top + r.height / 2] as [number, number] };
+}
+
+function look(item: HTMLElement): string {
+  const host = item.shadowRoot!.querySelector('.host')!;
+  const cs = getComputedStyle(host);
+  return [cs.borderTopLeftRadius, cs.backgroundColor, getComputedStyle(item.shadowRoot!.querySelector('slot.label')!).color, getComputedStyle(item.querySelector('[slot=lead]')!).color, getComputedStyle(item.shadowRoot!.querySelector('slot.label')!).opacity].join(' | ');
+}
+
+describe('disabled boundary', () => {
+  for (const tag of ['mx-list-button-item', 'mx-list-link-item']) {
+    for (const selected of [false, true]) {
+      it(`${tag} selected=${selected}`, async () => {
+        const { wrapper, item, at } = await fixture(tag, selected);
+        const seen: string[] = [];
+        for (const type of ['pointerdown', 'mousedown', 'click']) {
+          for (const capture of [true, false]) {
+            wrapper.addEventListener(type, (e) => seen.push(`${type}:${capture ? 'capture' : 'bubble'}@${(e.target as Element).localName}`), { capture });
+          }
+        }
+        const rest = look(item);
+        await commands.pointerMove(...at, 1);
+        await nextFrame();
+        const hovered = look(item);
+        const hoverMatches = item.matches(':hover');
+        await commands.pointerPress(...at);
+        await nextFrame();
+        const pressed = look(item);
+        const activeMatches = item.matches(':active');
+        await commands.pointerRelease();
+        await nextFrame();
+        const focus = { active: document.activeElement?.localName ?? null, focusWithin: item.matches(':focus-within'), focusVisible: item.shadowRoot!.querySelector('.host')!.matches(':focus-visible') };
+        const after = look(item);
+        log(`${tag} selected=${selected}`, { seen, hoverMatches, activeMatches, focus, sameLook: { hovered: hovered === rest, pressed: pressed === rest, after: after === rest }, rest, ...(hovered !== rest ? { hovered } : {}), ...(pressed !== rest ? { pressed } : {}), ...(after !== rest ? { after } : {}) });
+      });
+    }
+  }
+});

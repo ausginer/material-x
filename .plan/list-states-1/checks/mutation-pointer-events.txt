@@ -1,0 +1,11 @@
+# Mutation: `pointer-events: none` moved from `:host(:state(disabled))` to `:host(:state(disabled)) .host`
+# in src/list/styles/item/interactive-box.styles.css, then restored. Read by the implementer on 2026-11-22
+# on material-x/rf71-list-states-1, with
+# MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts --project 'browser*' tests/list/list-item.browser.test.ts
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:221 > mx-list-button-item disabled pointer input > should dispatch no click from a pointer press
+ FAIL  |browser (chromium)| tests/list/list-item.browser.test.ts:221 > mx-list-link-item disabled pointer input > should dispatch no click from a pointer press
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:221 > mx-list-button-item disabled pointer input > should dispatch no click from a pointer press
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:221 > mx-list-link-item disabled pointer input > should dispatch no click from a pointer press
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:221 > mx-list-button-item disabled pointer input > should dispatch no click from a pointer press
+ FAIL  |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:221 > mx-list-link-item disabled pointer input > should dispatch no click from a pointer press
+      Tests  6 failed | 39 passed (45)

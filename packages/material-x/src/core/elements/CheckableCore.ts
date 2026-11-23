@@ -19,6 +19,11 @@ import {
   type NameableProps,
 } from '@ydinjs/core/traits/nameable.js';
 import {
+  type Validatable,
+  useValidatable,
+  type ValidatableProps,
+} from '@ydinjs/core/traits/validatable.js';
+import {
   useValuable,
   type Valuable,
   type ValuableProps,
@@ -32,13 +37,15 @@ import css from './styles/main.css.ts' with { type: 'css' };
 export type CheckableCoreProps = CheckableProps &
   ValuableProps &
   DisableableProps &
-  NameableProps;
+  NameableProps &
+  ValidatableProps;
 
 export type CheckableCoreTraits = readonly [
   typeof Checkable,
   typeof Valuable,
   typeof Disableable,
   typeof Nameable,
+  typeof Validatable,
 ];
 
 export type CheckableCore = InstanceType<
@@ -62,6 +69,7 @@ export function useCheckableCore(
   useValuable(host, input);
   useDisableable(host, input);
   useNameable(host, input);
+  useValidatable(host, input);
 
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
@@ -73,6 +81,9 @@ export function useCheckableCore(
         innards.setFormValue(newValue ?? 'on');
       }
     },
+    error: via(Bool, (_, value) => {
+      toggleState(innards, 'error', value);
+    }),
   });
 
   useRipple(host);
