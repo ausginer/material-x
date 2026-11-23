@@ -4407,6 +4407,42 @@ Tier C, **open**, pre-existing since `71a516e92` (#106). Registered on 2026-11-2
 - **Ready** for an implementer.
 - **Size:** _small_.
 
+#### RF-107 — material-x animates motion under `prefers-reduced-motion: reduce`
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, on the owner's direction to the explainer session, relayed by the coordinator. `RF-106` is the entry before this one, so this is the next free number. Read at `bc37ef008` ([readings](observations-6/checks/reduced-motion.txt), probes [sortable list](observations-6/probes/reduced-motion.browser.test.ts.txt) and [sweep](observations-6/probes/reduced-motion-sweep.browser.test.ts.txt)).
+
+- **What happens:** `reduced-motion` appears once in `packages/material-x/src`, in a comment of the checkbox's stylesheet. No stylesheet has the media query and no script reads it. Only drag's `landing()` honors the preference in material-x: the list's flight has zero duration.
+- **Confirmed in Chromium, Firefox and WebKit:** every computed transition is the same with and without the preference. So are the animations that start on a press, on a check and on a FAB's opening.
+  - **Motion that still animates:** the button's border radius and padding; the split button's border radius and icon rotation; the list button item's border radius; the checkbox's `clip-path` keyframes; the radio's `clip-path`; the extended FAB's grid columns and gaps, and the FAB's `--_level`; the outlined text field's notch and the prefix's and suffix's `transform`; the ripple's scale and drift.
+  - **The list item's `--_level`:** in Chromium and Firefox it still transitions for 650 ms after an arrow key, while the flight is instant. WebKit starts no transition in that reading. `item/main.styles.css` declares the transition twice, and the one under `:host(:popover-open)` is `!important`.
+  - **By reading only:** the text field's label (`translate`, `scale`, `font-size`), the list link item, and the button family's other elements.
+- **Why it is a problem:** a user asks the system for less motion and gets it from almost every component, for 150 to 650 ms each time.
+- **The owner:** _"Слушай, а ведь это тоже на баг тянет... По идее, там должен стоять некий if, который будет обнулять тайминг..."_ ("Listen, this looks like a bug too... In theory there should be some kind of `if` there that zeroes the timing..."). To the policy and to one entry for the package: _"да, отправляй. Я об этом вообще не думал, а это довольно глобальный косяк в accessibility"_ ("yes, send it. I hadn't thought about this at all, and it's a rather global accessibility slip").
+- **The policy the owner agreed to:**
+  - Under `reduce`, motion is instant, and color and opacity still animate. Motion is position, size, rotation, `clip-path`, `border-radius`, padding, and the elevation level, which goes with the drag's flight.
+  - The animated property decides, not the token. The button animates `background-color` with a spatial token, and the checkbox its `clip-path` with an effects one.
+  - One entry for the package. The list is repaired first, and not in `RF-103`'s unit.
+  - **The preference wins over the public `--md-*-duration` overrides.** Motion is instant whatever duration the consumer sets, and color and opacity still use the consumer's. _"да, ведь reduced-motion задаётся скорее всего юзером, а переменные выставляются девелопером"_ ("yes, because reduced-motion is most likely set by the user, and the variables are set by the developer").
+- **How the policy reads for the FAB:** its `--_level` transition on hover is elevation level, so it is motion, by the animated property. The architect reads it so, and the policy's words name the drag's flight only.
+- **Required properties:**
+  1. In each engine at `RD-20`'s floor, under `reduce`, a transition or an animation of a motion property in a material-x element has zero duration, whatever `--md-*-duration` the consumer sets. One of a color or of an opacity keeps its duration. Without the preference nothing changes.
+  2. A resting appearance doesn't depend on an animation's end, as the checkbox's selected state already doesn't.
+  3. A change to the preference takes effect for the next transition or press, without a reconnect.
+- **Constraints, proposed by the explainer session, not rulings; the architect accepts them:**
+  - In CSS the media query acts on the transition or the animation, not on a duration variable, because `useCSSProps` reads a variable once per connection (`RF-105`).
+  - In the ripple `matchMedia` is read at the press, as drag reads it at each landing.
+  - In the list the rule covers both `--_level` transitions of `item/main.styles.css`, and the one that overrides the `!important` is `!important` too.
+- **Rows** emulate the preference and observe each component's animation durations, and the resting appearance with no animation. The rows of color and opacity, and one `--md-*-duration` override for each element that has one, show that the preference wins for motion and not for color or opacity. They don't run in Safari, where the preference can't be emulated (`RD-12` property 5). **Witness:** the motion rows fail before the repair in the three engines. The list's `--_level` row after an arrow key fails in Chromium and Firefox, and WebKit's has to be one that does start the transition, such as a lift.
+- **Two things the repair has to see:**
+  - The extended FAB's `.host` sets `transition-property` before the `transition` shorthand, which resets it to `all`. The computed value is `all` for 350 ms, so it isn't limited to the grid and the gap. The color and opacity part of `all` is to keep its duration under `reduce` if the repair keeps it.
+  - The ripple's minimum visible time (225 ms) is measured from the scale animation's `currentTime`. A zero duration holds it at 0, so by reading every release would wait the full 225 ms, however long the press was.
+- **Question to the owner,** routed on 2026-11-23: where the rule is.
+  - **(a) One rule in a shared stylesheet** that every component adopts.
+  - **(b) A `@media (prefers-reduced-motion: reduce)` rule in each component's stylesheet,** beside its transitions, and one read in the ripple, which the components share.
+  - **The architect recommends (b).** The policy goes by property, and CSS can't remove a property from a component's `transition-property` list. A shared rule can set one duration for every property, which makes color and opacity instant too. Or it can set the list to colors and opacity, which gives the durations of the component's list to them, so a list item whose only transition is `border-radius` starts to animate its color. Each rule in (b) says what the component still animates. Its cost is that a new component can forget it, which property 1's rows for each component catch. The ripple and the notched outline are shared, so they have one rule each.
+- **The unit:** a plan comes before implementation. The list is first, then the components. `RF-103`'s unit doesn't wait.
+- **Size:** _large_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

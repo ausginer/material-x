@@ -1,0 +1,33 @@
+// Place in packages/material-x/tests/list/ as *.browser.test.ts. Chromium at 23b245efb:
+// [false,"BAC",[["--_level",650],["Animation",650],["Animation",650]], --_level 6.0 at 83ms, 2.4 at 182ms, 0.3 at 281ms]
+// [true, "BAC",[["--_level",650]],                                     --_level 5.3 at 74ms, 1.9 at 174ms, 0.1 at 274ms]
+import { expect, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import '../../src/list/sortable-list.ts';
+import '../../src/list/list-item.ts';
+it('probe: reduced motion', async () => {
+  const out: unknown[] = [];
+  for (const reduce of [false, true]) {
+    await commands.emulateReducedMotion(reduce);
+    const list = document.createElement('mx-sortable-list');
+    const items = ['A','B','C'].map((t) => { const i = document.createElement('mx-list-item'); i.textContent = t; return i; });
+    list.append(...items); document.body.append(list);
+    list.addEventListener('reorder', (e: any) => list.insertBefore(e.item, e.next));
+    await new Promise((r) => setTimeout(r, 100));
+    const a = items[0]!;
+    a.focus();
+    const seen: string[] = [];
+    const t0 = performance.now();
+    let stop = false;
+    const loop = () => { seen.push(`${Math.round(performance.now() - t0)}:${Number(getComputedStyle(a).getPropertyValue('--_level')).toFixed(1)}`); if (!stop) requestAnimationFrame(loop); };
+    loop();
+    await userEvent.keyboard('{ArrowDown}');
+    const flights = a.getAnimations().map((x) => [(x as CSSTransition).transitionProperty ?? x.constructor.name, x.effect!.getTiming().duration]);
+    await new Promise((r) => setTimeout(r, 1200));
+    stop = true;
+    out.push([matchMedia('(prefers-reduced-motion: reduce)').matches, [...list.children].map((c) => c.textContent).join(''), flights, seen.filter((_, i) => i % 6 === 0).join(' ')]);
+    list.remove();
+  }
+  await commands.emulateReducedMotion(false);
+  expect(JSON.stringify(out)).toEqual('SHOW');
+});
