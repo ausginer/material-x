@@ -1,0 +1,76 @@
+# The extended FAB's label line height. Read by the architect on 2026-11-23 at 35ea25892. Node v26.13.1.
+# ../probes/fab-label-tokens.ts.txt (run from a scratch directory): each extended-fab set's label tokens, their first value, and
+# whether store.isTokenDeprecated says so.
+md.comp.extended-fab.branded md.comp.extended-fab.branded.label-text.type [{"type":{"fontNameTokenName":"md.comp.extended-fab.branded.label-text.font","fontWeightTokenNam
+md.comp.extended-fab.branded md.comp.extended-fab.branded.label-text.font [{"tokenName":"md.sys.typescale.label-large.font"}] false
+md.comp.extended-fab.branded md.comp.extended-fab.branded.label-text.weight [{"tokenName":"md.sys.typescale.label-large.weight"}] false
+md.comp.extended-fab.branded md.comp.extended-fab.branded.label-text.size [{"tokenName":"md.sys.typescale.label-large.size"}] false
+md.comp.extended-fab.branded md.comp.extended-fab.branded.label-text.line-height [{"tokenName":"md.sys.typescale.label-large.line-height"}] false
+md.comp.extended-fab.branded md.comp.extended-fab.branded.label-text.tracking [{"tokenName":"md.sys.typescale.label-large.tracking"}] false
+md.comp.extended-fab.primary md.comp.extended-fab.primary.label-text.type [{"type":{"fontNameTokenName":"md.comp.extended-fab.primary.label-text.font","fontWeightTokenNam
+md.comp.extended-fab.primary md.comp.extended-fab.primary.label-text.font [{"tokenName":"md.sys.typescale.label-large.font"}] true
+md.comp.extended-fab.primary md.comp.extended-fab.primary.label-text.weight [{"tokenName":"md.sys.typescale.label-large.weight"}] true
+md.comp.extended-fab.primary md.comp.extended-fab.primary.label-text.size [{"tokenName":"md.sys.typescale.label-large.size"}] true
+md.comp.extended-fab.primary md.comp.extended-fab.primary.label-text.line-height [{"tokenName":"md.sys.typescale.label-large.line-height"}] true
+md.comp.extended-fab.primary md.comp.extended-fab.primary.label-text.tracking [{"tokenName":"md.sys.typescale.label-large.tracking"}] true
+md.comp.extended-fab.secondary md.comp.extended-fab.secondary.label-text.font [{"tokenName":"md.sys.typescale.label-large.font"}] true
+md.comp.extended-fab.secondary md.comp.extended-fab.secondary.label-text.line-height [{"tokenName":"md.sys.typescale.label-large.line-height"}] true
+md.comp.extended-fab.secondary md.comp.extended-fab.secondary.label-text.size [{"tokenName":"md.sys.typescale.label-large.size"}] true
+md.comp.extended-fab.secondary md.comp.extended-fab.secondary.label-text.weight [{"tokenName":"md.sys.typescale.label-large.weight"}] true
+md.comp.extended-fab.secondary md.comp.extended-fab.secondary.label-text.tracking [{"tokenName":"md.sys.typescale.label-large.tracking"}] true
+md.comp.extended-fab.secondary md.comp.extended-fab.secondary.label-text.type [{"type":{"fontNameTokenName":"md.comp.extended-fab.secondary.label-text.font","fontWeightTo
+md.comp.extended-fab.surface md.comp.extended-fab.surface.label-text.type [{"type":{"fontNameTokenName":"md.comp.extended-fab.surface.label-text.font","fontWeightTokenNam
+md.comp.extended-fab.surface md.comp.extended-fab.surface.label-text.font [{"tokenName":"md.sys.typescale.label-large.font"}] false
+md.comp.extended-fab.surface md.comp.extended-fab.surface.label-text.weight [{"tokenName":"md.sys.typescale.label-large.weight"}] false
+md.comp.extended-fab.surface md.comp.extended-fab.surface.label-text.size [{"tokenName":"md.sys.typescale.label-large.size"}] false
+md.comp.extended-fab.surface md.comp.extended-fab.surface.label-text.line-height [{"tokenName":"md.sys.typescale.label-large.line-height"}] false
+md.comp.extended-fab.surface md.comp.extended-fab.surface.label-text.tracking [{"tokenName":"md.sys.typescale.label-large.tracking"}] false
+md.comp.extended-fab.tertiary md.comp.extended-fab.tertiary.label-text.font [{"tokenName":"md.sys.typescale.label-large.font"}] true
+md.comp.extended-fab.tertiary md.comp.extended-fab.tertiary.label-text.line-height [{"tokenName":"md.sys.typescale.label-large.line-height"}] true
+md.comp.extended-fab.tertiary md.comp.extended-fab.tertiary.label-text.size [{"tokenName":"md.sys.typescale.label-large.size"}] true
+md.comp.extended-fab.tertiary md.comp.extended-fab.tertiary.label-text.tracking [{"tokenName":"md.sys.typescale.label-large.tracking"}] true
+md.comp.extended-fab.tertiary md.comp.extended-fab.tertiary.label-text.weight [{"tokenName":"md.sys.typescale.label-large.weight"}] true
+md.comp.extended-fab.tertiary md.comp.extended-fab.tertiary.label-text.type [{"type":{"fontNameTokenName":"md.comp.extended-fab.tertiary.label-text.font","fontWeightToken
+md.comp.extended-fab.medium md.comp.extended-fab.medium.label-text [{"tokenName":"md.sys.typescale.title-large"}] false
+md.comp.extended-fab.large md.comp.extended-fab.large.label-text [{"tokenName":"md.sys.typescale.headline-small"}] false
+md.comp.extended-fab md.comp.extended-fab.label-text [{"tokenName":"md.sys.typescale.label-large"}] false
+md.comp.extended-fab.small md.comp.extended-fab.small.label-text [{"tokenName":"md.sys.typescale.title-medium"}] false
+
+# ../probes/fab-sheets.ts.txt: the generated declarations of the FAB's extended sheet, label rows only.
+# 'small' is the rule with no state but :state(extended), and the rule after it, also :state(extended), is 'tertiary', the default colour.
+2::host(:state(extended)) {
+3:  --_label-text-font-name: var(--md-ref-typeface-plain, "Google Sans Text");
+4:  --_label-text-font-weight: var(--md-ref-typeface-weight-bold, 700);
+5:  --_label-text-font-size: 16px;
+6:  --_label-text-font-tracking: 0px;
+7:  --_label-text-line-height: 24px;
+12::host(:state(extended):state(tonal)) {
+18::host(:state(extended)) {
+20:  --_label-text-line-height: 20px;
+24::host(:state(primary):state(extended)) {
+28:  --_label-text-line-height: 20px;
+31::host(:state(secondary):state(extended)) {
+35:  --_label-text-line-height: 20px;
+38::host(:state(primary):state(extended):state(tonal)) {
+44::host(:state(secondary):state(extended):state(tonal)) {
+50::host(:state(large):state(extended)) {
+52:  --_label-text-font-name: var(--md-ref-typeface-brand, "Roboto Flex");
+53:  --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+54:  --_label-text-font-size: 24px;
+55:  --_label-text-font-tracking: 0px;
+56:  --_label-text-line-height: 32px;
+63::host(:state(medium):state(extended)) {
+65:  --_label-text-font-name: var(--md-ref-typeface-brand, "Roboto Flex");
+66:  --_label-text-font-weight: var(--md-ref-typeface-weight-medium, 500);
+67:  --_label-text-font-size: 22px;
+68:  --_label-text-font-tracking: 0px;
+69:  --_label-text-line-height: 28px;
+# The whole output of the same probe (default, color, size, tonal and extended sheets), with the row 'label-text.line-height' of
+# fabAllowedTokensSelector deleted, against the unchanged one. Nothing else differs. Deleting the three 'label-text.font-*' rows too
+# gives the same output, byte for byte. The tree was restored.
+188d187
+<   --_label-text-line-height: 20px;
+196d194
+<   --_label-text-line-height: 20px;
+203d200
+<   --_label-text-line-height: 20px;

@@ -1,0 +1,25 @@
+import { createRequire } from 'node:module';
+const require = createRequire('/workspaces/material-x/package.json');
+const { chromium } = require('playwright');
+const b = await chromium.launch();
+for (const u of process.argv.slice(2)) {
+  const p = await b.newPage();
+  await p.goto(u, { waitUntil: 'networkidle', timeout: 60000 }).catch((e) => console.log(e.message));
+  await p.waitForTimeout(3000);
+  const r = await p.evaluate(() => {
+    const out = []; const links = [];
+    const walk = (n) => {
+      if (n.nodeType === 3) { const t = n.textContent.trim(); if (t) out.push(t); }
+      if (n.nodeName === 'SCRIPT' || n.nodeName === 'STYLE') return;
+      if (n.nodeName === 'A') links.push(n.textContent.trim().slice(0, 40) + ' -> ' + n.href);
+      if (n.shadowRoot) walk(n.shadowRoot);
+      for (const c of n.childNodes) walk(c);
+    };
+    walk(document.body);
+    return { text: out.join('\n'), links };
+  });
+  console.log('##', u, p.url(), new Date().toISOString(), r.text.length);
+  console.log(r.text.split('\n').map((l, i, a) => /licen|apache|creative commons|terms|CC.BY|attribut|copyright|trademark/i.test(l) ? a.slice(Math.max(0, i - 3), i + 4).join(' | ') + '\n--' : null).filter(Boolean).join('\n'));
+  console.log(r.links.filter((l) => /licen|apache|creativecommons|terms|privacy|policies|github/i.test(l)).join('\n'));
+}
+await b.close();

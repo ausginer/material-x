@@ -1,0 +1,19 @@
+The files in this directory hold Material Design token data by Google LLC,
+from the Material Design 3 site, https://m3.material.io. manifest.json
+names the release and the addresses.
+
+Google's page https://m3.material.io/get-started, read on 2026-11-23, says:
+"All Material 3 content, guidelines, imagery, and resources are available
+under the Apache 2.0 or CC BY 4.0 license."
+
+Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0
+CC BY 4.0:  https://creativecommons.org/licenses/by/4.0/
+
+This project uses the data as Material 3 content under those licenses,
+and follows the conditions of both.
+
+The data is modified: packages/tproc/scripts/convert.ts converts Google's
+tables to these files, and leaves out internal ids, revisions, authors and
+settings. The data comes with no warranty.
+
+This project isn't affiliated with, sponsored by or endorsed by Google.

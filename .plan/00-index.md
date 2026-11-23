@@ -2288,6 +2288,85 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The owner asked for it, after the switch and apart from it. Generating in the page is what lets a visitor try any colour without a build. Loading the generator only on demand keeps the page's first load what `RD-48` makes it. Reproducing the default from its own seed is what makes the picker's output and the default one theme rather than two.
 
+#### RD-50 — The token store carries a notice that its data is Google's, and material-x's README says that the specification is Google's
+
+**Decided 2026-11-23 by the architect, on `repo/register-observations-7`,** for [#191](https://github.com/ausginer/material-x/issues/191), on the owner's answer of the same day in chat, relayed by the coordinator: _"Да, конечно. Можно и в README написать, что material-x старается полностью соответствовать спеке, а спека идёт от гугла"_ ("Yes, of course. The README can also say that material-x tries to follow the specification fully, and that the specification comes from Google"). `RD-49` is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented, and ready for an implementer** on `repo/tokens-notice-1`. Q1 was answered on 2026-11-23 (below). This is not a legal opinion.
+
+**What Google's pages say** ([reading](observations-7/checks/m3-licence.txt), [probe](observations-7/probes/m3-licence.mjs.txt)), read on 2026-11-23:
+
+- `https://m3.material.io/get-started`: _"All Material 3 content, guidelines, imagery, and resources are available under the Apache 2.0 or CC BY 4.0 license."_ Of the four pages that were rendered, only this one says it.
+- The footer of each page links Google's Terms of Service (effective July 30, 2026). They say _"You may use Google’s content as allowed by these terms and any service-specific additional terms"_. The parts that were read grant no open licence to content. They send a use of branding or logos to Google's Brand Permissions page.
+- **Not said:** which of the two licences covers which content, whether the reader chooses, and whether the token tables or their undocumented addresses are _content_ or _resources_.
+
+**What covers the store's data.** No page names the tables, so the pages don't settle it. Two facts support reading the sentence as covering them, and neither is a statement by Google about them:
+
+- the site's own specs pages load these tables to show the values: `components/buttons/specs` requests the manifest's Buttons table at the manifest's release;
+- Google publishes values of the same database in material-web's generated files under `Apache-2.0`, at an earlier version and for one context.
+
+`Q3` of the [tokens-source plan](tokens-source-1/tokens-source-plan.md#the-owners-answers-to-q1-q3-and-q4), which keeps the store committed and public, stands. The plan says _"No open licence is stated"_ about the tables. That holds for the tables, and the sentence above wasn't known to it.
+
+**Properties.**
+
+1. **The notice is `packages/tproc/tokens/NOTICE`,** plain text, inside the store's directory, so that a copy of the directory carries it. `update-tokens.ts` replaces `sets/`, `context.json` and `manifest.json` and keeps it, and the script's header names it as the one file that it doesn't write. The manifest doesn't list it, and the reader doesn't read it.
+2. **The notice's wording,** without the release and the fetch date, which `manifest.json` holds:
+
+   ```text
+   The files in this directory hold Material Design token data by Google LLC,
+   from the Material Design 3 site, https://m3.material.io. manifest.json
+   names the release and the addresses.
+
+   Google's page https://m3.material.io/get-started, read on 2026-11-23, says:
+   "All Material 3 content, guidelines, imagery, and resources are available
+   under the Apache 2.0 or CC BY 4.0 license."
+
+   Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0
+   CC BY 4.0:  https://creativecommons.org/licenses/by/4.0/
+
+   This project uses the data as Material 3 content under those licenses,
+   and follows the conditions of both.
+
+   The data is modified: packages/tproc/scripts/convert.ts converts Google's
+   tables to these files, and leaves out internal ids, revisions, authors and
+   settings. The data comes with no warranty.
+
+   This project isn't affiliated with, sponsored by or endorsed by Google.
+   ```
+
+3. **The sentence of Q1 (a)** is in property 2's text. The notice meets what both licences ask: it names the author, the source, the licences and the changes. The repository's root `LICENSE` is the Apache text.
+4. **material-x's README:** _"inspired by Material Design 3 (Expressive)"_ becomes _"for Material Design 3 (Expressive)"_. After the first paragraph it gains: _"Material X aims to follow the [Material Design 3 specification](https://m3.material.io) fully. Google creates and publishes the specification. Material X is an independent project and isn't affiliated with, sponsored by or endorsed by Google."_ It names Google and Material Design only to say where the specification comes from. It uses no Google logo and no other Google branding.
+5. **No package's `license` field changes.** material-x ships values that the build derives from the store, and its README goes with the package, so the attribution does too. The landing page (`RD-47`) carries the sentence of property 4 when it presents material-x.
+
+**Why here and not at the root.** The notice is about one directory's data, which is Google's. A root `NOTICE` would speak for the repository's own code, and Apache's section 4(d) would oblige everyone who redistributes the repository to carry it.
+
+**Owner question Q1, answered: (a).** On 2026-11-23, in chat, relayed by the coordinator: _"Q1: (a) давай этот, наверное 🤔 Мы же, по сути, не сами таблицы используем, а те токены, которые они сами же ставят на спеку 🤔"_ ("Q1: (a), let's take this one, I suppose 🤔 After all, we don't really use the tables themselves, but the tokens that they put on the spec themselves 🤔").
+
+- **His reason, checked against the store's content** ([reading](tokens-notice-1/checks/site-modules.txt), [probe](tokens-notice-1/probes/site-modules.mjs.txt)). It holds for most of the store and not for all of it. The store keeps whole tables, and the site's modules offer a part of each:
+  - **Sets:** of 120 named sets, 99 are offered by a module of the 21 pages read. The 21 that aren't are the baseline button and icon button, the deprecated and branded FAB sets, the FAB's small size, the text field's autocompletes and selects, the list's reorder and reveal, and the variable type scales. Another page may offer some of them.
+  - **Contexts:** the modules offer `3P`, `Android`, `Compose`, `Web`, `Static`, light and dark, the contrasts, the language heights and both motion schemes. The store also has the values of `iOS`, `1P Baseline`, `Variable`, `iOS bold`, the device tags and the two iOS settings.
+  - **What material-x renders** is the `web`, `3p` and `static` context (`RD-28` property 9), whose tags the site's modules do offer.
+- **Why the sentence stays:** it says how the project uses the data and quotes the site. It doesn't say that each value is on a page. The tables are the ones that the site's own pages load. The difference doesn't make it untrue, so his answer isn't put to him again. A notice that limits itself to what the pages show would need a smaller store, which `Q3` of the tokens-source plan and `RD-51`'s Q3 don't ask for.
+
+**The question as asked — may the notice say that the data is used under the site's licence?** The pages don't say whether the sentence includes the token tables.
+
+- **(a) Yes, with the sentence quoted. Recommended:** the notice quotes Google and says how the project reads it. It claims no more than the quote.
+- **(b) The source and Google's authorship only,** with no statement of how the project uses the data. Property 2 without the bracketed line.
+- **(c) Ask Google first,** on the material-web issue tracker, and publish the notice without the line until an answer comes. The question is the owner's to post.
+
+**Ready,** with nothing left to decide. **Size:** _small_, one file, one script header, and two sentences.
+
+**Dated 2026-11-23 by the implementer: implemented on `repo/tokens-notice-1`, and not closed.** Requested by the coordinator for #191. `packages/tproc/tokens/NOTICE` has property 2's text, `update-tokens.ts`'s header names it as the one file that the script doesn't write, and material-x's README has property 4's texts. No `license` field changes. A run of the update script at the manifest's release, `2026-11-19_06-20-01`, wrote 124 files. `NOTICE` kept its SHA-256, and no other store file changed. The landing page's sentence (property 5) is `RD-47`'s.
+
+#### RD-51 — A Material specification section is a wish for the landing page: `/spec/`, tokens and values first, all of Material in the store
+
+**Recorded 2026-11-23 by the architect, on `repo/register-observations-7`,** from the owner's answers of the same day in chat to the roadmap item [#190](https://github.com/ausginer/material-x/issues/190), relayed by the coordinator. `RD-50` is the entry before this one, so this is the next free number. **Not planned now:** the unit that takes it plans it here first. It isn't one of the landing plan's units, and nothing in `RD-47` to `RD-49` waits for it.
+
+- **The idea, the owner's:** a page with Material's specification that is friendly to AI tools and developers, because Material's own site is hard for both.
+- **Q1 (a): a `/spec/` section of the landing page.**
+- **Q2 (a): tokens and values first.** The guidelines' original texts, with links to the original, are a wish for later.
+- **Q3 (a): all of Material in the store.** Today the manifest lists the tables that the components and the planned pages need (`RD-28` property 7).
+- **What it needs from other entries:** the store's complete context (`RD-28` property 9), and `RD-50`'s notice on every page that shows Google's data. A page that shows the guidelines' texts needs its own reading of the licence. The sentence that `RD-50` quotes does name guidelines. Such a page names Google and links to the original beside each text.
+- **Not decided:** the pages' structure, the plain files for tools, and how far the store grows.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -4640,6 +4719,49 @@ Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1
 - **Q2 — Which `font` tag: `static` or `variable`?** The weights are the same in both.
   - **(a) `static`, recommended:** Roboto, with the published letter spacing. It is upstream's default tag, equals what material-web and Compose publish, and is the font that Storybook, the tests and the planned site load.
   - **(b) `variable`:** Roboto Flex, with 0 px letter spacing in every style, and variation axes. Upstream's text calls `static` deprecated and asks for variable tokens, while `static` is still its default. Storybook, the tests and the site would load Roboto Flex, and `RF-81`'s ruling on the axes would be read again.
+
+#### RF-111 — The small extended FAB's label has a 20 px line height, and its own label token gives 24 px
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#193](https://github.com/ausginer/material-x/issues/193), relayed by the coordinator. The architect saw it while registering `RF-110`. `RF-110` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `35ea25892` ([reading](observations-7/checks/fab-label.txt), [probes](observations-7/probes/)).
+
+- **What happens:** in every colour, tonal or not, the small extended FAB's label renders `16px/20px` in the three engines (`RF-110`'s [rendered reading](typescale-selection-1/checks/readings.txt), rows `fab extended small`). `md.comp.extended-fab.small.label-text` is `md.sys.typescale.title-medium`, whose line height is 24 px. Medium and large render their own, 28 and 32 px.
+- **Cause:** the extended sheet's small rule sets 24 px. The colour rules after it set `label-text.line-height` to 20 px, from `md.comp.extended-fab.tertiary`, `primary` and `secondary`. Those tokens are deprecated. They are the older form's, of `label-large`, and their names match the row `'label-text.line-height'` of `fabAllowedTokensSelector`. The same sets' `label-text.size`, `.weight`, `.font` and `.tracking` match no row and don't reach the sheet. Large and medium are after the colours, so they keep theirs.
+- **What a user sees:** by reading, the label stays centred in its 56 px container. Its line box is 4 px shorter. No position or width was read, and the label doesn't wrap.
+- **Required property:** each extended FAB's label has the line height of its size's `label-text` token, and no colour set contributes a size or a type value.
+- **The repair:** delete the four rows `'label-text.line-height'`, `.font-size`, `.font-name` and `.font-weight` from `fabAllowedTokensSelector`. The values of `label-text` expand after the selection, so the four rows select nothing that is needed. A trial edit removes the three 20 px declarations from the extended sheet, and no other byte of the FAB's five sheets changes.
+- **Not the repair:** reordering the colours before the sizes. It would leave a deprecated token in the sheet.
+- **Rows:** a row of `RF-83`'s extended label typography covers it, for the small size in each colour. It fails before the repair. If this unit comes first, it has that row itself.
+- **Order:** after `RF-110`'s unit, which changes the same sheet and whose property 4 holds that sheet to a reading that this repair would alter. It can go with `RF-83`.
+- **Ready** for an implementer, after `RF-110`.
+- **Size:** _small_.
+
+#### RF-112 — On a 375 px wide screen, each box-quad docs example with sliders scrolls sideways by 1 px
+
+Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#186](https://github.com/ausginer/material-x/issues/186), relayed by the coordinator, and the observation in the [recheck of #177](../packages/box-quad/.plan/reviews/storybook-2/feature-proof-claude.md#observations-not-findings). `RF-111` is the entry before this one, so this is the next free number. Read from the recheck's [reading](../packages/box-quad/.plan/reviews/storybook-2/checks/recheck-docs-375.txt) at `8f598f500`, and from `stories.module.css` at `35ea25892`. The architect didn't run it again.
+
+- **What happens:** in Chromium, Firefox and WebKit, the docs page at 375 px has one sideways scroll of 1 px in each block of a story with sliders, with _Live Demo_, _Nested Spaces_ and _Pointer Delta_ read. The slider's row is wider than its block: the label's `min-inline-size` of 9em, the range's 80 px, the value's 5ch and two 8 px gaps. The value is 1 px past the block's edge, and the range is inside it. With the controls hidden there is no scroll.
+- **Not #177's:** the same declarations before its repair give the same reading. The sliders came with #169. The standalone stories at 375 px don't have it.
+- **Tier C,** as `RF-62`: a visitor of the published page sees a sideways pan of 1 px, and no consumer of the package sees anything.
+- **Required property:** no docs block of box-quad scrolls sideways at 375 px, and each label and value stays whole. The repair is a smaller minimum of the range, the label or both, or a row that wraps. The unit chooses by rendering, and reports the range's width at 375 and 320 px.
+- **Witness:** `recheck-docs-375.ts` reports no overflow on the docs page in the three engines, and fails on the tree before.
+- **Ready.** It can go with any box-quad unit.
+- **Size:** _small_.
+
+#### RF-113 — In WebKit, box-quad's docs page sometimes raises a ResizeObserver loop error while it loads
+
+Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#187](https://github.com/ausginer/material-x/issues/187), relayed by the coordinator, and the observation in the [recheck of #177](../packages/box-quad/.plan/reviews/storybook-2/feature-proof-claude.md#observations-not-findings). `RF-112` is the entry before this one, so this is the next free number. Read from the recheck's [reading](../packages/box-quad/.plan/reviews/storybook-2/checks/recheck-webkit.txt) at `8f598f500`. The architect didn't run it again. **The cause isn't established.**
+
+- **What was observed,** in Playwright's WebKit 27.2, at 375 px: _"ResizeObserver loop completed with undelivered notifications."_ as an uncaught page error, while the docs page loads:
+  - in a 900 px high viewport, 1 of 40 loads at `8f598f500` and 2 of 40 on `main` at `986ad3719`;
+  - in a 5200 px high one, 8 and 7 of 16;
+  - with the sliders hidden too, so the sliders aren't the cause;
+  - in none of 80 loads of eight `button` docs pages at 900 px, nor of 80 at 5200 px.
+- **Already repaired, and not this:** [#159](../packages/box-quad/.plan/plan.md) found the loop error on each story with a `ResizeObserver`, caused by Storybook's highlight addon reacting to a changed text node. `3765d39df` writes the node's data instead. The stories then had no page error. One load per page, as that proof's probe had, can miss the rest.
+- **Candidates, neither of them established:** another node that the stories or the docs page add or remove during a delivery, which makes Storybook's addon start a shallower observation, as before `3765d39df`; or an observer of Storybook's own docs page, while its blocks are laid out. The taller viewport fails more often, and that fits both.
+- **Tier C:** it is the published docs page's, and no consumer of the package meets it. `storybook-1`'s review gave the stories' error Tier A, at low priority. No reading compared the drawing in a load that raises it. It reaches a visitor's console and any monitoring of the page. CI can't see it: `docs-smoke` runs Chromium.
+- **The first reading owed:** in WebKit at 5200 px, where it is frequent, whether the error stays when the stories' observers are removed one at a time, and what the observations' targets are when it is raised. It ends with a cause, or with the record that the cause is Storybook's and not the stories'.
+- **Required property, once the cause is known:** box-quad's docs page raises no page error in WebKit over 40 loads at 5200 px, or the record states that the error is Storybook's and what would follow.
+- **Size:** _not known yet_: finding the cause is the work.
 
 #### RF-114 — A new press during the ripple's fade leaves an unhandled rejection
 

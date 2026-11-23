@@ -1,0 +1,3 @@
+const base = '/workspaces/worktrees/d/packages/';
+const { default: store } = await import(base + 'tproc/src/store/index.ts');
+for (const s of store.sets) if (/extended-fab/.test(s.tokenSetName)) for (const n of s.tokens) if (/label/.test(n.tokenName) && /TYPO|LINE|FONT/i.test(n.tokenValueType)) console.log(s.tokenSetName, n.tokenName, JSON.stringify(n.values), store.isTokenDeprecated(n));
