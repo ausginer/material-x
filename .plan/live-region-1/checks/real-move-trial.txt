@@ -1,0 +1,34 @@
+# RF-103 property 2 as amended, tried on 333c9f7ae's sortable-list.ts and not committed. Read by the architect on 2026-11-23, in slot b at 85051cf6c.
+# The trial counts, at the proposal and now, the items that are in the list at both times and precede the item. Probe: ../../reviews/live-region-1/probes/shifts.browser.test.ts.txt,
+# with its result thrown instead of logged, and two cases added: 'passed item B removed ...' and 'Z prepended at 50ms ...'.
+# With the trial, tests/list/sortable-list.browser.test.ts and the probe pass in the three engines:  Tests 273 passed (273).
+RES chromium {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":505},
+"uncommitted A, Z prepended at 100ms":{"texts":[],"final":"ZABCD","errs":[],"endMs":499},
+"C committed down and A removed, one task":{"texts":["Item 3 of 3.@BDC"],"final":"BDC","errs":[],"endMs":46},
+"A removed at 50ms, C committed down at 150ms":{"texts":["Item 3 of 3.@BDC"],"final":"BDC","errs":[],"endMs":144},
+"A committed at once, Z prepended in the same task":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":0},
+"passed item B removed at 50ms, not committed":{"texts":[],"final":"ACD","errs":[],"endMs":52},
+"Z prepended at 50ms, A committed at 200ms":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":196},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":499},
+"remove item at 100ms":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":498},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+RES firefox {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":501},
+"uncommitted A, Z prepended at 100ms":{"texts":[],"final":"ZABCD","errs":[],"endMs":499},
+"C committed down and A removed, one task":{"texts":["Item 3 of 3.@BDC"],"final":"BDC","errs":[],"endMs":52},
+"A removed at 50ms, C committed down at 150ms":{"texts":["Item 3 of 3.@BDC"],"final":"BDC","errs":[],"endMs":150},
+"A committed at once, Z prepended in the same task":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":0},
+"passed item B removed at 50ms, not committed":{"texts":[],"final":"ACD","errs":[],"endMs":52},
+"Z prepended at 50ms, A committed at 200ms":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":201},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":496},
+"remove item at 100ms":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":500},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}
+RES webkit {"never":{"texts":[],"final":"ABCD","errs":[],"endMs":503},
+"uncommitted A, Z prepended at 100ms":{"texts":[],"final":"ZABCD","errs":[],"endMs":504},
+"C committed down and A removed, one task":{"texts":["Item 3 of 3.@BDC"],"final":"BDC","errs":[],"endMs":47},
+"A removed at 50ms, C committed down at 150ms":{"texts":["Item 3 of 3.@BDC"],"final":"BDC","errs":[],"endMs":154},
+"A committed at once, Z prepended in the same task":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":0},
+"passed item B removed at 50ms, not committed":{"texts":[],"final":"ACD","errs":[],"endMs":51},
+"Z prepended at 50ms, A committed at 200ms":{"texts":["Item 3 of 5.@ZBACD"],"final":"ZBACD","errs":[],"endMs":201},
+"remove item":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":506},
+"remove item at 100ms":{"texts":[],"final":"BCD","errs":["drag: sortable/landing-placeholder-lost"],"endMs":500},
+"reject, Z prepended in handler":{"texts":[],"final":"ZABCD","errs":[],"endMs":0}}

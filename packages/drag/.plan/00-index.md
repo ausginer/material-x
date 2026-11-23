@@ -5110,6 +5110,25 @@ Tier C, **closed at `3bbd506f6`**, read by the architect on 2026-11-21 at `82bfa
 - **Observed, not required:** with the row on CDP, no cycle appears in the `DRF-2` row's window either, although that row still moves with Playwright's mouse. When the cycle starts depends on the page's earlier held-button moves. The `DRF-2` row bounds `translate`'s bytes, not `handleEvent`'s, and it passed in every reading.
 - **Nothing stays open.** The row stays a measurement (`repo:RD-7`). Its comments say _"about 5 to 10"_ B per move, and the readings run from 3.51 to 10.67, within the "about". `DRF-48` closes with this entry.
 
+#### DRF-55 — A landing is reported as a fault when the dropped item left its list during the verdict
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/live-region-1`, from `reviewer-2` of the [feature proof](../../../.plan/reviews/live-region-1/feature-proof-claude.md) of #197, relayed by the coordinator. `DRF-54` is on `repo/register-observations-7` (#195) and is the highest `DRF-` on any branch on `origin`, so this is the next free number. Read at `85051cf6c`, and the reading is in the proof's [`shifts.txt`](../../../.plan/reviews/live-region-1/checks/shifts.txt).
+
+- **What happens:** the consumer removes the item, or moves it to another list, while the verdict is pending, and then accepts. With a `landing`, `#landingTarget` finds the placeholder not beside the item and throws `sortable/landing-placeholder-lost`. It reaches `reportError` as a `DragFault`, once. The outcome stands and the controller stays usable. In `mx-sortable-list`, whose list accepts at its own bound, this is the only outcome that a consumer who deletes the item can get, unless it rejects the event in the handler.
+- **The package agrees with itself:** `DRI-13` says that a landing that can't run _"is reported and skipped"_, and three rows expect the report (`landing.browser.test.ts`, _"should report and skip a landing when the consumer unmounted the item, and stay usable"_ and the row that moves it, and one in `frameworks.browser.test.ts`). So no code departs from the contract, and the finding is the contract.
+- **Why it is a finding:** drag accepts a removed item everywhere else. A removed item cancels the drag, and a disconnected item declines an activation, without a report (`README.md`, `DRI-3`). After the drop, _"a collection change no longer affects the operation"_. Nothing in the README asks that the item stay during the verdict, so by `CONTRIBUTING.md` §1.1 removing it is valid input. A consumer of a list that others change can't prevent it. The report is a page-level error that the consumer didn't cause.
+- **Decided direction:** a landing with nothing to land isn't a failure.
+- **Required properties:**
+  1. When the item isn't connected, or is in another parent than the list it was lifted from, the landing is skipped and nothing is reported. The outcome, `onEnd`, focus and the release stay as today.
+  2. A placeholder that is lost while the item is still in its list is reported, as today, and skipped.
+  3. The same holds for a home landing: a rejection, a cancel, and a cancel requested after the root left the document (below).
+- **Rows:** the three above expect no report. A new row keeps property 2, with the placeholder removed and the item in place. A new row is a rejection with the item removed. A new row is `requestCancel()` with the root removed. **Witness:** each fails before the repair, apart from property 2's, which fails if the report is dropped for every case.
+- **Amends `DRI-13`,** by the unit that takes it: _"A landing that can't run, including a throw from `start`, is reported and skipped, and the outcome stands. A landing whose item has left its list is skipped with no report."_
+- **A proposal that was never registered is taken in here.** The [list-sortable plan](../../../.plan/list-sortable-1/list-sortable-plan.md#proposed-drag-finding-a-cancel-after-the-root-left-the-document) proposed a finding for `requestCancel()` after the root left the document, under the label `DRF-54`, and the [report](../../../.plan/list-sortable-1/list-sortable-report.md) cites `drag:DRF-54` for it. The label was a proposal and was never an address. Those citations mean this entry. `DRF-54` is another finding. The case wasn't reproduced in drag's own suite.
+- **Not read:** the published package's size effect.
+- **Ready** for an implementer, in its own pull request. It doesn't block #197.
+- **Size:** _small_.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
