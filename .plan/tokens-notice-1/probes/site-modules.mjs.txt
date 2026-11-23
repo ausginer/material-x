@@ -1,0 +1,27 @@
+// Each page's content file configures its token modules: the sets and the context tags that they offer. Compared with the store.
+import { createRequire } from 'node:module';
+import { readFileSync, readdirSync } from 'node:fs';
+const { chromium } = createRequire('/workspaces/material-x/package.json')('playwright');
+const store = process.argv[2]; const pages = process.argv.slice(3);
+const shown = new Set(), tags = new Set(), kinds = new Set();
+const b = await chromium.launch();
+for (const u of pages) {
+  const p = await b.newPage(); const bodies = [];
+  p.on('response', (r) => { if (/_dsm\/content\//.test(r.url())) bodies.push(r.text().catch(() => '')); });
+  const st = await p.goto('https://m3.material.io/' + u, { waitUntil: 'networkidle' }).catch((e) => null); await p.waitForTimeout(1500);
+  let n = 0;
+  for (const t of await Promise.all(bodies)) for (const m of t.matchAll(/"resourceName":"([^"]*)","libraryModuleType":"([A-Z_]+)","moduleConfigurationOverrides":(\{.*?\}|null)/g)) {
+    const c = JSON.parse(m[3]) ?? {}; if (m[2] === 'STATUS_TABLE') continue; n++; kinds.add(m[2]); if (!(c.tokenSets ?? []).length) { const id = m[1].split('/').pop(); const t = await (await fetch(`https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/${m[2]}.${id}.json`)).json(); console.log('  no set list, so every set of', m[2], id, t.system.tokenSets.map((x) => x.displayName).join(', ')); for (const x of t.system.tokenSets) shown.add(x.displayName.trim()); }
+    for (const s of c.tokenSets ?? []) shown.add(s.trim()); for (const s of c.contextTags ?? []) tags.add(s);
+  }
+  console.log(u, 'token modules', n); await p.close();
+}
+await b.close();
+const sets = readdirSync(store + '/sets').map((f) => JSON.parse(readFileSync(`${store}/sets/${f}`, 'utf8')));
+const norm = (s) => s.replace(/[–—]/g, '-').replace(/\s+/g, ' ').trim();
+const sh = new Set([...shown].map(norm));
+const named = sets.filter((s) => s.displayName); const off = named.filter((s) => sh.has(norm(s.displayName)));
+console.log('module kinds', [...kinds], 'context tags offered', [...tags].sort());
+console.log('store sets', sets.length, 'named', named.length, 'offered by a module (by display name)', off.length, 'not offered', named.length - off.length);
+console.log(named.filter((s) => !sh.has(norm(s.displayName))).map((s) => `${s.tokenSetName} | ${s.displayName}`).join('\n'));
+const g = JSON.parse(readFileSync(store + '/context.json', 'utf8')); console.log('store tags', JSON.stringify(g.contextTagGroups?.map((x) => [x.contextTagGroupName, x.tags.map((t) => t.displayName ?? t.tagName)])) ?? Object.keys(g));

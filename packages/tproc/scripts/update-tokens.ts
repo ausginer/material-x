@@ -1,7 +1,8 @@
 // oxlint-disable no-console
 /**
  * Writes tproc's token store, `packages/tproc/tokens/`, which nothing else
- * writes.
+ * writes. `NOTICE` is the one file there that this script doesn't write: it
+ * replaces `sets/`, `context.json` and `manifest.json`, and keeps the notice.
  *
  *   node scripts/update-tokens.ts --release <id> [--report <file>]
  *   node scripts/update-tokens.ts --current [--report <file>]
