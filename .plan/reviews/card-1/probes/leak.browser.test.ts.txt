@@ -1,0 +1,119 @@
+/* Probe: which of mx-card's private properties content reads. */
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+const mods = import.meta.glob('../../src/{button,button-group,card,checkbox,fab,icon,list,radio,text-field}/*.ts');
+const wanted = ['button/button','button/icon-button','button/link-button','button/switch-button','button/switch-icon-button','button/split-button','button-group/button-group','button-group/connected-button-group','card/card','checkbox/checkbox','fab/fab','icon/icon','list/list','list/list-item','list/list-button-item','list/list-link-item','list/sortable-list','radio/radio','text-field/multiline-text-field','text-field/text-field'];
+const cases: string[] = [];
+const each = (tag: string, attrs: string[], inner = 'Text') => { for (const a of attrs) cases.push(`<${tag} ${a}>${inner}</${tag}>`); };
+const colors = ['', 'color="elevated"', 'color="tonal"', 'color="outlined"', 'color="text"'];
+const ic = ['', 'color="elevated"', 'color="tonal"', 'color="outlined"', 'color="standard"'];
+const dis = (l: string[]) => [...l, ...l.map((a) => `${a} disabled`)];
+const chk = (l: string[]) => [...l, ...l.map((a) => `${a} checked`)];
+each('mx-button', dis(colors)); each('mx-link-button', dis(colors).map((a) => `${a} href="#"`));
+each('mx-icon-button', dis(ic), '<mx-icon>add</mx-icon>');
+each('mx-switch-button', dis(chk(colors.slice(0, 4)))); each('mx-switch-icon-button', dis(chk(ic)), '<mx-icon>add</mx-icon>');
+each('mx-split-button', dis(colors));
+each('mx-button-group', dis(colors), '<mx-button>A</mx-button><mx-button>B</mx-button>');
+each('mx-connected-button-group', dis(colors), '<mx-switch-button value="a">A</mx-switch-button><mx-switch-button value="b">B</mx-switch-button>');
+each('mx-checkbox', dis(['', 'checked', 'indeterminate', 'error', 'error checked']), '');
+each('mx-radio', dis(['', 'checked', 'error']), '');
+each('mx-fab', dis(['', 'color="primary"', 'color="secondary"', 'tonal', 'tonal color="primary"', 'extended="open"', 'extended="closed"']), '<mx-icon slot="icon">add</mx-icon>FAB');
+each('mx-icon', [''], 'add');
+for (const l of ['mx-list', 'mx-sortable-list']) for (const t of ['mx-list-item', 'mx-list-button-item', 'mx-list-link-item']) for (const a of t === 'mx-list-item' ? [''] : ['', 'selected', 'disabled']) cases.push(`<${l}><${t} ${a}>Label<span slot="start" data-avatar>A</span><span slot="supporting-text">S</span><span slot="end">E</span></${t}></${l}>`);
+for (const t of ['mx-text-field', 'mx-multiline-text-field']) each(t, dis(['', 'value="x"', 'error', 'outlined', 'outlined value="x"', 'outlined error']), '<span slot="label">L</span><span slot="support">S</span>');
+each('mx-card', ['', 'variant="elevated"', 'variant="outlined"'], 'Nested');
+const SENT: Record<string, string> = { '--_level': '5', '--_container-color': 'rgb(1, 2, 3)', '--_container-elevation': '5', '--_container-shadow-color': 'rgb(4, 5, 6)', '--_container-shape': '33px', '--_shadow-color': 'rgb(7, 8, 9)', '--_default-shadow-color': 'rgb(10, 11, 12)', '--_elevation-umbra': '1px 1px red', '--_elevation-penumbra': '1px 1px red', '--_elevation-ambient': '1px 1px red', '--_outline-color': 'rgb(13, 14, 15)', '--_outline-width': '7px' };
+const PROPS = ['box-shadow','background-color','background-image','color','opacity','outline-color','outline-width','outline-style','outline-offset','fill','filter','clip-path','font-size','font-weight','font-family','line-height','letter-spacing','width','height','display','position','gap',...['top','right','bottom','left'].flatMap((e) => [`border-${e}-color`,`border-${e}-width`,`border-${e}-style`,`padding-${e}`,`margin-${e}`]),'border-top-left-radius','border-top-right-radius','border-bottom-right-radius','border-bottom-left-radius','transform','grid-template-columns'];
+function dump(root: Element): string[] {
+  const out: string[] = [];
+  const walk = (e: Element, path: string) => {
+    for (const p of [null, '::before', '::after']) {
+      const s = getComputedStyle(e, p);
+      for (const n of PROPS) { out.push(`${path}${p ?? ''}|${n}|${s.getPropertyValue(n)}`); }
+    }
+    const kids = [...e.children, ...(e.shadowRoot ? [...e.shadowRoot.children] : [])];
+    kids.forEach((k, i) => { if (!['STYLE'].includes(k.tagName)) walk(k, `${path}/${k.localName}${k.className ? '.' + k.className : ''}#${i}`); });
+  };
+  walk(root, root.localName); return out;
+}
+const diff = (a: string[], b: string[]) => { const m = new Map(a.map((l) => { const i = l.lastIndexOf('|', l.length); const k = l.split('|').slice(0, 2).join('|'); return [k, l]; })); return b.filter((l) => m.get(l.split('|').slice(0, 2).join('|')) !== l).map((l) => `${l}   (control ${m.get(l.split('|').slice(0, 2).join('|'))?.split('|')[2]})`); };
+const raf = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+const control = (e: HTMLElement) => { const d = document.createElement('div'); d.style.cssText = 'display:flex;flex-direction:column;position:relative;border-radius:12px'; const s = document.createElement('div'); s.style.cssText = 'display:block;flex:1 0 auto;padding:16px;border-radius:inherit'; s.append(e); d.append(s); return d; };
+const card = (v: string | null, unreset: boolean) => (e: HTMLElement) => { const c = document.createElement('mx-card'); if (v) c.setAttribute('variant', v); c.append(e); if (unreset) { const sh = new CSSStyleSheet(); sh.replaceSync('slot{--_level:inherit;--_container-color:inherit}'); c.shadowRoot!.adoptedStyleSheets.push(sh); } return c; };
+const sentinel = (n: string, v: string) => (e: HTMLElement) => { const d = control(e); (d.firstElementChild as HTMLElement).style.setProperty(n, v); return d; };
+const make = (html: string) => { const t = document.createElement('template'); t.innerHTML = html; return t.content.firstElementChild!.cloneNode(true) as HTMLElement; };
+const put = (w: HTMLElement) => { const box = document.createElement('div'); box.style.cssText = 'width:420px;margin:20px'; box.append(w); document.body.append(box); };
+function finish(n: Element | ShadowRoot): void { n.querySelectorAll('*').forEach((x) => { x.getAnimations().forEach((a) => { try { a.finish(); } catch { a.cancel(); } }); if (x.shadowRoot) { finish(x.shadowRoot); } }); }
+async function settle(): Promise<void> { await raf(); finish(document.body); await raf(); finish(document.body); }
+it('rest', { timeout: 400_000 }, async () => {
+  for (const w of wanted) await mods[`../../src/${w}.ts`]!();
+  const summary: Record<string, number> = {}; const reads: Record<string, string[]> = {}; const lines: string[] = [];
+  const wraps: [string, (e: HTMLElement) => HTMLElement][] = [['control2', control]];
+  for (const v of [null, 'elevated', 'outlined']) { wraps.push([v ?? 'filled', card(v, false)], [`${v ?? 'filled'} UNRESET`, card(v, true)]); }
+  for (const [n, v] of Object.entries(SENT)) wraps.push([`SENT ${n}`, sentinel(n, v)]);
+  for (const html of cases) {
+    document.body.replaceChildren();
+    const els = [make(html), ...wraps.map(() => make(html))];
+    put(control(els[0]!)); wraps.forEach(([, w], i) => put(w(els[i + 1]!)));
+    await settle();
+    const base = dump(els[0]!); const noise = new Set<string>();
+    wraps.forEach(([name], i) => {
+      let d = diff(base, dump(els[i + 1]!)); if (name === 'control2') { d.forEach((l) => noise.add(l.split('|').slice(0, 2).join('|'))); return; }
+      d = d.filter((l) => !noise.has(l.split('|').slice(0, 2).join('|')));
+      if (!d.length) return;
+      summary[name] = (summary[name] ?? 0) + 1;
+      if (name.startsWith('SENT')) (reads[name] ??= []).push(`${html.slice(0, 60)} (${d.length}) ${d[0]!.slice(0, 90)}`);
+      else lines.push(`DIFF ${name}: ${html.slice(0, 90)} (${d.length})\n      ${d.slice(0, 3).map((x) => x.slice(0, 170)).join('\n      ')}`);
+    });
+  }
+  console.log(`REST ${server.browser} cases=${cases.length} elements with a difference: ${JSON.stringify(summary)}`);
+  console.log(lines.join('\n'));
+  for (const [n, l] of Object.entries(reads)) console.log(`${n}: ${l.length}\n   ${l.join('\n   ')}`);
+});
+const STATES = ['hover', 'focus', 'press'];
+it('states', { timeout: 1_200_000 }, async () => {
+  for (const w of wanted) await mods[`../../src/${w}.ts`]!();
+  const summary: Record<string, number> = {}; const reached: Record<string, number> = {}; const lines: string[] = [];
+  const list = cases.filter((h) => !h.includes('mx-sortable') && !/ disabled/u.test(h.slice(0, 60)) && !h.startsWith('<mx-icon>') && !h.startsWith('<mx-card') && !h.startsWith('<mx-icon >'));
+  for (const html of list) for (const st of STATES) {
+    const run = async (w: (e: HTMLElement) => HTMLElement) => {
+      await commands.pointerRelease(); await commands.pointerMove(2, 2, 1);
+      document.body.replaceChildren(); const el = make(html); put(w(el)); await raf();
+      const t = el.querySelector<HTMLElement>('mx-list-item,mx-list-button-item,mx-list-link-item,mx-button,mx-switch-button') ?? el; const r = (t.shadowRoot?.querySelector('.host') ?? t).getBoundingClientRect(); const [x, y] = [r.x + r.width / 2, r.y + r.height / 2];
+      if (st === 'hover') await commands.pointerMove(x, y, 1); else if (st === 'press') await commands.pointerPress(x, y); else await userEvent.keyboard('{Tab}');
+      await settle();
+      return dump(el).filter((l) => !/ripple|\|transform\|/u.test(l));
+    };
+    const base = await run(control);
+    const moved = (() => { document.body.replaceChildren(); const el = make(html); put(control(el)); return el; })(); await settle(); if (diff(dump(moved).filter((l) => !/ripple|\|transform\|/u.test(l)), base).length) reached[st] = (reached[st] ?? 0) + 1;
+    for (const v of [null, 'elevated', 'outlined']) { const d = diff(base, await run(card(v, false))); const k = `${v ?? 'filled'} ${st}`; summary[k] = (summary[k] ?? 0) + (d.length ? 1 : 0); if (d.length) lines.push(`DIFF ${k}: ${html.slice(0, 90)} (${d.length})\n      ${d.slice(0, 3).map((x) => x.slice(0, 170)).join('\n      ')}`); }
+  }
+  await commands.pointerRelease();
+  console.log(`STATES ${server.browser} cases=${list.length} elements with a difference: ${JSON.stringify(summary)}; cases whose state differs from rest: ${JSON.stringify(reached)}`); console.log(lines.join('\n'));
+});
+
+it('rules', async () => {
+  for (const w of wanted) await mods[`../../src/${w}.ts`]!();
+  const out: string[] = [];
+  for (const w of wanted) {
+    const tag = 'mx-' + w.split('/')[1]; const el = document.createElement(tag); document.body.append(el);
+    const css = [...el.shadowRoot!.adoptedStyleSheets].flatMap((sh) => [...sh.cssRules]).map((r) => r.cssText).join('\n');
+    for (const n of Object.keys(SENT)) {
+      const refs = [...css.matchAll(new RegExp(`var\\(${n}(?![\\w-])`, 'gu'))].length; if (!refs) continue;
+      const decl = [...el.shadowRoot!.adoptedStyleSheets].flatMap((sh) => [...sh.cssRules]).filter((r): r is CSSStyleRule => r instanceof CSSStyleRule && r.style.getPropertyValue(n) !== '').map((r) => r.selectorText);
+      out.push(`${decl.includes(':host') ? 'own    ' : 'INHERIT'} ${tag} ${n} refs=${refs} declared on: ${[...new Set(decl)].slice(0, 5).join(' ; ') || 'nothing'}`);
+    }
+  }
+  console.log(`RULES ${server.browser}\n${out.join('\n')}`);
+});
+it('hover', { timeout: 200_000 }, async () => {
+  for (const w of wanted) await mods[`../../src/${w}.ts`]!();
+  const out: string[] = [];
+  const list = ['<mx-button>T</mx-button>', '<mx-button color="elevated">T</mx-button>', '<mx-button color="tonal">T</mx-button>', '<mx-button color="outlined">T</mx-button>', '<mx-icon-button><mx-icon>add</mx-icon></mx-icon-button>', '<mx-switch-button checked>T</mx-switch-button>', '<mx-fab><mx-icon slot="icon">add</mx-icon></mx-fab>', '<mx-checkbox></mx-checkbox>', '<mx-radio></mx-radio>', '<mx-list><mx-list-button-item>L</mx-list-button-item></mx-list>', '<mx-text-field><span slot="label">L</span></mx-text-field>', '<mx-text-field outlined><span slot="label">L</span></mx-text-field>'];
+  for (const html of list) {
+    const run = async (w: (e: HTMLElement) => HTMLElement, hov = true) => { document.body.replaceChildren(); const el = make(html); put(w(el)); await raf(); if (hov) { await userEvent.hover(el); } await settle(); await raf(); const on = el.matches(':hover'); return [dump(el).filter((l) => !/\|transform\|/u.test(l)), on] as const; };
+    const [rest] = await run(control, false); const [base, on] = await run(control); const [f] = await run(card(null, false)); const [e] = await run(card('elevated', false)); const [o] = await run(card('outlined', false)); const [u] = await run(card('elevated', true));
+    out.push(`${html.slice(0, 60)} | :hover ${on} | hover vs rest ${diff(rest, base).length} | filled ${diff(base, f).length} elevated ${diff(base, e).length} outlined ${diff(base, o).length} | elevated UNRESET ${diff(base, u).length}`);
+  }
+  console.log(`HOVER ${server.browser}\n${out.join('\n')}`);
+});

@@ -1,0 +1,71 @@
+// Run from packages/material-x: node mutate.mjs <engine,...> [names...]
+// Each mutation is applied to the source, the rows run, and the file is restored.
+import fs from 'node:fs'; import { spawnSync } from 'node:child_process';
+const C='src/card/', D=C+'styles/default/main.styles.css', O=C+'styles/outlined/main.styles.css', U=C+'styles/utils.ts', T=C+'card.ts', HB='src/core/styles/elevation/host-box.styles.css', LI='src/list/list-item.ts', DT=C+'styles/default/tokens.ts';
+const M=[
+ ['padding on the host',D,[['  display: flex;\n','  display: flex;\n  padding: var(--md-card-padding, 16px);\n'],['  padding: var(--md-card-padding, 16px);\n  border-radius: inherit;','  border-radius: inherit;']]],
+ ['outline on the host',O,[[':host(:state(outlined)) slot {',':host(:state(outlined)) {']]],
+ ['outline as a slot border',O,[['  outline: var','  border: var'],['  outline-offset: calc(-1 * var(--_outline-width));\n','']]],
+ ['outline drawn outside',O,[['  outline-offset: calc(-1 * var(--_outline-width));\n','']]],
+ ['outline in every variant',O,[[':host(:state(outlined)) slot {','slot {']]],
+ ['outline color property ignored',O,[['var(--md-card-outline-color, var(--_outline-color))','var(--_outline-color)']]],
+ ['slot corners not inherited',D,[['  border-radius: inherit;\n','']]],
+ ['host does not stretch its slot',D,[['  flex: 1 0 auto;\n','']]],
+ ['host is a block',D,[['  display: flex;\n  flex-direction: column;\n','  display: block;\n']]],
+ ['inline padding only',D,[['  padding: var(--md-card-padding, 16px);','  padding-inline: var(--md-card-padding, 16px);']]],
+ ['padding property ignored',D,[['var(--md-card-padding, 16px)','16px']]],
+ ['shape property ignored',D,[['var(--md-card-container-shape, var(--_container-shape))','var(--_container-shape)']]],
+ ['color property ignored',D,[['var(--md-card-container-color, var(--_container-color))','var(--_container-color)']]],
+ ['no shape',D,[['  border-radius: var(--md-card-container-shape, var(--_container-shape));\n','']]],
+ ['slot keeps the level',D,[['  --_level: 0;\n','']]],
+ ['slot keeps the container color',D,[['  --_container-color: initial;\n','']]],
+ ['no level',D,[['  --_level: var(--_container-elevation);\n','']]],
+ ['level from a constant 1',D,[['var(--_container-elevation)','1']]],
+ ['no shadow.color',DT,[["    .append('default', specialTokens)\n",'']]],
+ ['container.shadow-color not read',U,[["    'container.shadow-color',\n",'']]],
+ ['container.elevation not read',U,[["    'container.elevation',\n",'']]],
+ ['outline.width not read',U,[["    'outline.width',\n",'']]],
+ ['deprecated tint and icon read',U,[["    'outline.width',\n","    'outline.width',\n    'icon.size',\n    'icon.color',\n    'container.surface-tint-layer.color',\n"]]],
+ ['interaction groups selected',U,[["path === 'default'","path === 'default' || path === 'hovered'"]]],
+ ['no elevation stylesheet',T,[['      elevationStyles,\n','']]],
+ ['no host-box stylesheet on the card',T,[['      hostBoxStyles,\n','']]],
+ ['no elevated stylesheet',T,[['      elevatedStyles,\n','']]],
+ ['no outlined stylesheet',T,[['      outlinedStyles,\n','']]],
+ ['level not registered',T,[["import '../core/styles/elevation/elevation.runtime.ts';\n",'']]],
+ ['the old state stays',T,[['switchState(innards, oldValue, newValue)','switchState(innards, null, newValue)']]],
+ ['host has a role',T,[['[template], {}, [',"[template], { role: 'group' }, ["]]],
+ ['host is focusable',T,[['    const innards = internals(this);\n','    const innards = internals(this);\n    this.tabIndex = 0;\n']]],
+ ['host-box without ::after',HB,[[':host::after {\n  box-shadow: var(--_elevation-ambient);\n}\n','']]],
+ ['host-box without content',HB,[["  content: '';\n",'']]],
+ ['host-box pseudo without radius',HB,[['  border-radius: inherit;\n','']]],
+ ['host-box pseudo without inset',HB,[['  inset: 0;\n','']]],
+ ['one box-shadow list',HB,[['  box-shadow: var(--_elevation-penumbra);','  box-shadow: var(--_elevation-umbra), var(--_elevation-penumbra), var(--_elevation-ambient);'],['  box-shadow: var(--_elevation-umbra);\n}','}'],['  box-shadow: var(--_elevation-ambient);\n}','}']]],
+ ['list item without the host-box stylesheet',LI,[['[hostBoxStyles, staticBoxStyles','[staticBoxStyles']]],
+];
+M.push(
+ ['X outlined tokens and rule unscoped',O,[[':host(:state(outlined)) slot {','slot {']],C+'styles/outlined/tokens.ts',[["createCardDeclarationRenderer('outlined')",'createCardDeclarationRenderer()']]],
+ ['X tab stop on connect',T,[['    const innards = internals(this);\n',"    const innards = internals(this);\n    queueMicrotask(() => { this.tabIndex = 0; });\n"]]],
+ ['X role img',T,[['[template], {}, [',"[template], { role: 'img' }, ["]]],
+ ['X role attribute replaced',T,[['    const innards = internals(this);\n',"    const innards = internals(this);\n    queueMicrotask(() => { this.setAttribute('role', 'group'); });\n"]]],
+ ['X an element around the slot',C+'card.tpl.html',[['<slot></slot>','<div><slot></slot></div>']]],
+ ['X delegatesFocus',T,[['      outlinedStyles,\n    ]);','      outlinedStyles,\n    ], { delegatesFocus: true });']]],
+);
+const I='    const innards = internals(this);\n';
+M.push(
+ ['Y accessibility tree hidden',T,[['[template], {}, [',"[template], { ariaHidden: 'true' }, ["]]],
+ ['Y tabIndex when attached',T,[['export default class Card extends CardConstructor {','export default class Card extends CardConstructor {\n  connectedCallback(): void { this.tabIndex = 0; }']]],
+ ['Y variant attribute not wired',T,[['    useAttributes(this, {','    if (false) useAttributes(this, {']]],
+ ['Y no variant attribute trait',T,[['  variant: Str as','  kind: Str as'],['accessor variant!','accessor kind!']]],
+ ['Y initial elevated state',T,[[I,I+"    innards.states.add('elevated');\n"]]],
+);
+const [engines,...names]=process.argv.slice(2);
+for(const [name,file,reps,file2,reps2] of M){ if(names.length&&!names.some((n)=>name.includes(n)))continue;
+ const orig=fs.readFileSync(file,'utf8'); let s=orig;
+ for(const[a,b]of reps){ if(!s.includes(a)){console.log('!! NOT APPLIED',name,JSON.stringify(a)); s=null;break;} s=s.replace(a,()=>b);} if(!s)continue;
+ const orig2=file2&&fs.readFileSync(file2,'utf8'); try{ fs.writeFileSync(file,s); if(file2){let t=orig2;for(const[a,b]of reps2){if(!t.includes(a))console.log('!! NOT APPLIED2',name);t=t.replace(a,()=>b);}fs.writeFileSync(file2,t);}
+  for(const e of engines.split(',')){
+   const r=spawnSync('aube',['exec','vitest','run','-c','vitest.config.ts','--project','browser*','--project','spec*','tests/card/card','tests/core/elevation.spec'].concat(name.includes('list item')||file===HB?['tests/list']:[]),{env:{...process.env,MX_TEST_ENGINES:e,NO_COLOR:'1'},encoding:'utf8'});
+   const out=r.stdout+r.stderr; const t=/Tests\s+(.*)/.exec(out)?.[1]??'NO RESULT '+out.slice(-300);
+   console.log(`## ${name} | ${e} | ${t}`); for(const l of new Set([...out.matchAll(/FAIL\s+(.*)/g)].map((m)=>m[1].replace(/^.*?> /,''))))console.log('   '+l.slice(0,150));
+  }
+ } finally{ fs.writeFileSync(file,orig); if(file2)fs.writeFileSync(file2,orig2);} }
