@@ -9,7 +9,7 @@
 - **A native `<input type="range">` in the shadow tree is the control** (`SL-D1`). It owns the pointer, touch, the keyboard, the arithmetic and the accessible node. It is transparent, and the component draws everything from one custom property.
 - **The slider's value is the user's, as a text field's text is** (`SL-D2`, the owner's answer to Q1). `value` is a number.
 - **The name comes from a host `aria-labelledby`, the `label` slot, a host `aria-label` or a `<label>`, in that order** (`SL-D4`). Host `aria-*` is mirrored, as the text fields mirror it, so a host `aria-label` also leaves the second named node of `RF-94`. The owner accepted that for now (Q2).
-- **A value change costs 36, 94 and 284 µs of style and layout** in Chromium, Firefox and WebKit, and reads no layout (`SL-D8`).
+- **A value change costs 50, 178 and 323 µs of style and layout** in Chromium, Firefox and WebKit on the built element, and reads no layout (`SL-D8`).
 - **No prototype checkpoint is needed** ([why](#prototype-checkpoint)).
 
 ## Inputs
@@ -27,6 +27,9 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 | [`interaction.ts`](probes/interaction.ts) | [`interaction.txt`](checks/interaction.txt) — drags, keys, events, touch |
 | [`drawing.ts`](probes/drawing.ts) | [`drawing.txt`](checks/drawing.txt) — geometry, states, `:disabled` |
 | [`move-cost.ts`](probes/move-cost.ts) | [`move-cost.txt`](checks/move-cost.txt) — cost of one change |
+| [`built-move-cost-cause.ts`](probes/built-move-cost-cause.ts) | [`built-move-cost-cause.txt`](checks/built-move-cost-cause.txt) — on the built element: why a change costs more than on the prototype |
+| [`stop-indicator.ts`](probes/stop-indicator.ts) | [`stop-indicator.txt`](checks/stop-indicator.txt) — on the built element: the stop indicator as its own element draws the same |
+| [`press-and-width.ts`](probes/press-and-width.ts) | [`press-and-width.txt`](checks/press-and-width.txt) — on the built element: presses off the handle's centre, and the width in shrinking containers |
 | — | [`engine-sources.txt`](checks/engine-sources.txt) — what assistive technology can do to an ARIA slider, and iOS's touch area |
 
 ## SL-D1 — The control is a native range
@@ -37,7 +40,7 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 
 - **Assistive technology changes a native range's value, and in Firefox it can't change an ARIA slider's.** Firefox's `LocalAccessible::SetCurValue` returns `false`, and only native ranges and spinners override it. Its Android bridge marks only those two as settable. Chromium and WebKit synthesize arrow keys for an ARIA slider, so the evidence against one is Firefox's alone, and Firefox on desktop and Android is in `RD-20`'s floor. These are readings of each engine's `main`, not runs with assistive technology.
 - **The host as the slider would be named by the platform.** A host with the slider role takes its name from `aria-label` and from `<label for>` in all three engines, as one node. That is its one advantage, and it doesn't outweigh a control that a TalkBack user in Firefox can't move.
-- **A 4 px thumb is enough.** The native thumb has the handle's width, 4 px, so the native travel is the drawn travel. In all three engines a press anywhere on the track jumps there, a press on the thumb doesn't change the value, and a drag past an end stops at it. On iOS only the thumb starts a drag, and WebKit widens a thumb's touch area by 12.5 px on each side when a dimension is under 48 px. So 4 × 44 px becomes 29 × 69 px. No input is wider than its track, so nothing overflows.
+- **A 4 px thumb is enough.** The native thumb has the handle's width, 4 px, so the native travel is the drawn travel. In all three engines a press anywhere on the track jumps there, a press on the thumb's centre doesn't change the value (off the centre Firefox differs: see the costs below), and a drag past an end stops at it. On iOS only the thumb starts a drag, and WebKit widens a thumb's touch area by 12.5 px on each side when a dimension is under 48 px. So 4 × 44 px becomes 29 × 69 px. No input is wider than its track, so nothing overflows.
 - **The arithmetic is the platform's:** clamping, stepping, the step base and decimals. A step of 0.1 gives `0.3` and `0.7`, not `0.30000000000000004`.
 
 **Not adopted:**
@@ -49,6 +52,7 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 **Costs, accepted:**
 
 - **In WebKit the horizontal arrow keys don't mirror in RTL:** `ArrowRight` increases the value and the handle moves left. Chromium and Firefox mirror. The ARIA practices say _Right Arrow increases_ and don't mirror either. The component leaves the engine's behavior.
+- **In Firefox a press off the thumb's centre moves the value to the pointer.** Chromium and WebKit keep the value anywhere on the thumb. Firefox does this to every native range: with its own thumb, a press 6 px from the centre gave 36 from 40, and the slider's 4 px thumb bounds the move at about 2.4 px (12 of 1000 steps over 196 px, with Firefox's pointer rounded to a whole pixel). So a press changes the value only where a step is narrower than about twice that, and then it fires `input` and `change`. To prevent it, the component would need `SL-D1`'s hybrid. It isn't documented for consumers, because it is the native range's and they can do nothing about it.
 - **If an `input` handler changes the value, WebKit drops the native `change`** at the end of that drag, and Chromium and Firefox fire it. Writing the same value back, as a framework does, loses nothing in any engine. The documentation says to read the final value from `input` if the handler rewrites it.
 - **A vertical scroll that starts on the slider changes the value in Chromium** (`i21 c21`, then the page scrolls). `SL-D3` repairs it.
 
@@ -145,13 +149,20 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 <label class="label" for="input"><slot name="label"></slot></label>
 <div class="track">
   <input id="input" class="input" type="range" part="impl" />
+  <span class="stop"></span>
   <span class="handle"></span>
 </div>
 ```
 
-- The host is a block, and the shadow root delegates focus, which reaches the input through a block host in all three engines. `.track`'s `::before` is the active track and its `::after` the inactive track with the stop indicator at its end. `.handle` is the handle, and its `::after` is the value indicator. `.handle` is an element and not the native thumb, so that rows can measure it, and one rule draws it in every engine.
+- The host is a block, and the shadow root delegates focus, which reaches the input through a block host in all three engines. `.track`'s `::before` is the inactive track and its `::after` the active track. `.stop` is the stop indicator. `.handle` is the handle, and its `::after` is the value indicator. `.handle` is an element and not the native thumb, so that rows can measure it, and one rule draws it in every engine.
 - **The fraction is one inline custom property on `.track`,** never on the host. On the host with 200 light children a change costs 2.2 to 4.5 times as much. It also doesn't write the consumer's `style`.
 - **Geometry.** With `w` the handle's current width and `c` its centre, `c = handle.width / 2 + f × (100% − handle.width)`. The handle covers `c ± w / 2`. The active track ends `active.handle.leading-space` before it, and the inactive track starts `active.handle.trailing-space` after it. Both stop at zero size inside the track: the probe's zero-width part lies 6 px outside it, where it could add scrollable overflow.
+- **The stop indicator is an element of its own,** and not a gradient in the inactive track's box. Required: it lies at the track's inline end, `stop-indicator.trailing-space` from it, in the computed direction. Its inline size is `min(size, max(0px, inactive track − trailing space))`, so it shrinks to nothing as the handle comes. It paints above the inactive track and below the handle, without a `z-index` that leaves `.track`, which is why the inactive track is `::before`: an `::after` would paint over it. It takes no pointer event. Its corner is `stop-indicator.shape`. The disabled opacities are `opacity` on the parts, so no color is mixed. In forced colors the inactive track, the active track and `.stop` have opacity 1, and `.stop` is `Canvas`.
+  - **Why:** it removes the gradient, the paddings and both `color-mix()`es, it reads the `shape` that `SL-D9` lists, and a change costs 42 µs less in Firefox (`SL-D8`). The drawing is the same in the three engines and both directions ([reading](checks/stop-indicator.txt)): the same box, and only edge pixels differ from the gradient's soft edge. It costs one element per slider.
+- **Width.** The host is a block that fills its container, and it has no inline size of its own. A container that shrinks to its content, such as a flex row, gives it 0. It is a limit that the documentation states. The text field has the same one: it is 32 or 33 px wide in a flex row ([reading](checks/press-and-width.txt)). Not adopted:
+  - **The input in flow,** which gives the slider the native range's preferred size: 129, 192 and 129 px in Chromium, Firefox and WebKit (Firefox's seems to follow the font: it is 160 px for the native range). A `min-content` container still gives 0, and in WebKit a change costs 5 to 7 % more.
+  - **`min-inline-size: 200px`,** which is Material Web's. It overflows a narrower container, and the consumer has to undo it.
+  - Either can be added later without a change of the surface.
 - **Corners.** The outer corners are the size's `shape.leading` and `shape.trailing`. The inner corners are the 2 px of `active.track.inner-corner.corner-size`. Its value names right corners, so the package maps them to the active track's end and the inactive track's start.
 - **Sizes** change the track's height, the handle's height and the outer corners. The inset icons of the three larger sizes wait, so `icon.size` and `icon.padding` aren't read.
 - **States.** The handle is 4 px. It is 2 px while the input is `:active` and while it is `:focus-visible`, and both track ends follow it. The held state stays while the pointer is outside, in all three engines. A mouse press isn't `:focus-visible` in any of them. Hover changes nothing but names its token. There is no state layer and no ripple: their tokens are deprecated.
@@ -167,7 +178,29 @@ The drawing uses logical properties only, so it follows the computed direction, 
 
 ## SL-D8 — What a pointer move costs
 
-Per `input`: one read of the input's value, one `setProperty` on `.track`, one `setFormValue`, the indicator's text if it is set, and the native range's own work. **No layout or style is read, and the component writes no host attribute.** A consumer that sets `valuetext` on each move writes one, and `useARIA`'s observer runs a callback that finds no `aria-*` name. Style and layout for one change, flushed, as the median of 20 rounds of 500, on a page of 1000 elements:
+Per `input`: one read of the input's value, one `setProperty` on `.track`, one `setFormValue`, the indicator's text if it is set, and the native range's own work. **No layout or style is read, and the component writes no host attribute.** A consumer that sets `valuetext` on each move writes one, and `useARIA`'s observer runs a callback that finds no `aria-*` name.
+
+**The built element,** at `ed272a010`, with its event dispatched ([readings](checks/built-move-cost-cause.txt)). Style and layout for one change, flushed, as the median of 20 rounds of 400, on a page of 1000 elements, at a load average of 1 to 2 on 12 processors. The prototype was run in the same rounds, so the rows compare.
+
+|  | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- |
+| The native range alone | 11 µs | 5 µs | 28 µs |
+| The prototype with everything | 41 µs | 103 µs | 295 µs |
+| **The built element** | 50 µs | 178 µs | 323 µs |
+| The same, with the stop indicator as an element (adopted) | 52 µs | 135 µs | 328 µs |
+| The built element, held, with the value indicator shown | 91 µs | 300 µs | 463 µs |
+| The same, with the stop indicator as an element | 113 µs | 238 µs | 485 µs |
+
+- **Why the first built readings were higher than the plan's.** Two causes:
+  - **The host's load.** The prototype takes 41, 103 and 295 µs on this nearly idle host, near the plan's 36, 94 and 284. On the implementer's loaded host it took 59, 168 and 484.
+  - **A real cost of the built styles.** Paired by round, a built change costs 1.3, 1.8 and 1.1 times the prototype's. With the prototype's styles on the built element it costs 0.9 times, and with the built styles on the prototype's script 1.2, 1.6 and 1.0. The script with the event is 4, 13 and 3 to 5 µs of the whole.
+- **What in the styles, in Firefox** (the parts overlap, so they don't add up). The inactive track's gradient, paddings and `color-mix()` are 68 of the built element's 85 µs over the prototype, and the tokens as custom properties 35. The geometry and `:has()` are nothing that can be told from the noise. With the tokens, `:has()`, the geometry and the drawing of both track parts all replaced, the cost is the prototype's. In Chromium the tokens explain the difference, and WebKit's is too small to divide.
+- **What is kept.** The tokens as custom properties are how every component reads them. The value indicator costs 38, 115 and 113 µs while the handle is held, and only then, or with keyboard focus, is it shown.
+- **The prototype's value indicator was hidden and had few styles,** so the plan's first figures were below the cost of a shown one.
+- **In Chromium a round takes one of two speeds,** about a factor of two apart, so there the minima compare better than the medians: 34, 42 and 47 µs for the prototype, the built element and the element with the stop indicator, and 75 and 79 µs for the two held rows. The stop indicator's element saves nothing in WebKit, and in Chromium it costs up to 5 µs more.
+- **In Chromium's frames, with paint,** the built element takes 1763 µs of main-thread tasks, against 1680 and 1630 for the prototype in two rows of the same run, 1135 for the native range and 176 idle. The figures vary by about 200 µs, so none of the drawings can be told from another.
+
+The prototype's own variants, read for the choice below, as the median of 20 rounds of 500:
 
 |  | Chromium | Firefox | WebKit |
 | --- | --- | --- | --- |
@@ -211,7 +244,7 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 1. Each attribute and property, with its default; `step` that isn't a number; a signed range's default.
 2. `value`, `min`, `max` and `step` give the same result in each order, as attributes and as properties. **Witness:** without the rewrite, `value` before `max` fails as properties in every engine (read in all three).
 3. The `value` attribute is followed until a user move or a script write, and a reset restores it.
-4. A press, a drag and a drag past each end: the value, the events and their order, flags and target, and `value` and the form value already current in the handler.
+4. A press, a drag and a drag past each end: the value, the events and their order, flags and target, and `value` and the form value already current in the handler. A press on the handle's centre changes nothing. A press 1.5 px off it, on a 200 px slider of 100 steps, changes nothing in Chromium and WebKit, and in Firefox gives the value at the pointer, asserted separately so that a change of the engine is seen. A press on the stop indicator gives the value there (**witness:** without `.stop`'s `pointer-events: none` it fails).
 5. A value written inside an `input` handler during a drag: the drag goes on. The same value written back: `change` fires. `change` after a rewritten value isn't asserted in WebKit.
 6. Every key, in LTR and RTL. The horizontal arrows in RTL assert WebKit's own direction separately, so a change of the engine is seen.
 7. A fractional step over seven presses.
@@ -227,11 +260,13 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 14. Reconnection and a move in the DOM: no doubled event.
 15. Under `prefers-reduced-motion: reduce`, no motion property animates (`RF-107` property 1). Not in Safari.
 
-**`spec` rows,** against the token package: handle and track geometry and the spaces for each size; the corners; the colors and opacities in each state; the handle's width held and focused, with the track ends; the indicator's box; the stop indicator's place; the focus outline. RTL mirrors one size.
+**`spec` rows,** against the token package: handle and track geometry and the spaces for each size; the corners; the colors and opacities in each state; the handle's width held and focused, with the track ends; the indicator's box; the stop indicator's box, corner, color and opacity, in both directions and where the track is too short for it, and that it paints above the inactive track; the focus outline. RTL mirrors one size.
 
 **`visual`:** sizes at three values, disabled, RTL, held with the indicator, keyboard focus, forced colors. The recording workflow makes the baselines.
 
 **The package:** `files.json`, `react.ts`, the traits baseline, `package-entries`, the story and its page, and the size row reported. No size is estimated here: none was measured.
+
+**The component's docs:** JSDoc and `slider.mdx` say that the slider fills its container and has no inline size of its own, so a container that shrinks to its content needs one set.
 
 **Documentation, in its own pull request,** prepared as a patch: an `accessibility.md` section, `architecture.md`'s exceptions (the `.host` one, and Q1's), and the component list.
 
@@ -242,6 +277,7 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 ## Not measured
 
 - Physical touch, iOS Safari and Android. iOS's touch area is a reading of WebKit's source. Emulated touch ran in Chromium only.
+- **The amended element's cost.** The figures with `.stop` are of the built element with the styles changed by the probe. The probe put `.stop` above with a `z-index`, so the swapped pseudo-elements weren't drawn. The implementer reruns `built-move-cost.ts` on the change.
 - A screen reader or any assistive technology. The accessibility trees were read, not heard, so nothing here says whether the second named node is announced.
 - `aria-valuetext`'s effect in Chromium and WebKit, and descriptions in WebKit: their readers don't give them.
 - Paint in Firefox and WebKit, and frames there. The host was shared, and the figures are of headless software rendering, good for comparing the variants.
@@ -287,6 +323,10 @@ Minted on 2026-11-23 by the main slot's architect, at `eaff88884`. The text belo
 | `SL-F1`                            | `repo:RF-119`, run and confirmed |
 | `SL-F2`                            | `repo:RF-120`, run and confirmed |
 
+**Proposed on 2026-11-23, after the implementation, and not minted:** a dated note in `RD-55`, with no new entry. _"The plan is amended at the implementation's return. The stop indicator is an element of its own (`SL-D6`). A press off the thumb's centre moves the value to the pointer in Firefox, as on every native range there (`SL-D1`). The slider has no inline size of its own, as the text field has none (`SL-D6`). The cost of a move is the built element's (`SL-D8`)."_ The entry's own clauses stay true.
+
+The first proposals, as they stood:
+
 - **A decision entry for `SL-D1` to `SL-D9`,** pointing here, with the owner's answers to Q1 and Q2. Q1 (a) also makes the slider the second exception in `architecture.md` §Components.
 - **For `RF-94`, a dated note, and no new finding.** The entry already holds the duplicate node (`FV-F2`) and the unnamed checkbox and radio (`FV-F1`), and its required property is the one that the slider doesn't meet yet. The note adds:
   - **The owner's answer to Q2:** the slider mirrors host `aria-*` as the text fields do, the second node is accepted for now, and how to repair it is decided later. `mx-slider` joins the elements that the repair covers. Until it is built, `RF-94` lists it by this plan.
@@ -320,3 +360,8 @@ Minted on 2026-11-23 by the main slot's architect, at `eaff88884`. The text belo
   - `SL-D4` rewritten: host `aria-*` is mirrored; the order of the four names, with the slot now before a `<label>`; `aria-labelledby` and `aria-describedby` by element reference; the three value attributes excluded; `valuetext` against `aria-valuetext`; the host node per combination;
   - row 10 rewritten, and `SL-D8` and _Not measured_ adjusted;
   - the proposed finding for `RF-94` is a dated note there.
+- **2026-11-23, after the implementation at `ed272a010`,** for the three differences in its [report](slider-report.md):
+  - `SL-D8`: the built element's figures, and the cause of the difference. The loaded host explains most of it, and the styles the rest;
+  - `SL-D6`: the stop indicator is an element, and the two track pseudo-elements change places; the width is a documented limit;
+  - `SL-D1`: the press off the thumb's centre in Firefox, an accepted cost;
+  - rows 4 and the `spec` rows, the component's docs, and _Not measured_ follow. The proposed note is in [the last section](#proposed-record-entries).
