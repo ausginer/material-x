@@ -5009,6 +5009,33 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Ready,** after `RF-117`.
 - **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
 
+#### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
+
+Tier A, **open**, pre-existing, with a question for the owner. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.
+
+- **What happens,** in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, the same in each: a button that sets no level of its own draws the shadow of a lifted list item around it. An unchecked `mx-checkbox` is filled with the container color of a list item, a text field or a top app bar around it. Two rarer cases nest a text field or a list in a text field. The card has both leaks too, and its slot resets them.
+- **The cause** is in the reader. A component reads a private property that its own host doesn't declare unconditionally, and an ancestor that uses the same name supplies it. The name's sharing is coincidence for `--_container-color`, and design for `--_level`, which the elevation stylesheet owns.
+- **What relies on the inheritance:** each component inside its own shadow tree, the list items for `--_drag-*`, and the groups' and the split button's rules for their slotted buttons.
+- **Required property:** in each engine at `RD-20`'s floor, the rendering of a material-x element doesn't depend on the private properties of an element that it is slotted into, except where the record lists one as inherited on purpose. A check in the suite fails when an element reads a private property that another element declares, and neither declares it nor lists it.
+- **Meanwhile:** `mx-card` keeps its slot's two resets, which cover it (no leak in the three engines), and the repair removes them. `mx-top-app-bar` needs none, and neither element waits for this entry.
+- **Owner's question, open. Which repair?** His hypothesis was a prefix by the component's or the trait's name.
+  - **(a) Each element declares on its host what it reads, with the check. Recommended.** It repairs every leak found, whatever the ancestor. `complete` +11 bytes for the leaks found, and +123 for every exposed property. The unit's plan sets how much of it, between the two.
+  - **(b) A prefix by the component's or the trait's name.** It repairs the checkbox and future coincidences. It leaves `--_level`, 72 of the 142 cases, because both sides read the trait's one name, and an element nested in its own kind. 484 occurrences in 29 files, tproc's render and `complete` +242 bytes, an estimate.
+  - **(c) Both.** The costs of both. The prefix then buys names that can be told apart in the developer tools.
+  - **Not offered:** resets in every container's slots, which no check can keep complete, and `inherits: false`, which breaks every component.
+- **Size:** _medium_ for (a), _large_ for (b) and (c). A plan comes first.
+
+#### RF-123 — The published names of private custom properties collide with a page's own
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, from the [diagnosis](private-props-1/private-props.md#published-names) of `RF-122`. `RF-122` is the entry before this one, so this is the next free number. Run on the package as built from `92a386a17`, in the three engines ([reading](private-props-1/checks/mangled-names.txt), [probe](private-props-1/probes/mangled-names.mjs)).
+
+- **What happens:** the build names each private property `--` and one or two letters, such as `--bh`. A page that uses the same names is affected both ways. `:root { --hh: 3px }` sets a filled button's corners, and `:root { --bh: red }` fills an unchecked checkbox. A page's `var(--an)` in content slotted into a text field takes the field's suffix color. `--fn` is registered as a number for the whole document, so a page's own `--fn` can't hold anything else.
+- **Why it is a problem:** short names such as `--bg` and `--fg` are common in a page's styles, and both are in the build's map. The map changes with the sources, so a page can't avoid the names, and each release may break a different page.
+- **Required property:** no name that the package publishes for a private property is one that a page would choose, and the registered name is among them.
+- **Options:** a prefix in `collect-props.ts`' names. `--mx-a`: `complete` +125 bytes. `--_a`: +45, and pages use `--_a` for their own private names. **The architect recommends `--mx-`.** A prefix in the sources (`RF-122` (b)) doesn't change the published names, because the build replaces them.
+- **Interaction:** `RF-122` (a) protects the reading side of the exposed properties, and not the page's content or the registration. The two units touch different files.
+- **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

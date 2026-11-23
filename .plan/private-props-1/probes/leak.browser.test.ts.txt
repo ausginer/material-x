@@ -1,0 +1,332 @@
+// Copied into packages/material-x/tests as leak.browser.test.ts and run with
+//   aube exec vitest run -c vitest.config.ts --project browser(/engine) tests/leak.browser.test.ts
+// with mx-card from origin/material-x/card-1 at 34bcd4e75 and mx-top-app-bar from
+// origin/material-x/top-app-bar-1 at 6dbdcbbd1 laid over main at 92a386a17.
+//
+// For each element S, the exposed properties are the private custom properties
+// that its adopted stylesheets read and that no unconditional `:host` rule of
+// them declares. Each S is put in each container C. For each exposed property
+// that has a value on C, S is given a first-adopted sheet that resets that one
+// property on its host, and the computed style of every element and
+// pseudo-element of S is compared with and without it: a difference is a leak.
+// The card is read twice, with its slot's resets and without them.
+import { it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+
+const modules = import.meta.glob([
+  '../src/*/*.ts',
+  '!../src/react.ts',
+  '!../src/**/*.stories.*',
+]);
+await Promise.all(Object.values(modules).map((load) => load()));
+
+const CONTENT: ReadonlyArray<readonly [string, string]> = [
+  ...['', 'elevated', 'tonal', 'outlined', 'text'].flatMap((color) =>
+    ['', 'disabled'].map(
+      (state) =>
+        [
+          `mx-button ${color} ${state}`.trim(),
+          `<mx-button ${color && `color=${color}`} ${state}>Text</mx-button>`,
+        ] as const,
+    ),
+  ),
+  ...['', 'tonal', 'outlined', 'standard'].flatMap((color) =>
+    ['', 'disabled'].map(
+      (state) =>
+        [
+          `mx-icon-button ${color} ${state}`.trim(),
+          `<mx-icon-button ${color && `color=${color}`} ${state}><mx-icon>add</mx-icon></mx-icon-button>`,
+        ] as const,
+    ),
+  ),
+  ...['', 'elevated', 'outlined', 'tonal'].flatMap((color) =>
+    ['', 'checked', 'disabled'].map(
+      (state) =>
+        [
+          `mx-switch-button ${color} ${state}`.trim(),
+          `<mx-switch-button ${color && `color=${color}`} ${state}>Text</mx-switch-button>`,
+        ] as const,
+    ),
+  ),
+  ...['', 'standard', 'outlined'].flatMap((color) =>
+    ['', 'checked'].map(
+      (state) =>
+        [
+          `mx-switch-icon-button ${color} ${state}`.trim(),
+          `<mx-switch-icon-button ${color && `color=${color}`} ${state}><mx-icon>add</mx-icon></mx-switch-icon-button>`,
+        ] as const,
+    ),
+  ),
+  ['mx-link-button', '<mx-link-button href="#">Text</mx-link-button>'],
+  ['mx-link-button text', '<mx-link-button color=text href="#">Text</mx-link-button>'],
+  ['mx-split-button', '<mx-split-button>Text</mx-split-button>'],
+  ['mx-button-group', '<mx-button-group><mx-button>a</mx-button><mx-button color=text>b</mx-button></mx-button-group>'],
+  ['mx-connected-button-group', '<mx-connected-button-group><mx-button>a</mx-button><mx-button>b</mx-button></mx-connected-button-group>'],
+  ...['', 'checked', 'indeterminate', 'disabled', 'error', 'checked error', 'checked disabled'].map(
+    (state) => [`mx-checkbox ${state}`.trim(), `<mx-checkbox ${state}></mx-checkbox>`] as const,
+  ),
+  ...['', 'checked', 'disabled', 'error'].map(
+    (state) => [`mx-radio ${state}`.trim(), `<mx-radio ${state}></mx-radio>`] as const,
+  ),
+  ['mx-fab', '<mx-fab><mx-icon slot=icon>add</mx-icon></mx-fab>'],
+  ['mx-fab tonal', '<mx-fab tonal><mx-icon slot=icon>add</mx-icon></mx-fab>'],
+  ['mx-fab extended', '<mx-fab extended=open><mx-icon slot=icon>add</mx-icon>Text</mx-fab>'],
+  ['mx-icon', '<mx-icon>add</mx-icon>'],
+  ...['', 'outlined', 'error', 'disabled', 'outlined error', 'outlined disabled'].map(
+    (state) =>
+      [`mx-text-field ${state}`.trim(), `<mx-text-field ${state}><span slot=label>L</span><span slot=support>S</span></mx-text-field>`] as const,
+  ),
+  ['mx-multiline-text-field', '<mx-multiline-text-field></mx-multiline-text-field>'],
+  ['mx-list', '<mx-list><mx-list-item>Text</mx-list-item><mx-list-button-item>Text</mx-list-button-item><mx-list-link-item href="#">Text</mx-list-link-item></mx-list>'],
+  ['mx-list item disabled', '<mx-list><mx-list-button-item disabled>Text</mx-list-button-item><mx-list-button-item selected>Text</mx-list-button-item></mx-list>'],
+  ['mx-card', '<mx-card>Text</mx-card>'],
+  ['mx-card elevated', '<mx-card variant=elevated>Text</mx-card>'],
+  ['mx-card outlined', '<mx-card variant=outlined>Text</mx-card>'],
+];
+
+type Container = Readonly<{
+  name: string;
+  html: string;
+  select: string;
+  slot?: string;
+  prepare?: (element: HTMLElement) => void;
+  only?: RegExp;
+}>;
+
+const noResets = (card: HTMLElement) => {
+  for (const sheet of card.shadowRoot!.adoptedStyleSheets) {
+    const copy = new CSSStyleSheet();
+    copy.replaceSync([...sheet.cssRules].map((r) => r.cssText).join('\n'));
+    for (const rule of copy.cssRules) {
+      if (rule instanceof CSSStyleRule && rule.selectorText === 'slot') {
+        rule.style.removeProperty('--_level');
+        rule.style.removeProperty('--_container-color');
+      }
+    }
+    card.shadowRoot!.adoptedStyleSheets = card.shadowRoot!.adoptedStyleSheets.map(
+      (s) => (s === sheet ? copy : s),
+    );
+  }
+};
+const GROUPABLE = /^mx-(button|icon-button|switch-button|switch-icon-button|link-button|split-button)( |$)/u;
+const ICONS = /^mx-icon$/u;
+
+const CONTAINERS: readonly Container[] = [
+  { name: 'card filled', html: '<mx-card></mx-card>', select: 'mx-card' },
+  { name: 'card elevated', html: '<mx-card variant=elevated></mx-card>', select: 'mx-card' },
+  { name: 'card outlined', html: '<mx-card variant=outlined></mx-card>', select: 'mx-card' },
+  { name: 'card filled, no resets', html: '<mx-card></mx-card>', select: 'mx-card', prepare: noResets },
+  { name: 'card elevated, no resets', html: '<mx-card variant=elevated></mx-card>', select: 'mx-card', prepare: noResets },
+  { name: 'card outlined, no resets', html: '<mx-card variant=outlined></mx-card>', select: 'mx-card', prepare: noResets },
+  { name: 'list-item trail', html: '<mx-list><mx-list-item>Text</mx-list-item></mx-list>', select: 'mx-list-item', slot: 'trail' },
+  { name: 'list-item lifted, trail', html: '<mx-list><mx-list-item>Text</mx-list-item></mx-list>', select: 'mx-list-item', slot: 'trail', prepare: (e) => e.style.setProperty('--_level', '4') },
+  { name: 'list-button-item trail', html: '<mx-list><mx-list-button-item>Text</mx-list-button-item></mx-list>', select: 'mx-list-button-item', slot: 'trail' },
+  { name: 'list-button-item disabled, trail', html: '<mx-list><mx-list-button-item disabled>Text</mx-list-button-item></mx-list>', select: 'mx-list-button-item', slot: 'trail' },
+  { name: 'list-link-item selected, trail', html: '<mx-list><mx-list-link-item href="#" selected>Text</mx-list-link-item></mx-list>', select: 'mx-list-link-item', slot: 'trail' },
+  { name: 'text-field trail', html: '<mx-text-field></mx-text-field>', select: 'mx-text-field', slot: 'trail' },
+  { name: 'text-field outlined, trail', html: '<mx-text-field outlined></mx-text-field>', select: 'mx-text-field', slot: 'trail' },
+  { name: 'text-field outlined error disabled, trail', html: '<mx-text-field outlined error disabled></mx-text-field>', select: 'mx-text-field', slot: 'trail' },
+  { name: 'top-app-bar trail', html: '<mx-top-app-bar></mx-top-app-bar>', select: 'mx-top-app-bar', slot: 'trail' },
+  { name: 'top-app-bar headline', html: '<mx-top-app-bar></mx-top-app-bar>', select: 'mx-top-app-bar' },
+  { name: 'button-group', html: '<mx-button-group></mx-button-group>', select: 'mx-button-group', only: GROUPABLE },
+  { name: 'button-group xlarge outlined', html: '<mx-button-group size=xlarge color=outlined></mx-button-group>', select: 'mx-button-group', only: GROUPABLE },
+  { name: 'button-group elevated', html: '<mx-button-group color=elevated></mx-button-group>', select: 'mx-button-group', only: GROUPABLE },
+  { name: 'connected-button-group', html: '<mx-connected-button-group></mx-connected-button-group>', select: 'mx-connected-button-group', only: GROUPABLE },
+  { name: 'connected-button-group xlarge', html: '<mx-connected-button-group size=xlarge></mx-connected-button-group>', select: 'mx-connected-button-group', only: GROUPABLE },
+  { name: 'fab icon', html: '<mx-fab></mx-fab>', select: 'mx-fab', slot: 'icon', only: ICONS },
+  { name: 'button elevated icon', html: '<mx-button color=elevated>T</mx-button>', select: 'mx-button', slot: 'icon', only: ICONS },
+];
+
+const READ = /var\(\s*(--_[\w-]+)/gu;
+
+function sheetsOf(element: Element): readonly CSSStyleSheet[] {
+  return element.shadowRoot?.adoptedStyleSheets ?? [];
+}
+
+const exposedCache = new Map<string, readonly string[]>();
+function exposed(element: Element): readonly string[] {
+  const cached = exposedCache.get(element.localName);
+  if (cached) {
+    return cached;
+  }
+  const read = new Set<string>();
+  const declared = new Set<string>();
+  const visit = (rules: CSSRuleList) => {
+    for (const rule of rules) {
+      for (const [, name] of rule.cssText.matchAll(READ)) {
+        read.add(name!);
+      }
+      if (rule instanceof CSSStyleRule && rule.selectorText === ':host') {
+        for (const name of rule.style) {
+          declared.add(name);
+        }
+      }
+    }
+  };
+  for (const sheet of sheetsOf(element)) {
+    visit(sheet.cssRules);
+  }
+  const result = [...read].filter((name) => !declared.has(name)).sort();
+  exposedCache.set(element.localName, result);
+  return result;
+}
+
+/** The element and every custom element in its shadow or light tree. */
+function family(root: Element): readonly Element[] {
+  const out: Element[] = [];
+  const visit = (element: Element) => {
+    if (element.shadowRoot) {
+      out.push(element);
+      for (const child of element.shadowRoot.querySelectorAll('*')) {
+        visit(child);
+      }
+    }
+    for (const child of element.children) {
+      visit(child);
+    }
+  };
+  visit(root);
+  return [...new Set(out)];
+}
+
+function snapshot(root: Element): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const [index, host] of family(root).entries()) {
+    const elements = [host, ...host.shadowRoot!.querySelectorAll('*')];
+    for (const [i, element] of elements.entries()) {
+      for (const pseudo of ['', '::before', '::after']) {
+        const style = getComputedStyle(element, pseudo || undefined);
+        if (pseudo && style.content === 'none') {
+          continue;
+        }
+        for (const property of style) {
+          if (!property.startsWith('--')) {
+            out.set(
+              `${host.localName}[${index}] ${i === 0 ? ':host' : `${element.localName}.${element.className}`}#${i}${pseudo} ${property}`,
+              style.getPropertyValue(property),
+            );
+          }
+        }
+      }
+    }
+  }
+  return out;
+}
+
+const frame = async () => {
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+  for (const animation of document.getAnimations()) {
+    animation.finish();
+  }
+};
+
+const DERIVED = /^(inline-size|block-size|width|height|perspective-origin|transform-origin|-webkit|-moz|outline-offset-|border-(inline|block)|padding-(inline|block)|margin-(inline|block)|caret-color|column-rule|text-decoration|text-emphasis|min-|max-|inset|border-(start|end))/u;
+
+it('reads the leaks', { timeout: 600_000 }, async () => {
+  const lines: string[] = [];
+  const summary = new Map<string, Set<string>>();
+  let compared = 0;
+  const style = document.createElement('style');
+  style.textContent = '*,*::before,*::after{transition:none!important;animation:none!important}';
+  document.head.append(style);
+
+  lines.push('# exposed properties: read, and declared by no unconditional :host rule');
+  for (const [, html] of CONTENT) {
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    document.body.append(holder);
+    await frame();
+    for (const element of family(holder.firstElementChild!)) {
+      if (!exposedCache.has(element.localName)) {
+        lines.push(`${element.localName}: ${exposed(element).join(' ') || '-'}`);
+      }
+    }
+    holder.remove();
+  }
+
+  // A reset of every exposed property, outside any container, changes nothing.
+  for (const [label, html] of CONTENT) {
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    document.body.append(holder);
+    await frame();
+    const before = snapshot(holder.firstElementChild!);
+    for (const element of family(holder.firstElementChild!)) {
+      reset(element, exposed(element));
+    }
+    await frame();
+    for (const [key, value] of snapshot(holder.firstElementChild!)) {
+      if (before.get(key) !== value) {
+        lines.push(`CONTROL CHANGED ${label}: ${key}: ${before.get(key)} -> ${value}`);
+      }
+    }
+    holder.remove();
+  }
+
+  function reset(element: Element, names: readonly string[]): () => void {
+    const root = element.shadowRoot!;
+    const previous = root.adoptedStyleSheets;
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(`:host{${names.map((n) => `${n}:initial`).join(';')}}`);
+    root.adoptedStyleSheets = [sheet, ...previous];
+    return () => {
+      root.adoptedStyleSheets = previous;
+    };
+  }
+
+  for (const container of CONTAINERS) {
+    for (const [label, html] of CONTENT) {
+      if (container.only && !container.only.test(label)) {
+        continue;
+      }
+      const holder = document.createElement('div');
+      holder.innerHTML = container.html;
+      const host = holder.querySelector<HTMLElement>(container.select)!;
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      const content = document.importNode(template.content, true).firstElementChild!;
+      if (container.slot) {
+        content.setAttribute('slot', container.slot);
+      }
+      host.append(content);
+      document.body.append(holder);
+      container.prepare?.(host);
+      await frame();
+      const members = family(content);
+      const inherited = getComputedStyle(host);
+      const names = new Set(members.flatMap((m) => exposed(m)));
+      for (const name of names) {
+        if (inherited.getPropertyValue(name) === '') {
+          continue;
+        }
+        compared += 1;
+        const before = snapshot(content);
+        const undo = members.map((m) => (exposed(m).includes(name) ? reset(m, [name]) : undefined));
+        const after = snapshot(content);
+        for (const u of undo) {
+          u?.();
+        }
+        const changed = [...after].filter(([key, value]) => before.get(key) !== value);
+        const visible = changed.filter(([key]) => !DERIVED.test(key.split(' ').at(-1)!));
+        if (changed.length > 0) {
+          const key = `${container.name} | ${name}`;
+          summary.set(key, (summary.get(key) ?? new Set()).add(label));
+          const [first, out] = visible[0] ?? changed[0]!;
+          lines.push(
+            `LEAK ${container.name} > ${label}: ${name}=${inherited.getPropertyValue(name)} changes ${changed.length} values, such as ${first}: ${out} -> ${before.get(first)}`,
+          );
+        }
+      }
+      holder.remove();
+    }
+  }
+  const text = [
+    `# ${server.browser}, ${compared} (container, content, property) triples compared`,
+    '# summary: container | property: contents',
+    ...[...summary].map(([key, contents]) => `${key} (${contents.size}): ${[...contents].join(', ')}`),
+    ...lines,
+  ].join('\n');
+  await commands.writeFile(`./leak-${server.browser}.txt`, text);
+});
