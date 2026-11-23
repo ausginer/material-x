@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/material-x
+
+
+ Test Files  72 passed (72)
+      Tests  1759 passed | 1 expected fail | 4 skipped (1764)
+   Start at  09:27:05
+   Duration  147.49s (tests 87%, worker 6%, import 6%, setup 1%)
+

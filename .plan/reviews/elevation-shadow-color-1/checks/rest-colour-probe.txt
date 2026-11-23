@@ -1,0 +1,23 @@
+probes/rf77-rest-colour-probe.spec.browser.test.ts, run from tests/core/ at afa794ea7 in Chromium, Firefox and WebKit. A passing row means the colour row can't tell red drawn from black expected.
+mx-list-item {"drawn":{"penumbra":"color(srgb 1 0 0 / 0.14) 0px 0.75px 0.75px 0px","umbra":"color(srgb 1 0 0 / 0.2) 0px 0.5px 0.7px 0px","ambient":"color(srgb 1 0 0 / 0.12) 0px 1.5px 2px 0px"},"expected":{"penumbra":"color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px","umbra":"color(srgb 0 0 0 / 0.2) 0px 0.5px 0.7px 0px","ambient":"color(srgb 0 0 0 / 0.12) 0px 1.5px 2px 0px"}}
+     × mx-list-item at level 1: red drawn, black expected 194ms
+mx-list-item {"drawn":{"penumbra":"color(srgb 1 0 0 / 0.14) 0px 0.75px 0.75px 0px","umbra":"color(srgb 1 0 0 / 0.2) 0px 0.5px 0.7px 0px","ambient":"color(srgb 1 0 0 / 0.12) 0px 1.5px 2px 0px"},"expected":{"penumbra":"color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px","umbra":"color(srgb 0 0 0 / 0.2) 0px 0.5px 0.7px 0px","ambient":"color(srgb 0 0 0 / 0.12) 0px 1.5px 2px 0px"}}
+     × mx-list-item at level 1: red drawn, black expected 140ms
+mx-list-item {"drawn":{"penumbra":"color(srgb 1 0 0 / 0.14) 0px 0.75px 0.75px 0px","umbra":"color(srgb 1 0 0 / 0.2) 0px 0.5px 0.7px 0px","ambient":"color(srgb 1 0 0 / 0.12) 0px 1.5px 2px 0px"},"expected":{"penumbra":"color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px","umbra":"color(srgb 0 0 0 / 0.2) 0px 0.5px 0.7px 0px","ambient":"color(srgb 0 0 0 / 0.12) 0px 1.5px 2px 0px"}}
+     × mx-list-item at level 1: red drawn, black expected 153ms
+ FAIL  |spec (chromium)| tests/core/zz-rf77-rest-probe.spec.browser.test.ts:56 > P4: a level-0 colour row and a wrong colour > mx-list-item at level 1: red drawn, black expected
+ FAIL  |spec/firefox (firefox)| tests/core/zz-rf77-rest-probe.spec.browser.test.ts:56 > P4: a level-0 colour row and a wrong colour > mx-list-item at level 1: red drawn, black expected
+ FAIL  |spec/webkit (webkit)| tests/core/zz-rf77-rest-probe.spec.browser.test.ts:56 > P4: a level-0 colour row and a wrong colour > mx-list-item at level 1: red drawn, black expected
+      Tests  3 failed | 3 passed (6)
+
+The same probe with the assertion inverted (not.toEqual), to print the link item's serialized layers:
+mx-list-link-item {"drawn":{"penumbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","umbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","ambient":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px"},"expected":{"penumbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","umbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","ambient":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px"}}
+mx-list-link-item {"drawn":{"penumbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","umbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","ambient":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px"},"expected":{"penumbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","umbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","ambient":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px"}}
+mx-list-link-item {"drawn":{"penumbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","umbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","ambient":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px"},"expected":{"penumbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","umbra":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px","ambient":"color(srgb 0 0 0 / 0) 0px 0px 0px 0px"}}
+ FAIL  |spec (chromium)| tests/core/zz-rf77-rest-probe.spec.browser.test.ts:56 > P4: a level-0 colour row and a wrong colour > mx-list-link-item at rest (level 0): red drawn, black expected
+AssertionError: expected { …(3) } to not deeply equal { …(3) }
+ FAIL  |spec/firefox (firefox)| tests/core/zz-rf77-rest-probe.spec.browser.test.ts:56 > P4: a level-0 colour row and a wrong colour > mx-list-link-item at rest (level 0): red drawn, black expected
+AssertionError: expected { …(3) } to not deeply equal { …(3) }
+ FAIL  |spec/webkit (webkit)| tests/core/zz-rf77-rest-probe.spec.browser.test.ts:56 > P4: a level-0 colour row and a wrong colour > mx-list-link-item at rest (level 0): red drawn, black expected
+AssertionError: expected { …(3) } to not deeply equal { …(3) }
+      Tests  3 failed | 3 passed (6)

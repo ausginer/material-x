@@ -1,0 +1,9 @@
+MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'browser*' --project 'spec*' in packages/material-x at afa794ea7 (slot e, no probe in tests/).
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/material-x
+
+
+ Test Files  72 passed (72)
+      Tests  1759 passed | 1 expected fail | 4 skipped (1764)
+   Start at  09:44:07
+   Duration  157.15s (tests 86%, worker 7%, import 6%, setup 2%)
+

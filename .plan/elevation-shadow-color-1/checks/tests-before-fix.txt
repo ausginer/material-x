@@ -1,0 +1,541 @@
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/material-x
+
+ ❯ |spec (chromium)| tests/core/elevation.spec.browser.test.ts (15 tests | 9 failed) 2354ms
+   ❯ mx-button elevation layers (1)
+     × should draw the three elevation layers of its resting level 307ms
+   ❯ mx-list items elevation layers (3)
+     × should draw the three elevation layers of the dragged level (mx-list-item) 189ms
+     × should draw the three elevation layers of the dragged level (mx-list-button-item) 183ms
+     × should draw the three elevation layers of the resting level (mx-list-link-item) 82ms
+   ❯ elevation at level 0 (9)
+     × should draw each layer of mx-list-item transparent 90ms
+     × should draw each layer of mx-list-button-item transparent 96ms
+     × should draw each layer of mx-list-link-item transparent 101ms
+     × should draw each layer of filled mx-button transparent 82ms
+     × should raise the layers continuously from level 0 73ms
+ ❯ |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts (15 tests | 13 failed) 3243ms
+   ❯ mx-button elevation layers (1)
+     × should draw the three elevation layers of its resting level 223ms
+   ❯ mx-list items elevation layers (3)
+     × should draw the three elevation layers of the dragged level (mx-list-item) 163ms
+     × should draw the three elevation layers of the dragged level (mx-list-button-item) 295ms
+     × should draw the three elevation layers of the resting level (mx-list-link-item) 242ms
+   ❯ elevation at level 0 (9)
+     × should draw each layer of mx-list-item transparent 156ms
+     × should draw each layer of mx-list-button-item transparent 114ms
+     × should draw each layer of mx-list-link-item transparent 143ms
+     × should draw each layer of filled mx-button transparent 157ms
+     × should paint mx-list-item as it does with no layers 349ms
+     × should paint mx-list-button-item as it does with no layers 338ms
+     × should paint mx-list-link-item as it does with no layers 395ms
+     × should paint filled mx-button as it does with no layers 271ms
+     × should raise the layers continuously from level 0 138ms
+ ❯ |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts (15 tests | 9 failed) 1857ms
+   ❯ mx-button elevation layers (1)
+     × should draw the three elevation layers of its resting level 230ms
+   ❯ mx-list items elevation layers (3)
+     × should draw the three elevation layers of the dragged level (mx-list-item) 126ms
+     × should draw the three elevation layers of the dragged level (mx-list-button-item) 119ms
+     × should draw the three elevation layers of the resting level (mx-list-link-item) 80ms
+   ❯ elevation at level 0 (9)
+     × should draw each layer of mx-list-item transparent 79ms
+     × should draw each layer of mx-list-button-item transparent 80ms
+     × should draw each layer of mx-list-link-item transparent 82ms
+     × should draw each layer of filled mx-button transparent 78ms
+     × should raise the layers continuously from level 0 78ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 31 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:90 > mx-button elevation layers > should draw the three elevation layers of its resting level
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "ambient": "color(srgb 0 0 0 / 0.12) 0px 1.5px 2px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px",
+-   "umbra": "color(srgb 0 0 0 / 0.2) 0px 0.5px 0.7px 0px",
++   "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 1.5px 2px 0px",
++   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px",
++   "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 0.5px 0.7px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:102:43
+    100|     });
+    101|
+    102|     expect(renderedLayers(boxOf(button))).toEqual(
+       |                                           ^
+    103|       await expectedLayers(
+    104|         values['container.elevation']!,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +6ms     142ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/31]⎯
+
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+ ❯ listShadowColor tests/core/elevation.spec.browser.test.ts:157:37
+    155|
+    156| async function listShadowColor(): Promise<string | number> {
+    157|   const { values } = await commands.resolveTokenContract({
+       |                                     ^
+    158|     contract: 'list-item.default',
+    159|     state: 'default',
+ ❯ tests/core/elevation.spec.browser.test.ts:186:17
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      50ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      62ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/31]⎯
+
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+ ❯ listShadowColor tests/core/elevation.spec.browser.test.ts:157:37
+    155|
+    156| async function listShadowColor(): Promise<string | number> {
+    157|   const { values } = await commands.resolveTokenContract({
+       |                                     ^
+    158|     contract: 'list-item.default',
+    159|     state: 'default',
+ ❯ tests/core/elevation.spec.browser.test.ts:213:15
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      45ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/31]⎯
+
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+AssertionError: expected [ 0.14, 0.2, 0.12 ] to deeply equal [ +0, +0, +0 ]
+
+- Expected
++ Received
+
+  [
+-   0,
+-   0,
+-   0,
++   0.14,
++   0.2,
++   0.12,
+  ]
+
+ ❯ tests/core/elevation.spec.browser.test.ts:292:56
+    290|       await mount(fixture);
+    291|
+    292|       expect(layerAlphas(boxOf(componentOf(fixture)))).toEqual([0, 0, …
+       |                                                        ^
+    293|     },
+    294|   );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      46ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      56ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      77ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      59ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/31]⎯
+
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+
+- Expected
++ Received
+
+  [
+-   true,
+-   true,
++   false,
++   false,
+  ]
+
+ ❯ tests/core/elevation.spec.browser.test.ts:328:64
+    326|     );
+    327|
+    328|     expect([alphas[0]! < alphas[1]!, alphas[1]! < alphas[2]!]).toEqual…
+       |                                                                ^
+    329|       true,
+    330|       true,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      51ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/31]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:90 > mx-button elevation layers > should draw the three elevation layers of its resting level
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "ambient": "color(srgb 0 0 0 / 0.12) 0px 1.5px 2px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px",
+-   "umbra": "color(srgb 0 0 0 / 0.2) 0px 0.5px 0.7px 0px",
++   "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 1.5px 2px 0px",
++   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px",
++   "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 0.5px 0.7px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:102:43
+    100|     });
+    101|
+    102|     expect(renderedLayers(boxOf(button))).toEqual(
+       |                                           ^
+    103|       await expectedLayers(
+    104|         values['container.elevation']!,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms     128ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/31]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+ ❯ listShadowColor tests/core/elevation.spec.browser.test.ts:157:37
+    155|
+    156| async function listShadowColor(): Promise<string | number> {
+    157|   const { values } = await commands.resolveTokenContract({
+       |                                     ^
+    158|     contract: 'list-item.default',
+    159|     state: 'default',
+ ❯ tests/core/elevation.spec.browser.test.ts:186:17
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      60ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms      62ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/31]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+ ❯ listShadowColor tests/core/elevation.spec.browser.test.ts:157:37
+    155|
+    156| async function listShadowColor(): Promise<string | number> {
+    157|   const { values } = await commands.resolveTokenContract({
+       |                                     ^
+    158|     contract: 'list-item.default',
+    159|     state: 'default',
+ ❯ tests/core/elevation.spec.browser.test.ts:213:15
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms      51ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/31]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+AssertionError: expected [ 0.14, 0.2, 0.12 ] to deeply equal [ +0, +0, +0 ]
+
+- Expected
++ Received
+
+  [
+-   0,
+-   0,
+-   0,
++   0.14,
++   0.2,
++   0.12,
+  ]
+
+ ❯ tests/core/elevation.spec.browser.test.ts:292:56
+    290|       await mount(fixture);
+    291|
+    292|       expect(layerAlphas(boxOf(componentOf(fixture)))).toEqual([0, 0, …
+       |                                                        ^
+    293|     },
+    294|   );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      60ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms      94ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      56ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms     139ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/31]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-button-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint mx-list-link-item as it does with no layers
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:297 > elevation at level 0 > should paint filled mx-button as it does with no layers
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/core/elevation.spec.browser.test.ts:312:30
+    310|
+    311|       // A boolean, because a failure would print both images in base6…
+    312|       expect(drawn === bare).toBe(true);
+       |                              ^
+    313|     },
+    314|   );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms      56ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      58ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms     196ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      58ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/31]⎯
+
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+
+- Expected
++ Received
+
+  [
+-   true,
+-   true,
++   false,
++   false,
+  ]
+
+ ❯ tests/core/elevation.spec.browser.test.ts:328:64
+    326|     );
+    327|
+    328|     expect([alphas[0]! < alphas[1]!, alphas[1]! < alphas[2]!]).toEqual…
+       |                                                                ^
+    329|       true,
+    330|       true,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      70ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/31]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:90 > mx-button elevation layers > should draw the three elevation layers of its resting level
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "ambient": "color(srgb 0 0 0 / 0.12) 0px 1.5px 2px 0px",
+-   "penumbra": "color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px",
+-   "umbra": "color(srgb 0 0 0 / 0.2) 0px 0.5px 0.7px 0px",
++   "ambient": "color(srgb 0.247059 0.411765 0 / 0.12) 0px 1.5px 2px 0px",
++   "penumbra": "color(srgb 0.247059 0.411765 0 / 0.14) 0px 0.75px 0.75px 0px",
++   "umbra": "color(srgb 0.247059 0.411765 0 / 0.2) 0px 0.5px 0.7px 0px",
+  }
+
+ ❯ tests/core/elevation.spec.browser.test.ts:102:43
+    100|     });
+    101|
+    102|     expect(renderedLayers(boxOf(button))).toEqual(
+       |                                           ^
+    103|       await expectedLayers(
+    104|         values['container.elevation']!,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +6ms     124ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/31]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:168 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-button-item)
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+ ❯ listShadowColor tests/core/elevation.spec.browser.test.ts:157:37
+    155|
+    156| async function listShadowColor(): Promise<string | number> {
+    157|   const { values } = await commands.resolveTokenContract({
+       |                                     ^
+    158|     contract: 'list-item.default',
+    159|     state: 'default',
+ ❯ tests/core/elevation.spec.browser.test.ts:186:17
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      61ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      61ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/31]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:195 > mx-list items elevation layers > should draw the three elevation layers of the resting level (mx-list-link-item)
+Error: Missing token "shadow.color" in state "default" of contract "list-item.default"
+ ❯ listShadowColor tests/core/elevation.spec.browser.test.ts:157:37
+    155|
+    156| async function listShadowColor(): Promise<string | number> {
+    157|   const { values } = await commands.resolveTokenContract({
+       |                                     ^
+    158|     contract: 'list-item.default',
+    159|     state: 'default',
+ ❯ tests/core/elevation.spec.browser.test.ts:213:15
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      55ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/31]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-button-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of mx-list-link-item transparent
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:287 > elevation at level 0 > should draw each layer of filled mx-button transparent
+AssertionError: expected [ 0.14, 0.2, 0.12 ] to deeply equal [ +0, +0, +0 ]
+
+- Expected
++ Received
+
+  [
+-   0,
+-   0,
+-   0,
++   0.14,
++   0.2,
++   0.12,
+  ]
+
+ ❯ tests/core/elevation.spec.browser.test.ts:292:56
+    290|       await mount(fixture);
+    291|
+    292|       expect(layerAlphas(boxOf(componentOf(fixture)))).toEqual([0, 0, …
+       |                                                        ^
+    293|     },
+    294|   );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      55ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      56ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      55ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      54ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/31]⎯
+
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:316 > elevation at level 0 > should raise the layers continuously from level 0
+AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+
+- Expected
++ Received
+
+  [
+-   true,
+-   true,
++   false,
++   false,
+  ]
+
+ ❯ tests/core/elevation.spec.browser.test.ts:328:64
+    326|     );
+    327|
+    328|     expect([alphas[0]! < alphas[1]!, alphas[1]! < alphas[2]!]).toEqual…
+       |                                                                ^
+    329|       true,
+    330|       true,
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      54ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/31]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  31 failed | 14 passed (45)
+   Start at  09:30:13
+   Duration  13.02s (tests 71%, worker 16%, import 10%, setup 2%)
+

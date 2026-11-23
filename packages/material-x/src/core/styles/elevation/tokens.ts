@@ -6,8 +6,20 @@ function multiply(multiplier: number): string {
   return `calc(${CSSVariable.ref('level')} * ${multiplier}px)`;
 }
 
+/*
+ * A layer's colour is transparent at level 0, because Firefox paints a
+ * zero-size shadow at a rounded box's corners. The mix rises with the level up
+ * to 1, so a change of level animates with no step. The component's own
+ * `--_shadow-color` wins over the package's default whatever order the two
+ * stylesheets are adopted in.
+ */
 function mix(percent: number): string {
-  return `color-mix(in srgb, ${CSSVariable.ref('shadow-color')} ${percent}%, transparent);`;
+  const color = CSSVariable.ref(
+    'shadow-color',
+    CSSVariable.ref('default-shadow-color'),
+  );
+
+  return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
 }
 
 function createShadowColor(
@@ -29,7 +41,7 @@ const ambient = createShadowColor(1.5, 2, 12);
 function createPackage() {
   return t
     .set({
-      'shadow-color': 'md.sys.color.surface-tint',
+      'default-shadow-color': 'md.sys.color.shadow',
       'elevation.umbra': umbra,
       'elevation.penumbra': penumbra,
       'elevation.ambient': ambient,

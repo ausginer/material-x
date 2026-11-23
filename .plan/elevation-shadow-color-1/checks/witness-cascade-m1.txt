@@ -1,0 +1,34 @@
+# Witness for the cascade rows (RF-77, reviewer-2): the feature proof's m1, the default-only alternative, applied to src/core/styles/elevation/tokens.ts as probes/mutate.sh applies it.
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run -c vitest.config.ts --project 'spec*' tests/core/elevation.spec.browser.test.ts
+diff --git a/packages/material-x/src/core/styles/elevation/tokens.ts b/packages/material-x/src/core/styles/elevation/tokens.ts
+index b796b6b92..ab52aead5 100644
+--- a/packages/material-x/src/core/styles/elevation/tokens.ts
++++ b/packages/material-x/src/core/styles/elevation/tokens.ts
+@@ -14,10 +14,7 @@ function multiply(multiplier: number): string {
+  * stylesheets are adopted in.
+  */
+ function mix(percent: number): string {
+-  const color = CSSVariable.ref(
+-    'shadow-color',
+-    CSSVariable.ref('default-shadow-color'),
+-  );
++  const color = CSSVariable.ref('shadow-color');
+ 
+   return `color-mix(in srgb, ${color} calc(min(${CSSVariable.ref('level')}, 1) * ${percent}%), transparent);`;
+ }
+@@ -41,7 +38,7 @@ const ambient = createShadowColor(1.5, 2, 12);
+ function createPackage() {
+   return t
+     .set({
+-      'default-shadow-color': 'md.sys.color.shadow',
++      'shadow-color': 'md.sys.color.shadow',
+       'elevation.umbra': umbra,
+       'elevation.penumbra': penumbra,
+       'elevation.ambient': ambient,
+      Tests  3 failed | 48 passed (51)
+ FAIL  |spec (chromium)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ FAIL  |spec/webkit (webkit)| tests/core/elevation.spec.browser.test.ts:119 > mx-button elevation layers > should draw its layers in its own shadow colour, after the elevation stylesheet
+ Test Files  3 failed (3)
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
