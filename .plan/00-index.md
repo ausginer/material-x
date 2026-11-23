@@ -4941,12 +4941,21 @@ Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by th
 
 - **What happens:** `ControlledElement` has `movedCallback()`, documented as _"invoked when the host is moved within the DOM without being disconnected (for example via `moveBefore`)"_, and it dispatches the controllers' `moved` hook. The platform's name is `connectedMoveCallback`, and nothing calls `movedCallback`. So in Chromium and Firefox `moveBefore` runs `disconnected` and then `connected`, on every element of core and material-x, and `moved` never runs. WebKit has no `moveBefore`. The core row calls `movedCallback()` by hand, so it can't see this.
 - **Why it is a problem:** `moved` is public, and a consumer who registers a controller for it gets nothing. No package in this repository uses it.
-- **Required property:** what the hook's documentation says is what the platform does, and a row observes it with a real `moveBefore` in an engine that has one.
-- **Owner question Q1 — what should `moveBefore` do?** The choice changes public behavior, so nothing is decided.
+- **Answered by the owner on 2026-11-23** in chat, relayed by the coordinator: **(a)**, delete. _"RF-116 Q1: ммм, да, это однозначно добавлялось для `moveBefore`, но в какой-то момент мы это отложили, ибо тогда (да и сейчас) это был не baseline. Так что, наверное, и вправду (a)"_ ("RF-116 Q1: hmm, yes, this was definitely added for `moveBefore`, but at some point we put it off, because then (and now too) it wasn't Baseline. So probably (a) it is"). So the reason is that `moveBefore` isn't Baseline (`RD-20`): WebKit 27.2 has none. Supporting it later is a decision of its own.
+- **Required properties:**
+  1. `ElementController` has no `moved`, and `CustomElement` and `ControlledElement` have no `movedCallback`. No alias is kept (`CONTRIBUTING.md` §8: npm answers 404 for `@ydinjs/core`).
+  2. `moveBefore` keeps running `disconnected` and then `connected`, as it does today. `connectedMoveCallback` isn't defined.
+- **What goes:** the two declarations and the method in `packages/core/src/element.ts`, with their JSDoc, and the row _"should call moved hooks for all registered controllers"_ in `tests/element.browser.test.ts`, which calls the method by hand. Nothing else in the repository's source, tests, READMEs or agent documents names the hook or `moveBefore`.
+- **Rows:** none is added. **Witness:** core's and material-x's typechecks pass with the members gone, so nothing uses them, and their browser projects pass.
+- **Sizes:** core's `element` row and material-x's rows are measured and reported.
+- **The question as asked, Q1 — what should `moveBefore` do?**
   - **(a) Delete `moved` and `movedCallback`. Recommended:** no consumer is known, no package uses it, and `moveBefore` keeps disconnecting, as it does today. A consumer's `moved` controllers lose a hook that never ran.
   - **(b) Rename to `connectedMoveCallback`,** and dispatch `moved`. Then `moveBefore` stops disconnecting every controlled element. Each controller that does its work in `connected` and `disconnected` (contexts, events, observers, the sortable list's controller, the ripple) has to be read for a move, so it is a unit with a plan.
-- **It doesn't block** #199.
-- **Size:** _small_ for (a), and _large_ for (b).
+- **It didn't block** #199. `RF-109`'s ruling that a move ends a press stands.
+- **Ready** for an implementer. Nothing is left to decide. It is in core alone, and depends on nothing.
+- **Size:** _small_. Until the answer it was _small_ for (a) and _large_ for (b).
+
+**Amended 2026-11-23 by the architect,** on the owner's answer. Until then the entry waited for it, and its required property was: _"what the hook's documentation says is what the platform does, and a row observes it with a real `moveBefore` in an engine that has one."_
 
 #### RF-117 — `createEventNotifier` and `DEFAULT_EVENT_INIT` are a factory for events that a plain `Event` states
 
