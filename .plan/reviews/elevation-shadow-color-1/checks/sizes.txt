@@ -1,0 +1,23 @@
+just size-reading on slot e at afa794ea7 (head) and with the two changed source files checked out from 4fd8b9a67 (base). Columns: row, base, head, delta, record before, record after (.plan/elevation-shadow-color-1/checks/size-*-fix.json). Rows printed: material-x, and any row that moved.
+
+material-x:button/button	4907	4901	-6	4907	4901
+material-x:button/icon-button	5175	5193	18	5175	5193
+material-x:button/link-button	4877	4890	13	4877	4890
+material-x:button/switch-button	5280	5263	-17	5280	5263
+material-x:button/switch-icon-button	5661	5663	2	5661	5663
+material-x:button/split-button	7507	7506	-1	7507	7506
+material-x:button-group/button-group	3115	3115	0	3115	3115
+material-x:button-group/connected-button-group	3862	3867	5	3862	3867
+material-x:checkbox/checkbox	3968	3967	-1	3968	3967
+material-x:fab/fab	4179	4188	9	4179	4188
+material-x:icon/icon	641	641	0	641	641
+material-x:list/list	661	661	0	661	661
+material-x:list/list-item	2830	2847	17	2830	2847
+material-x:list/list-button-item	4649	4663	14	4649	4663
+material-x:list/list-link-item	4866	4873	7	4866	4873
+material-x:list/sortable-list	8698	8686	-12	8698	8686
+material-x:radio/radio	3515	3517	2	3515	3517
+material-x:text-field/multiline-text-field	4153	4150	-3	4153	4150
+material-x:text-field/text-field	8266	8237	-29	8266	8237
+material-x:complete	22295	22330	35	22295	22330
+rows 33 differing from the record: 0

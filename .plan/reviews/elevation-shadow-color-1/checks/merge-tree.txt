@@ -1,0 +1,6 @@
+git merge-tree --write-tree --name-only origin/main (6a67badfd) afa794ea7
+172b65365e89d8f4d287ccc136e3b1151ebbe018
+.plan/00-index.md
+
+Auto-merging .plan/00-index.md
+CONFLICT (content): Merge conflict in .plan/00-index.md
