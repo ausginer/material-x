@@ -5054,26 +5054,6 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Ready,** after `RF-117`.
 - **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
 
-## Questions
-
-#### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
-
-`architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
-
-**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-30` 2026-11-05, `RF-31` 2026-11-13, and `RF-32` 2026-11-14, so the next is `RF-33`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
-
-#### RQ-2 — Does a switch in a button group follow the group's `value` when the switch's own `value` changes, through a reactive value?
-
-**Opened 2026-11-18 by the architect,** on the owner's direction relayed by the coordinator. **Not for now.** The owner: _"Hmm… it looks like this calls for a signal (yes, we don't use them now, it's just a direction)."_
-
-- **The behavior:** when a switch's own `value` changes while its group has a value, the switch isn't reconciled until the group's `value` next changes. It was accepted in the host-invariant handoff's [disposition of the targeted recheck](host-invariant-1/host-invariant-handoff.md#disposition-of-the-targeted-recheck-at-c1a40a3fc). That handoff's item 9 names the two events on which the group writes `checked`: a join, and a change to the group's `value`. `connected-button-group.mdx` and `button-group.mdx` state the same.
-- **Why a question, not a finding:** the code does what the ruling and the documentation say, so no stated property is broken. Tier goes by consequence, and a consumer would observe this, so as a defect it would be Tier A. It isn't a defect.
-- **The question:** should material-x's properties become reactive values that a group can observe, so that the group's match holds whenever the group has a value? That is the stronger invariant the disposition named.
-  - It is a design question for `@ydinjs/core`'s component model, not a repair of the group.
-  - The disposition rejected reconciling on the switch's own `value`, because that makes the group a second writer that reacts to consumer writes. A reactive value would change that premise. It wouldn't make the group a second writer.
-- **What answers it:** a design unit for reactive values in `@ydinjs/core`, when the owner orders one. The stronger invariant would then be a decision of its own. Until then, the ruling stands.
-- **Routed** to the owner, through the work queue (`RD-22`), as not for now.
-
 #### RF-119 — A control in a disabled fieldset isn't disabled
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F1` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-118` is the highest `RF-` on any branch on `origin`, so this is the next free number. Run on the elements as built from `92a386a17`, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](observations-9/checks/form-and-hidden.txt), [probe](observations-9/probes/form-and-hidden.mjs)).
@@ -5114,3 +5094,23 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 - **Where:** a rule in a sheet that `useCore` adopts is one place for every element. `RF-107`'s repair needs such a sheet as well, and the second to land uses the first one's. The rule has to beat each component's conditional `:host(…)` display, and the rows decide.
 - **Rows:** each element in `files.json`, and one whose state gives it another display. A new element's row is added with it: `mx-card`, `mx-top-app-bar` and `mx-slider` are planned and have the same cause.
 - **Size:** _small_.
+
+## Questions
+
+#### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
+
+`architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
+
+**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-30` 2026-11-05, `RF-31` 2026-11-13, and `RF-32` 2026-11-14, so the next is `RF-33`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
+
+#### RQ-2 — Does a switch in a button group follow the group's `value` when the switch's own `value` changes, through a reactive value?
+
+**Opened 2026-11-18 by the architect,** on the owner's direction relayed by the coordinator. **Not for now.** The owner: _"Hmm… it looks like this calls for a signal (yes, we don't use them now, it's just a direction)."_
+
+- **The behavior:** when a switch's own `value` changes while its group has a value, the switch isn't reconciled until the group's `value` next changes. It was accepted in the host-invariant handoff's [disposition of the targeted recheck](host-invariant-1/host-invariant-handoff.md#disposition-of-the-targeted-recheck-at-c1a40a3fc). That handoff's item 9 names the two events on which the group writes `checked`: a join, and a change to the group's `value`. `connected-button-group.mdx` and `button-group.mdx` state the same.
+- **Why a question, not a finding:** the code does what the ruling and the documentation say, so no stated property is broken. Tier goes by consequence, and a consumer would observe this, so as a defect it would be Tier A. It isn't a defect.
+- **The question:** should material-x's properties become reactive values that a group can observe, so that the group's match holds whenever the group has a value? That is the stronger invariant the disposition named.
+  - It is a design question for `@ydinjs/core`'s component model, not a repair of the group.
+  - The disposition rejected reconciling on the switch's own `value`, because that makes the group a second writer that reacts to consumer writes. A reactive value would change that premise. It wouldn't make the group a second writer.
+- **What answers it:** a design unit for reactive values in `@ydinjs/core`, when the owner orders one. The stronger invariant would then be a decision of its own. Until then, the ruling stands.
+- **Routed** to the owner, through the work queue (`RD-22`), as not for now.
