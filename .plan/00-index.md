@@ -4545,7 +4545,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **What it shows:** `mx-button`, `mx-fab`, `mx-checkbox`, `mx-radio` and `mx-list-button-item` that connect in a `display: none` iframe report a `CSSVariableError`, and a press has no ripple after the iframe is shown. Clicks still arrive. Chromium and WebKit aren't affected. `mx-sortable-list` would join them with `RF-105`, and wouldn't sort.
 - **The owner:** _"Да, согласен попытать счастья с вариантом (б)"_ ("Yes, I agree to try my luck with option (b)"), about `RF-105`'s option (b).
 - **Required properties:**
-  1. The hook reads at the first call in a connection, and not at connect. Later calls in that connection return the same values. A connect discards them, so the next call reads again. The values stay available after a disconnect until then.
+  1. The hook reads at the first call in a connection, and not at connect. Later calls in that connection return the same values. A connect discards them, so the next call reads again. The values stay available after a disconnect until then. **The hook is for a connected host, and for variables whose value doesn't depend on its state.** A call on a disconnected host with no values kept reads an empty style, so its parser may throw. The caller ends its work at the disconnect. A caller whose variable changes with the host's state doesn't read it through the hook. The JSDoc says both.
   2. A parse error is thrown by the call, and not by `connectedCallback`. The host's other controllers connect. A read that throws isn't kept, so the next call reads again.
   3. The public signature doesn't change.
 - **Rows:** in core, the first call, the later calls, a reconnect, a change of the variable within a connection and after one, and a call that throws and then succeeds. The row that expects the throw from `connectedCallback()` moves to the call. In material-x, for an adopter of the ripple in a `display: none` iframe that is then shown, a press shows its ripple and reports no error. **Witness:** that row fails in Firefox before the repair, and the core rows for the first call and the throw fail in every engine.
@@ -4558,6 +4558,22 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 
 - **Rows** ([readings](css-props-1/checks/rows.txt)): in core, nine replace the row that expected the throw from `connectedCallback()`. Six of them fail before the repair in each engine, and all pass after it. The three that pass before are later calls, a change within a connection, and the values after a disconnect, which the old hook had too. In material-x, `tests/core/animations/ripple.browser.test.ts` presses the five adopters after their iframe is shown: the five fail in Firefox before the repair, with the `CSSVariableError`, and pass in the three engines after it.
 - **Sizes,** Brotli ([reading](css-props-1/checks/size.txt)): the rows that contain the hook move by −4 to +52 B (`text-field/text-field` 8,486 → 8,538 B), and `complete` goes 22,724 → 22,733 B. core's two rows don't move, and neither contains the hook.
+
+**Ruled 2026-11-23 by the architect** on the [feature proof](reviews/css-props-1/feature-proof-claude.md) of #199 at `07943db4a`, relayed by the coordinator. The readings are in [`ripple-lifecycle.txt`](css-props-1/checks/ripple-lifecycle.txt), with the [probe](css-props-1/probes/ripple-lifecycle.browser.test.ts.txt) and the [trial edit](css-props-1/checks/ripple-trial.diff.txt), which isn't committed.
+
+- **The read at the first call stays.** Neither regression is the hook's timing as such. Each is the ripple's own use of it: work that outlives its host, and a variable that changes with state. With the two repairs below both are gone, and so is a mismatch that the base had. **The owner's choice of (b) isn't changed, so nothing is asked of him.** A read at connect that tolerates an empty value wasn't taken. It needs the read at first use too, for the values it found empty in the Firefox iframe. It would bring back the forced style computation at each connect, and it would leave both ripple faults in place where a connection has no values.
+- **`reviewer-1`: accepted, and repaired in this pull request, in the ripple.** A press ends when the host disconnects: the touch-delay timer and the fade start no animation and read no variable, the running animations are cancelled, and the state, the start event and the context-menu flag are reset.
+  - **Why the ripple and not the hook:** a hook that returned values after a disconnect would give the ripple values to animate a detached element with, and it can't give any when none were read. The ripple has nothing to show on an element that left the document.
+  - **The same repair covers two faults that the base has,** which the probe shows: after a touch press whose element is removed and put back, no later touch starts a ripple, because the old press's pointer id refuses the new one; and after an element that is removed while held is put back, two animations are still applied. With the trial both are gone.
+  - **A move disconnects too,** so it ends the press. The base kept it. The probe's moved press reports no error.
+  - **Rows,** per engine, in `tests/core/animations/ripple.browser.test.ts`: a touch press and a removal within the delay, a press with a move and then a removal before the fade, and a removal while the fade runs, each with no error; a touch after a removal and a put-back, which starts a ripple; and a put-back element with no animation left. **Witness:** the first two fail at `07943db4a` with the `CSSVariableError`, the touch after a put-back fails with no ripple, and the last fails with two animations.
+- **`reviewer-2`: accepted, and repaired in this pull request.** The fade starts from the opacity that the circle has when the fade starts, whatever came before. So it must not be read through the hook, by property 1. The keyframe at the start is left out, so that the browser takes the opacity in effect. In the trial the fade has one keyframe, and the painted opacity at its start follows the interaction (0.08 under hover, 0.1 otherwise) for `mx-button`, `mx-checkbox` and `mx-radio`, in the three engines and in the four orders of the proof. `--_ripple-opacity` leaves `CSS_PROPS`, and `parseNum`, whose only user it was, goes. The spec's requirement that the circle begins at the pressed-state opacity isn't touched.
+  - **On the base's own mismatch:** a mouse press faded from 0.1 while 0.08 was painted. That goes too, and isn't registered.
+  - **Rows:** the fade's first painted opacity equals the one before it, in each of the proof's four orders, for a button, a checkbox and a radio.
+- **`reviewer-3`: accepted.** The hook's rows grow because its added text is 32 bytes in the minified bundle of each. The spread from −4 to +52 B is Brotli 11's, and not a cost of the text field. `list/sortable-list` grows because its graph now has the hook's function; the module was already in it through `fns.ts`. The implementer reads the sizes again after the repair and states both in its new paragraph.
+- **The implementer:** the two ripple repairs, their rows, the JSDoc of `useCSSProps` as property 1 says, the new size reading, `RF-114`'s row, and the pull request's description, whose size lines change.
+- **`RF-106` and `RF-105`** aren't changed. The list's landing timing is read by drag at a landing, and the list destroys its controller at disconnect, so it needs no repair.
+- **Size:** the addition is _small_, and the unit stays _medium_.
 
 #### RF-110 — tproc selects a token's first entry with a matching tag, so it renders iOS, 1P and tallest-script values
 
@@ -4624,6 +4640,17 @@ Tier A, **open**, pre-existing. The rule is older than the store: `RD-28` step 1
 - **Q2 — Which `font` tag: `static` or `variable`?** The weights are the same in both.
   - **(a) `static`, recommended:** Roboto, with the published letter spacing. It is upstream's default tag, equals what material-web and Compose publish, and is the font that Storybook, the tests and the planned site load.
   - **(b) `variable`:** Roboto Flex, with 0 px letter spacing in every style, and variation axes. Upstream's text calls `static` deprecated and asks for variable tokens, while `static` is still its default. Storybook, the tests and the site would load Roboto Flex, and `RF-81`'s ruling on the axes would be read again.
+
+#### RF-114 — A new press during the ripple's fade leaves an unhandled rejection
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the architect's reading for the rulings on #199's feature proof. `RF-113` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `071048978` ([reading](css-props-1/checks/ripple-lifecycle.txt), [probe](css-props-1/probes/ripple-lifecycle.browser.test.ts.txt)). `ripple.ts` isn't in #199's diff, so the base has it.
+
+- **What happens:** a press during the 150 ms exit fade of the previous one cancels the fade's animation. `endAnimation` awaits that animation's `finished`, which rejects with an `AbortError`. Nothing handles it, so the page gets an unhandled rejection, on `mx-button` in the three engines. A double click, or a key repeat, can reach it. No later behavior changes.
+- **Required property:** a press during the fade reports no error, and the new press has its ripple.
+- **The row:** a press at 290 ms after the first click, with no unhandled rejection, per engine. It fails before the repair.
+- **Repaired in #199,** because the repair of `reviewer-1` cancels the same animation at disconnect and has the same rejection. It doesn't wait for a pull request of its own.
+- **Ready** for #199's implementer.
+- **Size:** _small_.
 
 ## Questions
 
