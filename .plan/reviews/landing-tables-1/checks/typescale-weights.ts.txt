@@ -1,0 +1,12 @@
+const R='/workspaces/worktrees/f/packages/tproc/';
+const {default:n}=await import(R+'src/store/index.ts');
+const {resolve}=await import(R+'src/resolve.ts');
+const {default:pt}=await import(R+'src/processToken.ts');
+const NEW=/^md\.comp\.(app-bar|top-app-bar|slider|divider|elevated-card|filled-card|outlined-card)/;
+for(const t of n.tokens){ if(t.tokenName.startsWith('md.sys.typescale')&&/(\.weight|\.font)$/.test(t.tokenName)){
+ const css=String(resolve(t.tokenName,pt(t)));const want=(t.contextualReferenceTree??[]).filter((e:any)=>{const c=e.contextTags??{};return (c.platform??'web')==='web'&&(c.audience??'3p')==='3p'&&(c.font??'static')!=='ios.bold'}).map((e:any)=>JSON.stringify(e.resolvedValue?.fontWeight??e.resolvedValue?.fontNames?.values));
+ const un=[...new Set(want)];const nums=un.map(x=>x.replace(/[\[\]"]/g,''));if(!nums.some(x=>css.includes(x)))console.log(t.tokenName,'css',css,'3p web',un.join('|'))}}
+console.log('--- other divergences among new sets: CSS literal vs the 3p web entry');
+for(const s of n.sets){if(!NEW.test(s.tokenSetName))continue;for(const t of s.tokens){if(n.isTokenDeprecated(t)||t.tokenValueType==='COLOR')continue;
+ const ents=(t.contextualReferenceTree??[]);if(ents.length<2)continue;console.log(t.tokenName,ents.length,JSON.stringify(resolve(t.tokenName,pt(t))).slice(0,200))}}
+console.log('--- tokens with >1 values in new sets');for(const s of n.sets){if(NEW.test(s.tokenSetName))for(const t of s.tokens)if(t.values.length>1)console.log(t.tokenName,t.values.length)}

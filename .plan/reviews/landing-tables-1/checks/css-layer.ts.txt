@@ -1,0 +1,17 @@
+import {readFile} from 'node:fs/promises';
+const R='/workspaces/worktrees/f/packages/tproc/';
+const {default:n}=await import(R+'src/store/index.ts');
+const {default:pts}=await import(R+'src/processTokenSet.ts');
+const {resolveSet}=await import(R+'src/resolve.ts');
+const om=JSON.parse(await readFile(import.meta.dirname+'/packages/tproc/tokens/manifest.json','utf8'));
+const old=new Set(om.files.map((f:any)=>f.path));
+for(const s of n.sets){if(old.has(`sets/${s.tokenSetName}.json`))continue;
+ const p=pts(s.tokenSetName), r=resolveSet(p);
+ const missing=s.tokens.map(t=>t.tokenName.slice(s.tokenSetName.length+1)).filter(k=>!(k in r)&&!Object.keys(r).some(x=>x.startsWith(k+'.')));
+ console.log('##',s.tokenSetName,s.tokens.length,'processed',Object.keys(p).length,'resolved',Object.keys(r).length,'missing',missing.map(k=>k+(n.isTokenDeprecated(n.getToken(s.tokenSetName+'.'+k)!)?'(dep)':'')));
+ if(/elevated-card|filled|outlined|app-bar$|app-bar\.small$|slider$|xsmall|divider/.test(s.tokenSetName)&&!/top/.test(s.tokenSetName))console.log(Object.entries(r).map(([k,v])=>k+'='+v).join('; '));
+ for(const t of s.tokens){if(t.values.length>1){const sel=n.select(t)!;const es=t.contextualReferenceTree??[];
+   console.log('  MULTI',t.tokenName,n.isTokenDeprecated(t)?'(dep)':'',t.values.map(v=>JSON.stringify(v.contextTags)+'->'+JSON.stringify(Object.fromEntries(Object.entries(v).filter(([k])=>!/contextTags|specif/.test(k))))).join(' ; '),'SEL',t.values.indexOf(sel.value),JSON.stringify(sel.entry?.contextTags))}}
+}
+for(const x of ['md.comp.app-bar.medium.icon.size','md.comp.slider.with-tick-marks.active.container.color','md.comp.top-app-bar.small.container.color','md.comp.slider.handle.elevation'])console.log(x,JSON.stringify(n.getToken(x)!.deprecationMessage), n.getTokenSet(n.getToken(x)!).displayName,(n.getToken(x) as any).description);
+console.log(n.getSet('md.comp.top-app-bar.small')!.tokens.filter(t=>t.deprecationMessage==null).length,'small tokens with no own message');
