@@ -4552,6 +4552,14 @@ Tier A, **open**, pre-existing since `73f081dc4` (#90). Registered on 2026-11-23
 - **Property 2's limit said,** until this: _"when another source reorders the remaining items around the item, the order may be the one a commit gives. The list shows the same DOM for both, and announces it."_
 - **Left for the implementer:** the row, a dated paragraph with its reading and the new row count, the pull request's description (12 more rows per engine become 14), and the merge of `main` with the drag register's conflict. No other finding is open on #197.
 
+**Dated 2026-11-23 by the implementer: `recheck-2`'s row is added in #197, and `main` is merged.** Requested by the coordinator, from `203b4b960`. `sortable-list.ts` doesn't change.
+
+- **The row:** _the item leaves and returns at the proposed slot_, in the same table, so the group is now **14 rows per engine**, seven cases each in the announcement and the wait. All 42 pass in Chromium, Firefox and WebKit ([reading](live-region-1/checks/returned-item.txt)).
+- **Witness:** without `index >= 0` in the wait, three rows fail, the case's announcement row in each engine, and drag reports a lost landing. The case's wait row passes in both.
+- **With `sortable-list.ts` of `333c9f7ae`, nine of the 14 fail in each engine,** remeasured. They are the nine named above, and the case's two rows pass there.
+- **The merge** of `origin/main` at `5259fe368` conflicted only in drag's register, where `DRF-54` and `DRF-55` both stay.
+- **Run:** `tests/list` and `tests/core/polyfills` in the three engines, 610 passed and 4 skipped. The rest of material-x's suites is CI's.
+
 #### RF-104 — Eleven relative links in box-quad's record resolve to nothing
 
 Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-6`, from [#176](https://github.com/ausginer/material-x/issues/176), relayed by the coordinator. The architect saw it while registering the Storybook decisions on `box-quad/storybook-2` (#177). `RF-103` is the entry before this one, so this is the next free number. Read at `fa056ff71` ([reading](observations-6/checks/box-quad-links.txt), [probe](observations-4/probes/index-links.mjs)).

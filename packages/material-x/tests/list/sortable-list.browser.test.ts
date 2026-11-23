@@ -1441,6 +1441,18 @@ describe('mx-sortable-list when other items change during the commit wait', () =
       announcement: '',
       early: true,
     },
+    {
+      name: 'the item leaves and returns at the proposed slot',
+      index: 1,
+      respond: ({ item, next }, list) => {
+        setTimeout(() => item.remove(), 50);
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 150);
+      },
+      announcement: 'Item 3 of 4.',
+      early: true,
+    },
   ];
 
   /** Returns the announcement, and whether the wait ended before its bound. */
