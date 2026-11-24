@@ -1,6 +1,6 @@
 # `mx-top-app-bar` — plan
 
-**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The [connect while disconnected](#ruling-on-a-connect-while-disconnected) is ruled on and [implemented](#the-ruling-implemented-2026-11-24). The recheck is next.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The [connect while disconnected](#ruling-on-a-connect-while-disconnected) is ruled on and [implemented](#the-ruling-implemented-2026-11-24). The [recheck](../reviews/top-app-bar-1/feature-proof-recheck-claude.md) is [ruled on](#disposition-of-the-recheck-at-8f5ad01db): the observer's area changes, and the work is the implementer's.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
 
 ## Readings
 
@@ -26,6 +26,7 @@
   - **The animation** stays on when a scrolled page shrinks to one that doesn't scroll, in Chromium and WebKit. In Firefox a screenshot with animations disabled turns it on, and it stays on.
   - **1000 scroll steps in Chromium:** the box and the root-element observer add no style recalculation and no measurable script. The animation adds 999 recalculations, about 11ms. The listener adds about 14ms of script.
 - **[`top-layer-box`](probes/top-layer-box.mjs)** ([reading](checks/top-layer-box.txt)): the box is right in RTL, in vertical writing, in a scrolled frame and after `moveBefore` (not in WebKit, which has none). Each requirement below, taken away, gives a wrong state in the three engines.
+- **[`first-rendering`](probes/first-rendering.ts)** ([reading](checks/first-rendering.txt)) and **[`box-rows`](probes/box-rows.ts)** ([reading](checks/box-rows.txt)), on the built bar at `8f5ad01db` in the same engines, with each candidate as an edit of the built files: what a bar draws when it is shown, and the state on 29 pages, at 8 device scales and at 6 viewport heights. The [disposition](#disposition-of-the-recheck-at-8f5ad01db) has the results.
 - **Scroll-driven animations are Baseline** since 2026-10-27, newly available (webstatus.dev, read on 2026-11-23), so `RD-20`'s floor has them. That isn't why the animation isn't taken.
 - **Limits:** scrolling was programmatic, and the proof adds the wheel and the keyboard. Safari, its overscroll, touch scrolling and pinch zoom weren't read.
 
@@ -51,18 +52,25 @@
 
 ### The scrolled state
 
-**One `IntersectionObserver` per bar,** on a box without size that the component places at the document's scroll start. The state is on while the box is outside the viewport's block axis. [`top-layer-box`](probes/top-layer-box.mjs) is the pattern. (Amended 2026-11-23. The target was the document's root element, [below](#disposition-of-the-feature-proof-at-6dbdcbbd1).)
+**One `IntersectionObserver` per bar,** on a box of 1px that the component places at the document's scroll start. The observer's area is everything above the viewport, and the state is on while the box's top is there. So a box that isn't rendered is at rest. [`first-rendering`](probes/first-rendering.ts)'s _area above_ is the pattern. (Amended 2026-11-23: the target was the document's root element, [below](#disposition-of-the-feature-proof-at-6dbdcbbd1). Amended 2026-11-24: the area was the viewport and the state on outside it, [below](#disposition-of-the-recheck-at-8f5ad01db).)
 
 - **The box is in the top layer,** as a `popover="manual"` in the shadow tree that the component shows at connect. It is `position: absolute` at the start, so its containing block is the document's initial one. It scrolls with the document, and no page style moves it or reaches it. Outside the top layer the host, which is positioned, holds it, and the state is never on.
-- **It has no size, margin, border or padding, and it is `visibility: hidden`.** The user agent's popover styles set most of these. It takes no hit, no focus and no place in the accessibility tree.
-- **The state is the opposite of `isIntersecting`,** with no threshold. A box without size at the area's edge intersects it. From the box's top alone, a bar hidden at the start and shown at a scrolled position stays off.
+- **It is 1px by 1px, has no margin, border or padding, and is `visibility: hidden`.** Without a size it has no part inside the area, and the state is never on. The user agent's popover styles set most of these. It takes no hit, no focus and no place in the accessibility tree.
+- **The state is that the box's top is above the viewport's,** from the entry's `boundingClientRect`. A box that isn't rendered has a top of 0, so it needs no case of its own. The threshold is a positive number near 0, because the box touches the area at the start, and a touch isn't a crossing.
 - **`root: document`** is required: with the default root, a frame's observer measures against the outermost page.
-- **Side margins too large for a page to exceed** are required: with 0px, a page scrolled sideways is on at the start. **The block margins are 0.** A top margin delays the state by its size.
+- **Side margins too large for a page to exceed** are required: with 0px, a page scrolled sideways is on at the start. **The top margin is 10000000px, and the bottom one −100%,** which puts the area's end at the viewport's top in each viewport. With a top margin of 100000000px WebKit is off at 1px, so it isn't larger.
 - **It starts at connect and stops at disconnect,** and the box is shown again at each connect, because a disconnect hides it. The first callback sets the initial state, also for a restored scroll position. **A connect callback that runs while the bar is disconnected shows nothing and reports no error** ([ruling](#ruling-on-a-connect-while-disconnected), added 2026-11-24).
 - **No scroll listener and no layout read.** The state changes at a crossing only, which is property 4 of the landing plan.
 - **The state is the platform's, as `:hover` is.** No consumer sets it and no event reports it.
 
-**Costs:** one element and a few declarations. The bar's box counts as an open popover in its own shadow tree. While the bar is `display: none` its state is on. By reasoning and not by reading, a bar shown again at the start then draws the scrolled color for its first frame, and transitions to rest.
+**Costs:** one element and a few declarations. The bar's box counts as an open popover in its own shadow tree. The observer reports after a frame is drawn, so a bar can't know the scroll position in its first frame:
+
+- **A bar that the page shows on a scrolled page** draws its resting color first, and then runs the color's transition (about 110 to 140ms in which it differs). So does a bar that connects to a scrolled page. This is documented.
+- **A bar that is removed on a scrolled page and inserted again at the start** draws the scrolled color first, and then the transition (about 113 to 136ms), because its state is kept while it is disconnected. A bar that is moved, or inserted again where it was, draws no transition. This was so before.
+- **A page longer than 10000000px** that jumps in one frame between the start and a position beyond that keeps the former state.
+- Under `content-visibility: hidden` and in a closed `details`, an engine keeps the bar's color from before. Shown at the start, after it was hidden on a scrolled page, the bar fades in Chromium (about 82 to 97ms), and for one frame in Firefox. In Firefox a bar in either also draws its first rendering from transparent (about 180ms, and about 135ms at `8f5ad01db`), with each candidate, so it isn't the state's.
+
+(Amended 2026-11-24. The plan said that a bar with `display: none` is on, and that a bar shown again at the start draws the scrolled color for its first frame, by reasoning. It drew a fade of about 110 to 135ms, also at its first rendering.)
 
 **Not taken:**
 
@@ -122,12 +130,13 @@ The owner confirmed the role on the bar on 2026-11-23 (`RD-54`): _"Да, тог�
 In each engine at `RD-20`'s floor, with real scrolling of the document:
 
 - **`top-app-bar.browser.test.ts`:**
-  - the state is off at the start, and then on after 1px and after a jump to the end, each a crossing from an observed off, and off again at the start. **Witness:** the 1px row fails with a top margin of 2px;
+  - the state is off at the start, and then on after 1px and after a jump to the end, each a crossing from an observed off, and off again at the start. **Witness:** the 1px row fails with the box 2px below the start;
   - it is on when the bar connects to a scrolled page, and after a disconnect and a reconnect at another position it matches that position;
   - it is read at 0, at 1px, past one viewport and at 0 again, with each of `html { margin-top: 46px }`, `html { position: relative; top: 20px }`, `body { position: absolute; inset: 0 0 auto }`, `html { height: 0 }` and `html { height: 100% }`. **Witness:** the first four fail with the observer on the root element;
   - with content wider than the viewport and `body { width: max-content }`, a page scrolled sideways past one viewport is off at the start and on when it is scrolled down too. **Witness:** the row fails with side margins of 0px;
   - a scrolled page that becomes too short to scroll is off;
-  - a bar hidden with `display: none` at the start and shown at a scrolled position is on. **Witness:** the row fails with the state taken from the box's top;
+  - a bar hidden with `display: none` at the start and shown at a scrolled position is on. **Witness:** the row fails with the viewport as the area and the state from the box's top;
+  - the rows of the [disposition of the recheck](#disposition-of-the-recheck-at-8f5ad01db), each with its witness (added 2026-11-24);
   - a bar that another element's `connectedCallback` removes in the same insertion reports no error on the window, and inserted again at a scrolled position it is on, and off at the start. **Witness:** the row fails without the check, and with a bar that starts at its first connect only (added 2026-11-24);
   - many scroll steps away from the start change the host's states once, with no `scroll` listener added to the document or the window. **Witness:** the row fails with a listener that does nothing, in either place, and with one that sets the state;
   - the bar's top stays 0 on a scrolled page, positioned content stays under it, and a page's `position: static` unpins it;
@@ -229,3 +238,56 @@ On `material-x/top-app-bar-1` from `85f7c64d0`. `origin/main` wasn't merged.
 - **Witnesses** ([reading](checks/mutations.txt), [script](probes/mutations.mjs)), now 24 mutations and a clean control, read again in the three engines. Without the check, only the error row fails. A bar that starts at its first connect only, where a connect while disconnected counts, fails both rows of a later insertion, and both older reconnect rows. Every former mutation fails rows in the three engines, as before.
 - **Size, Brotli:** `top-app-bar/top-app-bar` 1407 to 1418 B (+11 B). `complete` 23154 to 23134 B (−20 B). No other row moved.
 - **No departure from the ruling.** Safari and the visual project weren't run, and neither was the Storybook build.
+
+## Disposition of the recheck at `8f5ad01db`
+
+By the architect, 2026-11-24, on the [recheck](../reviews/top-app-bar-1/feature-proof-recheck-claude.md) at `3ce65b561`, relayed by the coordinator. Both findings are accepted. Nothing is the owner's to answer: the element is unreleased, and no property that he confirmed changes.
+
+### `reviewer-8`: a bar shown at the start is at rest, by another area
+
+**The cause:** the state was on when the box was outside the viewport, and a box that isn't rendered is outside every area. So the same report meant _scrolled_ and _not rendered_, and the observer doesn't report the change from one to the other. No callback repairs this later: an observer reports after the first frame is drawn, and the color's transition has its start by then. Only the value that a hidden bar holds decides what its first frame draws.
+
+**Chosen: the area is above the viewport, so that the box is in it only when it is scrolled away.** _Not rendered_ and _at the start_ are then the same report, and it is rest. It takes no new mechanism: the observer's two options, the box's size, and the state's expression change. Readings are in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](checks/first-rendering.txt)). The engines agree unless it is said:
+
+| Candidate | Shown at the start, first or again | Hidden and shown on a scrolled page | The state on the pages, scales and heights | What else |
+| --- | --- | --- | --- | --- |
+| Built at `8f5ad01db` | A fade of 106 to 136ms, and none in one reading of 27 | No fade | Right | While hidden it is on |
+| **The area above, the state from the box's top** | **No fade, when it was hidden at the start or on a scrolled page, with the limits in [Costs](#the-scrolled-state)** | A fade | Right, and a 12000000px page is wrong in one jump | While hidden it is off |
+| The same, from the ratio | The same | The same | The same, and the long page is wrong beyond the margin | — |
+| The same, with a margin of 1000000px, or of 100000000px | The same | The same | A 1500000px page is wrong; or, in WebKit, 1px on every page | — |
+| The same, from `isIntersecting` | The same | The same | Right, as the ratio's | It relies on how an engine reports a touch |
+| Two targets, the second fixed in the box, and the last state kept while hidden | No fade, unless hidden on a scrolled page | A fade, only if hidden at the start | Right, at each length | One more element, two values kept between reports, and a stale state while hidden |
+| A size observer that starts the first one again | As two targets | As two targets. **In a `details` hidden and shown again the state stays off** | Right | A second observer |
+| `@starting-style` with the resting color | One frame | A fade | Right | The state is as built. A page's own style on it still shows for a frame, and a `details` fades |
+| A box as tall as the margin | — | — | Wrong on 8 pages (9 in Firefox and WebKit): zoom scales the box and not the margin, and vertical writing is wrong too | — |
+
+- **The area above was chosen over two targets,** because its state has one meaning and no memory: the bar is rendered, and the document is scrolled. Two targets are exact for pages longer than 10000000px, and keep the color of a bar shown again where it was hidden. They cost an element, values kept between reports, and a state that can be wrong while the bar is hidden.
+- **The bar starts at rest, whichever way it comes to be shown,** which is what a bar that connects does. The exception is a bar that is inserted again after a removal (above).
+- **`body:has(mx-top-app-bar:state(scrolled))` doesn't match** while the bar is hidden.
+- **The bar with `content-visibility: auto` on itself** isn't rendered when it is scrolled out sideways in Firefox and WebKit, so it is off there. It was on there before, also at the start.
+- **The requirements,** each read by taking it away: without the side margins 28 of 29 pages are wrong, and without the box's size 29, in the three engines.
+- **What it keeps:** one callback over 200 scroll steps, no scroll listener, no layout read, `root: document`, the top layer, the `isConnected` check, and the same document size and hit target at the corner with the box shown.
+- **Nothing in a frame's own rows changes:** the state in a frame out of view and half in view matches.
+- **Not read:** Safari, overscroll, a pinch zoom and print with this area, a dynamic mobile toolbar, and the rest of the recheck's reading of what the box takes part in. The box is 1px now, and it was 0. The recheck owed below reads the last of these. The candidates were edits of the built files, and not an implementation.
+- **The baseline colors differ little** (`reviewer-8`'s _Not established_). It isn't part of the reason: what is drawn at the start is wrong at any difference, and a page sets both colors.
+
+### `reviewer-9`: a row for the box's popover kind, and one for a bar that moves
+
+- **The route stands: the implementer, a row that fails with `popover="auto"`.** Two rows, because the two effects are separate, and the second catches `hint` as well: an `auto` popover of the page that is open when a bar connects stays open, and after a click on the page the state still follows the scroll position. **With the new area a dismissed box reads as rest, so the second row scrolls after the click and expects on.** `popover="hint"` fails the second one only.
+- **A bar that moves as it connects gets a row.** The recheck read it as right, and its path is its own: the bar's callbacks run as connect, disconnect, connect, and the last one shows a box that is open already. No row reads that. A plausible edit breaks it alone of the readings here: a check that does nothing when the box is already open leaves a moved bar off at 300, and no error is reported ([reading](checks/box-rows.txt)). `CONTRIBUTING.md` §1.1 names reentrancy, and the [ruling](#ruling-on-a-connect-while-disconnected) relied on this without a row.
+- **Not owed:** a row for `visibility: hidden` (nothing that was read changes without it, and the declaration stays).
+
+### The work list
+
+1. **`top-app-bar.ts`:** `rootMargin: '10000000px 1000000px -100%'`, `threshold: 1e-9`, `root: document` as it is, and the state `entries.at(-1)!.boundingClientRect.top < 0`. The comment on the options says why each is as it is: the area, the sides, the bound on the top margin, and that a touch isn't a crossing. The `@cssstate` says _the bar is rendered, and the document is scrolled away from its start_.
+2. **`main.styles.css`:** the box is 1px in both axes, with its comment. The rest of the rule stays.
+3. **`top-app-bar.mdx`, _Scrolled state_:** one sentence. A bar that isn't rendered isn't in the state, and a bar that the page shows or inserts while the document is scrolled draws its resting color and then changes. The JSDoc has no other change.
+4. **Rows in `top-app-bar.browser.test.ts`:**
+   - **A bar hidden at the start, shown at the start:** off while hidden, and when it is shown its color is the resting one in each frame and no `background-color` transition runs. It is read with `display: none` and in a closed `dialog` that is opened. **Witness:** both fail with the viewport as the area (the former options, box and state).
+   - **A bar hidden on a scrolled page is off, and on again when it is shown there.** **Witness:** fails with the former options, box and state, and with a callback that ignores an entry that isn't intersecting.
+   - **The two popover rows and the moved bar's row,** as above. The moved row also expects no error on the window. **Witness:** `popover="auto"` fails both popover rows, and `hint` the second. The check _do nothing when the box is open_ fails the moved row.
+   - The witnesses that change: the 1px row's, and the row of a bar shown at a scrolled position, as _Tests_ now says. _Without the show the state is always on_ is now always off.
+5. **The witnesses of the other rows, again,** in the three engines: the root element as the target fails the first four pages, and the sides at 0px the sideways row. The size of `top-app-bar/top-app-bar` and `complete` again.
+6. **Stop** and return if a row's reading differs in an engine from this section.
+
+**Then a narrow recheck:** the state's pages (its two probes, 27 and 24 pages), the first rendering, the two new rows' witnesses, and what the 1px box takes part in (its `layer` probe). The owner's baselines aren't affected: neither screenshot hides a bar, and nothing of the color at rest or scrolled changes.

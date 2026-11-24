@@ -2422,6 +2422,13 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - **Costs:** one element in the shadow root, so property 1's shadow root holds it beside the three slots. A bar shown again at the start draws the scrolled color for one frame, by reasoning.
 - The plan holds the [dispositions](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-feature-proof-at-6dbdcbbd1) of all seven findings. `reviewer-3` is `RF-122`'s case, and owes nothing here.
 
+**Amended 2026-11-24 by the architect, property 3's area,** on `reviewer-8` of the [recheck](reviews/top-app-bar-1/feature-proof-recheck-claude.md) of #211, relayed by the coordinator. The observer's area is everything above the viewport, and the box in the top layer is 1px. So the state is on while the box's top is above the viewport, and a bar that isn't rendered is at rest. The rest of property 3 stands.
+
+- **Why:** the area was the viewport, where a box that isn't rendered is reported as a box that is scrolled away. A bar first rendered at the start then drew a fade of about 110 to 135ms from the scrolled color, in the three engines. The note above accepted it as one frame, by reasoning, for a bar shown again.
+- **Costs:** a bar that the page shows or inserts on a scrolled page draws its resting color first, and then the transition, which a bar that connects there did already. A bar that is removed on a scrolled page and inserted again at the start draws the scrolled color first, as before. A page longer than 10000000px is wrong when it jumps across that length in one frame. The first is documented.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-recheck-at-8f5ad01db) has the candidates, the readings in the three engines, the ruling on `reviewer-9` (two rows for the box's popover kind, and one for a bar that moves as it connects) and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/first-rendering.txt` and `checks/box-rows.txt`, in the bar's record.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
