@@ -1,0 +1,41 @@
+# chromium 158.0.8127.18
+level 1 (radius 4): corner 18px max 3 mean 1.7, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+level 8 (radius 4): corner 16px max 2 mean 1.1, edge 14px max 1 mean 1.0, inside 0px max 0 mean 0
+lifted (radius 16): corner 208px max 4 mean 1.4, edge 788px max 1 mean 1.0, inside 0px max 0 mean 0
+## position: relative, against position: static (a page rule)
+mx-card, then a block with a background (static/relative): corner 116px max 90 mean 25.9, edge 640px max 90 mean 31.0, inside 0px max 0 mean 0
+mx-card, absolute child inset 0 (static/relative): corner 49440px max 255 mean 254.9, edge 44160px max 255 mean 254.5, inside 0px max 0 mean 0
+mx-card alone (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+mx-list-item level 8, next item has a background (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+mx-list-item level 8, then a div (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+# firefox 159.0
+level 1 (radius 4): corner 20px max 17 mean 6.5, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+level 8 (radius 4): corner 19px max 13 mean 4.8, edge 18px max 1 mean 1.0, inside 0px max 0 mean 0
+lifted (radius 16): corner 428px max 18 mean 2.0, edge 1366px max 1 mean 1.0, inside 0px max 0 mean 0
+## position: relative, against position: static (a page rule)
+mx-card, then a block with a background (static/relative): corner 162px max 91 mean 19.6, edge 800px max 91 mean 26.2, inside 0px max 0 mean 0
+mx-card, absolute child inset 0 (static/relative): corner 49440px max 255 mean 254.9, edge 44160px max 255 mean 254.5, inside 0px max 0 mean 0
+mx-card alone (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+mx-list-item level 8, next item has a background (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+mx-list-item level 8, then a div (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+# webkit 27.2
+level 1 (radius 4): corner 34px max 19 mean 6.7, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+level 8 (radius 4): corner 42px max 16 mean 4.1, edge 126px max 1 mean 1.0, inside 0px max 0 mean 0
+lifted (radius 16): corner 577px max 24 mean 2.1, edge 1964px max 1 mean 1.0, inside 0px max 0 mean 0
+## position: relative, against position: static (a page rule)
+mx-card, then a block with a background (static/relative): corner 122px max 92 mean 24.9, edge 640px max 92 mean 31.3, inside 0px max 0 mean 0
+mx-card, absolute child inset 0 (static/relative): corner 49440px max 255 mean 254.9, edge 44160px max 255 mean 254.5, inside 0px max 0 mean 0
+mx-card alone (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+mx-list-item level 8, next item has a background (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+mx-list-item level 8, then a div (static/relative): corner 0px max 0 mean 0, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+
+# the card, old host box against head
+# chromium 158.0.8127.18
+card 1 (radius 12): corner 73px max 3 mean 1.4, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+card 3 (radius 12): corner 117px max 4 mean 1.3, edge 322px max 1 mean 1.0, inside 0px max 0 mean 0
+# firefox 159.0
+card 1 (radius 12): corner 65px max 19 mean 6.7, edge 0px max 0 mean 0, inside 0px max 0 mean 0
+card 3 (radius 12): corner 114px max 19 mean 4.0, edge 322px max 1 mean 1.0, inside 0px max 0 mean 0
+# webkit 27.2
+card 1 (radius 12): corner 124px max 25 mean 6.6, edge 160px max 5 mean 5.0, inside 0px max 0 mean 0
+card 3 (radius 12): corner 278px max 26 mean 3.4, edge 895px max 3 mean 1.5, inside 0px max 0 mean 0

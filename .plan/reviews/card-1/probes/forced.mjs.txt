@@ -1,0 +1,15 @@
+// Run from packages/material-x: node forced.mjs. mx-card in forced colors, through Vite's dev transform.
+import { createRequire } from 'node:module';
+const require = createRequire(`${process.cwd()}/package.json`);
+const { createServer } = await import(require.resolve('vite').replace(/index\.cjs$/, 'dist/node/index.js'));
+const { chromium, firefox, webkit } = require('playwright');
+const server = await createServer({ root: process.cwd(), configFile: `${process.cwd()}/vite.config.ts`, logLevel: 'error', server: { port: 5999 } });
+await server.listen();
+for (const type of [chromium, firefox, webkit]) {
+  const b = await type.launch(); const p = await b.newPage({ forcedColors: 'active', viewport: { width: 320, height: 420 } });
+  await p.route('**/probe.html', (r) => r.fulfill({ contentType: 'text/html', body: '<!doctype html><body style="display:grid;gap:20px;padding:20px"><mx-card id=f>Filled</mx-card><mx-card id=e variant=elevated>Elevated</mx-card><mx-card id=o variant=outlined>Outlined</mx-card><script type=module src="/src/card/card.ts"></script>' }));
+  await p.goto('http://localhost:5999/probe.html'); await p.waitForFunction(() => customElements.get('mx-card'), null, { timeout: 60000 }); await p.waitForTimeout(300);
+  console.log(type.name(), JSON.stringify(await p.evaluate(() => ({ match: matchMedia('(forced-colors: active)').matches, cards: ['f', 'e', 'o'].map((i) => { const h = document.getElementById(i); const s = getComputedStyle(h.shadowRoot.querySelector('slot')); const c = getComputedStyle(h); return [i, c.backgroundColor, c.boxShadow.slice(0, 30), s.outlineStyle, s.outlineWidth, s.outlineColor].join(' '); }) }))));
+  await p.screenshot({ path: `${process.env.OUT}/forced-${type.name()}.png` }); await b.close();
+}
+await server.close(); process.exit(0);

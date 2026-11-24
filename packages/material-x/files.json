@@ -8,6 +8,7 @@
     "button/split-button",
     "button-group/button-group",
     "button-group/connected-button-group",
+    "card/card",
     "checkbox/checkbox",
     "fab/fab",
     "icon/icon",

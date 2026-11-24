@@ -1,0 +1,97 @@
+Mutations beside mutate-4.mjs's, at ac8ab1d26: tests/card and tests/core/elevation.spec. Two runs, because the first was cut off after its last whole engine.
+## host a flex column | chromium | 1 failed | 76 passed (77)
+   mx-card content > should end a scroll in both axes with the padding
+## host a flex column | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should end a scroll in both axes with the padding
+## host a flex column | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should end a scroll in both axes with the padding
+## host a grid | chromium | 77 passed (77)
+## host a grid | firefox | 74 passed | 3 skipped (77)
+## host a grid | webkit | 74 passed | 3 skipped (77)
+## host paints contained | chromium | 1 failed | 76 passed (77)
+   mx-card content > should not clip its content
+## host paints contained | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not clip its content
+## host paints contained | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not clip its content
+## host hides overflow | chromium | 1 failed | 76 passed (77)
+   mx-card content > should not clip its content
+## host hides overflow | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not clip its content
+## host hides overflow | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not clip its content
+## padding in the block axis only !important | chromium | 7 failed | 70 passed (77)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## padding in the block axis only !important | firefox | 7 failed | 67 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## padding in the block axis only !important | webkit | 7 failed | 67 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## slot as a grid | chromium | 2 failed | 75 passed (77)
+   mx-card content > should fill a card that a grid stretches
+   mx-card content > should end a scroll in both axes with the padding
+## slot as a grid | firefox | 2 failed | 72 passed | 3 skipped (77)
+   mx-card content > should fill a card that a grid stretches
+   mx-card content > should end a scroll in both axes with the padding
+## slot as a grid | webkit | 2 failed | 72 passed | 3 skipped (77)
+   mx-card content > should fill a card that a grid stretches
+   mx-card content > should end a scroll in both axes with the padding
+## slot inline | chromium | 1 failed | 76 passed (77)
+   mx-card content > should end a scroll in both axes with the padding
+## slot inline | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should end a scroll in both axes with the padding
+## slot inline | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should end a scroll in both axes with the padding
+## host with a width | chromium | 77 passed (77)
+## host with a width | firefox | 74 passed | 3 skipped (77)
+## host with a width | webkit | 74 passed | 3 skipped (77)
+## resets on the host | chromium | 2 failed | 75 passed (77)
+   mx-card content > should not give its container colour to a checkbox inside it
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## resets on the host | firefox | 2 failed | 72 passed | 3 skipped (77)
+   mx-card content > should not give its container colour to a checkbox inside it
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## resets on the host | webkit | 2 failed | 72 passed | 3 skipped (77)
+   mx-card content > should not give its container colour to a checkbox inside it
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## resets on ::slotted | chromium | 77 passed (77)
+## resets on ::slotted | firefox | 74 passed | 3 skipped (77)
+## resets on ::slotted | webkit | 74 passed | 3 skipped (77)
+## no position, the plan sheet only | chromium | 1 failed | 76 passed (77)
+   mx-card content > should be the containing block of positioned content
+## no position, the plan sheet only | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should be the containing block of positioned content
+## no position, the plan sheet only | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should be the containing block of positioned content
+## outline width 2px | chromium | 4 failed | 73 passed (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+## outline width 2px | firefox | 4 failed | 70 passed | 3 skipped (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+## outline width 2px | webkit | 4 failed | 70 passed | 3 skipped (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card

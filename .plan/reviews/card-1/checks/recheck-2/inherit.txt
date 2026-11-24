@@ -1,0 +1,6 @@
+# chromium 158.0.8127.18
+slot display contents | names reset --mx-fn,--mx-bh | boxes that differ with the resets taken away 4 | cases that differ inside the card 0
+# firefox 159.0
+slot display contents | names reset --mx-fn,--mx-bh | boxes that differ with the resets taken away 4 | cases that differ inside the card 0
+# webkit 27.2
+slot display contents | names reset --mx-fn,--mx-bh | boxes that differ with the resets taken away 4 | cases that differ inside the card 0

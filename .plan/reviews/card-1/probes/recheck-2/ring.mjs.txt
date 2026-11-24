@@ -1,0 +1,27 @@
+// Where the browser's own focus ring lies on a card that is smaller than its content: the layout before
+// (the slot with the padding, dc3a98c82's card), the head, and a plain div with the same declarations.
+//   node ring.mjs <engine>      (lib.mjs, and the bundles old.js and head.js, beside it)
+import { playwright, code, compare } from './lib.mjs';
+const E = process.argv[2];
+const browser = await playwright[E].launch();
+console.log(`# ${E} ${browser.version()}`);
+const base = 'html body{padding:40px!important;margin:0;background:#fff}mx-card,.d{inline-size:200px}.d{box-sizing:border-box;display:flow-root;padding:16px;border-radius:12px;background:#e0e4d4}';
+const SIZES = [['natural', '', 40], ['block-size 40', 'block-size:40px', 40], ['block-size 40, taller content', 'block-size:40px', 100], ['block-size 40, content 10', 'block-size:40px', 10], ['block-size 40, hidden', 'block-size:40px;overflow:hidden', 100], ['inline-size 80, wide content', 'inline-size:80px', 'w']];
+for (const vis of ['hidden', 'visible']) for (const [n, style, h] of SIZES) {
+  const out = [];
+  for (const which of ['old', 'head', 'div']) {
+    const page = await browser.newPage({ viewport: { width: 420, height: 260 } });
+    const inner = `<div style="${h === 'w' ? 'inline-size:250px;block-size:40px' : `block-size:${h}px`};visibility:${vis}"></div>`;
+    const tag = which === 'div' ? 'div class=d' : 'mx-card';
+    await page.setContent(`<!doctype html><style>${base}</style><${tag} id=x tabindex=0 style="${style}">${inner}</${tag.split(' ')[0]}><script>${which === 'div' ? '' : code(which)}</script>`);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const a = (await page.screenshot()).toString('base64');
+    await page.keyboard.press(E === 'webkit' ? 'Alt+Tab' : 'Tab');
+    const box = await page.evaluate(async () => { await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); const b = x.getBoundingClientRect(); return `${document.activeElement === x ? '' : 'NOT FOCUSED '}${b.width}x${b.height}`; });
+    const d = await compare(page, a, (await page.screenshot()).toString('base64'));
+    out.push(`${which} ${box}: ${d.px}px in ${JSON.stringify(d.box)}`);
+    await page.close();
+  }
+  console.log(`content ${vis} | ${n}\n   ${out.join('\n   ')}`);
+}
+await browser.close();
