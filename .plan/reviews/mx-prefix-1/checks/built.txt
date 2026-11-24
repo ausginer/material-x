@@ -1,0 +1,66 @@
+# compare.mjs: every built file, after against before
+files 231 same list true
+map: same keys in order true each value after = --mx- + before true
+{
+  '.d.ts': { n: 30, identical: 30, renamed: 0, other: 0 },
+  '.js': { n: 100, identical: 60, renamed: 40, other: 0 },
+  '.js.map': { n: 100, identical: 63, renamed: 0, other: 37 },
+  '.json': { n: 1, identical: 1, renamed: 0, other: 0 }
+}
+differ otherwise: [
+  'button-group/styles/connected/main.css.js.map',
+  'button-group/styles/standard/main.css.js.map',
+  'button/styles/default/disabled.css.js.map',
+  'button/styles/default/main.css.js.map',
+  'button/styles/default/switch.css.js.map',
+  'button/styles/elevated/main.css.js.map',
+  'button/styles/elevated/switch.css.js.map',
+  'button/styles/icon/main.css.js.map',
+  'button/styles/icon/switch.css.js.map',
+  'button/styles/outlined/main.css.js.map',
+  'button/styles/outlined/switch.css.js.map',
+  'button/styles/shape/main.css.js.map',
+  'button/styles/size/main.css.js.map',
+  'button/styles/split/main.css.js.map',
+  'button/styles/text/main.css.js.map',
+  'button/styles/tonal/main.css.js.map',
+  'button/styles/tonal/switch.css.js.map',
+  'checkbox/styles/default/main.css.js.map',
+  'core/animations/notched-outline/notched-outline.ctr.css.js.map',
+  'core/animations/ripple/ripple.js.map',
+  'core/animations/ripple/styles/main.css.js.map',
+  'core/elements/styles/main.css.js.map',
+  'core/styles/elevation/elevation.css.js.map',
+  'core/styles/focus/focus.css.js.map',
+  'fab/styles/color/main.css.js.map',
+  'fab/styles/default/main.css.js.map',
+  'fab/styles/extended/main.css.js.map',
+  'fab/styles/size/main.css.js.map',
+  'fab/styles/tonal/main.css.js.map',
+  'list/sortable-list.js.map',
+  'list/styles/default/main.css.js.map',
+  'list/styles/item/interactive-box.css.js.map',
+  'list/styles/item/main.css.js.map',
+  'list/styles/item/static-box.css.js.map',
+  'radio/styles/default/main.css.js.map',
+  'text-field/styles/default/main.css.js.map',
+  'text-field/styles/outlined/main.css.js.map'
+]
+source names / short names left outside source maps (comments included):
+# source-maps.mjs
+{
+  sourcesContentSame: 65,
+  renamed: 35,
+  other: [],
+  withMx: 35,
+  withSrc: 5
+}
+# render.mjs
+bundle sizes 268487 272239 identical after rename true
+19 tags
+chromium raw differences 98 { 'transition-property:--fn => transition-property:--mx-fn': 98 }
+chromium 4746 boxes; before vs after differ: 0 [] ; before vs before differ: 0 ; page errors 0 0
+firefox raw differences 98 { 'transition-property:--fn => transition-property:--mx-fn': 98 }
+firefox 4746 boxes; before vs after differ: 0 [] ; before vs before differ: 0 ; page errors 0 0
+webkit raw differences 98 { 'transition-property:--fn => transition-property:--mx-fn': 98 }
+webkit 4746 boxes; before vs after differ: 0 [] ; before vs before differ: 0 ; page errors 0 0

@@ -1,0 +1,7 @@
+The build with --mx-, as slot g held it at ed0d43490. source-maps.mjs:
+100 maps, by what their sourcesContent holds:
+published {".css":34,".ctr.css":1}
+source {".ts":5}
+both {}
+neither {".ts":38,".html":20,".ctr.css":2}
+maps with a -- name of one or two letters and no prefix: 0
