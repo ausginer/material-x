@@ -24,7 +24,8 @@ export class Selectable extends AnyElement {
 export type SelectableProps = Props<typeof Selectable>;
 
 /**
- * Wires the `selected` attribute of `host` to `aria-selected` on `target`.
+ * Sets the component's own `aria-selected` of `target` from the `selected`
+ * attribute of `host`.
  */
 export function useSelectable(
   host: Selectable & ControlledElement,

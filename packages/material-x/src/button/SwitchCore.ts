@@ -50,8 +50,9 @@ export type SwitchCore = InstanceType<
 /**
  * Sets up a switch whose `.host` is a `<button role="switch">`. The switch is
  * controlled: activation dispatches `input` and `change` and changes no state.
- * `aria-checked`, the `checked` custom state and the form value follow the
- * host's `checked` only.
+ * The `checked` custom state, the form value and the button's own
+ * `aria-checked` follow the host's `checked` only. A host's `aria-checked`
+ * comes before the own one.
  */
 export function useSwitchCore(
   host: SwitchCore,

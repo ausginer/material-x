@@ -54,10 +54,11 @@ export function useLinkable(
  * in sync with the host's disabled attribute.
  *
  * @remarks
- * Call after {@link useLinkable}, and after `useARIA` if the host has it. While
- * disabled: clears `href`, sets `tabIndex` to `-1`, and sets the component's own
- * `aria-disabled`; on re-enable, removes that value, and restores the host's
- * `href` and `tabindex`. A host's `aria-disabled` is `useARIA`'s. Also blocks click propagation while disabled.
+ * Call after {@link useLinkable}. While disabled: clears `href`, sets
+ * `tabIndex` to `-1`, and sets the component's own `aria-disabled`. On
+ * re-enable: removes that value, and restores the host's `href` and `tabindex`.
+ * A host's `aria-disabled` is `useARIA`'s. Also blocks click propagation while
+ * disabled.
  *
  * @param host - Host element that owns navigation and disabled attributes.
  * @param target - Shadow-DOM anchor that performs native navigation.

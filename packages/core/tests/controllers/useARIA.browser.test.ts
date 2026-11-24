@@ -451,6 +451,65 @@ describe('setOwnARIA', () => {
     expect(target).toHaveAttribute(NAME, 'true');
   });
 
+  it('should keep the own values of two targets apart', async () => {
+    const first = document.createElement('div');
+    const second = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, first);
+      useARIA(h, second);
+    });
+    document.body.append(el);
+    setOwnARIA(first, NAME, 'true');
+    setOwnARIA(second, NAME, 'mixed');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect([first.getAttribute(NAME), second.getAttribute(NAME)]).toEqual([
+      'true',
+      'mixed',
+    ]);
+  });
+
+  it('should keep the own values of two names apart', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    setOwnARIA(target, 'aria-checked', 'mixed');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect([
+      target.getAttribute(NAME),
+      target.getAttribute('aria-checked'),
+    ]).toEqual(['true', 'mixed']);
+  });
+
+  it("should put the host's empty value before the own value", async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    el.setAttribute(NAME, '');
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, '');
+  });
+
+  it('should give an empty own value after the host loses its value', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, '');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, '');
+  });
+
   describe('in the task of the loss', () => {
     const ORDERS: ReadonlyArray<
       Readonly<{

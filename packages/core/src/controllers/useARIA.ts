@@ -7,8 +7,11 @@ import { useConnected } from './useConnected.ts';
  * the target element.
  *
  * @param name - The `aria-*` attribute name being synchronized.
- * @param value - The current serialized attribute value from the host.
- * @returns The serialized value that should be written to the target.
+ * @param value - The current serialized attribute value from the host, or
+ *   `null` if the host doesn't have the attribute.
+ * @returns The serialized value to write to the target, or `null` to give it
+ *   the component's own value, set through {@link setOwnARIA}, or no attribute
+ *   if there is none.
  */
 export type ARIATransformer = (
   name: string,
@@ -24,8 +27,9 @@ const ownWriters = new WeakMap<
  * Sets the component's own value of an `aria-*` attribute of `target`.
  *
  * If {@link useARIA} mirrors a host to `target`, the value is kept, and
- * `target` has it while the host doesn't give the attribute. Otherwise it is
- * written to `target`.
+ * `target` has it while the mirrored value is `null`. The mirrored value is the
+ * transformer's answer, or the host's value if there is no transformer. If no
+ * host is mirrored to `target`, the value is written to it.
  *
  * @remarks Call it after {@link useARIA}. A value set before is written, but
  * isn't kept.
@@ -51,21 +55,22 @@ export function setOwnARIA(
 /**
  * Synchronizes `aria-*` attributes from a host element to a target element.
  *
- * Each change of a host's `aria-*` attribute is written to the target once, in
- * a microtask, or at the next connect if that is first. It doesn't matter
- * whether the host is connected. An attribute that the host loses is
- * transformed from `null`. The host's current `aria-*` attributes are also
- * copied on each connect.
+ * Each change of a host's `aria-*` attribute is written to the target in a
+ * microtask, or at the next connect if that is first. A call of
+ * {@link setOwnARIA} for that name before then writes it at once, and the
+ * microtask or the connect writes it again. It doesn't matter whether the host
+ * is connected. An attribute that the host loses is transformed from `null`.
+ * The host's current `aria-*` attributes are also copied on each connect.
  *
  * If the transformed value is `null`, the target has the component's own value,
- * set through {@link setOwnARIA}, or no attribute if there is none. So while
- * the host gives an attribute, the target has the host's value, whatever the
- * order in which the two changed.
+ * set through {@link setOwnARIA}, or no attribute if there is none. Otherwise
+ * it has the transformed value, whatever the order in which the host's
+ * attribute and the own value changed.
  *
  * A value that is written to the target in any other way isn't kept, and the
- * last write stands. A connect doesn't remove what was written to the target after the
- * host's loss was written, nor an `aria-*` attribute that the host has never
- * had. Attributes outside the `aria-*` namespace are ignored.
+ * last write stands. A connect doesn't remove what was written to the target
+ * after the host's loss was written, nor an `aria-*` attribute that the host
+ * has never had. Attributes outside the `aria-*` namespace are ignored.
  *
  * @param host - The host element whose `aria-*` attributes should be observed.
  * @param target - The target element that receives the synchronized values.

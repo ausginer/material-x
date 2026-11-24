@@ -116,9 +116,11 @@ function present(value: string | null): string | null {
 
 /**
  * Registers `target`, the element's accessible control, as the anchor that
- * reported validation messages point at, and gives it `aria-invalid="true"`
- * while `error` is set and `aria-required="true"` while `required` is set.
- * Sets no custom state.
+ * reported validation messages point at. Sets the component's own
+ * `aria-invalid` to `"true"` while `error` is set, and its own `aria-required`
+ * to `"true"` while `required` is set. If `useARIA` mirrors the host to
+ * `target`, a host's `aria-invalid` or `aria-required` comes first. Sets no
+ * custom state.
  */
 export function useValidatable(
   host: Validatable & ControlledElement,

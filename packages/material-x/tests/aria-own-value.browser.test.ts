@@ -168,6 +168,20 @@ describe.each(PAIRS)(
 
       expect(control.getAttribute(aria)).toBe(own);
     });
+
+    it("should be the component's without the source, after the source and the host's are set and lost", async () => {
+      const { host, control } = create(tag);
+      document.body.append(host);
+      host.setAttribute(source, '');
+      host.setAttribute(aria, given);
+      await nextFrame();
+      host.removeAttribute(source);
+      await nextFrame();
+      host.removeAttribute(aria);
+      await nextFrame();
+
+      expect(control.getAttribute(aria)).toBe(off);
+    });
   },
 );
 
