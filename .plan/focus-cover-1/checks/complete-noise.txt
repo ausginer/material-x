@@ -1,0 +1,24 @@
+eddf39e7b: minified 117926, Brotli 23098, gzip 27501, 228 private names, 229 slots for 229 properties
+  200 name assignments: mean 23126.3, sd 25.9, min 23062, 5% 23083, median 23127, 95% 23164, max 23236
+  60 entry orders: mean 23083.6, sd 40.3, min 22998, 5% 23021, median 23087, 95% 23150, max 23160
+9c1834b30: minified 118235, Brotli 23126, gzip 27614, 229 private names, 229 slots for 229 properties
+  200 name assignments: mean 23212.1, sd 23.3, min 23158, 5% 23174, median 23212, 95% 23250, max 23292
+  60 entry orders: mean 23164.2, sd 40.5, min 23064, 5% 23102, median 23166, 95% 23230, max 23271
+e10c9a48d: minified 118076, Brotli 23045, gzip 27539, 228 private names, 229 slots for 229 properties
+  200 name assignments: mean 23160.5, sd 24.1, min 23104, 5% 23123, median 23161, 95% 23204, max 23237
+  60 entry orders: mean 23113.8, sd 40.2, min 23037, 5% 23047, median 23109, 95% 23188, max 23204
+2f937c7e2: minified 118385, Brotli 23196, gzip 27659, 229 private names, 229 slots for 229 properties
+  200 name assignments: mean 23242.3, sd 27.5, min 23170, 5% 23197, median 23243, 95% 23289, max 23317
+  60 entry orders: mean 23199.0, sd 43.4, min 23099, 5% 23133, median 23199, 95% 23272, max 23318
+
+eddf39e7b to 9c1834b30: minified 309, Brotli 28, gzip 113
+  Brotli, one name assignment for both: mean 85.9, sd 33.2, min -11, 5% 35, median 87, 95% 144, max 167
+  Brotli, one entry order for both: mean 80.6, sd 30.2, min 4, 5% 32, median 77, 95% 121, max 188
+
+e10c9a48d to 2f937c7e2: minified 309, Brotli 151, gzip 120
+  Brotli, one name assignment for both: mean 81.8, sd 31.3, min -9, 5% 30, median 84, 95% 134, max 188
+  Brotli, one entry order for both: mean 85.2, sd 44.8, min -10, 5% 12, median 90, 95% 157, max 165
+
+eddf39e7b to e10c9a48d: minified 150, Brotli -53, gzip 38
+  Brotli, one name assignment for both: mean 34.2, sd 31.6, min -67, 5% -18, median 35, 95% 89, max 118
+  Brotli, one entry order for both: mean 30.3, sd 35.6, min -64, 5% -24, median 37, 95% 87, max 98

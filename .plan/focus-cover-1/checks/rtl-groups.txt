@@ -1,0 +1,49 @@
+Read on the elements built from 9c1834b30, the head of #245 (d3961f63a adds records only).
+# chromium 158.0.8127.18
+ltr | connected, from the left | #1 left 20px right 8px | #2 left 8px right 8px | #3 left 8px right 20px
+ltr | split, from the left | #1 left 20px right 8px | #2 left 8px right 20px
+ltr | mx-connected-button-group | ArrowRight goes right (#3), ArrowLeft goes left (#1)
+ltr | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+ltr | standard, the first member pressed, from the left | #1 width 55.6 to 55.6, left edge 0.0 | #2 width 57.0 to 57.0, left edge 0.0 | #3 width 65.2 to 65.2, left edge 0.0
+group | connected, from the left | #3 left 8px right 20px | #2 left 8px right 8px | #1 left 20px right 8px
+group | split, from the left | #2 left 8px right 20px | #1 left 20px right 8px
+group | mx-connected-button-group | ArrowRight goes right (#1), ArrowLeft goes left (#3)
+group | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+group | standard, the first member pressed, from the left | #3 width 65.2 to 65.2, left edge 0.0 | #2 width 57.0 to 57.0, left edge 0.0 | #1 width 55.6 to 55.6, left edge 0.0
+ancestor | connected, from the left | #3 left 8px right 20px | #2 left 8px right 8px | #1 left 20px right 8px
+ancestor | split, from the left | #2 left 8px right 20px | #1 left 20px right 8px
+ancestor | mx-connected-button-group | ArrowRight goes right (#1), ArrowLeft goes left (#3)
+ancestor | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+ancestor | standard, the first member pressed, from the left | #3 width 65.2 to 65.2, left edge 0.0 | #2 width 57.0 to 57.0, left edge 0.0 | #1 width 55.6 to 55.6, left edge 0.0
+# firefox 159.0
+ltr | connected, from the left | #1 left 20px right 8px | #2 left 8px right 8px | #3 left 8px right 20px
+ltr | split, from the left | #1 left 20px right 8px | #2 left 8px right 20px
+ltr | mx-connected-button-group | ArrowRight goes right (#3), ArrowLeft goes left (#1)
+ltr | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+ltr | standard, the first member pressed, from the left | #1 width 56.6 to 56.6, left edge 0.0 | #2 width 56.1 to 56.1, left edge 0.0 | #3 width 66.6 to 66.6, left edge 0.0
+group | connected, from the left | #3 left 8px right 20px | #2 left 8px right 8px | #1 left 20px right 8px
+group | split, from the left | #2 left 8px right 20px | #1 left 20px right 8px
+group | mx-connected-button-group | ArrowRight goes right (#1), ArrowLeft goes left (#3)
+group | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+group | standard, the first member pressed, from the left | #3 width 66.6 to 66.6, left edge 0.0 | #2 width 56.1 to 56.1, left edge 0.0 | #1 width 56.6 to 56.6, left edge 0.0
+ancestor | connected, from the left | #3 left 8px right 20px | #2 left 8px right 8px | #1 left 20px right 8px
+ancestor | split, from the left | #2 left 8px right 20px | #1 left 20px right 8px
+ancestor | mx-connected-button-group | ArrowRight goes right (#1), ArrowLeft goes left (#3)
+ancestor | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+ancestor | standard, the first member pressed, from the left | #3 width 66.6 to 66.6, left edge 0.0 | #2 width 56.1 to 56.1, left edge 0.0 | #1 width 56.6 to 56.6, left edge 0.0
+# webkit 27.2
+ltr | connected, from the left | #1 left 20px right 8px | #2 left 8px right 8px | #3 left 8px right 20px
+ltr | split, from the left | #1 left 20px right 8px | #2 left 8px right 20px
+ltr | mx-connected-button-group | ArrowRight goes right (#3), ArrowLeft goes left (#1)
+ltr | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+ltr | standard, the first member pressed, from the left | #1 width 56.6 to 56.6, left edge 0.0 | #2 width 56.1 to 56.1, left edge 0.0 | #3 width 66.6 to 66.6, left edge 0.0
+group | connected, from the left | #3 left 8px right 20px | #2 left 8px right 8px | #1 left 20px right 8px
+group | split, from the left | #2 left 8px right 20px | #1 left 20px right 8px
+group | mx-connected-button-group | ArrowRight goes right (#1), ArrowLeft goes left (#3)
+group | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+group | standard, the first member pressed, from the left | #3 width 66.6 to 66.6, left edge 0.0 | #2 width 56.1 to 56.1, left edge 0.0 | #1 width 56.6 to 56.6, left edge 0.0
+ancestor | connected, from the left | #3 left 8px right 20px | #2 left 8px right 8px | #1 left 20px right 8px
+ancestor | split, from the left | #2 left 8px right 20px | #1 left 20px right 8px
+ancestor | mx-connected-button-group | ArrowRight goes right (#1), ArrowLeft goes left (#3)
+ancestor | mx-button-group | ArrowRight goes stays (#2), ArrowLeft goes stays (#2)
+ancestor | standard, the first member pressed, from the left | #3 width 66.6 to 66.6, left edge 0.0 | #2 width 56.1 to 56.1, left edge 0.0 | #1 width 56.6 to 56.6, left edge 0.0

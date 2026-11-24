@@ -19,7 +19,10 @@ export async function focusFirst(fixture: HTMLElement): Promise<void> {
 }
 
 /** An edge of a box, as a physical side, and the box that has it. */
-export type Edge = Readonly<{ box: Element; side: 'right' | 'bottom' }>;
+export type Edge = Readonly<{
+  box: Element;
+  side: 'left' | 'right' | 'bottom';
+}>;
 
 /** The reach of a focus indicator on either side of its box's edge. */
 const REACH = 6;
@@ -84,8 +87,8 @@ export async function coveredIndicator(
   }
 
   const scale = alone.width / origin.width;
-  const at =
-    side === 'right' ? rect.right - origin.left : rect.bottom - origin.top;
+  const isHorizontal = side !== 'bottom';
+  const at = rect[side] - (isHorizontal ? origin.left : origin.top);
   const isPainted = ({ data }: ImageData, index: number) =>
     [0, 1, 2].every(
       (channel) =>
@@ -100,7 +103,7 @@ export async function coveredIndicator(
     const y = Math.floor(pixel / alone.width) / scale;
 
     if (
-      Math.abs((side === 'right' ? x : y) - at) <= REACH &&
+      Math.abs((isHorizontal ? x : y) - at) <= REACH &&
       isPainted(alone, index)
     ) {
       painted += 1;

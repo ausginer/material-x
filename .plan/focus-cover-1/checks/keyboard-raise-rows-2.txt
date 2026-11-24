@@ -1,0 +1,23 @@
+## no mutation | chromium | 50 passed (50)
+## no mutation | firefox | 50 passed (50)
+## no mutation | webkit | 50 passed (50)
+## only a focused member in light DOM children[last] is ignored | chromium | 2 failed | 48 passed (50)
+   connected group stacking context > should exist with keyboard focus on the last button of mx-connected-button-group
+   connected group stacking context > should exist with keyboard focus on the last button of mx-split-button
+## only a focused member in light DOM children[last] is ignored | firefox | 2 failed | 48 passed (50)
+   connected group stacking context > should exist with keyboard focus on the last button of mx-connected-button-group
+   connected group stacking context > should exist with keyboard focus on the last button of mx-split-button
+## only a focused member in light DOM children[last] is ignored | webkit | 2 failed | 48 passed (50)
+   connected group stacking context > should exist with keyboard focus on the last button of mx-connected-button-group
+   connected group stacking context > should exist with keyboard focus on the last button of mx-split-button
+## the state is never cleared | chromium | 2 failed | 48 passed (50)
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after Tab and then a click on another button
+## the state is never cleared | firefox | 4 failed | 46 passed (50)
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after Tab and then a click on another button
+## the state is never cleared | webkit | 2 failed | 48 passed (50)
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after Tab and then a click on another button
