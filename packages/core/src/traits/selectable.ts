@@ -1,5 +1,6 @@
 import { Bool, type ConverterOf } from '../attribute.ts';
-import { transfer, useAttributes } from '../controllers/useAttributes.ts';
+import { setOwnARIA } from '../controllers/useARIA.ts';
+import { useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
 import { AnyElement, attributes, type Props } from './attribute-traits.ts';
 import { trait } from './composition.ts';
@@ -30,8 +31,7 @@ export function useSelectable(
   target: HTMLElement,
 ): void {
   useAttributes(host, {
-    selected: transfer(target, 'aria-selected', (value) =>
-      value == null ? 'false' : 'true',
-    ),
+    selected: (_, value) =>
+      setOwnARIA(target, 'aria-selected', String(value != null)),
   });
 }

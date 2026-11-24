@@ -1,5 +1,6 @@
 import { Bool, type ConverterOf } from '../attribute.ts';
-import { transfer, useAttributes } from '../controllers/useAttributes.ts';
+import { setOwnARIA } from '../controllers/useARIA.ts';
+import { useAttributes } from '../controllers/useAttributes.ts';
 import { internals, type ControlledElement } from '../element.ts';
 import { attributes, Controlled, type Props } from './attribute-traits.ts';
 import { trait } from './composition.ts';
@@ -125,7 +126,7 @@ export function useValidatable(
 ): void {
   anchors.set(host, target);
   useAttributes(host, {
-    error: transfer(target, 'aria-invalid', present),
-    required: transfer(target, 'aria-required', present),
+    error: (_, value) => setOwnARIA(target, 'aria-invalid', present(value)),
+    required: (_, value) => setOwnARIA(target, 'aria-required', present(value)),
   });
 }

@@ -15,6 +15,39 @@ export type ARIATransformer = (
   value: string | null,
 ) => string | null;
 
+const ownWriters = new WeakMap<
+  HTMLElement,
+  (name: string, value: string | null) => void
+>();
+
+/**
+ * Sets the component's own value of an `aria-*` attribute of `target`.
+ *
+ * If {@link useARIA} mirrors a host to `target`, the value is kept, and
+ * `target` has it while the host doesn't give the attribute. Otherwise it is
+ * written to `target`.
+ *
+ * @remarks Call it after {@link useARIA}. A value set before is written, but
+ * isn't kept.
+ *
+ * @param target - The element that has the attribute.
+ * @param name - The `aria-*` attribute name.
+ * @param value - The serialized value, or `null` for none.
+ */
+export function setOwnARIA(
+  target: HTMLElement,
+  name: string,
+  value: string | null,
+): void {
+  const write = ownWriters.get(target);
+
+  if (write) {
+    write(name, value);
+  } else {
+    setAttribute(target, name, value);
+  }
+}
+
 /**
  * Synchronizes `aria-*` attributes from a host element to a target element.
  *
@@ -22,10 +55,15 @@ export type ARIATransformer = (
  * a microtask, or at the next connect if that is first. It doesn't matter
  * whether the host is connected. An attribute that the host loses is
  * transformed from `null`. The host's current `aria-*` attributes are also
- * copied on each connect, so there the host's value wins.
+ * copied on each connect.
  *
- * The target's own writer may set the same attribute, and the last write
- * stands. A connect doesn't remove what was written to the target after the
+ * If the transformed value is `null`, the target has the component's own value,
+ * set through {@link setOwnARIA}, or no attribute if there is none. So while
+ * the host gives an attribute, the target has the host's value, whatever the
+ * order in which the two changed.
+ *
+ * A value that is written to the target in any other way isn't kept, and the
+ * last write stands. A connect doesn't remove what was written to the target after the
  * host's loss was written, nor an `aria-*` attribute that the host has never
  * had. Attributes outside the `aria-*` namespace are ignored.
  *
@@ -39,11 +77,22 @@ export function useARIA(
   target: HTMLElement,
   transform: ARIATransformer = (_, value) => value,
 ): void {
+  const own = new Map<string, string | null>();
+
   const sync = (name: string | null): void => {
     if (name?.startsWith('aria-')) {
-      setAttribute(target, name, transform(name, host.getAttribute(name)));
+      setAttribute(
+        target,
+        name,
+        transform(name, host.getAttribute(name)) ?? own.get(name) ?? null,
+      );
     }
   };
+
+  ownWriters.set(target, (name, value) => {
+    own.set(name, value);
+    sync(name);
+  });
 
   // It isn't tied to the connection, because an attribute that the host loses
   // while disconnected is a change too.

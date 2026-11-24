@@ -1,4 +1,5 @@
 import { Bool } from '@ydinjs/core/attribute.js';
+import { setOwnARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
@@ -68,10 +69,13 @@ export function useSwitchCore(
 
   useValidatable(host, target);
 
+  // An unchecked switch says so before `checked` first changes.
+  setOwnARIA(target, 'aria-checked', 'false');
+
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
       toggleState(innards, 'checked', value);
-      target.ariaChecked = String(value);
+      setOwnARIA(target, 'aria-checked', String(value));
       innards.setFormValue(value ? (host.value ?? 'on') : null);
     }),
     value(_, newValue) {

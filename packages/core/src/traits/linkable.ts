@@ -1,4 +1,5 @@
 import { setAttribute, Str, type ConverterOf } from '../attribute.ts';
+import { setOwnARIA } from '../controllers/useARIA.ts';
 import { useAttributes } from '../controllers/useAttributes.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ControlledElement } from '../element.ts';
@@ -53,9 +54,10 @@ export function useLinkable(
  * in sync with the host's disabled attribute.
  *
  * @remarks
- * Call after {@link useLinkable}. While disabled: clears `href`, sets
- * `tabIndex` to `-1`, marks `aria-disabled`; on re-enable, restores
- * host-authored values. Also blocks click propagation while disabled.
+ * Call after {@link useLinkable}, and after `useARIA` if the host has it. While
+ * disabled: clears `href`, sets `tabIndex` to `-1`, and sets the component's own
+ * `aria-disabled`; on re-enable, removes that value, and restores the host's
+ * `href` and `tabindex`. A host's `aria-disabled` is `useARIA`'s. Also blocks click propagation while disabled.
  *
  * @param host - Host element that owns navigation and disabled attributes.
  * @param target - Shadow-DOM anchor that performs native navigation.
@@ -72,11 +74,11 @@ export function useDisableableLinkable(
     },
     disabled(_, value) {
       if (value != null) {
-        target.ariaDisabled = 'true';
+        setOwnARIA(target, 'aria-disabled', 'true');
         target.tabIndex = -1;
         setAttribute(target, 'href', null);
       } else {
-        target.ariaDisabled = host.getAttribute('aria-disabled');
+        setOwnARIA(target, 'aria-disabled', null);
         setAttribute(target, 'tabindex', host.getAttribute('tabindex'));
         setAttribute(target, 'href', host.getAttribute('href'));
       }

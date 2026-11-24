@@ -1,0 +1,756 @@
+## no mutation | chromium | core | 46 passed (46)
+## no mutation | chromium | material-x | 40 passed (40)
+## no mutation | firefox | core | 46 passed (46)
+## no mutation | firefox | material-x | 40 passed (40)
+## no mutation | webkit | core | 46 passed (46)
+## no mutation | webkit | material-x | 40 passed (40)
+## main (the rows in core import a name it lacks) | chromium | core | 8 passed (8)
+   |browser (chromium)| tests/controllers/useARIA.browser.test.ts [ tests/controllers/useARIA.browser.test.ts ]
+## main (the rows in core import a name it lacks) | chromium | material-x | 37 failed | 3 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## main (the rows in core import a name it lacks) | firefox | core | 8 passed (8)
+   |browser/firefox (firefox)| tests/controllers/useARIA.browser.test.ts [ tests/controllers/useARIA.browser.test.ts ]
+## main (the rows in core import a name it lacks) | firefox | material-x | 37 failed | 3 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## main (the rows in core import a name it lacks) | webkit | core | 8 passed (8)
+   |browser/webkit (webkit)| tests/controllers/useARIA.browser.test.ts [ tests/controllers/useARIA.browser.test.ts ]
+## main (the rows in core import a name it lacks) | webkit | material-x | 37 failed | 3 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the own value is never given | chromium | core | 14 failed | 32 passed (46)
+   setOwnARIA > should write the own value at once while the host gives none
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should give the own value that changed while the host gave the name
+   setOwnARIA > should give the own value for the transformer's null
+   setOwnARIA > in the task of the loss > should give the own value after the loss and then the own value while connected
+   setOwnARIA > in the task of the loss > should give the own value after the own value and then the loss while connected
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value after the task
+## the own value is never given | chromium | material-x | 39 failed | 1 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the own value is never given | firefox | core | 14 failed | 32 passed (46)
+   setOwnARIA > should write the own value at once while the host gives none
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should give the own value that changed while the host gave the name
+   setOwnARIA > should give the own value for the transformer's null
+   setOwnARIA > in the task of the loss > should give the own value after the loss and then the own value while connected
+   setOwnARIA > in the task of the loss > should give the own value after the own value and then the loss while connected
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value after the task
+## the own value is never given | firefox | material-x | 39 failed | 1 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the own value is never given | webkit | core | 14 failed | 32 passed (46)
+   setOwnARIA > should write the own value at once while the host gives none
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should give the own value that changed while the host gave the name
+   setOwnARIA > should give the own value for the transformer's null
+   setOwnARIA > in the task of the loss > should give the own value after the loss and then the own value while connected
+   setOwnARIA > in the task of the loss > should give the own value after the own value and then the loss while connected
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value after the task
+## the own value is never given | webkit | material-x | 39 failed | 1 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## setOwnARIA keeps the value and writes it straight | chromium | core | 4 failed | 42 passed (46)
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should have no attribute after the loss when the own value is null
+   setOwnARIA > should put the transformer's answer before the own value
+   useDisableableLinkable > should leave a host-provided aria-disabled on a mirrored anchor when re-enabled
+## setOwnARIA keeps the value and writes it straight | chromium | material-x | 9 failed | 31 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## setOwnARIA keeps the value and writes it straight | firefox | core | 4 failed | 42 passed (46)
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should have no attribute after the loss when the own value is null
+   setOwnARIA > should put the transformer's answer before the own value
+   useDisableableLinkable > should leave a host-provided aria-disabled on a mirrored anchor when re-enabled
+## setOwnARIA keeps the value and writes it straight | firefox | material-x | 9 failed | 31 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+## setOwnARIA keeps the value and writes it straight | webkit | core | 4 failed | 42 passed (46)
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should have no attribute after the loss when the own value is null
+   setOwnARIA > should put the transformer's answer before the own value
+   useDisableableLinkable > should leave a host-provided aria-disabled on a mirrored anchor when re-enabled
+## setOwnARIA keeps the value and writes it straight | webkit | material-x | 9 failed | 31 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## setOwnARIA writes straight and keeps nothing | chromium | core | 17 failed | 29 passed (46)
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should give the own value that changed while the host gave the name
+   setOwnARIA > should have no attribute after the loss when the own value is null
+   setOwnARIA > should put the transformer's answer before the own value
+   setOwnARIA > should give the own value for the transformer's null
+   setOwnARIA > in the task of the loss > should give the own value after the loss and then the own value while connected
+   setOwnARIA > in the task of the loss > should give the own value after the own value and then the loss while connected
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value after the task
+   useDisableableLinkable > should leave a host-provided aria-disabled on a mirrored anchor when re-enabled
+## setOwnARIA writes straight and keeps nothing | chromium | material-x | 38 failed | 2 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## setOwnARIA writes straight and keeps nothing | firefox | core | 17 failed | 29 passed (46)
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should give the own value that changed while the host gave the name
+   setOwnARIA > should have no attribute after the loss when the own value is null
+   setOwnARIA > should put the transformer's answer before the own value
+   setOwnARIA > should give the own value for the transformer's null
+   setOwnARIA > in the task of the loss > should give the own value after the loss and then the own value while connected
+   setOwnARIA > in the task of the loss > should give the own value after the own value and then the loss while connected
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value after the task
+   useDisableableLinkable > should leave a host-provided aria-disabled on a mirrored anchor when re-enabled
+## setOwnARIA writes straight and keeps nothing | firefox | material-x | 38 failed | 2 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## setOwnARIA writes straight and keeps nothing | webkit | core | 17 failed | 29 passed (46)
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should give the own value that changed while the host gave the name
+   setOwnARIA > should have no attribute after the loss when the own value is null
+   setOwnARIA > should put the transformer's answer before the own value
+   setOwnARIA > should give the own value for the transformer's null
+   setOwnARIA > in the task of the loss > should give the own value after the loss and then the own value while connected
+   setOwnARIA > in the task of the loss > should give the own value after the own value and then the loss while connected
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss while out > should give the own value after the task
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value in the connect
+   setOwnARIA > in the task of the loss > the loss and then the own value before the first connect > should give the own value after the task
+   setOwnARIA > in the task of the loss > the own value and then the loss before the first connect > should give the own value after the task
+   useDisableableLinkable > should leave a host-provided aria-disabled on a mirrored anchor when re-enabled
+## setOwnARIA writes straight and keeps nothing | webkit | material-x | 38 failed | 2 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the own value before the transformer | chromium | core | 3 failed | 43 passed (46)
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should put the transformer's answer before the own value
+## the own value before the transformer | chromium | material-x | 15 failed | 25 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## the own value before the transformer | firefox | core | 3 failed | 43 passed (46)
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should put the transformer's answer before the own value
+## the own value before the transformer | firefox | material-x | 15 failed | 25 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## the own value before the transformer | webkit | core | 3 failed | 43 passed (46)
+   setOwnARIA > should give the own value again when the host loses its value
+   setOwnARIA > should keep the host's value when the own value changes
+   setOwnARIA > should put the transformer's answer before the own value
+## the own value before the transformer | webkit | material-x | 15 failed | 25 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+## setOwnARIA keeps the value and waits for the mirror | chromium | core | 2 failed | 44 passed (46)
+   setOwnARIA > should write the own value at once while the host gives none
+   setOwnARIA > should put the transformer's answer before the own value
+## setOwnARIA keeps the value and waits for the mirror | chromium | material-x | 2 failed | 38 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+## setOwnARIA keeps the value and waits for the mirror | firefox | core | 2 failed | 44 passed (46)
+   setOwnARIA > should write the own value at once while the host gives none
+   setOwnARIA > should put the transformer's answer before the own value
+## setOwnARIA keeps the value and waits for the mirror | firefox | material-x | 2 failed | 38 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+## setOwnARIA keeps the value and waits for the mirror | webkit | core | 2 failed | 44 passed (46)
+   setOwnARIA > should write the own value at once while the host gives none
+   setOwnARIA > should put the transformer's answer before the own value
+## setOwnARIA keeps the value and waits for the mirror | webkit | material-x | 2 failed | 38 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+## linkable as on main | chromium | core | 46 passed (46)
+## linkable as on main | chromium | material-x | 11 failed | 29 passed (40)
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+## linkable as on main | firefox | core | 46 passed (46)
+## linkable as on main | firefox | material-x | 11 failed | 29 passed (40)
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+## linkable as on main | webkit | core | 46 passed (46)
+## linkable as on main | webkit | material-x | 11 failed | 29 passed (40)
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+## selectable as on main | chromium | core | 46 passed (46)
+## selectable as on main | chromium | material-x | 4 failed | 36 passed (40)
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## selectable as on main | firefox | core | 46 passed (46)
+## selectable as on main | firefox | material-x | 4 failed | 36 passed (40)
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## selectable as on main | webkit | core | 46 passed (46)
+## selectable as on main | webkit | material-x | 4 failed | 36 passed (40)
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-selected, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-selected, with "true" on the host > should stay the host's while the source changes, and then be the component's
+## validatable as on main | chromium | core | 46 passed (46)
+## validatable as on main | chromium | material-x | 12 failed | 28 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+## validatable as on main | firefox | core | 46 passed (46)
+## validatable as on main | firefox | material-x | 12 failed | 28 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+## validatable as on main | webkit | core | 46 passed (46)
+## validatable as on main | webkit | material-x | 12 failed | 28 passed (40)
+   mx-text-field aria-invalid, with "false" on the host > should be the component's after the host's is set and lost
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's after the host's is set and lost
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-text-field aria-invalid, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-multiline-text-field aria-required, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-invalid, with "grammar" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-text-field aria-invalid, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-multiline-text-field aria-required, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-invalid, with "grammar" on the host > should stay the host's while the source changes, and then be the component's
+## list-link-item as on main | chromium | core | 46 passed (46)
+## list-link-item as on main | chromium | material-x | 4 failed | 36 passed (40)
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+## list-link-item as on main | firefox | core | 46 passed (46)
+## list-link-item as on main | firefox | material-x | 4 failed | 36 passed (40)
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+## list-link-item as on main | webkit | core | 46 passed (46)
+## list-link-item as on main | webkit | material-x | 4 failed | 36 passed (40)
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+## the switch and its templates as on main | chromium | core | 46 passed (46)
+## the switch and its templates as on main | chromium | material-x | 6 failed | 34 passed (40)
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the switch and its templates as on main | firefox | core | 46 passed (46)
+## the switch and its templates as on main | firefox | material-x | 6 failed | 34 passed (40)
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the switch and its templates as on main | webkit | core | 46 passed (46)
+## the switch and its templates as on main | webkit | material-x | 6 failed | 34 passed (40)
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's after the host's is set and lost
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-switch-button aria-checked, with "mixed" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-switch-button aria-checked, with "mixed" on the host > should stay the host's while the source changes, and then be the component's
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## no call at the setup of the switch | chromium | core | 46 passed (46)
+## no call at the setup of the switch | chromium | material-x | 4 failed | 36 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## no call at the setup of the switch | firefox | core | 46 passed (46)
+## no call at the setup of the switch | firefox | material-x | 4 failed | 36 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## no call at the setup of the switch | webkit | core | 46 passed (46)
+## no call at the setup of the switch | webkit | material-x | 4 failed | 36 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' before the first connect
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the value in the templates, and no call at setup | chromium | core | 46 passed (46)
+## the value in the templates, and no call at setup | chromium | material-x | 2 failed | 38 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the value in the templates, and no call at setup | firefox | core | 46 passed (46)
+## the value in the templates, and no call at setup | firefox | material-x | 2 failed | 38 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+## the value in the templates, and no call at setup | webkit | core | 46 passed (46)
+## the value in the templates, and no call at setup | webkit | material-x | 2 failed | 38 passed (40)
+   mx-switch-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
+   mx-switch-icon-button aria-checked with no change of checked > should be 'false' after the host's is set and lost before the first connect
