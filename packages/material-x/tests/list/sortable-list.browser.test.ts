@@ -93,6 +93,19 @@ function placeholderOf(list: HTMLElement): HTMLElement | null {
   return list.querySelector('[data-drag-placeholder]');
 }
 
+/** Whether the list's placeholder paints its footprint. */
+function paintsFootprint(list: HTMLElement): boolean {
+  const { visibility, backgroundColor, opacity } = getComputedStyle(
+    placeholderOf(list)!,
+  );
+
+  return (
+    visibility === 'visible' &&
+    backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+    Number(opacity) > 0
+  );
+}
+
 function announcementOf(list: HTMLElement): string {
   return list.shadowRoot!.querySelector('[aria-live]')!.textContent;
 }
@@ -676,6 +689,176 @@ describe('mx-sortable-list keyboard', () => {
       events.length,
     ]).toEqual([input, 1, 0]);
   });
+});
+
+describe('mx-sortable-list footprint', () => {
+  /** Commits each proposed move 100 ms after it. */
+  function commitLater(list: HTMLElement): void {
+    list.addEventListener('reorder', (event) => {
+      const { item, next } = event as ReorderEvent;
+      setTimeout(() => {
+        list.insertBefore(item, next);
+      }, 100);
+    });
+  }
+
+  /** What the placeholder paints in each `reorder` handler. */
+  function readInHandler(list: HTMLElement): readonly boolean[] {
+    const read: boolean[] = [];
+    list.addEventListener('reorder', () => {
+      read.push(paintsFootprint(list));
+    });
+    return read;
+  }
+
+  /** What the placeholder paints in each frame until it goes. */
+  async function readFrames(list: HTMLElement): Promise<readonly boolean[]> {
+    const read: boolean[] = [];
+
+    while (placeholderOf(list)) {
+      read.push(paintsFootprint(list));
+      // oxlint-disable-next-line no-await-in-loop -- one read per frame
+      await nextFrame();
+    }
+
+    return read;
+  }
+
+  /** Focuses `item` and presses ArrowDown. */
+  async function moveDown(item: HTMLElement): Promise<void> {
+    item.focus();
+    await userEvent.keyboard('{ArrowDown}');
+  }
+
+  it('should paint nothing in the handler of a key move', async () => {
+    const [list, [a]] = await createList(['A', 'B', 'C']);
+    const read = readInHandler(list);
+    commitOnReorder(list);
+
+    await moveDown(a!);
+    await whenSettled(list, a!);
+
+    expect(read).toEqual([false]);
+  });
+
+  it('should paint nothing in any frame while the commit of a key move is pending', async () => {
+    const [list, [a]] = await createList(['A', 'B', 'C']);
+    commitLater(list);
+    let frames: Promise<readonly boolean[]> | undefined;
+    list.addEventListener('reorder', () => {
+      frames = readFrames(list);
+    });
+
+    await moveDown(a!);
+    const read = await frames!;
+
+    expect([read.length > 1, read.includes(true), order(list)]).toEqual([
+      true,
+      false,
+      ['B', 'A', 'C'],
+    ]);
+  });
+
+  it('should paint nothing in the handler of a refused key move', async () => {
+    const [list, [a]] = await createList(['A', 'B', 'C']);
+    const read = readInHandler(list);
+    list.addEventListener('reorder', (event) => event.preventDefault());
+
+    await moveDown(a!);
+    await whenSettled(list, a!);
+
+    expect(read).toEqual([false]);
+  });
+
+  it('should paint the footprint in a pointer drag', async () => {
+    const [list, [a]] = await createList(['A', 'B', 'C']);
+
+    await lift(visualOf(a!));
+
+    expect(paintsFootprint(list)).toBe(true);
+  });
+
+  it('should paint the footprint in the handler of a pointer drop', async () => {
+    const [list, [a, b]] = await createList(['A', 'B', 'C']);
+    const read = readInHandler(list);
+    commitOnReorder(list);
+
+    await dragOnto(visualOf(a!), visualOf(b!));
+    await whenSettled(list, a!);
+
+    expect(read).toEqual([true]);
+  });
+
+  it('should paint the footprint in each frame while the commit of a pointer drop is pending', async () => {
+    const [list, [a, b]] = await createList(['A', 'B', 'C']);
+    commitLater(list);
+    let frames: Promise<readonly boolean[]> | undefined;
+    list.addEventListener('reorder', () => {
+      frames = readFrames(list);
+    });
+
+    await dragOnto(visualOf(a!), visualOf(b!));
+    const read = await frames!;
+
+    expect([read.length > 1, read.includes(false), order(list)]).toEqual([
+      true,
+      false,
+      ['B', 'A', 'C'],
+    ]);
+  });
+
+  it.each<
+    readonly [string, (list: HTMLElement, item: HTMLElement) => Promise<void>]
+  >([
+    [
+      'an accepted key move',
+      async (list, item) => {
+        commitOnReorder(list);
+        await moveDown(item);
+      },
+    ],
+    [
+      'a refused key move',
+      async (list, item) => {
+        list.addEventListener('reorder', (event) => event.preventDefault());
+        await moveDown(item);
+      },
+    ],
+    [
+      'a key move that timed out',
+      async (list, item) => {
+        await moveDown(item);
+        expect(placeholderOf(list)).not.toBeNull();
+        await expect
+          .poll(() => placeholderOf(list), { timeout: 2000 })
+          .toBeNull();
+      },
+    ],
+    [
+      'a disconnection during the commit of a key move',
+      async (list, item) => {
+        await moveDown(item);
+        expect(placeholderOf(list)).not.toBeNull();
+        list.remove();
+        await nextFrame();
+        document.body.append(list);
+        await nextFrame();
+      },
+    ],
+  ])(
+    'should paint the footprint in the pointer drag after %s',
+    async (_, move) => {
+      const [list, [a, , c]] = await createList(['A', 'B', 'C']);
+      const events = recordReorders(list);
+      await move(list, a!);
+      await whenSettled(list, a!);
+
+      await lift(visualOf(c!));
+
+      // The key move ran, so the state was set.
+      expect([events.length, paintsFootprint(list)]).toEqual([1, true]);
+    },
+  );
 });
 
 describe('mx-sortable-list static item focus', () => {
