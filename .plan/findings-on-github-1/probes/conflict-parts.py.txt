@@ -1,0 +1,23 @@
+# Which part of a register conflicted, in each merge that a pull request since 2026-11-10 carries.
+# Each merge is made again with 'git merge-tree'. First: git fetch origin refs/pull/<n>/head for each.
+import subprocess,collections,re
+H='.plan/findings-on-github-1/checks/pull-request-heads.txt'
+def sh(*a): return subprocess.run(a,capture_output=True,text=True)
+shas=[l.split()[1] for l in open(H)]
+out=sorted(set(sh('git','rev-list','--merges','--since=2026-11-10T00:00:00',*shas).stdout.split()))
+k=collections.Counter()
+for m in out:
+    ps=sh('git','rev-list','--parents','-n1',m).stdout.split()[1:]
+    if len(ps)!=2: continue
+    r=sh('git','merge-tree','--write-tree','--name-only','--no-messages',*ps)
+    if r.returncode!=1: continue
+    tree=r.stdout.split('\n')[0]
+    for f in ['.plan/00-index.md','packages/drag/.plan/00-index.md']:
+        t=sh('git','show',f'{tree}:{f}').stdout
+        if '<<<<<<<' not in t: continue
+        fi=t.find('\n## Findings'); qi=t.find('\n## Questions')
+        z=set()
+        for x in re.finditer(r'^<<<<<<< ',t,re.M):
+            z.add('findings' if fi!=-1 and x.start()>fi and (qi==-1 or x.start()<qi or 1) else 'decisions')
+        k[tuple(sorted(z))]+=1
+print(k)

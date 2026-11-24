@@ -23,6 +23,7 @@
     "list",
     "radio",
     "react.d.ts",
+    "slider",
     "text-field"
   ],
   "type": "module",
@@ -98,6 +99,10 @@
     "./radio/radio.js": {
       "types": "./radio/radio.d.ts",
       "default": "./radio/radio.js"
+    },
+    "./slider/slider.js": {
+      "types": "./slider/slider.d.ts",
+      "default": "./slider/slider.js"
     },
     "./text-field/multiline-text-field.js": {
       "types": "./text-field/multiline-text-field.d.ts",

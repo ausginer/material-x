@@ -1,0 +1,102 @@
+# chromium 158.0.8127.18
+  focusable c0:true c11:true c13:false label click focuses c5:true c16:true
+  c0 none host           {"role":"generic","name":"","ignored":false}
+  c0 none input          {"role":"slider","name":"","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c1 mirror host         {"role":"generic","name":"N1","ignored":false}
+  c1 mirror input        {"role":"slider","name":"N1","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c2 mirror-none host    {"role":"generic","name":"N2","ignored":false}
+  c2 mirror-none input   {"role":"slider","name":"N2","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c3 none host           {"role":"generic","name":"N3","ignored":false}
+  c3 none input          {"role":"slider","name":"","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c4 labels host         {"role":"generic","name":"N4","ignored":false}
+  c4 labels input        {"role":"slider","name":"N4","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c5 labels-none host    {"role":"none","name":"","ignored":true}
+  c5 labels-none input   {"role":"slider","name":"N5","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c6 labels host         {"role":"generic","name":"N6","ignored":false}
+  c6 labels input        {"role":"slider","name":"N6 ","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c7 refs host           {"role":"generic","name":"N7","ignored":false}
+  c7 refs input          {"role":"slider","name":"N7","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c8 refs-none host      {"role":"generic","name":"N8","ignored":false}
+  c8 refs-none input     {"role":"slider","name":"N8","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c9 slot host           {"role":"generic","name":"","ignored":false}
+  c9 slot input          {"role":"slider","name":"N9","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c10 strip host         {"role":"generic","name":"","ignored":false}
+  c10 strip input        {"role":"slider","name":"N10","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c11 host host          {"role":"slider","name":"N11","ignored":false,"value":-18,"min":-55,"max":55,"text":""}
+  c12 host host          {"role":"slider","name":"N12","ignored":false,"value":-18,"min":-55,"max":55,"text":""}
+  c13 host-disabled host {"role":"slider","name":"N13","ignored":false,"value":-18,"min":-55,"max":55,"text":"","disabled":true}
+  c14 labels-none host   {"role":"none","name":"","ignored":true}
+  c14 labels-none input  {"role":"slider","name":"N14 ","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c15 slot-none host     {"role":"none","name":"","ignored":true}
+  c15 slot-none input    {"role":"slider","name":"N15","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  c16 labels-none host   {"role":"none","name":"","ignored":true}
+  c16 labels-none input  {"role":"slider","name":"N16","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+  native                 {"role":"slider","name":"NN","ignored":false,"value":-18,"min":-55,"max":55,"text":"-18"}
+# firefox 159.0
+  focusable c0:true c11:true c13:false label click focuses c5:true c16:true
+  c0 none host           {"accessible":null}
+  c0 none input          {"role":"slider","name":""}
+  c1 mirror host         {"role":"generic","name":"N1"}
+  c1 mirror input        {"role":"slider","name":"N1"}
+  c2 mirror-none host    {"role":"generic","name":"N2"}
+  c2 mirror-none input   {"role":"slider","name":"N2"}
+  c3 none host           {"role":"generic","name":"N3"}
+  c3 none input          {"role":"slider","name":""}
+  c4 labels host         {"role":"generic","name":"N4"}
+  c4 labels input        {"role":"slider","name":"N4"}
+  c5 labels-none host    {"role":"generic","name":"N5"}
+  c5 labels-none input   {"role":"slider","name":"N5"}
+  c6 labels host         {"accessible":null}
+  c6 labels input        {"role":"slider","name":"N6"}
+  c7 refs host           {"role":"generic","name":"N7"}
+  c7 refs input          {"role":"slider","name":"N7"}
+  c8 refs-none host      {"role":"generic","name":"N8"}
+  c8 refs-none input     {"role":"slider","name":"N8"}
+  c9 slot host           {"accessible":null}
+  c9 slot input          {"role":"slider","name":"N9"}
+  c10 strip host         {"accessible":null}
+  c10 strip input        {"role":"slider","name":"N10"}
+  c11 host host          {"role":"slider","name":"N11"}
+  c12 host host          {"role":"slider","name":"N12"}
+  c13 host-disabled host {"role":"slider","name":"N13"}
+  c14 labels-none host   {"accessible":null}
+  c14 labels-none input  {"role":"slider","name":"N14"}
+  c15 slot-none host     {"accessible":null}
+  c15 slot-none input    {"role":"slider","name":"N15"}
+  c16 labels-none host   {"role":"generic","name":"N16"}
+  c16 labels-none input  {"role":"slider","name":"N16"}
+  native                 {"role":"slider","name":"NN"}
+# webkit 27.2
+  focusable c0:true c11:true c13:false label click focuses c5:true c16:true
+  c0 none host           {"exists":true,"role":"group","name":"","ignored":true}
+  c0 none input          {"exists":true,"role":"slider","name":""}
+  c1 mirror host         {"exists":true,"role":"group","name":"N1"}
+  c1 mirror input        {"exists":true,"role":"slider","name":"N1"}
+  c2 mirror-none host    {"exists":true,"role":"group","name":"N2"}
+  c2 mirror-none input   {"exists":true,"role":"slider","name":"N2"}
+  c3 none host           {"exists":true,"role":"group","name":"N3","ignored":true}
+  c3 none input          {"exists":true,"role":"slider","name":""}
+  c4 labels host         {"exists":true,"role":"group","name":"N4","ignored":true}
+  c4 labels input        {"exists":true,"role":"slider","name":"N4"}
+  c5 labels-none host    {"exists":true,"role":"group","name":"N5","ignored":true}
+  c5 labels-none input   {"exists":true,"role":"slider","name":"N5"}
+  c6 labels host         {"exists":true,"role":"group","name":"N6","ignored":true}
+  c6 labels input        {"exists":true,"role":"slider","name":"N6"}
+  c7 refs host           {"exists":true,"role":"group","name":"N7"}
+  c7 refs input          {"exists":true,"role":"slider","name":"N7"}
+  c8 refs-none host      {"exists":true,"role":"group","name":"N8"}
+  c8 refs-none input     {"exists":true,"role":"slider","name":"N8"}
+  c9 slot host           {"exists":true,"role":"group","name":""}
+  c9 slot input          {"exists":true,"role":"slider","name":"N9"}
+  c10 strip host         {"exists":true,"role":"group","name":"","ignored":true}
+  c10 strip input        {"exists":true,"role":"slider","name":"N10"}
+  c11 host host          {"exists":true,"role":"slider","name":"N11"}
+  c12 host host          {"exists":true,"role":"slider","name":"N12"}
+  c13 host-disabled host {"exists":true,"role":"slider","name":"N13","disabled":true}
+  c14 labels-none host   {"exists":true,"role":"group","name":"N14","ignored":true}
+  c14 labels-none input  {"exists":true,"role":"slider","name":"N14"}
+  c15 slot-none host     {"exists":true,"role":"group","name":""}
+  c15 slot-none input    {"exists":true,"role":"slider","name":"N15"}
+  c16 labels-none host   {"exists":true,"role":"group","name":"N16","ignored":true}
+  c16 labels-none input  {"exists":true,"role":"slider","name":"N16"}
+  native                 {"exists":true,"role":"slider","name":"NN"}

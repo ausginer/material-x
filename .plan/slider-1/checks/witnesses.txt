@@ -1,0 +1,798 @@
+Mutations of mx-slider, and the rows of tests/slider that fail under each, per engine, with the number of failures. Read on 2026-11-23.
+The line numbers are those of the test files at the time. A mutation that needs CDP ran in Chromium only.
+
+## row 2: no rewrite after min, max and step | chromium | 37
+:185 > mx-slider attributes and properties > should start at 0 on a signed range
+:206 > mx-slider attributes and properties > should draw the handle at 0 when the bounds are equal
+:266 > mx-slider set in the order max, min, value, step > should give the same value from properties
+:266 > mx-slider set in the order max, step, value, min > should give the same value from properties
+:266 > mx-slider set in the order max, value, min, step > should give the same value from properties
+:266 > mx-slider set in the order max, value, step, min > should give the same value from properties
+:266 > mx-slider set in the order min, max, value, step > should give the same value from properties
+:266 > mx-slider set in the order min, step, value, max > should give the same value from properties
+:266 > mx-slider set in the order min, value, max, step > should give the same value from properties
+:266 > mx-slider set in the order min, value, step, max > should give the same value from properties
+:266 > mx-slider set in the order step, max, value, min > should give the same value from properties
+:266 > mx-slider set in the order step, min, value, max > should give the same value from properties
+:266 > mx-slider set in the order step, value, max, min > should give the same value from properties
+:266 > mx-slider set in the order step, value, min, max > should give the same value from properties
+:266 > mx-slider set in the order value, max, min, step > should give the same value from properties
+:266 > mx-slider set in the order value, max, step, min > should give the same value from properties
+:266 > mx-slider set in the order value, min, max, step > should give the same value from properties
+:266 > mx-slider set in the order value, min, step, max > should give the same value from properties
+:266 > mx-slider set in the order value, step, max, min > should give the same value from properties
+:266 > mx-slider set in the order value, step, min, max > should give the same value from properties
+:277 > mx-slider set in the order max, min, value, step > should give the same value from attributes
+:277 > mx-slider set in the order max, value, min, step > should give the same value from attributes
+:277 > mx-slider set in the order max, value, step, min > should give the same value from attributes
+:277 > mx-slider set in the order min, max, value, step > should give the same value from attributes
+:277 > mx-slider set in the order min, step, value, max > should give the same value from attributes
+:277 > mx-slider set in the order min, value, max, step > should give the same value from attributes
+:277 > mx-slider set in the order min, value, step, max > should give the same value from attributes
+:277 > mx-slider set in the order step, min, value, max > should give the same value from attributes
+:277 > mx-slider set in the order step, value, max, min > should give the same value from attributes
+:277 > mx-slider set in the order step, value, min, max > should give the same value from attributes
+:277 > mx-slider set in the order value, max, min, step > should give the same value from attributes
+:277 > mx-slider set in the order value, max, step, min > should give the same value from attributes
+:277 > mx-slider set in the order value, min, max, step > should give the same value from attributes
+:277 > mx-slider set in the order value, min, step, max > should give the same value from attributes
+:277 > mx-slider set in the order value, step, max, min > should give the same value from attributes
+:277 > mx-slider set in the order value, step, min, max > should give the same value from attributes
+:314 > mx-slider value ownership > should keep the number the user chose through a later bound
+## row 2: no rewrite after min, max and step | firefox | 37
+:185 > mx-slider attributes and properties > should start at 0 on a signed range
+:206 > mx-slider attributes and properties > should draw the handle at 0 when the bounds are equal
+:266 > mx-slider set in the order max, min, value, step > should give the same value from properties
+:266 > mx-slider set in the order max, step, value, min > should give the same value from properties
+:266 > mx-slider set in the order max, value, min, step > should give the same value from properties
+:266 > mx-slider set in the order max, value, step, min > should give the same value from properties
+:266 > mx-slider set in the order min, max, value, step > should give the same value from properties
+:266 > mx-slider set in the order min, step, value, max > should give the same value from properties
+:266 > mx-slider set in the order min, value, max, step > should give the same value from properties
+:266 > mx-slider set in the order min, value, step, max > should give the same value from properties
+:266 > mx-slider set in the order step, max, value, min > should give the same value from properties
+:266 > mx-slider set in the order step, min, value, max > should give the same value from properties
+:266 > mx-slider set in the order step, value, max, min > should give the same value from properties
+:266 > mx-slider set in the order step, value, min, max > should give the same value from properties
+:266 > mx-slider set in the order value, max, min, step > should give the same value from properties
+:266 > mx-slider set in the order value, max, step, min > should give the same value from properties
+:266 > mx-slider set in the order value, min, max, step > should give the same value from properties
+:266 > mx-slider set in the order value, min, step, max > should give the same value from properties
+:266 > mx-slider set in the order value, step, max, min > should give the same value from properties
+:266 > mx-slider set in the order value, step, min, max > should give the same value from properties
+:277 > mx-slider set in the order max, min, value, step > should give the same value from attributes
+:277 > mx-slider set in the order max, value, min, step > should give the same value from attributes
+:277 > mx-slider set in the order max, value, step, min > should give the same value from attributes
+:277 > mx-slider set in the order min, max, value, step > should give the same value from attributes
+:277 > mx-slider set in the order min, step, value, max > should give the same value from attributes
+:277 > mx-slider set in the order min, value, max, step > should give the same value from attributes
+:277 > mx-slider set in the order min, value, step, max > should give the same value from attributes
+:277 > mx-slider set in the order step, min, value, max > should give the same value from attributes
+:277 > mx-slider set in the order step, value, max, min > should give the same value from attributes
+:277 > mx-slider set in the order step, value, min, max > should give the same value from attributes
+:277 > mx-slider set in the order value, max, min, step > should give the same value from attributes
+:277 > mx-slider set in the order value, max, step, min > should give the same value from attributes
+:277 > mx-slider set in the order value, min, max, step > should give the same value from attributes
+:277 > mx-slider set in the order value, min, step, max > should give the same value from attributes
+:277 > mx-slider set in the order value, step, max, min > should give the same value from attributes
+:277 > mx-slider set in the order value, step, min, max > should give the same value from attributes
+:314 > mx-slider value ownership > should keep the number the user chose through a later bound
+## row 2: no rewrite after min, max and step | webkit | 37
+:185 > mx-slider attributes and properties > should start at 0 on a signed range
+:206 > mx-slider attributes and properties > should draw the handle at 0 when the bounds are equal
+:266 > mx-slider set in the order max, min, value, step > should give the same value from properties
+:266 > mx-slider set in the order max, step, value, min > should give the same value from properties
+:266 > mx-slider set in the order max, value, min, step > should give the same value from properties
+:266 > mx-slider set in the order max, value, step, min > should give the same value from properties
+:266 > mx-slider set in the order min, max, value, step > should give the same value from properties
+:266 > mx-slider set in the order min, step, value, max > should give the same value from properties
+:266 > mx-slider set in the order min, value, max, step > should give the same value from properties
+:266 > mx-slider set in the order min, value, step, max > should give the same value from properties
+:266 > mx-slider set in the order step, max, value, min > should give the same value from properties
+:266 > mx-slider set in the order step, min, value, max > should give the same value from properties
+:266 > mx-slider set in the order step, value, max, min > should give the same value from properties
+:266 > mx-slider set in the order step, value, min, max > should give the same value from properties
+:266 > mx-slider set in the order value, max, min, step > should give the same value from properties
+:266 > mx-slider set in the order value, max, step, min > should give the same value from properties
+:266 > mx-slider set in the order value, min, max, step > should give the same value from properties
+:266 > mx-slider set in the order value, min, step, max > should give the same value from properties
+:266 > mx-slider set in the order value, step, max, min > should give the same value from properties
+:266 > mx-slider set in the order value, step, min, max > should give the same value from properties
+:277 > mx-slider set in the order max, min, value, step > should give the same value from attributes
+:277 > mx-slider set in the order max, value, min, step > should give the same value from attributes
+:277 > mx-slider set in the order max, value, step, min > should give the same value from attributes
+:277 > mx-slider set in the order min, max, value, step > should give the same value from attributes
+:277 > mx-slider set in the order min, step, value, max > should give the same value from attributes
+:277 > mx-slider set in the order min, value, max, step > should give the same value from attributes
+:277 > mx-slider set in the order min, value, step, max > should give the same value from attributes
+:277 > mx-slider set in the order step, min, value, max > should give the same value from attributes
+:277 > mx-slider set in the order step, value, max, min > should give the same value from attributes
+:277 > mx-slider set in the order step, value, min, max > should give the same value from attributes
+:277 > mx-slider set in the order value, max, min, step > should give the same value from attributes
+:277 > mx-slider set in the order value, max, step, min > should give the same value from attributes
+:277 > mx-slider set in the order value, min, max, step > should give the same value from attributes
+:277 > mx-slider set in the order value, min, step, max > should give the same value from attributes
+:277 > mx-slider set in the order value, step, max, min > should give the same value from attributes
+:277 > mx-slider set in the order value, step, min, max > should give the same value from attributes
+:314 > mx-slider value ownership > should keep the number the user chose through a later bound
+## row 8: no restoration on pointercancel | chromium | 2
+:508 > mx-slider touch > should restore the value when a press becomes a vertical scroll
+:520 > mx-slider touch > should dispatch the restoring input with the native flags
+## row 10: the text field's transform for aria-labelledby, and no references | chromium | 30
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from label
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + aria-label
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + aria-label + label
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + label
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + slot
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + slot + aria-label
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + slot + aria-label + label
+:1008 > mx-slider in Chromium's accessibility tree > should name the control from labelledby + slot + label
+:1027 > mx-slider in Chromium's accessibility tree > should name the control from a wrapping label and not expose the host
+:1054 > mx-slider in Chromium's accessibility tree > should describe the control by a host aria-describedby
+:842 > mx-slider name > should refer to the first source of label
+:842 > mx-slider name > should refer to the first source of labelledby
+:842 > mx-slider name > should refer to the first source of labelledby + aria-label
+:842 > mx-slider name > should refer to the first source of labelledby + aria-label + label
+:842 > mx-slider name > should refer to the first source of labelledby + label
+:842 > mx-slider name > should refer to the first source of labelledby + slot
+:842 > mx-slider name > should refer to the first source of labelledby + slot + aria-label
+:842 > mx-slider name > should refer to the first source of labelledby + slot + aria-label + label
+:842 > mx-slider name > should refer to the first source of labelledby + slot + label
+:851 > mx-slider name > should follow aria-label + label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + aria-label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + slot as each is removed and added at run time
+:851 > mx-slider name > should follow slot + label as each is removed and added at run time
+:869 > mx-slider name > should follow aria-label at run time without focus
+:869 > mx-slider name > should follow labelledby at run time without focus
+:869 > mx-slider name > should follow slot at run time without focus
+:883 > mx-slider name > should read a label that appears later when it takes focus
+:892 > mx-slider name > should describe the input by the element that the host names
+## row 10: the text field's transform for aria-labelledby, and no references | firefox | 19
+:842 > mx-slider name > should refer to the first source of label
+:842 > mx-slider name > should refer to the first source of labelledby
+:842 > mx-slider name > should refer to the first source of labelledby + aria-label
+:842 > mx-slider name > should refer to the first source of labelledby + aria-label + label
+:842 > mx-slider name > should refer to the first source of labelledby + label
+:842 > mx-slider name > should refer to the first source of labelledby + slot
+:842 > mx-slider name > should refer to the first source of labelledby + slot + aria-label
+:842 > mx-slider name > should refer to the first source of labelledby + slot + aria-label + label
+:842 > mx-slider name > should refer to the first source of labelledby + slot + label
+:851 > mx-slider name > should follow aria-label + label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + aria-label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + slot as each is removed and added at run time
+:851 > mx-slider name > should follow slot + label as each is removed and added at run time
+:869 > mx-slider name > should follow aria-label at run time without focus
+:869 > mx-slider name > should follow labelledby at run time without focus
+:869 > mx-slider name > should follow slot at run time without focus
+:883 > mx-slider name > should read a label that appears later when it takes focus
+:892 > mx-slider name > should describe the input by the element that the host names
+## row 10: the text field's transform for aria-labelledby, and no references | webkit | 19
+:842 > mx-slider name > should refer to the first source of label
+:842 > mx-slider name > should refer to the first source of labelledby
+:842 > mx-slider name > should refer to the first source of labelledby + aria-label
+:842 > mx-slider name > should refer to the first source of labelledby + aria-label + label
+:842 > mx-slider name > should refer to the first source of labelledby + label
+:842 > mx-slider name > should refer to the first source of labelledby + slot
+:842 > mx-slider name > should refer to the first source of labelledby + slot + aria-label
+:842 > mx-slider name > should refer to the first source of labelledby + slot + aria-label + label
+:842 > mx-slider name > should refer to the first source of labelledby + slot + label
+:851 > mx-slider name > should follow aria-label + label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + aria-label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + label as each is removed and added at run time
+:851 > mx-slider name > should follow labelledby + slot as each is removed and added at run time
+:851 > mx-slider name > should follow slot + label as each is removed and added at run time
+:869 > mx-slider name > should follow aria-label at run time without focus
+:869 > mx-slider name > should follow labelledby at run time without focus
+:869 > mx-slider name > should follow slot at run time without focus
+:883 > mx-slider name > should read a label that appears later when it takes focus
+:892 > mx-slider name > should describe the input by the element that the host names
+## row 10: aria-valuenow, min and max mirrored | chromium | 4
+:1066 > mx-slider in Chromium's accessibility tree > should report the native value and bounds under a host aria-valuenow
+:908 > mx-slider name > should not mirror aria-valuemax
+:908 > mx-slider name > should not mirror aria-valuemin
+:908 > mx-slider name > should not mirror aria-valuenow
+## row 10: aria-valuenow, min and max mirrored | firefox | 3
+:908 > mx-slider name > should not mirror aria-valuemax
+:908 > mx-slider name > should not mirror aria-valuemin
+:908 > mx-slider name > should not mirror aria-valuenow
+## row 10: aria-valuenow, min and max mirrored | webkit | 3
+:908 > mx-slider name > should not mirror aria-valuemax
+:908 > mx-slider name > should not mirror aria-valuemin
+:908 > mx-slider name > should not mirror aria-valuenow
+## row 10: no role none | chromium | 5
+:1021 > mx-slider in Chromium's accessibility tree > should not expose the host with label
+:1021 > mx-slider in Chromium's accessibility tree > should not expose the host with nothing
+:1021 > mx-slider in Chromium's accessibility tree > should not expose the host with slot
+:1021 > mx-slider in Chromium's accessibility tree > should not expose the host with slot + label
+:1027 > mx-slider in Chromium's accessibility tree > should name the control from a wrapping label and not expose the host
+## row 10: an aria-valuetext removal does not restore valuetext | chromium | 1
+:929 > mx-slider name > should prefer a host aria-valuetext, and restore valuetext without it
+## row 10: an aria-valuetext removal does not restore valuetext | firefox | 1
+:929 > mx-slider name > should prefer a host aria-valuetext, and restore valuetext without it
+## row 10: an aria-valuetext removal does not restore valuetext | webkit | 1
+:929 > mx-slider name > should prefer a host aria-valuetext, and restore valuetext without it
+## row 3: a reset keeps what was requested | chromium | 3
+:649 > mx-slider in a form > should restore the midpoint on a reset
+:649 > mx-slider in a form > should restore the value attribute on a reset
+:660 > mx-slider in a form > should follow the value attribute again after a reset
+## row 3: a reset keeps what was requested | firefox | 3
+:649 > mx-slider in a form > should restore the midpoint on a reset
+:649 > mx-slider in a form > should restore the value attribute on a reset
+:660 > mx-slider in a form > should follow the value attribute again after a reset
+## row 3: a reset keeps what was requested | webkit | 3
+:649 > mx-slider in a form > should restore the midpoint on a reset
+:649 > mx-slider in a form > should restore the value attribute on a reset
+:660 > mx-slider in a form > should follow the value attribute again after a reset
+## row 4: no own change event | chromium | 22
+:1188 > mx-slider connection > should fire each event once after a reconnection and a move
+:328 > mx-slider pointer > should fire input and then change on a press on the track
+:349 > mx-slider pointer > should follow a drag and stop at each end
+:412 > mx-slider pointer > should dispatch one plain bubbling change at the host
+:477 > mx-slider pointer > should fire change when the handler writes the same value back
+:539 > mx-slider touch > should keep the value of a horizontal drag
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowDown
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowLeft
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowRight
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowUp
+:571 > mx-slider keyboard in ltr > should fire input and then change on End
+:571 > mx-slider keyboard in ltr > should fire input and then change on Home
+:571 > mx-slider keyboard in ltr > should fire input and then change on PageDown
+:571 > mx-slider keyboard in ltr > should fire input and then change on PageUp
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowDown
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowLeft
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowRight
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowUp
+:571 > mx-slider keyboard in rtl > should fire input and then change on End
+:571 > mx-slider keyboard in rtl > should fire input and then change on Home
+:571 > mx-slider keyboard in rtl > should fire input and then change on PageDown
+:571 > mx-slider keyboard in rtl > should fire input and then change on PageUp
+## row 4: no own change event | firefox | 21
+:1188 > mx-slider connection > should fire each event once after a reconnection and a move
+:328 > mx-slider pointer > should fire input and then change on a press on the track
+:349 > mx-slider pointer > should follow a drag and stop at each end
+:412 > mx-slider pointer > should dispatch one plain bubbling change at the host
+:477 > mx-slider pointer > should fire change when the handler writes the same value back
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowDown
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowLeft
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowRight
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowUp
+:571 > mx-slider keyboard in ltr > should fire input and then change on End
+:571 > mx-slider keyboard in ltr > should fire input and then change on Home
+:571 > mx-slider keyboard in ltr > should fire input and then change on PageDown
+:571 > mx-slider keyboard in ltr > should fire input and then change on PageUp
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowDown
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowLeft
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowRight
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowUp
+:571 > mx-slider keyboard in rtl > should fire input and then change on End
+:571 > mx-slider keyboard in rtl > should fire input and then change on Home
+:571 > mx-slider keyboard in rtl > should fire input and then change on PageDown
+:571 > mx-slider keyboard in rtl > should fire input and then change on PageUp
+## row 4: no own change event | webkit | 21
+:1188 > mx-slider connection > should fire each event once after a reconnection and a move
+:328 > mx-slider pointer > should fire input and then change on a press on the track
+:349 > mx-slider pointer > should follow a drag and stop at each end
+:412 > mx-slider pointer > should dispatch one plain bubbling change at the host
+:477 > mx-slider pointer > should fire change when the handler writes the same value back
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowDown
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowLeft
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowRight
+:571 > mx-slider keyboard in ltr > should fire input and then change on ArrowUp
+:571 > mx-slider keyboard in ltr > should fire input and then change on End
+:571 > mx-slider keyboard in ltr > should fire input and then change on Home
+:571 > mx-slider keyboard in ltr > should fire input and then change on PageDown
+:571 > mx-slider keyboard in ltr > should fire input and then change on PageUp
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowDown
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowLeft
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowRight
+:571 > mx-slider keyboard in rtl > should fire input and then change on ArrowUp
+:571 > mx-slider keyboard in rtl > should fire input and then change on End
+:571 > mx-slider keyboard in rtl > should fire input and then change on Home
+:571 > mx-slider keyboard in rtl > should fire input and then change on PageDown
+:571 > mx-slider keyboard in rtl > should fire input and then change on PageUp
+## row 4: the form value and the drawing are not written on input | chromium | 5
+:1134 > mx-slider value indicator > should hold the value
+:372 > mx-slider pointer > should draw the handle under the pointer
+:384 > mx-slider pointer > should mirror a press under RTL from CSS
+:384 > mx-slider pointer > should mirror a press under RTL from dir
+:436 > mx-slider pointer > should have the value, the form value and the drawing current in the handler
+## row 4: the form value and the drawing are not written on input | firefox | 5
+:1134 > mx-slider value indicator > should hold the value
+:372 > mx-slider pointer > should draw the handle under the pointer
+:384 > mx-slider pointer > should mirror a press under RTL from CSS
+:384 > mx-slider pointer > should mirror a press under RTL from dir
+:436 > mx-slider pointer > should have the value, the form value and the drawing current in the handler
+## row 4: the form value and the drawing are not written on input | webkit | 5
+:1134 > mx-slider value indicator > should hold the value
+:372 > mx-slider pointer > should draw the handle under the pointer
+:384 > mx-slider pointer > should mirror a press under RTL from CSS
+:384 > mx-slider pointer > should mirror a press under RTL from dir
+:436 > mx-slider pointer > should have the value, the form value and the drawing current in the handler
+## row 9: only the attribute disables | chromium | 2
+:683 > mx-slider in a form > should be disabled by a fieldset
+:719 > mx-slider in a form > should be disabled when it is parsed in a disabled fieldset
+## row 9: only the attribute disables | firefox | 2
+:683 > mx-slider in a form > should be disabled by a fieldset
+:719 > mx-slider in a form > should be disabled when it is parsed in a disabled fieldset
+## row 9: only the attribute disables | webkit | 2
+:683 > mx-slider in a form > should be disabled by a fieldset
+:719 > mx-slider in a form > should be disabled when it is parsed in a disabled fieldset
+## row 12: the indicator is always shown | chromium | 7
+:1100 > mx-slider value indicator > should not be shown at rest
+:1104 > mx-slider value indicator > should be shown while the handle is held
+:1114 > mx-slider value indicator > should be shown with keyboard focus
+:1171 > mx-slider layout in ltr > should have no scrollable overflow at 100
+:1171 > mx-slider layout in ltr > should have no scrollable overflow at 99
+:1171 > mx-slider layout in rtl > should have no scrollable overflow at 0
+:1171 > mx-slider layout in rtl > should have no scrollable overflow at 1
+## row 12: the indicator is always shown | firefox | 7
+:1100 > mx-slider value indicator > should not be shown at rest
+:1104 > mx-slider value indicator > should be shown while the handle is held
+:1114 > mx-slider value indicator > should be shown with keyboard focus
+:1171 > mx-slider layout in ltr > should have no scrollable overflow at 100
+:1171 > mx-slider layout in ltr > should have no scrollable overflow at 99
+:1171 > mx-slider layout in rtl > should have no scrollable overflow at 0
+:1171 > mx-slider layout in rtl > should have no scrollable overflow at 1
+## row 12: the indicator is always shown | webkit | 7
+:1100 > mx-slider value indicator > should not be shown at rest
+:1104 > mx-slider value indicator > should be shown while the handle is held
+:1114 > mx-slider value indicator > should be shown with keyboard focus
+:1171 > mx-slider layout in ltr > should have no scrollable overflow at 100
+:1171 > mx-slider layout in ltr > should have no scrollable overflow at 99
+:1171 > mx-slider layout in rtl > should have no scrollable overflow at 0
+:1171 > mx-slider layout in rtl > should have no scrollable overflow at 1
+## row 13: the track ends have no lower bound | chromium | 1
+:269 > mx-slider track ends > should have no size at 100 on its side
+## row 13: the track ends have no lower bound | firefox | 1
+:269 > mx-slider track ends > should have no size at 100 on its side
+## row 13: the track ends have no lower bound | webkit | 1
+:269 > mx-slider track ends > should have no size at 100 on its side
+## row 14: listeners added on each connection without removal | chromium | 2
+:1188 > mx-slider connection > should fire each event once after a reconnection and a move
+:412 > mx-slider pointer > should dispatch one plain bubbling change at the host
+## row 14: listeners added on each connection without removal | firefox | 2
+:1188 > mx-slider connection > should fire each event once after a reconnection and a move
+:412 > mx-slider pointer > should dispatch one plain bubbling change at the host
+## row 14: listeners added on each connection without removal | webkit | 2
+:1188 > mx-slider connection > should fire each event once after a reconnection and a move
+:412 > mx-slider pointer > should dispatch one plain bubbling change at the host
+## row 15: the handle animates its place | chromium | 10
+:1235 > mx-slider under reduced motion > should animate no motion property
+:220 > mx-slider ltr track ends contract > focus > should render the handle width on the value
+:220 > mx-slider ltr track ends contract > pressed > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > focus > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > pressed > should render the handle width on the value
+:372 > mx-slider pointer > should draw the handle under the pointer
+:384 > mx-slider pointer > should mirror a press under RTL from CSS
+:384 > mx-slider pointer > should mirror a press under RTL from dir
+:436 > mx-slider pointer > should have the value, the form value and the drawing current in the handler
+:455 > mx-slider pointer > should go on dragging when the handler writes the value
+## row 15: the handle animates its place | firefox | 10
+:1235 > mx-slider under reduced motion > should animate no motion property
+:220 > mx-slider ltr track ends contract > focus > should render the handle width on the value
+:220 > mx-slider ltr track ends contract > pressed > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > focus > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > pressed > should render the handle width on the value
+:372 > mx-slider pointer > should draw the handle under the pointer
+:384 > mx-slider pointer > should mirror a press under RTL from CSS
+:384 > mx-slider pointer > should mirror a press under RTL from dir
+:436 > mx-slider pointer > should have the value, the form value and the drawing current in the handler
+:455 > mx-slider pointer > should go on dragging when the handler writes the value
+## row 15: the handle animates its place | webkit | 10
+:1235 > mx-slider under reduced motion > should animate no motion property
+:220 > mx-slider ltr track ends contract > focus > should render the handle width on the value
+:220 > mx-slider ltr track ends contract > pressed > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > focus > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > pressed > should render the handle width on the value
+:372 > mx-slider pointer > should draw the handle under the pointer
+:384 > mx-slider pointer > should mirror a press under RTL from CSS
+:384 > mx-slider pointer > should mirror a press under RTL from dir
+:436 > mx-slider pointer > should have the value, the form value and the drawing current in the handler
+:455 > mx-slider pointer > should go on dragging when the handler writes the value
+## label content: the tokens on the host | chromium | 12
+:1220 > mx-slider label content > should inherit no private custom property of the slider
+:128 > mx-slider large geometry contract > should render the handle height
+:128 > mx-slider medium geometry contract > should render the handle height
+:128 > mx-slider xlarge geometry contract > should render the handle height
+:139 > mx-slider large geometry contract > should render each track height, centred on the handle
+:139 > mx-slider medium geometry contract > should render each track height, centred on the handle
+:139 > mx-slider small geometry contract > should render each track height, centred on the handle
+:139 > mx-slider xlarge geometry contract > should render each track height, centred on the handle
+:161 > mx-slider large geometry contract > should render the outer and the inner corners
+:161 > mx-slider medium geometry contract > should render the outer and the inner corners
+:161 > mx-slider xlarge geometry contract > should render the outer and the inner corners
+:200 > mx-slider RTL corners > should mirror the corners
+## label content: the tokens on the host | firefox | 25
+:1220 > mx-slider label content > should inherit no private custom property of the slider
+:128 > mx-slider large geometry contract > should render the handle height
+:128 > mx-slider medium geometry contract > should render the handle height
+:128 > mx-slider xlarge geometry contract > should render the handle height
+:139 > mx-slider large geometry contract > should render each track height, centred on the handle
+:139 > mx-slider medium geometry contract > should render each track height, centred on the handle
+:139 > mx-slider small geometry contract > should render each track height, centred on the handle
+:139 > mx-slider xlarge geometry contract > should render each track height, centred on the handle
+:161 > mx-slider large geometry contract > should render the outer and the inner corners
+:161 > mx-slider medium geometry contract > should render the outer and the inner corners
+:161 > mx-slider xlarge geometry contract > should render the outer and the inner corners
+:200 > mx-slider RTL corners > should mirror the corners
+:220 > mx-slider ltr track ends contract > focus > should render the handle width on the value
+:220 > mx-slider ltr track ends contract > pressed > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > focus > should render the handle width on the value
+:220 > mx-slider rtl track ends contract > pressed > should render the handle width on the value
+:238 > mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+:339 > mx-slider disabled color contract > should paint the active.track
+:339 > mx-slider disabled color contract > should paint the handle
+:339 > mx-slider disabled color contract > should paint the inactive.track
+:339 > mx-slider disabled color contract > should paint the stop-indicator
+:399 > mx-slider handle contract > should keep the held width while the pointer is outside
+## label content: the tokens on the host | webkit | 12
+:1220 > mx-slider label content > should inherit no private custom property of the slider
+:128 > mx-slider large geometry contract > should render the handle height
+:128 > mx-slider medium geometry contract > should render the handle height
+:128 > mx-slider xlarge geometry contract > should render the handle height
+:139 > mx-slider large geometry contract > should render each track height, centred on the handle
+:139 > mx-slider medium geometry contract > should render each track height, centred on the handle
+:139 > mx-slider small geometry contract > should render each track height, centred on the handle
+:139 > mx-slider xlarge geometry contract > should render each track height, centred on the handle
+:161 > mx-slider large geometry contract > should render the outer and the inner corners
+:161 > mx-slider medium geometry contract > should render the outer and the inner corners
+:161 > mx-slider xlarge geometry contract > should render the outer and the inner corners
+:200 > mx-slider RTL corners > should mirror the corners
+## spec: the held width does not reach the track ends | chromium | 4
+:238 > mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+## spec: the held width does not reach the track ends | firefox | 4
+:238 > mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+## spec: the held width does not reach the track ends | webkit | 4
+:238 > mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+:238 > mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+
+# The amendment (the stop indicator as an element). Read on 2026-11-24 on the rows of its commit, all 288 of tests/slider passing without a mutation, apart from the 29 that skip outside Chromium.
+
+## row 4: the stop indicator takes pointer events | chromium | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: the stop indicator takes pointer events | firefox | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: the stop indicator takes pointer events | webkit | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a native thumb 1px wide | chromium | 2
+mx-slider pointer > should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a native thumb 1px wide | firefox | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a native thumb 1px wide | webkit | 2
+mx-slider pointer > should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a press's default is prevented | chromium | 14
+mx-slider value ownership > should not follow the value attribute after a user move
+mx-slider value ownership > should keep the number the user chose through a later bound
+mx-slider pointer > should fire input and then change on a press on the track
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider pointer > should follow a drag and stop at each end
+mx-slider pointer > should draw the handle under the pointer
+mx-slider pointer > should mirror a press under RTL from dir
+mx-slider pointer > should mirror a press under RTL from CSS
+mx-slider pointer > should dispatch a plain bubbling input that crosses the host
+mx-slider pointer > should dispatch one plain bubbling change at the host
+mx-slider pointer > should have the value, the form value and the drawing current in the handler
+mx-slider pointer > should go on dragging when the handler writes the value
+mx-slider pointer > should fire change when the handler writes the same value back
+mx-slider value indicator > should hold the value
+
+## row 4: a press's default is prevented | firefox | 16
+mx-slider value ownership > should not follow the value attribute after a user move
+mx-slider value ownership > should keep the number the user chose through a later bound
+mx-slider pointer > should fire input and then change on a press on the track
+mx-slider pointer > should keep the value on a press -1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider pointer > should follow a drag and stop at each end
+mx-slider pointer > should draw the handle under the pointer
+mx-slider pointer > should mirror a press under RTL from dir
+mx-slider pointer > should mirror a press under RTL from CSS
+mx-slider pointer > should dispatch a plain bubbling input that crosses the host
+mx-slider pointer > should dispatch one plain bubbling change at the host
+mx-slider pointer > should have the value, the form value and the drawing current in the handler
+mx-slider pointer > should go on dragging when the handler writes the value
+mx-slider pointer > should fire change when the handler writes the same value back
+mx-slider value indicator > should hold the value
+
+## row 4: a press's default is prevented | webkit | 18
+mx-slider value ownership > should not follow the value attribute after a user move
+mx-slider value ownership > should keep the number the user chose through a later bound
+mx-slider pointer > should fire input and then change on a press on the track
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider pointer > should follow a drag and stop at each end
+mx-slider pointer > should draw the handle under the pointer
+mx-slider pointer > should mirror a press under RTL from dir
+mx-slider pointer > should mirror a press under RTL from CSS
+mx-slider pointer > should dispatch a plain bubbling input that crosses the host
+mx-slider pointer > should dispatch one plain bubbling change at the host
+mx-slider pointer > should have the value, the form value and the drawing current in the handler
+mx-slider pointer > should go on dragging when the handler writes the value
+mx-slider pointer > should fire change when the handler writes the same value back
+mx-slider value indicator > should be shown with keyboard focus
+mx-slider value indicator > should hold the value
+mx-slider rtl track ends contract > focus > should render the handle width on the value
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider handle contract > should draw the focus indicator around the handle
+
+## spec: the inactive track above the stop indicator | chromium | 2
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the inactive track above the stop indicator | firefox | 2
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the inactive track above the stop indicator | webkit | 2
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the two track pseudo-elements in the other order, active first | chromium | 29
+mx-slider xsmall geometry contract > should render the outer and the inner corners
+mx-slider small geometry contract > should render the outer and the inner corners
+mx-slider medium geometry contract > should render the outer and the inner corners
+mx-slider large geometry contract > should render the outer and the inner corners
+mx-slider xlarge geometry contract > should render the outer and the inner corners
+mx-slider RTL corners > should mirror the corners
+mx-slider ltr track ends contract > default > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > default > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider track ends > should have no size at 0 on its side
+mx-slider track ends > should have no size at 100 on its side
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+mx-slider default color contract > should paint the active.track
+mx-slider default color contract > should paint the inactive.track
+mx-slider focus color contract > should paint the active.track
+mx-slider focus color contract > should paint the inactive.track
+mx-slider pressed color contract > should paint the active.track
+mx-slider pressed color contract > should paint the inactive.track
+mx-slider disabled color contract > should paint the active.track
+mx-slider disabled color contract > should paint the inactive.track
+mx-slider public CSS overrides > should apply --md-slider-active-track-color
+mx-slider public CSS overrides > should apply --md-slider-inactive-track-color
+mx-slider public CSS overrides > should show nothing of a transparent inactive track
+
+## spec: the two track pseudo-elements in the other order, active first | firefox | 29
+mx-slider xsmall geometry contract > should render the outer and the inner corners
+mx-slider small geometry contract > should render the outer and the inner corners
+mx-slider medium geometry contract > should render the outer and the inner corners
+mx-slider large geometry contract > should render the outer and the inner corners
+mx-slider xlarge geometry contract > should render the outer and the inner corners
+mx-slider RTL corners > should mirror the corners
+mx-slider ltr track ends contract > default > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > default > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider track ends > should have no size at 0 on its side
+mx-slider track ends > should have no size at 100 on its side
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+mx-slider default color contract > should paint the active.track
+mx-slider default color contract > should paint the inactive.track
+mx-slider focus color contract > should paint the active.track
+mx-slider focus color contract > should paint the inactive.track
+mx-slider pressed color contract > should paint the active.track
+mx-slider pressed color contract > should paint the inactive.track
+mx-slider disabled color contract > should paint the active.track
+mx-slider disabled color contract > should paint the inactive.track
+mx-slider public CSS overrides > should apply --md-slider-active-track-color
+mx-slider public CSS overrides > should apply --md-slider-inactive-track-color
+mx-slider public CSS overrides > should show nothing of a transparent inactive track
+
+## spec: the two track pseudo-elements in the other order, active first | webkit | 29
+mx-slider xsmall geometry contract > should render the outer and the inner corners
+mx-slider small geometry contract > should render the outer and the inner corners
+mx-slider medium geometry contract > should render the outer and the inner corners
+mx-slider large geometry contract > should render the outer and the inner corners
+mx-slider xlarge geometry contract > should render the outer and the inner corners
+mx-slider RTL corners > should mirror the corners
+mx-slider ltr track ends contract > default > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > default > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider track ends > should have no size at 0 on its side
+mx-slider track ends > should have no size at 100 on its side
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+mx-slider default color contract > should paint the active.track
+mx-slider default color contract > should paint the inactive.track
+mx-slider focus color contract > should paint the active.track
+mx-slider focus color contract > should paint the inactive.track
+mx-slider pressed color contract > should paint the active.track
+mx-slider pressed color contract > should paint the inactive.track
+mx-slider disabled color contract > should paint the active.track
+mx-slider disabled color contract > should paint the inactive.track
+mx-slider public CSS overrides > should apply --md-slider-active-track-color
+mx-slider public CSS overrides > should apply --md-slider-inactive-track-color
+mx-slider public CSS overrides > should show nothing of a transparent inactive track
+
+## spec: the stop indicator keeps its size on a short track | chromium | 6
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator keeps its size on a short track | firefox | 6
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator keeps its size on a short track | webkit | 6
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator follows no direction | chromium | 5
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the stop indicator follows no direction | firefox | 5
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the stop indicator follows no direction | webkit | 5
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: no trailing space in the stop indicator's place | chromium | 9
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: no trailing space in the stop indicator's place | firefox | 9
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: no trailing space in the stop indicator's place | webkit | 9
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator fills the handle's height | chromium | 9
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator fills the handle's height | firefox | 9
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator fills the handle's height | webkit | 9
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no corner | chromium | 1
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no corner | firefox | 1
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no corner | webkit | 1
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no opacity | chromium | 1
+mx-slider disabled color contract > should paint the stop-indicator
+
+## spec: the stop indicator has no opacity | firefox | 1
+mx-slider disabled color contract > should paint the stop-indicator
+
+## spec: the stop indicator has no opacity | webkit | 1
+mx-slider disabled color contract > should paint the stop-indicator
+
+## spec: the stop indicator has the handle's color | chromium | 4
+mx-slider default color contract > should paint the stop-indicator
+mx-slider focus color contract > should paint the stop-indicator
+mx-slider pressed color contract > should paint the stop-indicator
+mx-slider public CSS overrides > should apply --md-slider-stop-indicator-color
+
+## spec: the stop indicator has the handle's color | firefox | 4
+mx-slider default color contract > should paint the stop-indicator
+mx-slider focus color contract > should paint the stop-indicator
+mx-slider pressed color contract > should paint the stop-indicator
+mx-slider public CSS overrides > should apply --md-slider-stop-indicator-color
+
+## spec: the stop indicator has the handle's color | webkit | 4
+mx-slider default color contract > should paint the stop-indicator
+mx-slider focus color contract > should paint the stop-indicator
+mx-slider pressed color contract > should paint the stop-indicator
+mx-slider public CSS overrides > should apply --md-slider-stop-indicator-color
+
+## spec: the inactive track has no opacity | chromium | 1
+mx-slider disabled color contract > should paint the inactive.track
+
+## spec: the inactive track has no opacity | firefox | 1
+mx-slider disabled color contract > should paint the inactive.track
+
+## spec: the inactive track has no opacity | webkit | 1
+mx-slider disabled color contract > should paint the inactive.track

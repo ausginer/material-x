@@ -1,0 +1,327 @@
+# chromium 158.0.8127.18
+## built
+container, 100                     {"own":19,"page":0,"pageV":0}
+container, 1000000                 {"own":34,"page":0,"pageV":0}
+page, 100                          {"own":19,"page":19,"pageV":0}
+page, 0                            {"own":0,"page":0,"pageV":0}
+page, 50                           {"own":0,"page":0,"pageV":0}
+page gutter 16, 10000              {"own":27,"page":11,"pageV":0}
+page gutter 16, long text          {"own":60,"page":44,"pageV":0}
+page gutter 60, 100                {"own":19,"page":0,"pageV":0}
+rtl page, 100                      {"own":19,"page":19,"pageV":0}
+rtl slider in ltr page, 0          {"own":0,"page":12,"pageV":0}
+ltr slider in rtl page, 0          {"own":0,"page":12,"pageV":0}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0}
+30px slider, long text, end        {"own":60,"page":60,"pageV":0}
+overflow hidden card, 100          {"own":19,"page":0,"pageV":0}
+translated sheet, scroll, 100      {"own":19,"page":40,"pageV":0}
+translated scroll container, 100   {"own":19,"page":0,"pageV":0}
+contain: paint, 100                {"own":19,"page":0,"pageV":0}
+## flex
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[255.1,300,104,44.9],"offCentre":-20.4,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[222,300,104,78],"offCentre":-37,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[355.1,400,24,44.9],"offCentre":-20.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.7,218.3,24,36.6],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[322.6,384,24,61.4],"offCentre":-28.7,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[252.8,384,24,131.3],"offCentre":-63.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[295.1,340,24,44.9],"offCentre":-20.4,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,44.9,24,44.9],"offCentre":20.4,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.7,400,24,28.3],"offCentre":-12.1,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[221.3,257.9,24,36.6],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[370,400,-236,30],"offCentre":-13,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[255.1,300,24,44.9],"offCentre":-20.4,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[295.1,340,104,44.9],"offCentre":-20.4,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[295.1,340,104,44.9],"offCentre":-20.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[255.1,300,104,44.9],"offCentre":-20.4,"gap":12}
+## anchor in the track
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[255.1,300,104,44.9],"offCentre":-20.4,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[222,300,104,78],"offCentre":-37,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[355.1,400,24,44.9],"offCentre":-20.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.7,218.3,24,36.6],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[322.6,384,24,61.4],"offCentre":-28.7,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[252.8,384,24,131.3],"offCentre":-63.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[295.1,340,24,44.9],"offCentre":-20.4,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,44.9,24,44.9],"offCentre":20.4,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.7,400,24,28.3],"offCentre":-12.1,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[221.3,257.9,24,36.6],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":101,"page":101,"pageV":0,"box":[370,501.3,24,131.3],"offCentre":37.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[255.1,300,24,44.9],"offCentre":-20.4,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[295.1,340,104,44.9],"offCentre":-20.4,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[295.1,340,104,44.9],"offCentre":-20.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[255.1,300,104,44.9],"offCentre":-20.4,"gap":12}
+## anchor in the viewport
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,104,44.9],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[259,337,104,78],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[355.1,400,24,44.9],"offCentre":-20.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.7,218.3,24,36.6],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[338.6,400,24,61.4],"offCentre":-12.7,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[268.8,400,24,131.3],"offCentre":-47.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[315.6,360.4,24,44.9],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,44.9,24,44.9],"offCentre":20.4,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.7,400,24,28.3],"offCentre":-12.1,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[221.3,257.9,24,36.6],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[268.8,400,24,131.3],"offCentre":-63.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,24,44.9],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[315.6,360.4,104,44.9],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[295.1,340,104,44.9],"offCentre":-20.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[255.1,300,104,44.9],"offCentre":-20.4,"gap":12}
+## area in the viewport
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,104,44.9],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[259,337,104,78],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[355.1,400,24,44.9],"offCentre":-20.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.7,218.3,24,36.6],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[338.6,400,24,61.4],"offCentre":-12.7,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[268.8,400,24,131.3],"offCentre":-47.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[315.6,360.4,24,44.9],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,44.9,24,44.9],"offCentre":20.4,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.7,400,24,28.3],"offCentre":-12.1,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[221.3,257.9,24,36.6],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[268.8,400,24,131.3],"offCentre":-63.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,24,44.9],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[315.6,360.4,104,44.9],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[295.1,340,104,44.9],"offCentre":-20.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[255.1,300,104,44.9],"offCentre":-20.4,"gap":12}
+## anchor in the top layer
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,104,44.9],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[259,337,104,78],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[355.1,400,24,44.9],"offCentre":-20.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.7,218.3,24,36.6],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[338.6,400,24,61.4],"offCentre":-12.7,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[268.8,400,24,131.3],"offCentre":-47.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[315.6,360.4,24,44.9],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,44.9,24,44.9],"offCentre":20.4,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.7,400,24,28.3],"offCentre":-12.1,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.3,24,28.3],"offCentre":12.1,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[221.3,257.9,24,36.6],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[268.8,400,24,131.3],"offCentre":-63.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,24,44.9],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[315.6,360.4,104,44.9],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[315.6,360.4,104,44.9],"offCentre":0,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[275.6,320.4,104,44.9],"offCentre":0,"gap":12}
+# firefox 159.0
+## built
+container, 100                     {"own":21,"page":0,"pageV":0}
+container, 1000000                 {"own":39,"page":0,"pageV":0}
+page, 100                          {"own":21,"page":21,"pageV":0}
+page, 0                            {"own":0,"page":0,"pageV":0}
+page, 50                           {"own":0,"page":0,"pageV":0}
+page gutter 16, 10000              {"own":30,"page":14,"pageV":0}
+page gutter 16, long text          {"own":63,"page":47,"pageV":0}
+page gutter 60, 100                {"own":21,"page":0,"pageV":0}
+rtl page, 100                      {"own":21,"page":21,"pageV":0}
+rtl slider in ltr page, 0          {"own":0,"page":12,"pageV":0}
+ltr slider in rtl page, 0          {"own":0,"page":12,"pageV":0}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0}
+30px slider, long text, end        {"own":63,"page":63,"pageV":0}
+overflow hidden card, 100          {"own":21,"page":0,"pageV":0}
+translated sheet, scroll, 100      {"own":21,"page":40,"pageV":0}
+translated scroll container, 100   {"own":21,"page":0,"pageV":0}
+contain: paint, 100                {"own":21,"page":0,"pageV":0}
+## flex
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[217.7,300,104,82.3],"offCentre":-39.2,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[319.5,384,24,64.5],"offCentre":-30.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[254.8,384,24,129.2],"offCentre":-62.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[293.3,340,24,46.7],"offCentre":-21.4,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.4,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[370,400,-236,30],"offCentre":-13,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[253.3,300,24,46.7],"offCentre":-21.3,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.4,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## anchor in the track
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[217.7,300,104,82.3],"offCentre":-39.2,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[319.5,384,24,64.5],"offCentre":-30.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[254.8,384,24,129.2],"offCentre":-62.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[293.3,340,24,46.7],"offCentre":-21.4,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.4,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":99,"page":99,"pageV":0,"box":[370,499.2,24,129.2],"offCentre":36.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[253.3,300,24,46.7],"offCentre":-21.3,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.4,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## anchor in the viewport
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,104,46.7],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[256.9,339.1,104,82.3],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[335.5,400,24,64.5],"offCentre":-14.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-46.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[314.6,361.4,24,46.7],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[-371.1,-342.2,24,28.9],"offCentre":-754.7,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[742.2,771.1,24,28.9],"offCentre":754.7,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[-220.7,-182.9,24,37.8],"offCentre":-441.4,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-62.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,24,46.7],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[314.6,361.4,104,46.7],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## area in the viewport
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,104,46.7],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[256.9,339.1,104,82.3],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[335.5,400,24,64.5],"offCentre":-14.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-46.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[314.6,361.4,24,46.7],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[-371.1,-342.2,24,28.9],"offCentre":-754.7,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[742.2,771.1,24,28.9],"offCentre":754.7,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[-220.7,-182.9,24,37.8],"offCentre":-441.4,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-62.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,24,46.7],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[314.6,361.4,104,46.7],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.4,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## anchor in the top layer
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,104,46.7],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[256.9,339.1,104,82.3],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.4,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.4,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[335.5,400,24,64.5],"offCentre":-14.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-46.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[314.6,361.4,24,46.7],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[-371.1,-342.2,24,28.9],"offCentre":-754.7,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[742.2,771.1,24,28.9],"offCentre":754.7,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[-220.7,-182.9,24,37.8],"offCentre":-441.4,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-62.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,24,46.7],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[274.6,321.4,104,46.7],"offCentre":-40,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,104,46.7],"offCentre":-40,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[274.6,321.4,104,46.7],"offCentre":0,"gap":12}
+# webkit 27.2
+## built
+container, 100                     {"own":21,"page":0,"pageV":0}
+container, 1000000                 {"own":39,"page":0,"pageV":0}
+page, 100                          {"own":21,"page":21,"pageV":0}
+page, 0                            {"own":0,"page":0,"pageV":0}
+page, 50                           {"own":0,"page":0,"pageV":0}
+page gutter 16, 10000              {"own":30,"page":14,"pageV":0}
+page gutter 16, long text          {"own":63,"page":47,"pageV":0}
+page gutter 60, 100                {"own":21,"page":0,"pageV":0}
+rtl page, 100                      {"own":21,"page":21,"pageV":0}
+rtl slider in ltr page, 0          {"own":0,"page":12,"pageV":0}
+ltr slider in rtl page, 0          {"own":0,"page":12,"pageV":0}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0}
+30px slider, long text, end        {"own":63,"page":63,"pageV":0}
+overflow hidden card, 100          {"own":21,"page":0,"pageV":0}
+translated sheet, scroll, 100      {"own":21,"page":40,"pageV":0}
+translated scroll container, 100   {"own":21,"page":0,"pageV":0}
+contain: paint, 100                {"own":21,"page":0,"pageV":0}
+## flex
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[217.7,300,104,82.3],"offCentre":-39.1,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.3,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[319.5,384,24,64.5],"offCentre":-30.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[254.8,384,24,129.2],"offCentre":-62.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[293.3,340,24,46.7],"offCentre":-21.3,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.5,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[370,400,-236,30],"offCentre":-13,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[253.3,300,24,46.7],"offCentre":-21.3,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.3,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.3,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## anchor in the track
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[217.7,300,104,82.3],"offCentre":-39.1,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.3,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[319.5,384,24,64.5],"offCentre":-30.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[254.8,384,24,129.2],"offCentre":-62.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[293.3,340,24,46.7],"offCentre":-21.3,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.5,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":99,"page":99,"pageV":0,"box":[370,499.2,24,129.2],"offCentre":36.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[253.3,300,24,46.7],"offCentre":-21.3,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.3,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.3,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## anchor in the viewport
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,104,46.7],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[256.9,339.1,104,82.3],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.3,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[335.5,400,24,64.5],"offCentre":-14.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-46.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[314.7,361.3,24,46.7],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.5,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-62.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,24,46.7],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[314.7,361.3,104,46.7],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.3,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## area in the viewport
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,104,46.7],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[256.9,339.1,104,82.3],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.3,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[335.5,400,24,64.5],"offCentre":-14.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-46.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[314.7,361.3,24,46.7],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.5,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-62.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,24,46.7],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[314.7,361.3,104,46.7],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[293.3,340,104,46.7],"offCentre":-21.3,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[253.3,300,104,46.7],"offCentre":-21.3,"gap":12}
+## anchor in the top layer
+container, 100                     {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,104,46.7],"offCentre":0,"gap":12}
+container, 1000000                 {"own":0,"page":0,"pageV":0,"box":[256.9,339.1,104,82.3],"offCentre":0,"gap":12}
+page, 100                          {"own":0,"page":0,"pageV":0,"box":[353.3,400,24,46.7],"offCentre":-21.3,"gap":12}
+page, 0                            {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+page, 50                           {"own":0,"page":0,"pageV":0,"box":[181.1,218.9,24,37.8],"offCentre":0,"gap":12}
+page gutter 16, 10000              {"own":0,"page":0,"pageV":0,"box":[335.5,400,24,64.5],"offCentre":-14.2,"gap":12}
+page gutter 16, long text          {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-46.6,"gap":12}
+page gutter 60, 100                {"own":0,"page":0,"pageV":0,"box":[314.7,361.3,24,46.7],"offCentre":0,"gap":12}
+rtl page, 100                      {"own":0,"page":0,"pageV":0,"box":[0,46.7,24,46.7],"offCentre":21.3,"gap":12}
+rtl slider in ltr page, 0          {"own":0,"page":0,"pageV":0,"box":[371.1,400,24,28.9],"offCentre":-12.5,"gap":12}
+ltr slider in rtl page, 0          {"own":0,"page":0,"pageV":0,"box":[0,28.9,24,28.9],"offCentre":12.5,"gap":12}
+rtl slider in ltr page, 40         {"own":0,"page":0,"pageV":0,"box":[220.7,258.5,24,37.8],"offCentre":0,"gap":12}
+30px slider, long text, end        {"own":0,"page":0,"pageV":0,"box":[270.8,400,24,129.2],"offCentre":-62.6,"gap":12}
+overflow hidden card, 100          {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,24,46.7],"offCentre":0,"gap":12}
+translated sheet, scroll, 100      {"own":0,"page":40,"pageV":0,"box":[314.7,361.3,104,46.7],"offCentre":0,"gap":12}
+translated scroll container, 100   {"own":0,"page":0,"pageV":0,"box":[314.7,361.3,104,46.7],"offCentre":0,"gap":12}
+contain: paint, 100                {"own":0,"page":0,"pageV":0,"box":[274.7,321.3,104,46.7],"offCentre":0,"gap":12}

@@ -1,0 +1,96 @@
+Mutations of mx-slider's held state and second finger: probes/mutations.ts. Read on 2026-11-24.
+"none" is the code as it is. Those of touch ran in Chromium only. "a release/a cancel does not end
+the press" ran after their rows were added, and the rest before.
+
+## none | chromium | 0 failed, 370 passed
+## none | firefox | 0 failed, 314 passed
+## none | webkit | 0 failed, 314 passed
+## a second finger takes over a press in progress | chromium | 3 failed, 367 passed
+mx-slider touch should not follow a second finger during a slide
+mx-slider touch should commit a slide that is cancelled with a second finger down
+mx-slider touch should drop a held press that is cancelled after a second finger
+## a second finger takes over a press that is not held back | chromium | 2 failed, 368 passed
+mx-slider touch should not follow a second finger during a slide
+mx-slider touch should commit a slide that is cancelled with a second finger down
+## a second finger ends the held state | chromium | 1 failed, 369 passed
+mx-slider touch should not follow a second finger during a slide
+## a disconnection does not drop the press | chromium | 1 failed, 369 passed
+mx-slider touch should drop a held press when it is moved in the DOM
+## a disconnection does not end the held state | chromium | 1 failed, 369 passed
+mx-slider held state should end when the slider is removed
+## a disconnection does not end the held state | firefox | 1 failed, 313 passed
+mx-slider held state should end when the slider is removed
+## a disconnection does not end the held state | webkit | 1 failed, 313 passed
+mx-slider held state should end when the slider is removed
+## disabling does not drop the press | chromium | 1 failed, 369 passed
+mx-slider touch should drop a held press when it is disabled
+## disabling does not end the held state | chromium | 1 failed, 369 passed
+mx-slider held state should end when the slider is disabled
+## disabling does not end the held state | firefox | 1 failed, 313 passed
+mx-slider held state should end when the slider is disabled
+## disabling does not end the held state | webkit | 1 failed, 313 passed
+mx-slider held state should end when the slider is disabled
+## no @starting-style | chromium | 1 failed, 369 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+## no @starting-style | firefox | 1 failed, 313 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+## no @starting-style | webkit | 1 failed, 313 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+## the indicator follows :active | chromium | 5 failed, 365 passed
+mx-slider touch should look held while a finger rests
+mx-slider touch should not follow a second finger during a slide
+mx-slider held state should not begin at a press on the label
+mx-slider held state should not begin at a press of the right button
+mx-slider held state should end when the slider is disabled
+## the indicator follows :active | firefox | 3 failed, 311 passed
+mx-slider held state should not begin at a press on the label
+mx-slider held state should not begin at a press of the right button
+mx-slider held state should end when the slider is disabled
+## the indicator follows :active | webkit | 4 failed, 310 passed
+mx-slider held state should last while the pointer rests on the track
+mx-slider held state should last while the pointer is outside the slider
+mx-slider held state should not begin at a press on the label
+mx-slider held state should not begin at a press of the right button
+## the handle follows :active | chromium | 4 failed, 366 passed
+mx-slider touch should look held while a finger rests
+mx-slider touch should not follow a second finger during a slide
+mx-slider held state should not begin at a press on the label
+mx-slider held state should end when the slider is disabled
+## the handle follows :active | firefox | 3 failed, 311 passed
+mx-slider held state should not begin at a press on the label
+mx-slider held state should not begin at a press of the right button
+mx-slider held state should end when the slider is disabled
+## the handle follows :active | webkit | 4 failed, 310 passed
+mx-slider held state should last while the pointer rests on the track
+mx-slider held state should last while the pointer is outside the slider
+mx-slider held state should not begin at a press on the label
+mx-slider held state should not begin at a press of the right button
+## any button holds | chromium | 1 failed, 369 passed
+mx-slider held state should not begin at a press of the right button
+## any button holds | firefox | 1 failed, 313 passed
+mx-slider held state should not begin at a press of the right button
+## any button holds | webkit | 1 failed, 313 passed
+mx-slider held state should not begin at a press of the right button
+## a release does not end the held state | chromium | 4 failed, 366 passed
+mx-slider touch should look held while a finger rests
+mx-slider value indicator should be shown while the handle is held
+mx-slider held state should last while the pointer rests on the track
+mx-slider held state should last while the pointer is outside the slider
+## a release does not end the held state | firefox | 3 failed, 311 passed
+mx-slider value indicator should be shown while the handle is held
+mx-slider held state should last while the pointer rests on the track
+mx-slider held state should last while the pointer is outside the slider
+## a release does not end the held state | webkit | 3 failed, 311 passed
+mx-slider value indicator should be shown while the handle is held
+mx-slider held state should last while the pointer rests on the track
+mx-slider held state should last while the pointer is outside the slider
+## a cancel does not end the held state | chromium | 2 failed, 368 passed
+mx-slider touch should not look held after a scroll
+mx-slider touch should not follow a second finger during a slide
+## a release does not end the press | chromium | 1 failed, 371 passed
+mx-slider touch should follow a finger that is not the first one down after a tap
+## a cancel does not end the press | chromium | 1 failed, 371 passed
+mx-slider touch should follow a finger that is not the first one down after a scroll
+## none | chromium | 0 failed, 372 passed
+## none | firefox | 0 failed, 314 passed
+## none | webkit | 0 failed, 314 passed

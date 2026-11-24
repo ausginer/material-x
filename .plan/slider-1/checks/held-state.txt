@@ -1,0 +1,30 @@
+# chromium 158.0.8127.18
+the track, still: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the track, still, then moved out of the slider: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the same, released there: :active false, handle 4px, indicator 0, focus-visible false | candidate held false
+moved out at once: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the label: :active true, handle 2px, indicator 0.812326, focus-visible false | candidate held false
+the right button: :active false, handle 4px, indicator 0, focus-visible false | candidate held false
+disabled during: :active true, handle 2px, indicator 0.962849, focus-visible false | candidate held true
+removed and put back during, released: :active false, handle 4px, indicator 0, focus-visible false | candidate held true
+display: none during, released, shown again: :active false, handle 4px, indicator 0, focus-visible false | candidate held true
+# firefox 159.0
+the track, still: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the track, still, then moved out of the slider: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the same, released there: :active false, handle 4px, indicator 0, focus-visible false | candidate held false
+moved out at once: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the label: :active true, handle 2px, indicator 0.616528, focus-visible false | candidate held false
+the right button: :active true, handle 2px, indicator 0.986024, focus-visible false | candidate held false
+disabled during: :active true, handle 2px, indicator 0.985171, focus-visible false | candidate held true
+removed and put back during, released: :active false, handle 4px, indicator 0, focus-visible false | candidate held false
+display: none during, released, shown again: :active false, handle 4px, indicator 0, focus-visible false | candidate held true
+# webkit 27.2
+the track, still: :active false, handle 4px, indicator 0, focus-visible false | candidate held true
+the track, still, then moved out of the slider: :active false, handle 4px, indicator 0, focus-visible false | candidate held true
+the same, released there: :active false, handle 4px, indicator 0, focus-visible false | candidate held false
+moved out at once: :active true, handle 2px, indicator 1, focus-visible false | candidate held true
+the label: :active true, handle 2px, indicator 0.857149, focus-visible false | candidate held false
+the right button: :active true, handle 2px, indicator 0.881636, focus-visible false | candidate held false
+disabled during: :active false, handle 4px, indicator 0.002622, focus-visible false | candidate held true
+removed and put back during, released: :active false, handle 4px, indicator 0, focus-visible false | candidate held true
+display: none during, released, shown again: :active false, handle 4px, indicator 0, focus-visible false | candidate held true

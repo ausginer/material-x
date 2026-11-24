@@ -1,0 +1,45 @@
+# Read 2026-11-23 from each engine's main branch on GitHub, fetched with curl.
+# These are readings of source, not runs with assistive technology.
+
+## Firefox (mozilla-firefox/firefox main)
+accessible/generic/LocalAccessible.cpp:1903
+  bool LocalAccessible::SetCurValue(double /*aValue*/) { return false; }
+accessible/html/HTMLFormControlAccessible.cpp:632, HTMLRangeAccessible::SetCurValue
+  calls HTMLInputElement::SetUserInput. HTMLSpinnerAccessible (581) also overrides it.
+accessible/android/SessionAccessibility.cpp:157, ChangeValueBySteps
+  acc->SetCurValue(acc->CurValue() + acc->Step() * aSteps)
+accessible/android/SessionAccessibility.cpp:895
+  // XXX: Currently, the only two accessibles that support SetCurValue are
+  // native ranges and spinners.
+  isSettable = (IsHTMLSpinner() || IsHTMLRange()) && not READONLY or UNAVAILABLE
+accessible/mac/mozActionElements.mm:249
+  changeValueBySteps sets the value through mGeckoAccessible->SetCurValue
+dom/html/HTMLInputElement.cpp, PostHandleEventForRangeThumb
+  eTouchStart starts a drag; eTouchCancel calls CancelRangeThumbDrag while dragging
+dom/html/HTMLInputElement.cpp, CancelRangeThumbDrag
+  restores mRangeThumbDragStartValue and dispatches an input event
+dom/html/HTMLInputElement.cpp, keys: PageUp and PageDown move by max(step, 10 % of the range)
+
+## Chromium (chromium/chromium main)
+third_party/blink/renderer/modules/accessibility/ax_node_object.cc:739, AlterSliderOrSpinButtonValue
+  For an element whose native role is a slider or a spin button, without
+  SynthesizedKeyboardEventsForAccessibilityActions, it sets the value directly and
+  returns. Any other element, an ARIA slider included, goes on to a synthesized arrow
+  keydown and keyup on the node. (An ARIA slider's StepValueForRange gives step 0, true.)
+third_party/blink/renderer/platform/runtime_enabled_features.json5:6999
+  SynthesizedKeyboardEventsForAccessibilityActions, status: "experimental"
+slider_thumb_element.cc and range_input_type.cc: not read, GitHub answered 429.
+
+## WebKit (WebKit/WebKit main)
+Source/WebCore/accessibility/AccessibilityNodeObject.cpp:1933, setNodeValue
+  Posts simulated arrow keydown and keyup when the value can't be set natively.
+Source/WebCore/html/RangeInputType.cpp, handleKeydownEvent
+  Left is current - step and Right is current + step, with no reading of direction.
+Source/WebCore/html/RangeInputType.cpp, handleTouchEvent
+  With IOS_TOUCH_EVENTS, the touch goes to the thumb alone. Otherwise a touch
+  anywhere sets the position.
+Source/WebCore/html/shadow/SliderThumbElement.cpp, handleTouchStart
+  thumbMinDimension = 48, thumbHitAreaExpansion = 12.5: a thumb narrower or shorter
+  than 48 is inflated by 12.5 for the hit test.
+Source/WebCore/html/shadow/SliderThumbElement.cpp, setPositionFromPoint
+  Centres the thumb on the point.

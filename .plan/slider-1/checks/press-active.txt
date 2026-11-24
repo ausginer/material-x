@@ -1,0 +1,27 @@
+# chromium 158.0.8127.18
+range, the track, still: on 0 ms
+range, the track, moved by 2 px at once: on 0 ms
+range, the track, moved by 1 px after 500 ms: on 0 ms
+range, the thumb, still: on 0 ms
+button, the track, still: on 0 ms
+button, the track, moved by 2 px at once: on 0 ms
+button, the track, moved by 1 px after 500 ms: on 0 ms
+button, the thumb, still: on 0 ms
+# firefox 159.0
+range, the track, still: on 2 ms
+range, the track, moved by 2 px at once: on 1 ms
+range, the track, moved by 1 px after 500 ms: on 1 ms
+range, the thumb, still: on 1 ms
+button, the track, still: on 0 ms
+button, the track, moved by 2 px at once: on 0 ms
+button, the track, moved by 1 px after 500 ms: on 0 ms
+button, the thumb, still: on 0 ms
+# webkit 27.2
+range, the track, still: on 0 ms, off 137 ms
+range, the track, moved by 2 px at once: on 0 ms
+range, the track, moved by 1 px after 500 ms: on 0 ms, off 105 ms, on 507 ms
+range, the thumb, still: on 1 ms
+button, the track, still: on 0 ms
+button, the track, moved by 2 px at once: on 0 ms
+button, the track, moved by 1 px after 500 ms: on 0 ms
+button, the thumb, still: on 0 ms

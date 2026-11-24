@@ -1,0 +1,180 @@
+# built-move-cost-cause.ts on the build of ed272a010, on 2026-11-23, one engine at a time. The load average (of 12 processors) is before each run.
+# Chromium's rounds fall in two groups, about a factor of two apart, so its minimum compares better than its median.
+# load 1.10 1.20 2.04
+# firefox 159.0
+ script
+  native                                       median     2.5 us, min     2.5, against proto 0.33 (0.25 to 0.50)
+  proto                                        median     7.5 us, min     2.5, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median     7.5 us, min     2.5, against proto 1.00 (0.67 to 1.33)
+  proto+event                                  median    12.5 us, min     5.0, against proto 1.20 (0.83 to 1.67)
+  direct+built-css                             median     7.5 us, min     5.0, against proto 0.75 (0.50 to 1.00)
+  event+built-css                              median    12.5 us, min     5.0, against proto 1.33 (1.20 to 1.75)
+  built                                        median    12.5 us, min     5.0, against proto 1.33 (1.00 to 1.67)
+  built+proto-css                              median    12.5 us, min     5.0, against proto 1.25 (1.00 to 1.67)
+  stop-span                                    median    12.5 us, min     5.0, against proto 1.33 (0.75 to 1.75)
+  input-in-flow                                median    15.0 us, min     7.5, against proto 1.33 (0.80 to 2.33)
+  indicator                                    median    15.0 us, min     7.5, against proto 1.50 (1.00 to 2.00)
+  indicator,stop-span                          median    17.5 us, min     2.5, against proto 1.75 (1.00 to 2.33)
+ flushed
+  native                                       median     5.0 us, min     0.0, against proto 0.04 (0.02 to 0.05)
+  proto                                        median   102.5 us, min    85.0, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median    97.5 us, min    82.5, against proto 0.95 (0.87 to 1.08)
+  proto+event                                  median    92.5 us, min    85.0, against proto 0.93 (0.87 to 1.00)
+  direct+built-css                             median   165.0 us, min   145.0, against proto 1.64 (1.60 to 1.74)
+  event+built-css                              median   177.5 us, min   160.0, against proto 1.78 (1.66 to 1.88)
+  built                                        median   177.5 us, min   160.0, against proto 1.79 (1.59 to 1.91)
+  built+proto-css                              median    95.0 us, min    80.0, against proto 0.91 (0.87 to 1.00)
+  stop-span                                    median   135.0 us, min   117.5, against proto 1.34 (1.23 to 1.49)
+  input-in-flow                                median   187.5 us, min   162.5, against proto 1.81 (1.71 to 1.89)
+  indicator                                    median   225.0 us, min   192.5, against proto 2.14 (2.07 to 2.20)
+  indicator,stop-span                          median   167.5 us, min   147.5, against proto 1.69 (1.50 to 1.77)
+ held
+  native                                       median     5.0 us, min     2.5, against proto 0.04 (0.03 to 0.05)
+  proto                                        median   105.0 us, min    87.5, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median   102.5 us, min    90.0, against proto 0.98 (0.90 to 1.03)
+  proto+event                                  median   100.0 us, min    82.5, against proto 0.93 (0.80 to 1.00)
+  direct+built-css                             median   170.0 us, min   150.0, against proto 1.60 (1.37 to 1.83)
+  event+built-css                              median   182.5 us, min   162.5, against proto 1.73 (1.57 to 1.93)
+  built                                        median   185.0 us, min   167.5, against proto 1.78 (1.61 to 1.94)
+  built+proto-css                              median   100.0 us, min    80.0, against proto 0.89 (0.83 to 1.07)
+  stop-span                                    median   137.5 us, min   122.5, against proto 1.31 (1.14 to 1.49)
+  input-in-flow                                median   192.5 us, min   172.5, against proto 1.91 (1.61 to 2.00)
+  indicator                                    median   300.0 us, min   267.5, against proto 2.84 (2.73 to 2.95)
+  indicator,stop-span                          median   237.5 us, min   217.5, against proto 2.22 (2.08 to 2.41)
+# load 1.55 1.30 2.04
+# chromium 158.0.8127.18
+ script
+  native                                       median     1.5 us, min     1.3, against proto 0.47 (0.42 to 0.55)
+  proto                                        median     2.7 us, min     2.5, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median     2.7 us, min     2.5, against proto 1.00 (0.91 to 1.00)
+  proto+event                                  median     3.5 us, min     3.2, against proto 1.27 (1.18 to 1.30)
+  direct+built-css                             median     2.5 us, min     2.3, against proto 0.91 (0.81 to 0.93)
+  event+built-css                              median     3.5 us, min     3.2, against proto 1.27 (1.18 to 1.33)
+  built                                        median     3.8 us, min     3.2, against proto 1.37 (1.27 to 1.50)
+  built+proto-css                              median     3.8 us, min     3.3, against proto 1.46 (1.27 to 1.55)
+  stop-span                                    median     3.8 us, min     3.5, against proto 1.40 (1.27 to 1.50)
+  input-in-flow                                median     3.8 us, min     3.3, against proto 1.38 (1.27 to 1.50)
+  indicator                                    median     4.0 us, min     3.3, against proto 1.50 (1.36 to 1.64)
+  indicator,stop-span                          median     4.0 us, min     3.5, against proto 1.50 (1.45 to 1.70)
+ flushed
+  native                                       median    11.3 us, min     9.8, against proto 0.26 (0.16 to 0.30)
+  proto                                        median    41.3 us, min    33.8, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median    40.5 us, min    33.8, against proto 0.94 (0.64 to 1.03)
+  proto+event                                  median    36.3 us, min    31.0, against proto 0.78 (0.58 to 0.92)
+  direct+built-css                             median    50.0 us, min    42.7, against proto 1.21 (1.02 to 1.33)
+  event+built-css                              median    53.5 us, min    44.8, against proto 1.34 (1.04 to 2.07)
+  built                                        median    50.0 us, min    42.3, against proto 1.31 (0.71 to 2.11)
+  built+proto-css                              median    34.8 us, min    30.8, against proto 0.90 (0.48 to 1.01)
+  stop-span                                    median    52.0 us, min    47.0, against proto 1.36 (0.90 to 1.74)
+  input-in-flow                                median    53.5 us, min    44.8, against proto 1.33 (0.84 to 1.94)
+  indicator                                    median    63.8 us, min    55.3, against proto 1.56 (0.89 to 1.70)
+  indicator,stop-span                          median    88.8 us, min    58.2, against proto 1.74 (1.42 to 1.87)
+ held
+  native                                       median    11.5 us, min    10.5, against proto 0.25 (0.16 to 0.30)
+  proto                                        median    42.3 us, min    34.8, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median    46.8 us, min    35.5, against proto 1.02 (0.64 to 1.23)
+  proto+event                                  median    39.0 us, min    31.5, against proto 0.82 (0.60 to 0.97)
+  direct+built-css                             median    84.8 us, min    46.7, against proto 1.30 (1.18 to 2.05)
+  event+built-css                              median    85.0 us, min    43.0, against proto 1.68 (0.82 to 2.28)
+  built                                        median    52.7 us, min    44.0, against proto 1.11 (0.72 to 2.14)
+  built+proto-css                              median    60.2 us, min    31.5, against proto 1.05 (0.75 to 1.53)
+  stop-span                                    median    75.2 us, min    46.5, against proto 1.40 (1.17 to 1.84)
+  input-in-flow                                median   116.7 us, min    45.5, against proto 1.90 (1.14 to 2.04)
+  indicator                                    median    90.8 us, min    75.2, against proto 2.16 (1.34 to 2.32)
+  indicator,stop-span                          median   113.2 us, min    79.2, against proto 2.15 (1.71 to 2.45)
+# load 1.68 1.35 2.03
+# webkit 27.2
+ script
+  native                                       median     2.5 us, min     0.0, against proto 0.50 (0.00 to 1.00)
+  proto                                        median     2.5 us, min     2.5, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median     2.5 us, min     2.5, against proto 1.00 (1.00 to 1.00)
+  proto+event                                  median     2.5 us, min     2.5, against proto 1.00 (1.00 to 2.00)
+  direct+built-css                             median     2.5 us, min     0.0, against proto 1.00 (1.00 to 1.00)
+  event+built-css                              median     5.0 us, min     2.5, against proto 1.50 (1.00 to 2.00)
+  built                                        median     2.5 us, min     2.5, against proto 1.00 (1.00 to 2.00)
+  built+proto-css                              median     5.0 us, min     2.5, against proto 2.00 (1.00 to 2.00)
+  stop-span                                    median     5.0 us, min     2.5, against proto 2.00 (1.00 to 2.00)
+  input-in-flow                                median     2.5 us, min     2.5, against proto 1.00 (1.00 to 3.00)
+  indicator                                    median     5.0 us, min     2.5, against proto 2.00 (1.00 to 2.00)
+  indicator,stop-span                          median     5.0 us, min     2.5, against proto 2.00 (1.00 to 2.00)
+ flushed
+  native                                       median    27.5 us, min    22.5, against proto 0.09 (0.08 to 0.12)
+  proto                                        median   295.0 us, min   267.5, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median   292.5 us, min   257.5, against proto 0.98 (0.91 to 1.00)
+  proto+event                                  median   280.0 us, min   227.5, against proto 0.88 (0.84 to 0.96)
+  direct+built-css                             median   297.5 us, min   265.0, against proto 0.99 (0.92 to 1.04)
+  event+built-css                              median   322.5 us, min   277.5, against proto 1.05 (0.97 to 1.10)
+  built                                        median   322.5 us, min   287.5, against proto 1.09 (1.03 to 1.13)
+  built+proto-css                              median   267.5 us, min   240.0, against proto 0.90 (0.82 to 0.94)
+  stop-span                                    median   327.5 us, min   285.0, against proto 1.07 (1.02 to 1.14)
+  input-in-flow                                median   337.5 us, min   305.0, against proto 1.14 (1.06 to 1.18)
+  indicator                                    median   365.0 us, min   312.5, against proto 1.22 (1.17 to 1.28)
+  indicator,stop-span                          median   362.5 us, min   320.0, against proto 1.20 (1.16 to 1.27)
+ held
+  native                                       median    40.0 us, min    25.0, against proto 0.10 (0.09 to 0.13)
+  proto                                        median   340.0 us, min   290.0, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median   322.5 us, min   277.5, against proto 0.94 (0.86 to 0.97)
+  proto+event                                  median   290.0 us, min   250.0, against proto 0.87 (0.82 to 0.90)
+  direct+built-css                             median   337.5 us, min   287.5, against proto 0.96 (0.90 to 1.03)
+  event+built-css                              median   345.0 us, min   305.0, against proto 1.03 (0.93 to 1.09)
+  built                                        median   350.0 us, min   320.0, against proto 1.04 (0.93 to 1.11)
+  built+proto-css                              median   302.5 us, min   257.5, against proto 0.85 (0.81 to 0.92)
+  stop-span                                    median   360.0 us, min   302.5, against proto 1.04 (0.98 to 1.09)
+  input-in-flow                                median   375.0 us, min   320.0, against proto 1.05 (0.98 to 1.11)
+  indicator                                    median   462.5 us, min   407.5, against proto 1.35 (1.30 to 1.42)
+  indicator,stop-span                          median   485.0 us, min   442.5, against proto 1.44 (1.37 to 1.56)
+
+# load 2.53 1.71 2.11
+# chromium 158.0.8127.18
+ frames
+  idle                                         task   176 us, style    0, layout    0
+  native                                       task  1135 us, style    0, layout  126
+  proto                                        task  1680 us, style  395, layout  178
+  proto-again                                  task  1630 us, style  288, layout  169
+  built                                        task  1763 us, style  582, layout  124
+  built+proto-css                              task  1748 us, style  445, layout  122
+  stop-span                                    task  1821 us, style  484, layout  118
+  indicator                                    task  1834 us, style  701, layout  120
+  indicator,stop-span                          task  1884 us, style  596, layout  118
+
+# load 1.66 1.78 2.05, one part of the built styles taken away at a time
+# firefox 159.0
+ flushed
+  proto                                        median   100.0 us, min    80.0, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median   100.0 us, min    82.5, against proto 1.02 (0.90 to 1.07)
+  built                                        median   185.0 us, min   162.5, against proto 1.77 (1.60 to 1.98)
+  built-recloned                               median   187.5 us, min   162.5, against proto 1.87 (1.61 to 2.02)
+  no-has                                       median   182.5 us, min   160.0, against proto 1.74 (1.63 to 1.95)
+  literals                                     median   150.0 us, min   132.5, against proto 1.48 (1.38 to 1.61)
+  literals,no-has                              median   152.5 us, min   132.5, against proto 1.44 (1.34 to 1.65)
+  no-gradient                                  median   150.0 us, min   132.5, against proto 1.44 (1.32 to 1.65)
+  no-gradient,no-padding                       median   117.5 us, min   102.5, against proto 1.11 (1.02 to 1.26)
+  plain-parts                                  median   117.5 us, min   105.0, against proto 1.11 (1.05 to 1.30)
+  proto-geometry                               median   187.5 us, min   160.0, against proto 1.87 (1.63 to 2.08)
+  literals,no-has,plain-parts,proto-geometry   median    97.5 us, min    80.0, against proto 0.95 (0.85 to 1.07)
+  no-padding                                   median   147.5 us, min   130.0, against proto 1.44 (1.32 to 1.66)
+  no-stop-gradient                             median   165.0 us, min   145.0, against proto 1.61 (1.52 to 1.79)
+  indicator                                    median   222.5 us, min   195.0, against proto 2.14 (2.00 to 2.41)
+  indicator,no-text-rule                       median   192.5 us, min   167.5, against proto 1.82 (1.73 to 2.00)
+  indicator,literals                           median   170.0 us, min   150.0, against proto 1.65 (1.53 to 1.85)
+
+# load 2.01 1.84 2.06, one part of the built styles taken away at a time
+# chromium 158.0.8127.18
+ flushed
+  proto                                        median    65.2 us, min    34.0, against proto 1.00 (1.00 to 1.00)
+  proto-again                                  median    40.7 us, min    34.2, against proto 0.63 (0.61 to 0.97)
+  built                                        median    47.0 us, min    41.0, against proto 0.67 (0.66 to 1.20)
+  built-recloned                               median    86.3 us, min    44.0, against proto 1.30 (1.26 to 1.34)
+  no-has                                       median    85.0 us, min    41.0, against proto 1.27 (1.24 to 1.36)
+  literals                                     median    71.0 us, min    36.0, against proto 1.05 (1.00 to 1.08)
+  literals,no-has                              median    68.5 us, min    33.0, against proto 1.02 (0.98 to 1.07)
+  no-gradient                                  median    82.0 us, min    42.0, against proto 1.24 (1.12 to 1.58)
+  no-gradient,no-padding                       median    63.8 us, min    42.5, against proto 1.02 (0.94 to 1.25)
+  plain-parts                                  median    65.0 us, min    43.5, against proto 1.21 (0.96 to 1.38)
+  proto-geometry                               median    86.8 us, min    44.5, against proto 1.32 (1.24 to 1.49)
+  literals,no-has,plain-parts,proto-geometry   median    48.5 us, min    32.0, against proto 0.92 (0.71 to 1.00)
+  no-padding                                   median    74.5 us, min    41.7, against proto 1.19 (1.11 to 1.27)
+  no-stop-gradient                             median    81.3 us, min    43.8, against proto 1.27 (1.21 to 1.36)
+  indicator                                    median   144.5 us, min    54.8, against proto 2.16 (1.66 to 2.26)
+  indicator,no-text-rule                       median    89.2 us, min    48.0, against proto 1.34 (1.32 to 1.38)
+  indicator,literals                           median    83.5 us, min    44.7, against proto 1.25 (1.19 to 1.33)

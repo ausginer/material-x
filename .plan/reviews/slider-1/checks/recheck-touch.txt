@@ -1,0 +1,217 @@
+# chromium 158.0.8127.18
+## reviewer-1 and a script write at each moment; the last mark is the end
+scroll; value=90 while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v90 in90 f90 d90 t"90" HELD h2px flex] p.cancel -end[v90 in90 f90 d90 t"90" rest h4px none] | y81
+scroll; value=90 after the cancel, finger down | p.down p.cancel -end[v90 in90 f90 d90 t"90" rest h4px none] | y81
+scroll; value=90 after the lift | p.down p.cancel -end[v90 in90 f90 d90 t"90" rest h4px none] | y81
+slide; value=90 in it | p.down input60 input65 -wrote[v90 in90 f90 d90 t"90" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap; value=90 while held (mx) | p.down p.up change90 -end[v90 in90 f90 d90 t"90" rest h4px none] | y0
+tap; value=90 while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; attribute=60 while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v60 in60 f60 d60 t"60" HELD h2px flex] p.cancel -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+scroll; attribute=60 after the cancel, finger down | p.down p.cancel -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+scroll; attribute=60 after the lift | p.down p.cancel -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+slide; attribute=60 in it | p.down input60 input65 -wrote[v65 in65 f65 d65 t"65" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap; attribute=60 while held (mx) | p.down p.up change60 -end[v60 in60 f60 d60 t"60" rest h4px none] | y0
+tap; attribute=60 while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; max=50 while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v30 in30 f30 d30 t"30" HELD h2px flex] p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+scroll; max=50 after the cancel, finger down | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+scroll; max=50 after the lift | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+slide; max=50 in it | p.down input60 input65 -wrote[v50 in50 f50 d50 t"50" HELD h2px flex] input35 p.up change35 -end[v35 in35 f35 d35 t"35" rest h4px none] | y0
+tap; max=50 while held (mx) | p.down p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+tap; max=50 while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; min=80 while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v80 in80 f80 d80 t"80" HELD h2px flex] p.cancel -end[v80 in80 f80 d80 t"80" rest h4px none] | y81
+scroll; min=80 after the cancel, finger down | p.down p.cancel -end[v80 in80 f80 d80 t"80" rest h4px none] | y81
+scroll; min=80 after the lift | p.down p.cancel -end[v80 in80 f80 d80 t"80" rest h4px none] | y81
+slide; min=80 in it | p.down input60 input65 -wrote[v80 in80 f80 d80 t"80" HELD h2px flex] input94 p.up change94 -end[v94 in94 f94 d94 t"94" rest h4px none] | y0
+tap; min=80 while held (mx) | p.down p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+tap; min=80 while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; step=40 while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v40 in40 f40 d40 t"40" HELD h2px flex] p.cancel -end[v40 in40 f40 d40 t"40" rest h4px none] | y81
+scroll; step=40 after the cancel, finger down | p.down p.cancel -end[v40 in40 f40 d40 t"40" rest h4px none] | y81
+scroll; step=40 after the lift | p.down p.cancel -end[v40 in40 f40 d40 t"40" rest h4px none] | y81
+slide; step=40 in it | p.down input60 input65 -wrote[v80 in80 f80 d80 t"80" HELD h2px flex] p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+tap; step=40 while held (mx) | p.down p.up change40 -end[v40 in40 f40 d40 t"40" rest h4px none] | y0
+tap; step=40 while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; reset while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v30 in30 f30 d30 t"30" HELD h2px flex] p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+scroll; reset after the cancel, finger down | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+scroll; reset after the lift | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+slide; reset in it | p.down input60 input65 -wrote[v30 in30 f30 d30 t"30" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap; reset while held (mx) | p.down p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+tap; reset while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; value=null while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v50 in50 f50 d50 t"50" HELD h2px flex] p.cancel -end[v50 in50 f50 d50 t"50" rest h4px none] | y81
+scroll; value=null after the cancel, finger down | p.down p.cancel -end[v50 in50 f50 d50 t"50" rest h4px none] | y81
+scroll; value=null after the lift | p.down p.cancel -end[v50 in50 f50 d50 t"50" rest h4px none] | y81
+slide; value=null in it | p.down input60 input65 -wrote[v50 in50 f50 d50 t"50" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap; value=null while held (mx) | p.down p.up change50 -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+tap; value=null while held (bare) | p.down input70 p.up change70 -end | y0
+scroll; same value while held | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] -wrote[v30 in30 f30 d30 t"30" HELD h2px flex] p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+scroll; same value after the cancel, finger down | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+scroll; same value after the lift | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+slide; same value in it | p.down input60 input65 -wrote[v65 in65 f65 d65 t"65" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap; same value while held (mx) | p.down p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+tap; same value while held (bare) | p.down input70 p.up change70 -end | y0
+scroll, then attribute 60 | p.down p.cancel -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+scroll, then max=300, no value | p.down p.cancel -end[v150 in150 f150 d150 t"150" rest h4px none] | y81
+scroll, 200 then max=300 | p.down p.cancel -end[v200 in200 f200 d200 t"200" rest h4px none] | y81
+## tap, slide, scroll, cancel
+tap (mx) | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap (bare) | p.down input70 -down p.up change70 -end | y0
+tap, 800 ms (mx) | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap, 800 ms (bare) | p.down input70 -down p.up change70 -end | y0
+tap on the handle (mx) | p.down p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+tap on the handle (bare) | p.down p.up -end | y0
+tap at both, the second reverts | p.down input70 p.up change70 p.down input30 p.up change30 -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+slide (mx) | p.down -m[v30 in50 f30 d30 t"30" HELD h2px flex] input60 -m[v60 in60 f60 d60 t"60" HELD h2px flex] input70 -m[v70 in70 f70 d70 t"70" HELD h2px flex] p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+slide (bare) | p.down input50 -m input60 -m input70 -m p.up change70 -end | y0
+slide back to the start number (mx) | p.down input40 input35 input30 p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+slide back to the start number (bare) | p.down input50 input40 input35 input30 p.up -end | y0
+slide beyond both ends | p.down input70 input100 input50 input0 p.up change0 -end[v0 in0 f0 d0 t"0" rest h4px none] | y0
+slide and cancel (mx) | p.down input60 change60 p.cancel -end[v60 in60 f60 d60 t"60" rest h4px none] | y0
+slide and cancel (bare) | p.down input50 input60 p.cancel -end | y0
+press and cancel (mx) | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+press and cancel (bare) | p.down input50 p.cancel -end | y0
+a step wider than the slide, then lift (mx) | p.down p.up -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+a step wider than the slide, then lift (bare) | p.down p.up -end | y0
+a step wider than the slide off the handle, then lift (mx) | p.down -moved[v0 in50 f0 d0 t"0" HELD h2px flex] input50 p.up change50 -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+a step wider than the slide off the handle, then lift (bare) | p.down input50 -moved p.up change50 -end | y0
+## an input handler that writes, on a tap
+tap, handler writes 90 (mx) | p.down input70 p.up change90 -end[v90 in90 f90 d90 t"90" rest h4px none] | y0
+tap, handler writes 90 (bare) | p.down input70 p.up change90 -end | y0
+tap, handler writes the same (mx) | p.down input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+tap, handler writes the same (bare) | p.down input70 p.up change70 -end | y0
+tap, handler disables (mx) | p.down input70 p.up -end[v70 in70 fnull d70 t"70" rest h4px none] | y0
+tap, handler disables (bare) | p.down input70 p.up -end | y0
+slide, handler writes 10 (mx) | p.down input60 input70 p.up change10 -end[v10 in10 f10 d10 t"10" rest h4px none] | y0
+slide, handler writes 10 (bare) | p.down input50 input60 input70 p.up change10 -end | y0
+## disable, removal, hiding
+held: disabled | p.down -did[v30 in30 fnull d30 t"30" rest h4px flex] p.up -end[v30 in30 fnull d30 t"30" rest h4px none] | y0
+slide: disabled | p.down input60 input65 -did[v65 in65 fnull d65 t"65" rest h4px flex] p.up -end[v65 in65 fnull d65 t"65" rest h4px none] | y0
+held: fieldset | p.down -did[v30 in30 fnull d30 t"30" rest h4px flex] p.up -end[v30 in30 fnull d30 t"30" rest h4px none] | y0
+slide: fieldset | p.down input60 input65 -did[v65 in65 fnull d65 t"65" rest h4px flex] p.up -end[v65 in65 fnull d65 t"65" rest h4px none] | y0
+held: disabled and enabled | p.down -did[v30 in30 f30 d30 t"30" rest h4px flex] input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+slide: disabled and enabled | p.down input60 input65 -did[v65 in65 f65 d65 t"65" rest h4px flex] input70 input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+held: removed | p.down -did[v30 in30 fnull d50 t"30" rest h ] -end[v30 in30 fnull d50 t"30" rest h ] | y0
+slide: removed | p.down input60 input65 -did[v65 in65 fnull d50 t"65" rest h ] -end[v65 in65 fnull d50 t"65" rest h ] | y0
+held: removed and back | p.down -did[v30 in30 f30 d30 t"30" rest h4px none] input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+slide: removed and back | p.down input60 input65 -did[v65 in65 f65 d65 t"65" rest h4px none] input70 input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+held: moved | p.down -did[v30 in30 f30 d30 t"30" rest h4px none] input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+slide: moved | p.down input60 input65 -did[v65 in65 f65 d65 t"65" rest h4px none] input70 input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+held: hidden | p.down -did[v30 in70 f30 d50 t"30" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d50 t"70" rest h4px none] | y0
+slide: hidden | p.down input60 input65 -did[v65 in65 f65 d50 t"65" HELD h2px flex] p.up change65 -end[v65 in65 f65 d50 t"65" rest h4px none] | y0
+held: hidden and shown | p.down -did[v30 in70 f30 d30 t"30" HELD h2px flex] input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+slide: hidden and shown | p.down input60 input65 -did[v65 in65 f65 d65 t"65" HELD h2px flex] input70 input80 p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+after hidden and shown in a slide, a tap | p.down input60 p.up change60 -shown[v60 in60 f60 d60 t"60" rest h4px none] p.down input20 p.up change20 -end[v20 in20 f20 d20 t"20" rest h4px none] | y0
+## a key at each moment
+ArrowUp while held, then lift | p.down input71 change71 -key[v71 in71 f71 d71 t"71" HELD h2px flex] p.up -end[v71 in71 f71 d71 t"71" rest h2px flex] | y0
+ArrowUp while held, then scroll | p.down input71 change71 -key[v71 in71 f71 d71 t"71" HELD h2px flex] p.cancel -end[v71 in71 f71 d71 t"71" rest h2px flex] | y81
+ArrowUp in a slide (mx) | p.down input60 input65 -key[v65 in65 f65 d65 t"65" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+ArrowUp in a slide (bare) | p.down input50 input60 input65 -key input70 p.up change70 -end | y0
+ArrowUp after the cancel, finger down | p.down p.cancel input31 change31 -end[v31 in31 f31 d31 t"31" rest h2px flex] | y81
+ArrowDown after the scroll | p.down p.cancel input29 change29 input30 change30 -end[v30 in30 f30 d30 t"30" rest h2px flex] | y81
+Tab focus, focus-visible after the scroll | p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+## a second finger
+slide; 2nd on it, lifts; 1st moves, lifts (mx) | p.down input60 input65 p.down(2nd) -2 down[v65 in65 f65 d65 t"65" HELD h2px flex] -moved[v65 in65 f65 d65 t"65" HELD h2px flex] p.up(2nd) change65 -2 up[v65 in65 f65 d65 t"65" HELD h2px flex] -moved[v65 in65 f65 d65 t"65" HELD h2px flex] p.up -end[v65 in65 f65 d65 t"65" rest h4px none] | y0
+slide; 2nd on it, lifts; 1st moves, lifts (bare) | p.down input50 input60 input65 p.down(2nd) -2 down -moved p.up(2nd) change65 -2 up -moved p.up -end | y0
+slide; 2nd on it, 1st lifts first (mx) | p.down input60 input65 p.down(2nd) p.up change65 -1 up[v65 in65 f65 d65 t"65" rest h4px flex] -2 moved[v65 in65 f65 d65 t"65" rest h4px none] p.up(2nd) -end[v65 in65 f65 d65 t"65" rest h4px none] | y0
+slide; 2nd on it, 1st lifts first (bare) | p.down input50 input60 input65 p.down(2nd) p.up change65 -1 up -2 moved p.up(2nd) -end | y0
+slide; 2nd elsewhere, lifts; 1st moves, lifts (mx) | p.down input60 input65 input70 -moved[v70 in70 f70 d70 t"70" HELD h2px flex] -2 up[v70 in70 f70 d70 t"70" HELD h2px flex] input78 -moved[v78 in78 f78 d78 t"78" HELD h2px flex] p.up change78 -end[v78 in78 f78 d78 t"78" rest h4px none] | y0
+slide; 2nd elsewhere, lifts; 1st moves, lifts (bare) | p.down input50 input60 input65 input70 -moved -2 up input78 -moved p.up change78 -end | y0
+slide; 2nd on it, lifts; then cancel (mx) | p.down input60 input65 p.down(2nd) p.up(2nd) change65 -2 up[v65 in65 f65 d65 t"65" HELD h2px flex] p.cancel -end[v65 in65 f65 d65 t"65" rest h4px none] | y0
+slide; 2nd on it, lifts; then cancel (bare) | p.down input50 input60 input65 p.down(2nd) p.up(2nd) change65 -2 up p.cancel -end | y0
+slide; 2nd on it; cancel with both (mx) | p.down input60 input65 p.down(2nd) change65 p.cancel p.cancel(2nd) -end[v65 in65 f65 d65 t"65" rest h4px none] | y0
+slide; 2nd on it; cancel with both (bare) | p.down input50 input60 input65 p.down(2nd) p.cancel p.cancel(2nd) -end | y0
+held; 2nd on it, lifts; 1st lifts (mx) | p.down p.down(2nd) -2 down[v30 in50 f30 d30 t"30" HELD h2px flex] p.up(2nd) input50 change50 -2 up[v50 in50 f50 d50 t"50" HELD h2px flex] p.up -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+held; 2nd on it, lifts; 1st lifts (bare) | p.down input50 p.down(2nd) -2 down p.up(2nd) change50 -2 up p.up -end | y0
+held; 2nd on it, lifts; 1st scrolls (mx) | p.down p.down(2nd) p.up(2nd) input50 change50 -2 up[v50 in50 f50 d50 t"50" HELD h2px flex] p.cancel -end[v50 in50 f50 d50 t"50" rest h4px none] | y81
+held; 2nd on it, lifts; 1st scrolls (bare) | -2 up -end | y162
+held; 2nd on it, 1st lifts first (mx) | p.down p.down(2nd) input50 p.up change50 -1 up[v50 in50 f50 d50 t"50" rest h4px flex] p.up(2nd) -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+held; 2nd on it, 1st lifts first (bare) | p.down input50 p.down(2nd) p.up change50 -1 up p.up(2nd) -end | y0
+held on the handle; 2nd on it, lifts; 1st lifts (mx) | p.down p.down(2nd) -2 down[v30 in90 f30 d30 t"30" HELD h2px flex] p.up(2nd) input90 change90 -2 up[v90 in90 f90 d90 t"90" HELD h2px flex] p.up -end[v90 in90 f90 d90 t"90" rest h4px none] | y0
+held on the handle; 2nd on it, lifts; 1st lifts (bare) | p.down p.down(2nd) input90 -2 down p.up(2nd) change90 -2 up p.up -end | y0
+held; 2nd slides; 1st lifts (mx) | p.down p.down(2nd) -2 moved[v30 in50 f30 d30 t"30" HELD h2px flex] p.up(2nd) input50 change50 -2 up[v50 in50 f50 d50 t"50" HELD h2px flex] p.up -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+held; 2nd slides; 1st lifts (bare) | p.down input50 p.down(2nd) -2 moved p.up(2nd) change50 -2 up p.up -end | y0
+held; two fingers scroll (mx) | p.down p.down(2nd) input50 p.up change50 p.up(2nd) -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+held; two fingers scroll (bare) | p.down input50 p.down(2nd) p.up change50 p.up(2nd) -end | y0
+slide; 2nd on it, lifts, touches again, lifts; 1st lifts (mx) | p.down input60 input65 p.down(2nd) p.up(2nd) change65 -2 up[v65 in65 f65 d65 t"65" HELD h2px flex] p.down(2nd) p.up(2nd) -2 up[v65 in65 f65 d65 t"65" HELD h2px flex] p.up -end[v65 in65 f65 d65 t"65" rest h4px none] | y0
+slide; 2nd on it, lifts, touches again, lifts; 1st lifts (bare) | p.down input50 input60 input65 p.down(2nd) p.up(2nd) change65 -2 up p.down(2nd) p.up(2nd) -2 up p.up -end | y0
+1st elsewhere; 2nd taps the slider (mx) | p.down(2nd) -2 down[v30 in70 f30 d30 t"30" HELD h2px flex] input70 p.up(2nd) change70 -2 up[v70 in70 f70 d70 t"70" rest h4px flex] -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+1st elsewhere; 2nd taps the slider (bare) | p.down(2nd) input70 -2 down p.up(2nd) change70 -2 up -end | y0
+1st elsewhere; 2nd slides the slider (mx) | p.down(2nd) input75 input80 input90 -2 moved[v90 in90 f90 d90 t"90" HELD h2px flex] p.up(2nd) change90 -end[v90 in90 f90 d90 t"90" rest h4px none] | y0
+1st elsewhere; 2nd slides the slider (bare) | p.down(2nd) input70 input75 input80 input90 -2 moved p.up(2nd) change90 -end | y0
+## the slider has focus from a tap on its label (a tap on the slider itself gives none in this emulation)
+focused: scroll, nothing while held, then Tab | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, nothing while held, then blur() | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, nothing while held, then a tap on the page | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, value=90 while held, then Tab | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v90 in90 f90 d90 t"90" rest h4px none] -end[v90 in90 f90 d90 t"90" rest h4px none] | y81
+focused: scroll, value=90 while held, then blur() | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v90 in90 f90 d90 t"90" rest h4px none] -end[v90 in90 f90 d90 t"90" rest h4px none] | y81
+focused: scroll, value=90 while held, then a tap on the page | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v90 in90 f90 d90 t"90" rest h4px none] -end[v90 in90 f90 d90 t"90" rest h4px none] | y81
+focused: scroll, attribute while held, then Tab | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v60 in60 f60 d60 t"60" rest h4px none] -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+focused: scroll, attribute while held, then blur() | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v60 in60 f60 d60 t"60" rest h4px none] -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+focused: scroll, attribute while held, then a tap on the page | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v60 in60 f60 d60 t"60" rest h4px none] -end[v60 in60 f60 d60 t"60" rest h4px none] | y81
+focused: scroll, max=50 while held, then Tab | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, max=50 while held, then blur() | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, max=50 while held, then a tap on the page | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, reset while held, then Tab | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, reset while held, then blur() | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: scroll, reset while held, then a tap on the page | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down p.cancel -scrolled[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+focused: held, disabled, lift | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.up -end[v70 in70 fnull d70 t"70" rest h4px none] | y0
+focused: held, disabled, scroll | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.cancel -end[v70 in70 fnull d70 t"70" rest h4px none] | y81
+focused: held, fieldset, lift | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.up -end[v70 in70 fnull d70 t"70" rest h4px none] | y0
+focused: held, fieldset, scroll | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.cancel -end[v70 in70 fnull d70 t"70" rest h4px none] | y81
+focused: held, moved, lift | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 f70 d70 t"70" rest h4px none] p.up -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+focused: held, moved, scroll | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 f70 d70 t"70" rest h4px none] -end[v70 in70 f70 d70 t"70" rest h4px none] | y81
+focused: held, removed, lift | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 fnull d50 t"70" rest h ] -end[v70 in70 fnull d50 t"70" rest h ] | y0
+focused: held, removed, scroll | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 fnull d50 t"70" rest h ] -end[v70 in70 fnull d50 t"70" rest h ] | y81
+focused: held, blurred, lift | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 f70 d70 t"70" HELD h2px flex] p.up -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+focused: held, blurred, scroll | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 f70 d70 t"70" HELD h2px flex] p.cancel -end[v70 in70 f70 d70 t"70" rest h4px none] | y81
+focused: held, another element focused, lift | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 f70 d70 t"70" HELD h2px flex] p.up -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+focused: held, another element focused, scroll | -label tapped, focus true[v30 in30 f30 d30 t"30" rest h4px none] p.down input70 change70 -did[v70 in70 f70 d70 t"70" HELD h2px flex] p.cancel -end[v70 in70 f70 d70 t"70" rest h4px none] | y81
+## what a mutation would change
+mutants: two scrolls | p.down p.cancel p.down p.cancel -end[v30 in30 f30 d30 t"30" rest h4px none] | y81
+mutants: a release missed while hidden, then a press | p.down input50 change50 -back[v50 in50 f50 d50 t"50" rest h4px none] p.down input70 input80 -down[v80 in80 f80 d80 t"80" HELD h2px flex] p.up change80 -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+mutants: a slide left by disabling, then a scroll | p.down input60 input65 p.up p.down p.cancel -end[v65 in65 f65 d65 t"65" rest h4px none] | y81
+## pen and mouse
+mouse: press, rest, release (mx) | p.down input70 -down[v70 in70 f70 d70 t"70" HELD h2px flex] p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+mouse: press, rest, release (bare) | p.down input70 -down p.up change70 -end | y0
+mouse: press on the handle, release (mx) | p.down -down[v30 in30 f30 d30 t"30" HELD h2px flex] p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+mouse: press on the handle, release (bare) | p.down -down p.up -end | y0
+mouse: drag (mx) | p.down input50 input55 input60 input70 -moved[v70 in70 f70 d70 t"70" HELD h2px flex] p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+mouse: drag (bare) | p.down input50 input55 input60 input70 -moved p.up change70 -end | y0
+mouse: drag, away vertically (mx) | p.down input50 input60 -moved[v60 in60 f60 d60 t"60" HELD h2px flex] p.up change60 -end[v60 in60 f60 d60 t"60" rest h4px none] | y0
+mouse: drag, away vertically (bare) | p.down input50 input60 -moved p.up change60 -end | y0
+mouse: right button (mx) | p.down -down[v30 in30 f30 d30 t"30" rest h4px none] p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+mouse: right button (bare) | p.down -down p.up -end | y0
+mouse: left in the right (mx) | p.down input70 -both[v70 in70 f70 d70 t"70" rest h4px none] input80 -moved[v80 in80 f80 d80 t"80" rest h4px none] change80 -left up[v80 in80 f80 d80 t"80" rest h4px none] p.up -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+mouse: left in the right (bare) | p.down input70 -both input80 -moved change80 -left up p.up -end | y0
+mouse: right in the left (mx) | p.down input70 -both[v70 in70 f70 d70 t"70" HELD h2px flex] input80 change80 -left up[v80 in80 f80 d80 t"80" HELD h2px flex] p.up -end[v80 in80 f80 d80 t"80" rest h4px none] | y0
+mouse: right in the left (bare) | p.down input70 -both input80 change80 -left up p.up -end | y0
+mouse: write 90 while down (mx) | p.down input70 -wrote[v90 in90 f90 d90 t"90" HELD h2px flex] p.up change90 -end[v90 in90 f90 d90 t"90" rest h4px none] | y0
+mouse: write 90 while down (bare) | p.down input70 -wrote p.up -end | y0
+mouse: key while down (mx) | p.down input70 input71 change71 -key[v71 in71 f71 d71 t"71" HELD h2px flex] p.up -end[v71 in71 f71 d71 t"71" rest h2px flex] | y0
+mouse: key while down (bare) | p.down input70 input71 change71 -key p.up -end | y0
+mouse: disabled while down (mx) | p.down input70 change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] -enabled[v70 in70 f70 d70 t"70" rest h4px flex] p.down input20 p.up change20 -end[v20 in20 f20 d20 t"20" rest h4px none] | y0
+mouse: disabled while down (bare) | p.down input70 change70 -did p.up -enabled p.down input20 p.up change20 -end | y0
+pen: press, rest, release (mx) | p.down -down[v30 in70 f30 d30 t"30" HELD h2px flex] input70 p.up change70 -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+pen: press, rest, release (bare) | p.down input70 -down p.up change70 -end | y0
+pen: press on the handle, release (mx) | p.down -down[v30 in30 f30 d30 t"30" HELD h2px flex] p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+pen: press on the handle, release (bare) | p.down -down p.up -end | y0
+pen: drag (mx) | p.down -moved[v30 in50 f30 d30 t"30" HELD h2px flex] input50 p.up -end[v50 in50 f50 d50 t"50" rest h4px none] | y0
+pen: drag (bare) | p.down input50 -moved p.up -end | y0
+pen: drag, away vertically (mx) | p.down -moved[v30 in50 f30 d30 t"30" HELD h2px flex] -end[v30 in50 f30 d30 t"30" HELD h2px flex] | y0
+pen: drag, away vertically (bare) | p.up p.down input50 input60 -moved p.up change60 -end | y0
+pen: right button (mx) | p.down -down[v30 in30 f30 d30 t"30" rest h4px none] p.up -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
+pen: right button (bare) | p.down -down p.up -end | y0
+pen: left in the right (mx) | p.down input70 -both[v70 in70 f70 d70 t"70" rest h4px none] -moved[v70 in70 f70 d70 t"70" rest h4px none] -left up[v70 in70 f70 d70 t"70" rest h4px none] p.up -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+pen: left in the right (bare) | p.down input70 -both input80 -moved change80 -left up p.up -end | y0
+pen: right in the left (mx) | p.down -both[v30 in70 f30 d30 t"30" HELD h2px flex] -left up[v30 in70 f30 d30 t"30" HELD h2px flex] input70 p.up -end[v70 in70 f70 d70 t"70" rest h4px none] | y0
+pen: right in the left (bare) | p.down input70 -both -left up p.up -end | y0
+pen: write 90 while down (mx) | p.down -wrote[v90 in90 f90 d90 t"90" HELD h2px flex] p.up -end[v90 in90 f90 d90 t"90" rest h4px none] | y0
+pen: write 90 while down (bare) | p.down input70 -wrote p.up -end | y0
+pen: key while down (mx) | p.down input71 change71 -key[v71 in71 f71 d71 t"71" HELD h2px flex] p.up -end[v71 in71 f71 d71 t"71" rest h2px flex] | y0
+pen: key while down (bare) | p.down input70 input71 change71 -key p.up -end | y0
+pen: disabled while down (mx) | p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] -enabled[v70 in70 f70 d70 t"70" rest h4px flex] p.down input20 p.up change20 -end[v20 in20 f20 d20 t"20" rest h4px none] | y0
+pen: disabled while down (bare) | p.down input70 change70 -did p.up -enabled p.down input20 p.up change20 -end | y0
+a finger slides, a mouse presses (mx) | p.down input60 input65 p.down input20 -mouse down[v20 in20 f20 d20 t"20" HELD h2px flex] p.up change20 -finger up[v20 in20 f20 d20 t"20" HELD h2px flex] p.up -end[v20 in20 f20 d20 t"20" rest h4px none] | y0
+a finger slides, a mouse presses (bare) | p.down input50 input60 input65 p.down input20 -mouse down p.up change20 -finger up p.up -end | y0
+a finger is held, a mouse presses (mx) | p.down p.down input20 -mouse down[v20 in20 f20 d20 t"20" HELD h2px flex] p.up change20 -finger up[v20 in20 f20 d20 t"20" HELD h2px flex] p.up -end[v20 in20 f20 d20 t"20" rest h4px none] | y0
+a finger is held, a mouse presses (bare) | p.down input50 p.down input20 -mouse down p.up change20 -finger up p.up -end | y0
+## the label
+a finger on the label rests | -down[v30 in30 f30 d30 t"30" rest h4px none] -end[v30 in30 f30 d30 t"30" rest h4px none] | y0
