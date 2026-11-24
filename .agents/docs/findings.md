@@ -1,10 +1,10 @@
 # Findings on GitHub
 
-> Retrieved before reading a finding that a prompt pins as `#N rM`, and before writing one.
+> Retrieved before reading a finding that a prompt pins as `#N rM`, and before writing one, a prompt about one, or anything else about its issue to GitHub.
 
 An issue with a `tier:` label is a finding, and its body is the finding's contract. Only the finding that the trial of `repo:RD-56` names has the label. Every other finding is registered in its scope's register, as [review findings](review-findings.md) says. [`work-queue.md`](work-queue.md) governs the finding's place in the queue. Where another document says otherwise of such an issue, this one applies.
 
-A finding is one issue, from its observation to its closure.
+A finding with the label is one issue, from its observation to its closure.
 
 ## Address
 
@@ -85,13 +85,13 @@ The main slot's architect registers.
 
 **From an `unregistered` issue by the owner's account:** write the body into that issue as `Revision 1`, post Amendment 1, set the `tier:` label, then lock it and run the tool.
 
-The coordinator sets the package or `repo` label and removes `unregistered`, as [`work-queue.md`](work-queue.md#labels) says.
+The coordinator sets the package or `repo` label and removes `unregistered`, as [`work-queue.md`](work-queue.md) says.
 
 **An issue that another account opened is never made a finding.** The architect opens a new one, and the coordinator closes the other with a link to it.
 
 ## Amending
 
-First read the issue's other comments. A comment of the owner's is recorded as an amendment. Then, in this order:
+First read the issue's other comments. A comment of the owner's is recorded as an amendment, unless one already records it. Then, in this order:
 
 1. Run the tool at the current revision.
 2. Edit the body with `gh issue edit --body-file`, with the next `Revision`. Set the label of a changed tier with this edit.
@@ -102,12 +102,16 @@ A change of tier is an amendment, and the body then has a new revision with no o
 
 ## A fault
 
-A role that isn't the architect stops at a refusal and reports it. The architect repairs the finding:
+A role that isn't the architect stops at a refusal and reports it. A failure of `gh` isn't a fault, and neither is a revision that differs from the pinned one. The architect repairs any other refusal in the one way below.
 
-- **An amendment that is out of form or out of number** is deleted with every later one. They are posted again in order, each with its text.
-- **A body edited without an amendment, or by another account,** gets the next revision by [Amending](#amending), without the first run of the tool.
+**The sound amendments** run from 1 in order, each in its form and unedited, up to the first that isn't. **R** is one more than the greatest number that the body or an amendment has.
 
-The next amendment, or the one posted again, names the fault.
+1. Edit the body into its form, with the text that is to apply and `Revision R`. Set exactly one `tier:` label.
+2. Post the amendments after the sound ones, in order, up to Amendment R. Each has the text that it had, and one whose number had no text says so. Amendment R names the fault and quotes any text that would be lost.
+3. Delete every amendment that was there before step 2 and isn't sound.
+4. Run the tool at revision R.
+
+A repair that stops is started again from the beginning. A finding that the tool still refuses is registered again as a new issue. The architect then removes the old issue's `tier:` label, and the coordinator closes that issue with a link to the new one.
 
 ## Writers
 
