@@ -5740,6 +5740,11 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `d
 - **Unit:** its own, in material-x alone, after `RF-127` and `DRD-71`, which it needs. They are separate because `RF-127` is small, changes drag's public API and can go at once, and this one changes what every lifted item shows. Both edit the footprint's rule, and `RF-118` the same file.
 - **Plan needed:** no. **Ready** for an implementer once `RF-127` and `DRD-71` are on `main`.
 - **Size:** _medium_.
+- **Dated 2026-11-24 by the implementer: implemented** on `material-x/reorder-tokens-1` from `ab4e536bd`, as the candidate says. A new sheet, `list/styles/sortable`, has the tokens on the lifted item, the static item's rule and the drop zone, and only `mx-sortable-list` adopts it. The drop zone's rules and token moved to it from the sheet that `mx-list` shares. The items' sheets lose the `dragged` tokens, except the elevation.
+  - **Witnesses** ([readings](reorder-tokens-1/checks/mutations.txt), [script](reorder-tokens-1/probes/mutations.mjs)): 25 mutations and a clean control, and the three engines agree. Without the sheet 24 rows fail (20 in Firefox, which has no link rows). With the look in a key move 7 fail. With every `dragged` token 2 fail: a selected item's icons in a key move.
+  - **Read in addition:** a link item by its handle takes the tokens in Chromium and WebKit, and isn't lifted in Firefox. The press ripple's wave takes `state-layer`. In the built sheets the names that the list sets are the names that the items read.
+  - **Not discriminated by a row:** that a key move's corners take no `dragged` or `reorder` shape. Its item always has focus, and the focused shape is the same 16 px.
+  - **Not read:** forced colors, Safari, and a link item without a handle. No list baseline exists, so none changes.
 
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 

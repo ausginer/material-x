@@ -5,7 +5,7 @@ import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import '../../src/list/sortable-list.ts';
-import { nextFrame } from '../browser.ts';
+import { nextFrame, resolveComputed } from '../browser.ts';
 import type { AccessibilityNode } from '../support/accessibility-commands.node.ts';
 
 const TAB = server.browser === 'safari' ? '{Alt>}{Tab}{/Alt}' : '{Tab}';
@@ -244,12 +244,7 @@ describe('mx-list item roles', () => {
   describe.each(['mx-list-item', 'mx-list-button-item'] as const)(
     '%s lifted by mx-sortable-list',
     (tag) => {
-      const LIFT_STYLES = [
-        'padding',
-        'overflow',
-        'color',
-        'background-color',
-      ] as const;
+      const LIFT_STYLES = ['padding', 'overflow'] as const;
       const POPOVER_RULE =
         '[popover] { padding: 16px; background: red; overflow: auto; color: blue; }';
 
@@ -315,7 +310,7 @@ describe('mx-list item roles', () => {
       ];
 
       it.each(RULE_CASES)(
-        "should keep the host's rect, padding, overflow, color and background with %s",
+        "should keep the host's rect, padding and overflow with %s",
         async (_, rule) => {
           if (rule) {
             addPageRule(rule);
@@ -328,6 +323,38 @@ describe('mx-list item roles', () => {
           ]);
         },
       );
+
+      if (tag === 'mx-list-item') {
+        it.each(RULE_CASES)(
+          'should take the reorder container and label colors with %s',
+          async (_, rule) => {
+            if (rule) {
+              addPageRule(rule);
+            }
+            const { item } = await lift();
+            const { values } = await commands.resolveTokenContract({
+              contract: 'list.reorder',
+              state: 'lifted',
+              tokens: ['container.color', 'label-text.color'],
+            });
+            const { backgroundColor, color } = getComputedStyle(item);
+
+            expect([backgroundColor, color]).toEqual([
+              resolveComputed('color', String(values['container.color'])),
+              resolveComputed('color', String(values['label-text.color'])),
+            ]);
+          },
+        );
+
+        it("should have the page's background-color at rest and after the drop", async () => {
+          addPageRule('#s { background-color: rgb(0, 0, 255); }');
+          const { item } = await lift();
+          await commands.pointerRelease();
+          await expect.poll(() => item.hasAttribute('popover')).toBe(false);
+
+          expect(getComputedStyle(item).backgroundColor).toBe('rgb(0, 0, 255)');
+        });
+      }
 
       it('should remove the popover attribute after the lift ends', async () => {
         const { item } = await lift();
