@@ -25,6 +25,8 @@ declare module 'vitest/browser' {
     pointerMove(x: number, y: number, steps: number): Promise<void>;
     /** Emulates `prefers-reduced-motion`. Playwright only. */
     emulateReducedMotion(reduced: boolean): Promise<void>;
+    /** Dispatches one event of a pen at the viewport point. Chromium only. */
+    pen(type: 'down' | 'up', x: number, y: number): Promise<void>;
     /** Emulates `forced-colors`. Playwright only. */
     emulateForcedColors(forced: boolean): Promise<void>;
     /**

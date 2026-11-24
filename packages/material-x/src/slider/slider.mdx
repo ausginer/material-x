@@ -109,7 +109,7 @@ Use the live example below to inspect interaction states:
 - **`value`, `min`, `max` and `step`** give the same result in any order.
 - **`input`** fires at each move and **`change`** when the user commits the value. Both are plain events: read `value` from the element.
 - If an `input` handler rewrites the value, take the final value from `input`. WebKit then fires no `change`.
-- **A touch** moves the handle at the lift or at the first step of a slide, and not at the touch. A touch that becomes a scroll changes nothing and fires nothing.
+- **A touch or a pen** moves the handle at the lift or at the first step of a slide, and not at the touch. One that becomes a scroll changes nothing and fires nothing.
 
 ## Validation
 

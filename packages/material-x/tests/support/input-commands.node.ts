@@ -76,6 +76,18 @@ const POINTER = {
 
 const sessions = new WeakMap<Page, Promise<CdpSession>>();
 
+/** One session for a page, because a finger is down across calls. */
+function openSession(page: Page): Promise<CdpSession> {
+  let session = sessions.get(page);
+
+  if (!session) {
+    session = page.context().newCDPSession(page);
+    sessions.set(page, session);
+  }
+
+  return session;
+}
+
 export const inputBrowserCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
 > = {
@@ -150,16 +162,8 @@ export const inputBrowserCommands: Readonly<
       throw new Error('touch needs Playwright');
     }
 
-    // One session for a page, because a finger is down across calls.
-    let session = sessions.get(page);
-
-    if (!session) {
-      session = page.context().newCDPSession(page);
-      sessions.set(page, session);
-    }
-
     await (
-      await session
+      await openSession(page)
     ).send('Input.dispatchTouchEvent', {
       type,
       touchPoints: points.map(([x, y, id], index) => ({
@@ -169,6 +173,29 @@ export const inputBrowserCommands: Readonly<
       })),
     });
   }),
+  pen: defineBrowserCommand<['down' | 'up', number, number]>(
+    async (context, type, x, y): Promise<void> => {
+      const { provider, page } = context as unknown as Context;
+
+      if (provider.name !== 'playwright') {
+        throw new Error('pen needs Playwright');
+      }
+
+      const isDown = type === 'down';
+      await (
+        await openSession(page)
+      ).send('Input.dispatchMouseEvent', {
+        type: isDown ? 'mousePressed' : 'mouseReleased',
+        x,
+        y,
+        button: 'left',
+        buttons: isDown ? 1 : 0,
+        clickCount: 1,
+        pointerType: 'pen',
+        force: isDown ? 0.5 : 0,
+      });
+    },
+  ),
   pointerRelease: defineBrowserCommand<[Button?]>(
     async (context, button = 'left'): Promise<void> => {
       const { provider, page, browser } = context as unknown as Context;

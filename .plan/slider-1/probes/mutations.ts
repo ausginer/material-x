@@ -262,6 +262,55 @@ const MUTATIONS = [
     '          setPressed(false);\n          if (pointerId === pointer) {\n            reportHeld();',
     TOUCH,
   ],
+  [
+    'RC: a commit does not reset the uncommitted slide',
+    TS,
+    '      isUncommitted = false;\n      this.dispatchEvent',
+    '      this.dispatchEvent',
+    TOUCH,
+  ],
+  [
+    'RC: a press after a scroll is not decided anew',
+    TS,
+    "press = pointerType === 'mouse' ? 'idle' : 'pressed';",
+    "press = pointerType === 'mouse' ? 'idle' : press === 'cancelled' ? press : 'pressed';",
+    TOUCH,
+  ],
+  [
+    'RC: a press does not reset the uncommitted slide',
+    TS,
+    '            isUncommitted = false;\n            setPressed',
+    '            setPressed',
+    TOUCH,
+  ],
+  [
+    'RC: a change does not report the held press',
+    TS,
+    '            reportHeld();\n            commit();',
+    '            commit();',
+    TOUCH,
+  ],
+  [
+    'RC: only a finger is held',
+    TS,
+    "press = pointerType === 'mouse' ? 'idle' : 'pressed';",
+    "press = pointerType === 'touch' ? 'pressed' : 'idle';",
+    TOUCH,
+  ],
+  [
+    'RC: a primary press does not begin anew',
+    TS,
+    'if (pointer === null || isPrimary) {',
+    'if (pointer === null) {',
+    ALL,
+  ],
+  [
+    'RC: the indicator takes pointer events',
+    CSS,
+    '  opacity: 0;\n  pointer-events: none;\n  transition:',
+    '  opacity: 0;\n  transition:',
+    ALL,
+  ],
 ];
 
 const only = process.argv[2];

@@ -72,7 +72,7 @@ async function release(): Promise<void> {
 
 /**
  * The events that reach the document, as `type value`, with consecutive
- * repeats left out: Firefox repeats `input` at the same value.
+ * repeats of `input` left out: Firefox repeats it at the same value.
  */
 function recordEvents(slider: Slider): string[] {
   const log: string[] = [];
@@ -83,7 +83,7 @@ function recordEvents(slider: Slider): string[] {
       ({ target }) => {
         const entry = `${type} ${slider.value}`;
 
-        if (target === slider && log.at(-1) !== entry) {
+        if (target === slider && (type === 'change' || log.at(-1) !== entry)) {
           log.push(entry);
         }
       },
@@ -888,6 +888,69 @@ describe.runIf(server.browser === 'chromium')('mx-slider touch', () => {
     expect(events.filter((entry) => entry.startsWith('change'))).toHaveLength(
       1,
     );
+  });
+
+  it('should do nothing on a second scroll', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await pan(slider, 0.7);
+    window.scrollTo(0, 0);
+    await settle();
+    await pan(slider, 0.7);
+
+    expect(slider.value).toBe(30);
+    expect(events).toEqual([]);
+  });
+
+  it('should fire nothing on a scroll after a slide that was ended by disabling', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+
+    await touchAt(slider, 0.21);
+    await slide(pointAt(slider, 0.21), [60, 0]);
+    slider.disabled = true;
+    await lift();
+    slider.disabled = false;
+    const events = recordEvents(slider);
+    await pan(slider, 0.7);
+
+    expect(slider.value).toBe(51);
+    expect(events).toEqual([]);
+  });
+
+  // The engine commits the press.
+  it('should take a held press when another element takes the focus', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const other = document.createElement('button');
+    document.body.append(other);
+    const events = recordEvents(slider);
+
+    slider.focus();
+    await touchAt(slider, 0.7);
+    expect(events).toEqual([]);
+    other.focus();
+    await settle();
+    expect(events).toEqual(['input 70', 'change 70']);
+
+    await lift();
+    expect(events).toEqual(['input 70', 'change 70']);
+    expect(slider.value).toBe(70);
+  });
+
+  it("should hold a pen's press until its release", async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+    const point = pointAt(slider, 0.7);
+
+    await commands.pen('down', ...point);
+    await settle();
+    expect(slider.value).toBe(30);
+    expect(events).toEqual([]);
+
+    await commands.pen('up', ...point);
+    await settle();
+    expect(events).toEqual(['input 70', 'change 70']);
+    expect(slider.value).toBe(70);
   });
 
   it('should take a key after a scroll', async () => {
@@ -1781,6 +1844,25 @@ describe('mx-slider held state', () => {
     expect(readLook(slider)).toEqual(RESTING);
   });
 
+  it('should begin anew after a release that was missed', async () => {
+    const slider = createSlider({ indicator: '' });
+
+    await press(slider, 0.2);
+    slider.style.display = 'none';
+    await release();
+    // Ends the held look, which the missed release left.
+    slider.disabled = true;
+    slider.disabled = false;
+    slider.style.display = '';
+    await expectResting(slider);
+
+    await press(slider, 0.8);
+    expect(readLook(slider)).toEqual(HELD);
+
+    await release();
+    await expectResting(slider);
+  });
+
   it('should end when the slider is removed', async () => {
     const slider = createSlider({ indicator: '' });
 
@@ -1791,6 +1873,25 @@ describe('mx-slider held state', () => {
     document.body.append(slider);
 
     await expectResting(slider);
+  });
+});
+
+describe('mx-slider value indicator hit test', () => {
+  it('should pass through the indicator', async () => {
+    const slider = createSlider({ indicator: '' });
+    // Room for the indicator above the slider.
+    slider.style.marginBlockStart = '100px';
+
+    await press(slider, 0.5);
+    const { left, top, width, height } = getPart(
+      slider,
+      '.text',
+    ).getBoundingClientRect();
+
+    expect(height).toBeGreaterThan(0);
+    expect(
+      document.elementFromPoint(left + width / 2, top + height / 2),
+    ).not.toBe(slider);
   });
 });
 

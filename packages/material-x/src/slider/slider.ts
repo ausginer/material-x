@@ -225,8 +225,8 @@ function useSliderReferences(
  *   color.
  *
  * @event input - Fired when the user changes the value, at each move. A touch
- *   fires it at the lift or at the first step of a slide. A touch that becomes a
- *   scroll changes nothing and fires nothing.
+ *   or a pen moves the handle and fires it at the lift or at the first step of a
+ *   slide. One that becomes a scroll changes nothing and fires nothing.
  * @event change - Fired when the user commits the value.
  * @event invalid - Fired at the host when a validity check finds it invalid.
  *   It doesn't bubble and is cancelable.
@@ -404,8 +404,9 @@ export default class Slider extends SliderConstructor {
           }
         },
         pointerdown: ({ button, isPrimary, pointerId, pointerType }) => {
-          // A second finger isn't followed. A primary pointer's press begins
-          // anew, in case a release was missed.
+          // The tracking and the look ignore another pointer, and the range
+          // doesn't. A primary pointer's press begins anew, in case a release
+          // was missed.
           if (pointer === null || isPrimary) {
             press = pointerType === 'mouse' ? 'idle' : 'pressed';
             pointer = pointerId;

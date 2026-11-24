@@ -1,0 +1,29 @@
+Mutations of mx-slider's recheck: probes/mutations.ts, the names that begin with "RC:". Read on 2026-11-24.
+"none" is the code as it is. Those of touch and the pen ran in Chromium only. "a primary press does
+not begin anew" failed no row at first: the row then kept the held look of the first press.
+
+## RC: a commit does not reset the uncommitted slide | chromium | 1 failed, 377 passed
+mx-slider touch should not follow a second finger during a slide
+## RC: a press after a scroll is not decided anew | chromium | 1 failed, 377 passed
+mx-slider touch should do nothing on a second scroll
+## RC: a press does not reset the uncommitted slide | chromium | 1 failed, 377 passed
+mx-slider touch should fire nothing on a scroll after a slide that was ended by disabling
+## RC: a change does not report the held press | chromium | 1 failed, 377 passed
+mx-slider touch should take a held press when another element takes the focus
+## RC: only a finger is held | chromium | 1 failed, 377 passed
+mx-slider touch should hold a pen's press until its release
+## RC: the indicator takes pointer events | chromium | 1 failed, 377 passed
+mx-slider value indicator hit test should pass through the indicator
+## RC: the indicator takes pointer events | firefox | 1 failed, 315 passed
+mx-slider value indicator hit test should pass through the indicator
+## RC: the indicator takes pointer events | webkit | 1 failed, 315 passed
+mx-slider value indicator hit test should pass through the indicator
+## RC: a primary press does not begin anew | chromium | 1 failed, 377 passed
+mx-slider held state should begin anew after a release that was missed
+## RC: a primary press does not begin anew | firefox | 1 failed, 315 passed
+mx-slider held state should begin anew after a release that was missed
+## RC: a primary press does not begin anew | webkit | 1 failed, 315 passed
+mx-slider held state should begin anew after a release that was missed
+## none | chromium | 0 failed, 378 passed
+## none | firefox | 0 failed, 316 passed
+## none | webkit | 0 failed, 316 passed
