@@ -1,0 +1,15 @@
+// @ts-nocheck
+import { it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import { ControlledElement } from '@ydinjs/core/element.js';
+it('late item definition, connected', async () => {
+  const task = () => new Promise((r) => setTimeout(r, 60));
+  const g = document.createElement('mx-connected-button-group');
+  g.innerHTML = '<mx-switch-button value=1>1</mx-switch-button><mx-switch-button value=2>2</mx-switch-button>';
+  document.body.append(g);
+  await task();
+  await import('../../src/button/switch-button.ts');
+  await task();
+  await commands.writeFile('./out-late.txt', `${server.browser}: connected group, items defined in a later task: tabindex ${[...g.children].map((c) => c.getAttribute('tabindex'))}\n`);
+});

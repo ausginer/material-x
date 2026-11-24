@@ -1,0 +1,89 @@
+// @ts-nocheck
+import { describe, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import { useEvents } from '../../src/controllers/useEvents.ts';
+import { useSlot } from '../../src/controllers/useSlot.ts';
+import { ControlledElement, use } from '../../src/element.ts';
+
+const oldUseSlot = (host, sel, cb) => {
+  const slot = host.shadowRoot.querySelector(sel);
+  useEvents(host, { slotchange() { cb(slot, slot.assignedNodes()); } }, slot);
+};
+let n = 0;
+const task = () => new Promise((r) => setTimeout(r, 25));
+let log;
+function define(extra, opts = {}) {
+  const tag = `x-proof-${(n += 1)}`;
+  const body = class extends ControlledElement {
+    constructor() {
+      super();
+      if (!this.shadowRoot) {
+        this.attachShadow({ mode: 'open' }).innerHTML = opts.html ?? '<slot></slot>';
+      }
+      useSlot(this, 'slot', (s, nodes) => log.new.push(this.text(nodes)));
+      oldUseSlot(this, 'slot', (s, nodes) => log.old.push(this.text(nodes)));
+      extra?.(this);
+    }
+    text(nodes) {
+      return `${this.isConnected ? '' : 'out:'}${nodes.map((x) => x.textContent || x.localName).join('')}`;
+    }
+  };
+  if (opts.late) return [tag, () => customElements.define(tag, body)];
+  customElements.define(tag, body);
+  return [tag];
+}
+const span = (t) => Object.assign(document.createElement('span'), { textContent: t });
+const C = {
+  'same task': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); h.append(span('b')); await task(); },
+  'connected first, then content': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); h.append(span('a')); await task(); },
+  'three changes, one task': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); h.append(span('a')); h.append(span('b')); h.firstChild.remove(); await task(); },
+  'three changes, three tasks': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); h.append(span('a')); await task(); h.append(span('b')); await task(); h.firstChild.remove(); await task(); },
+  'three changes, three microtasks': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); h.append(span('a')); await 0; h.append(span('b')); await 0; h.firstChild.remove(); await task(); },
+  'parser': async () => { const [t] = define(); const f = document.createElement('iframe'); document.body.innerHTML = `<${t}><span>a</span></${t}>`; await task(); },
+  'upgrade in document': async () => { const [t, d] = define(null, { late: true }); document.body.innerHTML = `<${t}><span>a</span></${t}>`; await task(); d(); await task(); },
+  'upgrade out, connect later': async () => { const [t, d] = define(null, { late: true }); const h = document.createElement(t); h.append(span('a')); d(); customElements.upgrade(h); await task(); document.body.append(h); await task(); },
+  'cloneNode(true), same task': async () => { const [t] = define(); const p = document.createElement(t); p.append(span('a')); await task(); log.new.length = log.old.length = 0; const c = p.cloneNode(true); document.body.append(c); await task(); },
+  'cloneNode(true), later': async () => { const [t] = define(); const p = document.createElement(t); p.append(span('a')); await task(); log.new.length = log.old.length = 0; const c = p.cloneNode(true); await task(); document.body.append(c); await task(); },
+  'importNode, later': async () => { const [t] = define(); const p = document.createElement('template'); p.innerHTML = `<${t}><span>a</span></${t}>`; const c = document.importNode(p.content, true); await task(); document.body.append(c); await task(); },
+  'change out': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); h.remove(); await task(); h.append(span('b')); await task(); document.body.append(h); await task(); },
+  'change out undone': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); h.remove(); await task(); const b = span('b'); h.append(b); b.remove(); await task(); document.body.append(h); await task(); },
+  'change connected, removed in the same task': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); await task(); h.append(span('a')); h.remove(); await task(); document.body.append(h); await task(); },
+  'change out, connected in the same task': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); await task(); h.remove(); await task(); h.append(span('a')); document.body.append(h); await task(); },
+  'moved by append': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); const d = document.createElement('div'); document.body.append(d); d.append(h); await task(); h.append(span('b')); await task(); },
+  'moved by moveBefore': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); const d = document.createElement('div'); document.body.append(d); (d.moveBefore ? d.moveBefore(h, null) : d.append(h)); await task(); h.append(span('b')); await task(); },
+  '20 reconnects, then one change': async () => { const [t] = define(); const h = document.createElement(t); document.body.append(h); for (let i = 0; i < 20; i++) { h.remove(); await 0; document.body.append(h); } await task(); h.append(span('a')); await task(); },
+  '20 reconnects, then a change out': async () => { const [t] = define(); const h = document.createElement(t); for (let i = 0; i < 20; i++) { document.body.append(h); h.remove(); } await task(); h.append(span('a')); await task(); },
+  'change in disconnected()': async () => { const [t] = define((h) => use(h, { disconnected() { h.append(span('d')); } })); const h = document.createElement(t); document.body.append(h); await task(); h.remove(); await task(); document.body.append(h); await task(); },
+  'change in connected()': async () => { const [t] = define((h) => use(h, { connected() { h.append(span('c')); } })); const h = document.createElement(t); document.body.append(h); await task(); },
+  'change in constructor after connect, upgrade': async () => { const [t, d] = define((h) => h.append(span('k')), { late: true }); document.body.innerHTML = `<${t}></${t}>`; d(); await task(); },
+  'removes itself in the callback': async () => { const [t] = define((h) => h.shadowRoot.firstChild.addEventListener('slotchange', () => h.remove(), { once: true })); const h = document.createElement(t); document.body.append(h); h.append(span('a')); await task(); h.append(span('b')); await task(); document.body.append(h); await task(); },
+  'change in the callback': async () => { let done = false; const [t] = define((h) => h.shadowRoot.firstChild.addEventListener('slotchange', () => { if (!done) { done = true; h.append(span('z')); } })); const h = document.createElement(t); document.body.append(h); h.append(span('a')); await task(); },
+  'removed in another listener before ours (capture)': async () => { const [t] = define((h) => h.shadowRoot.addEventListener('slotchange', () => h.remove(), { capture: true, once: true })); const h = document.createElement(t); document.body.append(h); h.append(span('a')); await task(); },
+  'adopted to iframe': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); const f = document.createElement('iframe'); document.body.append(f); await task(); f.contentDocument.body.append(h); await task(); h.append(span('b')); await task(); h.remove(); h.append(span('c')); await task(); document.body.append(h); await task(); h.append(span('d')); await task(); },
+  'adopted to windowless document': async () => { const [t] = define(); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); const doc = document.implementation.createHTMLDocument(''); doc.body.append(h); h.append(span('b')); await task(); h.append(span('c')); await task(); document.body.append(h); await task(); },
+  'declarative shadow root': async () => { const [t, d] = define(null, { late: true }); const w = document.createElement('div'); document.body.append(w); w.setHTMLUnsafe(`<${t}><template shadowrootmode="open"><slot></slot></template><span>a</span></${t}>`); await task(); d(); await task(); w.firstChild.append(span('b')); await task(); },
+  'declarative shadow root, out': async () => { const [t, d] = define(null, { late: true }); const w = document.createElement('div'); w.setHTMLUnsafe(`<${t}><template shadowrootmode="open"><slot></slot></template><span>a</span></${t}>`); d(); customElements.upgrade(w); await task(); w.firstChild.append(span('b')); await task(); document.body.append(w); await task(); },
+  'declarative shadow root, change and upgrade in one task': async () => { const [t, d] = define(null, { late: true }); const w = document.createElement('div'); document.body.append(w); w.setHTMLUnsafe(`<${t}><template shadowrootmode="open"><slot></slot></template><span>a</span></${t}>`); d(); await task(); },
+  'shadow root attached at connect-time upgrade, children first': async () => { const [t, d] = define(null, { late: true }); const h = document.createElement(t); h.append(span('a')); document.body.append(h); await task(); h.remove(); d(); await task(); document.body.append(h); await task(); },
+  'in an outer shadow: nested slot': async () => { const [t] = define(); const o = document.createElement('div'); o.attachShadow({ mode: 'open' }).innerHTML = `<${t}><slot></slot></${t}>`; document.body.append(o); await task(); o.append(span('a')); await task(); o.remove(); await task(); o.append(span('b')); await task(); document.body.append(o); await task(); },
+  'fallback content': async () => { const [t] = define(null, { html: '<slot><b>f</b></slot>' }); const h = document.createElement(t); document.body.append(h); await task(); },
+  'slot name changes': async () => { const [t] = define(); const h = document.createElement(t); const a = span('a'); h.append(a); document.body.append(h); await task(); h.remove(); await task(); a.slot = 'q'; await task(); a.slot = ''; await task(); },
+  'text data change': async () => { const [t] = define(); const h = document.createElement(t); h.append('a'); document.body.append(h); await task(); h.remove(); await task(); h.firstChild.data = 'b'; await task(); document.body.append(h); await task(); },
+  'text data change, connected': async () => { const [t] = define(); const h = document.createElement(t); h.append('a'); document.body.append(h); await task(); h.firstChild.data = 'b'; await task(); },
+  'two calls of useSlot': async () => { const [t] = define((h) => useSlot(h, 'slot', (s, x) => log.new.push(`2nd:${h.text(x)}`))); const h = document.createElement(t); h.append(span('a')); await task(); document.body.append(h); await task(); h.append(span('b')); await task(); },
+};
+describe('proof', () => {
+  it('log', async () => {
+    const out = [`# ${server.browser}`];
+    for (const [k, f] of Object.entries(C)) {
+      document.body.replaceChildren();
+      await task();
+      log = { new: [], old: [] };
+      document.body.replaceChildren();
+      let e = '';
+      try { await f(); } catch (x) { e = ` ERROR ${x}`; }
+      out.push(`${k}: new [${log.new}] old [${log.old}]${e}`);
+    }
+    await commands.writeFile('./out-' + server.browser + '.txt', out.join('\n') + '\n');
+  }, 60000);
+});
