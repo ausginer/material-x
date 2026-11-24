@@ -1,0 +1,226 @@
+# RF-131, read 2026-11-24 by the architect on built elements (59827b44e's build in slot g; useSlot.ts and useEvents.ts equal 32559078e's)
+# Probe: ../probes/slot-out.mjs
+
+# chromium 158.0.8127.18
+text field, label removed, changed while out: DIFFERS
+    got   input#field[aria-labelledby=label] | box 1264×56
+    right box 1264×56
+text field, label removed, made out, appended in a later task: as while connected
+text field, label added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-labelledby=label] | box 1264×56 | 
+text field, label added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-labelledby=label] | box 1264×56 | 
+text field, support added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-describedby=support] | box 1264×76 | 
+text field, support added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-describedby=support] | box 1264×76 | 
+multiline, counter added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right textarea#field[aria-describedby=counter] | box 1264×76 | 
+multiline, counter added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right textarea#field[aria-describedby=counter] | box 1264×76 | 
+connected group, button added, changed while out: DIFFERS
+    got   mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px 20px 20px 8px
+    right mx-switch-button[tabindex=-1] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px 20px 20px 8px
+connected group, button added, made out, appended in a later task: DIFFERS
+    got   button[aria-checked=true role=switch] | button[aria-checked=false role=switch] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px | 8px
+    right mx-switch-button[data-first= tabindex=0] | button[aria-checked=true role=switch] | mx-switch-button[tabindex=-1] | button[aria-checked=false role=switch] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px | 8px 20px 20px 8px
+connected group, first removed, changed while out: DIFFERS
+    got   mx-switch-button[tabindex=-1] | 8px
+    right mx-switch-button[data-first= tabindex=0] | 20px 8px 8px 20px
+connected group, first removed, made out, appended in a later task: DIFFERS
+    got   button[aria-checked=false role=switch] | box 1264×40 | 8px | 8px
+    right mx-switch-button[data-first= tabindex=0] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px 8px 8px 20px | 8px 20px 20px 8px
+standard group, first removed, changed while out: as while connected
+standard group, first removed, made out, appended in a later task: as while connected
+list item, lead added, changed while out: as while connected
+list item, lead added, made out, appended in a later task: as while connected
+list item, large image added, changed while out: DIFFERS
+    got   box 1264×56
+    right box 1264×76
+list item, large image added, made out, appended in a later task: DIFFERS
+    got   box 1264×56
+    right box 1264×76
+button, icon added, changed while out: as while connected
+button, icon added, made out, appended in a later task: as while connected
+sortable list, item added, changed while out: as while connected
+sortable list, item added, made out, appended in a later task: as while connected
+
+# firefox 159.0
+text field, label removed, changed while out: DIFFERS
+    got   input#field[aria-labelledby=label] | box 1264×56
+    right box 1264×56
+text field, label removed, made out, appended in a later task: as while connected
+text field, label added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-labelledby=label] | box 1264×56 | 
+text field, label added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-labelledby=label] | box 1264×56 | 
+text field, support added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-describedby=support] | box 1264×76 | 
+text field, support added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-describedby=support] | box 1264×76 | 
+multiline, counter added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right textarea#field[aria-describedby=counter] | box 1264×76 | 
+multiline, counter added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right textarea#field[aria-describedby=counter] | box 1264×76 | 
+connected group, button added, changed while out: DIFFERS
+    got   mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px 20px 20px 8px
+    right mx-switch-button[tabindex=-1] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px 20px 20px 8px
+connected group, button added, made out, appended in a later task: DIFFERS
+    got   button[aria-checked=true role=switch] | button[aria-checked=false role=switch] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px | 8px
+    right mx-switch-button[data-first= tabindex=0] | button[aria-checked=true role=switch] | mx-switch-button[tabindex=-1] | button[aria-checked=false role=switch] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px | 8px 20px 20px 8px
+connected group, first removed, changed while out: DIFFERS
+    got   mx-switch-button[tabindex=-1] | 8px
+    right mx-switch-button[data-first= tabindex=0] | 20px 8px 8px 20px
+connected group, first removed, made out, appended in a later task: DIFFERS
+    got   button[aria-checked=false role=switch] | box 1264×40 | 8px | 8px
+    right mx-switch-button[data-first= tabindex=0] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px 8px 8px 20px | 8px 20px 20px 8px
+standard group, first removed, changed while out: as while connected
+standard group, first removed, made out, appended in a later task: as while connected
+list item, lead added, changed while out: as while connected
+list item, lead added, made out, appended in a later task: as while connected
+list item, large image added, changed while out: DIFFERS
+    got   box 1264×56
+    right box 1264×76
+list item, large image added, made out, appended in a later task: DIFFERS
+    got   box 1264×56
+    right box 1264×76
+button, icon added, changed while out: as while connected
+button, icon added, made out, appended in a later task: as while connected
+sortable list, item added, changed while out: as while connected
+sortable list, item added, made out, appended in a later task: as while connected
+
+# webkit 27.2
+text field, label removed, changed while out: DIFFERS
+    got   input#field[aria-labelledby=label] | box 1264×56
+    right box 1264×56
+text field, label removed, made out, appended in a later task: as while connected
+text field, label added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-labelledby=label] | box 1264×56 | 
+text field, label added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-labelledby=label] | box 1264×56 | 
+text field, support added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-describedby=support] | box 1264×76 | 
+text field, support added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right input#field[aria-describedby=support] | box 1264×76 | 
+multiline, counter added, changed while out: DIFFERS
+    got   box 1264×56 | 
+    right textarea#field[aria-describedby=counter] | box 1264×76 | 
+multiline, counter added, made out, appended in a later task: DIFFERS
+    got   box 1264×56 | 
+    right textarea#field[aria-describedby=counter] | box 1264×76 | 
+connected group, button added, changed while out: DIFFERS
+    got   mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px 20px 20px 8px
+    right mx-switch-button[tabindex=-1] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px 20px 20px 8px
+connected group, button added, made out, appended in a later task: DIFFERS
+    got   button[aria-checked=true role=switch] | button[aria-checked=false role=switch] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px | 8px
+    right mx-switch-button[data-first= tabindex=0] | button[aria-checked=true role=switch] | mx-switch-button[tabindex=-1] | button[aria-checked=false role=switch] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px | 8px | 8px 20px 20px 8px
+connected group, first removed, changed while out: DIFFERS
+    got   mx-switch-button[tabindex=-1] | 8px
+    right mx-switch-button[data-first= tabindex=0] | 20px 8px 8px 20px
+connected group, first removed, made out, appended in a later task: DIFFERS
+    got   button[aria-checked=false role=switch] | box 1264×40 | 8px | 8px
+    right mx-switch-button[data-first= tabindex=0] | mx-switch-button[data-last= tabindex=-1] | button[aria-checked=false role=switch] | box 1264×40 | 20px 8px 8px 20px | 8px 20px 20px 8px
+standard group, first removed, changed while out: as while connected
+standard group, first removed, made out, appended in a later task: as while connected
+list item, lead added, changed while out: as while connected
+list item, lead added, made out, appended in a later task: as while connected
+list item, large image added, changed while out: DIFFERS
+    got   box 1264×56
+    right box 1264×76
+list item, large image added, made out, appended in a later task: DIFFERS
+    got   box 1264×56
+    right box 1264×76
+button, icon added, changed while out: as while connected
+button, icon added, made out, appended in a later task: as while connected
+sortable list, item added, changed while out: as while connected
+sortable list, item added, made out, appended in a later task: as while connected
+
+# The same with useSlot's listener added once in the bundle, and not tied to the connection
+
+# chromium 158.0.8127.18
+text field, label removed, changed while out: as while connected
+text field, label removed, made out, appended in a later task: as while connected
+text field, label added, changed while out: as while connected
+text field, label added, made out, appended in a later task: as while connected
+text field, support added, changed while out: as while connected
+text field, support added, made out, appended in a later task: as while connected
+multiline, counter added, changed while out: as while connected
+multiline, counter added, made out, appended in a later task: as while connected
+connected group, button added, changed while out: as while connected
+connected group, button added, made out, appended in a later task: as while connected
+connected group, first removed, changed while out: as while connected
+connected group, first removed, made out, appended in a later task: as while connected
+standard group, first removed, changed while out: as while connected
+standard group, first removed, made out, appended in a later task: as while connected
+list item, lead added, changed while out: as while connected
+list item, lead added, made out, appended in a later task: as while connected
+list item, large image added, changed while out: as while connected
+list item, large image added, made out, appended in a later task: as while connected
+button, icon added, changed while out: as while connected
+button, icon added, made out, appended in a later task: as while connected
+sortable list, item added, changed while out: as while connected
+sortable list, item added, made out, appended in a later task: as while connected
+
+# firefox 159.0
+text field, label removed, changed while out: as while connected
+text field, label removed, made out, appended in a later task: as while connected
+text field, label added, changed while out: as while connected
+text field, label added, made out, appended in a later task: as while connected
+text field, support added, changed while out: as while connected
+text field, support added, made out, appended in a later task: as while connected
+multiline, counter added, changed while out: as while connected
+multiline, counter added, made out, appended in a later task: as while connected
+connected group, button added, changed while out: as while connected
+connected group, button added, made out, appended in a later task: as while connected
+connected group, first removed, changed while out: as while connected
+connected group, first removed, made out, appended in a later task: as while connected
+standard group, first removed, changed while out: as while connected
+standard group, first removed, made out, appended in a later task: as while connected
+list item, lead added, changed while out: as while connected
+list item, lead added, made out, appended in a later task: as while connected
+list item, large image added, changed while out: as while connected
+list item, large image added, made out, appended in a later task: as while connected
+button, icon added, changed while out: as while connected
+button, icon added, made out, appended in a later task: as while connected
+sortable list, item added, changed while out: as while connected
+sortable list, item added, made out, appended in a later task: as while connected
+
+# webkit 27.2
+text field, label removed, changed while out: as while connected
+text field, label removed, made out, appended in a later task: as while connected
+text field, label added, changed while out: as while connected
+text field, label added, made out, appended in a later task: as while connected
+text field, support added, changed while out: as while connected
+text field, support added, made out, appended in a later task: as while connected
+multiline, counter added, changed while out: as while connected
+multiline, counter added, made out, appended in a later task: as while connected
+connected group, button added, changed while out: as while connected
+connected group, button added, made out, appended in a later task: as while connected
+connected group, first removed, changed while out: as while connected
+connected group, first removed, made out, appended in a later task: as while connected
+standard group, first removed, changed while out: as while connected
+standard group, first removed, made out, appended in a later task: as while connected
+list item, lead added, changed while out: as while connected
+list item, lead added, made out, appended in a later task: as while connected
+list item, large image added, changed while out: as while connected
+list item, large image added, made out, appended in a later task: as while connected
+button, icon added, changed while out: as while connected
+button, icon added, made out, appended in a later task: as while connected
+sortable list, item added, changed while out: as while connected
+sortable list, item added, made out, appended in a later task: as while connected

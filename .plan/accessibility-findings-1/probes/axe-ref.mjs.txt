@@ -1,0 +1,26 @@
+// Run from packages/material-x: AXE=<path of axe-core 4.14.1's axe.js> node axe-ref.mjs
+// Does axe-core see a name that a shadow control takes from the light tree by element reference?
+import { createRequire } from 'node:module';
+const { chromium, firefox, webkit } = createRequire(`${process.cwd()}/package.json`)('playwright');
+for (const type of [chromium, firefox, webkit]) {
+  const b = await type.launch();
+  const p = await b.newPage();
+  await p.setContent('<!doctype html><html lang=en><title>T</title><main><h1>T</h1><span id=l>Named</span><div id=h></div><div id=a></div></main>');
+  await p.evaluate(() => {
+    for (const [id, name] of [['h', 'reference'], ['a', 'aria-label']]) {
+      const input = document.createElement('input');
+      document.getElementById(id).attachShadow({ mode: 'open' }).append(input);
+      if (name === 'reference') input.ariaLabelledByElements = [document.getElementById('l')];
+      else input.setAttribute('aria-label', 'Named');
+    }
+  });
+  await p.addScriptTag({ path: process.env.AXE });
+  const found = await p.evaluate(async () => (await axe.run()).violations.flatMap((v) => v.nodes.map((n) => `${v.id} ${JSON.stringify(n.target)}`)));
+  let tree = 'not read';
+  if (type === chromium) {
+    const cdp = await p.context().newCDPSession(p);
+    tree = (await cdp.send('Accessibility.getFullAXTree')).nodes.filter((n) => n.role?.value === 'textbox').map((n) => JSON.stringify(n.name?.value)).join(' ');
+  }
+  console.log(`${type.name()} ${b.version()} | by element reference, then by aria-label | names in the browser's tree: ${tree} | axe: ${found.join('; ') || 'none'}`);
+  await b.close();
+}

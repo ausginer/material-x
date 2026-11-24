@@ -1,0 +1,92 @@
+REST chromium cases=168 elements with a difference: {"elevated UNRESET":80,"SENT --_level":76,"filled UNRESET":4,"outlined UNRESET":4,"SENT --_container-color":4}
+SENT --_level: 76
+SENT --_container-color: 4
+DIFF filled UNRESET: <mx-checkbox ></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox ></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox error></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox error></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox  disabled></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox  disabled></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox error disabled></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox error disabled></mx-checkbox> (1)
+STATES chromium cases=80 elements with a difference: {"filled hover":0,"elevated hover":0,"outlined hover":0,"filled focus":0,"elevated focus":0,"outlined focus":0,"filled press":0,"elevated press":0,"outlined press":0}; cases whose state differs from rest: {"focus":77,"press":17}
+HOVER chromium
+<mx-button>T</mx-button> | :hover true | hover vs rest 2 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-button color="elevated">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-button color="tonal">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-button color="outlined">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-icon-button><mx-icon>add</mx-icon></mx-icon-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-switch-button checked>T</mx-switch-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-fab><mx-icon slot="icon">add</mx-icon></mx-fab> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-checkbox></mx-checkbox> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 1
+<mx-radio></mx-radio> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-list><mx-list-button-item>L</mx-list-button-item></mx-li | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-text-field><span slot="label">L</span></mx-text-field> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-text-field outlined><span slot="label">L</span></mx-text | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+
+REST firefox cases=168 elements with a difference: {"elevated UNRESET":80,"SENT --_level":76,"filled UNRESET":4,"outlined UNRESET":4,"SENT --_container-color":4}
+SENT --_level: 76
+SENT --_container-color: 4
+DIFF filled UNRESET: <mx-checkbox ></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox ></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox error></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox error></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox  disabled></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox  disabled></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox error disabled></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox error disabled></mx-checkbox> (1)
+STATES firefox cases=80 elements with a difference: {"filled hover":0,"elevated hover":0,"outlined hover":0,"filled focus":0,"elevated focus":0,"outlined focus":0,"filled press":0,"elevated press":0,"outlined press":0}; cases whose state differs from rest: {"focus":77,"press":58}
+HOVER firefox
+<mx-button>T</mx-button> | :hover true | hover vs rest 2 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-button color="elevated">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-button color="tonal">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-button color="outlined">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-icon-button><mx-icon>add</mx-icon></mx-icon-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-switch-button checked>T</mx-switch-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-fab><mx-icon slot="icon">add</mx-icon></mx-fab> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-checkbox></mx-checkbox> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 1
+<mx-radio></mx-radio> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-list><mx-list-button-item>L</mx-list-button-item></mx-li | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-text-field><span slot="label">L</span></mx-text-field> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-text-field outlined><span slot="label">L</span></mx-text | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+
+REST webkit cases=168 elements with a difference: {"elevated UNRESET":80,"SENT --_level":76,"filled UNRESET":4,"outlined UNRESET":4,"SENT --_container-color":4}
+SENT --_level: 76
+SENT --_container-color: 4
+DIFF filled UNRESET: <mx-checkbox ></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox ></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox error></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox error></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox  disabled></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox  disabled></mx-checkbox> (1)
+DIFF filled UNRESET: <mx-checkbox error disabled></mx-checkbox> (1)
+DIFF outlined UNRESET: <mx-checkbox error disabled></mx-checkbox> (1)
+STATES webkit cases=80 elements with a difference: {"filled hover":0,"elevated hover":0,"outlined hover":0,"filled focus":0,"elevated focus":0,"outlined focus":0,"filled press":0,"elevated press":0,"outlined press":0}; cases whose state differs from rest: {"focus":70,"press":58}
+HOVER webkit
+<mx-button>T</mx-button> | :hover true | hover vs rest 2 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-button color="elevated">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-button color="tonal">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-button color="outlined">T</mx-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-icon-button><mx-icon>add</mx-icon></mx-icon-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-switch-button checked>T</mx-switch-button> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 3
+<mx-fab><mx-icon slot="icon">add</mx-icon></mx-fab> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-checkbox></mx-checkbox> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 1
+<mx-radio></mx-radio> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-list><mx-list-button-item>L</mx-list-button-item></mx-li | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-text-field><span slot="label">L</span></mx-text-field> | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+<mx-text-field outlined><span slot="label">L</span></mx-text | :hover true | hover vs rest 0 | filled 0 elevated 0 outlined 0 | elevated UNRESET 0
+
+Elements that read the sentinel --_level (Chromium):
+      8 <mx-button
+      8 <mx-button-group
+      8 <mx-connected-button-group
+      8 <mx-icon-button
+      8 <mx-link-button
+      8 <mx-split-button
+     12 <mx-switch-button
+     16 <mx-switch-icon-button
+Elements that read the sentinel --_container-color:
+   <mx-checkbox ></mx-checkbox> (1) mx-checkbox::after|background-color|rgb(1, 2, 3)   (control rgba(0, 0, 0, 0))
+   <mx-checkbox error></mx-checkbox> (1) mx-checkbox::after|background-color|rgb(1, 2, 3)   (control rgba(0, 0, 0, 0))
+   <mx-checkbox  disabled></mx-checkbox> (1) mx-checkbox::after|background-color|rgb(1, 2, 3)   (control rgba(0, 0, 0, 0))
+   <mx-checkbox error disabled></mx-checkbox> (1) mx-checkbox::after|background-color|rgb(1, 2, 3)   (control rgba(0, 0, 0, 0))

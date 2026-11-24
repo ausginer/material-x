@@ -1,0 +1,62 @@
+// The component's own aria-* of a name that the host had and lost: the order of
+// the loss and the component's write, while connected and while out. Copy to
+// packages/material-x/tests/ and run there, after building core. The last test
+// fails on purpose: its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/link-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+const rows: string[] = [];
+const OWN: ReadonlyArray<readonly [string, string, string]> = [
+  ['mx-text-field', 'aria-invalid', 'error'],
+  ['mx-text-field', 'aria-required', 'required'],
+  ['mx-switch-button', 'aria-checked', 'checked'],
+  ['mx-link-button', 'aria-disabled', 'disabled'],
+  ['mx-list-link-item', 'aria-current', 'selected'],
+  ['mx-list-button-item', 'aria-selected', 'selected'],
+];
+const ORDERS = ['own, then loss', 'loss, own in one task', 'loss, then own'];
+const WHERE = ['connected', 'out', 'out, back in that task'];
+for (const where of WHERE) {
+  for (const order of ORDERS) {
+    it(`${where} ${order}`, async () => {
+      const got: Record<string, string[]> = {};
+      for (const [tag, aria, attr] of OWN) {
+        document.body.replaceChildren(document.createElement('i'));
+        const el = document.createElement(tag);
+        el.setAttribute(aria, 'true');
+        document.body.append(el);
+        await nextFrame();
+        const control = el.shadowRoot!.querySelector('.input, .host')!;
+        if (order.startsWith('own')) {
+          el.setAttribute(attr, '');
+          await nextFrame();
+        }
+        if (where !== 'connected') {
+          el.remove();
+          await nextFrame();
+        }
+        el.removeAttribute(aria);
+        if (order.endsWith('then own')) await nextFrame();
+        if (!order.startsWith('own')) el.setAttribute(attr, '');
+        if (where === 'out') await nextFrame();
+        if (where !== 'connected') document.body.append(el);
+        const sync = control.getAttribute(aria);
+        await nextFrame();
+        const after = control.getAttribute(aria);
+        document.body.prepend(el);
+        await nextFrame();
+        const again = control.getAttribute(aria);
+        const key = `at once ${sync}, after ${after}, after a move ${again}`;
+        (got[key] ??= []).push(`${tag} ${aria}`);
+      }
+      rows.push(`READ ${server.browser} | ${where} | ${order} | ${JSON.stringify(got)}`);
+    });
+  }
+}
+it('reading', () => expect.fail(`\n${rows.join('\n')}\nEND`));

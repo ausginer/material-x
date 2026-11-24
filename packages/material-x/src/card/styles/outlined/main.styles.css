@@ -1,0 +1,10 @@
+/*
+ * A page rule such as a universal reset beats `:host`, but not its
+ * `!important` declarations. A focused card declares no outline, so that the
+ * focus indicator shows.
+ */
+:host(:state(outlined):not(:focus-visible)) {
+  outline: var(--_outline-width) solid
+    var(--md-card-outline-color, var(--_outline-color)) !important;
+  outline-offset: calc(-1 * var(--_outline-width)) !important;
+}

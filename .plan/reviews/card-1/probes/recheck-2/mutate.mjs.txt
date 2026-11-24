@@ -1,0 +1,20 @@
+// Mutations beside mutate-4.mjs's. Run from packages/material-x of a scratch copy of the tree: node mutate.mjs <engine,...>
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const main = 'src/card/styles/default/main.styles.css', box = 'src/core/styles/elevation/host-box.styles.css', outlined = 'src/card/styles/outlined/main.styles.css';
+const rep = (a, b) => (s) => { if (s.split(a).length !== 2) throw new Error(`no match: ${a}`); return s.replace(a, () => b); };
+const M = [
+  ['host a flex column', main, rep('display: flow-root', 'display: flex;\n  flex-direction: column')],
+  ['host a grid', main, rep('display: flow-root', 'display: grid')],
+  ['host paints contained', main, rep('  display: flow-root;\n', '  display: flow-root;\n  contain: paint;\n')],
+  ['host hides overflow', main, rep('  display: flow-root;\n', '  display: flow-root;\n  overflow: hidden;\n')],
+  ['padding in the block axis only !important', main, rep('padding: var(--md-card-padding, 16px) !important', 'padding: var(--md-card-padding, 16px);\n  padding-block: 16px !important')],
+  ['slot as a grid', main, rep('slot {\n', 'slot {\n  display: grid;\n')],
+  ['slot inline', main, rep('slot {\n', 'slot {\n  display: inline;\n')],
+  ['host with a width', main, rep('  display: flow-root;\n', '  display: flow-root;\n  inline-size: fit-content;\n')],
+  ['resets on the host', main, (s) => rep('slot {\n  --_level: 0;\n  --_container-color: initial;\n}', 'slot { --x: 0; }')(s)],
+  ['resets on ::slotted', main, rep('slot {\n  --_level', '::slotted(*) {\n  --_level')],
+  ['no position, the plan sheet only', box, rep('  position: relative;\n', '  position: static;\n')],
+  ['outline width 2px', outlined, rep('outline: var(--_outline-width) solid', 'outline: 2px solid')],
+];
+for (const [n, f, m] of M) { const s = readFileSync(f, 'utf8'); try { writeFileSync(f, m(s)); for (const e of process.argv[2].split(',')) { const { stdout, stderr } = spawnSync('aube', ['exec', 'vitest', 'run', '-c', 'vitest.config.ts', '--project', 'browser*', '--project', 'spec*', 'tests/card/card', 'tests/core/elevation.spec'], { env: { ...process.env, MX_TEST_ENGINES: e, NO_COLOR: '1' }, encoding: 'utf8', maxBuffer: 1 << 28 }); const out = stdout + stderr; console.log(`## ${n} | ${e} | ${/Tests\s+(.*)/u.exec(out)?.[1] ?? 'no result'}`); for (const r of new Set([...out.matchAll(/FAIL\s+(.*)/gu)].map((x) => x[1].replace(/^.*?> /u, '')))) console.log(`   ${r}`); } } finally { writeFileSync(f, s); } }
