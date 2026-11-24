@@ -1,0 +1,45 @@
+# chromium 158.0.8127.18
+  ltr               0/1000  differ   31, without the stop  178, the element's box 212.00 + 4.00
+  ltr             500/1000  differ   31, without the stop  178, the element's box 212.00 + 4.00
+  ltr             900/1000  differ   32, without the stop  178, the element's box 212.00 + 4.00
+  ltr             925/1000  differ    9, without the stop  201, the element's box 212.00 + 4.00
+  ltr             940/1000  differ   16, without the stop  112, the element's box 214.25 + 1.75
+  ltr             960/1000  differ    0, without the stop    0, the element's box 216.00 + 0.00
+  ltr            1000/1000  differ    0, without the stop    0, the element's box 216.00 + 0.00
+  direction:rtl     0/1000  differ   31, without the stop  178, the element's box 24.00 + 4.00
+  direction:rtl   500/1000  differ   31, without the stop  178, the element's box 24.00 + 4.00
+  direction:rtl   900/1000  differ   31, without the stop  178, the element's box 24.00 + 4.00
+  direction:rtl   925/1000  differ    9, without the stop  201, the element's box 24.00 + 4.00
+  direction:rtl   940/1000  differ   16, without the stop  112, the element's box 24.00 + 1.75
+  direction:rtl   960/1000  differ    0, without the stop    0, the element's box 24.00 + 0.00
+  direction:rtl  1000/1000  differ    0, without the stop    0, the element's box 24.00 + 0.00
+# firefox 159.0
+  ltr               0/1000  differ   44, without the stop  191, the element's box 212.00 + 4.00
+  ltr             500/1000  differ   44, without the stop  191, the element's box 212.00 + 4.00
+  ltr             900/1000  differ   44, without the stop  191, the element's box 212.00 + 4.00
+  ltr             925/1000  differ   26, without the stop  224, the element's box 212.00 + 4.00
+  ltr             940/1000  differ    9, without the stop  106, the element's box 214.25 + 1.75
+  ltr             960/1000  differ    0, without the stop    0, the element's box 216.00 + 0.00
+  ltr            1000/1000  differ    0, without the stop    0, the element's box 216.00 + 0.00
+  direction:rtl     0/1000  differ   44, without the stop  192, the element's box 24.00 + 4.00
+  direction:rtl   500/1000  differ   44, without the stop  192, the element's box 24.00 + 4.00
+  direction:rtl   900/1000  differ   44, without the stop  192, the element's box 24.00 + 4.00
+  direction:rtl   925/1000  differ   26, without the stop  224, the element's box 24.00 + 4.00
+  direction:rtl   940/1000  differ    9, without the stop  106, the element's box 24.00 + 1.75
+  direction:rtl   960/1000  differ    0, without the stop    0, the element's box 24.00 + 0.00
+  direction:rtl  1000/1000  differ    0, without the stop    0, the element's box 24.00 + 0.00
+# webkit 27.2
+  ltr               0/1000  differ   32, without the stop  178, the element's box 212.00 + 4.00
+  ltr             500/1000  differ   32, without the stop  178, the element's box 212.00 + 4.00
+  ltr             900/1000  differ   32, without the stop  178, the element's box 212.00 + 4.00
+  ltr             925/1000  differ    2, without the stop  206, the element's box 212.00 + 4.00
+  ltr             940/1000  differ   16, without the stop   96, the element's box 214.25 + 1.75
+  ltr             960/1000  differ    0, without the stop    0, the element's box 216.00 + 0.00
+  ltr            1000/1000  differ    0, without the stop    0, the element's box 216.00 + 0.00
+  direction:rtl     0/1000  differ   32, without the stop  179, the element's box 24.00 + 4.00
+  direction:rtl   500/1000  differ   32, without the stop  179, the element's box 24.00 + 4.00
+  direction:rtl   900/1000  differ   32, without the stop  179, the element's box 24.00 + 4.00
+  direction:rtl   925/1000  differ    2, without the stop  206, the element's box 24.00 + 4.00
+  direction:rtl   940/1000  differ   16, without the stop   96, the element's box 24.00 + 1.75
+  direction:rtl   960/1000  differ    0, without the stop    0, the element's box 24.00 + 0.00
+  direction:rtl  1000/1000  differ    0, without the stop    0, the element's box 24.00 + 0.00

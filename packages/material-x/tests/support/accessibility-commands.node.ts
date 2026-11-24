@@ -39,6 +39,8 @@ type AxNode = Readonly<{
   ignored: boolean;
   role?: Readonly<{ value: string }>;
   name?: Readonly<{ value: string }>;
+  description?: Readonly<{ value: string }>;
+  value?: Readonly<{ value: unknown }>;
   properties?: ReadonlyArray<
     Readonly<{ name: string; value: Readonly<{ value?: unknown }> }>
   >;
@@ -48,11 +50,15 @@ type AxNode = Readonly<{
 
 /**
  * One node of the tree that the command returns. `properties` holds the
- * node's CDP properties by name, such as `invalid` and `required`.
+ * node's CDP properties by name, such as `invalid` and `required`. Only the
+ * tree's root can be `ignored`.
  */
 export type AccessibilityNode = Readonly<{
+  ignored: boolean;
   role: string;
   name: string;
+  description: string;
+  value: unknown;
   properties: Readonly<Record<string, unknown>>;
   children: readonly AccessibilityNode[];
 }>;
@@ -108,10 +114,11 @@ export const accessibilityBrowserCommands: Readonly<
   /**
    * The accessibility tree below the first element of the test's document
    * that matches `selector`. Ignored nodes are left out and their children
-   * take their place, as an assistive technology sees them.
+   * take their place, as an assistive technology sees them. Text nodes are
+   * left out unless `withText` is true.
    */
-  readAccessibilityTree: defineBrowserCommand<[string]>(
-    async (context, selector): Promise<AccessibilityNode> => {
+  readAccessibilityTree: defineBrowserCommand<[string, boolean?]>(
+    async (context, selector, withText = false): Promise<AccessibilityNode> => {
       const { provider, page, frame } = context as unknown as Context;
 
       if (provider.name !== 'playwright') {
@@ -143,23 +150,33 @@ export const accessibilityBrowserCommands: Readonly<
         (node.childIds ?? []).flatMap((id) => {
           const child = byId.get(id);
 
-          if (!child || TEXT_ROLES.has(child.role?.value ?? '')) {
+          if (
+            !child ||
+            (!withText && TEXT_ROLES.has(child.role?.value ?? ''))
+          ) {
             return [];
           }
 
           return child.ignored ? childrenOf(child) : [toTree(child)];
         });
       const toTree = (node: AxNode): AccessibilityNode => ({
+        ignored: node.ignored,
         role: node.role?.value ?? '',
         name: node.name?.value ?? '',
+        description: node.description?.value ?? '',
+        value: node.value?.value,
         properties: Object.fromEntries(
           (node.properties ?? []).map(({ name, value }) => [name, value.value]),
         ),
         children: childrenOf(node),
       });
 
+      // A node that the tree has no entry for is as ignored as one marked so.
       return toTree(
-        nodes.find((node) => node.backendDOMNodeId === backendNodeId)!,
+        nodes.find((node) => node.backendDOMNodeId === backendNodeId) ?? {
+          nodeId: '',
+          ignored: true,
+        },
       );
     },
   ),

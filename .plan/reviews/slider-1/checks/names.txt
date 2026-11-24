@@ -1,0 +1,87 @@
+# chromium 158.0.8127.18
+aria-label="" + label for | - text: L / - slider: "50"
+native: aria-label="" + label for | - text: L / - slider "L": "50"
+aria-label=" " + label for | - text: L / - slider: "50"
+labelledby missing id + label for | - text: L / - slider "L": "50"
+labelledby missing id + slot | - text: S / - slider "S": "50"
+labelledby two ids | - text: XY / - slider "Y X": "50"
+labelledby hidden element | - slider "X": "50"
+two labels | - text: L1L2 / - slider "L1 L2": "50"
+wrapping label with more text | - text: Before / - slider "Before after": "50" / - text: after
+empty slotted + label for | - text: L / - slider: "50"
+element reference property | - text: X / - slider "X": "50"
+ariaLabel property | - slider "A": "50"
+slot text changed later | - text: T / - slider "T": "50"
+label text changed later | - text: T / - slider "T": "50"
+aria-label removed while out of the document | - slider "A": "50"
+    A,null
+text field: the same | - textbox "A"
+aria-labelledby removed while out | - text: X / - slider: "50"
+    ,null
+moved to another document place with the same reference | - text: X / - paragraph: / - slider "X": "50"
+referenced element inserted later, then focus | - slider "X": "50" / - text: X
+aria-description | - slider "A": "50"
+    <input class="input" id="input" part="impl" type="range" aria-label="A" aria-description="DD">
+aria-invalid then error removed | - slider "A": "50"
+    <input class="input" id="input" part="impl" type="range" aria-label="A">
+in a shadow root [["X"],["L"]]
+hidden while held, shown again: indicator none
+
+# firefox 159.0
+aria-label="" + label for | - text: L / - slider: "50"
+native: aria-label="" + label for | - text: L / - slider "L": "50"
+aria-label=" " + label for | - text: L / - slider: "50"
+labelledby missing id + label for | - text: L / - slider "L": "50"
+labelledby missing id + slot | - text: S / - slider "S": "50"
+labelledby two ids | - text: XY / - slider "Y X": "50"
+labelledby hidden element | - slider "X": "50"
+two labels | - text: L1L2 / - slider "L1 L2": "50"
+wrapping label with more text | - text: Before / - slider "Before after": "50" / - text: after
+empty slotted + label for | - text: L / - slider: "50"
+element reference property | - text: X / - slider "X": "50"
+ariaLabel property | - slider "A": "50"
+slot text changed later | - text: T / - slider "T": "50"
+label text changed later | - text: T / - slider "T": "50"
+aria-label removed while out of the document | - slider "A": "50"
+    A,null
+text field: the same | - textbox "A"
+aria-labelledby removed while out | - text: X / - slider: "50"
+    ,null
+moved to another document place with the same reference | - text: X / - paragraph: / - slider "X": "50"
+referenced element inserted later, then focus | - slider "X": "50" / - text: X
+aria-description | - slider "A": "50"
+    <input class="input" id="input" part="impl" type="range" aria-label="A" aria-description="DD">
+aria-invalid then error removed | - slider "A": "50"
+    <input class="input" id="input" part="impl" type="range" aria-label="A">
+in a shadow root [["X"],["L"]]
+hidden while held, shown again: indicator none
+
+# webkit 27.2
+aria-label="" + label for | - text: L / - slider: "50"
+native: aria-label="" + label for | - text: L / - slider "L": "50"
+aria-label=" " + label for | - text: L / - slider: "50"
+labelledby missing id + label for | - text: L / - slider "L": "50"
+labelledby missing id + slot | - text: S / - slider "S": "50"
+labelledby two ids | - text: XY / - slider "Y X": "50"
+labelledby hidden element | - slider "X": "50"
+two labels | - text: L1L2 / - slider "L1 L2": "50"
+wrapping label with more text | - text: Before / - slider "Before after": "50" / - text: after
+empty slotted + label for | - text: L / - slider: "50"
+element reference property | - text: X / - slider "X": "50"
+ariaLabel property | - slider "A": "50"
+slot text changed later | - text: T / - slider "T": "50"
+label text changed later | - text: T / - slider "T": "50"
+aria-label removed while out of the document | - slider "A": "50"
+    A,null
+text field: the same | - textbox "A"
+aria-labelledby removed while out | - text: X / - slider: "50"
+    ,null
+moved to another document place with the same reference | - text: X / - paragraph: / - slider "X": "50"
+referenced element inserted later, then focus | - slider "X": "50" / - text: X
+aria-description | - slider "A": "50"
+    <input class="input" id="input" part="impl" type="range" aria-label="A" aria-description="DD">
+aria-invalid then error removed | - slider "A": "50"
+    <input class="input" id="input" part="impl" type="range" aria-label="A">
+in a shadow root [["X"],["L"]]
+hidden while held, shown again: indicator none
+

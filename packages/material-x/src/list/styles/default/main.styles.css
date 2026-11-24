@@ -19,3 +19,8 @@
   background-color: var(--_footprint-color);
   opacity: var(--_footprint-opacity);
 }
+
+/* A command commits at once, so the footprint would only flash. */
+:host(:state(command)) ::slotted([data-drag-placeholder]) {
+  visibility: hidden;
+}

@@ -1,0 +1,93 @@
+# chromium 158.0.8127.18
+drag away and back SAME | input 80, input 50, click 50 
+drag far below SAME | input 30, input 60, input 80, change 80, click 80 
+right button SAME |  
+press, Escape SAME | input 30, input 60, input 70, change 70, click 70 
+press then arrow SAME | input 30, change 30, click 30, input 31, change 31, input 0, change 0 
+wheel SAME |  
+mid-drag disabled [30,0.3,"block",2] ["change30",30,"none",false]
+mid-drag fieldset [30,0.3,"block",2] ["change30",30,"none",false]
+mid-drag removed "gone" ["change30",30,false,false]
+mid-drag moved [30,0.3,"none",4] ["change30",30,"none",false]
+mid-drag max [48,0.8,"block",2] ["input28,input38,input48,change48",48,"none",false]
+mid-drag min [88,0.8,"block",2] ["input68,input78,input88,change88",88,"none",false]
+mid-drag hidden [30,0.5,"block",0] ["change30",30,"none",false]
+overflow ltr 0 held rest 0/124 shown 0/124
+   full-width page: scrollWidth - clientWidth 0
+overflow ltr 0 focus rest 0/124 shown 0/124
+overflow ltr 100 held rest 0/124 shown 19/124
+   full-width page: scrollWidth - clientWidth 19
+overflow ltr 100 focus rest 0/124 shown 19/124
+overflow rtl 0 held rest 0/124 shown 0/124
+   full-width page: scrollWidth - clientWidth 12
+overflow rtl 0 focus rest 0/124 shown 0/124
+overflow rtl 100 held rest 0/124 shown 19/124
+   full-width page: scrollWidth - clientWidth 0
+overflow rtl 100 focus rest 0/124 shown 19/124
+held label [true,2,"block"]
+after label click [false,"none"]
+rewritten by drag i30 i60 c60
+rewritten by key i60 c60
+
+# firefox 159.0
+drag away and back SAME | input 80, input 50, click 50 
+drag far below SAME | input 30, input 60, input 80, change 80, click 80 
+right button SAME |  
+press, Escape SAME | input 30, input 60, input 50, click 50 
+press then arrow SAME | input 30, change 30, click 30, input 31, change 31, input 0, change 0 
+wheel SAME |  
+mid-drag disabled [30,0.3,"block",2] ["change30",30,"none",false]
+mid-drag fieldset [30,0.3,"block",2] ["change30",30,"none",false]
+mid-drag removed "gone" ["",30,false,false]
+mid-drag moved [80,0.8,"none",4] ["input47,input63,input80,change80",80,"none",false]
+mid-drag max [48,0.8,"block",2] ["input28,input38,input48,change48",48,"none",false]
+mid-drag min [88,0.8,"block",2] ["input68,input78,input88,change88",88,"none",false]
+mid-drag hidden [30,0.5,"block",0] ["change30",30,"none",false]
+overflow ltr 0 held rest 0/124 shown 0/124
+   full-width page: scrollWidth - clientWidth 0
+overflow ltr 0 focus rest 0/124 shown 0/124
+overflow ltr 100 held rest 0/124 shown 21/124
+   full-width page: scrollWidth - clientWidth 21
+overflow ltr 100 focus rest 0/124 shown 21/124
+overflow rtl 0 held rest 0/124 shown 0/124
+   full-width page: scrollWidth - clientWidth 12
+overflow rtl 0 focus rest 0/124 shown 0/124
+overflow rtl 100 held rest 0/124 shown 21/124
+   full-width page: scrollWidth - clientWidth 0
+overflow rtl 100 focus rest 0/124 shown 21/124
+held label [true,2,"block"]
+after label click [false,"none"]
+rewritten by drag i30 i60 i60 c60
+rewritten by key i60 c60
+
+# webkit 27.2
+drag away and back SAME | input 80, input 50, click 50 
+drag far below SAME | input 30, input 60, input 80, change 80 
+right button SAME |  
+press, Escape SAME | input 30, input 60, input 70, change 70, click 70 
+press then arrow SAME | input 30, change 30, click 30, input 31, change 31, input 0, change 0 
+wheel SAME |  
+mid-drag disabled [30,0.3,"block",2] ["",30,"none",false]
+mid-drag fieldset [30,0.3,"block",2] ["",30,"none",false]
+mid-drag removed "gone" ["",30,false,false]
+mid-drag moved [30,0.3,"block",2] ["",30,"none",false]
+mid-drag max [48,0.8,"block",2] ["input28,input38,input48,change48",48,"none",false]
+mid-drag min [88,0.8,"block",2] ["input68,input78,input88,change88",88,"none",false]
+mid-drag hidden [30,0.5,"block",0] ["",30,"block",false]
+overflow ltr 0 held rest 0/124 shown 0/124
+   full-width page: scrollWidth - clientWidth 0
+overflow ltr 0 focus rest 0/124 shown 0/124
+overflow ltr 100 held rest 0/124 shown 21/124
+   full-width page: scrollWidth - clientWidth 21
+overflow ltr 100 focus rest 0/124 shown 21/124
+overflow rtl 0 held rest 0/124 shown 0/124
+   full-width page: scrollWidth - clientWidth 12
+overflow rtl 0 focus rest 0/124 shown 0/124
+overflow rtl 100 held rest 0/124 shown 21/124
+   full-width page: scrollWidth - clientWidth 0
+overflow rtl 100 focus rest 0/124 shown 21/124
+held label [true,2,"block"]
+after label click [false,"none"]
+rewritten by drag i30 i60
+rewritten by key i60 c60
+

@@ -1,0 +1,60 @@
+# chromium 158.0.8127.18
+ press, from value 40, by the offset from the thumb’s centre in px
+  slider max=100  -1.9: 40 [], -1.6: 40 [], -1: 40 [], -0.5: 40 [], 0: 40 [], 0.5: 40 [], 1: 40 [], 1.6: 40 [], 1.9: 40 []
+  slider max=1000  -1.9: 400 [], -1: 400 [], 0: 400 [], 1: 400 [], 1.9: 400 []
+  slider max=20  -1.9: 8 [], 0: 8 [], 1.9: 8 []
+  thin max=100  -1.6: 40 [], -1: 40 [], 0: 40 [], 1: 40 [], 1.6: 40 []
+  native max=100  -6: 40 [], -3: 40 [], 0: 40 [], 3: 40 [], 6: 40 []
+ width, in px: the built slider, the input in flow, a native range at display:block, the built mx-text-field
+  block 400px                built 400.0x44.0, static 400.0x44.0, native 129.0x16.0, field 400.0x56.0
+  flex row 400px             built 0.0x44.0, static 129.0x44.0, native 129.0x16.0, field 33.0x56.0
+  flex row, beside text      built 0.0x44.0, static 129.0x44.0, native 129.0x18.0, field 33.0x56.0
+  flex column, align start   built 0.0x44.0, static 129.0x44.0, native 129.0x16.0, field 33.0x56.0
+  flex row, long text        built 0.0x90.0, static 28.6x90.0, native 129.0x126.0, field 32.0x90.0
+  grid, auto columns         built 0.0x44.0, static 129.0x44.0, native 129.0x16.0, field 33.0x56.0
+  absolutely positioned      built 0.0x44.0 overflows, static 129.0x44.0, native 129.0x16.0, field 33.0x56.0
+  inline-block               built 0.0x44.0 overflows, static 129.0x44.0, native 129.0x16.0, field 33.0x56.0
+  max-content                built 0.0x44.0 overflows, static 129.0x44.0, native 129.0x16.0, field 33.0x56.0
+  min-content                built 0.0x44.0 overflows, static 0.0x44.0 overflows, native 129.0x16.0, field 32.0x56.0
+  block 60px                 built 60.0x44.0, static 60.0x44.0, native 129.0x16.0 overflows, field 60.0x56.0
+  flex row 60px              built 0.0x44.0, static 60.0x44.0, native 129.0x16.0 overflows, field 33.0x56.0
+# firefox 159.0
+ press, from value 40, by the offset from the thumb’s centre in px
+  slider max=100  -1.9: 39 [i39 c39], -1.6: 39 [i39 c39], -1: 39 [i39 c39], -0.5: 39 [i39 c39], 0: 40 [], 0.5: 40 [], 1: 40 [], 1.6: 41 [i41 c41], 1.9: 41 [i41 c41]
+  slider max=1000  -1.9: 388 [i388 c388], -1: 393 [i393 c393], 0: 398 [i398 c398], 1: 403 [i403 c403], 1.9: 408 [i408 c408]
+  slider max=20  -1.9: 8 [], 0: 8 [], 1.9: 8 []
+  thin max=100  -1.6: 39 [i39 c39], -1: 39 [i39 c39], 0: 40 [], 1: 40 [], 1.6: 41 [i41 c41]
+  native max=100  -6: 36 [i36 c36], -3: 38 [i38 c38], 0: 39 [i39 c39], 3: 41 [i41 c41], 6: 43 [i43 c43]
+ width, in px: the built slider, the input in flow, a native range at display:block, the built mx-text-field
+  block 400px                built 400.0x44.0, static 400.0x44.0, native 160.0x20.0, field 400.0x56.0
+  flex row 400px             built 0.0x44.0, static 192.0x44.0, native 160.0x20.0, field 32.0x56.0
+  flex row, beside text      built 0.0x44.0, static 192.0x44.0, native 160.0x21.0, field 32.0x56.0
+  flex column, align start   built 0.0x44.0, static 192.0x44.0, native 160.0x20.0, field 32.0x56.0
+  flex row, long text        built 0.0x105.0, static 37.9x126.0, native 160.0x189.0, field 32.0x105.0
+  grid, auto columns         built 0.0x44.0, static 192.0x44.0, native 160.0x20.0, field 32.0x56.0
+  absolutely positioned      built 0.0x44.0 overflows, static 192.0x44.0, native 160.0x20.0, field 32.0x56.0
+  inline-block               built 0.0x44.0 overflows, static 192.0x44.0, native 160.0x20.0, field 32.0x56.0
+  max-content                built 0.0x44.0 overflows, static 192.0x44.0, native 160.0x20.0, field 32.0x56.0
+  min-content                built 0.0x44.0 overflows, static 0.0x44.0 overflows, native 160.0x20.0, field 32.0x56.0
+  block 60px                 built 60.0x44.0, static 60.0x44.0, native 160.0x20.0 overflows, field 60.0x56.0
+  flex row 60px              built 0.0x44.0, static 60.0x44.0, native 160.0x20.0 overflows, field 32.0x56.0
+# webkit 27.2
+ press, from value 40, by the offset from the thumb’s centre in px
+  slider max=100  -1.9: 40 [], -1.6: 40 [], -1: 40 [], -0.5: 40 [], 0: 40 [], 0.5: 40 [], 1: 40 [], 1.6: 40 [], 1.9: 40 []
+  slider max=1000  -1.9: 400 [], -1: 400 [], 0: 400 [], 1: 400 [], 1.9: 400 []
+  slider max=20  -1.9: 8 [], 0: 8 [], 1.9: 8 []
+  thin max=100  -1.6: 40 [], -1: 40 [], 0: 40 [], 1: 40 [], 1.6: 40 []
+  native max=100  -6: 40 [], -3: 40 [], 0: 40 [], 3: 40 [], 6: 40 []
+ width, in px: the built slider, the input in flow, a native range at display:block, the built mx-text-field
+  block 400px                built 400.0x44.0, static 400.0x44.0, native 129.0x20.0, field 400.0x56.0
+  flex row 400px             built 0.0x44.0, static 129.0x44.0, native 129.0x20.0, field 33.0x56.0
+  flex row, beside text      built 0.0x44.0, static 129.0x44.0, native 129.0x21.0, field 33.0x56.0
+  flex column, align start   built 0.0x44.0, static 129.0x44.0, native 129.0x20.0, field 33.0x56.0
+  flex row, long text        built 0.0x105.0, static 26.3x105.0, native 129.0x168.0, field 32.0x105.0
+  grid, auto columns         built 0.0x44.0, static 129.0x44.0, native 129.0x20.0, field 33.0x56.0
+  absolutely positioned      built 0.0x44.0 overflows, static 129.0x44.0, native 129.0x20.0, field 33.0x56.0
+  inline-block               built 0.0x44.0 overflows, static 129.0x44.0, native 129.0x20.0, field 33.0x56.0
+  max-content                built 0.0x44.0 overflows, static 129.0x44.0, native 129.0x20.0, field 33.0x56.0
+  min-content                built 0.0x44.0 overflows, static 0.0x44.0 overflows, native 129.0x20.0, field 32.0x56.0
+  block 60px                 built 60.0x44.0, static 60.0x44.0, native 129.0x20.0 overflows, field 60.0x56.0
+  flex row 60px              built 0.0x44.0, static 60.0x44.0, native 129.0x20.0 overflows, field 33.0x56.0

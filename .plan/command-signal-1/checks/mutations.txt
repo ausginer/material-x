@@ -1,0 +1,278 @@
+## drag: no mutation | chromium | 40 passed (40)
+## drag: no mutation | firefox | 36 passed | 4 skipped (40)
+## drag: no mutation | webkit | 36 passed | 4 skipped (40)
+## drag: a pointer's kind for a command | chromium | 4 failed | 36 passed (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: a pointer's kind for a command | firefox | 4 failed | 32 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: a pointer's kind for a command | webkit | 4 failed | 32 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: a command's kind for a pointer | chromium | 6 failed | 34 passed (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: a command's kind for a pointer | firefox | 4 failed | 32 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: a command's kind for a pointer | webkit | 4 failed | 32 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: the kinds exchanged | chromium | 8 failed | 32 passed (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: the kinds exchanged | firefox | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: the kinds exchanged | webkit | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: no kind | chromium | 8 failed | 32 passed (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: no kind | firefox | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: no kind | webkit | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: onStart called at the drop too | chromium | 16 failed | 24 passed (40)
+   browser: drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   browser: drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   browser: drag:DRI-14 commands with a handle > should reorder from a focused handle
+   browser: drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+   consumer: drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   consumer: drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRI-14 commands with a handle > should reorder from a focused handle
+   consumer: drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+## drag: onStart called at the drop too | firefox | 14 failed | 22 passed | 4 skipped (40)
+   browser: drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   browser: drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   browser: drag:DRI-14 commands with a handle > should reorder from a focused handle
+   browser: drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+   consumer: drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   consumer: drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRI-14 commands with a handle > should reorder from a focused handle
+   consumer: drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+## drag: onStart called at the drop too | webkit | 14 failed | 22 passed | 4 skipped (40)
+   browser: drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   browser: drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   browser: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   browser: drag:DRI-14 commands with a handle > should reorder from a focused handle
+   browser: drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+   consumer: drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   consumer: drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+   consumer: drag:DRI-14 commands with a handle > should reorder from a focused handle
+   consumer: drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+## types: the kind is not exported | tsc exit 1
+   tests/keyboard.browser.test.ts(10,8): error TS2305: Module '"../src/sortable.ts"' has no exported member 'SortableOperationKind'.
+   tests/published-types.declaration.test.ts(19,31): error TS2305: Module '"../src/sortable.ts"' has no exported member 'SortableOperationKind'.
+   tests/published-types.declaration.test.ts(52,23): error TS2344: Type '[item: HTMLElement, kind: SortableOperationKind]' does not satisfy the constraint '{ 0: { 
+## types: onStart without the kind | tsc exit 1
+   tests/keyboard.browser.test.ts(144,7): error TS2322: Type '(_: any, kind: SortableOperationKind) => void' is not assignable to type '(item: HTMLElement) => void
+   tests/keyboard.browser.test.ts(144,15): error TS7006: Parameter '_' implicitly has an 'any' type.
+   tests/published-types.declaration.test.ts(47,55): error TS2322: Type '(_: HTMLElement, kind: SortableOperationKind) => void' is not assignable to type '(item: H
+   tests/published-types.declaration.test.ts(52,23): error TS2344: Type '[item: HTMLElement, kind: SortableOperationKind]' does not satisfy the constraint '{ 0: { 
+## list: no mutation | chromium | 115 passed (115)
+## list: no mutation | firefox | 115 passed (115)
+## list: no mutation | webkit | 115 passed (115)
+## list: the state is never set | chromium | 3 failed | 112 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is never set | firefox | 3 failed | 112 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is never set | webkit | 3 failed | 112 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: no rule for the state | chromium | 3 failed | 112 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: no rule for the state | firefox | 3 failed | 112 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: no rule for the state | webkit | 3 failed | 112 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is set at every start | chromium | 7 failed | 108 passed (115)
+   browser: mx-sortable-list footprint > should paint the footprint in a pointer drag
+   browser: mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   browser: mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state is set at every start | firefox | 7 failed | 108 passed (115)
+   browser: mx-sortable-list footprint > should paint the footprint in a pointer drag
+   browser: mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   browser: mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state is set at every start | webkit | 7 failed | 108 passed (115)
+   browser: mx-sortable-list footprint > should paint the footprint in a pointer drag
+   browser: mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   browser: mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: a pointer does not turn the state off | chromium | 4 failed | 111 passed (115)
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: a pointer does not turn the state off | firefox | 4 failed | 111 passed (115)
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: a pointer does not turn the state off | webkit | 4 failed | 111 passed (115)
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state is set for a pointer | chromium | 10 failed | 105 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in a pointer drag
+   browser: mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   browser: mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state is set for a pointer | firefox | 10 failed | 105 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in a pointer drag
+   browser: mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   browser: mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state is set for a pointer | webkit | 10 failed | 105 passed (115)
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a key move
+   browser: mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   browser: mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in a pointer drag
+   browser: mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   browser: mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   browser: mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## drag: a key at the edge reports a start | chromium | 6 failed | 34 passed (40)
+   browser: drag:DRI-14 commands > should not prevent ArrowUp on the first row
+   browser: drag:DRI-14 commands > should not prevent ArrowDown on the last row
+   browser: drag:DRD-71 onStart's operation kind > should report no start for an arrow key at the edge
+   consumer: drag:DRI-14 commands > should not prevent ArrowUp on the first row
+   consumer: drag:DRI-14 commands > should not prevent ArrowDown on the last row
+   consumer: drag:DRD-71 onStart's operation kind > should report no start for an arrow key at the edge
+## drag: a key at the edge reports a start | firefox | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRI-14 commands > should not prevent ArrowUp on the first row
+   browser: drag:DRI-14 commands > should not prevent ArrowDown on the last row
+   browser: drag:DRD-71 onStart's operation kind > should report no start for an arrow key at the edge
+   consumer: drag:DRI-14 commands > should not prevent ArrowUp on the first row
+   consumer: drag:DRI-14 commands > should not prevent ArrowDown on the last row
+   consumer: drag:DRD-71 onStart's operation kind > should report no start for an arrow key at the edge
+## drag: a key at the edge reports a start | webkit | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRI-14 commands > should not prevent ArrowUp on the first row
+   browser: drag:DRI-14 commands > should not prevent ArrowDown on the last row
+   browser: drag:DRD-71 onStart's operation kind > should report no start for an arrow key at the edge
+   consumer: drag:DRI-14 commands > should not prevent ArrowUp on the first row
+   consumer: drag:DRI-14 commands > should not prevent ArrowDown on the last row
+   consumer: drag:DRD-71 onStart's operation kind > should report no start for an arrow key at the edge
+## drag: data-drag-ignore declines nothing | chromium | 6 failed | 34 passed (40)
+   browser: drag:DRD-71 onStart's operation kind > should report no start for an arrow key that data-drag-ignore declines
+   browser: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+   browser: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+   consumer: drag:DRD-71 onStart's operation kind > should report no start for an arrow key that data-drag-ignore declines
+   consumer: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+   consumer: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+## drag: data-drag-ignore declines nothing | firefox | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report no start for an arrow key that data-drag-ignore declines
+   browser: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+   browser: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+   consumer: drag:DRD-71 onStart's operation kind > should report no start for an arrow key that data-drag-ignore declines
+   consumer: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+   consumer: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+## drag: data-drag-ignore declines nothing | webkit | 6 failed | 30 passed | 4 skipped (40)
+   browser: drag:DRD-71 onStart's operation kind > should report no start for an arrow key that data-drag-ignore declines
+   browser: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+   browser: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+   consumer: drag:DRD-71 onStart's operation kind > should report no start for an arrow key that data-drag-ignore declines
+   consumer: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+   consumer: drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region

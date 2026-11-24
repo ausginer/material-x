@@ -1,0 +1,160 @@
+# press-rounding.ts on the package built from 3e432eb70 (with --mx- names), 2026-11-24
+# chromium 158.0.8127.18
+ device scale 1
+  max=100 inset=0px
+   -1.95: sent 98.44, event 98.44, value 40
+   -1.5: sent 98.89, event 98.89, value 40
+   0: sent 100.39, event 100.39, value 40
+   1.5: sent 101.89, event 101.89, value 40
+   1.95: sent 102.34, event 102.34, value 40
+  max=100 inset=0.15px
+   -1.95: sent 98.58, event 98.58, value 40
+   -1.5: sent 99.03, event 99.03, value 40
+   0: sent 100.53, event 100.53, value 40
+   1.5: sent 102.03, event 102.03, value 40
+   1.95: sent 102.48, event 102.48, value 40
+  max=1000 inset=0px
+   -1.95: sent 98.44, event 98.44, value 400
+   -1.5: sent 98.89, event 98.89, value 400
+   0: sent 100.39, event 100.39, value 400
+   1.5: sent 101.89, event 101.89, value 400
+   1.95: sent 102.34, event 102.34, value 400
+  max=1000 inset=0.5px
+   -1.95: sent 98.94, event 98.94, value 400
+   -1.5: sent 99.39, event 99.39, value 400
+   0: sent 100.89, event 100.89, value 400
+   1.5: sent 102.39, event 102.39, value 400
+   1.95: sent 102.84, event 102.84, value 400
+  press at 70 %: value 70, handle centre 159.19, expected 159.20
+ device scale 2
+  max=100 inset=0px
+   -1.95: sent 98.44, event 98.44, value 40
+   -1.5: sent 98.89, event 98.89, value 40
+   0: sent 100.39, event 100.39, value 40
+   1.5: sent 101.89, event 101.89, value 40
+   1.95: sent 102.34, event 102.34, value 40
+  max=100 inset=0.15px
+   -1.95: sent 98.58, event 98.58, value 40
+   -1.5: sent 99.03, event 99.03, value 40
+   0: sent 100.53, event 100.53, value 40
+   1.5: sent 102.03, event 102.03, value 40
+   1.95: sent 102.48, event 102.48, value 40
+  max=1000 inset=0px
+   -1.95: sent 98.44, event 98.44, value 400
+   -1.5: sent 98.89, event 98.89, value 400
+   0: sent 100.39, event 100.39, value 400
+   1.5: sent 101.89, event 101.89, value 400
+   1.95: sent 102.34, event 102.34, value 400
+  max=1000 inset=0.5px
+   -1.95: sent 98.94, event 98.94, value 400
+   -1.5: sent 99.39, event 99.39, value 400
+   0: sent 100.89, event 100.89, value 400
+   1.5: sent 102.39, event 102.39, value 400
+   1.95: sent 102.84, event 102.84, value 400
+  press at 70 %: value 70, handle centre 159.19, expected 159.20
+# firefox 159.0
+ device scale 1
+  max=100 inset=0px
+   -1.95: sent 98.45, event 98.00, value 39
+   -1.5: sent 98.90, event 98.00, value 39
+   0: sent 100.40, event 100.00, value 40
+   1.5: sent 101.90, event 101.00, value 40
+   1.95: sent 102.35, event 102.00, value 41
+  max=100 inset=0.15px
+   -1.95: sent 98.60, event 98.00, value 39
+   -1.5: sent 99.05, event 99.00, value 39
+   0: sent 100.55, event 100.00, value 40
+   1.5: sent 102.05, event 102.00, value 41
+   1.95: sent 102.50, event 102.00, value 41
+  max=1000 inset=0px
+   -1.95: sent 98.45, event 98.00, value 388
+   -1.5: sent 98.90, event 98.00, value 388
+   0: sent 100.40, event 100.00, value 398
+   1.5: sent 101.90, event 101.00, value 403
+   1.95: sent 102.35, event 102.00, value 408
+  max=1000 inset=0.5px
+   -1.95: sent 98.95, event 98.00, value 385
+   -1.5: sent 99.40, event 99.00, value 390
+   0: sent 100.90, event 100.00, value 395
+   1.5: sent 102.40, event 102.00, value 406
+   1.95: sent 102.85, event 102.00, value 406
+  press at 70 %: value 70, handle centre 159.20, expected 159.20
+ device scale 2
+  max=100 inset=0px
+   -1.95: sent 98.45, event 98.00, value 39
+   -1.5: sent 98.90, event 98.00, value 39
+   0: sent 100.40, event 100.00, value 40
+   1.5: sent 101.90, event 101.00, value 40
+   1.95: sent 102.35, event 102.00, value 41
+  max=100 inset=0.15px
+   -1.95: sent 98.60, event 98.00, value 39
+   -1.5: sent 99.05, event 99.00, value 39
+   0: sent 100.55, event 100.00, value 40
+   1.5: sent 102.05, event 102.00, value 41
+   1.95: sent 102.50, event 102.00, value 41
+  max=1000 inset=0px
+   -1.95: sent 98.45, event 98.00, value 388
+   -1.5: sent 98.90, event 98.00, value 388
+   0: sent 100.40, event 100.00, value 398
+   1.5: sent 101.90, event 101.00, value 403
+   1.95: sent 102.35, event 102.00, value 408
+  max=1000 inset=0.5px
+   -1.95: sent 98.95, event 98.00, value 385
+   -1.5: sent 99.40, event 99.00, value 390
+   0: sent 100.90, event 100.00, value 395
+   1.5: sent 102.40, event 102.00, value 406
+   1.95: sent 102.85, event 102.00, value 406
+  press at 70 %: value 70, handle centre 159.20, expected 159.20
+# webkit 27.2
+ device scale 1
+  max=100 inset=0px
+   -1.95: sent 98.44, event 98.00, value 40
+   -1.5: sent 98.89, event 98.00, value 40
+   0: sent 100.39, event 100.00, value 40
+   1.5: sent 101.89, event 101.00, value 40
+   1.95: sent 102.34, event 102.00, value 40
+  max=100 inset=0.15px
+   -1.95: sent 98.58, event 98.00, value 40
+   -1.5: sent 99.03, event 99.00, value 40
+   0: sent 100.53, event 100.00, value 40
+   1.5: sent 102.03, event 102.00, value 40
+   1.95: sent 102.48, event 102.00, value 40
+  max=1000 inset=0px
+   -1.95: sent 98.44, event 98.00, value 400
+   -1.5: sent 98.89, event 98.00, value 400
+   0: sent 100.39, event 100.00, value 400
+   1.5: sent 101.89, event 101.00, value 400
+   1.95: sent 102.34, event 102.00, value 400
+  max=1000 inset=0.5px
+   -1.95: sent 98.94, event 98.00, value 400
+   -1.5: sent 99.39, event 99.00, value 400
+   0: sent 100.89, event 100.00, value 400
+   1.5: sent 102.39, event 102.00, value 400
+   1.95: sent 102.84, event 102.00, value 400
+  press at 70 %: value 70, handle centre 159.19, expected 159.20
+ device scale 2
+  max=100 inset=0px
+   -1.95: sent 98.44, event 98.00, value 40
+   -1.5: sent 98.89, event 98.00, value 40
+   0: sent 100.39, event 100.00, value 40
+   1.5: sent 101.89, event 101.00, value 40
+   1.95: sent 102.34, event 102.00, value 40
+  max=100 inset=0.15px
+   -1.95: sent 98.58, event 98.00, value 40
+   -1.5: sent 99.03, event 99.00, value 40
+   0: sent 100.53, event 100.00, value 40
+   1.5: sent 102.03, event 102.00, value 40
+   1.95: sent 102.48, event 102.00, value 40
+  max=1000 inset=0px
+   -1.95: sent 98.44, event 98.00, value 400
+   -1.5: sent 98.89, event 98.00, value 400
+   0: sent 100.39, event 100.00, value 400
+   1.5: sent 101.89, event 101.00, value 400
+   1.95: sent 102.34, event 102.00, value 400
+  max=1000 inset=0.5px
+   -1.95: sent 98.94, event 98.00, value 400
+   -1.5: sent 99.39, event 99.00, value 400
+   0: sent 100.89, event 100.00, value 400
+   1.5: sent 102.39, event 102.00, value 400
+   1.95: sent 102.84, event 102.00, value 400
+  press at 70 %: value 70, handle centre 159.19, expected 159.20

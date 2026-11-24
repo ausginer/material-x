@@ -1,0 +1,48 @@
+## chromium 158.0.8127.18
+fieldset: host :disabled | control :disabled | Tab focus | key events | pointer events
+  mx-button: true | false | focus() true | [click] | [] value undefined
+  mx-icon-button: true | false | focus() true | [click] | [] value undefined
+  mx-switch-button: true | false | focus() true | [click,input,change] | [] value null
+  mx-switch-icon-button: true | false | focus() true | [click,input,change] | [] value null
+  mx-fab: false | false | focus() true | [click] | [click] value undefined
+  mx-checkbox: true | false | focus() true | [click,input,change] | [] value null
+  mx-radio: true | false | focus() true | [click,input,change] | [] value null
+  mx-text-field: true | false | focus() true | [input,input] | [] value " a"
+  mx-multiline-text-field: true | false | focus() true | [input,input] | [] value " a"
+  input: true | true | focus() false | [] | [] value ""
+  Tab order: mx-button mx-icon-button mx-switch-button mx-switch-icon-button mx-fab mx-checkbox mx-radio mx-text-field mx-multiline-text-field body mx-button mx-icon-button mx-switch-button mx-switch-icon-button
+restore before: {"native":"typed","nativebox":true,"tf":"typed","mtf":"typed","cb":true,"sb":true,"restored":[]}
+restore after:  {"native":"typed","nativebox":true,"tf":"","mtf":"","cb":false,"sb":false,"restored":["mx-switch-button:on:restore","mx-checkbox:on:restore","mx-multiline-text-field:typed:restore","mx-text-field:typed:restore"]} same document: false
+hidden: mx-button=contents SHOWN, mx-icon-button=contents SHOWN, mx-link-button=contents SHOWN, mx-switch-button=contents SHOWN, mx-switch-icon-button=contents SHOWN, mx-split-button=contents SHOWN, mx-button-group=flex SHOWN, mx-connected-button-group=flex SHOWN, mx-checkbox=inline-grid SHOWN, mx-fab=contents SHOWN, mx-icon=inline-block SHOWN, mx-list=flex SHOWN, mx-list-item=flex SHOWN, mx-list-button-item=block SHOWN, mx-list-link-item=block SHOWN, mx-radio=inline-grid SHOWN, mx-multiline-text-field=grid SHOWN, mx-text-field=grid SHOWN, mx-sortable-list=flex SHOWN
+## firefox 159.0
+fieldset: host :disabled | control :disabled | Tab focus | key events | pointer events
+  mx-button: true | false | focus() true | [] | [] value undefined
+  mx-icon-button: true | false | focus() true | [] | [] value undefined
+  mx-switch-button: true | false | focus() true | [input,change] | [] value null
+  mx-switch-icon-button: true | false | focus() true | [input,change] | [] value null
+  mx-fab: false | false | focus() true | [click] | [click] value undefined
+  mx-checkbox: true | false | focus() true | [input,change] | [] value null
+  mx-radio: true | false | focus() true | [input,change] | [] value null
+  mx-text-field: true | false | focus() true | [] | [] value " a"
+  mx-multiline-text-field: true | false | focus() true | [] | [] value " a"
+  input: true | true | focus() false | [] | [] value ""
+  Tab order: mx-button mx-icon-button mx-switch-button mx-switch-icon-button mx-fab mx-checkbox mx-radio mx-text-field mx-multiline-text-field body mx-multiline-text-field mx-multiline-text-field body mx-multiline-text-field
+restore before: {"native":"typed","nativebox":true,"tf":"typed","mtf":"typed","cb":true,"sb":true,"restored":[]}
+restore after:  {"native":"typed","nativebox":true,"tf":"","mtf":"","cb":false,"sb":false,"restored":["mx-switch-button:on:restore","mx-checkbox:on:restore","mx-multiline-text-field:on:restore","mx-text-field:on:restore"]} same document: false
+hidden: mx-button=contents SHOWN, mx-icon-button=contents SHOWN, mx-link-button=contents SHOWN, mx-switch-button=contents SHOWN, mx-switch-icon-button=contents SHOWN, mx-split-button=contents SHOWN, mx-button-group=flex SHOWN, mx-connected-button-group=flex SHOWN, mx-checkbox=inline-grid SHOWN, mx-fab=contents SHOWN, mx-icon=inline-block SHOWN, mx-list=flex SHOWN, mx-list-item=flex SHOWN, mx-list-button-item=block SHOWN, mx-list-link-item=block SHOWN, mx-radio=inline-grid SHOWN, mx-multiline-text-field=grid SHOWN, mx-text-field=grid SHOWN, mx-sortable-list=flex SHOWN
+## webkit 27.2
+fieldset: host :disabled | control :disabled | Tab focus | key events | pointer events
+  mx-button: true | false | focus() true | [] | [] value undefined
+  mx-icon-button: true | false | focus() true | [] | [] value undefined
+  mx-switch-button: true | false | focus() true | [input,change] | [] value null
+  mx-switch-icon-button: true | false | focus() true | [input,change] | [] value null
+  mx-fab: false | false | focus() true | [click] | [click] value undefined
+  mx-checkbox: true | false | focus() true | [input,change] | [] value null
+  mx-radio: true | false | focus() true | [input,change] | [] value null
+  mx-text-field: true | false | focus() true | [input,input] | [] value " a"
+  mx-multiline-text-field: true | false | focus() true | [input,input] | [] value " a"
+  input: true | true | focus() false | [] | [] value ""
+  Tab order: mx-button mx-icon-button mx-switch-button mx-switch-icon-button mx-fab mx-checkbox mx-radio mx-text-field mx-multiline-text-field body mx-button mx-icon-button mx-switch-button mx-switch-icon-button
+restore before: {"native":"typed","nativebox":true,"tf":"typed","mtf":"typed","cb":true,"sb":true,"restored":[]}
+restore after:  {"native":"typed","nativebox":true,"tf":"","mtf":"","cb":false,"sb":false,"restored":["mx-switch-button:on:restore","mx-checkbox:on:restore","mx-multiline-text-field:typed:restore","mx-text-field:typed:restore"]} same document: false
+hidden: mx-button=contents SHOWN, mx-icon-button=contents SHOWN, mx-link-button=contents SHOWN, mx-switch-button=contents SHOWN, mx-switch-icon-button=contents SHOWN, mx-split-button=contents SHOWN, mx-button-group=flex SHOWN, mx-connected-button-group=flex SHOWN, mx-checkbox=inline-grid SHOWN, mx-fab=contents SHOWN, mx-icon=inline-block SHOWN, mx-list=flex SHOWN, mx-list-item=flex SHOWN, mx-list-button-item=block SHOWN, mx-list-link-item=block SHOWN, mx-radio=inline-grid SHOWN, mx-multiline-text-field=grid SHOWN, mx-text-field=grid SHOWN, mx-sortable-list=flex SHOWN
