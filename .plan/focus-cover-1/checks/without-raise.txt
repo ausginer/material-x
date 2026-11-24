@@ -1,0 +1,126 @@
+# chromium 158.0.8127.18
+tooltip in a button, z-index 10, then a static block: tip on top
+tooltip in a button, z-index 10, then position:relative: tip on top
+tooltip in a button, z-index 10, then position:relative z-index 1: tip on top
+tooltip in a button, z-index 10, then transform: tip on top
+tooltip in a button, z-index 10, then another group: tip on top
+tooltip in a button, z-index 10, then a button: tip on top
+tooltip in a button, z-index 10, then a text field: tip on top
+tooltip in a button, z-index 10, then a list: tip on top
+tooltip in a button, no z-index, then position:relative: tip covered by after
+tooltip slotted beside the buttons, z-index 10, then position:relative: tip on top
+fixed overlay in a button (a hand-made menu), z-index 1000, then position:relative z-index 1: tip on top
+popover in a button, shown, then z-index 1000: tip on top
+split button: tooltip in its label, z-index 10, then position:relative: tip on top
+tooltip in a plain mx-button (no group), z-index 10, then position:relative: tip on top
+tooltip in a standard group, z-index 10, then position:relative: tip on top
+overlay, position absolute, after the group: at rest on top, button focused on top
+overlay before the group: at rest on top, button focused on top
+badge slotted after the buttons, absolute: at rest on top, button focused on top
+badge slotted after the buttons, absolute, z-index 1: at rest on top, button focused on top
+text with a negative margin over the group: at rest covered by b1, button focused covered by b1
+z-index -1 decoration in a button: at rest covered by b1, button focused covered by b1
+z-index -1 decoration: paint 99812941
+mix-blend-mode in a button: paint ff2caf8b
+group part mix-blend-mode by the page: paint e51963a8
+page isolates it back: isolation auto: paint e51963a8
+button in a popover in a slotted span: focused z-index auto (focus-visible true)
+button in a popover in a slotted button: focused z-index auto (focus-visible true)
+standard group in a slotted wrapper: focused z-index auto (focus-visible true)
+button in a popover in a split button label: focused z-index auto (focus-visible true)
+button outside a group: focused z-index auto (focus-visible true)
+button in a standard group: focused z-index auto (focus-visible true)
+button after a page sets --_focus-z-index: focused z-index auto (focus-visible true)
+overlay in the popover over its button: at rest button covered by html; focused: ov
+nested elements read
+# chromium 158.0.8127.18
+a page button, positioned, before the group, over its empty end: x
+the same, after the group: x
+the same before it, z-index 1: x
+before a split button: x
+before a standard group: x
+a menu of the page in a split button row: menu first, positioned, then the split: x
+# firefox 159.0
+tooltip in a button, z-index 10, then a static block: tip on top
+tooltip in a button, z-index 10, then position:relative: tip on top
+tooltip in a button, z-index 10, then position:relative z-index 1: tip on top
+tooltip in a button, z-index 10, then transform: tip on top
+tooltip in a button, z-index 10, then another group: tip on top
+tooltip in a button, z-index 10, then a button: tip on top
+tooltip in a button, z-index 10, then a text field: tip on top
+tooltip in a button, z-index 10, then a list: tip on top
+tooltip in a button, no z-index, then position:relative: tip covered by after
+tooltip slotted beside the buttons, z-index 10, then position:relative: tip on top
+fixed overlay in a button (a hand-made menu), z-index 1000, then position:relative z-index 1: tip on top
+popover in a button, shown, then z-index 1000: tip on top
+split button: tooltip in its label, z-index 10, then position:relative: tip on top
+tooltip in a plain mx-button (no group), z-index 10, then position:relative: tip on top
+tooltip in a standard group, z-index 10, then position:relative: tip on top
+overlay, position absolute, after the group: at rest on top, button focused on top
+overlay before the group: at rest on top, button focused on top
+badge slotted after the buttons, absolute: at rest on top, button focused on top
+badge slotted after the buttons, absolute, z-index 1: at rest on top, button focused on top
+text with a negative margin over the group: at rest covered by b1, button focused covered by b1
+z-index -1 decoration in a button: at rest covered by b1, button focused covered by b1
+z-index -1 decoration: paint 84821464
+mix-blend-mode in a button: paint 1a746918
+group part mix-blend-mode by the page: paint 33af0a8b
+page isolates it back: isolation auto: paint 33af0a8b
+button in a popover in a slotted span: focused z-index auto (focus-visible true)
+button in a popover in a slotted button: focused z-index auto (focus-visible true)
+standard group in a slotted wrapper: focused z-index auto (focus-visible true)
+button in a popover in a split button label: focused z-index auto (focus-visible true)
+button outside a group: focused z-index auto (focus-visible true)
+button in a standard group: focused z-index auto (focus-visible true)
+button after a page sets --_focus-z-index: focused z-index auto (focus-visible true)
+overlay in the popover over its button: at rest button covered by html; focused: ov
+nested elements read
+# firefox 159.0
+a page button, positioned, before the group, over its empty end: x
+the same, after the group: x
+the same before it, z-index 1: x
+before a split button: x
+before a standard group: x
+a menu of the page in a split button row: menu first, positioned, then the split: x
+# webkit 27.2
+tooltip in a button, z-index 10, then a static block: tip on top
+tooltip in a button, z-index 10, then position:relative: tip on top
+tooltip in a button, z-index 10, then position:relative z-index 1: tip on top
+tooltip in a button, z-index 10, then transform: tip on top
+tooltip in a button, z-index 10, then another group: tip on top
+tooltip in a button, z-index 10, then a button: tip on top
+tooltip in a button, z-index 10, then a text field: tip on top
+tooltip in a button, z-index 10, then a list: tip on top
+tooltip in a button, no z-index, then position:relative: tip covered by after
+tooltip slotted beside the buttons, z-index 10, then position:relative: tip on top
+fixed overlay in a button (a hand-made menu), z-index 1000, then position:relative z-index 1: tip on top
+popover in a button, shown, then z-index 1000: tip on top
+split button: tooltip in its label, z-index 10, then position:relative: tip on top
+tooltip in a plain mx-button (no group), z-index 10, then position:relative: tip on top
+tooltip in a standard group, z-index 10, then position:relative: tip on top
+overlay, position absolute, after the group: at rest on top, button focused on top
+overlay before the group: at rest on top, button focused on top
+badge slotted after the buttons, absolute: at rest on top, button focused on top
+badge slotted after the buttons, absolute, z-index 1: at rest on top, button focused on top
+text with a negative margin over the group: at rest covered by b1, button focused covered by b1
+z-index -1 decoration in a button: at rest covered by b1, button focused covered by b1
+z-index -1 decoration: paint f3ca865a
+mix-blend-mode in a button: paint b357aa0a
+group part mix-blend-mode by the page: paint 1c67fb32
+page isolates it back: isolation auto: paint 1c67fb32
+button in a popover in a slotted span: focused z-index auto (focus-visible true)
+button in a popover in a slotted button: focused z-index auto (focus-visible true)
+standard group in a slotted wrapper: focused z-index auto (focus-visible true)
+button in a popover in a split button label: focused z-index auto (focus-visible true)
+button outside a group: focused z-index auto (focus-visible true)
+button in a standard group: focused z-index auto (focus-visible true)
+button after a page sets --_focus-z-index: focused z-index auto (focus-visible true)
+overlay in the popover over its button: at rest button covered by html; focused: ov
+nested elements read
+# webkit 27.2
+a page button, positioned, before the group, over its empty end: x
+the same, after the group: x
+the same before it, z-index 1: x
+before a split button: x
+before a standard group: x
+a menu of the page in a split button row: menu first, positioned, then the split: x

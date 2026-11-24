@@ -1,0 +1,56 @@
+// The built mx-card against a plain div with literal declarations.
+//   node box.mjs <engine>
+import { playwright, code, compare } from './lib.mjs';
+const E = process.argv[2];
+const browser = await playwright[E].launch();
+console.log(`# ${E} ${browser.version()}`);
+const js = code('head');
+const SH = '0 .5px .7px rgba(0,0,0,.2), 0 .75px .75px rgba(0,0,0,.14), 0 1.5px 2px rgba(0,0,0,.12)';
+const LOOK = { filled: 'background:#e0e4d4', elevated: `background:#f2f5e5;box-shadow:${SH}`, outlined: 'background:#f7fbea;outline:1px solid #c2cab2;outline-offset:-1px' };
+const VAR = { filled: '', elevated: 'variant="elevated"', outlined: 'variant="outlined"' };
+const block = (h) => `<div style="block-size:${h}px;visibility:hidden"></div>`;
+const wide = `<div style="inline-size:500px;block-size:40px;visibility:hidden"></div>`;
+const S = [
+  ['natural', 'inline-size:200px', block(40), [200, 72]],
+  ['block-size 40', 'inline-size:200px;block-size:40px', block(40), [200, 40]],
+  ['block-size 10', 'inline-size:200px;block-size:10px', block(40), [200, 10]],
+  ['inline-size 80', 'inline-size:80px', wide, [80, 72]],
+  ['both smaller', 'inline-size:80px;block-size:40px', wide, [80, 40]],
+  ['max 100 auto @0', 'inline-size:200px;max-block-size:100px;overflow:auto', block(400), [200, 100], [0, 0]],
+  ['max 100 auto @120', 'inline-size:200px;max-block-size:100px;overflow:auto', block(400), [200, 100], [0, 120]],
+  ['max 100 auto @end', 'inline-size:200px;max-block-size:100px;overflow:auto', block(400), [200, 100], [0, 9999]],
+  ['inline auto @end', 'inline-size:100px;overflow:auto', wide, [100, 72], [9999, 0]],
+  ['overflow hidden', 'inline-size:200px;block-size:60px;overflow:hidden', block(400), [200, 60]],
+  ['overflow clip', 'inline-size:200px;block-size:60px;overflow:clip', block(400), [200, 60]],
+  ['overflow scroll @50', 'inline-size:200px;block-size:60px;overflow:scroll', block(400), [200, 60], [0, 50]],
+  ['block-size 150', 'inline-size:200px;block-size:150px', block(40), [200, 150]],
+];
+const R = {
+  none: '',
+  reset: '*,*::before,*::after{margin:0;padding:0;border:0;outline:0}',
+  'reset !important': '*,*::before,*::after{margin:0!important;padding:0!important;border:0!important;outline:0!important;outline-offset:0!important}',
+  preflight: '*,::before,::after{box-sizing:border-box;border:0 solid;margin:0;padding:0}',
+  'offset rule': '*{outline-offset:4px;outline:none}',
+};
+const base = 'html{overflow:hidden}html body{padding:40px!important;margin:0;background:#fff}.ref{box-sizing:border-box;border-radius:12px}mx-card,.ref{scrollbar-width:none}';
+for (const forced of E === 'webkit' ? [false] : [false, true]) {
+  const ctx = await browser.newContext({ viewport: { width: 320, height: 260 }, forcedColors: forced ? 'active' : 'none' });
+  const page = await ctx.newPage();
+  for (const [rn, reset] of Object.entries(R)) for (const [v, attr] of Object.entries(VAR)) {
+    const bad = []; let ok = 0;
+    for (const [n, style, content, [w, h], scroll] of S) {
+      await page.setContent(`<!doctype html><style>${base}</style><style>${reset}</style><mx-card ${attr} style="${style}">${content}</mx-card><script>${js}</script>`);
+      const st = await page.evaluate(async (s) => { const c = document.querySelector('mx-card'); if (s) c.scrollTo(s[0], s[1]); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); const b = c.getBoundingClientRect(); return { w: b.width, h: b.height, st: c.scrollTop, sl: c.scrollLeft }; }, scroll ?? null);
+      const a = (await page.screenshot()).toString('base64');
+      await page.setContent(`<!doctype html><style>${base}</style><div class="ref" style="${/overflow:\w+/.exec(style)?.[0] ?? ''};inline-size:${w}px;block-size:${h}px;${LOOK[v]}">${/overflow/.test(style) ? content : ''}</div>`);
+      await page.evaluate((s) => s && document.querySelector('.ref').scrollTo(s[0], s[1]), scroll ?? null);
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const b = (await page.screenshot()).toString('base64');
+      const d = await compare(page, a, b);
+      if (st.w !== w || st.h !== h || d.max > 2 || (scroll && scroll[0] + scroll[1] > 0 && st.st + st.sl === 0)) bad.push(`   ${n}: ${JSON.stringify({ ...st, ...d })}`); else { ok++; if (d.max) bad.push(`   (${n}: ${d.px}px, max ${d.max})`); }
+    }
+    console.log(`${forced ? 'forced ' : ''}${rn} | ${v}: ${ok}/${S.length} equal the reference`); bad.forEach((x) => console.log(x));
+  }
+  await ctx.close();
+}
+await browser.close();

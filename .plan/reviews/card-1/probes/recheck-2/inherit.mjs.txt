@@ -1,0 +1,25 @@
+// What slotted content computes inside the built card, against the same content outside it.
+//   node inherit.mjs <engine>
+import { playwright, code } from './lib.mjs';
+const E = process.argv[2];
+const browser = await playwright[E].launch();
+console.log(`# ${E} ${browser.version()}`);
+const page = await browser.newPage({ viewport: { width: 900, height: 900 } });
+await page.setContent(`<!doctype html><style>*{transition:none!important}body{margin:20px}.w{inline-size:400px}</style><script>${code('head')}</script>`);
+const r = await page.evaluate(async () => {
+  const C = ['<mx-button>B</mx-button>', '<mx-button color=elevated>B</mx-button>', '<mx-button color=tonal>B</mx-button>', '<mx-button color=text>B</mx-button>', '<mx-button color=outlined>B</mx-button>', '<mx-button disabled>B</mx-button>', '<mx-checkbox></mx-checkbox>', '<mx-checkbox checked></mx-checkbox>', '<mx-checkbox disabled></mx-checkbox>', '<mx-list-item>i</mx-list-item>', '<mx-list><mx-list-item>i<mx-checkbox slot=lead></mx-checkbox></mx-list-item></mx-list>', '<div><section><mx-checkbox></mx-checkbox><mx-button>B</mx-button></section></div>', 'text', '<p>p</p>'];
+  const dump = (root) => { const out = []; const visit = (e) => { for (const ps of [null, '::before', '::after']) { const s = getComputedStyle(e, ps); const o = []; for (const p of ['box-shadow', 'background-color', 'color', 'opacity', 'border-top-color', 'outline-style', 'display', 'border-radius', 'padding', 'font-size']) o.push(`${p}:${s.getPropertyValue(p)}`); out.push(e.localName + (e.className || '') + (ps ?? '') + ' ' + o.join(';')); } for (const c of e.shadowRoot?.children ?? []) if (c.localName !== 'style') visit(c); for (const c of e.children) visit(c); }; for (const c of root.children) visit(c); return out; };
+  const wait = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const res = [];
+  for (const attr of ['', 'variant=elevated', 'variant=outlined']) for (const style of ['', 'overflow:auto;block-size:60px', 'display:grid', 'display:flex', 'display:inline-block', 'position:static', 'display:contents']) for (const html of C) {
+    const a = document.createElement('div'); a.className = 'w'; a.innerHTML = html; const b = document.createElement('div'); b.className = 'w'; b.innerHTML = `<mx-card ${attr} style="${style}">${html}</mx-card>`; document.body.append(a, b); await wait();
+    const x = dump(a), y = dump(b.firstElementChild); const bad = x.map((v, i) => (v === y[i] ? null : `${v}\n      -> ${y[i]}`)).filter(Boolean);
+    if (bad.length && !/display:(flex|grid)/.test(style)) res.push(`${attr || 'filled'} [${style}] ${html}: ${bad[0]}`); else if (bad.filter((z) => !/display:/.test(z)).length) res.push('x');
+    a.remove(); b.remove();
+  }
+  // Without the resets, to show that the probe can see them.
+  const b = document.createElement('div'); b.innerHTML = '<mx-card variant=elevated><mx-checkbox></mx-checkbox><mx-button>B</mx-button></mx-card>'; document.body.append(b); await wait(); const before = dump(b.firstElementChild); const sheet = new CSSStyleSheet(); sheet.replaceSync('slot{all:revert}slot{--x:1}'); const root = b.firstElementChild.shadowRoot; const names = [...root.adoptedStyleSheets].flatMap((s) => [...s.cssRules]).filter((q) => q.selectorText === 'slot').flatMap((q) => [...q.style]); const u = new CSSStyleSheet(); u.replaceSync(`slot{${names.map((n) => `${n}:inherit!important`).join(';')}}`); root.adoptedStyleSheets.push(u); await wait(); const after = dump(b.firstElementChild);
+  return { res, names, slotDisplay: getComputedStyle(root.querySelector('slot')).display, controlDiffers: before.filter((v, i) => v !== after[i]).length };
+});
+console.log('slot display', r.slotDisplay, '| names reset', r.names.join(), '| boxes that differ with the resets taken away', r.controlDiffers, '| cases that differ inside the card', r.res.length); r.res.slice(0, 6).forEach((x) => console.log('  ', x));
+await browser.close();

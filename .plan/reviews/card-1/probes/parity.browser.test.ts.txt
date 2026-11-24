@@ -1,0 +1,27 @@
+/* Probe: the list items' full computed styles and screenshots, hashed, to compare two source trees. */
+import { it } from 'vitest';
+import { page, server } from 'vitest/browser';
+import '../../src/button/button.ts'; import '../../src/checkbox/checkbox.ts'; import '../../src/list/list.ts'; import '../../src/list/sortable-list.ts'; import '../../src/list/list-item.ts'; import '../../src/list/list-button-item.ts'; import '../../src/list/list-link-item.ts';
+const hash = (s: string) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; return h.toString(16); };
+function dump(root: Element): string { const out: string[] = []; const walk = (e: Element, p: string) => { for (const q of [null, '::before', '::after']) { const s = getComputedStyle(e, q); const n = [...s].sort(); out.push(`${p}${q ?? ''}:` + n.map((k) => `${k}=${s.getPropertyValue(k)}`).join(';')); } [...e.children, ...(e.shadowRoot ? [...e.shadowRoot.children] : [])].forEach((k, i) => walk(k, `${p}/${k.localName}${i}`)); }; walk(root, root.localName); return out.join('\n'); }
+const raf = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+const inner = ['Label', 'Label<span slot="start" data-avatar>A</span><span slot="supporting-text">S</span><span slot="end">E</span>', '<span slot="overline">O</span>Label<span slot="supporting-text">S</span>'];
+it('parity', { timeout: 120_000 }, async () => {
+  const out: string[] = []; let n = 0;
+  for (const list of ['mx-list', 'mx-sortable-list']) for (const tag of ['mx-list-item', 'mx-list-button-item', 'mx-list-link-item']) for (const html of inner) for (const lvl of ['rest', 'level 1', 'level 8', 'focus', 'reset', 'shape', 'dir-rtl']) {
+    document.body.replaceChildren(); const f = document.createElement('div'); f.style.cssText = 'padding:20px;width:300px;background:white'; const l = document.createElement(list); const it1 = document.createElement(tag); it1.innerHTML = html; l.append(it1); f.append(l); document.body.append(f);
+    let st: HTMLStyleElement | undefined;
+    if (lvl.startsWith('level')) { it1.style.setProperty('--_level', lvl.slice(6)); it1.style.transition = 'none'; }
+    if (lvl === 'focus') { it1.tabIndex = 0; it1.focus(); }
+    if (lvl === 'reset') { st = document.createElement('style'); st.textContent = '*,*::before,*::after{margin:0;padding:0;border:0;outline:0;box-sizing:border-box}'; document.head.append(st); it1.style.setProperty('--_level', '3'); it1.style.transition = 'none'; }
+    if (lvl === 'shape') { it1.style.setProperty('--md-list-item-container-shape', '20px'); it1.style.setProperty('--_level', '3'); it1.style.transition = 'none'; }
+    if (lvl === 'dir-rtl') f.dir = 'rtl';
+    await raf(); const shot = await page.screenshot({ element: f, save: false }); n += 1;
+    out.push(`${list} ${tag} ${inner.indexOf(html)} ${lvl}: css ${hash(dump(it1))} shot ${hash(shot as unknown as string)}`); st?.remove();
+  }
+  document.body.replaceChildren(); document.body.innerHTML = '<mx-list><mx-list-item id=i><mx-button id=b>B</mx-button><mx-checkbox id=c></mx-checkbox></mx-list-item></mx-list>'; await raf();
+  const g = (id: string) => document.getElementById(id)!;
+  const leak = [`checkbox in mx-list-item at rest, ::after background ${getComputedStyle(g('c'), '::after').backgroundColor}`];
+  g('i').style.cssText = '--_level:8;transition:none'; await raf(); leak.push(`filled button in mx-list-item at level 8, box-shadow ${getComputedStyle(g('b').shadowRoot!.querySelector('.host')!).boxShadow}`);
+  console.log(`PARITY ${server.browser} n=${n}\n${out.join('\n')}\nLISTLEAK ${leak.join(' | ')}`);
+});

@@ -1,0 +1,3 @@
+chromium {"match":true,"cards":["f rgb(255, 255, 255) none none 3px rgb(0, 0, 0)","e rgb(255, 255, 255) none none 3px rgb(0, 0, 0)","o rgb(255, 255, 255) none solid 1px rgb(0, 0, 0)"]}
+firefox {"match":true,"cards":["f rgb(255, 255, 255) none none 3px rgb(0, 0, 0)","e rgb(255, 255, 255) none none 3px rgb(0, 0, 0)","o rgb(255, 255, 255) none solid 1px rgb(0, 0, 0)"]}
+webkit {"match":true,"cards":["f rgb(224, 228, 212) color(srgb 0 0 0 / 0) 0px 0px  none 3px rgb(0, 0, 0)","e rgb(242, 245, 229) color(srgb 0 0 0 / 0.14) 0px 0 none 3px rgb(0, 0, 0)","o rgb(247, 251, 234) color(srgb 0 0 0 / 0) 0px 0px  solid 1px rgb(194, 202, 178)"]}

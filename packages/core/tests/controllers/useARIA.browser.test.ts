@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   useARIA,
   type ARIATransformer,
@@ -116,5 +116,226 @@ describe('useARIA', () => {
 
     expect(target).toHaveAttribute('aria-label', 'Open');
     expect(target).toHaveAttribute('aria-describedby', 'hint');
+  });
+
+  it('should remove the target attribute when the host attribute is removed while disconnected', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.remove();
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    document.body.append(el);
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
+  it('should remove an attribute mirrored after connection when it is removed while disconnected', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    document.body.append(el);
+    el.setAttribute('aria-label', 'Launch');
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.remove();
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    document.body.append(el);
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
+  it('should remove the target attribute when the host loses it and disconnects in one task', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.removeAttribute('aria-label');
+    el.remove();
+    await nextFrame();
+    document.body.append(el);
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
+  it('should remove the target attribute when the host loses it and moves in one task', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.removeAttribute('aria-label');
+    document.body.prepend(el);
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
+  it('should write the transformed null when the host attribute is removed while disconnected', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target, (_, value) => value ?? 'Fallback');
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.remove();
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    document.body.append(el);
+    await nextFrame();
+
+    expect(target).toHaveAttribute('aria-label', 'Fallback');
+  });
+
+  it('should keep an aria attribute of the target that the host never had on reconnect', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    target.setAttribute('aria-expanded', 'true');
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.remove();
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    document.body.append(el);
+    await nextFrame();
+
+    expect(target).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it("should keep the target's own value after the host lost its own while connected and moved", async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    target.setAttribute('aria-label', 'Own');
+    document.body.prepend(el);
+    await nextFrame();
+
+    expect(target).toHaveAttribute('aria-label', 'Own');
+  });
+
+  it("should keep the target's own value written after the host lost its own while disconnected", async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.remove();
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    target.setAttribute('aria-label', 'Own');
+    document.body.append(el);
+    await nextFrame();
+
+    expect(target).toHaveAttribute('aria-label', 'Own');
+  });
+
+  it('should remove the lost attribute in the connect itself when the host loses it and moves in one task', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.removeAttribute('aria-label');
+    document.body.prepend(el);
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
+  it("should copy the host's value over the target's own on reconnect", async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+    target.setAttribute('aria-label', 'Own');
+    document.body.prepend(el);
+
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+  });
+
+  it('should sync a host that has never been connected', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.removeAttribute('aria-label');
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
+  it('should transform a name set just before the connect once', async () => {
+    const transform = vi.fn<ARIATransformer>((_, value) => value);
+    const el = host((h) => {
+      useARIA(h, document.createElement('div'), transform);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    document.body.append(el);
+    await nextFrame();
+
+    expect(transform).toHaveBeenCalledExactlyOnceWith('aria-label', 'Launch');
   });
 });

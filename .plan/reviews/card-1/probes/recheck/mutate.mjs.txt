@@ -1,0 +1,59 @@
+// Run from packages/material-x, with a clean src:
+//   node mutate.mjs <engine,...> [name]
+// Applies each mutation, runs tests/card, tests/core/elevation.spec and tests/list without the visual project, and restores the file.
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const hostBox = 'src/core/styles/elevation/host-box.styles.css';
+const outlined = 'src/card/styles/outlined/main.styles.css';
+const main = 'src/card/styles/default/main.styles.css';
+const item = 'src/list/styles/item/static-box.styles.css';
+const listItem = 'src/list/list-item.ts';
+const card = 'src/card/card.ts';
+const tokens = 'src/card/styles/default/tokens.ts';
+const list = 'var(--_elevation-umbra), var(--_elevation-penumbra),\n    var(--_elevation-ambient)';
+const pad = '  padding: var(--md-card-padding, 16px);\n';
+const rep = (from, to) => (s) => { if (!s.includes(from)) throw new Error(`no match: ${from}`); return s.replaceAll(from, () => to); };
+const mutations = [
+  ['no mutation', hostBox, (s) => s],
+  // The recorded witnesses.
+  ['outline on the slot', outlined, rep(':host(:state(outlined):not(:focus-visible)) {', ':host(:state(outlined)) slot {')],
+  ['no !important', outlined, rep(' !important', '')],
+  ['no :not(:focus-visible)', outlined, rep(':not(:focus-visible)', '')],
+  ['outline drawn outside', outlined, rep('  outline-offset: calc(-1 * var(--_outline-width)) !important;\n', '')],
+  ['own outline color ignored', outlined, rep('var(--md-card-outline-color, var(--_outline-color))', 'var(--_outline-color)')],
+  ['own shape ignored', main, rep('var(--md-card-container-shape, var(--_container-shape))', 'var(--_container-shape)')],
+  ['padding on the host', main, (s) => rep('  display: flex;\n', `${pad}  display: flex;\n`)(rep(pad, '')(s))],
+  ['slot does not stretch', main, rep('  flex: 1 0 auto;\n', '')],
+  ['no umbra', hostBox, rep(list, 'var(--_elevation-penumbra), var(--_elevation-ambient)')],
+  ['another order', hostBox, rep(list, 'var(--_elevation-penumbra), var(--_elevation-umbra), var(--_elevation-ambient)')],
+  ['box on ::before', hostBox, (s) => `${s}\n:host::before { content: ''; }\n`],
+  ['no position on the host', hostBox, rep('  position: relative;\n', '')],
+  ['no shadow.color in the package', tokens, rep("  'shadow.color': CSSVariable.ref('container.shadow-color'),\n", '')],
+  // This pass's.
+  ['!important on the offset only', outlined, rep('var(--_outline-color)) !important', 'var(--_outline-color))')],
+  ['!important on the outline only', outlined, rep('var(--_outline-width)) !important', 'var(--_outline-width))')],
+  [':not(:focus), not :not(:focus-visible)', outlined, rep(':focus-visible', ':focus')],
+  ['outline in every variant', outlined, rep(':host(:state(outlined):not(:focus-visible))', ':host(:not(:focus-visible))')],
+  ['the slot shrinks', main, rep('flex: 1 0 auto', 'flex: 1 1 auto; min-block-size: 0')],
+  ['the slot scrolls', main, rep('flex: 1 0 auto', 'flex: 1 1 auto; min-block-size: 0; overflow: inherit')],
+  ['the slot fills with a percentage only', main, rep('flex: 1 0 auto', 'flex: 0 0 auto; min-block-size: 100%')],
+  ['the host clips', main, rep('  flex-direction: column;\n', '  flex-direction: column;\n  overflow: clip;\n')],
+  ['the shape on no host', main, rep('  border-radius: var(--md-card-container-shape, var(--_container-shape));\n', '')],
+  ['the three boxes again', hostBox, (s) => s.replace(list, 'var(--_elevation-penumbra)') + ":host::before, :host::after { content: ''; border-radius: inherit; inset: 0; position: absolute; pointer-events: none; }\n:host::before { box-shadow: var(--_elevation-umbra); }\n:host::after { box-shadow: var(--_elevation-ambient); }\n"],
+  ['the card adopts no host box', card, rep('      hostBoxStyles,\n', '')],
+  ['the item adopts no host box', listItem, rep('[hostBoxStyles, ', '[')],
+];
+const [engines, only] = process.argv.slice(2);
+for (const [name, file, mutate] of mutations) {
+  if (only && name !== only) continue;
+  const source = readFileSync(file, 'utf8');
+  try {
+    writeFileSync(file, mutate(source));
+    for (const engine of engines.split(',')) {
+      const { stdout, stderr } = spawnSync('aube', ['exec', 'vitest', 'run', '-c', 'vitest.config.ts', '--project', 'browser*', '--project', 'spec*', 'tests/card/card', 'tests/core/elevation.spec', 'tests/list'], { env: { ...process.env, MX_TEST_ENGINES: engine, NO_COLOR: '1' }, encoding: 'utf8', maxBuffer: 1 << 28 });
+      const out = stdout + stderr;
+      console.log(`## ${name} | ${engine} | ${/Tests\s+(.*)/u.exec(out)?.[1] ?? 'no result'}`);
+      for (const row of new Set([...out.matchAll(/FAIL\s+(.*)/gu)].map((m) => m[1].replace(/^.*?> /u, '')))) console.log(`   ${row}`);
+    }
+  } finally { writeFileSync(file, source); }
+}

@@ -1,0 +1,117 @@
+## no mutation | chromium | 65 passed (65)
+## no mutation | firefox | 62 passed | 3 skipped (65)
+## no mutation | webkit | 62 passed | 3 skipped (65)
+## no content | chromium | 4 failed | 61 passed (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no content | firefox | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no content | webkit | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no inset | chromium | 4 failed | 61 passed (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no inset | firefox | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no inset | webkit | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no border-radius | chromium | 4 failed | 61 passed (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no border-radius | firefox | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no border-radius | webkit | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no position on the pseudo-elements | chromium | 4 failed | 61 passed (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no position on the pseudo-elements | firefox | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no position on the pseudo-elements | webkit | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no position on the host | chromium | 4 failed | 61 passed (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no position on the host | firefox | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no position on the host | webkit | 4 failed | 58 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no box on ::before only | chromium | 2 failed | 63 passed (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+## no box on ::before only | firefox | 2 failed | 60 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+## no box on ::before only | webkit | 2 failed | 60 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the umbra of mx-card
+   host-box elevation layers > should cover the host's box with the umbra of mx-list-item
+## no box on ::after only | chromium | 2 failed | 63 passed (65)
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no box on ::after only | firefox | 2 failed | 60 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## no box on ::after only | webkit | 2 failed | 60 passed | 3 skipped (65)
+   host-box elevation layers > should cover the host's box with the ambient of mx-card
+   host-box elevation layers > should cover the host's box with the ambient of mx-list-item
+## outline on the host | chromium | 1 failed | 64 passed (65)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline on the host | firefox | 1 failed | 61 passed | 3 skipped (65)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline on the host | webkit | 1 failed | 61 passed | 3 skipped (65)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline drawn outside | chromium | 2 failed | 63 passed (65)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline drawn outside | firefox | 2 failed | 60 passed | 3 skipped (65)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline drawn outside | webkit | 2 failed | 60 passed | 3 skipped (65)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## slot does not stretch | chromium | 1 failed | 64 passed (65)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## slot does not stretch | firefox | 1 failed | 61 passed | 3 skipped (65)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## slot does not stretch | webkit | 1 failed | 61 passed | 3 skipped (65)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card

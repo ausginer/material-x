@@ -1,0 +1,10 @@
+/* Probe: screenshots of an elevated card and of a list item at level 8, hashed. */
+import { it } from 'vitest';
+import { page, server } from 'vitest/browser';
+import '../../src/card/card.ts'; import '../../src/list/list.ts'; import '../../src/list/list-item.ts';
+const hash = (s: string) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; return h.toString(16); };
+it('paint', async () => {
+  const out: string[] = [];
+  for (const html of ['<mx-card variant="elevated">x</mx-card>', '<mx-list><mx-list-item style="--_level:8;transition:none;--md-list-item-container-shape:16px">x</mx-list-item></mx-list>']) { document.body.replaceChildren(); const f = document.createElement('div'); f.style.cssText = 'padding:40px;width:240px;background:white'; f.innerHTML = html; document.body.append(f); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); out.push(hash((await page.screenshot({ element: f, save: false })) as unknown as string)); }
+  console.log(`PAINT ${server.browser} card ${out[0]} list-item ${out[1]}`);
+});
