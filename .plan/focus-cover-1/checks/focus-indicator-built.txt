@@ -1,0 +1,240 @@
+# chromium 158.0.8127.18
+## built
+mx-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, button: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, link: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, last static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next disabled: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next selected: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, static with trail and lead: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+## with md.comp.list's own outline-offset, -3px
+mx-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, button: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, link: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, last static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next disabled: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next selected: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, static with trail and lead: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+## other elements
+connected group, buttons, first: solid 3px offset 2px on button.host | covered start 0/146 end 0/143 left 0/81 right 0/111
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/146 end 0/143 left 0/81 right 0/111
+connected group, switch buttons, first: solid 3px offset 2px on button.host | covered start 0/146 end 0/143 left 0/81 right 0/111
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/146 end 0/143 left 0/81 right 0/111
+standard group, buttons, first: solid 3px offset 2px on button.host | covered start 0/130 end 0/128 left 0/81 right 0/80
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/130 end 0/128 left 0/81 right 0/80
+buttons side by side, gap 2px (the page's), first: solid 3px offset 2px on button.host | covered start 0/130 end 0/128 left 0/81 right 25/80
+buttons stacked, gap 0 (the page's), first: solid 3px offset 2px on button.host | covered start 0/1524 end 1480/1521 left 0/81 right 0/77
+checkboxes side by side (the page's), first: solid 3px offset 2px on span.indicator | covered start 0/84 end 0/81 left 0/81 right 0/77
+radios side by side (the page's), first: solid 3px offset 2px on mx-icon.off | covered start 0/51 end 0/42 left 0/46 right 2/43
+fabs side by side (the page's), first: solid 3px offset 2px on button.host | covered start 0/65 end 4/12 left 0/62 right 46/59
+split button, the leading button (mx-button): solid 3px offset 2px, gap 2px | the outline's trailing side covered 7/174 (the second button hidden or not)
+a lifted, focused item: lifted true, rgb(75, 102, 42) solid 3px
+## the handle, in a sortable list
+<mx-icon data-handle slot="lead">drag_handle</mx-icon>: focused mx-icon tabindex 0 role button outline auto 1px rgb(16, 16, 16) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<span data-handle slot="trail">H</span>: focused span tabindex 0 role button outline auto 1px rgb(16, 16, 16) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<button data-handle slot="lead">H</button>: focused button tabindex 0 role button outline auto 1px rgb(16, 16, 16) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<mx-icon-button data-handle slot="lead"><mx-icon>menu</mx-icon></mx-icon-button>: focused mx-icon-button tabindex 0 role button outline none 3px rgb(25, 29, 19) offset 0px item outline none
+   the handle's own control: button solid 3px
+   with a page rule mx-sortable-list [data-handle]:focus-visible: none 3px rgb(25, 29, 19)
+# firefox 159.0
+## built
+mx-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, static: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, button: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, link: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, last static: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, button, next disabled: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, button, next selected: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, static with trail and lead: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+## with md.comp.list's own outline-offset, -3px
+mx-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, static: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, button: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, link: solid 3px offset -3px on a.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-sortable-list, mixed, last static: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, button, next disabled: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, button, next selected: solid 3px offset -3px on button.host | covered start 0/855 end 0/853 left 0/121 right 0/118
+mx-list, static with trail and lead: solid 3px offset -3px on mx-list-item | covered start 0/855 end 0/853 left 0/121 right 0/118
+## other elements
+connected group, buttons, first: solid 3px offset 2px on button.host | covered start 0/149 end 0/146 left 0/82 right 0/111
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/149 end 0/146 left 0/82 right 0/111
+connected group, switch buttons, first: solid 3px offset 2px on button.host | covered start 0/149 end 0/146 left 0/82 right 0/111
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/149 end 0/146 left 0/82 right 0/111
+standard group, buttons, first: solid 3px offset 2px on button.host | covered start 0/132 end 0/130 left 0/82 right 0/79
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/132 end 0/130 left 0/82 right 0/79
+buttons side by side, gap 2px (the page's), first: solid 3px offset 2px on button.host | covered start 0/132 end 0/130 left 0/82 right 26/79
+buttons stacked, gap 0 (the page's), first: solid 3px offset 2px on button.host | covered start 0/1523 end 1480/1520 left 0/82 right 0/76
+checkboxes side by side (the page's), first: solid 3px offset 2px on span.indicator | covered start 0/83 end 0/80 left 0/82 right 0/76
+radios side by side (the page's), first: solid 3px offset 2px on mx-icon.off | covered start 0/49 end 0/46 left 0/47 right 0/41
+fabs side by side (the page's), first: solid 3px offset 2px on button.host | covered start 0/72 end 4/12 left 0/67 right 49/61
+split button, the leading button (mx-button): solid 3px offset 2px, gap 2px | the outline's trailing side covered 6/172 (the second button hidden or not)
+a lifted, focused item: lifted true, rgb(75, 102, 42) solid 3px
+## the handle, in a sortable list
+<mx-icon data-handle slot="lead">drag_handle</mx-icon>: focused mx-icon tabindex 0 role button outline auto 1px rgb(66, 73, 55) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<span data-handle slot="trail">H</span>: focused span tabindex 0 role button outline auto 1px rgb(66, 73, 55) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<button data-handle slot="lead">H</button>: focused button tabindex 0 role button outline auto 1px rgb(0, 0, 0) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<mx-icon-button data-handle slot="lead"><mx-icon>menu</mx-icon></mx-icon-button>: focused mx-icon-button tabindex 0 role button outline none 3px rgb(25, 29, 19) offset 0px item outline none
+   the handle's own control: button solid 3px
+   with a page rule mx-sortable-list [data-handle]:focus-visible: none 3px rgb(25, 29, 19)
+# webkit 27.2
+## built
+mx-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, button: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, link: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, last static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next disabled: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next selected: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, static with trail and lead: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+## with md.comp.list's own outline-offset, -3px
+mx-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, first: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, middle: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-item, last: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, first: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, middle: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-button-item, last: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, first: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, middle: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mx-list-link-item, last: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, button: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, link: solid 3px offset -3px on a.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-sortable-list, mixed, last static: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next disabled: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, button, next selected: solid 3px offset -3px on button.host | covered start 0/853 end 0/851 left 0/121 right 0/119
+mx-list, static with trail and lead: solid 3px offset -3px on mx-list-item | covered start 0/853 end 0/851 left 0/121 right 0/119
+## other elements
+connected group, buttons, first: solid 3px offset 2px on button.host | covered start 0/144 end 0/144 left 0/79 right 0/111
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/144 end 0/144 left 0/79 right 0/111
+connected group, switch buttons, first: solid 3px offset 2px on button.host | covered start 0/144 end 0/144 left 0/79 right 0/111
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/144 end 0/144 left 0/79 right 0/111
+standard group, buttons, first: solid 3px offset 2px on button.host | covered start 0/123 end 0/127 left 0/79 right 0/79
+   with .host:focus-visible { z-index: 1 }: solid 3px offset 2px on button.host | covered start 0/123 end 0/127 left 0/79 right 0/79
+buttons side by side, gap 2px (the page's), first: solid 3px offset 2px on button.host | covered start 0/123 end 0/127 left 0/79 right 26/79
+buttons stacked, gap 0 (the page's), first: solid 3px offset 2px on button.host | covered start 0/1520 end 1480/1521 left 0/80 right 0/76
+checkboxes side by side (the page's), first: solid 3px offset 2px on span.indicator | covered start 0/80 end 0/81 left 0/80 right 0/76
+radios side by side (the page's), first: solid 3px offset 2px on mx-icon.off | covered start 0/51 end 0/43 left 0/46 right 0/42
+fabs side by side (the page's), first: solid 3px offset 2px on button.host | covered start 0/66 end 3/15 left 0/62 right 47/60
+split button, the leading button (mx-button): solid 3px offset 2px, gap 2px | the outline's trailing side covered 7/174 (the second button hidden or not)
+a lifted, focused item: lifted true, 3px solid rgb(75, 102, 42)
+## the handle, in a sortable list
+<mx-icon data-handle slot="lead">drag_handle</mx-icon>: focused mx-icon tabindex 0 role button outline auto 3px rgb(66, 73, 55) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<span data-handle slot="trail">H</span>: focused span tabindex 0 role button outline auto 3px rgb(66, 73, 55) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<button data-handle slot="lead">H</button>: focused button tabindex 0 role button outline auto 3px rgba(0, 0, 0, 0.8) offset 0px item outline none
+   the handle's own control: none
+   with a page rule mx-sortable-list [data-handle]:focus-visible: solid 3px rgb(1, 2, 3)
+<mx-icon-button data-handle slot="lead"><mx-icon>menu</mx-icon></mx-icon-button>: focused mx-icon-button tabindex 0 role button outline none 3px rgb(25, 29, 19) offset 0px item outline none
+   the handle's own control: button solid 3px
+   with a page rule mx-sortable-list [data-handle]:focus-visible: none 3px rgb(25, 29, 19)

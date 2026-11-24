@@ -1,0 +1,354 @@
+# chromium 158.0.8127.18
+## as on main
+button 1: left 0/0 right 0/44 top 52/52
+button 2: left 44/44 right 0/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## isolate at rest, raise (built)
+button 1: left 0/0 right 44/44 top 52/52
+button 2: left 44/44 right 44/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest COVERED, focused COVERED
+the same, then mx-list: at rest COVERED, focused COVERED
+the same, then z-index 1: at rest COVERED, focused COVERED
+a button before, over the empty end: at rest COVERED, focused COVERED
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## raise, no isolation
+button 1: left 0/0 right 44/44 top 52/52
+button 2: left 44/44 right 44/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused COVERED
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused COVERED
+a menu after, z auto, opaque: 10420 pixels change when the button is focused
+a bar before, z-index 1, opaque: 10420 pixels change when the button is focused
+## isolate while a button is focused, raise
+button 1: left 0/0 right 44/44 top 52/52
+button 2: left 44/44 right 44/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused COVERED
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused COVERED
+a menu after, z auto, opaque: 10420 pixels change when the button is focused
+a bar before, z-index 1, opaque: 10420 pixels change when the button is focused
+## isolate while focus is inside, raise
+button 1: left 0/0 right 44/44 top 52/52
+button 2: left 44/44 right 44/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused COVERED
+the same, then mx-list: at rest top, focused COVERED
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused COVERED
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## raised ring, no isolation
+button 1: left 0/0 right 44/44 top 52/52
+button 2: left 44/44 right 44/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 2351 pixels change when the button is focused
+a bar before, z-index 1, opaque: 2351 pixels change when the button is focused
+## offset -1px, in the gap
+button 1: left 0/0 right 44/44 top 52/52
+button 2: left 44/44 right 44/44 top 78/78
+button 3: left 44/44 right 0/0 top 71/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## offset -3px, inside
+button 1: left 0/0 right 0/44 top 0/52
+button 2: left 0/44 right 0/44 top 0/78
+button 3: left 0/44 right 0/0 top 0/71
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## contrast of the indicator
+mx-button filled: own rgb(62, 103, 0) 1.03, next rgb(62, 103, 0) 1.03
+mx-button elevated: own rgb(242, 245, 229) 5.87, next rgb(242, 245, 229) 5.87
+mx-button tonal: own rgb(204, 238, 161) 5.05, next rgb(204, 238, 161) 5.05
+mx-button outlined: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-button text: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button filled: own rgb(236, 240, 223) 5.60, next rgb(236, 240, 223) 5.60
+mx-switch-button filled value=1: own rgb(62, 103, 0) 1.03, next rgb(236, 240, 223) 5.60
+mx-switch-button filled value=2: own rgb(236, 240, 223) 5.60, next rgb(62, 103, 0) 1.03
+mx-switch-button elevated: own rgb(242, 245, 229) 5.87, next rgb(242, 245, 229) 5.87
+mx-switch-button elevated value=1: own rgb(62, 103, 0) 1.03, next rgb(242, 245, 229) 5.87
+mx-switch-button elevated value=2: own rgb(242, 245, 229) 5.87, next rgb(62, 103, 0) 1.03
+mx-switch-button tonal: own rgb(204, 238, 161) 5.05, next rgb(204, 238, 161) 5.05
+mx-switch-button tonal value=1: own rgb(75, 102, 42) 1.00, next rgb(204, 238, 161) 5.05
+mx-switch-button tonal value=2: own rgb(204, 238, 161) 5.05, next rgb(75, 102, 42) 1.00
+mx-switch-button outlined: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button outlined value=1: own rgb(46, 50, 39) 2.02, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button outlined value=2: own rgba(0, 0, 0, 0) 6.50, next rgb(46, 50, 39) 2.02
+mx-switch-button text: own rgb(236, 240, 223) 5.60, next rgb(236, 240, 223) 5.60
+mx-switch-button text value=1: own rgb(62, 103, 0) 1.03, next rgb(236, 240, 223) 5.60
+mx-switch-button text value=2: own rgb(236, 240, 223) 5.60, next rgb(62, 103, 0) 1.03
+# firefox 159.0
+## as on main
+button 1: left 0/0 right 0/44 top 54/54
+button 2: left 44/44 right 0/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## isolate at rest, raise (built)
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest COVERED, focused COVERED
+the same, then mx-list: at rest COVERED, focused COVERED
+the same, then z-index 1: at rest COVERED, focused COVERED
+a button before, over the empty end: at rest COVERED, focused COVERED
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## raise, no isolation
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused COVERED
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused COVERED
+a menu after, z auto, opaque: 10710 pixels change when the button is focused
+a bar before, z-index 1, opaque: 10710 pixels change when the button is focused
+## isolate while a button is focused, raise
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused COVERED
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused COVERED
+a menu after, z auto, opaque: 10710 pixels change when the button is focused
+a bar before, z-index 1, opaque: 10710 pixels change when the button is focused
+## isolate while focus is inside, raise
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused COVERED
+the same, then mx-list: at rest top, focused COVERED
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused COVERED
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## raised ring, no isolation
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 2659 pixels change when the button is focused
+a bar before, z-index 1, opaque: 2659 pixels change when the button is focused
+## offset -1px, in the gap
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## offset -3px, inside
+button 1: left 0/0 right 0/44 top 0/54
+button 2: left 0/44 right 0/44 top 0/77
+button 3: left 0/44 right 0/0 top 0/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## contrast of the indicator
+mx-button filled: own rgb(62, 103, 0) 1.03, next rgb(62, 103, 0) 1.03
+mx-button elevated: own rgb(242, 245, 229) 5.87, next rgb(242, 245, 229) 5.87
+mx-button tonal: own rgb(204, 238, 161) 5.05, next rgb(204, 238, 161) 5.05
+mx-button outlined: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-button text: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button filled: own rgb(236, 240, 223) 5.60, next rgb(236, 240, 223) 5.60
+mx-switch-button filled value=1: own rgb(62, 103, 0) 1.03, next rgb(236, 240, 223) 5.60
+mx-switch-button filled value=2: own rgb(236, 240, 223) 5.60, next rgb(62, 103, 0) 1.03
+mx-switch-button elevated: own rgb(242, 245, 229) 5.87, next rgb(242, 245, 229) 5.87
+mx-switch-button elevated value=1: own rgb(62, 103, 0) 1.03, next rgb(242, 245, 229) 5.87
+mx-switch-button elevated value=2: own rgb(242, 245, 229) 5.87, next rgb(62, 103, 0) 1.03
+mx-switch-button tonal: own rgb(204, 238, 161) 5.05, next rgb(204, 238, 161) 5.05
+mx-switch-button tonal value=1: own rgb(75, 102, 42) 1.00, next rgb(204, 238, 161) 5.05
+mx-switch-button tonal value=2: own rgb(204, 238, 161) 5.05, next rgb(75, 102, 42) 1.00
+mx-switch-button outlined: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button outlined value=1: own rgb(46, 50, 39) 2.02, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button outlined value=2: own rgba(0, 0, 0, 0) 6.50, next rgb(46, 50, 39) 2.02
+mx-switch-button text: own rgb(236, 240, 223) 5.60, next rgb(236, 240, 223) 5.60
+mx-switch-button text value=1: own rgb(62, 103, 0) 1.03, next rgb(236, 240, 223) 5.60
+mx-switch-button text value=2: own rgb(236, 240, 223) 5.60, next rgb(62, 103, 0) 1.03
+# webkit 27.2
+## as on main
+button 1: left 0/0 right 0/44 top 54/54
+button 2: left 44/44 right 0/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## isolate at rest, raise (built)
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest COVERED, focused COVERED
+the same, then mx-list: at rest COVERED, focused COVERED
+the same, then z-index 1: at rest COVERED, focused COVERED
+a button before, over the empty end: at rest COVERED, focused COVERED
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## raise, no isolation
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused COVERED
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused COVERED
+a menu after, z auto, opaque: 10644 pixels change when the button is focused
+a bar before, z-index 1, opaque: 10644 pixels change when the button is focused
+## isolate while a button is focused, raise
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused COVERED
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused COVERED
+a menu after, z auto, opaque: 10644 pixels change when the button is focused
+a bar before, z-index 1, opaque: 10644 pixels change when the button is focused
+## isolate while focus is inside, raise
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused COVERED
+the same, then mx-list: at rest top, focused COVERED
+the same, then z-index 1: at rest top, focused COVERED
+a button before, over the empty end: at rest top, focused COVERED
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## raised ring, no isolation
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 2591 pixels change when the button is focused
+a bar before, z-index 1, opaque: 2591 pixels change when the button is focused
+## offset -1px, in the gap
+button 1: left 0/0 right 44/44 top 54/54
+button 2: left 44/44 right 44/44 top 77/77
+button 3: left 44/44 right 0/0 top 74/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## offset -3px, inside
+button 1: left 0/0 right 0/44 top 0/54
+button 2: left 0/44 right 0/44 top 0/77
+button 3: left 0/44 right 0/0 top 0/74
+tooltip z 10 in the focused button, then position:relative: at rest top, focused top
+the same, then mx-list: at rest top, focused top
+the same, then z-index 1: at rest top, focused top
+a button before, over the empty end: at rest top, focused top
+a menu after, z auto, over the focused button: at rest top, focused top
+a bar before, z-index 1, over the focused button (mx-top-app-bar): at rest top, focused top
+a menu after, z auto, opaque: 0 pixels change when the button is focused
+a bar before, z-index 1, opaque: 0 pixels change when the button is focused
+## contrast of the indicator
+mx-button filled: own rgb(62, 103, 0) 1.03, next rgb(62, 103, 0) 1.03
+mx-button elevated: own rgb(242, 245, 229) 5.87, next rgb(242, 245, 229) 5.87
+mx-button tonal: own rgb(204, 238, 161) 5.05, next rgb(204, 238, 161) 5.05
+mx-button outlined: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-button text: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button filled: own rgb(236, 240, 223) 5.60, next rgb(236, 240, 223) 5.60
+mx-switch-button filled value=1: own rgb(62, 103, 0) 1.03, next rgb(236, 240, 223) 5.60
+mx-switch-button filled value=2: own rgb(236, 240, 223) 5.60, next rgb(62, 103, 0) 1.03
+mx-switch-button elevated: own rgb(242, 245, 229) 5.87, next rgb(242, 245, 229) 5.87
+mx-switch-button elevated value=1: own rgb(62, 103, 0) 1.03, next rgb(242, 245, 229) 5.87
+mx-switch-button elevated value=2: own rgb(242, 245, 229) 5.87, next rgb(62, 103, 0) 1.03
+mx-switch-button tonal: own rgb(204, 238, 161) 5.05, next rgb(204, 238, 161) 5.05
+mx-switch-button tonal value=1: own rgb(75, 102, 42) 1.00, next rgb(204, 238, 161) 5.05
+mx-switch-button tonal value=2: own rgb(204, 238, 161) 5.05, next rgb(75, 102, 42) 1.00
+mx-switch-button outlined: own rgba(0, 0, 0, 0) 6.50, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button outlined value=1: own rgb(46, 50, 39) 2.02, next rgba(0, 0, 0, 0) 6.50
+mx-switch-button outlined value=2: own rgba(0, 0, 0, 0) 6.50, next rgb(46, 50, 39) 2.02
+mx-switch-button text: own rgb(236, 240, 223) 5.60, next rgb(236, 240, 223) 5.60
+mx-switch-button text value=1: own rgb(62, 103, 0) 1.03, next rgb(236, 240, 223) 5.60
+mx-switch-button text value=2: own rgb(236, 240, 223) 5.60, next rgb(62, 103, 0) 1.03
