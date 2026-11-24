@@ -1,0 +1,167 @@
+Built elements, device scale 2. Each line counts, per straight edge, samples of the indicator's middle line that have its own color.
+
+## head
+# chromium 158.0.8127.18 {}
+indicator solid 3px -3 rgb(75, 102, 42) z auto
+1117/1135 whole
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-button-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-button-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-link-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-link-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 
+
+## head
+# firefox 159.0 {}
+indicator solid 3px -3 rgb(75, 102, 42) z auto
+1117/1135 whole
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-button-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-button-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-link-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-link-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 
+
+## head
+# webkit 27.2 {}
+indicator solid 3px -3 rgb(75, 102, 42) z auto
+1117/1135 whole
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-button-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-button-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-link-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-list mx-list-link-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 164 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, positioned: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 102, 42)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, in a positioned span: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(75, 
+
+## main
+# chromium 158.0.8127.18 {}
+indicator solid 3px 2 rgb(75, 102, 42) z auto
+350/1135 whole
+
+## main
+# firefox 159.0 {}
+indicator solid 3px 2 rgb(75, 102, 42) z auto
+350/1135 whole
+
+## main
+# webkit 27.2 {}
+indicator solid 3px 2 rgb(75, 102, 42) z auto
+350/1135 whole
+
+## forced colors, head (WebKit has no emulation of it)
+# chromium 158.0.8127.18 {"forcedColors":"active"}
+indicator solid 3px -3 rgb(55 51 109) z auto
+271/283 whole
+  undefined outline 55,51,109 outside 255,255,255 inside 255,255,255 | 
+  mx-list-item outline 55,51,109 outside 255,255,255 inside 255,255,255 | 
+  mx-list-button-item outline 55,51,109 outside 255,255,255 inside 255,255,255 | 
+  mx-list-button-item outline 55,51,109 outside 255,255,255 inside 255,255,255 | selected
+  mx-list-link-item outline 55,51,109 outside 255,255,255 inside 255,255,255 | 
+  mx-list-link-item outline 55,51,109 outside 255,255,255 inside 255,255,255 | selected
+  BAD mx-list mx-list-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["55 33 58×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 163 1×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-sortable-list mx-list-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["55 33 58×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 163 1×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-list mx-list-button-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["55 33 58×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 163 1×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-sortable-list mx-list-button-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["55 33 58×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 163 1×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-list mx-list-link-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["55 33 58×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 163 1×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-sortable-list mx-list-link-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["55 33 58×84"]} offset -3 color rgb(55 51 109)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 163 1×84"]} offset -3 color rgb(55 51 109)
+# chromium 158.0.8127.18 {"forcedColors":"active","colorScheme":"dark"}
+indicator solid 3px -3 rgb(0 184 204) z auto
+271/283 whole
+  undefined outline 0,184,204 outside 0,0,0 inside 0,0,0 | 
+  mx-list-item outline 0,184,204 outside 0,0,0 inside 0,0,0 | 
+  mx-list-button-item outline 0,184,204 outside 0,0,0 inside 0,0,0 | 
+  mx-list-button-item outline 0,184,204 outside 0,0,0 inside 0,0,0 | selected
+  mx-list-link-item outline 0,184,204 outside 0,0,0 inside 0,0,0 | 
+  mx-list-link-item outline 0,184,204 outside 0,0,0 inside 0,0,0 | selected
+  BAD mx-list mx-list-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["51 217 204×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 165 2×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-sortable-list mx-list-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["51 217 204×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 165 2×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-list mx-list-button-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["51 217 204×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 165 2×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-sortable-list mx-list-button-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["51 217 204×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 165 2×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-list mx-list-link-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["51 217 204×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 165 2×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-sortable-list mx-list-link-item content: large image lead: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["51 217 204×84"]} offset -3 color rgb(0 184 204)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["252 165 2×84"]} offset -3 color rgb(0 184 204)
+# firefox 159.0 {"forcedColors":"active"}
+indicator solid 3px -3 rgb(0 0 0) z auto
+277/283 whole
+  undefined outline 0,0,0 outside 255,255,255 inside 233,233,237 | 
+  mx-list-item outline 0,0,0 outside 255,255,255 inside 255,255,255 | 
+  mx-list-button-item outline 0,0,0 outside 255,255,255 inside 233,233,237 | 
+  mx-list-button-item outline 0,0,0 outside 255,255,255 inside 233,233,237 | selected
+  mx-list-link-item outline 0,0,238 outside 255,255,255 inside 255,255,255 | 
+  mx-list-link-item outline 0,0,238 outside 255,255,255 inside 255,255,255 | selected
+  mx-list-item outline 0,0,0 outside 233,233,237 inside 255,255,255 | 
+  mx-list-button-item outline 0,0,0 outside 255,255,255 inside 208,208,215 | 
+  mx-list-button-item outline 0,0,0 outside 233,233,237 inside 233,233,237 | 
+  mx-list-link-item outline 0,0,238 outside 233,233,237 inside 255,255,255 | 
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 238)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 238)
+# firefox 159.0 {"forcedColors":"active","colorScheme":"dark"}
+indicator solid 3px -3 rgb(0 0 0) z auto
+277/283 whole
+  undefined outline 0,0,0 outside 28,27,34 inside 233,233,237 | 
+  mx-list-item outline 0,0,0 outside 28,27,34 inside 255,255,255 | 
+  mx-list-button-item outline 0,0,0 outside 28,27,34 inside 233,233,237 | 
+  mx-list-button-item outline 0,0,0 outside 28,27,34 inside 233,233,237 | selected
+  mx-list-link-item outline 0,0,238 outside 28,27,34 inside 255,255,255 | 
+  mx-list-link-item outline 0,0,238 outside 28,27,34 inside 255,255,255 | selected
+  mx-list-item outline 0,0,0 outside 233,233,237 inside 255,255,255 | 
+  mx-list-button-item outline 0,0,0 outside 28,27,34 inside 208,208,215 | 
+  mx-list-button-item outline 0,0,0 outside 233,233,237 inside 233,233,237 | 
+  mx-list-link-item outline 0,0,238 outside 233,233,237 inside 255,255,255 | 
+  BAD mx-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-sortable-list mx-list-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-sortable-list mx-list-button-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 0)
+  BAD mx-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 238)
+  BAD mx-sortable-list mx-list-link-item content: large image lead, opacity: top 532/532 bottom 532/532 left 0/84 right 84/84 {"left":["255 165 0×84"]} offset -3 color rgb(0 0 238)
