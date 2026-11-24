@@ -1,0 +1,111 @@
+Read at 634dae5ef by the plan's first-rendering.ts, variant built, with mutation runs of the sources beside it.
+# chromium 158.0.8127.18
+## built
+dialog 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+dialog 0->300 | first: hidden off, color 9 frames 134ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 134ms from rgb(247, 251, 234), state 1 frames
+dialog 300->300 | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+dialog 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+popover 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+popover 0->300 | first: hidden off, color 9 frames 132ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+popover 300->300 | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+popover 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+details 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+details 0->300 | first: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+details 300->300 | again: hidden off, color 3 frames 50ms from rgb(236, 240, 223), state 1 frames
+details 300->0 | again: hidden off, color 7 frames 100ms from rgb(236, 240, 223), state 0 frames
+display 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+display 0->300 | first: hidden off, color 9 frames 132ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+display 300->300 | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+display 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+content-visibility 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+content-visibility 0->300 | first: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+content-visibility 300->300 | again: hidden off, color 3 frames 50ms from rgb(236, 240, 223), state 1 frames
+content-visibility 300->0 | again: hidden off, color 7 frames 100ms from rgb(236, 240, 223), state 0 frames
+visibility 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+visibility 0->300 | first: hidden on, color 4 frames 51ms from rgb(239, 243, 226), state 0 frames | again: hidden on, color 3 frames 33ms from rgb(238, 242, 225), state 0 frames
+visibility 300->300 | again: hidden on, color 0 frames 0ms from rgb(236, 240, 223), state 0 frames
+visibility 300->0 | again: hidden off, color 3 frames 34ms from rgb(245, 249, 232), state 0 frames
+pages wrong 0 of 29
+scales wrong 0 of 8
+viewport heights wrong 0 of 6
+WRONG page 12000000: on@y0,x0
+callbacks over 200 steps 1
+inserted again 0->0 color 0 frames 0ms
+inserted again 0->300 color 9 frames 121ms
+inserted again 300->300 color 0 frames 0ms
+inserted again 300->0 color 9 frames 121ms
+overflow 4064 800 mx-top-app-bar
+# firefox 159.0
+## built
+dialog 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+dialog 0->300 | first: hidden off, color 9 frames 135ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 134ms from rgb(247, 251, 234), state 1 frames
+dialog 300->300 | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+dialog 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+popover 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+popover 0->300 | first: hidden off, color 9 frames 130ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+popover 300->300 | again: hidden off, color 9 frames 134ms from rgb(247, 251, 234), state 1 frames
+popover 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+details 0->0 | first: hidden off, color 12 frames 183ms from rgba(0, 0, 0, 0), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+details 0->300 | first: hidden off, color 13 frames 199ms from rgba(0, 0, 0, 0), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+details 300->300 | again: hidden off, color 8 frames 133ms from rgb(236, 240, 223), state 1 frames
+details 300->0 | again: hidden off, color 1 frames 0ms from rgb(236, 240, 223), state 0 frames
+display 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+display 0->300 | first: hidden off, color 9 frames 131ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 9 frames 133ms from rgb(247, 251, 234), state 1 frames
+display 300->300 | again: hidden off, color 9 frames 134ms from rgb(247, 251, 234), state 1 frames
+display 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+content-visibility 0->0 | first: hidden off, color 12 frames 183ms from rgba(0, 0, 0, 0), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+content-visibility 0->300 | first: hidden off, color 13 frames 200ms from rgba(0, 0, 0, 0), state 1 frames | again: hidden off, color 9 frames 134ms from rgb(247, 251, 234), state 1 frames
+content-visibility 300->300 | again: hidden off, color 8 frames 133ms from rgb(236, 240, 223), state 1 frames
+content-visibility 300->0 | again: hidden off, color 1 frames 0ms from rgb(236, 240, 223), state 0 frames
+visibility 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+visibility 0->300 | first: hidden on, color 4 frames 50ms from rgb(239, 243, 226), state 0 frames | again: hidden on, color 3 frames 33ms from rgb(238, 242, 225), state 0 frames
+visibility 300->300 | again: hidden on, color 0 frames 0ms from rgb(236, 240, 223), state 0 frames
+visibility 300->0 | again: hidden off, color 3 frames 33ms from rgb(245, 249, 232), state 0 frames
+WRONG bar content-visibility: off@y300,x3000 off@y1,x3000
+pages wrong 1 of 29
+scales wrong 0 of 8
+viewport heights wrong 0 of 6
+WRONG page 12000000: on@y0,x0
+callbacks over 200 steps 1
+inserted again 0->0 color 0 frames 0ms
+inserted again 0->300 color 9 frames 121ms
+inserted again 300->300 color 0 frames 0ms
+inserted again 300->0 color 9 frames 121ms
+overflow 4064 800 mx-top-app-bar
+# webkit 27.2
+## built
+dialog 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+dialog 0->300 | first: hidden off, color 4 frames 110ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 8 frames 113ms from rgb(247, 251, 234), state 1 frames
+dialog 300->300 | again: hidden off, color 8 frames 112ms from rgb(247, 251, 234), state 1 frames
+dialog 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+popover 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+popover 0->300 | first: hidden off, color 8 frames 115ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 8 frames 112ms from rgb(247, 251, 234), state 1 frames
+popover 300->300 | again: hidden off, color 8 frames 113ms from rgb(247, 251, 234), state 1 frames
+popover 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+details 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+details 0->300 | first: hidden off, color 8 frames 113ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 8 frames 112ms from rgb(247, 251, 234), state 1 frames
+details 300->300 | again: hidden off, color 8 frames 112ms from rgb(247, 251, 234), state 1 frames
+details 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+display 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+display 0->300 | first: hidden off, color 8 frames 113ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 8 frames 112ms from rgb(247, 251, 234), state 1 frames
+display 300->300 | again: hidden off, color 8 frames 116ms from rgb(247, 251, 234), state 1 frames
+display 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+content-visibility 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+content-visibility 0->300 | first: hidden off, color 8 frames 113ms from rgb(247, 251, 234), state 1 frames | again: hidden off, color 8 frames 113ms from rgb(247, 251, 234), state 1 frames
+content-visibility 300->300 | again: hidden off, color 8 frames 112ms from rgb(247, 251, 234), state 1 frames
+content-visibility 300->0 | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+visibility 0->0 | first: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames | again: hidden off, color 0 frames 0ms from rgb(247, 251, 234), state 0 frames
+visibility 0->300 | first: hidden on, color 6 frames 80ms from rgb(238, 242, 225), state 0 frames | again: hidden on, color 6 frames 80ms from rgb(238, 242, 225), state 0 frames
+visibility 300->300 | again: hidden on, color 0 frames 0ms from rgb(236, 240, 223), state 0 frames
+visibility 300->0 | again: hidden off, color 4 frames 49ms from rgb(246, 250, 233), state 0 frames
+WRONG bar content-visibility: off@y300,x3000 off@y1,x3000
+pages wrong 1 of 29
+scales wrong 0 of 8
+viewport heights wrong 0 of 6
+WRONG page 12000000: on@y0,x0
+callbacks over 200 steps 1
+inserted again 0->0 color 0 frames 0ms
+inserted again 0->300 color 8 frames 113ms
+inserted again 300->300 color 0 frames 0ms
+inserted again 300->0 color 8 frames 114ms
+overflow 4064 800 mx-top-app-bar

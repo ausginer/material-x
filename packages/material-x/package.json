@@ -24,7 +24,8 @@
     "radio",
     "react.d.ts",
     "slider",
-    "text-field"
+    "text-field",
+    "top-app-bar"
   ],
   "type": "module",
   "exports": {
@@ -111,6 +112,10 @@
     "./text-field/text-field.js": {
       "types": "./text-field/text-field.d.ts",
       "default": "./text-field/text-field.js"
+    },
+    "./top-app-bar/top-app-bar.js": {
+      "types": "./top-app-bar/top-app-bar.d.ts",
+      "default": "./top-app-bar/top-app-bar.js"
     },
     "./react.js": {
       "types": "./react.d.ts"

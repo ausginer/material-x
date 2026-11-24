@@ -2443,6 +2443,51 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
+#### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
+
+**Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** the default slot is the headline, with `lead` and `trail` beside it. There is one public custom state, `:state(scrolled)`, and two CSS properties, the container's color at rest and on scroll. There is no attribute, event or part. Its host is its box.
+2. **The host places itself,** with `position: sticky` at the block start and `z-index: 1`, so a page writes no code. A page rule on the element overrides it.
+3. **The state comes from one `IntersectionObserver`** on the document's root element, with `root: document`. It changes only when the scroll position crosses the start, with no scroll listener and no layout read. It matches the scroll position in Chromium, Firefox and WebKit in every case [read](top-app-bar-1/checks/scroll-state.txt). `scroll-state()` is in Chromium only, and a scroll-driven animation gives neither a state to style against nor a change with a duration of its own.
+4. **The state is the platform's, as `:hover` is.** It is derived from the scroll position, so the controlled principle doesn't apply to it.
+5. **Scrolled is a color change only, and it amends the landing plan's property 3.** M3's spec shows and describes a color change, and upstream's message on the replaced set's shadow color is _"Bug: should not have been created. Remove any shadows on navigation bars."_ `container.elevation` and `on-scroll.container.elevation` of `md.comp.app-bar` are excluded by this ruling (`RD-34`). The color transitions over M3's default effects duration.
+6. **No landmark.** The page sets `role="banner"` on the bar. A `<header>` around it would unpin it, unless the header is `display: contents`.
+
+**Why.** The owner requires a sticky header, and property 2 asks for it with no page code. Only an observer gives a state that a consumer can style against, in every engine, with no work per frame. The shadow is a parity question, as the shadow color was in `RF-77`, and upstream answers it.
+
+**Costs.** A `<header>` wrapper needs a style of its own, and a pinned bar needs the page's `scroll-padding-block-start`. Without a shadow, content in `surface-container` shows no edge under the bar. The bar follows the document's scroll only. `mx-icon-button` keeps its own icon color in `lead`, where M3's token differs.
+
+**Answered 2026-11-23 by the owner,** in chat, relayed by the coordinator. He confirmed properties 5 and 6, and authorized the implementation:
+
+- **The shadow:** _"(а), и поехали"_ ("(a), and let's go"). He was asked whether the scrolled bar draws a shadow: (a) color only, which the architect recommended, or (b) color and the level-2 shadow that the landing plan named. So property 5 stands.
+- **The landmark:** he asked about it, and after the explanation said _"Да, тогда role="banner" выглядит правильнее всего"_ ("Yes, then role="banner" looks the most correct"). So property 6 stands: the page sets the role on the bar.
+
+**Amended 2026-11-23 by the architect, property 3's reading,** on Mx Implementer B's stop at the plan's boundary, relayed by the coordinator. The observer's side margins are as large as its top margin. With the plan's 0px sides the state was wrong in the three engines on a page scrolled sideways by a viewport or more, which the first reading hadn't scrolled, so _"in every case read"_ didn't cover it. With large sides it matches there too ([reading](top-app-bar-1/checks/scroll-sideways.txt)). The mechanism doesn't change, and the plan gains a row.
+
+**Amended 2026-11-23 by the architect, property 3's target,** on `reviewer-1` and `reviewer-2` of the [feature proof](reviews/top-app-bar-1/feature-proof-claude.md) of #211, relayed by the coordinator. The observer's target is now a box without size that the component keeps in the top layer, at the document's scroll start. It isn't the root element. The rest of property 3 stands: one observer, `root: document`, a change only at a crossing, no scroll listener and no layout read.
+
+- **Why:** the root element's place and size are the page's. The state was wrong, in the three engines, with a root that has no height or starts below the page's top, after a first correction for sideways scrolling. No page style moves a top-layer box, so the geometry isn't the page's any more. It is right on all 22 pages [read](top-app-bar-1/checks/mechanisms.txt), where the root element is wrong on 8.
+- **Not taken:** limits in the documentation; a `scroll` listener, which the landing plan's property 4 excludes; and a scroll-driven animation's events. Property 3's sentence on the animation, that it gives no state, isn't the reason any more: its events give one, and it is in `RD-20`'s floor. It is wrong in each engine in some case, and recalculates a style on each scroll frame.
+- **Costs:** one element in the shadow root, so property 1's shadow root holds it beside the three slots. A bar shown again at the start draws the scrolled color for one frame, by reasoning.
+- The plan holds the [dispositions](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-feature-proof-at-6dbdcbbd1) of all seven findings. `reviewer-3` is `RF-122`'s case, and owes nothing here.
+
+**Amended 2026-11-24 by the architect, property 3's area,** on `reviewer-8` of the [recheck](reviews/top-app-bar-1/feature-proof-recheck-claude.md) of #211, relayed by the coordinator. The observer's area is everything above the viewport, and the box in the top layer is 1px. So the state is on while the box's top is above the viewport, and a bar that isn't rendered is at rest. The rest of property 3 stands.
+
+- **Why:** the area was the viewport, where a box that isn't rendered is reported as a box that is scrolled away. A bar first rendered at the start then drew a fade of about 110 to 135ms from the scrolled color, in the three engines. The note above accepted it as one frame, by reasoning, for a bar shown again.
+- **Costs:** a bar that the page shows or inserts on a scrolled page draws its resting color first, and then the transition, which a bar that connects there did already. A bar that is removed on a scrolled page and inserted again at the start draws the scrolled color first, as before. A page longer than 10000000px is wrong when it jumps across that length in one frame. The first is documented.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-recheck-at-8f5ad01db) has the candidates, the readings in the three engines, the ruling on `reviewer-9` (two rows for the box's popover kind, and one for a bar that moves as it connects) and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/first-rendering.txt` and `checks/box-rows.txt`, in the bar's record.
+
+**Amended 2026-11-24 by the architect, the costs of property 3's area,** on the [second recheck](reviews/top-app-bar-1/feature-proof-recheck-2-claude.md) of #211, relayed by the coordinator. The mechanism doesn't change.
+
+- **Both of the first two costs are documented,** where the note above says the first only. The component page's sentence was false for a bar that is removed and inserted again (`reviewer-11`).
+- **A cost is added, and accepted as WebKit's** (`reviewer-12`). In a frame with a CSS zoom above 1 the state turns on late, by about the frame's height times (zoom − 1). The engine pins nothing there until then: a page's own sticky and fixed boxes scroll away by the same length, and the bar with them. A state that is right would color a bar that is mostly out of view.
+- **A page zoom is right** in WebKit at 12 factors, on a page and in a frame, apart from a scroll of less than 1px at 1.75. Safari isn't read.
+- **A row for the box's `visibility: hidden` is owed** (`reviewer-10`). The ruling that it wasn't was read with a box of 0px.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-second-recheck-at-634dae5ef) has the rulings, the words and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/page-zoom.txt` and `checks/box-visibility.txt`, in the bar's record.
+
 #### RD-55 — `mx-slider` is a native range whose value is the user's, and it mirrors host `aria-*` as the text fields do
 
 **Decided 2026-11-23, on `material-x/slider-1`,** for #173, as unit C of `RD-47`'s landing plan. Mx Architect B wrote the [plan](slider-1/slider-plan.md) and proposed this entry, on the coordinator's task. The architect read the plan and minted the entry at `eaff88884`. `RD-54` is the highest `RD-` on any branch on `origin` (`material-x/top-app-bar-1`), so this is the next free number. The plan's `SL-D1` to `SL-D9` hold each decision with its readings, what wasn't adopted and what wasn't measured.

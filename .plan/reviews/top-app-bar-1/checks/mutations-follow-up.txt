@@ -1,0 +1,55 @@
+## role attribute at connect: passed 181 failed 4
+   1x accessibility should add no role attribute and no tabindex to its host :: AssertionError: expected [ true, false, -1 ] to deeply equal [ false, false, -1 ]
+   1x accessibility Chromium's accessibility tree should expose no landmark of its own :: AssertionError: expected 'banner' to be 'generic' // Object.is equality
+   1x accessibility should add no role attribute and no tabindex to its host :: @http://127.0.0.1:23316/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should add no role attribute and no tabindex to its host :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+## host tabindex at connect: passed 179 failed 6
+   1x accessibility should add no role attribute and no tabindex to its host :: AssertionError: expected [ false, true, +0 ] to deeply equal [ false, false, -1 ]
+   1x accessibility should take focus in the order lead, headline, trail :: AssertionError: expected [ …(4) ] to deeply equal [ …(4) ]
+   1x accessibility should add no role attribute and no tabindex to its host :: @http://127.0.0.1:23319/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should take focus in the order lead, headline, trail :: @http://127.0.0.1:23319/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should add no role attribute and no tabindex to its host :: @http://127.0.0.1:23318/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should take focus in the order lead, headline, trail :: @http://127.0.0.1:23318/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+## delegatesFocus tabindex 0 via attribute: passed 179 failed 6
+   1x accessibility should add no role attribute and no tabindex to its host :: AssertionError: expected [ false, true, -1 ] to deeply equal [ false, false, -1 ]
+   1x accessibility should take focus in the order lead, headline, trail :: AssertionError: expected [ <button></button>, …(3) ] to deeply equal [ …(4) ]
+   1x accessibility should add no role attribute and no tabindex to its host :: @http://127.0.0.1:23316/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should take focus in the order lead, headline, trail :: @http://127.0.0.1:23316/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should add no role attribute and no tabindex to its host :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x accessibility should take focus in the order lead, headline, trail :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+## window listener, no work: passed 185 failed 0
+## document listener, no work: passed 182 failed 3
+   1x scrolled state should change once over many scroll steps away from the start :: AssertionError: expected { changes: 1, listeners: 1 } to deeply equal { changes: 1, listeners: +0 }
+   1x scrolled state should change once over many scroll steps away from the start :: @http://127.0.0.1:23318/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should change once over many scroll steps away from the start :: @http://127.0.0.1:23317/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+## document listener sets state: passed 179 failed 6
+   1x scrolled state should keep its value while the bar is disconnected :: AssertionError: expected true to be false // Object.is equality
+   1x scrolled state should change once over many scroll steps away from the start :: AssertionError: expected { changes: 601, listeners: 1 } to deeply equal { changes: 1, listeners: +0 }
+   1x scrolled state should keep its value while the bar is disconnected :: @http://127.0.0.1:23317/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should change once over many scroll steps away from the start :: @http://127.0.0.1:23317/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should keep its value while the bar is disconnected :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should change once over many scroll steps away from the start :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+## document listener, crossing only, no observer state: passed 179 failed 6
+   1x scrolled state should keep its value while the bar is disconnected :: AssertionError: expected true to be false // Object.is equality
+   1x scrolled state should change once over many scroll steps away from the start :: AssertionError: expected { changes: 13, listeners: 1 } to deeply equal { changes: 1, listeners: +0 }
+   1x scrolled state should keep its value while the bar is disconnected :: @http://127.0.0.1:23318/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should change once over many scroll steps away from the start :: @http://127.0.0.1:23318/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should keep its value while the bar is disconnected :: @http://127.0.0.1:23317/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should change once over many scroll steps away from the start :: @http://127.0.0.1:23317/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+## 1px row waits, clean: passed 185 failed 0
+## 1px row waits, threshold 0.01: passed 182 failed 3
+   1x scrolled state should be on after 1px :: AssertionError: expected [ true, false ] to deeply equal [ true, true ]
+   1x scrolled state should be on after 1px :: @http://127.0.0.1:23317/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should be on after 1px :: @[native code]
+## 1px row waits, threshold 0.0005: passed 182 failed 3
+   1x scrolled state should be on after 1px :: AssertionError: expected [ true, false ] to deeply equal [ true, true ]
+   1x scrolled state should be on after 1px :: @http://127.0.0.1:23318/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.browser.test.
+   1x scrolled state should be on after 1px :: @[native code]
+## surroundings beat the test body, clean: passed 185 failed 0
+## surroundings beat the test body, no font-family: passed 179 failed 6
+   1x headline contract font-family should apply to text :: AssertionError: expected 'serif' to be 'Roboto' // Object.is equality
+   1x headline contract font-family should apply to a slotted h1 :: AssertionError: expected 'serif' to be 'Roboto' // Object.is equality
+   1x headline contract font-family should apply to text :: @http://127.0.0.1:23319/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.spec.browser.
+   1x headline contract font-family should apply to a slotted h1 :: @http://127.0.0.1:23319/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.spec.browser.
+   1x headline contract font-family should apply to text :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.spec.browser.
+   1x headline contract font-family should apply to a slotted h1 :: @http://127.0.0.1:23320/workspaces/worktrees/e/packages/material-x/tests/top-app-bar/top-app-bar.spec.browser.
