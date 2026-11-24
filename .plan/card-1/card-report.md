@@ -54,3 +54,22 @@ Brotli bytes from `size-limit`, built at `ccf5a4fef` and at the implementation w
 - **Readings:** [every mutation's failing rows](checks/witnesses-2.txt), in Chromium, Firefox and WebKit, by [`mutate.mjs`](probes/mutate.mjs). Its first group is the unchanged source: `tests/card` with `tests/core/elevation.spec`, 65 passed in Chromium, 62 passed and 3 skipped in Firefox and in WebKit. `outline drawn outside` and `slot does not stretch` still fail their rows.
 - **Checks:** format, lint and the typecheck of material-x pass for the changed test files.
 - **Not run:** the rest of the suite, the visual project and Safari.
+
+## Disposition of `reviewer-1`, implemented 2026-11-24
+
+By the implementer, on the coordinator's task, on the [plan's disposition](card-plan.md#disposition-of-reviewer-1-the-host-draws-the-outline-and-the-whole-shadow). `origin/main` at `a4dee53d8` was merged first, as `e3d67d578`. Each declaration holds in Chromium, Firefox and WebKit, and no other list item's row changed its expectation, so the plan's stop wasn't reached.
+
+- **Source:** the host draws the outline, `!important` and not while `:focus-visible`. The slot's `border-radius` is gone. `host-box.styles.css` is one `box-shadow` list with `position: relative`. JSDoc and `card.mdx` state the limits and the smaller or scrolling card.
+- **`RF-123` (#219):** nothing in the card's source or tests had to change. Both name private properties as `--_x`, and only the build renames them. `elevation-overflow.ts` reads the built names with `\w+`, which `--mx-a` doesn't match, so the copy for this reading uses `[\w-]+`.
+- **Tests:** `reviewer-3`'s four rows are replaced by two, which read that the pseudo-elements of an elevated card and of a lifted list item generate no box. `renderedLayers` reads the three shadows of a host box from its list, in order, and fails for any other number, so the rows that use it keep their text. The lifted list item's gesture moved into a helper, `lift`, with the same assertion.
+- **Two rows on the corners:** the row that compared the slot's corners with the host's is removed, because on the host it would compare the host with itself. The container's shape has its row per variant. The row for `--md-card-container-shape` reads the host only.
+- **Witnesses** ([reading](checks/witnesses-3.txt), [script](probes/mutate-3.mjs)): 16 mutations and a control, in the three engines.
+  - The outline on the slot fails the row for the host's outline, the row for the slot's and two more. Without `!important` only the reset's row fails. Without `:not(:focus-visible)` only the two focus rows fail.
+  - The padding on the host fails only the three reset rows, and a slot that doesn't stretch only the percentage row.
+  - Each layer taken away, and another order, fails the card's and the lifted list item's rows. A box on either pseudo-element fails only its two rows. Without `shadow.color` only the red row fails.
+  - **One mutation passes:** no `position: relative` on the host. `reviewer-3`'s rows read it through the pseudo-elements' boxes, and nothing in the card is positioned against the host now. The plan keeps the declaration and gives it no row.
+- **The built elements:** [with an overflow](checks/elevation-overflow-built.txt) ([script](probes/elevation-overflow-built.ts)) the card at levels 1 and 3 and the list item at 1 and 8 differ from the same element without one in 0 pixels, in the three engines. The [outline](checks/outline-owner-built.txt) (the first candidate of `outline-owner.ts`, whose label still says _slot_) covers all four edges of a smaller card and of one scrolled to 0, 120 and the end.
+- **Checks:** the suite without the visual project, one engine at a time: Chromium 1069 passed and 2 expected failures; Firefox 1055 passed, 3 expected failures and 13 skipped; WebKit 1056 passed, 2 expected failures and 13 skipped. Format, lint, typecheck, publint and `docs-build` pass, and `docs-smoke` passes 117 of 117 pages.
+- **Size, Brotli,** before and after on the merged tree: `card/card` 1341 to 1321, `list/list-item` 2876 to 2847, `complete` 23068 to 23036. No other row moves.
+- **Not run:** the visual project and Safari. `card-variants.png` still has no baseline, and it is the owner's to record.
+- **Next:** the reviewer's recheck of the changed rows and the two stylesheets.

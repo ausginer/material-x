@@ -7,8 +7,8 @@
 }
 
 /*
- * The slot draws the padding and the outline, because a page rule such as a
- * universal reset beats `:host` and none reaches the shadow tree.
+ * The slot draws the padding, because a page rule such as a universal reset
+ * beats `:host` and none reaches the shadow tree.
  *
  * The content inherits the custom properties from the slot, so the slot resets
  * those that another component reads without setting: a filled button would
@@ -20,5 +20,4 @@ slot {
   display: block;
   flex: 1 0 auto;
   padding: var(--md-card-padding, 16px);
-  border-radius: inherit;
 }

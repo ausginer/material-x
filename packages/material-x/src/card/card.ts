@@ -62,6 +62,13 @@ const CardConstructor: Composed<
  * stands. It doesn't clip its content, and the content inherits the page's
  * text color and font.
  *
+ * The card may be smaller than its content, or scroll it: the container, the
+ * outline and the shadow stay on its own box. Positioned content at the card's
+ * edge paints over the outline.
+ *
+ * On an outlined card, an `outline` that the page sets applies only while the
+ * card matches `:focus-visible`.
+ *
  * @attr {"elevated"|"outlined"} variant - Card variant. Omit to use the filled
  * default.
  *

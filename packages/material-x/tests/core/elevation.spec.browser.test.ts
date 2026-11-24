@@ -63,13 +63,27 @@ async function expectedLayers(
   };
 }
 
-/** The three shadows `box` draws: its own, and its `::before` and `::after`. */
+/**
+ * The three shadows `box` draws: on a `.host`, its own, and its `::before` and
+ * `::after`. On a host that is its box, the three in its one list, in order.
+ */
 function renderedLayers(box: Element): ElevationLayers {
-  return {
-    penumbra: getComputedStyle(box).boxShadow,
-    umbra: getComputedStyle(box, '::before').boxShadow,
-    ambient: getComputedStyle(box, '::after').boxShadow,
-  };
+  const { boxShadow } = getComputedStyle(box);
+
+  if (!box.shadowRoot) {
+    return {
+      penumbra: boxShadow,
+      umbra: getComputedStyle(box, '::before').boxShadow,
+      ambient: getComputedStyle(box, '::after').boxShadow,
+    };
+  }
+
+  // A comma inside a colour function doesn't separate two shadows.
+  const layers = boxShadow.split(/, (?![^(]*\))/u);
+  expect(layers).toHaveLength(3);
+  const [umbra, penumbra, ambient] = layers;
+
+  return { umbra: umbra!, penumbra: penumbra!, ambient: ambient! };
 }
 
 /** The element that draws the shadow: the shadow `.host`, or a host that is its box. */
@@ -233,57 +247,38 @@ describe('mx-card elevation layers', () => {
   });
 });
 
-/**
- * A layer's computed `box-shadow` is the declared one whether or not its
- * pseudo-element has a box, so these rows read the box. A pseudo-element with
- * no box has no used size.
- */
 describe('host-box elevation layers', () => {
-  const create = {
-    'mx-card': () => createCard('elevated'),
-    'mx-list-item': () => createResting('mx-list-item'),
-  } as const;
+  it('should generate no pseudo-element box on mx-card', async () => {
+    const card = createCard('elevated');
+    document.body.append(card);
+    await nextFrame();
 
-  it.each([
-    { tag: 'mx-card', pseudo: '::before', layer: 'umbra' },
-    { tag: 'mx-card', pseudo: '::after', layer: 'ambient' },
-    { tag: 'mx-list-item', pseudo: '::before', layer: 'umbra' },
-    { tag: 'mx-list-item', pseudo: '::after', layer: 'ambient' },
-  ] as const)(
-    "should cover the host's box with the $layer of $tag",
-    async ({ tag, pseudo }) => {
-      const fixture = create[tag]();
-      const host = componentOf(fixture);
-      // A shape that no corner of the pseudo-element has by default, and a size
-      // that no ancestor has.
-      host.style.setProperty(`--md-${tag.slice(3)}-container-shape`, '10px');
-      host.style.setProperty('inline-size', '200px');
-      host.style.setProperty('block-size', '80px');
-      await mount(fixture);
+    expect(pseudoContents(card)).toEqual(['none', 'none']);
+  });
 
-      const { display, position, top, left, width, height, borderRadius } =
-        getComputedStyle(host, pseudo);
+  it('should generate no pseudo-element box on a lifted mx-list-item', async () => {
+    const [item] = createSortableList('mx-list-item');
+    await nextFrame();
+    await lift(item!);
 
-      expect({
-        display,
-        position,
-        top,
-        left,
-        width,
-        height,
-        borderRadius,
-      }).toEqual({
-        display: 'block',
-        position: 'absolute',
-        top: '0px',
-        left: '0px',
-        width: '200px',
-        height: '80px',
-        borderRadius: '10px',
-      });
-    },
-  );
+    expect(pseudoContents(item!)).toEqual(['none', 'none']);
+  });
 });
+
+/** The `content` of both pseudo-elements: one with `none` generates no box. */
+function pseudoContents(element: Element): readonly string[] {
+  return ['::before', '::after'].map(
+    (pseudo) => getComputedStyle(element, pseudo).content,
+  );
+}
+
+/** Drags `item` a little, and keeps the button down. */
+async function lift(item: HTMLElement): Promise<void> {
+  const [x, y] = centerOf(boxOf(item));
+  await commands.pointerPress(x, y);
+  await commands.pointerMove(x, y + 12, 3);
+  await expect.poll(() => item.matches(':state(drag)')).toBe(true);
+}
 
 function createSortableList(tag: string): readonly HTMLElement[] {
   const list = document.createElement('mx-sortable-list');
@@ -314,18 +309,14 @@ describe('mx-list items elevation layers', () => {
     async (tag) => {
       const [item] = createSortableList(tag);
       await nextFrame();
-      const box = boxOf(item!);
-      const [x, y] = centerOf(box);
-      await commands.pointerPress(x, y);
-      await commands.pointerMove(x, y + 12, 3);
-      await expect.poll(() => item!.matches(':state(drag)')).toBe(true);
+      await lift(item!);
       const { values } = await commands.resolveTokenContract({
         contract: 'list-item.default',
         state: 'dragged',
         tokens: ['container.elevation'],
       });
 
-      expect(renderedLayers(box)).toEqual(
+      expect(renderedLayers(boxOf(item!))).toEqual(
         await expectedLayers(
           values['container.elevation']!,
           await listShadowColor(),

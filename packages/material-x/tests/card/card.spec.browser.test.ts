@@ -1,10 +1,12 @@
 import { describe, expect, it, onTestFinished } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, server, userEvent } from 'vitest/browser';
 import type Card from '../../src/card/card.ts';
 import type { CardVariant } from '../../src/card/card.ts';
 import '../../src/card/card.ts';
 import '../../src/checkbox/checkbox.ts';
 import { pixels, resolveComputed } from '../browser.ts';
+
+const TAB = server.browser === 'safari' ? '{Alt>}{Tab}{/Alt}' : '{Tab}';
 
 type CardCase = Readonly<{
   name: string;
@@ -77,13 +79,6 @@ async function resolveTokens(
   return values;
 }
 
-/** The edges of an element's box. A `DOMRect` has no own keys to compare. */
-function boxEdges(element: Element): Readonly<Record<string, number>> {
-  const { top, right, bottom, left } = element.getBoundingClientRect();
-
-  return { top, right, bottom, left };
-}
-
 /** The distance from each of the card's edges to its content's edge. */
 function contentInset(card: Card): Readonly<Record<string, number>> {
   const outer = card.getBoundingClientRect();
@@ -112,18 +107,9 @@ function corners(element: Element): readonly string[] {
   ];
 }
 
-/**
- * The outline that the card draws, and the edge it is drawn inside. It reads
- * whichever of the host and the slot draws one, so that only the row under a
- * page's reset depends on which of them does.
- */
+/** The outline that the host draws. */
 function outlineOf(card: Card): Readonly<Record<string, string>> {
-  const slot = getSlot(card);
-  const style = getComputedStyle(
-    [card, slot].find(
-      (element) => getComputedStyle(element).outlineStyle !== 'none',
-    ) ?? slot,
-  );
+  const style = getComputedStyle(card);
 
   return {
     color: style.outlineColor,
@@ -149,13 +135,29 @@ async function expectedOutline(): Promise<Readonly<Record<string, string>>> {
   };
 }
 
-/** A page's universal reset, as consumers write it, for the current test. */
-function addUniversalReset(): void {
+/** A page's rule, for the current test. */
+function addPageRule(css: string): void {
   const style = document.createElement('style');
-  style.textContent =
-    '*, *::before, *::after { padding: 0; border: 0; outline: 0; }';
+  style.textContent = css;
   document.head.append(style);
   onTestFinished(() => style.remove());
+}
+
+/** A page's universal reset, as consumers write it, for the current test. */
+function addUniversalReset(): void {
+  addPageRule('*, *::before, *::after { padding: 0; border: 0; outline: 0; }');
+}
+
+/** An outlined card that the consumer made a tab stop, focused by the keyboard. */
+async function createFocusedCard(): Promise<Card> {
+  const card = createCard(OUTLINED);
+  card.tabIndex = 0;
+  const before = document.createElement('button');
+  card.before(before);
+  before.focus();
+  await userEvent.keyboard(TAB);
+  expect(card.matches(':focus-visible')).toBe(true);
+  return card;
 }
 
 describe.each(CASES)('mx-card $name container contract', (testCase) => {
@@ -199,10 +201,25 @@ describe('mx-card outline contract', () => {
     expect(outlineOf(createCard(OUTLINED))).toEqual(await expectedOutline());
   });
 
-  it("should round the outline as the container's corners", () => {
-    const card = createCard(OUTLINED);
+  it('should draw no outline on the slot', () => {
+    const slot = getSlot(createCard(OUTLINED));
 
-    expect(corners(getSlot(card))).toEqual(corners(card));
+    expect(getComputedStyle(slot).outlineStyle).toBe('none');
+  });
+
+  it("should let the page's focus indicator replace the outline", async () => {
+    addPageRule('mx-card:focus-visible { outline: 3px dashed rgb(1, 2, 3); }');
+
+    expect(outlineOf(await createFocusedCard())).toEqual({
+      color: 'rgb(1, 2, 3)',
+      style: 'dashed',
+      width: '3px',
+      offset: '0px',
+    });
+  });
+
+  it("should let the browser's focus indicator replace the outline", async () => {
+    expect(outlineOf(await createFocusedCard())['style']).toBe('auto');
   });
 
   it.each([FILLED, ELEVATED])(
@@ -211,21 +228,6 @@ describe('mx-card outline contract', () => {
       expect(outlineOf(createCard(testCase))['style']).toBe('none');
     },
   );
-
-  it("should draw the outline around the host's box in a grid that stretches the card", () => {
-    const card = createCard(OUTLINED);
-    const grid = document.createElement('div');
-    grid.style.cssText =
-      'display: grid; grid-template-columns: 200px 200px; align-items: stretch;';
-    const tall = document.createElement('div');
-    tall.style.blockSize = '300px';
-    grid.append(card, tall);
-    document.body.append(grid);
-
-    // The row measures a card that the grid stretches past its content.
-    expect(card.getBoundingClientRect().height).toBe(300);
-    expect(boxEdges(getSlot(card))).toEqual(boxEdges(card));
-  });
 });
 
 /*
@@ -244,12 +246,10 @@ describe('mx-card public CSS overrides', () => {
     },
   );
 
-  it('should apply --md-card-container-shape to the container and its outline', () => {
+  it('should apply --md-card-container-shape to the container', () => {
     const card = createCard(OUTLINED, { '--md-card-container-shape': '20px' });
 
-    expect([...corners(card), ...corners(getSlot(card))]).toEqual(
-      Array.from({ length: 8 }, () => '20px'),
-    );
+    expect(corners(card)).toEqual(Array.from({ length: 4 }, () => '20px'));
   });
 
   it('should apply --md-card-outline-color to the outline', () => {
@@ -268,6 +268,23 @@ describe('mx-card public CSS overrides', () => {
 });
 
 describe('mx-card content', () => {
+  it('should fill a card that a grid stretches', () => {
+    const card = createCard(FILLED);
+    const content = card.firstElementChild as HTMLElement;
+    content.style.blockSize = '100%';
+    const grid = document.createElement('div');
+    grid.style.cssText =
+      'display: grid; grid-template-columns: 200px 200px; align-items: stretch;';
+    const tall = document.createElement('div');
+    tall.style.blockSize = '300px';
+    grid.append(card, tall);
+    document.body.append(grid);
+
+    // The row measures a card that the grid stretches past its content.
+    expect(card.getBoundingClientRect().height).toBe(300);
+    expect(contentInset(card)).toEqual(insetOf(PADDING));
+  });
+
   // An unchecked checkbox sets no container colour, so it paints the one it
   // inherits.
   it('should not give its container colour to a checkbox inside it', () => {

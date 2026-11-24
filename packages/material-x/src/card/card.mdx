@@ -71,6 +71,14 @@ Set `--md-card-padding` to `0` for content that reaches the container's edge. Th
 
 <Canvas of={Stories.FullBleedMedia} />
 
+### Size and scrolling
+
+A card may be smaller than its content, or scroll it: the container, the outline and the shadow stay on the card's own box. Positioned content at the card's edge, such as full-bleed media, paints over the outline.
+
+### Outline
+
+On an outlined card, an `outline` that the page sets applies only while the card matches `:focus-visible`. Set `--md-card-outline-color` to change the outline's color.
+
 ## Accessibility
 
 - **Role:** The card is a plain container and has no role. Where it is an article or a list item, set the role on it, or put it inside the element that has that role.
