@@ -101,8 +101,6 @@
 .host:focus-visible {
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
-  /* A connected group sets it. Without one, the button isn't raised. */
-  z-index: var(--_focus-z-index);
 }
 
 /*

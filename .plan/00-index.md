@@ -5167,6 +5167,11 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not owed:** a row, or a sentence in the documentation.
 - **The hover tint** that the implementer read stays: the proof reads at least 4.18:1 against the item's container in each state.
 
+**Dated 2026-11-24 by the implementer: `RF-126`'s raise is out of the branch, and this entry is alone on it.** No source of this entry changes.
+
+- **Size, Brotli, of this entry alone,** against `main` at `ee7d838cc`, built in the same worktree: `button/button` 4858 to 4866, `button/icon-button` 5140 to 5126, `button/link-button` 4829 to 4822, `button/switch-button` 5446 to 5440, `button/switch-icon-button` 5834 to 5847, `button/split-button` 7480 to 7455, `button-group/button-group` 3040 to 3049, `button-group/connected-button-group` 3809 to 3810, `fab/fab` 4137 to 4144, `list/list` 659 to 676, `list/list-item` 2868 to 2847, `list/list-button-item` 4854 to 4839, `list/list-link-item` 5065 to 5058, `list/sortable-list` 8906 to 8905, `text-field/text-field` 8489 to 8465, `complete` 22844 to 22826. No other row moves. The source outside the lists equals `main`'s, and the cause of the moves there wasn't read.
+- **Checks:** in `RF-126`'s note of the same date.
+
 #### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
@@ -5226,6 +5231,15 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 3. **The pull request** says `Closes #226` and `Refs #227`.
 
 **A recheck is owed of the revert only:** nothing of `main` differs in the groups. This entry's state is open until the owner answers, and its earlier sentence that nothing is the owner's to answer is withdrawn.
+
+**Dated 2026-11-24 by the implementer: the raise is taken out, and the entry isn't closed.** Requested by the coordinator.
+
+- **Source and tests:** the two stylesheets are as before `e00c28db4`, and `button-group-focus.spec` is gone. `packages/` differs from `main` at `ee7d838cc` by `RF-125`'s source, `list-item.spec` and `tests/focus-indicator.ts` only.
+- **The proof's `stack.mjs` and `hit.mjs`** on the built head give `main`'s reading, line for line, in Chromium, Firefox and WebKit ([reading](focus-cover-1/checks/without-raise.txt)). They equal `main` built in the same worktree, and the lines that the proof recorded for it.
+- **Sizes of `RF-125` alone:** in its note.
+- **Checks:** the suite without the visual project, one engine at a time, which has the lists' rows and the groups' existing ones: Chromium 1047 passed and 2 expected failures (with the node project); Firefox 1001 passed, 3 expected failures and 10 skipped; WebKit 1002 passed, 2 expected failures and 10 skipped. Typecheck, format, publint, `docs-build` and `docs-smoke` (112 of 112) pass. Lint doesn't apply to the changed files, which are CSS and Markdown.
+- **The record of the raise stays:** the group mutations of [`mutate.mjs`](focus-cover-1/probes/mutate.mjs) and their readings are of `e00c28db4`, and don't run on this head.
+- **Not run:** the visual project, Safari, forced colors, RTL.
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
