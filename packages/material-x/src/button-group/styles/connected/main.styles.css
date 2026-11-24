@@ -2,6 +2,8 @@
   --_shape-full: calc(var(--_container-height) / 2);
 
   display: flex;
+  /* Keeps the focused button's `z-index` inside the group. */
+  isolation: isolate;
   gap: var(--md-button-group-between-space, var(--_between-space));
 
   /*
@@ -11,6 +13,11 @@
    * resting inner corners only.
    */
   ::slotted(*) {
+    /*
+     * The indicator reaches farther than the gap, so the focused button is
+     * raised above the next one, which would cover part of it.
+     */
+    --_focus-z-index: 1;
     --_inner-corner: var(
       --md-button-group-inner-corner-size,
       var(--_inner-corner-corner-size)
