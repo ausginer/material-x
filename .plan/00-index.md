@@ -5479,6 +5479,50 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Checks,** with `eddf39e7b` merged: the suite without the visual project, one engine at a time: Chromium 1164 passed and 2 expected failures; Firefox 1150 passed, 3 expected failures and 13 skipped; WebKit 1151 passed, 2 expected failures and 13 skipped. The root format check, lint of the changed files, typecheck and publint pass. The spec's two sequential key presses disable `no-await-in-loop` with the reason, on the coordinator's request. `docs-build` and `docs-smoke` (117 of 117) passed at `f805df22a`, and weren't run again.
 - **Not run:** the visual project, Safari, forced colors, and RTL rows.
 
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/group-focus-1/feature-proof-claude.md) at `d3961f63a`, relayed by the coordinator. **The mechanism stands. The contract's words change, two rows are owed, and one question is the owner's before the merge.**
+
+- **`reviewer-1`, accepted, and it is in part a new cost.** The record's third cost said that a page's badge with `z-index: 1` isn't covered, which is so only for one that follows the focused member. Read again in the three engines, which agree within a few pixels, beside a candidate that raises an indicator element alone in the same isolated group ([reading](focus-cover-1/checks/member-content.txt), [probe](focus-cover-1/probes/member-content.mjs)). Red pixels with keyboard focus in Chromium. At rest they are `main`'s:
+
+  | Content of the page, while a member has keyboard focus | `main` | Built | The indicator alone raised |
+  | --- | --- | --- | --- |
+  | 1. A badge with `z-index: 1` on an earlier member's corner, over the focused one | 1202 | **768** | **944** |
+  | The same with `z-index: 2` | 1202 | 1202 | 1202 |
+  | A badge with `z-index: 1` on the focused member's own corner | 1202 | 1202 | **892** |
+  | 2. A tooltip with `z-index: 10` in the focused member, over `z-index: 1` content in the next | 1600 | **640** | 1600 |
+  | 3. A `z-index: -1` decoration in the focused member | 0 | **31,** and more tinted | **27** |
+  - **2 is inside the named cost:** _a page's hand-made tooltip in it can be covered by content that follows._ It was read as content after the group, and content of a later member follows too.
+  - **1 and 3 are new.** Neither is a tooltip. 1 is how a page draws a notification badge. They are costs of raising and of isolating, so each form of (c) has them in some part: the indicator alone covers less of 1, and covers part of a badge on the focused member's own corner, which the built form keeps.
+  - **No value removes 1.** The raise needs a `z-index` above 0, and 1 is the lowest. A tie goes to the later element.
+
+- **`reviewer-2`, accepted as a correction of the words.** The contract said twice which children count, and the two differ. It says once now: **any child element whose shadow root's focused control matches `:focus-visible` makes the group a stacking context. The five buttons are the ones that a group supports, and they alone are raised.** Another kind of child is outside the slot's documented use, so `CONTRIBUTING.md` §1.1 asks for no check, and the result is the isolation's costs with no raise. Properties 2 and 4 are read with this. A button in a member's content, in a popover or in a wrapper stays excluded.
+- **`reviewer-3`, accepted, both.** The two rows are in the work list.
+- **`reviewer-4`, accepted as limits, and property 2 is narrowed:** the group's state is as of the last `focusin` or `keydown` that reached it. It is stale when a page stops them; in a group defined after its member has keyboard focus, until the next key or focus; and after a `moveBefore` of a focused member, where Chromium keeps the former group isolated while its `:focus-within` still matches, and Firefox isolates a group that had keyboard focus before for a clicked button that is moved into it. The result is `main`'s covered indicator, or the costs until the next event. **Not adopted:** a capturing listener, which a page can still precede, and a read at connect, for a definition that comes late under the focus.
+- **The observations:**
+  - _"the indicator is whole in RTL by the probe"_ said more than the probe read, which is straight edges. The proof's pixel reading, which discriminates, has it whole in RTL, and replaces that sentence.
+  - `:state(focus-visible)` on the group is internal and undocumented, as `mx-sortable-list`'s `command` is.
+  - The split button's page says _the group_, a word that it doesn't introduce. It is in the work list.
+  - The corners in RTL are `RF-134`'s, and aren't this branch's.
+
+**The question for the owner: (c) has a third cost that wasn't told to him. Is it accepted?** While the keyboard is on a button in a connected group, a mark that hangs over onto it from the button before it, such as a notification badge with `z-index: 1`, is cut where they overlap, by about a third in the reading. With `z-index: 2` it is whole. Also, a decoration that a page puts behind its content with `z-index: -1` shows in the group while the keyboard is there.
+
+- **(a) Accept, and say it on both pages. Recommended.** It is of the kind that he accepted, it lasts while the keyboard is there, and a page avoids it with one number. Work: the sentence in the list below, which is written for it.
+- (b) The indicator as an element of its own, raised alone. The neighbor's badge loses less, and the tooltip nothing, but a badge on the focused button's own corner is then crossed by the indicator. It takes an element in five buttons, a page's `::part(impl)` no longer styles the indicator (by reasoning), and it needs a contract and a proof of its own.
+- (c) No raise: the indicator in the gap, or nothing, as the first question's (b) and (a). No stacking changes. He preferred the raised look to both.
+
+**The work list, for the implementer,** on this branch. `origin/main` at `e10c9a48d` is merged, and it brings #235. No source of the mechanism changes. Only the merge waits for the answer.
+
+1. **Rows in `button-group-focus.spec`,** in each engine, with the keyboard:
+   - the last member of a group and the split button's trailing button with keyboard focus: the group's `isolation` is `isolate`, and the control's `z-index` is 1. **Witness:** with the last child left out of the read, both fail;
+   - Tab to a member and then a click on another: the group's `isolation` is `auto`, and no member's control has a `z-index` of 1. **Witness:** with a state that is never cleared, it fails.
+2. **The sentence on the connected group's page:** _"While a button in the group has keyboard focus, it is raised above the others, and the group is a stacking context. An overlay that a page puts in or near the group belongs in the top layer, such as a popover, and a mark that hangs over from one button onto the next needs a `z-index` above 1."_ **On the split button's page:** _"While one of its two buttons has keyboard focus, that button is raised above the other, and the two are in a stacking context. An overlay that a page puts in or near the split button belongs in the top layer, such as a popover, and a mark that hangs over from the first button onto the second needs a `z-index` above 1."_
+3. **After the merge of `main`:** core, drag and material-x are rebuilt, and these are run: `button-group-focus` in the three engines, material-x without the visual project in one, typecheck, lint, the root `fmt-check`, publint, `docs-build` and `docs-smoke`. The sizes are the gate's.
+4. **#245's description:** the third cost, as pending the owner's answer, the two rows, and the gate's sizes.
+5. **Stop** and return if a row's reading differs in an engine.
+
+**A recheck isn't owed:** the mechanism doesn't change, and the rows have the proof's own mutations as witnesses. The coordinator checks them and the two sentences. **If the owner answers (b) or (c),** the branch isn't merged and the entry comes back.
+
+**Not read:** Safari, forced colors, screen readers.
+
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
 Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
@@ -5735,9 +5779,9 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Plan needed:** yes, by the architect, after the survey. Nothing is the owner's to answer now.
 - **Size:** _large_.
 
-#### RF-134 — No test covers the button groups in right-to-left text
+#### RF-134 — In right-to-left text, a connected group's and a split button's outer corners are on the inner side, and no test covers the groups
 
-Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-133` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, by searching `packages/material-x/tests` for `rtl` and `direction`.
+Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier B, with the title _No test covers the button groups in right-to-left text_. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-133` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, by searching `packages/material-x/tests` for `rtl` and `direction`.
 
 - **What is missing:** no row in material-x observes `mx-button-group`, `mx-connected-button-group` or `mx-split-button` under RTL. The sortable list is the only element with one. Core's `useRovingTabindex` has rows for the arrow keys, and no row reads them through a group.
 - **What could break and not be seen:** the connected group's end shapes, the standard group's neighbors that widen when one is pressed, and the roving order. By reading, the standard group's `padding-inline` follows the direction, and `LEADING`/`TRAILING` props are logical.
@@ -5746,6 +5790,18 @@ Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Other elements:** the slider and the top app bar have RTL rows on their branches. Which of the rest need them is the survey's to say (`RF-133`), because both are per-element sweeps. This entry covers the groups only.
 - **Order:** it waits for nothing.
 - **Plan needed:** no. **Size:** _medium_.
+
+**Dated 2026-11-24 by the architect, on `material-x/group-focus-1`: the required property fails today,** on an observation in `RF-126`'s [feature proof](reviews/group-focus-1/feature-proof-claude.md), relayed by the coordinator, and read again on the built elements in the three engines, which agree ([reading](focus-cover-1/checks/rtl-groups.txt), [probe](focus-cover-1/probes/rtl-groups.mjs)). The branch doesn't change it.
+
+- **The corners, a defect:** with `dir="rtl"` on the group or on an ancestor, the first button of `mx-connected-button-group` is at the right and has its outer corners (20px) at its left, and the last one, at the left, has them at its right. So each end of the group has the inner corners, and the outer corners face the neighbor. `mx-split-button` is the same. The cause is in `connected/main.styles.css`: `--_border-radius` for `data-first` and `data-last` is a value of `border-radius`, whose four corners are physical.
+- **The arrow keys are right:** in the connected group ArrowRight moves to the right and ArrowLeft to the left, in both directions. In `mx-button-group` no arrow moved the focus in either direction, so that part of the property has no subject there.
+- **The standard group's press can't be read:** it changes no width in LTR either, which is `RF-80`'s. So that part waits for `RF-80`, and the rest waits for nothing. _"Order: it waits for nothing"_ above is read so.
+- **The tier is A,** because a consumer in RTL sees another shape, and the title says the defect.
+- **The required property adds:** in RTL, a connected group's last button and a split button's two have their outer corners at the outer side, at rest, selected and pressed.
+- **Rows:** the corners of the first and the last button of the connected group and of the split button's two, and the connected group's arrow keys. The corner rows fail before the repair, which is their witness.
+- **The repair's form** is the implementer's. `--md-button-group-inner-corner-size` works as it does, in both directions.
+- **`RF-126` isn't affected:** its indicator is whole in RTL by the proof's pixels, and follows the button's shape.
+- **Plan needed:** no. **Ready** for an implementer. **Size:** _medium_, unchanged: the repair is a few lines, and the rows are the rest.
 
 ## Questions
 
