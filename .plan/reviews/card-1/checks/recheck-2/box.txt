@@ -1,0 +1,163 @@
+# chromium 158.0.8127.18
+none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5513,"max":96,"mean":26.3,"box":[38,39,241,75]}
+none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4658,"max":77,"mean":25.4,"box":[40,40,239,71]}
+reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5513,"max":96,"mean":26.3,"box":[38,39,241,75]}
+reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4658,"max":77,"mean":25.4,"box":[40,40,239,71]}
+reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5513,"max":96,"mean":26.3,"box":[38,39,241,75]}
+reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4658,"max":77,"mean":25.4,"box":[40,40,239,71]}
+preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5513,"max":96,"mean":26.3,"box":[38,39,241,75]}
+preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4658,"max":77,"mean":25.4,"box":[40,40,239,71]}
+offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5513,"max":96,"mean":26.3,"box":[38,39,241,75]}
+offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4658,"max":77,"mean":25.4,"box":[40,40,239,71]}
+forced none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":562,"max":255,"mean":212,"box":[40,40,239,71]}
+forced reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":562,"max":255,"mean":212,"box":[40,40,239,71]}
+forced reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":562,"max":255,"mean":212,"box":[40,40,239,71]}
+forced preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":562,"max":255,"mean":212,"box":[40,40,239,71]}
+forced offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":562,"max":255,"mean":212,"box":[40,40,239,71]}
+# firefox 159.0
+none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5616,"max":98,"mean":26.8,"box":[37,39,242,76]}
+none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4664,"max":77,"mean":25.5,"box":[40,40,239,71]}
+reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5616,"max":98,"mean":26.8,"box":[37,39,242,76]}
+reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4664,"max":77,"mean":25.5,"box":[40,40,239,71]}
+reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5616,"max":98,"mean":26.8,"box":[37,39,242,76]}
+reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4664,"max":77,"mean":25.5,"box":[40,40,239,71]}
+preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5616,"max":98,"mean":26.8,"box":[37,39,242,76]}
+preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4664,"max":77,"mean":25.5,"box":[40,40,239,71]}
+offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5616,"max":98,"mean":26.8,"box":[37,39,242,76]}
+offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4664,"max":77,"mean":25.5,"box":[40,40,239,71]}
+forced none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":582,"max":255,"mean":209.3,"box":[40,40,239,71]}
+forced reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":582,"max":255,"mean":209.3,"box":[40,40,239,71]}
+forced reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":582,"max":255,"mean":209.3,"box":[40,40,239,71]}
+forced preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":582,"max":255,"mean":209.3,"box":[40,40,239,71]}
+forced offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":582,"max":255,"mean":209.3,"box":[40,40,239,71]}
+# webkit 27.2
+none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5334,"max":98,"mean":27.9,"box":[38,40,241,75]}
+none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4662,"max":77,"mean":25.5,"box":[40,40,239,71]}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5334,"max":98,"mean":27.9,"box":[38,40,241,75]}
+reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4662,"max":77,"mean":25.5,"box":[40,40,239,71]}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5334,"max":98,"mean":27.9,"box":[38,40,241,75]}
+reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4662,"max":77,"mean":25.5,"box":[40,40,239,71]}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5334,"max":98,"mean":27.9,"box":[38,40,241,75]}
+preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4662,"max":77,"mean":25.5,"box":[40,40,239,71]}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4438,"max":43,"mean":42.6,"box":[40,40,239,71]}
+offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":5334,"max":98,"mean":27.9,"box":[38,40,241,75]}
+offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":4662,"max":77,"mean":25.5,"box":[40,40,239,71]}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
