@@ -5459,7 +5459,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
+Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
 
 - **What happens:** an arrow key makes a whole operation. The item is lifted at its home (top layer), the placeholder is inserted and moved to the destination, and the neighbor takes the item's old slot under the lifted item. The consumer's commit then ends it, and the item flies from its old slot to its new one for 650 ms, with the placeholder gone. So the footprint lasts exactly as long as the commit. The runs are three stylesheets, two preferences and three engines, and the sheets don't change the number of frames:
 
@@ -5526,6 +5526,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Suites,** without the visual project, one engine at a time: Chromium 1030 passed and 2 expected failures; Firefox 1019 passed, 3 expected failures and 10 skipped; WebKit 1020 passed, 2 expected failures and 10 skipped. Typecheck, format, lint, publint, `docs-build` and `docs-smoke` (112 of 112) pass.
 - **Size, Brotli:** `list/list` 659 to 687, `list/sortable-list` 8906 to 8944, `complete` 22844 to 22877. No other row moves. `mx-list` pays for the rule because the two lists share the sheet.
 - **Not read:** the flight and the pointer's frames on the built elements by the entry's probe, reduced motion in a key move, and Safari. The rows of the pointer drag and of `RF-107` pass unchanged.
+
+**Dated 2026-11-24 by the architect: closed,** on the [feature proof](reviews/command-signal-1/feature-proof-claude.md) at `48bd23f9a` and the rows added after it, read at `2e2c80ca0`. #235 merges it with `drag:DRD-71`, and `Closes #228`.
+
+- **Both required properties hold** by the proof, frame by frame on the built elements in the three engines, with reduced motion and without. What the implementer's note lists as not read, the proof read, apart from Safari.
+- **`reviewer-1` is settled:** the row of the handler also runs for `ArrowUp`, and fails in the three engines with a `'command'` toward the end alone. So the list has eleven rows of this entry.
+- **No recheck is owed,** for the reasons in `drag:DRD-71`'s note. `verify` passes on `2e2c80ca0`.
+- **The footprint's color is `RF-129`'s** (#230), which is ready once this is on `main`, in its own unit and on its own branch.
+- **The sizes in the implementer's note are against `ee7d838cc`,** before `main` was merged. On `2e2c80ca0`, by the gate's report against `f9729a393`: `list/list` 659 to 686, `list/sortable-list` 8905 to 8956, `complete` 23098 to 23045, and drag's rows as `drag:DRD-71` has them. Why `complete` falls by 53 where it rose by 33 before wasn't read. The source of the unit is the same.
 
 #### RF-128 — A handle shows the browser's focus indicator, and not Material's
 
