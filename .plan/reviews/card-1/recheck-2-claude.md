@@ -23,7 +23,7 @@
 
 ## What the plan owes
 
-- **The box probe** ([reading](checks/recheck-2/box.txt)): 12 of 13 cases equal the reference in each of 75 sets (three variants, five page rules, the three engines, and forced colors in two). The differences in those 12 are 1 pixel by 2 of 255, in WebKit, for `overflow: hidden` and `clip`, as before. The 13th is `block-size: 10px`, the accepted one. With `padding: 16px` on the reference, no pixel of that case differs, in the sets that I ran to the end: all of WebKit, and Chromium's and Firefox's without a difference from the committed [reading](../../card-1/checks/box-padded-reference.txt).
+- **The box probe** ([reading](checks/recheck-2/box.txt)): 12 of 13 cases equal the reference in each of 75 sets (three variants, five page rules, the three engines, and forced colors in two). The differences in those 12 are 1 pixel by 2 of 255, in WebKit, for `overflow: hidden` and `clip`, as before. The 13th is `block-size: 10px`, the accepted one. With `padding: 16px` on the reference, the probe gives the committed [reading](../../card-1/checks/box-padded-reference.txt) line for line, and no pixel of that case differs. A first run in Firefox stopped on a page that took 30 seconds to load, while the mutations ran beside it, and I ran it again.
 - **The focus probe** gives the committed [reading](../../card-1/checks/focus-built.txt) line for line.
 - **The mutations:** `mutate-4.mjs`, 29 and a control, gives the committed [reading](../../card-1/checks/witnesses-4.txt) line for line.
 
