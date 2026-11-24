@@ -5179,6 +5179,23 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
   4. The sizes, as the entry asks, and the browser projects in the three engines. The rows of the first implementation stay.
 - **Pending:** a recheck of `reviewer-1` by its reviewer. The proof isn't a pass until then. No code changed in this ruling.
 
+**Dated 2026-11-24 by the implementer: the ruling is implemented on `core/use-aria-1`, and the entry isn't closed.** Requested by the coordinator. It replaces the `Set` and the first note's statement that the set is needed. `useARIA` observes its host from construction. Its connect takes the pending records and writes the names of those and of the host once each, through one local `Set` that isn't kept. No machinery beyond the entry was needed, and properties 1 to 5 hold in the three engines. The JSDoc and the comments say so. The README's row was read again and is true.
+
+- **The rows:** core has five more: the ruling's four, and one that the list doesn't have, below. Material-x has three more: `mx-link-button`'s `aria-disabled` in both cases, and the sortable button item's description.
+- **The witnesses** ([readings](aria-removed-1/checks/mutations-2.txt), [script](aria-removed-1/probes/mutations-2.mjs)), the same failures in Chromium, Firefox and WebKit:
+  - `6e0ca1d4f` fails the first two core rows and both rows of the link button, and no other.
+  - The forgetting `Set` fails the second core row and the second row of the link button, and no other.
+  - Without taking the records, the synchronous row and the row of the single transformation fail. The second fails too, because the pending record is then written a second time.
+  - With a name written twice, only the row of the single transformation fails.
+  - With `114270083`'s hook, six core rows, the sortable row and the text fields' four fail.
+  - Six more mutations fail the rows that they concern: the records dropped, an observer that stops while out, no copy of the host's names, a connect that also syncs the target's, a removal without the transformer, and a hook that mirrors every attribute.
+- **One witness of the list doesn't hold:** the sortable item's row passes in the hook that doesn't take the records. The ruling's reason was by reasoning: that the list's writer runs in the same connect. It runs in a microtask after it, because the item waits for its parent's definition (`useContext`), and the observer's delivery, queued at the removal, comes first. The row does fail with `114270083`'s hook and with the records dropped. So it guards the repair and not the moment, which core's synchronous row guards.
+- **The row added beyond the list:** the host's value is copied over the target's own at a reconnect (property 3). Without it no row failed when the connect didn't copy the host's names.
+- **The orders' probe** on this hook ([reading](aria-removed-1/checks/own-order-built.txt)) reads as the ruling's last column: the component's value is kept in a later task, connected and out, also after a move, and gone in the other orders, which are `RF-130`'s. The engines agree.
+- **The browser projects pass** in the three engines, one at a time. Core's whole suite: 301 rows in each, and 302 with the row that was added after that run; its file then passed in the three engines. Material-x's browser projects: 561 in Chromium; 550, 1 expected failure and 10 skipped in Firefox; 551 and 10 skipped in WebKit. Both typechecks, format, lint, material-x's publint, `docs-build` and `docs-smoke` (112 of 112) pass.
+- **Sizes,** in Brotli bytes, against `114270083`: `complete` 22844 to 22869, **+25**, where the `Set` was +42. The rows that have the hook change from −48 (`button/split-button`) to +25 (`text-field/text-field`), and the rows of core, box-quad and drag are 0 ([every row](aria-removed-1/checks/sizes-2.txt)).
+- **Limits:** Safari, the spec projects and the visual project weren't run, and the feature proof's own probes weren't run again. They are the recheck's.
+
 **What the ruling replaced, in the required property:**
 
 > **Required property:** after each connect, for every `aria-*` that the hook has ever mirrored from this host, the target holds what the transformer gives for the host's current value, and no attribute if that is `null`. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return. An `aria-*` that the host has never had isn't touched, because the component may have set it on the target itself. What happens while the host is connected doesn't change.
