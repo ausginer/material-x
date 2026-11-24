@@ -1,0 +1,23 @@
+Brotli bytes from size-limit, `just size`. Before: main at 3aef04f7e. After: this branch.
+
+row | before | after | change
+button/button | 4840 | 4865 | 25
+button/icon-button | 5117 | 5133 | 16
+button/link-button | 4801 | 4831 | 30
+button/switch-button | 5429 | 5444 | 15
+button/switch-icon-button | 5797 | 5846 | 49
+button/split-button | 7448 | 7473 | 25
+button-group/button-group | 3034 | 3055 | 21
+button-group/connected-button-group | 3800 | 3815 | 15
+checkbox/checkbox | 4221 | 4231 | 10
+fab/fab | 4112 | 4132 | 20
+icon/icon | 641 | 641 | 0
+list/list | 663 | 664 | 1
+list/list-item | 2848 | 2876 | 28
+list/list-button-item | 4839 | 4844 | 5
+list/list-link-item | 5041 | 5066 | 25
+list/sortable-list | 8906 | 8913 | 7
+radio/radio | 3779 | 3788 | 9
+text-field/multiline-text-field | 4429 | 4461 | 32
+text-field/text-field | 8417 | 8462 | 45
+complete | 22746 | 22871 | 125

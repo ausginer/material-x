@@ -1,0 +1,12 @@
+The build with --mx-. First the new map's names, then the page's four names of the old map.
+names: level --mx-fn, container-color --mx-bh, border-radius --mx-hh, suffix color --mx-an
+chromium 158.0.8127.18 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","its background, not inherited, fallback rgb(4, 5, 6)":"rgb(66, 73, 55)","button corner":"3px","unchecked checkbox ::after":"rgb(255, 0, 0)","page rule on the registered name":"none"}
+firefox 159.0 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","its background, not inherited, fallback rgb(4, 5, 6)":"rgb(66, 73, 55)","button corner":"3px","unchecked checkbox ::after":"rgb(255, 0, 0)","page rule on the registered name":"none"}
+webkit 27.2 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","its background, not inherited, fallback rgb(4, 5, 6)":"rgb(66, 73, 55)","button corner":"3px","unchecked checkbox ::after":"rgb(255, 0, 0)","page rule on the registered name":"none"}
+names: level --fn, container-color --bh, border-radius --hh, suffix color --an
+chromium 158.0.8127.18 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","its background, not inherited, fallback rgb(4, 5, 6)":"rgb(4, 5, 6)","button corner":"20px","unchecked checkbox ::after":"rgba(0, 0, 0, 0)","page rule on the registered name":"solid"}
+firefox 159.0 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","its background, not inherited, fallback rgb(4, 5, 6)":"rgb(4, 5, 6)","button corner":"20px","unchecked checkbox ::after":"rgba(0, 0, 0, 0)","page rule on the registered name":"solid"}
+webkit 27.2 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","its background, not inherited, fallback rgb(4, 5, 6)":"rgb(4, 5, 6)","button corner":"20px","unchecked checkbox ::after":"rgba(0, 0, 0, 0)","page rule on the registered name":"solid"}
+100 files, 303 names; 227 of the map's 228; the map's values without --mx-: 0
+names that are neither --md-* nor --mx-*: --activate (button/SwitchCore.js)
+--mx-* names not in the map: none

@@ -1,0 +1,57 @@
+// The control's attributes after the host's aria-label or aria-labelledby is
+// removed while the element is out of the document. Copy to
+// packages/material-x/tests/ and run there, after building core. The last test
+// fails on purpose, because the reporter drops console output, and its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/button.ts';
+import '../src/fab/fab.ts';
+import '../src/list/list-button-item.ts';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+const rows: string[] = [];
+
+const tags = [
+  'mx-button',
+  'mx-fab',
+  'mx-list-button-item',
+  'mx-text-field',
+  'mx-multiline-text-field',
+];
+
+for (const tag of tags) {
+  for (const attr of ['aria-label', 'aria-labelledby', 'aria-describedby']) {
+    for (const out of [false, true]) {
+      it(`${tag} ${attr} ${out}`, async () => {
+        const el = document.createElement(tag);
+        el.innerHTML = '<span slot="label">Label</span><span slot="support">Help</span>Content';
+        el.setAttribute(attr, 'x');
+        document.body.append(el);
+        await nextFrame();
+        const control = el.shadowRoot!.querySelector(
+          `[${attr}="x"]`,
+        )!;
+        expect(control).not.toBeNull();
+        if (out) {
+          el.remove();
+          await nextFrame();
+        }
+        el.removeAttribute(attr);
+        await nextFrame();
+        if (out) document.body.append(el);
+        await nextFrame();
+        await nextFrame();
+        rows.push(
+          `READ ${tag} | ${server.browser} | ${attr} removed ${out ? 'while out' : 'while connected'} | ${control.localName} ${control.getAttribute(attr)}`,
+        );
+        el.remove();
+      });
+    }
+  }
+}
+
+it('reading', () => {
+  expect.fail(`\n${rows.join('\n')}\nEND`);
+});

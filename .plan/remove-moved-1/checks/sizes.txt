@@ -1,0 +1,62 @@
+## Brotli bytes from size-limit, just size-reading. Before: a4dee53d8. After: this branch.
+
+package | row | before | after | change
+box-quad | index | 1182 | 1182 | 0
+core | element | 275 | 277 | 2
+core | emitter | 198 | 198 | 0
+material-x | button/button | 4865 | 4858 | -7
+material-x | button/icon-button | 5133 | 5140 | 7
+material-x | button/link-button | 4831 | 4829 | -2
+material-x | button/switch-button | 5444 | 5446 | 2
+material-x | button/switch-icon-button | 5846 | 5834 | -12
+material-x | button/split-button | 7473 | 7480 | 7
+material-x | button-group/button-group | 3055 | 3040 | -15
+material-x | button-group/connected-button-group | 3815 | 3809 | -6
+material-x | checkbox/checkbox | 4231 | 4226 | -5
+material-x | fab/fab | 4132 | 4137 | 5
+material-x | icon/icon | 641 | 631 | -10
+material-x | list/list | 664 | 659 | -5
+material-x | list/list-item | 2876 | 2868 | -8
+material-x | list/list-button-item | 4844 | 4854 | 10
+material-x | list/list-link-item | 5066 | 5065 | -1
+material-x | list/sortable-list | 8913 | 8906 | -7
+material-x | radio/radio | 3788 | 3781 | -7
+material-x | text-field/multiline-text-field | 4461 | 4457 | -4
+material-x | text-field/text-field | 8462 | 8489 | 27
+material-x | complete | 22871 | 22844 | -27
+drag | draggable alone | 2189 | 2189 | 0
+drag | draggable + lift | 3932 | 3932 | 0
+drag | example: resize handle | 3265 | 3265 | 0
+drag | example: drop zone | 4570 | 4570 | 0
+drag | example: canvas group | 3261 | 3261 | 0
+drag | freeDrag | 4984 | 4984 | 0
+drag | freeDrag + bounds + landing | 5465 | 5465 | 0
+drag | sortable + y | 6533 | 6533 | 0
+drag | sortable + xy | 6484 | 6484 | 0
+drag | complete | 7143 | 7143 | 0
+
+## Minified and Brotli bytes with the deleted method put back into the built core/element.js, ../probes/minified.mjs
+The probe's entry is a module that re-exports the row's files, so its Brotli figures differ from size-limit's. size-limit's govern.
+
+row | minified before | after | change | Brotli before | after | change | insertions
+core element | 770 | 728 | -42 | 275 | 277 | 2 | 1
+button/button | 17696 | 17654 | -42 | 4861 | 4856 | -5 | 1
+button/icon-button | 20929 | 20887 | -42 | 5096 | 5114 | 18 | 1
+button/link-button | 17720 | 17678 | -42 | 4822 | 4811 | -11 | 1
+button/switch-button | 21908 | 21866 | -42 | 5433 | 5426 | -7 | 1
+button/switch-icon-button | 27787 | 27745 | -42 | 5828 | 5825 | -3 | 1
+button/split-button | 32210 | 32168 | -42 | 7452 | 7467 | 15 | 1
+button-group/button-group | 10752 | 10710 | -42 | 3043 | 3032 | -11 | 1
+button-group/connected-button-group | 13739 | 13697 | -42 | 3810 | 3801 | -9 | 1
+checkbox/checkbox | 12881 | 12839 | -42 | 4234 | 4224 | -10 | 1
+fab/fab | 16660 | 16618 | -42 | 4136 | 4119 | -17 | 1
+icon/icon | 1563 | 1521 | -42 | 628 | 620 | -8 | 1
+list/list | 1575 | 1533 | -42 | 650 | 648 | -2 | 1
+list/list-item | 10646 | 10604 | -42 | 2856 | 2858 | 2 | 1
+list/list-button-item | 16897 | 16855 | -42 | 4842 | 4837 | -5 | 1
+list/list-link-item | 17629 | 17587 | -42 | 5066 | 5060 | -6 | 1
+list/sortable-list | 27412 | 27370 | -42 | 8903 | 8900 | -3 | 1
+radio/radio | 10996 | 10954 | -42 | 3777 | 3766 | -11 | 1
+text-field/multiline-text-field | 17584 | 17542 | -42 | 4441 | 4443 | 2 | 1
+text-field/text-field | 37274 | 37232 | -42 | 8470 | 8434 | -36 | 1
+complete | 117789 | 117747 | -42 | 22958 | 22976 | 18 | 1

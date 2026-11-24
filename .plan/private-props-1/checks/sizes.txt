@@ -1,0 +1,26 @@
+Brotli bytes from size-limit on main at 92a386a17; a change is against base.
+d-min: the confirmed leaks reset on the host of the element that reads them; d-full: every exposed property (drag timing excepted);
+prefix: each name prefixed by its folder in src before mangling, names used in core/ shared, the cross-component channels not repaired (a size estimate, not a working build);
+mx-: published names --mx-a; _: published names --_a.
+
+row | base | d-min | d-full | prefix | mx- | _
+button/button | 4840 | +7 | +39 | -1 | +25 | +11
+button/icon-button | 5117 | -4 | +37 | -19 | +16 | 0
+button/link-button | 4801 | +3 | +31 | -16 | +30 | +11
+button/switch-button | 5429 | -18 | +13 | -22 | +15 | +2
+button/switch-icon-button | 5797 | +34 | +26 | +5 | +49 | +46
+button/split-button | 7448 | +19 | +10 | -33 | +25 | -29
+button-group/button-group | 3034 | +5 | +41 | -26 | +21 | -1
+button-group/connected-button-group | 3800 | +2 | +36 | -14 | +15 | +23
+checkbox/checkbox | 4221 | +5 | +32 | -13 | +10 | 0
+fab/fab | 4112 | +7 | +37 | -13 | +20 | +15
+icon/icon | 641 | 0 | 0 | 0 | 0 | 0
+list/list | 663 | 0 | 0 | -2 | +1 | +1
+list/list-item | 2848 | +12 | +19 | -29 | +28 | +10
+list/list-button-item | 4839 | -14 | +24 | -30 | +5 | +8
+list/list-link-item | 5041 | +14 | +26 | -30 | +25 | +19
+list/sortable-list | 8906 | 0 | +2 | -3 | +7 | +2
+radio/radio | 3779 | 0 | +4 | +5 | +9 | +9
+text-field/multiline-text-field | 4429 | +4 | +80 | +8 | +32 | +18
+text-field/text-field | 8417 | +11 | +109 | -12 | +45 | +8
+complete | 22746 | +11 | +123 | +242 | +125 | +45
