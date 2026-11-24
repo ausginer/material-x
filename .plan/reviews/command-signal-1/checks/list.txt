@@ -1,0 +1,607 @@
+### base, ee7d838cc
+# chromium 158.0.8127.18
+## no preference
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | handler | mx-list-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | microtask | mx-list-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 103>156; rest 156; order InSeStDr; state false
+key | next frame | mx-list-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 103>156; rest 156; order InSeStDr; state false
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>156; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | never | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## reduce
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## sequences: what the pointer drag paints, held
+after an accepted key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+in the flight of a key move, another item | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+after a refused key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+after a key move that timed out | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a key move that Escape ended | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a disconnection in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a move in the DOM in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a key at the edge | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+  ERROR drag: sortable/landing-placeholder-lost
+after the item left in a key move | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order StSeDr; state false
+   then a key move | placeholder frames many, painting all, at 98 h56; handlers true
+after K K P K | placeholder frames many, painting all, at 40 h56; handlers ; flight no; rest -18; order SeInStDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+no key move before | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+a key move after a disconnection in a pointer drag | placeholder frames many, painting all, at 214 h56; handlers true; flight no; rest 156; order InStSeDr; state false
+an arrow during a pointer drag | placeholder frames many, painting all, at 40/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+an arrow in the commit of a pointer drop | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key by a handle, 100 ms | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer by a handle after it | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order InSeStDr; state false
+a finger's drag after a key move | placeholder frames many, painting all, at 98 h56; handlers true; flight yes 78>94; rest 94; order InSeStDr; state false
+## the state and the page
+page shows the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page styles the state | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+transition on all | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page outline on the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page opacity | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+in a key move | {"l0":"v","a1":"v","inside2":"v","mx-list-item3":"v","div4":"v","mx-list-item5":"v","n6":"v","mx-list-item7":"v","mx-list-item8":"v","mx-list-item9":"v","own10":"v","plain11":"v","mx-list-item12":"v","pp13":"v"}
+after it | {"inside0":"v","own1":"v","pp2":"v"}
+nested key move | outer state false, inner false, placeholders nvisible
+outer pointer drag after it | placeholder frames many, painting all, at 40/98 h56; handlers 
+# firefox 159.0
+## no preference
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | handler | mx-list-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | microtask | mx-list-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 103>156; rest 156; order InSeStDr; state false
+key | next frame | mx-list-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 103>156; rest 156; order InSeStDr; state false
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>156; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | never | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## reduce
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React state | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## sequences: what the pointer drag paints, held
+after an accepted key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+in the flight of a key move, another item | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+after a refused key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+after a key move that timed out | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a key move that Escape ended | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a disconnection in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a move in the DOM in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a key at the edge | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+  ERROR drag: sortable/landing-placeholder-lost
+after the item left in a key move | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order StSeDr; state false
+   then a key move | placeholder frames many, painting all, at 98 h56; handlers true
+after K K P K | placeholder frames many, painting all, at 40 h56; handlers ; flight no; rest -18; order SeInStDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+no key move before | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+a key move after a disconnection in a pointer drag | placeholder frames many, painting all, at 214 h56; handlers true; flight no; rest 156; order InStSeDr; state false
+an arrow during a pointer drag | placeholder frames many, painting all, at 40/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+an arrow in the commit of a pointer drop | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key by a handle, 100 ms | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+pointer by a handle after it | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order InSeStDr; state false
+## the state and the page
+page shows the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page styles the state | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+transition on all | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page outline on the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page opacity | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+in a key move | {"l0":"v","a1":"v","inside2":"v","mx-list-item3":"v","div4":"v","mx-list-item5":"v","n6":"v","mx-list-item7":"v","mx-list-item8":"v","mx-list-item9":"v","own10":"v","plain11":"v","mx-list-item12":"v","pp13":"v"}
+after it | {"inside0":"v","own1":"v","pp2":"v"}
+nested key move | outer state false, inner false, placeholders nvisible
+outer pointer drag after it | placeholder frames many, painting all, at 40/98 h56; handlers 
+# webkit 27.2
+## no preference
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | handler | mx-list-item | placeholder frames 0, painting none; handlers true; flight yes 100>156; rest 156; order InSeStDr; state false
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | microtask | mx-list-item | placeholder frames 0, painting none; handlers true; flight yes 99>156; rest 156; order InSeStDr; state false
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 98>156; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 99>156; rest 156; order InSeStDr; state false
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 116>156; rest 156; order InSeStDr; state false
+key | next frame | mx-list-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 113>156; rest 156; order InSeStDr; state false
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 101>156; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight yes 100>156; rest 156; order InSeStDr; state false
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>156; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | never | mx-list-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | refused | placeholder frames few, painting all, at 98 h56; handlers true; flight yes 144>98; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 114>156; rest 156; order InSeStDr; state false
+pointer after it | React state | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers true; flight yes 111>156; rest 156; order InSeStDr; state false
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## reduce
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | handler | placeholder frames few, painting all, at 98 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers true; flight no; rest 98; order InStSeDr; state false
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers true; flight no; rest 156; order InSeStDr; state false
+pointer after it | React flushSync | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## sequences: what the pointer drag paints, held
+after an accepted key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+in the flight of a key move, another item | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+after a refused key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+after a key move that timed out | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames few, painting all, at 156 h56; handlers true
+after a key move that Escape ended | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a disconnection in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames few, painting all, at 156 h56; handlers true
+after a move in the DOM in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting all, at 156 h56; handlers true
+after a key at the edge | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+  ERROR drag: sortable/landing-placeholder-lost
+after the item left in a key move | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order StSeDr; state false
+   then a key move | placeholder frames many, painting all, at 98 h56; handlers true
+after K K P K | placeholder frames many, painting all, at 40 h56; handlers ; flight no; rest -18; order SeInStDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+no key move before | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers true
+a key move after a disconnection in a pointer drag | placeholder frames many, painting all, at 214 h56; handlers true; flight no; rest 156; order InStSeDr; state false
+an arrow during a pointer drag | placeholder frames many, painting all, at 40/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+an arrow in the commit of a pointer drop | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key by a handle, 100 ms | placeholder frames few, painting all, at 156 h56; handlers true; flight yes 100>156; rest 156; order InSeStDr; state false
+pointer by a handle after it | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order InSeStDr; state false
+## the state and the page
+page shows the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page styles the state | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+transition on all | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page outline on the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page opacity | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+in a key move | {"l0":"v","a1":"v","inside2":"v","mx-list-item3":"v","div4":"v","mx-list-item5":"v","n6":"v","mx-list-item7":"v","mx-list-item8":"v","mx-list-item9":"v","own10":"v","plain11":"v","mx-list-item12":"v","pp13":"v"}
+after it | {"inside0":"v","own1":"v","pp2":"v"}
+nested key move | outer state false, inner false, placeholders nvisible
+outer pointer drag after it | placeholder frames many, painting all, at 40/98 h56; handlers 
+### branch, 48bd23f9a
+# chromium 158.0.8127.18
+## no preference
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | handler | mx-list-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | microtask | mx-list-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | setTimeout 0 | mx-list-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 103>156; rest 156; order InSeStDr; state true
+key | next frame | mx-list-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 103>156; rest 156; order InSeStDr; state true
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | 100 ms | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+key | 700 ms | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>156; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+key | never | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+key | refused | mx-list-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## reduce
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## sequences: what the pointer drag paints, held
+after an accepted key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+in the flight of a key move, another item | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+after a refused key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+after a key move that timed out | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a key move that Escape ended | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a disconnection in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a move in the DOM in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a key at the edge | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+  ERROR drag: sortable/landing-placeholder-lost
+after the item left in a key move | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order StSeDr; state false
+   then a key move | placeholder frames many, painting none, at 98 h56; handlers false
+after K K P K | placeholder frames many, painting all, at 40 h56; handlers ; flight no; rest -18; order SeInStDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+no key move before | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+a key move after a disconnection in a pointer drag | placeholder frames many, painting none, at 214 h56; handlers false; flight no; rest 156; order InStSeDr; state true
+an arrow during a pointer drag | placeholder frames many, painting all, at 40/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+an arrow in the commit of a pointer drop | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key by a handle, 100 ms | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer by a handle after it | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order InSeStDr; state false
+a finger's drag after a key move | placeholder frames many, painting all, at 98 h56; handlers false; flight yes 78>95; rest 95; order InSeStDr; state false
+## the state and the page
+page shows the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page styles the state | list outline solid | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+transition on all | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page outline on the placeholder | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page opacity | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+in a key move | {"l0":"v!","a1":"v","inside2":"v","mx-list-item3":"v","div4":"h","mx-list-item5":"v","n6":"v","mx-list-item7":"v","mx-list-item8":"v","mx-list-item9":"v","own10":"h","plain11":"v","mx-list-item12":"v","pp13":"v"}
+after it | {"inside0":"v","own1":"h","pp2":"v"}
+nested key move | outer state false, inner true, placeholders nhidden
+outer pointer drag after it | placeholder frames many, painting all, at 40/98 h56; handlers 
+# firefox 159.0
+## no preference
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | handler | mx-list-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | microtask | mx-list-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | setTimeout 0 | mx-list-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 103>156; rest 156; order InSeStDr; state true
+key | next frame | mx-list-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 103>156; rest 156; order InSeStDr; state true
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | 100 ms | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+key | 700 ms | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>156; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+key | never | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+key | refused | mx-list-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 156>98; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## reduce
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React state | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## sequences: what the pointer drag paints, held
+after an accepted key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+in the flight of a key move, another item | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+after a refused key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+after a key move that timed out | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a key move that Escape ended | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a disconnection in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a move in the DOM in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a key at the edge | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+  ERROR drag: sortable/landing-placeholder-lost
+after the item left in a key move | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order StSeDr; state false
+   then a key move | placeholder frames many, painting none, at 98 h56; handlers false
+after K K P K | placeholder frames many, painting all, at 40 h56; handlers ; flight no; rest -18; order SeInStDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+no key move before | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+a key move after a disconnection in a pointer drag | placeholder frames many, painting none, at 214 h56; handlers false; flight no; rest 156; order InStSeDr; state true
+an arrow during a pointer drag | placeholder frames many, painting all, at 40/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+an arrow in the commit of a pointer drop | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key by a handle, 100 ms | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+pointer by a handle after it | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order InSeStDr; state false
+## the state and the page
+page shows the placeholder | list outline none | placeholder frames many, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page styles the state | list outline solid | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+transition on all | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page outline on the placeholder | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page opacity | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+in a key move | {"l0":"v!","a1":"v","inside2":"v","mx-list-item3":"v","div4":"h","mx-list-item5":"v","n6":"v","mx-list-item7":"v","mx-list-item8":"v","mx-list-item9":"v","own10":"h","plain11":"v","mx-list-item12":"v","pp13":"v"}
+after it | {"inside0":"v","own1":"h","pp2":"v"}
+nested key move | outer state false, inner true, placeholders nhidden
+outer pointer drag after it | placeholder frames many, painting all, at 40/98 h56; handlers 
+# webkit 27.2
+## no preference
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | handler | mx-list-item | placeholder frames 0, painting none; handlers false; flight yes 100>156; rest 156; order InSeStDr; state true
+pointer | handler | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | microtask | mx-list-item | placeholder frames 0, painting none; handlers false; flight yes 99>156; rest 156; order InSeStDr; state true
+pointer | microtask | placeholder frames few, painting all, at 98 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | setTimeout 0 | mx-list-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 100>156; rest 156; order InSeStDr; state true
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 112>156; rest 156; order InSeStDr; state true
+key | next frame | mx-list-item | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 112>156; rest 156; order InSeStDr; state true
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 98>156; rest 156; order InSeStDr; state true
+key | 100 ms | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight yes 99>156; rest 156; order InSeStDr; state true
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+key | 700 ms | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 150>156; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+key | never | mx-list-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight yes 144>98; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+key | refused | mx-list-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | refused | placeholder frames few, painting all, at 98 h56; handlers true; flight yes 146>98; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 138>156; rest 156; order InSeStDr; state true
+pointer after it | React state | placeholder frames few, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers false; flight yes 109>156; rest 156; order InSeStDr; state true
+pointer after it | React flushSync | placeholder frames few, painting all, at 156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## reduce
+key | handler | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | handler | placeholder frames few, painting all, at 98 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | microtask | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | microtask | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | setTimeout 0 | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | setTimeout 0 | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | next frame | mx-list-button-item | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | next frame | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 100 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 100 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | 700 ms | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer | 700 ms | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 156; order InSeStDr; state false
+key | never | mx-list-button-item | placeholder frames many, painting none, at 156 h56; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | never | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | refused | mx-list-button-item | placeholder frames 0, painting none; handlers false; flight no; rest 98; order InStSeDr; state true
+pointer | refused | placeholder frames many, painting all, at 98/156 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React state | placeholder frames few, painting none, at 156 h56; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer after it | React state | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key | React flushSync | placeholder frames 0, painting none; handlers false; flight no; rest 156; order InSeStDr; state true
+pointer after it | React flushSync | placeholder frames many, painting all, at 156/98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+## sequences: what the pointer drag paints, held
+after an accepted key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+in the flight of a key move, another item | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order StInSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+after a refused key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+after a key move that timed out | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames few, painting none, at 156 h56; handlers false
+after a key move that Escape ended | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames few, painting none, at 156 h56; handlers false
+after a disconnection in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a move in the DOM in a key move | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames many, painting none, at 156 h56; handlers false
+after a key at the edge | placeholder frames many, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+  ERROR drag: sortable/landing-placeholder-lost
+after the item left in a key move | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order StSeDr; state false
+   then a key move | placeholder frames many, painting none, at 98 h56; handlers false
+after K K P K | placeholder frames many, painting all, at 40 h56; handlers ; flight no; rest -18; order SeInStDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+no key move before | placeholder frames few, painting all, at 156/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+   then a key move | placeholder frames 0, painting none; handlers false
+a key move after a disconnection in a pointer drag | placeholder frames many, painting none, at 214 h56; handlers false; flight no; rest 156; order InStSeDr; state true
+an arrow during a pointer drag | placeholder frames many, painting all, at 40/98 h56; handlers ; flight no; rest 98; order InStSeDr; state false
+an arrow in the commit of a pointer drop | placeholder frames many, painting all, at 98 h56; handlers true; flight no; rest 98; order InStSeDr; state false
+key by a handle, 100 ms | placeholder frames few, painting none, at 156 h56; handlers false; flight yes 100>156; rest 156; order InSeStDr; state true
+pointer by a handle after it | placeholder frames many, painting all, at 98/40 h56; handlers ; flight no; rest 40; order InSeStDr; state false
+## the state and the page
+page shows the placeholder | list outline none | placeholder frames few, painting all, at 156 h56; handlers true
+   again | placeholder frames many, painting all, at 156 h56; handlers true
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page styles the state | list outline solid | placeholder frames few, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+transition on all | list outline none | placeholder frames few, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page outline on the placeholder | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+page opacity | list outline none | placeholder frames many, painting none, at 156 h56; handlers false
+   again | placeholder frames many, painting none, at 156 h56; handlers false
+   pointer after it | placeholder frames many, painting all, at 156/98 h56; handlers 
+in a key move | {"l0":"v!","a1":"v","inside2":"v","mx-list-item3":"v","div4":"h","mx-list-item5":"v","n6":"v","mx-list-item7":"v","mx-list-item8":"v","mx-list-item9":"v","own10":"h","plain11":"v","mx-list-item12":"v","pp13":"v"}
+after it | {"inside0":"v","own1":"h","pp2":"v"}
+nested key move | outer state false, inner true, placeholders nhidden
+outer pointer drag after it | placeholder frames many, painting all, at 40/98 h56; handlers 
+### pixels in the placeholder's box after 1.5 s of a pending key move, a screenshot against one with the placeholder hidden by the page
+base    chromium different, firefox different, webkit different (each stable between two screenshots)
+branch  chromium the same,  firefox the same,  webkit the same  (each stable between two screenshots)
