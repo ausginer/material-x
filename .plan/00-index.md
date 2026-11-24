@@ -5334,6 +5334,25 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 **Not read:** Safari itself, where a click doesn't focus a button by default, forced colors, and screenshots. **No visual baseline** is expected to change. **Nothing is the owner's to answer.** **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: (c) is implemented on `material-x/group-focus-1`, for #227, from `main` at `01ccdcb84`.** Requested by the coordinator. The entry closes when its pull request merges.
+
+- **Source:** the contract's mechanism and its three files, with `::slotted(*)`. The page of the connected group and the page of the split button have the sentence about the top layer. The code agrees with the contract.
+- **Rows:** 47 in `button-group-focus.spec`, A to E. `tests/focus-indicator.ts` has the left side. Row D also reads a popover beside the members and a wrapper, for property 4. The icon buttons have a narrow glyph: a wide text stretches one to a fractional width, and then one antialiased corner pixel of the indicator differs by 13 levels from its color, against a tolerance of 12, in Chromium.
+- **Witnesses** ([reading](focus-cover-1/checks/keyboard-raise-witnesses.txt), [probe](focus-cover-1/probes/keyboard-raise-mutate.mjs)), in the three engines. They fail as the table says, and these other rows fail too:
+  - Without the `z-index`, or the isolation: also E's rows with a raised member, which assert both.
+  - With the first member alone raised: the middle rows alone.
+  - With isolation at rest, and with any focus inside: also D's isolation rows (at rest, all three; with any focus, the wrapper's, and the popovers' in Firefox alone) and E's rows of the state that each changes.
+  - Without `:focus-within`: B's rows after focus leaves, and E's three rows of leaving.
+  - With every focused button raised: the button alone, and D's overlay rows.
+  - With the event's target: the arrow row, and the middle rows of both switch buttons, which arrows reach.
+  - Without `keydown`: the letter row in Chromium and WebKit, none in Firefox. Without `focusin`: the rows of the first member's edge, the Tab row, and others.
+- **No row holds the button's own `--_focus-z-index: auto` alone:** taken out, with the group's state kept, all 47 pass. It matters with an unconditional raise, where D fails. It is kept for `RF-122`'s rule.
+- **The start-edge rows are controls,** as the table says, and fail under no mutation.
+- **The entry's probe on the built elements** equals the contract's reading, line for line, in the three engines. The proof's `stack.mjs` differs from the merge base in the two lines that the contract has, and `hit.mjs` in none ([reading](focus-cover-1/checks/keyboard-raise-built.txt)).
+- **Size, Brotli, against the merge base:** `complete` 23048 to 23139 (+91), `button-group/connected-button-group` 3801 to 3897 (+96), `button/split-button` 7461 to 7556 (+95), `text-field/text-field` 8456 to 8478 (+22), and the other rows that move by 16 or less. **`complete` is above the +68 that the contract stated,** and `text-field/text-field` is above its 15. With the scratch form `::slotted(:focus)` on this base, `complete` is 23109 (+61), `connected-button-group` 3918, `split-button` 7539 and `text-field/text-field` 8478. The text field's cause wasn't read.
+- **Checks:** the suite without the visual project, one engine at a time: Chromium 1157 passed and 2 expected failures; Firefox 1143 passed, 3 expected failures and 13 skipped; WebKit 1144 passed, 2 expected failures and 13 skipped. Typecheck, ESLint, publint, `docs-build` and `docs-smoke` (117 of 117) pass. **oxlint reports two errors,** `no-await-in-loop`, in `button-group-focus.spec`, where each key press follows the former one. They survive the autofix and aren't resolved by hand, as [`handoff.md`](../.agents/docs/handoff.md) says, so the `lint` job fails until they are answered.
+- **Not run:** the visual project, Safari, forced colors, and RTL rows.
+
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).

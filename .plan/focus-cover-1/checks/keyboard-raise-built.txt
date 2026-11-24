@@ -1,0 +1,179 @@
+# Readings of 2026-11-24 by the implementer, RF-126 (c) as built on material-x/group-focus-1, merge base 01ccdcb84.
+# Probe: ../probes/keyboard-raise.mjs
+
+# chromium 158.0.8127.18
+## the indicator
+split tonal mx-button: whole
+split tonal mx-icon-button: whole
+split elevated mx-button: whole
+split elevated mx-icon-button: whole
+cases that print no line are whole on their four sides
+## the page around the group: at rest, a pointer, the keyboard
+tooltip z 10 in the member, then position:relative: rest top, pointer top, keyboard COVERED, after top
+the same in a split button: rest top, pointer top, keyboard COVERED, after top
+a button before, over the empty end: rest top, pointer top, keyboard COVERED, after top
+the same before a split button: rest top, pointer top, keyboard COVERED, after top
+a menu after, z auto, over the group: rest top, keyboard top, after top
+a bar before, z-index 1, over the group: rest top, keyboard top, after top
+## how focus arrives and leaves
+rest: isolation auto, focused body visible false z auto
+Tab: isolation isolate, focused button visible true z 1
+Tab again: isolation isolate, focused button visible true z 1
+then a click on the same member: isolation isolate, focused button visible true z 1
+then a click on another member: isolation auto, focused button visible false z auto
+then Shift: isolation isolate, focused button visible true z 1
+then a: isolation isolate, focused button visible true z 1
+then Space held: isolation isolate, focused button visible true z 1
+then a click outside: isolation auto, focused button visible false z auto
+switches, a click: isolation auto, focused button visible false z auto
+then an arrow: isolation isolate, focused button visible true z 1
+disabled while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+removed while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+hidden while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+## what takes the raise
+a member: isolation isolate, focused button visible true z 1
+mx-button in a popover in a member: isolation auto, focused button visible true z auto
+mx-button in a popover beside the members: isolation auto, focused button visible true z auto
+mx-button in a member, no popover: isolation auto, focused button visible true z auto
+mx-button in a wrapper: isolation auto, focused button visible true z auto
+a native button as a member: isolation auto, focused button visible true z auto
+a native button in a member: isolation auto, focused span visible true z auto
+a standard group in a wrapper: isolation auto, focused button visible true z auto
+mx-button in a popover in a split button: isolation auto, focused button visible true z auto
+the trailing member of a split button: isolation isolate, focused button visible true z 1
+a split button as a member: isolation auto, focused button visible true z 1
+a button outside: isolation auto, focused button visible true z auto
+an overlay of the popover over the nested button: top
+# firefox 159.0
+## the indicator
+split tonal mx-button: whole
+split tonal mx-icon-button: whole
+split elevated mx-button: whole
+split elevated mx-icon-button: whole
+cases that print no line are whole on their four sides
+## the page around the group: at rest, a pointer, the keyboard
+tooltip z 10 in the member, then position:relative: rest top, pointer top, keyboard COVERED, after top
+the same in a split button: rest top, pointer top, keyboard COVERED, after top
+a button before, over the empty end: rest top, pointer top, keyboard COVERED, after top
+the same before a split button: rest top, pointer top, keyboard COVERED, after top
+a menu after, z auto, over the group: rest top, keyboard top, after top
+a bar before, z-index 1, over the group: rest top, keyboard top, after top
+## how focus arrives and leaves
+rest: isolation auto, focused body visible false z auto
+Tab: isolation isolate, focused button visible true z 1
+Tab again: isolation isolate, focused button visible true z 1
+then a click on the same member: isolation isolate, focused button visible true z 1
+then a click on another member: isolation auto, focused button visible false z auto
+then Shift: isolation auto, focused button visible false z auto
+then a: isolation auto, focused button visible false z auto
+then Space held: isolation auto, focused button visible false z auto
+then a click outside: isolation auto, focused button visible false z auto
+switches, a click: isolation auto, focused button visible false z auto
+then an arrow: isolation isolate, focused button visible true z 1
+disabled while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+removed while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+hidden while focused: isolation isolate, focused button visible true z 1 -> isolation isolate, focused button visible true z 1
+  then a click on another member: isolation auto, focused button visible false z auto
+## what takes the raise
+a member: isolation isolate, focused button visible true z 1
+mx-button in a popover in a member: isolation auto, focused button visible true z auto
+mx-button in a popover beside the members: isolation auto, focused button visible true z auto
+mx-button in a member, no popover: isolation auto, focused button visible true z auto
+mx-button in a wrapper: isolation auto, focused button visible true z auto
+a native button as a member: isolation auto, focused button visible true z auto
+a native button in a member: isolation auto, focused span visible true z auto
+a standard group in a wrapper: isolation auto, focused button visible true z auto
+mx-button in a popover in a split button: isolation auto, focused button visible true z auto
+the trailing member of a split button: isolation isolate, focused button visible true z 1
+a split button as a member: isolation auto, focused button visible true z 1
+a button outside: isolation auto, focused button visible true z auto
+an overlay of the popover over the nested button: top
+# webkit 27.2
+## the indicator
+split tonal mx-button: whole
+split tonal mx-icon-button: whole
+split elevated mx-button: whole
+split elevated mx-icon-button: whole
+cases that print no line are whole on their four sides
+## the page around the group: at rest, a pointer, the keyboard
+tooltip z 10 in the member, then position:relative: rest top, pointer top, keyboard COVERED, after top
+the same in a split button: rest top, pointer top, keyboard COVERED, after top
+a button before, over the empty end: rest top, pointer top, keyboard COVERED, after top
+the same before a split button: rest top, pointer top, keyboard COVERED, after top
+a menu after, z auto, over the group: rest top, keyboard top, after top
+a bar before, z-index 1, over the group: rest top, keyboard top, after top
+## how focus arrives and leaves
+rest: isolation auto, focused body visible false z auto
+Tab: isolation isolate, focused button visible true z 1
+Tab again: isolation isolate, focused button visible true z 1
+then a click on the same member: isolation isolate, focused button visible true z 1
+then a click on another member: isolation auto, focused button visible false z auto
+then Shift: isolation auto, focused button visible false z auto
+then a: isolation isolate, focused button visible true z 1
+then Space held: isolation isolate, focused button visible true z 1
+then a click outside: isolation auto, focused button visible false z auto
+switches, a click: isolation auto, focused button visible false z auto
+then an arrow: isolation isolate, focused button visible true z 1
+disabled while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+removed while focused: isolation isolate, focused button visible true z 1 -> isolation auto, focused body visible false z auto
+  then a click on another member: isolation auto, focused button visible false z auto
+hidden while focused: isolation isolate, focused button visible true z 1 -> isolation isolate, focused button visible true z 1
+  then a click on another member: isolation auto, focused button visible false z auto
+## what takes the raise
+a member: isolation isolate, focused button visible true z 1
+mx-button in a popover in a member: isolation auto, focused button visible true z auto
+mx-button in a popover beside the members: isolation auto, focused button visible true z auto
+mx-button in a member, no popover: isolation auto, focused button visible true z auto
+mx-button in a wrapper: isolation auto, focused button visible true z auto
+a native button as a member: isolation auto, focused button visible true z auto
+a native button in a member: isolation auto, focused span visible true z auto
+a standard group in a wrapper: isolation auto, focused button visible true z auto
+mx-button in a popover in a split button: isolation auto, focused button visible true z auto
+the trailing member of a split button: isolation isolate, focused button visible true z 1
+a split button as a member: isolation auto, focused button visible true z 1
+a button outside: isolation auto, focused button visible true z auto
+an overlay of the popover over the nested button: top
+
+# The proof's stack.mjs and hit.mjs, the merge base against the built head: the lines that differ
+== stack chromium (35 lines)
+18,19c18,19
+< overlay before the group: at rest on top, button focused on top
+< badge slotted after the buttons, absolute: at rest on top, button focused on top
+---
+> overlay before the group: at rest on top, button focused covered by g
+> badge slotted after the buttons, absolute: at rest on top, button focused covered by b1
+== stack firefox (35 lines)
+18,19c18,19
+< overlay before the group: at rest on top, button focused on top
+< badge slotted after the buttons, absolute: at rest on top, button focused on top
+---
+> overlay before the group: at rest on top, button focused covered by g
+> badge slotted after the buttons, absolute: at rest on top, button focused covered by b1
+== stack webkit (35 lines)
+18,19c18,19
+< overlay before the group: at rest on top, button focused on top
+< badge slotted after the buttons, absolute: at rest on top, button focused on top
+---
+> overlay before the group: at rest on top, button focused covered by g
+> badge slotted after the buttons, absolute: at rest on top, button focused covered by b1
+== hit chromium (7 lines)
+== hit firefox (7 lines)
+== hit webkit (7 lines)
+
+# Size, Brotli: rows that move (merge base, head, difference)
+button/button 4856 4864 8
+button/icon-button 5124 5108 -16
+button/link-button 4827 4821 -6
+button/switch-button 5435 5443 8
+button/switch-icon-button 5834 5840 6
+button/split-button 7461 7556 95
+button-group/button-group 3045 3054 9
+button-group/connected-button-group 3801 3897 96
+text-field/text-field 8456 8478 22
+complete 23048 23139 91

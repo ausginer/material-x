@@ -39,3 +39,19 @@
       var(--_outer-corner) var(--_inner-corner);
   }
 }
+
+/*
+ * A member with keyboard focus is raised, so that no other member covers its
+ * focus indicator. The group is a stacking context at the same time, so the
+ * raised member doesn't rise above anything outside the group. At any other
+ * time, the group makes none, because one changes how the page's own positioned
+ * content stacks. `:focus-within` ends it when focus leaves, also when the
+ * focused member is disabled or removed.
+ */
+:host(:state(focus-visible)) ::slotted(*) {
+  --_focus-z-index: 1;
+}
+
+:host(:state(focus-visible):focus-within) {
+  isolation: isolate;
+}
