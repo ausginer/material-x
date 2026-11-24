@@ -404,6 +404,26 @@ describe('connected group stacking context', () => {
     expectRaise(fixture);
   });
 
+  it.each(CONTAINERS)(
+    'should exist with keyboard focus on the last button of $name',
+    async ({ create }) => {
+      const fixture = await create();
+      await focusMember(fixture, fixture.members.length - 1);
+
+      expectRaise(fixture);
+    },
+  );
+
+  it('should not exist after Tab and then a click on another button', async () => {
+    const fixture = await createGroup();
+    await focusMember(fixture, 0);
+    // The click ends a raise that the group had.
+    expectRaise(fixture);
+    await clickMember(fixture.members[1]!);
+
+    expectRaise(fixture);
+  });
+
   it('should not exist after a click', async () => {
     const fixture = await createGroup();
     await clickMember(fixture.members[0]!);

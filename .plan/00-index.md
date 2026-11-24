@@ -5523,6 +5523,15 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 **Not read:** Safari, forced colors, screen readers.
 
+**Dated 2026-11-24 by the implementer: the work list is done,** on `e10c9a48d` merged. Requested by the coordinator. No source of the mechanism changes.
+
+- **Rows:** three more in `button-group-focus.spec`, 50 in all: the last member of a group, the split button's trailing button, and Tab and then a click on another member. All 50 pass in Chromium, Firefox and WebKit.
+- **Witnesses** ([reading](focus-cover-1/checks/keyboard-raise-rows-2.txt), by the proof's [`mutate.mjs`](reviews/group-focus-1/probes/mutate.mjs)), the same for the new rows in each engine: with the last child left out of the read, the two rows of the last button fail, and no other. With a state that is never cleared, the row of the click fails, and D's isolation rows as the proof had them: the wrapper's, and the popovers' in Firefox alone.
+- **The two sentences** are the list's without the clause on a mark that hangs over, in words that the coordinator relayed from the architect after the owner's answer.
+- **Size, by the gate,** Brotli, at `2f937c7e2` against its merge base `e10c9a48d`: `complete` 23045 to 23196 (+151), `button-group/connected-button-group` +92, `button/split-button` +84, `text-field/text-field` +32, `button/icon-button` +31, `button/switch-button` and `button/switch-icon-button` +11, `button/link-button` and `button-group/button-group` +9, `button/button` +8, and no other row moves. The note above has +28 for `complete`, against `eddf39e7b`, by a local reading. The cause of the difference wasn't read.
+- **Checks:** core, drag and material-x rebuilt. material-x without the visual project in Chromium: 1178 passed and 2 expected failures. Typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke` (117 of 117) pass.
+- **Not run:** the suite in Firefox and WebKit beyond these rows, the visual project locally, Safari, forced colors, RTL rows.
+
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
 Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
