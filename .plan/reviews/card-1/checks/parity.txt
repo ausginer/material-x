@@ -1,0 +1,46 @@
+## chromium: base (src/list at 92a386a17) against head, mx-list-item rows
+identical, 43 rows (the 42 item rows and the LISTLEAK line)
+# every row that differs, base against head
+< mx-list mx-list-button-item 0 focus: css b365b638 shot ae549145
+> mx-list mx-list-button-item 0 focus: css 28a703b8 shot 48dd01ea
+< mx-list mx-list-button-item 1 focus: css 9fc7aa5b shot 48dd01ea
+> mx-list mx-list-button-item 1 focus: css 91b1935b shot cd169087
+< mx-list mx-list-button-item 2 focus: css bf922b17 shot ffb6f694
+> mx-list mx-list-button-item 2 focus: css 3b2e0897 shot 234ba593
+< mx-sortable-list mx-list-button-item 2 focus: css b3237197 shot f289f7a5
+> mx-sortable-list mx-list-button-item 2 focus: css 3b2e0897 shot 234ba593
+LISTLEAK checkbox in mx-list-item at rest, ::after background rgb(247, 251, 234) | filled button in mx-list-item at level 8, box-shadow color(srgb 0 0 0 / 0.14) 0px 6px 6px 0px
+## firefox: base (src/list at 92a386a17) against head, mx-list-item rows
+identical, 43 rows (the 42 item rows and the LISTLEAK line)
+# every row that differs, base against head
+< mx-list mx-list-button-item 0 focus: css 78a8ccc8 shot 7baa594f
+> mx-list mx-list-button-item 0 focus: css 39e6cd48 shot 7baa594f
+< mx-list mx-list-button-item 1 focus: css 17f9d8ac shot e1924e47
+> mx-list mx-list-button-item 1 focus: css 6e3290ac shot f139469d
+< mx-list mx-list-button-item 2 focus: css dd608ea3 shot c5bfd608
+> mx-list mx-list-button-item 2 focus: css 5473b2e3 shot c5bfd608
+< mx-sortable-list mx-list-button-item 0 focus: css a038b4c8 shot f587d47d
+> mx-sortable-list mx-list-button-item 0 focus: css 7f302088 shot 7baa594f
+< mx-sortable-list mx-list-button-item 1 focus: css f2459bac shot f587d47d
+> mx-sortable-list mx-list-button-item 1 focus: css a977ab2c shot f587d47d
+< mx-sortable-list mx-list-button-item 2 focus: css ebb551a3 shot fde91bf7
+> mx-sortable-list mx-list-button-item 2 focus: css 8533e523 shot c5bfd608
+LISTLEAK checkbox in mx-list-item at rest, ::after background rgb(247, 251, 234) | filled button in mx-list-item at level 8, box-shadow color(srgb 0 0 0 / 0.14) 0px 6px 6px 0px
+## webkit: base (src/list at 92a386a17) against head, mx-list-item rows
+identical, 43 rows (the 42 item rows and the LISTLEAK line)
+# every row that differs, base against head
+LISTLEAK checkbox in mx-list-item at rest, ::after background rgb(247, 251, 234) | filled button in mx-list-item at level 8, box-shadow color(srgb 0 0 0 / 0.14) 0px 6px 6px 0px
+## chromium: head against head again
+> mx-list mx-list-button-item 0 focus: css 77ffc1b8 shot 88fb1658
+> mx-list mx-list-button-item 1 focus: css 4b29b4db shot cdca9713
+> mx-list mx-list-button-item 2 focus: css bd320c97 shot 2820f02b
+> mx-sortable-list mx-list-button-item 0 focus: css b365b638 shot ae549145
+> mx-sortable-list mx-list-button-item 1 focus: css 4f8d45b shot 3afb4052
+> mx-sortable-list mx-list-button-item 2 focus: css d1d52097 shot a542576e
+## firefox: head against head again
+> mx-list mx-list-button-item 0 focus: css 2eedac8 shot e1560401
+> mx-list mx-list-button-item 1 focus: css 94ed2aac shot e1560401
+> mx-list mx-list-button-item 2 focus: css 92da8923 shot fde91bf7
+> mx-sortable-list mx-list-button-item 0 focus: css f18acc88 shot 7baa594f
+> mx-sortable-list mx-list-button-item 1 focus: css 4198fe2c shot e363d942
+> mx-sortable-list mx-list-button-item 2 focus: css 1dd28363 shot c5bfd608

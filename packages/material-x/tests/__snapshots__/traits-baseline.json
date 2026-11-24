@@ -121,6 +121,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": true
@@ -323,6 +324,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": true,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -394,6 +396,87 @@
           },
           {
             "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-card",
+    "className": "Card",
+    "observedAttributes": [
+      "variant"
+    ],
+    "reflection": [
+      {
+        "name": "variant",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "CardLike": true,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Card"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Card",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:CardLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "variant",
             "kind": "get+set",
             "enumerable": false
           }
@@ -540,6 +623,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": true,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -787,6 +871,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": true,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -970,6 +1055,7 @@
       "FABLike": true,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": true
@@ -1066,6 +1152,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -1218,6 +1305,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": true
@@ -1437,6 +1525,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": true
@@ -1543,6 +1632,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -1627,6 +1717,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -1698,6 +1789,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -1816,6 +1908,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -2057,6 +2150,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": true,
       "FocusForwarding": false
@@ -2338,6 +2432,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -2488,6 +2583,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -2623,6 +2719,7 @@
       "FABLike": false,
       "SplitButtonLike": true,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false
@@ -2856,6 +2953,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": true
@@ -3181,6 +3279,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": true
@@ -3516,6 +3615,7 @@
       "FABLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": true,
       "FocusForwarding": false

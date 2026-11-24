@@ -1,10 +1,5 @@
-/*
- * A static item's host is its box, so the host draws the elevation layers that
- * the elevation stylesheet draws on `.host`: the penumbra here, and the umbra
- * and the ambient on the pseudo-elements below.
- */
+/* A static item's host is its box. */
 :host {
-  position: relative;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -21,7 +16,6 @@
   font: inherit;
   text-align: start;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: var(--_elevation-penumbra);
 }
 
 :host(:focus-visible) {
@@ -59,22 +53,4 @@
 
 .content:has(+ .trail:has-slotted) {
   margin-inline-end: 0;
-}
-
-/* For shadow */
-:host::before,
-:host::after {
-  content: '';
-  border-radius: inherit;
-  inset: 0;
-  position: absolute;
-  pointer-events: none;
-}
-
-:host::before {
-  box-shadow: var(--_elevation-umbra);
-}
-
-:host::after {
-  box-shadow: var(--_elevation-ambient);
 }

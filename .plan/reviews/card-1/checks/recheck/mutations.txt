@@ -1,0 +1,229 @@
+## no mutation | chromium | 276 passed (276)
+## no mutation | firefox | 271 passed | 5 skipped (276)
+## no mutation | webkit | 271 passed | 5 skipped (276)
+## outline on the slot | chromium | 4 failed | 272 passed (276)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should draw no outline on the slot
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline on the slot | firefox | 4 failed | 267 passed | 5 skipped (276)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should draw no outline on the slot
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline on the slot | webkit | 4 failed | 267 passed | 5 skipped (276)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should draw no outline on the slot
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## no !important | chromium | 1 failed | 275 passed (276)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## no !important | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## no !important | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## no :not(:focus-visible) | chromium | 2 failed | 274 passed (276)
+   mx-card outline contract > should let the page's focus indicator replace the outline
+   mx-card outline contract > should let the browser's focus indicator replace the outline
+## no :not(:focus-visible) | firefox | 2 failed | 269 passed | 5 skipped (276)
+   mx-card outline contract > should let the page's focus indicator replace the outline
+   mx-card outline contract > should let the browser's focus indicator replace the outline
+## no :not(:focus-visible) | webkit | 2 failed | 269 passed | 5 skipped (276)
+   mx-card outline contract > should let the page's focus indicator replace the outline
+   mx-card outline contract > should let the browser's focus indicator replace the outline
+## outline drawn outside | chromium | 2 failed | 274 passed (276)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline drawn outside | firefox | 2 failed | 269 passed | 5 skipped (276)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline drawn outside | webkit | 2 failed | 269 passed | 5 skipped (276)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## own outline color ignored | chromium | 2 failed | 274 passed (276)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## own outline color ignored | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## own outline color ignored | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## own shape ignored | chromium | 1 failed | 275 passed (276)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## own shape ignored | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## own shape ignored | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## padding on the host | chromium | 3 failed | 273 passed (276)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+## padding on the host | firefox | 3 failed | 268 passed | 5 skipped (276)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+## padding on the host | webkit | 3 failed | 268 passed | 5 skipped (276)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+## slot does not stretch | chromium | 1 failed | 275 passed (276)
+   mx-card content > should fill a card that a grid stretches
+## slot does not stretch | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card content > should fill a card that a grid stretches
+## slot does not stretch | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card content > should fill a card that a grid stretches
+## no umbra | chromium | 7 failed | 269 passed (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no umbra | firefox | 7 failed | 264 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no umbra | webkit | 7 failed | 264 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## another order | chromium | 3 failed | 273 passed (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## another order | firefox | 3 failed | 268 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## another order | webkit | 3 failed | 268 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## box on ::before | chromium | 2 failed | 274 passed (276)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::before | firefox | 2 failed | 269 passed | 5 skipped (276)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::before | webkit | 2 failed | 269 passed | 5 skipped (276)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## no position on the host | chromium | 276 passed (276)
+## no position on the host | firefox | 271 passed | 5 skipped (276)
+## no position on the host | webkit | 271 passed | 5 skipped (276)
+## no shadow.color in the package | chromium | 1 failed | 275 passed (276)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no shadow.color in the package | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no shadow.color in the package | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## !important on the offset only | chromium | 1 failed | 275 passed (276)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## !important on the offset only | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## !important on the offset only | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## !important on the outline only | chromium | 276 passed (276)
+## !important on the outline only | firefox | 271 passed | 5 skipped (276)
+## !important on the outline only | webkit | 271 passed | 5 skipped (276)
+## :not(:focus), not :not(:focus-visible) | chromium | 276 passed (276)
+## :not(:focus), not :not(:focus-visible) | firefox | 271 passed | 5 skipped (276)
+## :not(:focus), not :not(:focus-visible) | webkit | 271 passed | 5 skipped (276)
+## outline in every variant | chromium | 276 passed (276)
+## outline in every variant | firefox | 271 passed | 5 skipped (276)
+## outline in every variant | webkit | 271 passed | 5 skipped (276)
+## the slot shrinks | chromium | 276 passed (276)
+## the slot shrinks | firefox | 271 passed | 5 skipped (276)
+## the slot shrinks | webkit | 271 passed | 5 skipped (276)
+## the slot scrolls | chromium | 276 passed (276)
+## the slot scrolls | firefox | 271 passed | 5 skipped (276)
+## the slot scrolls | webkit | 271 passed | 5 skipped (276)
+## the slot fills with a percentage only | chromium | 1 failed | 275 passed (276)
+   mx-card content > should fill a card that a grid stretches
+## the slot fills with a percentage only | firefox | 1 failed | 270 passed | 5 skipped (276)
+   mx-card content > should fill a card that a grid stretches
+## the slot fills with a percentage only | webkit | 1 failed | 270 passed | 5 skipped (276)
+   mx-card content > should fill a card that a grid stretches
+## the host clips | chromium | 276 passed (276)
+## the host clips | firefox | 271 passed | 5 skipped (276)
+## the host clips | webkit | 271 passed | 5 skipped (276)
+## the shape on no host | chromium | 4 failed | 272 passed (276)
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## the shape on no host | firefox | 4 failed | 267 passed | 5 skipped (276)
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## the shape on no host | webkit | 4 failed | 267 passed | 5 skipped (276)
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## the three boxes again | chromium | 9 failed | 267 passed (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## the three boxes again | firefox | 9 failed | 262 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## the three boxes again | webkit | 9 failed | 262 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## the card adopts no host box | chromium | 4 failed | 272 passed (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+## the card adopts no host box | firefox | 4 failed | 267 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+## the card adopts no host box | webkit | 4 failed | 267 passed | 5 skipped (276)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+## the item adopts no host box | chromium | 3 failed | 273 passed (276)
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## the item adopts no host box | firefox | 3 failed | 268 passed | 5 skipped (276)
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## the item adopts no host box | webkit | 3 failed | 268 passed | 5 skipped (276)
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should raise the layers continuously from level 0

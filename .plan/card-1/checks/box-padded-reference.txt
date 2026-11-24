@@ -1,0 +1,164 @@
+# The recheck's box probe, with padding: 16px on its reference div.
+# chromium 158.0.8127.18
+none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+# firefox 159.0
+none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+forced offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+# webkit 27.2
+none | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+none | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+none | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+reset | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+reset !important | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+reset !important | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+preflight | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+preflight | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+offset rule | filled: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | elevated: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+offset rule | outlined: 12/13 equal the reference
+   block-size 10: {"w":200,"h":32,"st":0,"sl":0,"px":0,"max":0,"mean":0,"box":null}
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
