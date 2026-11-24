@@ -1,0 +1,63 @@
+## no mutation | chromium | 47 passed (47)
+## no mutation | firefox | 47 passed (47)
+## no mutation | webkit | 47 passed (47)
+## the two rules in the other order | chromium | 47 passed (47)
+## the two rules in the other order | firefox | 47 passed (47)
+## the two rules in the other order | webkit | 47 passed (47)
+## any focus of the control sets the state | chromium | 5 failed | 42 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   connected group stacking context > should not exist after a click
+## any focus of the control sets the state | firefox | 6 failed | 41 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   connected group stacking context > should not exist after a click
+   connected group stacking context > should follow the focused control after a click and a letter
+## any focus of the control sets the state | webkit | 5 failed | 42 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   connected group stacking context > should not exist after a click
+## the first child alone is read | chromium | 5 failed | 42 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+## the first child alone is read | firefox | 5 failed | 42 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+## the first child alone is read | webkit | 5 failed | 42 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+## the state is never cleared | chromium | 1 failed | 46 passed (47)
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+## the state is never cleared | firefox | 3 failed | 44 passed (47)
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+## the state is never cleared | webkit | 1 failed | 46 passed (47)
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+## the raise is not bound to the state | chromium | 47 passed (47)
+## the raise is not bound to the state | firefox | 47 passed (47)
+## the raise is not bound to the state | webkit | 47 passed (47)
+## the group raises by :focus-within alone | chromium | 47 passed (47)
+## the group raises by :focus-within alone | firefox | 47 passed (47)
+## the group raises by :focus-within alone | webkit | 47 passed (47)
+## the z-index is 1 on the last member too, always | chromium | 47 passed (47)
+## the z-index is 1 on the last member too, always | firefox | 47 passed (47)
+## the z-index is 1 on the last member too, always | webkit | 47 passed (47)
+## only a focused member in light DOM children[last] is ignored | chromium | 47 passed (47)
+## only a focused member in light DOM children[last] is ignored | firefox | 47 passed (47)
+## only a focused member in light DOM children[last] is ignored | webkit | 47 passed (47)
