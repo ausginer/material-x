@@ -2429,6 +2429,15 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-recheck-at-8f5ad01db) has the candidates, the readings in the three engines, the ruling on `reviewer-9` (two rows for the box's popover kind, and one for a bar that moves as it connects) and the work. Nothing is the owner's to answer.
 - **Witness:** `checks/first-rendering.txt` and `checks/box-rows.txt`, in the bar's record.
 
+**Amended 2026-11-24 by the architect, the costs of property 3's area,** on the [second recheck](reviews/top-app-bar-1/feature-proof-recheck-2-claude.md) of #211, relayed by the coordinator. The mechanism doesn't change.
+
+- **Both of the first two costs are documented,** where the note above says the first only. The component page's sentence was false for a bar that is removed and inserted again (`reviewer-11`).
+- **A cost is added, and accepted as WebKit's** (`reviewer-12`). In a frame with a CSS zoom above 1 the state turns on late, by about the frame's height times (zoom − 1). The engine pins nothing there until then: a page's own sticky and fixed boxes scroll away by the same length, and the bar with them. A state that is right would color a bar that is mostly out of view.
+- **A page zoom is right** in WebKit at 12 factors, on a page and in a frame, apart from a scroll of less than 1px at 1.75. Safari isn't read.
+- **A row for the box's `visibility: hidden` is owed** (`reviewer-10`). The ruling that it wasn't was read with a box of 0px.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-second-recheck-at-634dae5ef) has the rulings, the words and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/page-zoom.txt` and `checks/box-visibility.txt`, in the bar's record.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

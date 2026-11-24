@@ -1,6 +1,6 @@
 # `mx-top-app-bar` — plan
 
-**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The [connect while disconnected](#ruling-on-a-connect-while-disconnected) is ruled on and [implemented](#the-ruling-implemented-2026-11-24). The [recheck](../reviews/top-app-bar-1/feature-proof-recheck-claude.md) is [ruled on](#disposition-of-the-recheck-at-8f5ad01db): the observer's area changes, and it is [implemented](#the-disposition-of-the-recheck-implemented-2026-11-24).** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The [connect while disconnected](#ruling-on-a-connect-while-disconnected) is ruled on and [implemented](#the-ruling-implemented-2026-11-24). The [recheck](../reviews/top-app-bar-1/feature-proof-recheck-claude.md) is [ruled on](#disposition-of-the-recheck-at-8f5ad01db): the observer's area changes, and it is [implemented](#the-disposition-of-the-recheck-implemented-2026-11-24). The [second recheck](../reviews/top-app-bar-1/feature-proof-recheck-2-claude.md) is [ruled on](#disposition-of-the-second-recheck-at-634dae5ef): the mechanism holds, and a row and two texts change.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
 
 ## Readings
 
@@ -27,6 +27,7 @@
   - **1000 scroll steps in Chromium:** the box and the root-element observer add no style recalculation and no measurable script. The animation adds 999 recalculations, about 11ms. The listener adds about 14ms of script.
 - **[`top-layer-box`](probes/top-layer-box.mjs)** ([reading](checks/top-layer-box.txt)): the box is right in RTL, in vertical writing, in a scrolled frame and after `moveBefore` (not in WebKit, which has none). Each requirement below, taken away, gives a wrong state in the three engines.
 - **[`first-rendering`](probes/first-rendering.ts)** ([reading](checks/first-rendering.txt)) and **[`box-rows`](probes/box-rows.ts)** ([reading](checks/box-rows.txt)), on the built bar at `8f5ad01db` in the same engines, with each candidate as an edit of the built files: what a bar draws when it is shown, and the state on 29 pages, at 8 device scales and at 6 viewport heights. The [disposition](#disposition-of-the-recheck-at-8f5ad01db) has the results.
+- **[`page-zoom`](probes/page-zoom.ts)** ([reading](checks/page-zoom.txt)) and **[`box-visibility`](probes/box-visibility.ts)** ([reading](checks/box-visibility.txt)), after the second recheck: the state under a page zoom in WebKit, what a zoomed frame pins there, and what the row for `visibility: hidden` reads. The [disposition](#disposition-of-the-second-recheck-at-634dae5ef) has the results.
 - **Scroll-driven animations are Baseline** since 2026-10-27, newly available (webstatus.dev, read on 2026-11-23), so `RD-20`'s floor has them. That isn't why the animation isn't taken.
 - **Limits:** scrolling was programmatic, and the proof adds the wheel and the keyboard. Safari, its overscroll, touch scrolling and pinch zoom weren't read.
 
@@ -66,8 +67,9 @@
 **Costs:** one element and a few declarations. The bar's box counts as an open popover in its own shadow tree. The observer reports after a frame is drawn, so a bar can't know the scroll position in its first frame:
 
 - **A bar that the page shows on a scrolled page** draws its resting color first, and then runs the color's transition (about 110 to 140ms in which it differs). So does a bar that connects to a scrolled page. This is documented.
-- **A bar that is removed on a scrolled page and inserted again at the start** draws the scrolled color first, and then the transition (about 113 to 136ms), because its state is kept while it is disconnected. A bar that is moved, or inserted again where it was, draws no transition. This was so before.
+- **A bar that is removed on a scrolled page and inserted again at the start** draws the scrolled color first, and then the transition (about 113 to 136ms), because its state is kept while it is disconnected. A bar that is moved, or inserted again where it was, draws no transition. This was so before. It is documented too (amended 2026-11-24).
 - **A page longer than 10000000px** that jumps in one frame between the start and a position beyond that keeps the former state.
+- **In WebKit, in a frame whose CSS zoom or an ancestor's is above 1,** the state turns on only after the document is scrolled by about the frame's height times (zoom − 1). The engine pins nothing there until then: a page's own sticky and fixed boxes scroll away by the same length, and the bar with them ([ruling](#reviewer-12-a-zoomed-frame-in-webkit-is-accepted)). (Added 2026-11-24.)
 - Under `content-visibility: hidden` and in a closed `details`, an engine keeps the bar's color from before. Shown at the start, after it was hidden on a scrolled page, the bar fades in Chromium (about 82 to 97ms), and for one frame in Firefox. In Firefox a bar in either also draws its first rendering from transparent (about 180ms, and about 135ms at `8f5ad01db`), with each candidate, so it isn't the state's.
 
 (Amended 2026-11-24. The plan said that a bar with `display: none` is on, and that a bar shown again at the start draws the scrolled color for its first frame, by reasoning. It drew a fade of about 110 to 135ms, also at its first rendering.)
@@ -137,6 +139,7 @@ In each engine at `RD-20`'s floor, with real scrolling of the document:
   - a scrolled page that becomes too short to scroll is off;
   - a bar hidden with `display: none` at the start and shown at a scrolled position is on. **Witness:** the row fails with the viewport as the area and the state from the box's top;
   - the rows of the [disposition of the recheck](#disposition-of-the-recheck-at-8f5ad01db), each with its witness (added 2026-11-24);
+  - the box is neither drawn nor hit at the page's corner. **Witness:** the row fails without the box's `visibility: hidden` (added 2026-11-24);
   - a bar that another element's `connectedCallback` removes in the same insertion reports no error on the window, and inserted again at a scrolled position it is on, and off at the start. **Witness:** the row fails without the check, and with a bar that starts at its first connect only (added 2026-11-24);
   - many scroll steps away from the start change the host's states once, with no `scroll` listener added to the document or the window. **Witness:** the row fails with a listener that does nothing, in either place, and with one that sets the state;
   - the bar's top stays 0 on a scrolled page, positioned content stays under it, and a page's `position: static` unpins it;
@@ -275,7 +278,7 @@ By the architect, 2026-11-24, on the [recheck](../reviews/top-app-bar-1/feature-
 
 - **The route stands: the implementer, a row that fails with `popover="auto"`.** Two rows, because the two effects are separate, and the second catches `hint` as well: an `auto` popover of the page that is open when a bar connects stays open, and after a click on the page the state still follows the scroll position. **With the new area a dismissed box reads as rest, so the second row scrolls after the click and expects on.** `popover="hint"` fails the second one only.
 - **A bar that moves as it connects gets a row.** The recheck read it as right, and its path is its own: the bar's callbacks run as connect, disconnect, connect, and the last one shows a box that is open already. No row reads that. A plausible edit breaks it alone of the readings here: a check that does nothing when the box is already open leaves a moved bar off at 300, and no error is reported ([reading](checks/box-rows.txt)). `CONTRIBUTING.md` §1.1 names reentrancy, and the [ruling](#ruling-on-a-connect-while-disconnected) relied on this without a row.
-- **Not owed:** a row for `visibility: hidden` (nothing that was read changes without it, and the declaration stays).
+- **Not owed:** a row for `visibility: hidden` (nothing that was read changes without it, and the declaration stays). **Withdrawn 2026-11-24:** it was read with a box of 0px, and the row is [owed](#reviewer-10-a-row-for-visibility-hidden).
 
 ### The work list
 
@@ -310,3 +313,75 @@ On `material-x/top-app-bar-1` from `d1f66975a`, with `origin/main` at `ee7d838cc
 - **Size, Brotli,** on the merged tree: `top-app-bar/top-app-bar` 1423 to 1449 B (+26 B). `complete` 23219 to 23288 B (+69 B). No other row moves.
 - **No departure from the disposition.** Neither of the plan's stops was reached. Not run: Safari, the visual project, the rest of the recheck's probes.
 - **Next:** the narrow recheck that the disposition names.
+
+## Disposition of the second recheck at `634dae5ef`
+
+By the architect, 2026-11-24, on the [report](../reviews/top-app-bar-1/feature-proof-recheck-2-claude.md) at `9bf471bd8`, relayed by the coordinator. The mechanism doesn't change, and nothing holds the merge except the work below. Nothing is the owner's to answer.
+
+### `reviewer-10`: a row for `visibility: hidden`
+
+**Accepted, and the earlier _not owed_ is withdrawn.** The reading behind it was of a 0px box. The same disposition then made the box 1px, and I didn't read it again. At 1px the declaration is all that keeps the box from being drawn over the page's corner and from taking its hits, above everything, because the box is in the top layer.
+
+- **Property:** the row fails when the box can be drawn, and it fails when the box can be hit. The two are separate assertions in one row, because each has an edit that breaks it alone.
+- **What to read:** `document.elementFromPoint(0.5, 0.5)` with a fixed button of the page's in that corner, and the box's `checkVisibility({ visibilityProperty: true, opacityProperty: true })`. The three engines agree on the six edits that I read ([reading](checks/box-visibility.txt)):
+
+  | The box | The hit | `checkVisibility` |
+  | --- | --- | --- |
+  | As built | the button | `false` |
+  | `visibility: visible`, also with no background | the bar | `true` |
+  | Visible, `opacity: 0` | the bar | `false` |
+  | Visible, `pointer-events: none` | the button | `true` |
+  | Visible, both | the button | `false` |
+
+- **Witness:** without `visibility: hidden` both assertions fail. With `opacity: 0` in its place only the hit fails, and with `pointer-events: none` only the visibility. With both, the box is neither drawn nor hit, so passing is right.
+- **Not taken:** a screenshot of the corner, because one pixel is below what a comparison of a whole bar catches; and reading the declaration's computed value, which fails an equivalent box and reads what the stylesheet says.
+
+### `reviewer-11`: the words
+
+**Accepted.** The behavior stands, as _Costs_ says. My work list's sentence was wrong for a removed bar, and so was its `@cssstate`, which the report didn't name.
+
+- **`top-app-bar.mdx`,** in place of the sentence that starts with _"A bar that isn't rendered"_: _"A bar in the page that isn't rendered isn't in the state, so one that the page shows while the document is scrolled draws its resting color and then changes. So does a bar that is inserted there for the first time. A bar that the page removes keeps its state: inserted again, it draws the color that it had, and changes if the scroll position no longer matches."_
+- **`@cssstate scrolled`:** _"The document is scrolled away from its start while the bar is rendered. A removed bar keeps the state that it had."_
+- **Not taken:** to clear the state at disconnect, which makes the former sentence true. A bar that is moved, or inserted again where it was, would then flash its resting color, and a row pins that it doesn't.
+
+### `reviewer-12`: a zoomed frame in WebKit is accepted
+
+**Accepted as a limit of the engine, with no finding and no identifier. It doesn't hold the merge.** The report's tier is by the state alone. The reading adds what else the frame does.
+
+- **The engine pins nothing in that frame** ([reading](checks/page-zoom.txt), WebKit 27.2). Its layout viewport is larger than the frame by the zoom, and it doesn't move until the window has scrolled by the difference. At zoom 2 in a frame of 300px, a page's own sticky header, and a fixed box, are at −150 when scrolled by 150 and at −300 from 300 on, with no bar in the page. The bar is at the same places, and from 150 on it isn't drawn. At 1.1 both stop at −30.
+- **So the state turns on where the engine starts to pin,** and a correct state would color a bar that is scrolled out of view, at zoom 1.5 and above. What a reader can see is the resting color while the bar scrolls away. At 1.1 the bar stays partly in view, with its resting color for about the first 30px.
+- **No component can repair it.** A `scroll` listener's state would be right, and the bar would scroll away as before. Property 4 of the landing plan excludes it.
+- **Not documented on the component page:** it is true of every sticky and fixed box there, and not of this component.
+
+**Page zoom, the one that a user makes: established in WebKit, and it doesn't take that path.** Playwright's public API has no page zoom for WebKit, and the engine's protocol has (`Playwright.setPageZoomFactor`). The zoom is real: `devicePixelRatio` and the viewport's size follow it. At 12 factors from 0.5 to 3, set before the page and under a bar that is on, on a page and in a frame:
+
+- **The state matches at every position, with one exception, and the bar stays pinned.** The WPE and the GTK port agree in each line. At 1.75, `scrollTo(0, 1)` scrolls by 0.57px, and the state is off there. `scrollY` is 0 there too, and the next position is right. It is less than 1px, which is where the rows start.
+- **In WebKit `scrollY` truncates under a page zoom:** it is 0 at 0.91px with a zoom of 1.1. The state is on there, and right. A probe that compares it with `scrollY` reports a false error.
+- **Safari itself isn't read.** That its zoom command sets the same factor is an inference. `safari.yml` runs on macOS and could send the keystroke, as a dispatch that the owner allows. I don't ask for it: no decision here depends on it.
+
+### `reviewer-13`
+
+**Accepted.** #211's line gives the gate's figures for the bar, read after the merge of `origin/main`, and the last change's +69 B isn't called the bar's.
+
+### Work list
+
+1. **Merge `origin/main`** (read at `f9729a393`). Two conflicts:
+   - `.plan/00-index.md`: both sides kept, in the order `RD-53`, `RD-54`, `RD-57`.
+   - `packages/material-x/tests/support/visual-contracts.node.ts`: three places, both sides kept in each, with the same order in the names and in the imports.
+
+   Then rebuild `@ydinjs/core` and `@ydinjs/material-x`. A conflict in any other file, or an edit that the merge needs beyond these, is said in the return.
+
+2. **The row** for `reviewer-10` in `top-app-bar.browser.test.ts`, and its witnesses in the three engines: the declaration removed, and each of the two edits in its place.
+3. **The two texts** of `reviewer-11`.
+4. **The comment on the observer's options** in `top-app-bar.ts`: wrap the long line that the report names. No code changes.
+5. **After the merge:** the bar's rows in the three engines, the material-x suite without the visual project in one, the node project, typecheck, lint, format, publint, `docs-build` and `docs-smoke`.
+6. **#211's description:** the size line from the gate's report on the pushed head, the row in _Checks_, and the second recheck's outcome.
+7. **Stop** and return if the row's reading differs in an engine from the table, or if a row of the bar's fails after the merge.
+
+**Costs:** one row. No byte of the bar's code or styles changes, so its size is expected to stay at 1449 B. `complete` changes with what `main` brings.
+
+**No further recheck is owed.** The source's behavior doesn't change, the texts are given above, and the row's reading is above in the three engines. The coordinator checks the witnesses and the two texts against this section. A recheck of the merge is owed only if it needs an edit beyond item 1.
+
+**Then the owner** records the two baselines (`RD-13`) on the merged head, and merges.
+
+**Limits of this section:** no suite was run, and the row isn't written. The row's reading is on edits of the built box, outside Vitest. Firefox and Chromium weren't read under a page zoom.
