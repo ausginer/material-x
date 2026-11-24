@@ -4965,6 +4965,14 @@ Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by th
 
 **Amended 2026-11-23 by the architect,** on the owner's answer. Until then the entry waited for it, and its required property was: _"what the hook's documentation says is what the platform does, and a row observes it with a real `moveBefore` in an engine that has one."_
 
+**Dated 2026-11-24 by the implementer: implemented on `core/remove-moved-1`, from `a4dee53d8`, for #205, and not closed.** Requested by the coordinator. The two declarations, the method and the row are deleted, and nothing else in the source or the tests changes. No alias, no `connectedMoveCallback` and no row is added.
+
+- **Nothing uses the hook.** A text search of `packages/` outside the records finds neither `movedCallback` nor `moved?` of a controller after the deletion, and the built `core/element.js` and `element.d.ts` hold neither. Core's and material-x's typechecks pass, material-x's against the rebuilt core. With the deleted row put back, core's typecheck fails with three errors, two on `moved` and one on `movedCallback`.
+- **The browser projects pass** in Chromium, Firefox and WebKit, run one engine at a time: core's 229 rows in each, and material-x's 554, of which 10 are skipped in Firefox and in WebKit and one is an expected failure in Firefox ([readings](remove-moved-1/checks/suites.txt)). No row failed, so none was rerun.
+- **Sizes,** in Brotli bytes: core `element` 275 to 277, **+2**, under its limit of 340. Material-x's `complete` 22871 to 22844, **−27**. Its 19 entry rows change from −15 to +27: 13 shrink and six grow, the largest `text-field/text-field`, +27. The box-quad, drag and core `emitter` rows are 0, as expected ([every row](remove-moved-1/checks/sizes.txt)).
+- **The changes of sign are the compressor's.** Every row that has the class loses exactly 42 minified bytes, core's `element` 770 to 728 among them ([probe](remove-moved-1/probes/minified.mjs), which puts the method back into the built file). The removed method repeats its neighbors, so Brotli stores it in a few bytes.
+- **Limits:** no row reads `moveBefore`, as this entry says. Required property 2 rests on the code: nothing defines `connectedMoveCallback`, and the reading at `c933bfd7b` stands. Safari, the spec projects and the visual project weren't run.
+
 #### RF-117 — `createEventNotifier` and `DEFAULT_EVENT_INIT` are a factory for events that a plain `Event` states
 
 Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the deletion (`RD-52` has his words). `RF-116` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Each claim below was read at `04047237e`.
