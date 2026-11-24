@@ -1,0 +1,170 @@
+Each mutation, the engine, and the number of rows of tests/slider (browser and spec) that fail, with the first four. Read on 2026-11-24 at 85d11833c in a scratch copy.
+## touch-action removed | chromium | 0
+## touch-action removed | firefox | 0
+## touch-action removed | webkit | 0
+## touch-action none | chromium | 2
+   mx-slider touch should restore the value when a press becomes a vertical scroll
+   mx-slider touch should dispatch the restoring input with the native flags
+## touch-action none | firefox | 0
+## touch-action none | webkit | 0
+## no delegatesFocus | chromium | 20
+   mx-slider keyboard in ltr should fire input and then change on ArrowUp
+   mx-slider keyboard in ltr should fire input and then change on ArrowDown
+   mx-slider keyboard in ltr should fire input and then change on PageUp
+   mx-slider keyboard in ltr should fire input and then change on PageDown
+## no delegatesFocus | firefox | 20
+   mx-slider keyboard in ltr should fire input and then change on ArrowUp
+   mx-slider keyboard in ltr should fire input and then change on ArrowDown
+   mx-slider keyboard in ltr should fire input and then change on PageUp
+   mx-slider keyboard in ltr should fire input and then change on PageDown
+## no delegatesFocus | webkit | 20
+   mx-slider keyboard in ltr should fire input and then change on ArrowUp
+   mx-slider keyboard in ltr should fire input and then change on ArrowDown
+   mx-slider keyboard in ltr should fire input and then change on PageUp
+   mx-slider keyboard in ltr should fire input and then change on PageDown
+## step text passed as it is | chromium | 1
+   mx-slider attributes and properties should read the step any as absent
+## step text passed as it is | firefox | 1
+   mx-slider attributes and properties should read the step any as absent
+## step text passed as it is | webkit | 1
+   mx-slider attributes and properties should read the step any as absent
+## a reset does not write the input | chromium | 2
+   mx-slider in a form should restore the value attribute on a reset
+   mx-slider in a form should restore the midpoint on a reset
+## a reset does not write the input | firefox | 2
+   mx-slider in a form should restore the value attribute on a reset
+   mx-slider in a form should restore the midpoint on a reset
+## a reset does not write the input | webkit | 2
+   mx-slider in a form should restore the value attribute on a reset
+   mx-slider in a form should restore the midpoint on a reset
+## equal bounds not guarded | chromium | 0
+## equal bounds not guarded | firefox | 0
+## equal bounds not guarded | webkit | 0
+## the slot is not observed | chromium | 1
+   mx-slider name should follow slot at run time without focus
+## the slot is not observed | firefox | 1
+   mx-slider name should follow slot at run time without focus
+## the slot is not observed | webkit | 1
+   mx-slider name should follow slot at run time without focus
+## no resolution on focus | chromium | 1
+   mx-slider name should read a label that appears later when it takes focus
+## no resolution on focus | firefox | 1
+   mx-slider name should read a label that appears later when it takes focus
+## no resolution on focus | webkit | 1
+   mx-slider name should read a label that appears later when it takes focus
+## no resolution on connection | chromium | 11
+   mx-slider name should refer to the first source of labelledby
+   mx-slider name should refer to the first source of labelledby + aria-label
+   mx-slider name should refer to the first source of label
+   mx-slider name should refer to the first source of labelledby + label
+## no resolution on connection | firefox | 5
+   mx-slider name should refer to the first source of labelledby
+   mx-slider name should refer to the first source of labelledby + aria-label
+   mx-slider name should refer to the first source of label
+   mx-slider name should refer to the first source of labelledby + label
+## no resolution on connection | webkit | 5
+   mx-slider name should refer to the first source of labelledby
+   mx-slider name should refer to the first source of labelledby + aria-label
+   mx-slider name should refer to the first source of label
+   mx-slider name should refer to the first source of labelledby + label
+## aria-describedby not observed | chromium | 2
+   mx-slider name should describe the input by the element that the host names
+   mx-slider in Chromium's accessibility tree should describe the control by a host aria-describedby
+## aria-describedby not observed | firefox | 1
+   mx-slider name should describe the input by the element that the host names
+## aria-describedby not observed | webkit | 1
+   mx-slider name should describe the input by the element that the host names
+## aria-label not above <label> | chromium | 4
+   mx-slider name should refer to the first source of aria-label + label
+   mx-slider name should follow aria-label + label as each is removed and added at run time
+   mx-slider name should follow aria-label at run time without focus
+   mx-slider in Chromium's accessibility tree should name the control from aria-label + label
+## aria-label not above <label> | firefox | 3
+   mx-slider name should refer to the first source of aria-label + label
+   mx-slider name should follow aria-label + label as each is removed and added at run time
+   mx-slider name should follow aria-label at run time without focus
+## aria-label not above <label> | webkit | 3
+   mx-slider name should refer to the first source of aria-label + label
+   mx-slider name should follow aria-label + label as each is removed and added at run time
+   mx-slider name should follow aria-label at run time without focus
+## an empty reference list is kept | chromium | 0
+## an empty reference list is kept | firefox | 0
+## an empty reference list is kept | webkit | 0
+## handle exposed | chromium | 0
+## handle exposed | firefox | 0
+## handle exposed | webkit | 0
+## change composed | chromium | 1
+   mx-slider pointer should dispatch one plain bubbling change at the host
+## change composed | firefox | 1
+   mx-slider pointer should dispatch one plain bubbling change at the host
+## change composed | webkit | 1
+   mx-slider pointer should dispatch one plain bubbling change at the host
+## the restoration fires no input | chromium | 2
+   mx-slider touch should restore the value when a press becomes a vertical scroll
+   mx-slider touch should dispatch the restoring input with the native flags
+## the restoration fires no input | firefox | 0
+## the restoration fires no input | webkit | 0
+## the restoration dispatches without a difference | chromium | 0
+## the restoration dispatches without a difference | firefox | 0
+## the restoration dispatches without a difference | webkit | 0
+## the indicator is not shown on focus | chromium | 1
+   mx-slider value indicator should be shown with keyboard focus
+## the indicator is not shown on focus | firefox | 1
+   mx-slider value indicator should be shown with keyboard focus
+## the indicator is not shown on focus | webkit | 1
+   mx-slider value indicator should be shown with keyboard focus
+## the indicator has no z-index | chromium | 0
+## the indicator has no z-index | firefox | 0
+## the indicator has no z-index | webkit | 0
+## no @starting-style | chromium | 0
+## no @starting-style | firefox | 0
+## no @starting-style | webkit | 0
+## active track at the left | chromium | 5
+   mx-slider rtl track ends contract default should leave the space tokens beside the handle
+   mx-slider rtl track ends contract focus should leave the space tokens beside the handle
+   mx-slider rtl track ends contract pressed should leave the space tokens beside the handle
+   mx-slider rtl track ends contract disabled should leave the space tokens beside the handle
+## active track at the left | firefox | 5
+   mx-slider rtl track ends contract default should leave the space tokens beside the handle
+   mx-slider rtl track ends contract focus should leave the space tokens beside the handle
+   mx-slider rtl track ends contract pressed should leave the space tokens beside the handle
+   mx-slider rtl track ends contract disabled should leave the space tokens beside the handle
+## active track at the left | webkit | 5
+   mx-slider rtl track ends contract default should leave the space tokens beside the handle
+   mx-slider rtl track ends contract focus should leave the space tokens beside the handle
+   mx-slider rtl track ends contract pressed should leave the space tokens beside the handle
+   mx-slider rtl track ends contract disabled should leave the space tokens beside the handle
+## the handle takes pointer events | chromium | 9
+   mx-slider ltr track ends contract pressed should render the handle width on the value
+   mx-slider ltr track ends contract pressed should leave the space tokens beside the handle
+   mx-slider rtl track ends contract pressed should render the handle width on the value
+   mx-slider rtl track ends contract pressed should leave the space tokens beside the handle
+## the handle takes pointer events | firefox | 11
+   mx-slider pointer should keep the value on a press -1.5 px off the centre of the handle, except in Firefox
+   mx-slider pointer should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+   mx-slider ltr track ends contract pressed should render the handle width on the value
+   mx-slider ltr track ends contract pressed should leave the space tokens beside the handle
+## the handle takes pointer events | webkit | 9
+   mx-slider ltr track ends contract pressed should render the handle width on the value
+   mx-slider ltr track ends contract pressed should leave the space tokens beside the handle
+   mx-slider rtl track ends contract pressed should render the handle width on the value
+   mx-slider rtl track ends contract pressed should leave the space tokens beside the handle
+## the native range is opaque | chromium | 0
+## the native range is opaque | firefox | 0
+## the native range is opaque | webkit | 0
+## no forced colors | chromium | 0
+## no forced colors | firefox | 0
+## no forced colors | webkit | 0
+## large reads the medium set | chromium | 0
+## large reads the medium set | firefox | 0
+## large reads the medium set | webkit | 0
+## the midpoint is not the default after null | chromium | 0
+## the midpoint is not the default after null | firefox | 0
+## the midpoint is not the default after null | webkit | 0
+## valuetext does not update the indicator | chromium | 1
+   mx-slider value indicator should hold valuetext in place of the value
+## valuetext does not update the indicator | firefox | 1
+   mx-slider value indicator should hold valuetext in place of the value
+## valuetext does not update the indicator | webkit | 1
+   mx-slider value indicator should hold valuetext in place of the value
+DONE

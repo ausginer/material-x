@@ -1,0 +1,124 @@
+# chromium 158.0.8127.18
+0,0,204,44 0,0,204,44 196,20,4,4 0,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 2,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 80,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 196,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 200,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 0,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 2,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 80,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 196,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 200,0,4,44
+0,0,204,52 0,0,204,52 196,24,4,4 0,0,4,52
+0,0,204,52 0,0,204,52 196,24,4,4 2,0,4,52
+0,0,204,52 0,0,204,52 196,24,4,4 80,0,4,52
+0,0,204,52 0,0,204,52 200,24,0,4 196,0,4,52
+0,0,204,52 0,0,204,52 200,24,0,4 200,0,4,52
+0,0,204,68 0,0,204,68 196,32,4,4 0,0,4,68
+0,0,204,68 0,0,204,68 196,32,4,4 2,0,4,68
+0,0,204,68 0,0,204,68 196,32,4,4 80,0,4,68
+0,0,204,68 0,0,204,68 200,32,0,4 196,0,4,68
+0,0,204,68 0,0,204,68 200,32,0,4 200,0,4,68
+0,0,204,108 0,0,204,108 196,52,4,4 0,0,4,108
+0,0,204,108 0,0,204,108 196,52,4,4 2,0,4,108
+0,0,204,108 0,0,204,108 196,52,4,4 80,0,4,108
+0,0,204,108 0,0,204,108 200,52,0,4 196,0,4,108
+0,0,204,108 0,0,204,108 200,52,0,4 200,0,4,108
+ltr borderbox same boxes true pixels differing 0 size true
+ltr tailwind same boxes true pixels differing 0 size true
+ltr harsh same boxes true pixels differing 0 size true
+ltr inherited same boxes true pixels differing 0 size true
+rtl borderbox same boxes true pixels differing 0 size true
+rtl tailwind same boxes true pixels differing 0 size true
+rtl harsh same boxes true pixels differing 0 size true
+rtl inherited same boxes true pixels differing 0 size true
+indicator plain fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 20.1719px; height 20px
+indicator inherited fontStyle italic; textTransform uppercase; textIndent 30px; whiteSpace pre; wordSpacing 9px; letterSpacing 0.5px; lineHeight 20px; width 50.1719px; height 20px
+indicator rtl signed fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 20.1719px; height 20px
+indicator rtl signed unit fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 26.2812px; height 20px
+indicator rtl native number fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 20.1719px; height 20px
+forced light {"canvas":"rgb(255, 255, 255)","text":"rgb(0, 0, 0)","hl":"rgba(5, 0, 73, 0.8)","gray":"rgb(96, 0, 0)","inactive":"rgb(0, 0, 0)","active":"rgba(5, 0, 73, 0.8)","stop":"rgb(255, 255, 255)","handle":"rgb(0, 0, 0)","outline":"rgba(5, 0, 73, 0.8) solid 3px"}
+forced dark {"canvas":"rgb(0, 0, 0)","text":"rgb(255, 255, 255)","hl":"rgba(0, 230, 255, 0.8)","gray":"rgb(63, 242, 63)","inactive":"rgb(255, 255, 255)","active":"rgba(0, 230, 255, 0.8)","stop":"rgb(0, 0, 0)","handle":"rgb(255, 255, 255)","outline":"rgba(0, 230, 255, 0.8) solid 3px"}
+
+# firefox 159.0
+0,0,204,44 0,0,204,44 196,20,4,4 0,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 2,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 80,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 196,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 200,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 0,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 2,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 80,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 196,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 200,0,4,44
+0,0,204,52 0,0,204,52 196,24,4,4 0,0,4,52
+0,0,204,52 0,0,204,52 196,24,4,4 2,0,4,52
+0,0,204,52 0,0,204,52 196,24,4,4 80,0,4,52
+0,0,204,52 0,0,204,52 200,24,0,4 196,0,4,52
+0,0,204,52 0,0,204,52 200,24,0,4 200,0,4,52
+0,0,204,68 0,0,204,68 196,32,4,4 0,0,4,68
+0,0,204,68 0,0,204,68 196,32,4,4 2,0,4,68
+0,0,204,68 0,0,204,68 196,32,4,4 80,0,4,68
+0,0,204,68 0,0,204,68 200,32,0,4 196,0,4,68
+0,0,204,68 0,0,204,68 200,32,0,4 200,0,4,68
+0,0,204,108 0,0,204,108 196,52,4,4 0,0,4,108
+0,0,204,108 0,0,204,108 196,52,4,4 2,0,4,108
+0,0,204,108 0,0,204,108 196,52,4,4 80,0,4,108
+0,0,204,108 0,0,204,108 200,52,0,4 196,0,4,108
+0,0,204,108 0,0,204,108 200,52,0,4 200,0,4,108
+ltr borderbox same boxes true pixels differing 0 size true
+ltr tailwind same boxes true pixels differing 0 size true
+ltr harsh same boxes true pixels differing 0 size true
+ltr inherited same boxes true pixels differing 0 size true
+rtl borderbox same boxes true pixels differing 0 size true
+rtl tailwind same boxes true pixels differing 0 size true
+rtl harsh same boxes true pixels differing 0 size true
+rtl inherited same boxes true pixels differing 0 size true
+indicator plain fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 22.5px; height 20px
+indicator inherited fontStyle italic; textTransform uppercase; textIndent 30px; whiteSpace pre; wordSpacing 9px; letterSpacing 0.5px; lineHeight 20px; width 52.5px; height 20px
+indicator rtl signed fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 22.5px; height 20px
+indicator rtl signed unit fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 28.6px; height 20px
+indicator rtl native number fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 22.5px; height 20px
+forced light {"canvas":"rgb(255, 255, 255)","text":"rgb(0, 0, 0)","hl":"rgb(51, 153, 255)","gray":"rgb(109, 109, 109)","inactive":"rgb(0, 0, 0)","active":"rgb(51, 153, 255)","stop":"rgb(255, 255, 255)","handle":"rgb(0, 0, 0)","outline":"rgb(51, 153, 255) solid 3px"}
+forced dark {"canvas":"rgb(255, 255, 255)","text":"rgb(0, 0, 0)","hl":"rgb(51, 153, 255)","gray":"rgb(109, 109, 109)","inactive":"rgb(0, 0, 0)","active":"rgb(51, 153, 255)","stop":"rgb(255, 255, 255)","handle":"rgb(0, 0, 0)","outline":"rgb(51, 153, 255) solid 3px"}
+
+# webkit 27.2
+0,0,204,44 0,0,204,44 196,20,4,4 0,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 2,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 80,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 196,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 200,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 0,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 2,0,4,44
+0,0,204,44 0,0,204,44 196,20,4,4 80,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 196,0,4,44
+0,0,204,44 0,0,204,44 200,20,0,4 200,0,4,44
+0,0,204,52 0,0,204,52 196,24,4,4 0,0,4,52
+0,0,204,52 0,0,204,52 196,24,4,4 2,0,4,52
+0,0,204,52 0,0,204,52 196,24,4,4 80,0,4,52
+0,0,204,52 0,0,204,52 200,24,0,4 196,0,4,52
+0,0,204,52 0,0,204,52 200,24,0,4 200,0,4,52
+0,0,204,68 0,0,204,68 196,32,4,4 0,0,4,68
+0,0,204,68 0,0,204,68 196,32,4,4 2,0,4,68
+0,0,204,68 0,0,204,68 196,32,4,4 80,0,4,68
+0,0,204,68 0,0,204,68 200,32,0,4 196,0,4,68
+0,0,204,68 0,0,204,68 200,32,0,4 200,0,4,68
+0,0,204,108 0,0,204,108 196,52,4,4 0,0,4,108
+0,0,204,108 0,0,204,108 196,52,4,4 2,0,4,108
+0,0,204,108 0,0,204,108 196,52,4,4 80,0,4,108
+0,0,204,108 0,0,204,108 200,52,0,4 196,0,4,108
+0,0,204,108 0,0,204,108 200,52,0,4 200,0,4,108
+ltr borderbox same boxes true pixels differing 0 size true
+ltr tailwind same boxes true pixels differing 0 size true
+ltr harsh same boxes true pixels differing 0 size true
+ltr inherited same boxes true pixels differing 0 size true
+rtl borderbox same boxes true pixels differing 0 size true
+rtl tailwind same boxes true pixels differing 0 size true
+rtl harsh same boxes true pixels differing 0 size true
+rtl inherited same boxes true pixels differing 0 size true
+indicator plain fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 22.5px; height 20px
+indicator inherited fontStyle italic; textTransform uppercase; textIndent 30px; whiteSpace pre; wordSpacing 9px; letterSpacing 0.5px; lineHeight 20px; width 52.5px; height 20px
+indicator rtl signed fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 22.5px; height 20px
+indicator rtl signed unit fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 28.578125px; height 20px
+indicator rtl native number fontStyle normal; textTransform none; textIndent 0px; whiteSpace normal; wordSpacing 0px; letterSpacing 0.5px; lineHeight 20px; width 22.5px; height 20px
+
