@@ -1,0 +1,139 @@
+// Copy to packages/material-x/tests/ and run there, after building core, with
+// --testTimeout=180000. The last test fails on purpose: its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/link-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/button/switch-icon-button.ts';
+import '../src/button/button.ts';
+import '../src/fab/fab.ts';
+import '../src/checkbox/checkbox.ts';
+import '../src/radio/radio.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import '../src/button-group/connected-button-group.ts';
+const rows: string[] = [];
+const say = (name: string, v: unknown) => rows.push(`${name} | ${JSON.stringify(v)}`);
+const task = () => new Promise((r) => setTimeout(r));
+const ctl = (e: Element) => e.shadowRoot!.querySelector('.input, .host')!;
+type Own = (e: Element, seen: Set<string>) => string | null;
+const on = (a: string, v = 'true'): Own => (e) => (e.hasAttribute(a) ? v : null);
+const bool = (a: string): Own => (e) => String(e.hasAttribute(a));
+const NAMES: Record<string, Record<string, { own: Own; src: string; free?: boolean }>> = {
+  'mx-text-field': { 'aria-invalid': { own: on('error'), src: 'error' }, 'aria-required': { own: on('required'), src: 'required' } },
+  'mx-multiline-text-field': { 'aria-invalid': { own: on('error'), src: 'error' }, 'aria-required': { own: on('required'), src: 'required' } },
+  'mx-switch-button': { 'aria-checked': { own: bool('checked'), src: 'checked' }, 'aria-invalid': { own: on('error'), src: 'error' }, 'aria-required': { own: on('required'), src: 'required' } },
+  'mx-switch-icon-button': { 'aria-checked': { own: bool('checked'), src: 'checked' }, 'aria-invalid': { own: on('error'), src: 'error' }, 'aria-required': { own: on('required'), src: 'required' } },
+  'mx-link-button': { 'aria-disabled': { own: on('disabled'), src: 'disabled' } },
+  'mx-list-link-item': { 'aria-disabled': { own: on('disabled'), src: 'disabled' }, 'aria-current': { own: on('selected', 'page'), src: 'selected' } },
+  'mx-list-button-item': { 'aria-selected': { own: (e, seen) => (seen.has('selected') ? String(e.hasAttribute('selected')) : null), src: 'selected' } },
+};
+const PLAIN = ['mx-button', 'mx-fab', 'mx-checkbox', 'mx-radio'];
+it('random', async () => {
+  for (const [tag, map] of Object.entries(NAMES)) {
+    const names = [...Object.keys(map), 'aria-description'];
+    const srcs = [...new Set(Object.values(map).map((m) => m.src))];
+    let reads = 0, wrong = 0, hostWrong = 0, first = '';
+    const vals = ['', 'true', 'false', 'mixed', null];
+    for (let seed = 1; seed <= 120; seed++) {
+      let s = seed * 2654435761;
+      const R = (n: number) => { s = (Math.imul(s ^ (s >>> 15), 2246822519) + 0x9e3779b9) | 0; return ((s >>> 8) % n + n) % n; };
+      const H = new Map<string, string | null>(); const seen = new Set<string>();
+      // Three ways to exist: created, parsed with attributes, cloned from one with attributes.
+      let el: HTMLElement;
+      if (seed % 3 === 0) el = document.createElement(tag);
+      else {
+        const n = names[R(names.length)]!, src = srcs[R(srcs.length)]!;
+        const box = document.createElement('div');
+        box.innerHTML = `<${tag} ${R(2) ? `${n}="mixed" ${src}` : `${src} ${n}="mixed"`}></${tag}>`;
+        H.set(n, 'mixed'); seen.add(src);
+        el = box.firstChild as HTMLElement;
+        if (seed % 3 === 1) { customElements.upgrade(el); el = el.cloneNode(true) as HTMLElement; }
+        else if (R(2)) customElements.upgrade(el); else document.body.append(box);
+        if (!el.shadowRoot) { customElements.upgrade(el); }
+        // the parsed value reaches an unconnected control at the first connect: start there.
+        document.body.append(el);
+      }
+      const log: string[] = [];
+      const check = () => { const c = ctl(el);
+        for (const n of names) { reads++; if (el.getAttribute(n) !== (H.get(n) ?? null)) hostWrong++;
+          const want = H.get(n) ?? map[n]?.own(el, seen) ?? null;
+          if (c.getAttribute(n) !== want) { wrong++; first ||= `seed ${seed} ${log.join(' ')} => ${n} ${c.getAttribute(n)} want ${want}`; } } };
+      for (let k = 0; k < 20; k++) {
+        const op = R(9), n = names[R(names.length)]!, v = vals[R(5)]!, src = srcs[R(srcs.length)]!;
+        log.push(op < 3 ? `${n}=${v}` : op < 6 ? `~${src}` : op === 6 ? 'connect' : op === 7 ? 'out' : 'task');
+        if (op < 3) { if (v == null) el.removeAttribute(n); else el.setAttribute(n, v); H.set(n, v); }
+        else if (op < 6) { el.toggleAttribute(src); seen.add(src); }
+        else if (op === 6) { document.body.append(el); check(); }
+        else if (op === 7) el.remove();
+        else { await task(); check(); }
+      }
+      await task(); check(); document.body.replaceChildren();
+    }
+    say(`random ${tag}: reads, wrong, host attributes wrong, first`, [reads, wrong, hostWrong, first]);
+  }
+});
+it('checkbox, radio, button, fab: a fixed sequence', async () => {
+  for (const tag of PLAIN) {
+    const el = document.createElement(tag); const c = el.shadowRoot!.querySelector('input, .host')!;
+    const r: unknown[] = [];
+    const snap = async () => { await task(); r.push(['aria-invalid', 'aria-required', 'aria-disabled'].map((n) => c.getAttribute(n))); };
+    await snap(); el.setAttribute('error', ''); el.setAttribute('required', ''); await snap();
+    el.setAttribute('aria-invalid', 'false'); await snap(); document.body.append(el); await snap();
+    el.removeAttribute('aria-invalid'); el.removeAttribute('error'); await snap(); el.remove(); document.body.append(el); el.setAttribute('error', ''); await snap();
+    say(`sequence ${tag}`, r);
+  }
+});
+it('switch: the value before and during setup, html', async () => {
+  for (const tag of ['mx-switch-button', 'mx-switch-icon-button']) {
+    const el = document.createElement(tag);
+    say(`${tag} shadow html`, el.shadowRoot!.querySelector('.host')!.outerHTML.replace(/\s+/gu, ' '));
+    const box = document.createElement('div');
+    box.innerHTML = `<${tag} aria-checked="mixed"></${tag}><${tag} checked></${tag}><${tag} aria-checked="mixed" checked></${tag}><${tag}></${tag}>`;
+    const t = (x: Element) => ctl(x).getAttribute('aria-checked');
+    const all = () => [...box.children].map(t);
+    [...box.children].forEach((x) => customElements.upgrade(x));
+    const a = all(); await task(); const b = all(); document.body.append(box); const c = all();
+    say(`${tag} parsed: aria-checked=mixed; checked; both; none: upgraded, task, connected`, [a, b, c]);
+    const n = document.createElement(tag); n.toggleAttribute('checked', true); n.toggleAttribute('checked', false);
+    say(`${tag} checked on and off before connect`, t(n));
+    (n as unknown as { checked: boolean }).checked = true; n.setAttribute('aria-checked', 'false'); document.body.append(n);
+    const on = t(n); n.removeAttribute('aria-checked'); await task();
+    say(`${tag} checked with aria-checked=false: connect, lost; state, form`, [on, t(n), n.matches(':state(checked)')]);
+  }
+});
+it('connected group sets checked', async () => {
+  const g = document.createElement('mx-connected-button-group');
+  g.innerHTML = '<mx-switch-button value="a">A</mx-switch-button><mx-switch-button value="b">B</mx-switch-button>';
+  document.body.append(g); await task();
+  const read = () => [...g.children].map((x) => [x.hasAttribute('checked'), ctl(x).getAttribute('aria-checked')]);
+  const r = [read()]; g.setAttribute('value', 'a'); await task(); r.push(read());
+  g.children[0]!.setAttribute('aria-checked', 'mixed'); g.setAttribute('value', 'b'); await task(); r.push(read());
+  g.children[0]!.removeAttribute('aria-checked'); await task(); r.push(read());
+  say('group: none, a, a has mixed and the group b, lost', r);
+});
+it('links', async () => {
+  for (const tag of ['mx-link-button', 'mx-list-link-item']) {
+    const el = document.createElement(tag); el.setAttribute('href', '#x'); el.setAttribute('aria-disabled', 'false'); el.setAttribute('tabindex', '3'); el.setAttribute('disabled', '');
+    document.body.append(el); await task(); const c = ctl(el) as HTMLAnchorElement;
+    const read = () => ['aria-disabled', 'href', 'tabindex'].map((n) => c.getAttribute(n));
+    const r = [read()]; el.removeAttribute('disabled'); r.push(read()); await task(); r.push(read());
+    el.removeAttribute('aria-disabled'); await task(); r.push(read()); el.setAttribute('disabled', ''); r.push(read());
+    el.remove(); el.removeAttribute('disabled'); document.body.append(el); r.push(read());
+    let clicked = 0; el.setAttribute('aria-disabled', 'false'); el.setAttribute('disabled', ''); await task(); el.addEventListener('click', () => clicked++); c.click();
+    say(`${tag}: disabled with false; enabled sync, task; lost; disabled; out, enabled, connect; click while disabled with false`, [r, clicked, location.hash]);
+  }
+});
+it('text field ids beside an own value', async () => {
+  for (const tag of ['mx-text-field', 'mx-multiline-text-field']) {
+    const el = document.createElement(tag); el.innerHTML = '<span slot="label">L</span><span slot="support">S</span>'; el.setAttribute('error', '');
+    document.body.append(el); await task(); await task(); const c = ctl(el);
+    const read = () => ['aria-labelledby', 'aria-describedby', 'aria-invalid'].map((n) => c.getAttribute(n));
+    const r = [read()]; el.setAttribute('aria-labelledby', 'z'); el.setAttribute('aria-invalid', 'false'); await task(); r.push(read());
+    el.removeAttribute('aria-labelledby'); el.removeAttribute('aria-invalid'); await task(); r.push(read()); el.remove(); el.removeAttribute('error'); document.body.append(el); r.push(read());
+    say(`${tag} ids and invalid`, r);
+  }
+});
+it('reading', () => expect.fail(`\n${rows.map((r) => `READ ${server.browser} | ${r}`).join('\n')}\nEND`));
