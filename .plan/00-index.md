@@ -5728,6 +5728,20 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Plan needed:** no. **Ready** for an implementer. The rule is adopted in the items' sheets, and takes the values of the shared `focusTokens`, 2px outside. `RF-125` gives the item's own variables the list's −3px, and both are on the item's `:host`, so the handle's offset needs a variable of its own. The two can land in either order.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer, on `material-x/handle-focus-1`: not implemented, and returned to the architect.** Requested by the coordinator. The code disagrees with the entry in the `trail` slot. Read on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, with the entry's rule as a source change that is restored ([patch](handle-focus-1/checks/handle-focus-scratch.patch.txt)) and as adopted sheets ([reading](handle-focus-1/checks/handle-paint.txt), [probe](handle-focus-1/probes/handle-paint.mjs)), for the four kinds of handle, two kinds of item, two slots, and LTR and RTL. A handle's own pixels below are those in the indicator's color. The whole item also changes by 200 to 202 pixels when focus enters it, whatever the handle is, and their cause wasn't read.
+
+- **The `.trail` slot has `overflow: hidden`, and it fits the handle, so it clips what lies outside the handle.** With the rule, a trailing `mx-icon`, `span` or `button` has the right computed outline and shows 0 pixels of it, in each engine, item and direction. In the `lead` slot it is whole: 324 pixels for a 20px `mx-icon`, which is the ring's area.
+- **So the rule alone makes a trailing handle worse.** It replaces the browser's outline, of which some is visible today. Beyond the item's own change, LTR, `main` shows about 88 pixels for `mx-icon`, 164 for `span` and 228 for `button` in Chromium, and about 12, 54 and 240 in WebKit. In Firefox it shows 0 for `mx-icon`, 21 for `span` and 118 for `button`. The entry's _"focus is visible today"_ is false for a trailing `mx-icon` in Firefox. With the rule none of these shows anything.
+- **A trailing `mx-icon-button` is clipped today too:** 92 to 93 of its 317 to 324 pixels show in Chromium and WebKit, and 0 in Firefox.
+- **The entry's candidate reading** was of computed styles, which clipping doesn't change. It holds as far as it goes.
+- **Candidates, read for the paint alone:**
+  - `.trail { overflow: visible }`: whole in both slots, in the three engines, and for `mx-icon-button`. It costs the clipping of trailing text that is wider than the slot, which wasn't read. The slot is `flex: 0 0 min-content`.
+  - `overflow: clip` with `overflow-clip-margin: 5px`: whole in Chromium and Firefox, nothing in WebKit.
+  - An offset of −3px in `.trail`: whole and inside the handle, in the three engines, so an indicator over the handle's content. `mx-icon-button` stays clipped.
+  - A padding of 5px with a margin of −5px, under `:has-slotted`: whole on button items in Firefox alone. In Chromium and WebKit the sheet changed nothing there. The cause wasn't read, and this isn't evidence against the form.
+- **What the rule needs otherwise holds:** the list's own thickness and color equal `focusTokens`' (3px, `md.sys.color.secondary`), so only the offset needs a variable, `--_handle-focus-indicator-outline-offset`.
+- **Not read:** Safari, sizes, rows, and the list's long trailing text.
+
 #### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `drag/command-signal-1`, from the note _"Seen, and not registered"_ of `RF-127`, on the owner's answer in chat, relayed by the coordinator: _"Точно да 👍"_ ("Definitely yes"). `RF-128` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `73a2320ef` on the built elements in Chromium, Firefox and WebKit ([readings](command-signal-1/checks/reorder-colors.txt), [probe](command-signal-1/probes/reorder-colors.mjs)).
