@@ -1,0 +1,61 @@
+Mutations of mx-card and mx-list-item, and the rows of tests/card and tests/core/elevation.spec that fail under each, per engine. Read on 2026-11-23.
+The first stretch reading passed, because the row compared two DOMRects with toEqual and a DOMRect has no own keys. The row was repaired, and the reading here is the repaired row's.
+
+## padding on the host | chromium | Tests 3 failed
+:168 > mx-card filled container contract > should keep the inset under a page's universal reset
+:168 > mx-card elevated container contract > should keep the inset under a page's universal reset
+:168 > mx-card outlined container contract > should keep the inset under a page's universal reset
+## padding on the host | firefox | Tests 3 failed
+:168 > mx-card filled container contract > should keep the inset under a page's universal reset
+:168 > mx-card elevated container contract > should keep the inset under a page's universal reset
+:168 > mx-card outlined container contract > should keep the inset under a page's universal reset
+## padding on the host | webkit | Tests 3 failed
+:168 > mx-card filled container contract > should keep the inset under a page's universal reset
+:168 > mx-card elevated container contract > should keep the inset under a page's universal reset
+:168 > mx-card outlined container contract > should keep the inset under a page's universal reset
+## outline on the host | chromium | Tests 3 failed
+:176 > mx-card outline contract > should render the outline on the outlined card
+:180 > mx-card outline contract > should keep the outline under a page's universal reset
+:241 > mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline on the host | firefox | Tests 3 failed
+:176 > mx-card outline contract > should render the outline on the outlined card
+:180 > mx-card outline contract > should keep the outline under a page's universal reset
+:241 > mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline on the host | webkit | Tests 3 failed
+:176 > mx-card outline contract > should render the outline on the outlined card
+:180 > mx-card outline contract > should keep the outline under a page's universal reset
+:241 > mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+
+## no shadow.color | chromium | Tests 1 failed
+:207 > mx-card elevation layers > should draw its layers in its own shadow colour
+## no shadow.color | firefox | Tests 1 failed
+:207 > mx-card elevation layers > should draw its layers in its own shadow colour
+## no shadow.color | webkit | Tests 1 failed
+:207 > mx-card elevation layers > should draw its layers in its own shadow colour
+## slot keeps the level | chromium | Tests 1 failed
+:224 > mx-card elevation layers > should not raise a filled button inside an elevated card
+## slot keeps the level | firefox | Tests 1 failed
+:224 > mx-card elevation layers > should not raise a filled button inside an elevated card
+## slot keeps the level | webkit | Tests 1 failed
+:224 > mx-card elevation layers > should not raise a filled button inside an elevated card
+## slot keeps the container colour | chromium | Tests 1 failed
+:259 > mx-card content > should not give its container colour to a checkbox inside it
+## slot keeps the container colour | firefox | Tests 1 failed
+:259 > mx-card content > should not give its container colour to a checkbox inside it
+## slot keeps the container colour | webkit | Tests 1 failed
+:259 > mx-card content > should not give its container colour to a checkbox inside it
+## list item without the host-box stylesheet | chromium | Tests 2 failed
+:261 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+:420 > elevation at level 0 > should raise the layers continuously from level 0
+## list item without the host-box stylesheet | firefox | Tests 2 failed
+:261 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+:420 > elevation at level 0 > should raise the layers continuously from level 0
+## list item without the host-box stylesheet | webkit | Tests 2 failed
+:261 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+:420 > elevation at level 0 > should raise the layers continuously from level 0
+## host does not stretch its slot | chromium | Tests 1 failed
+:206 > mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## host does not stretch its slot | firefox | Tests 1 failed
+:206 > mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## host does not stretch its slot | webkit | Tests 1 failed
+:206 > mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card

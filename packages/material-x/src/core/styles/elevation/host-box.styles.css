@@ -1,0 +1,11 @@
+/*
+ * A host that is its component's box draws the three elevation layers in one
+ * list, because an `overflow` on the host clips its pseudo-elements' shadows.
+ * The host's own stylesheet gives it the shape.
+ */
+:host {
+  position: relative;
+  box-shadow:
+    var(--_elevation-umbra), var(--_elevation-penumbra),
+    var(--_elevation-ambient);
+}

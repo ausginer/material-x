@@ -1,0 +1,735 @@
+# chromium 158.0.8127.18
+
+## slot (built)
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 1% left 100%, elsewhere 262px
+block-size 100, overflow hidden: top 100% right 100% bottom 1% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 93% right 0% bottom 1% left 100%, elsewhere 98px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 1% right 0% bottom 1% left 100%, elsewhere 98px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 1% right 0% bottom 93% left 100%, elsewhere 98px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## slot, shrinks
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 93% right 0% bottom 93% left 100%, elsewhere 98px | {"scrollTop":0,"scrollHeight":416}
+max 100, overflow auto, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":416}
+max 100, overflow auto, at the end: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":316,"slotScrollTop":0,"spaceAfterContent":0}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## slot, shrinks, overflow: inherit
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"slotScrollTop":332,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+the same, isolation: isolate, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host outline
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset, after the sheet is !important: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"solid 1px rgb(255, 0, 0)"}
+a page's own outline: top 0% right 0% bottom 0% left 0%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host outline !important
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"solid 1px rgb(255, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 1px rgb(255, 0, 0)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host outline !important, not when focused
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 8% right 100% bottom 8% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 1px rgb(255, 0, 0)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host border !important
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":334,"slotScrollTop":0,"spaceAfterContent":17}
+the same, positioned full-bleed content, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x74 17,17","200x42 1,1","200x58 25,9","200x74 17,17"]
+percent-height child of a 300px card: 266
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [266,266,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host border !important, slot margin -1px
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":431}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":431}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":348,"slotScrollTop":0,"spaceAfterContent":32}
+the same, positioned full-bleed content, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":399}
+the same, isolation: isolate, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":399}
+full-bleed, natural: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host inset shadow
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 93% right 0% bottom 93% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 93% right 0% bottom 93% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 93% right 0% bottom 93% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,255,255 | 255,255,255
+
+## host ::after border
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 93% right 0% bottom 93% left 100%, elsewhere 98px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset, after the sheet is !important: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+utility preflight: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(16, 16, 16)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,18]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+natural, 12px shape, the host's outline against the slot's: the same screenshot
+
+stretched to 120px, 12px shape, the host's outline against the slot's: the same screenshot
+# firefox 159.0
+
+## slot (built)
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 1% left 100%, elsewhere 262px
+block-size 100, overflow hidden: top 100% right 100% bottom 1% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 1% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 1% right 100% bottom 1% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 1% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## slot, shrinks
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":416}
+max 100, overflow auto, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":416}
+max 100, overflow auto, at the end: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":316,"slotScrollTop":0,"spaceAfterContent":0}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## slot, shrinks, overflow: inherit
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"slotScrollTop":332,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host outline
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset, after the sheet is !important: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"solid 1px rgb(255, 0, 0)"}
+a page's own outline: top 0% right 0% bottom 0% left 0%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host outline !important
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"solid 1px rgb(255, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 1px rgb(255, 0, 0)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host outline !important, not when focused
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 1px rgb(255, 0, 0)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host border !important
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":334,"slotScrollTop":0,"spaceAfterContent":17}
+the same, positioned full-bleed content, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x74 17,17","200x42 1,1","200x58 25,9","200x74 17,17"]
+percent-height child of a 300px card: 266
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [266,266,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host border !important, slot margin -1px
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":431}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":431}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":333,"slotScrollTop":0,"spaceAfterContent":17}
+the same, positioned full-bleed content, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":399}
+the same, isolation: isolate, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":399}
+full-bleed, natural: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+## host inset shadow
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,255,255 | 255,255,255
+
+## host ::after border
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset, after the sheet is !important: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+utility preflight: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 1px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":true,"focusVisible":true,"host":"auto 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 0,0,0 | 255,255,255
+
+natural, 12px shape, the host's outline against the slot's: the same screenshot
+
+stretched to 120px, 12px shape, the host's outline against the slot's: the same screenshot
+# webkit 27.2
+
+## slot (built)
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 1% left 100%, elsewhere 262px
+block-size 100, overflow hidden: top 100% right 100% bottom 1% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 1% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 1% right 100% bottom 1% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 1% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 98% right 94% bottom 98% left 94%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## slot, shrinks
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":416}
+max 100, overflow auto, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":416}
+max 100, overflow auto, at the end: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":316,"slotScrollTop":0,"spaceAfterContent":0}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 98% right 94% bottom 98% left 94%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## slot, shrinks, overflow: inherit
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"slotScrollTop":332,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":0,"scrollHeight":100}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 98% right 94% bottom 98% left 94%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host outline
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset, after the sheet is !important: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"solid 1px rgb(255, 0, 0)"}
+a page's own outline: top 0% right 0% bottom 0% left 0%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host outline !important
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"solid 1px rgb(255, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 1px rgb(255, 0, 0)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 1px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host outline !important, not when focused
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 1px rgb(255, 0, 0)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"solid 1px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"solid 1px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host border !important
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":334,"slotScrollTop":0,"spaceAfterContent":17}
+the same, positioned full-bleed content, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 98% right 95% bottom 98% left 95%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x74 17,17","200x42 1,1","200x58 25,9","200x74 17,17"]
+percent-height child of a 300px card: 266
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [266,266,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host border !important, slot margin -1px
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":431}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":431}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":333,"slotScrollTop":0,"spaceAfterContent":17}
+the same, positioned full-bleed content, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":399}
+the same, isolation: isolate, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":399}
+full-bleed, natural: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 98% right 94% bottom 98% left 94%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host inset shadow
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+full-bleed, natural, positioned: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset, after the sheet is !important: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+utility preflight: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+keyboard focus, tabindex 0: top 98% right 94% bottom 98% left 94%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+## host ::after border
+natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 40, content 40: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+block-size 100, overflow hidden: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+max 100, overflow auto, at 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"scrollTop":0,"scrollHeight":432}
+max 100, overflow auto, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":432}
+max 100, overflow auto, at the end: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":332,"slotScrollTop":0,"spaceAfterContent":16}
+the same, positioned full-bleed content, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+the same, isolation: isolate, at 120: top 0% right 0% bottom 0% left 0%, elsewhere 0px | {"scrollTop":120,"scrollHeight":400}
+full-bleed, natural: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+full-bleed, natural, positioned: top 100% right 100% bottom 100% left 100%, elsewhere 0px
+reset: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+reset, after the sheet is !important: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+utility preflight: top 0% right 0% bottom 0% left 0%, elsewhere 0px
+keyboard focus, tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px | {"focusVisible":true,"host":"auto 3px rgb(0, 0, 0)"}
+a page's own outline: top 100% right 100% bottom 100% left 100%, elsewhere 0px | "solid 3px rgb(0, 0, 255)"
+host size and content inset (left, top), padding 16, 0, 8px 24px, 16 in content-box, for filled, elevated and outlined: ["200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16","200x72 16,16","200x40 0,0","200x56 24,8","200x72 16,16"]
+percent-height child of a 300px card: 268
+percent-height child of a card that is 300px by a grid, a flex row and min-block-size: [268,268,21]
+Tab to a scrolling card with no tabindex: {"focused":false,"focusVisible":false,"host":"none 3px"}
+click on a card with tabindex 0: top 100% right 100% bottom 100% left 100%, elsewhere 0px {"focused":true,"focusVisible":false,"host":"none 3px"}
+a page's own focus outline: {"focused":true,"focusVisible":true,"host":"solid 3px"}
+forced colors, top edge against the pixel above and below: 255,255,255 | 255,0,0 | 220,220,220
+
+natural, 12px shape, the host's outline against the slot's: the same screenshot
+
+stretched to 120px, 12px shape, the host's outline against the slot's: the same screenshot

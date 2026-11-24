@@ -1,0 +1,357 @@
+// The always-running observer of useARIA: how often it writes, and hosts that
+// are never connected, upgraded, cloned, adopted, nested, or watched by others.
+// Copy to packages/core/tests/ and run there. The last test fails on purpose:
+// its message is the reading.
+import { afterEach, expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import { useARIA } from '../src/controllers/useARIA.ts';
+import { ControlledElement } from '../src/element.ts';
+import { cleanupDOM, host, nameCE, nextFrame } from './browser.ts';
+
+const NAMES = `activedescendant atomic autocomplete braillelabel
+brailleroledescription busy checked colcount colindex colindextext colspan
+controls current describedby description details disabled dropeffect
+errormessage expanded flowto grabbed haspopup hidden invalid keyshortcuts label
+labelledby level live modal multiline multiselectable orientation owns
+placeholder posinset pressed readonly relevant required roledescription rowcount
+rowindex rowindextext rowspan selected setsize sort valuemax valuemin valuenow
+valuetext x-unknown`
+  .split(/\s+/)
+  .map((n) => `aria-${n}`);
+
+const rows: string[] = [];
+const read = (what: string, value: unknown) =>
+  rows.push(`READ ${server.browser} | ${what} | ${JSON.stringify(value)}`);
+afterEach(cleanupDOM);
+const micro = async () => {
+  await Promise.resolve();
+  await Promise.resolve();
+};
+
+// A target that logs each write, and a host whose transformer logs each call.
+const watched = () => {
+  const target = document.createElement('div');
+  const log: string[] = [];
+  for (const m of ['setAttribute', 'removeAttribute'] as const) {
+    const own = target[m].bind(target) as (...a: string[]) => void;
+    (target as any)[m] = (...a: string[]) => {
+      log.push(`${m === 'setAttribute' ? a[1] : 'REMOVE'}`);
+      own(...a);
+    };
+  }
+  const el = host((h) =>
+    useARIA(h, target, (_, v) => {
+      log.push(`t:${v}`);
+      return v;
+    }),
+  );
+  return { target, log, el };
+};
+type W = ReturnType<typeof watched>;
+type Step = (w: W, n: string, at: (what: string) => void) => void | Promise<void>;
+const STEPS: Record<string, Step> = {
+  'set, connect': async ({ el }, n, at) => {
+    el.setAttribute(n, 'A');
+    document.body.append(el);
+    at('connect');
+    await nextFrame();
+    at('frame');
+  },
+  'set, microtask, connect': async ({ el }, n, at) => {
+    el.setAttribute(n, 'A');
+    await micro();
+    at('microtask');
+    document.body.append(el);
+    at('connect');
+    await nextFrame();
+    at('frame');
+  },
+  'A B C in one task, never connected': async ({ el }, n, at) => {
+    for (const v of 'ABC') el.setAttribute(n, v);
+    await micro();
+    at('microtask');
+    await nextFrame();
+    at('frame');
+  },
+  'A B C in one task, connect': async ({ el }, n, at) => {
+    for (const v of 'ABC') el.setAttribute(n, v);
+    document.body.append(el);
+    at('connect');
+    await nextFrame();
+    at('frame');
+  },
+  'set and lost in one task, connect': async ({ el }, n, at) => {
+    el.setAttribute(n, 'A');
+    el.removeAttribute(n);
+    document.body.append(el);
+    at('connect');
+    await nextFrame();
+    at('frame');
+  },
+  'connected: set, lost, two moves in one task': async ({ el, log }, n, at) => {
+    document.body.append(el);
+    el.setAttribute(n, 'A');
+    await nextFrame();
+    log.length = 0;
+    el.removeAttribute(n);
+    document.body.prepend(el);
+    at('move');
+    document.body.append(el);
+    at('move 2');
+    await nextFrame();
+    at('frame');
+  },
+  'connected: lost while out, microtask, connect, move': async ({ el, log }, n, at) => {
+    document.body.append(el);
+    el.setAttribute(n, 'A');
+    await nextFrame();
+    log.length = 0;
+    el.remove();
+    el.removeAttribute(n);
+    await micro();
+    at('microtask');
+    document.body.append(el);
+    at('connect');
+    document.body.prepend(el);
+    at('move');
+    await nextFrame();
+    at('frame');
+  },
+  'connected: lost and regained in one task, move': async ({ el, log }, n, at) => {
+    document.body.append(el);
+    el.setAttribute(n, 'A');
+    await nextFrame();
+    log.length = 0;
+    el.removeAttribute(n);
+    el.setAttribute(n, 'B');
+    document.body.prepend(el);
+    at('move');
+    await nextFrame();
+    at('frame');
+  },
+  'connected: changed after the connect in one task': async ({ el, log }, n, at) => {
+    document.body.append(el);
+    el.setAttribute(n, 'A');
+    at('set');
+    await micro();
+    at('microtask');
+    log.length = 0;
+  },
+};
+for (const [what, step] of Object.entries(STEPS)) {
+  it(what, async () => {
+    const got = new Map<string, number>();
+    for (const n of NAMES) {
+      cleanupDOM();
+      const w = watched();
+      const out: string[] = [];
+      await step(w, n, (at) => {
+        out.push(`${at}: ${w.log.splice(0).join(' ') || '-'}`);
+      });
+      const key = out.join('; ');
+      got.set(key, (got.get(key) ?? 0) + 1);
+    }
+    read(`writes of ${NAMES.length} names | ${what}`, Object.fromEntries(got));
+  }, 60_000);
+}
+
+it('never connected', async () => {
+  const { el, target } = watched();
+  const log: unknown[] = [];
+  el.setAttribute('aria-label', 'A');
+  log.push(['sync', target.getAttribute('aria-label')]);
+  await micro();
+  log.push(['microtask', target.getAttribute('aria-label')]);
+  el.removeAttribute('aria-label');
+  await micro();
+  log.push(['lost', target.getAttribute('aria-label')]);
+  target.setAttribute('aria-label', 'own');
+  await nextFrame();
+  document.body.append(el);
+  await nextFrame();
+  log.push(['own, then the first connect', target.getAttribute('aria-label')]);
+  read('never connected', log);
+});
+
+it('ways to be created', async () => {
+  const name = nameCE();
+  const made = new Map<Element, { target: Element; log: string[] }>();
+  const define = () =>
+    customElements.define(
+      name,
+      class extends ControlledElement {
+        constructor() {
+          super();
+          const target = document.createElement('div');
+          const log: string[] = [];
+          made.set(this, { target, log });
+          useARIA(this, target, (n, v) => {
+            log.push(`${n}=${v}`);
+            return v;
+          });
+        }
+      },
+    );
+  const html = `<${name} aria-label="A" title="t" aria-details="d"></${name}>`;
+  const box = document.createElement('div');
+  box.innerHTML = html + html;
+  document.body.append(box);
+  const out = document.createElement('div');
+  out.innerHTML = html;
+  define();
+  customElements.upgrade(out);
+  const of = (el: Element) => {
+    const { target, log } = made.get(el)!;
+    return [target.getAttributeNames().map((n) => `${n}=${target.getAttribute(n)}`).join(), log.splice(0).join()];
+  };
+  const result: Record<string, unknown> = { 'upgraded, connected': of(box.firstElementChild!), 'upgraded, out': of(out.firstElementChild!) };
+  await nextFrame();
+  result['upgraded, connected, frame'] = of(box.firstElementChild!);
+  result['upgraded, out, frame'] = of(out.firstElementChild!);
+  const p = document.createElement('div');
+  document.body.append(p);
+  p.innerHTML = html;
+  result['innerHTML in the document'] = of(p.firstElementChild!);
+  await nextFrame();
+  result['innerHTML in the document, frame'] = of(p.firstElementChild!);
+  const c = p.firstElementChild!.cloneNode() as Element;
+  result['clone, out'] = of(c);
+  await nextFrame();
+  result['clone, out, frame'] = of(c);
+  document.body.append(c);
+  result['clone, connected'] = of(c);
+  await nextFrame();
+  result['clone, connected, frame'] = of(c);
+  const t = document.createElement('template');
+  t.innerHTML = html;
+  const i = document.importNode(t.content, true);
+  document.body.append(i);
+  result['template, imported and appended'] = of(document.body.lastElementChild!);
+  await nextFrame();
+  result['template, frame'] = of(document.body.lastElementChild!);
+  read('ways to be created: [target, transformer calls]', result);
+});
+
+it('ten hooks', async () => {
+  const targets = Array.from({ length: 10 }, () => document.createElement('div'));
+  let calls = 0;
+  const el = host((h) => {
+    for (const t of targets) useARIA(h, t, (_, v) => { calls++; return v; });
+  });
+  const at = () => { const r = [[...new Set(targets.map((t) => t.getAttribute('aria-label')))], calls]; calls = 0; return r; };
+  const log: unknown[] = [];
+  el.setAttribute('aria-label', 'A');
+  document.body.append(el);
+  log.push(at()); await nextFrame(); log.push(at());
+  el.removeAttribute('aria-label'); document.body.prepend(el);
+  log.push(at()); await nextFrame(); log.push(at());
+  el.remove(); el.setAttribute('aria-label', 'B'); await nextFrame(); log.push(at());
+  el.removeAttribute('aria-label'); await nextFrame(); log.push(at());
+  targets.forEach((t, k) => t.setAttribute('aria-label', `own${k % 2}`));
+  document.body.append(el); await nextFrame(); log.push(at());
+  read('ten hooks on one host: [distinct values, calls] over the steps', log);
+});
+
+it('adopted', async () => {
+  const frame = document.createElement('iframe');
+  document.body.append(frame);
+  for (const [what, doc] of [['no window', document.implementation.createHTMLDocument()], ['iframe', frame.contentDocument!]] as const) {
+    const { el, target, log } = watched();
+    const out: unknown[] = [];
+    const at = (w: string) => out.push([w, target.getAttribute('aria-label'), log.splice(0).join(' ')]);
+    el.setAttribute('aria-label', 'A');
+    document.body.append(el); await nextFrame(); at('connected');
+    doc.body.append(el); at('adopted');
+    el.setAttribute('aria-label', 'B'); await nextFrame(); at('changed there');
+    el.removeAttribute('aria-label'); await nextFrame(); at('lost there');
+    target.setAttribute('aria-label', 'own'); log.length = 0;
+    document.body.append(el); await nextFrame(); at('own written, back');
+    el.setAttribute('aria-label', 'C'); await nextFrame(); at('changed');
+    doc.body.append(el); el.removeAttribute('aria-label'); document.body.append(el); at('there, lost, and back in one task');
+    el.remove(); doc.adoptNode(el); el.setAttribute('aria-label', 'D'); await nextFrame(); at('adopted only, and set');
+    read(`adopted, ${what}`, out);
+  }
+  // A window that goes away: its document's nodes keep their observers.
+  const { el, target } = watched();
+  document.body.append(el);
+  frame.contentDocument!.body.append(el);
+  frame.remove();
+  el.setAttribute('aria-label', 'E');
+  await nextFrame();
+  const gone = target.getAttribute('aria-label');
+  document.body.append(el);
+  await nextFrame();
+  const back = target.getAttribute('aria-label');
+  el.removeAttribute('aria-label');
+  await nextFrame();
+  read('adopted by an iframe that is removed: set, back, lost', [gone, back, target.getAttribute('aria-label')]);
+});
+
+it("a page's observer that moves the host in its callback", async () => {
+  const out: unknown[] = [];
+  for (const first of [true, false]) {
+    const { el, target, log } = watched();
+    const make = () => {
+      const o = new MutationObserver(() => {
+        const at = target.getAttribute('aria-label');
+        document.body.prepend(el);
+        out.push([first ? 'observes before the connect' : 'observes after it', 'in its callback', at, 'after its move', target.getAttribute('aria-label')]);
+        o.disconnect();
+      });
+      o.observe(el, { attributes: true });
+    };
+    el.setAttribute('aria-label', 'A');
+    if (first) { await nextFrame(); make(); }
+    document.body.append(el);
+    await nextFrame();
+    if (!first) make();
+    log.length = 0;
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    out.push(['after', target.getAttribute('aria-label'), log.splice(0).join(' ')]);
+  }
+  read("a page's observer moves the host", out);
+});
+
+it('a mirror of a mirror', async () => {
+  const leaf = document.createElement('div');
+  const inner = host((h) => useARIA(h, leaf));
+  const el = host((h) => { h.attachShadow({ mode: 'open' }).append(inner); useARIA(h, inner); });
+  const out: unknown[] = [];
+  const at = (w: string) => out.push([w, inner.getAttribute('aria-label'), leaf.getAttribute('aria-label')]);
+  el.setAttribute('aria-label', 'A');
+  document.body.append(el); at('connect');
+  await nextFrame();
+  el.removeAttribute('aria-label'); document.body.prepend(el); at('lost, moved');
+  await nextFrame(); at('frame');
+  el.remove(); el.setAttribute('aria-label', 'B'); await micro(); await micro(); at('set while out');
+  el.removeAttribute('aria-label'); await nextFrame(); at('lost while out');
+  document.body.append(el); await nextFrame(); at('back');
+  read('a mirror of a mirror: [step, inner host, leaf]', out);
+});
+
+it("the target's own value after a loss that the connect wrote", async () => {
+  const { el, target } = watched();
+  el.setAttribute('aria-label', 'A');
+  document.body.append(el); await nextFrame();
+  el.removeAttribute('aria-label'); document.body.prepend(el);
+  target.setAttribute('aria-label', 'own');
+  const log = [target.getAttribute('aria-label')];
+  await nextFrame(); log.push(target.getAttribute('aria-label'));
+  document.body.append(el); await nextFrame(); log.push(target.getAttribute('aria-label'));
+  el.remove(); el.setAttribute('aria-details', 'd'); document.body.append(el); await nextFrame();
+  log.push(target.getAttribute('aria-label'));
+  read("loss written by the connect, own in the same task: at once, frame, move, another name's change and reconnect", log);
+});
+
+it('own in the task of the loss, then the connect in that task', async () => {
+  const { el, target } = watched();
+  el.setAttribute('aria-label', 'A');
+  document.body.append(el); await nextFrame();
+  el.removeAttribute('aria-label');
+  target.setAttribute('aria-label', 'own, written after the loss');
+  document.body.prepend(el);
+  read('the target written after the loss, then a move, in one task: after the move', target.getAttribute('aria-label'));
+});
+
+it('reading', () => expect.fail(`\n${rows.join('\n')}\nEND`));

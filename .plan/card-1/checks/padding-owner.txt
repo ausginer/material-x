@@ -1,0 +1,435 @@
+# chromium 158.0.8127.18
+## slot (built)
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 0 scroll 0,316 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x50 inset 0 0 0 0
+  page padding 40px: card 280x152 inset 56 56 56 56
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## slot, as wide as its content
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x50 inset 0 0 0 0
+  page padding 40px: card 280x152 inset 56 56 56 56
+  a scroller inside: p 396.5, pre 396.5
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot a box
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 0 scroll 0,316 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x50 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot none, host block
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x40 inset 0 0 0 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x50 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot none, host flow-root
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x50 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host, the slot none, host flow-root
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x40 inset 0 0 0 0
+  reset !important, content-box: card 200x40 inset 0 0 0 0
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x50 inset 0 0 0 0
+  page padding 40px: card 200x120 inset 40 40 40 40
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+# firefox 159.0
+## slot (built)
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 0 scroll 0,316 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 280x152 inset 56 56 56 56
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## slot, as wide as its content
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 280x152 inset 56 56 56 56
+  a scroller inside: p 366, pre 366
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot a box
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 0 scroll 0,316 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot none, host block
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x40 inset 0 0 0 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot none, host flow-root
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host, the slot none, host flow-root
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x40 inset 0 0 0 0
+  reset !important, content-box: card 200x40 inset 0 0 0 0
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x120 inset 40 40 40 40
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+# webkit 27.2
+## slot (built)
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 0 scroll 0,316 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 280x152 inset 56 56 56 56
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## slot, as wide as its content
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 280x152 inset 56 56 56 56
+  a scroller inside: p 396.5, pre 396.5
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot a box
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 0 block 16 scroll 416,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 0 block 16 scroll 416,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 0 scroll 0,316 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot none, host block
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x40 inset 0 0 0 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host !important, the slot none, host flow-root
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x72 inset 16 16 16 16
+  reset !important, content-box: card 200x72 inset 16 16 16 16
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x72 inset 16 16 16 16
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0
+## host, the slot none, host flow-root
+  scroll block: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  scroll inline: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll inline, rtl: inline 16 block 16 scroll 432,0 | div: inline 16 block 16 scroll 432,0
+  scroll both: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll both, hidden: inline 16 block 16 scroll 432,332 | div: inline 16 block 16 scroll 432,332
+  scroll inline, vertical-rl: inline 16 block 16 scroll 0,332 | div: inline 16 block 16 scroll 0,332
+  natural: card 200x72 inset 16 16 16 16
+  reset: card 200x40 inset 0 0 0 0
+  reset !important, content-box: card 200x40 inset 0 0 0 0
+  inline-size: 100%: card 200x72 inset 16 16 16 16
+  fit-content: card 152x72 inset 16 16 16 16
+  padding 0: card 200x40 inset 0 0 0 0
+  padding 8px 24px: card 200x56 inset 8 24 8 24
+  padding 0, a margin of 20px: card 200x80 inset 20 0 20 0
+  percentage, in a stretching grid: card 200x300 inset 16 16 16 16
+  percentage, in a stretching flex: card 200x300 inset 16 16 16 16
+  percentage, in a block size: card 200x300 inset 16 16 16 16
+  percentage, in a flex: 1: card 560x300 inset 16 16 16 16
+  absolute child, inset 0: card 200x53 inset 0 0 0 0
+  page padding 40px: card 200x120 inset 40 40 40 40
+  a scroller inside: p 168, pre 168
+  a checkbox's container: rgba(0, 0, 0, 0)
+  screenshots that differ from the built card's, of 18: 0

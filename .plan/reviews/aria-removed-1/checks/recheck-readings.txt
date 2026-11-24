@@ -1,0 +1,130 @@
+Read at 80c5db113, core rebuilt, one engine at a time. In each probe run every test passes except the last, which fails on purpose and carries the reading.
+
+## The proof's probes (core, material-x, own-out) and the orders' probe: 84 rows
+Firefox and WebKit read as Chromium in each. The orders' probe reads as .plan/aria-removed-1/checks/own-order-built.txt. Of the 60 rows of core and material-x, 12 differ from readings.txt at 6e0ca1d4f. They follow, at 80c5db113; own-out's 15 rows are null, as at 6e0ca1d4f.
+host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=null","aria-haspopup=null","ariaish=own"],["aria-expanded","aria-expanded","aria-haspopup"]]
+several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+
+## The probes recheck-core and recheck-material-x, at 80c5db113
+Firefox and WebKit read as Chromium in each row but the timing, which isn't kept here: the timing section replaces it.
+a mirror of a mirror: [step, inner host, leaf] | [["connect","A","A"],["lost, moved",null,null],["frame",null,null],["set while out","B","B"],["lost while out",null,null],["back",null,null]]
+a page's observer moves the host | [["observes before the connect","in its callback",null,"after its move",null],["after",null,"t:null REMOVE"],["observes after it","in its callback",null,"after its move",null],["after",null,"t:null REMOVE"]]
+adopted by an iframe that is removed: set, back, lost | ["E","E",null]
+adopted, iframe | [["connected","A","t:A A"],["adopted","A","t:A A"],["changed there","B","t:B B"],["lost there",null,"t:null REMOVE"],["own written, back","own",""],["changed","C","t:C C"],["there, lost, and back in one task",null,"t:C C t:null REMOVE"],["adopted only, and set","D","t:D D"]]
+adopted, no window | [["connected","A","t:A A"],["adopted","A","t:A A"],["changed there","B","t:B B"],["lost there",null,"t:null REMOVE"],["own written, back","own",""],["changed","C","t:C C"],["there, lost, and back in one task",null,"t:C C t:null REMOVE"],["adopted only, and set","D","t:D D"]]
+loss written by the connect, own in the same task: at once, frame, move, another name's change and reconnect | ["own","own","own","own"]
+never connected | [["sync",null],["microtask","A"],["lost",null],["own, then the first connect","own"]]
+ten hooks on one host: [distinct values, calls] over the steps | [[["A"],10],[["A"],0],[[null],10],[[null],0],[["B"],10],[[null],10],[["own0","own1"],0]]
+the target written after the loss, then a move, in one task: after the move | null
+ways to be created: [target, transformer calls] | {"upgraded, connected":["aria-label=A,aria-details=d","aria-label=A,aria-details=d"],"upgraded, out":["",""],"upgraded, connected, frame":["aria-label=A,aria-details=d",""],"upgraded, out, frame":["",""],"innerHTML in the document":["aria-label=A,aria-details=d","aria-label=A,aria-details=d"],"innerHTML in the document, frame":["aria-label=A,aria-details=d",""],"clone, out":["",""],"clone, out, frame":["",""],"clone, connected":["aria-label=A,aria-details=d","aria-label=A,aria-details=d"],"clone, connected, frame":["aria-label=A,aria-details=d",""],"template, imported and appended":["aria-label=A,aria-details=d","aria-label=A,aria-details=d"],"template, frame":["aria-label=A,aria-details=d",""]}
+writes of 54 names | A B C in one task, connect | {"connect: t:C C; frame: -":54}
+writes of 54 names | A B C in one task, never connected | {"microtask: t:C C t:C C t:C C; frame: -":54}
+writes of 54 names | connected: changed after the connect in one task | {"set: -; microtask: t:A A":54}
+writes of 54 names | connected: lost and regained in one task, move | {"move: t:B B; frame: -":54}
+writes of 54 names | connected: lost while out, microtask, connect, move | {"microtask: t:null REMOVE; connect: -; move: -; frame: -":54}
+writes of 54 names | connected: set, lost, two moves in one task | {"move: t:null REMOVE; move 2: -; frame: -":54}
+writes of 54 names | set and lost in one task, connect | {"connect: t:null REMOVE; frame: -":54}
+writes of 54 names | set, connect | {"connect: t:A A; frame: -":54}
+writes of 54 names | set, microtask, connect | {"microtask: t:A A; connect: t:A A; frame: -":54}
+before the first connect, in one task | {"mx-switch-button null aria-checked own, then set and lost":null,"mx-switch-button null aria-checked set and lost, then own":null,"mx-switch-button null aria-checked set, own, lost":null,"mx-switch-button checked aria-checked own, then set and lost":null,"mx-switch-button checked aria-checked set and lost, then own":null,"mx-switch-button checked aria-checked set, own, lost":null,"mx-link-button disabled aria-disabled own, then set and lost":null,"mx-link-button disabled aria-disabled set and lost, then own":null,"mx-link-button disabled aria-disabled set, own, lost":null,"mx-text-field required aria-required own, then set and lost":null,"mx-text-field required aria-required set and lost, then own":null,"mx-text-field required aria-required set, own, lost":null}
+errors | []
+mx-multiline-text-field | [at the connect, after] of aria-labelledby | {"had the name and lost it out, label removed in the same task":[null,null],"had the name and lost it out, label removed in a later task":["label","label"],"had the name and lost it out, label added in the same task":["label","label"],"had the name and lost it out, label added in a later task":[null,null],"never had the name, label removed in the same task":["label",null],"never had the name, label removed in a later task":["label","label"],"never had the name, label added in the same task":[null,"label"],"never had the name, label added in a later task":[null,null],"lost it while connected, then out, label removed":"label","lost it while connected, then out, label added":null}
+mx-text-field | [at the connect, after] of aria-labelledby | {"had the name and lost it out, label removed in the same task":[null,null],"had the name and lost it out, label removed in a later task":["label","label"],"had the name and lost it out, label added in the same task":["label","label"],"had the name and lost it out, label added in a later task":[null,null],"never had the name, label removed in the same task":["label",null],"never had the name, label removed in a later task":["label","label"],"never had the name, label added in the same task":[null,"label"],"never had the name, label added in a later task":[null,null],"lost it while connected, then out, label removed":"label","lost it while connected, then out, label added":null}
+never connected: [before, set, lost, then connected], aria-label,aria-labelledby,aria-describedby,aria-invalid,aria-checked,aria-disabled,aria-current | {"mx-button":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-icon-button":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-link-button":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-switch-button":["-,-,-,-,false,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-switch-icon-button":["-,-,-,-,false,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-split-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-fab":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-list-button-item":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-list-link-item":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-text-field":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-multiline-text-field":["-,-,-,-,-,-,-","x,x,x,x,x,x,x","-,-,-,-,-,-,-","-,-,-,-,-,-,-"]}
+
+## The same, at 114270083 (Chromium's; Firefox and WebKit read the same), the rows that differ from 80c5db113's
+a mirror of a mirror: [step, inner host, leaf] | [["connect","A","A"],["lost, moved","A","A"],["frame","A","A"],["set while out","A","A"],["lost while out","A","A"],["back","A","A"]]
+adopted, iframe | [["connected","A","t:A A"],["adopted","A","t:A A"],["changed there","B","t:B B"],["lost there",null,"t:null REMOVE"],["own written, back","own",""],["changed","C","t:C C"],["there, lost, and back in one task","C","t:C C"],["adopted only, and set","C",""]]
+adopted, no window | [["connected","A","t:A A"],["adopted","A","t:A A"],["changed there","B","t:B B"],["lost there",null,"t:null REMOVE"],["own written, back","own",""],["changed","C","t:C C"],["there, lost, and back in one task","C","t:C C"],["adopted only, and set","C",""]]
+never connected | [["sync",null],["microtask",null],["lost",null],["own, then the first connect","own"]]
+ten hooks on one host: [distinct values, calls] over the steps | [[["A"],10],[["A"],0],[["A"],0],[["A"],0],[["A"],0],[["A"],0],[["own0","own1"],0]]
+the target written after the loss, then a move, in one task: after the move | "own, written after the loss"
+writes of 54 names | A B C in one task, never connected | {"microtask: -; frame: -":54}
+writes of 54 names | connected: lost while out, microtask, connect, move | {"microtask: -; connect: -; move: -; frame: -":54}
+writes of 54 names | connected: set, lost, two moves in one task | {"move: -; move 2: -; frame: -":54}
+writes of 54 names | set and lost in one task, connect | {"connect: -; frame: -":54}
+writes of 54 names | set, microtask, connect | {"microtask: -; connect: t:A A; frame: -":54}
+before the first connect, in one task | {"mx-switch-button null aria-checked own, then set and lost":"false","mx-switch-button null aria-checked set and lost, then own":"false","mx-switch-button null aria-checked set, own, lost":"false","mx-switch-button checked aria-checked own, then set and lost":"true","mx-switch-button checked aria-checked set and lost, then own":"true","mx-switch-button checked aria-checked set, own, lost":"true","mx-link-button disabled aria-disabled own, then set and lost":"true","mx-link-button disabled aria-disabled set and lost, then own":"true","mx-link-button disabled aria-disabled set, own, lost":"true","mx-text-field required aria-required own, then set and lost":"true","mx-text-field required aria-required set and lost, then own":"true","mx-text-field required aria-required set, own, lost":"true"}
+mx-multiline-text-field | [at the connect, after] of aria-labelledby | {"had the name and lost it out, label removed in the same task":["x",null],"had the name and lost it out, label removed in a later task":["x","x"],"had the name and lost it out, label added in the same task":["x","label"],"had the name and lost it out, label added in a later task":["x","x"],"never had the name, label removed in the same task":["label",null],"never had the name, label removed in a later task":["label","label"],"never had the name, label added in the same task":[null,"label"],"never had the name, label added in a later task":[null,null],"lost it while connected, then out, label removed":"label","lost it while connected, then out, label added":null}
+mx-text-field | [at the connect, after] of aria-labelledby | {"had the name and lost it out, label removed in the same task":["x",null],"had the name and lost it out, label removed in a later task":["x","x"],"had the name and lost it out, label added in the same task":["x","label"],"had the name and lost it out, label added in a later task":["x","x"],"never had the name, label removed in the same task":["label",null],"never had the name, label removed in a later task":["label","label"],"never had the name, label added in the same task":[null,"label"],"never had the name, label added in a later task":[null,null],"lost it while connected, then out, label removed":"label","lost it while connected, then out, label added":null}
+never connected: [before, set, lost, then connected], aria-label,aria-labelledby,aria-describedby,aria-invalid,aria-checked,aria-disabled,aria-current | {"mx-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-icon-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-link-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-switch-button":["-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-"],"mx-switch-icon-button":["-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-"],"mx-split-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-fab":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-list-button-item":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-list-link-item":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-text-field":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-multiline-text-field":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"]}
+
+## The same, at 6e0ca1d4f (Chromium's; Firefox and WebKit read the same), the rows that differ from 80c5db113's
+a mirror of a mirror: [step, inner host, leaf] | [["connect","A","A"],["lost, moved",null,null],["frame",null,null],["set while out",null,null],["lost while out",null,null],["back",null,null]]
+a page's observer moves the host | [["observes before the connect","in its callback",null,"after its move",null],["after",null,"t:null REMOVE t:null REMOVE"],["observes after it","in its callback",null,"after its move",null],["after",null,"t:null REMOVE t:null REMOVE"]]
+adopted, iframe | [["connected","A","t:A A"],["adopted","A","t:A A"],["changed there","B","t:B B"],["lost there",null,"t:null REMOVE"],["own written, back",null,"t:null REMOVE"],["changed","C","t:C C"],["there, lost, and back in one task",null,"t:C C t:null REMOVE"],["adopted only, and set",null,""]]
+adopted, no window | [["connected","A","t:A A"],["adopted","A","t:A A"],["changed there","B","t:B B"],["lost there",null,"t:null REMOVE"],["own written, back",null,"t:null REMOVE"],["changed","C","t:C C"],["there, lost, and back in one task",null,"t:C C t:null REMOVE"],["adopted only, and set",null,""]]
+loss written by the connect, own in the same task: at once, frame, move, another name's change and reconnect | ["own","own",null,null]
+never connected | [["sync",null],["microtask",null],["lost",null],["own, then the first connect","own"]]
+ten hooks on one host: [distinct values, calls] over the steps | [[["A"],10],[["A"],0],[[null],10],[[null],0],[[null],0],[[null],0],[[null],10]]
+writes of 54 names | A B C in one task, never connected | {"microtask: -; frame: -":54}
+writes of 54 names | connected: lost while out, microtask, connect, move | {"microtask: -; connect: t:null REMOVE; move: t:null REMOVE; frame: -":54}
+writes of 54 names | connected: set, lost, two moves in one task | {"move: t:null REMOVE; move 2: t:null REMOVE; frame: -":54}
+writes of 54 names | set and lost in one task, connect | {"connect: -; frame: -":54}
+writes of 54 names | set, microtask, connect | {"microtask: -; connect: t:A A; frame: -":54}
+before the first connect, in one task | {"mx-switch-button null aria-checked own, then set and lost":"false","mx-switch-button null aria-checked set and lost, then own":"false","mx-switch-button null aria-checked set, own, lost":"false","mx-switch-button checked aria-checked own, then set and lost":"true","mx-switch-button checked aria-checked set and lost, then own":"true","mx-switch-button checked aria-checked set, own, lost":"true","mx-link-button disabled aria-disabled own, then set and lost":"true","mx-link-button disabled aria-disabled set and lost, then own":"true","mx-link-button disabled aria-disabled set, own, lost":"true","mx-text-field required aria-required own, then set and lost":"true","mx-text-field required aria-required set and lost, then own":"true","mx-text-field required aria-required set, own, lost":"true"}
+mx-multiline-text-field | [at the connect, after] of aria-labelledby | {"had the name and lost it out, label removed in the same task":[null,null],"had the name and lost it out, label removed in a later task":[null,null],"had the name and lost it out, label added in the same task":["label","label"],"had the name and lost it out, label added in a later task":["label","label"],"never had the name, label removed in the same task":["label",null],"never had the name, label removed in a later task":["label","label"],"never had the name, label added in the same task":[null,"label"],"never had the name, label added in a later task":[null,null],"lost it while connected, then out, label removed":null,"lost it while connected, then out, label added":"label"}
+mx-text-field | [at the connect, after] of aria-labelledby | {"had the name and lost it out, label removed in the same task":[null,null],"had the name and lost it out, label removed in a later task":[null,null],"had the name and lost it out, label added in the same task":["label","label"],"had the name and lost it out, label added in a later task":["label","label"],"never had the name, label removed in the same task":["label",null],"never had the name, label removed in a later task":["label","label"],"never had the name, label added in the same task":[null,"label"],"never had the name, label added in a later task":[null,null],"lost it while connected, then out, label removed":null,"lost it while connected, then out, label added":"label"}
+never connected: [before, set, lost, then connected], aria-label,aria-labelledby,aria-describedby,aria-invalid,aria-checked,aria-disabled,aria-current | {"mx-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-icon-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-link-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-switch-button":["-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-"],"mx-switch-icon-button":["-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-","-,-,-,-,false,-,-"],"mx-split-button":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-fab":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-list-button-item":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-list-link-item":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-text-field":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"],"mx-multiline-text-field":["-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-","-,-,-,-,-,-,-"]}
+
+## Garbage collection (recheck-gc.mjs), 500 hosts each; x-a has useARIA and x-plain doesn't
+chromium alive of 500 after GC {"x-a never connected":0,"x-a never connected, set":0,"x-a connected, then removed":0,"x-a connected, removed, then lost":0,"x-plain never connected":0,"x-plain never connected, set":0,"x-plain connected, then removed":0,"x-plain connected, removed, then lost":0}
+chromium the mirror after GC: set, lost {"in the document":["Z",null],"in a fragment, never connected":["Z",null],"in a subtree that was removed":["Z",null]}
+firefox alive of 500 after GC {"x-a never connected":0,"x-a never connected, set":0,"x-a connected, then removed":0,"x-a connected, removed, then lost":0,"x-plain never connected":0,"x-plain never connected, set":0,"x-plain connected, then removed":0,"x-plain connected, removed, then lost":0}
+firefox the mirror after GC: set, lost {"in the document":["Z",null],"in a fragment, never connected":["Z",null],"in a subtree that was removed":["Z",null]}
+webkit alive of 500 after GC {"x-a never connected":0,"x-a never connected, set":0,"x-a connected, then removed":0,"x-a connected, removed, then lost":0,"x-plain never connected":0,"x-plain never connected, set":0,"x-plain connected, then removed":0,"x-plain connected, removed, then lost":0}
+webkit the mirror after GC: set, lost {"in the document":["Z",null],"in a fragment, never connected":["Z",null],"in a subtree that was removed":["Z",null]}
+
+## Timing (recheck-timing.mjs): 3,000 hosts, medians of 24, main is the hook at 114270083, head at 80c5db113, alternating, on a machine with other load (load average 4 to 5 of 12)
+chromium | 1 hooks, make+3 attributes | main 15 ms, head 18 ms
+chromium | 1 hooks, make+append in one task | main 26 ms, head 21 ms
+chromium | 1 hooks, append | main 11 ms, head 6 ms
+chromium | 1 hooks, change connected | main 6 ms, head 8 ms
+chromium | 1 hooks, remove | main 4 ms, head 3 ms
+chromium | 1 hooks, change out | main 1 ms, head 5 ms
+chromium | 1 hooks, class only, out | main 0 ms, head 3 ms
+chromium | 10 hooks, make+3 attributes | main 56 ms, head 131 ms
+chromium | 10 hooks, make+append in one task | main 143 ms, head 129 ms
+chromium | 10 hooks, append | main 61 ms, head 28 ms
+chromium | 10 hooks, change connected | main 39 ms, head 40 ms
+chromium | 10 hooks, remove | main 17 ms, head 7 ms
+chromium | 10 hooks, change out | main 1 ms, head 37 ms
+chromium | 10 hooks, class only, out | main 1 ms, head 23 ms
+webkit | 1 hooks, make+3 attributes | main 13 ms, head 34 ms
+webkit | 1 hooks, make+append in one task | main 25 ms, head 24 ms
+webkit | 1 hooks, append | main 12 ms, head 5 ms
+webkit | 1 hooks, change connected | main 8 ms, head 8 ms
+webkit | 1 hooks, remove | main 4 ms, head 4 ms
+webkit | 1 hooks, change out | main 1 ms, head 11 ms
+webkit | 1 hooks, class only, out | main 0 ms, head 6 ms
+webkit | 10 hooks, make+3 attributes | main 63 ms, head 163 ms
+webkit | 10 hooks, make+append in one task | main 93 ms, head 182 ms
+webkit | 10 hooks, append | main 43 ms, head 36 ms
+webkit | 10 hooks, change connected | main 51 ms, head 84 ms
+webkit | 10 hooks, remove | main 12 ms, head 7 ms
+webkit | 10 hooks, change out | main 1 ms, head 72 ms
+webkit | 10 hooks, class only, out | main 1 ms, head 34 ms
+firefox | 1 hooks, make+3 attributes | main 25 ms, head 44 ms
+firefox | 1 hooks, make+append in one task | main 53 ms, head 55 ms
+firefox | 1 hooks, append | main 16 ms, head 9 ms
+firefox | 1 hooks, change connected | main 16 ms, head 12 ms
+firefox | 1 hooks, remove | main 7 ms, head 5 ms
+firefox | 1 hooks, change out | main 2 ms, head 11 ms
+firefox | 1 hooks, class only, out | main 1 ms, head 7 ms
+firefox | 10 hooks, make+3 attributes | main 150 ms, head 1617 ms
+firefox | 10 hooks, make+append in one task | main 154 ms, head 1546 ms
+firefox | 10 hooks, append | main 61 ms, head 56 ms
+firefox | 10 hooks, change connected | main 1311 ms, head 1248 ms
+firefox | 10 hooks, remove | main 24 ms, head 8 ms
+firefox | 10 hooks, change out | main 2 ms, head 1289 ms
+firefox | 10 hooks, class only, out | main 1 ms, head 1284 ms

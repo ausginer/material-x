@@ -1,0 +1,10 @@
+import { createRequire } from 'node:module';
+import { writeFileSync } from 'node:fs';
+const require = createRequire(`${process.cwd()}/package.json`);
+const rr = createRequire(`${process.cwd()}/../../package.json`);
+let p; try { p = require.resolve('rolldown'); } catch { p = rr.resolve('rolldown'); }
+const { rolldown } = await import(p);
+const entries = ['card/card.js','list/list-item.js','list/list.js','list/sortable-list.js','button/button.js','checkbox/checkbox.js'];
+const build = await rolldown({ input: 'entry', platform: 'browser', plugins: [{ name: 'e', resolveId: (id) => id === 'entry' ? id : null, load: (id) => id === 'entry' ? entries.map((e) => `import ${JSON.stringify(`${process.cwd()}/${e}`)};`).join('') : null }] });
+const { output } = await build.generate({ format: 'iife', name: 'mx' });
+writeFileSync(process.argv[2], output.map((c) => c.code ?? '').join('\n'));

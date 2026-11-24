@@ -1,0 +1,78 @@
+# chromium 158.0.8127.18
+scrolling mx-card, no focusable content: first > c > last > body
+scrolling div, no focusable content: first > c > last > body
+scrolling mx-card, a button inside: first > b > last > body
+scrolling div, a button inside: first > b > last > body
+scrolling mx-card, a link inside: first > b > last > body
+scrolling div, a link inside: first > b > last > body
+scrolling mx-card, an mx-button inside: first > b > last > body
+scrolling div, an mx-button inside: first > b > last > body
+scrolling mx-card, a tabindex -1 inside: first > c > last > body
+scrolling div, a tabindex -1 inside: first > c > last > body
+[] padding 16px border-box inset 16
+[mx-card{padding:40px}] padding 16px border-box inset 16
+[mx-card{padding:40px!important}] padding 16px border-box inset 16
+[*{padding:0!important}] padding 16px border-box inset 16
+[mx-card{box-sizing:content-box!important;inline-size:200px}] padding 16px border-box inset 16
+inline style padding: 40px -> 16px
+inline !important -> 16px
+--md-card-padding 8px 24px -> 8px 24px
+an invalid --md-card-padding -> 0px
+page display: grid, two columns 16,16 150 | 166,16 150
+page display: flex 16,16 7.109375 | 31.109375,16 8
+columns 16,16 142 | 174,16 142
+page display: none 0,0 0 | 0,0 0
+flow-root, margin-top 48
+flow-root, float 60
+# firefox 159.0
+scrolling mx-card, no focusable content: first > c > last > body
+scrolling div, no focusable content: first > c > last > body
+scrolling mx-card, a button inside: first > c > b > last
+scrolling div, a button inside: first > c > b > last
+scrolling mx-card, a link inside: first > c > b > last
+scrolling div, a link inside: first > c > b > last
+scrolling mx-card, an mx-button inside: first > c > b > last
+scrolling div, an mx-button inside: first > c > b > last
+scrolling mx-card, a tabindex -1 inside: first > c > last > body
+scrolling div, a tabindex -1 inside: first > c > last > body
+[] padding 16px border-box inset 16
+[mx-card{padding:40px}] padding 16px border-box inset 16
+[mx-card{padding:40px!important}] padding 16px border-box inset 16
+[*{padding:0!important}] padding 16px border-box inset 16
+[mx-card{box-sizing:content-box!important;inline-size:200px}] padding 16px border-box inset 16
+inline style padding: 40px -> 16px
+inline !important -> 16px
+--md-card-padding 8px 24px -> 8px 24px
+an invalid --md-card-padding -> 0px
+page display: grid, two columns 16,16 150 | 166,16 150
+page display: flex 16,16 8.633331298828125 | 32.633331298828125,16 8.633331298828125
+columns 16,16 142 | 174,16 142
+page display: none 0,0 0 | 0,0 0
+flow-root, margin-top 51
+flow-root, float 60
+# webkit 27.2
+scrolling mx-card, no focusable content: first > last > body > first
+scrolling div, no focusable content: first > last > body > first
+scrolling mx-card, a button inside: first > b > last > body
+scrolling div, a button inside: first > b > last > body
+scrolling mx-card, a link inside: first > b > last > body
+scrolling div, a link inside: first > b > last > body
+scrolling mx-card, an mx-button inside: first > b > last > body
+scrolling div, an mx-button inside: first > b > last > body
+scrolling mx-card, a tabindex -1 inside: first > last > body > first
+scrolling div, a tabindex -1 inside: first > last > body > first
+[] padding 16px border-box inset 16
+[mx-card{padding:40px}] padding 16px border-box inset 16
+[mx-card{padding:40px!important}] padding 16px border-box inset 16
+[*{padding:0!important}] padding 16px border-box inset 16
+[mx-card{box-sizing:content-box!important;inline-size:200px}] padding 16px border-box inset 16
+inline style padding: 40px -> 16px
+inline !important -> 16px
+--md-card-padding 8px 24px -> 8px 24px
+an invalid --md-card-padding -> 0px
+page display: grid, two columns 16,16 150 | 166,16 150
+page display: flex 16,16 8.625 | 32.625,16 8.625
+columns 16,16 142 | 174,16 142
+page display: none 0,0 0 | 0,0 0
+flow-root, margin-top 51
+flow-root, float 60

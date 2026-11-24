@@ -1,0 +1,24 @@
+## no mutation | chromium | 79 passed (79)
+## no mutation | firefox | 76 passed | 3 skipped (79)
+## no mutation | webkit | 76 passed | 3 skipped (79)
+## display: grid | chromium | 1 failed | 78 passed (79)
+   mx-card content > should collapse the margins of adjacent content
+## display: grid | firefox | 1 failed | 75 passed | 3 skipped (79)
+   mx-card content > should collapse the margins of adjacent content
+## display: grid | webkit | 1 failed | 75 passed | 3 skipped (79)
+   mx-card content > should collapse the margins of adjacent content
+## a flex column | chromium | 2 failed | 77 passed (79)
+   mx-card content > should end a scroll in both axes with the padding
+   mx-card content > should collapse the margins of adjacent content
+## a flex column | firefox | 2 failed | 74 passed | 3 skipped (79)
+   mx-card content > should end a scroll in both axes with the padding
+   mx-card content > should collapse the margins of adjacent content
+## a flex column | webkit | 2 failed | 74 passed | 3 skipped (79)
+   mx-card content > should end a scroll in both axes with the padding
+   mx-card content > should collapse the margins of adjacent content
+## inline-size: fit-content | chromium | 1 failed | 78 passed (79)
+   mx-card content > should fill its container
+## inline-size: fit-content | firefox | 1 failed | 75 passed | 3 skipped (79)
+   mx-card content > should fill its container
+## inline-size: fit-content | webkit | 1 failed | 75 passed | 3 skipped (79)
+   mx-card content > should fill its container

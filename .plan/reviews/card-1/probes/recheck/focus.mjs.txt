@@ -1,0 +1,43 @@
+// Focus on the built card, the padding at the end of a scroll, positioned content.
+import { playwright, code, compare } from './lib.mjs';
+const E = process.argv[2];
+const browser = await playwright[E].launch();
+console.log(`# ${E} ${browser.version()}`);
+const js = code('head');
+const TAB = E === 'webkit' ? 'Alt+Tab' : 'Tab';
+const base = 'html body{padding:40px!important;margin:0;background:#fff}mx-card{scrollbar-width:none;inline-size:200px}';
+const R = { none: '', reset: '*{outline:0;padding:0;border:0}', 'reset !important': '*{outline:0!important}', 'page :focus-visible': 'mx-card:focus-visible{outline:3px dashed rgb(1,2,3)}', 'reset + page :focus-visible': '*{outline:0}mx-card:focus-visible{outline:3px dashed rgb(1,2,3)}', 'page :focus': 'mx-card:focus{outline:3px dashed rgb(1,2,3)}' };
+const H = { 'tabindex 0': ['tabindex="0"', 40], 'scrolling, no tabindex': ['style="max-block-size:100px;overflow:auto"', 400], 'scrolling, tabindex': ['tabindex="0" style="max-block-size:100px;overflow:auto"', 400], 'smaller, tabindex': ['tabindex="0" style="block-size:40px"', 40] };
+for (const forced of E === 'webkit' ? [false] : [false, true]) {
+  const ctx = await browser.newContext({ viewport: { width: 320, height: 260 }, forcedColors: forced ? 'active' : 'none' });
+  const page = await ctx.newPage();
+  for (const [rn, reset] of Object.entries(R)) for (const [hn, [attr, h]] of Object.entries(H)) {
+    if (forced && rn !== 'none') continue;
+    const out = [];
+    for (const v of ['', 'elevated', 'outlined']) {
+      await page.setContent(`<!doctype html><style>${base}</style><style>${reset}</style><mx-card ${v && `variant=${v}`} ${attr}><div style="block-size:${h}px;visibility:hidden"></div></mx-card><script>${js}</script>`);
+      const a = (await page.screenshot()).toString('base64');
+      await page.keyboard.press(TAB);
+      const s = await page.evaluate(async () => { await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); const c = document.querySelector('mx-card'), k = getComputedStyle(c); return `${document.activeElement === c ? 'focused' : 'not focused'}${c.matches(':focus-visible') ? ' visible' : ''} ${k.outlineStyle} ${k.outlineWidth} off ${k.outlineOffset}`; });
+      const d = await compare(page, a, (await page.screenshot()).toString('base64'));
+      out.push(`${v || 'filled'}: ${s}, ${d.px}px changed`);
+    }
+    console.log(`${forced ? 'forced ' : ''}${rn} | ${hn}\n   ${out.join('\n   ')}`);
+  }
+  await ctx.close();
+}
+const page = await browser.newPage({ viewport: { width: 320, height: 260 } });
+console.log('## space after the content at the end of a scroll, mx-card against a div with padding 16');
+for (const [n, style, inner] of [['block', 'inline-size:200px;max-block-size:100px;overflow:auto', 'block-size:400px'], ['inline', 'inline-size:100px;overflow:auto', 'inline-size:500px;block-size:40px'], ['both', 'inline-size:100px;block-size:100px;overflow:auto', 'inline-size:500px;block-size:400px']]) {
+  for (const tag of ['mx-card variant=outlined', 'div']) {
+    await page.setContent(`<!doctype html><style>${base}div.d{box-sizing:border-box;padding:16px;scrollbar-width:none}</style><${tag} ${tag === 'div' ? 'class=d' : ''} style="${style}"><p style="margin:0;${inner}"></p></${tag.split(' ')[0]}><script>${js}</script>`);
+    console.log(n, tag, await page.evaluate(() => { const c = document.querySelector('mx-card,div.d'); c.scrollTo(9999, 9999); const p = c.firstElementChild.getBoundingClientRect(), b = c.getBoundingClientRect(); return `inline ${b.right - p.right} block ${b.bottom - p.bottom}`; }));
+  }
+}
+console.log('## which content paints over the outline, at the top edge');
+for (const [n, css] of [['full-bleed, static', ''], ['full-bleed, position: relative', 'position:relative'], ['full-bleed, opacity .99', 'opacity:.99'], ['full-bleed, transform', 'transform:translate(0)']]) {
+  await page.setContent(`<!doctype html><style>${base}</style><mx-card variant=outlined style="--md-card-padding:0;--md-card-outline-color:rgb(255,0,0)"><div style="block-size:40px;background:rgb(0,0,255);${css}"></div></mx-card><script>${js}</script>`);
+  const shot = (await page.screenshot()).toString('base64');
+  console.log(n, await page.evaluate(async (d) => { const i = new Image(); i.src = `data:image/png;base64,${d}`; await i.decode(); const c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const x = c.getContext('2d'); x.drawImage(i, 0, 0); return [...x.getImageData(140, 40, 1, 1).data].slice(0, 3).join(); }, shot));
+}
+await browser.close();

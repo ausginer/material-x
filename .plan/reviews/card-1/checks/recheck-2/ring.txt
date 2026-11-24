@@ -1,0 +1,147 @@
+# chromium 158.0.8127.18
+content hidden | natural
+   old 200x72: 1129px in [39,39,240,112]
+   head 200x72: 1129px in [39,39,240,112]
+   div 200x72: 1129px in [39,39,240,112]
+content hidden | block-size 40
+   old 200x40: 1129px in [39,39,240,112]
+   head 200x40: 1104px in [39,39,240,96]
+   div 200x40: 1104px in [39,39,240,96]
+content hidden | block-size 40, taller content
+   old 200x40: 1369px in [39,39,240,172]
+   head 200x40: 1352px in [39,39,240,156]
+   div 200x40: 1352px in [39,39,240,156]
+content hidden | block-size 40, content 10
+   old 200x40: 1009px in [39,39,240,82]
+   head 200x40: 1001px in [39,39,240,80]
+   div 200x40: 1001px in [39,39,240,80]
+content hidden | block-size 40, hidden
+   old 200x40: 1001px in [39,39,240,80]
+   head 200x40: 1001px in [39,39,240,80]
+   div 200x40: 1001px in [39,39,240,80]
+content hidden | inline-size 80, wide content
+   old 80x72: 1442px in [39,39,306,112]
+   head 80x72: 1442px in [39,39,306,112]
+   div 80x72: 1442px in [39,39,306,112]
+content visible | natural
+   old 200x72: 1129px in [39,39,240,112]
+   head 200x72: 1129px in [39,39,240,112]
+   div 200x72: 1129px in [39,39,240,112]
+content visible | block-size 40
+   old 200x40: 1129px in [39,39,240,112]
+   head 200x40: 1104px in [39,39,240,96]
+   div 200x40: 1104px in [39,39,240,96]
+content visible | block-size 40, taller content
+   old 200x40: 1369px in [39,39,240,172]
+   head 200x40: 1352px in [39,39,240,156]
+   div 200x40: 1352px in [39,39,240,156]
+content visible | block-size 40, content 10
+   old 200x40: 1009px in [39,39,240,82]
+   head 200x40: 1001px in [39,39,240,80]
+   div 200x40: 1001px in [39,39,240,80]
+content visible | block-size 40, hidden
+   old 200x40: 1001px in [39,39,240,80]
+   head 200x40: 1001px in [39,39,240,80]
+   div 200x40: 1001px in [39,39,240,80]
+content visible | inline-size 80, wide content
+   old 80x72: 1442px in [39,39,306,112]
+   head 80x72: 1442px in [39,39,306,112]
+   div 80x72: 1442px in [39,39,306,112]
+# firefox 159.0
+content hidden | natural
+   old 200x72: 1147px in [38,38,241,113]
+   head 200x72: 1147px in [38,38,241,113]
+   div 200x72: 1147px in [38,38,241,113]
+content hidden | block-size 40
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content hidden | block-size 40, taller content
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content hidden | block-size 40, content 10
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content hidden | block-size 40, hidden
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content hidden | inline-size 80, wide content
+   old 80x72: 667px in [38,38,121,113]
+   head 80x72: 667px in [38,38,121,113]
+   div 80x72: 667px in [38,38,121,113]
+content visible | natural
+   old 200x72: 1147px in [38,38,241,113]
+   head 200x72: 1147px in [38,38,241,113]
+   div 200x72: 1147px in [38,38,241,113]
+content visible | block-size 40
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content visible | block-size 40, taller content
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content visible | block-size 40, content 10
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content visible | block-size 40, hidden
+   old 200x40: 1019px in [38,38,241,81]
+   head 200x40: 1019px in [38,38,241,81]
+   div 200x40: 1019px in [38,38,241,81]
+content visible | inline-size 80, wide content
+   old 80x72: 667px in [38,38,121,113]
+   head 80x72: 667px in [38,38,121,113]
+   div 80x72: 667px in [38,38,121,113]
+# webkit 27.2
+content hidden | natural
+   old 200x72: 1145px in [38,38,241,113]
+   head 200x72: 1145px in [38,38,241,113]
+   div 200x72: 1145px in [38,38,241,113]
+content hidden | block-size 40
+   old 200x40: 1145px in [38,38,241,113]
+   head 200x40: 1070px in [38,38,241,97]
+   div 200x40: 1070px in [38,38,241,97]
+content hidden | block-size 40, taller content
+   old 200x40: 1385px in [38,38,241,173]
+   head 200x40: 1310px in [38,38,241,157]
+   div 200x40: 1310px in [38,38,241,157]
+content hidden | block-size 40, content 10
+   old 200x40: 1025px in [38,38,241,83]
+   head 200x40: 1017px in [38,38,241,81]
+   div 200x40: 1017px in [38,38,241,81]
+content hidden | block-size 40, hidden
+   old 200x40: 1017px in [38,38,241,81]
+   head 200x40: 1017px in [38,38,241,81]
+   div 200x40: 1017px in [38,38,241,81]
+content hidden | inline-size 80, wide content
+   old 80x72: 1217px in [54,54,307,97]
+   head 80x72: 1410px in [38,38,307,113]
+   div 80x72: 1410px in [38,38,307,113]
+content visible | natural
+   old 200x72: 1145px in [38,38,241,113]
+   head 200x72: 1145px in [38,38,241,113]
+   div 200x72: 1145px in [38,38,241,113]
+content visible | block-size 40
+   old 200x40: 1145px in [38,38,241,113]
+   head 200x40: 1070px in [38,38,241,97]
+   div 200x40: 1070px in [38,38,241,97]
+content visible | block-size 40, taller content
+   old 200x40: 1385px in [38,38,241,173]
+   head 200x40: 1310px in [38,38,241,157]
+   div 200x40: 1310px in [38,38,241,157]
+content visible | block-size 40, content 10
+   old 200x40: 1025px in [38,38,241,83]
+   head 200x40: 1017px in [38,38,241,81]
+   div 200x40: 1017px in [38,38,241,81]
+content visible | block-size 40, hidden
+   old 200x40: 1017px in [38,38,241,81]
+   head 200x40: 1017px in [38,38,241,81]
+   div 200x40: 1017px in [38,38,241,81]
+content visible | inline-size 80, wide content
+   old 80x72: 1217px in [54,54,307,97]
+   head 80x72: 1410px in [38,38,307,113]
+   div 80x72: 1410px in [38,38,307,113]

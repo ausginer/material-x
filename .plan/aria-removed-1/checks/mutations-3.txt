@@ -1,0 +1,15 @@
+## no mutation | chromium | packages/core | 19 passed (19)
+## no mutation | chromium | packages/material-x | 195 passed (195)
+## no mutation | firefox | packages/core | 19 passed (19)
+## no mutation | firefox | packages/material-x | 194 passed | 1 expected fail (195)
+## no mutation | webkit | packages/core | 19 passed (19)
+## no mutation | webkit | packages/material-x | 195 passed (195)
+## the observer starts at the connect | chromium | packages/core | 1 failed | 18 passed (19)
+   useARIA > should sync a host that has never been connected
+## the observer starts at the connect | chromium | packages/material-x | 195 passed (195)
+## the observer starts at the connect | firefox | packages/core | 1 failed | 18 passed (19)
+   useARIA > should sync a host that has never been connected
+## the observer starts at the connect | firefox | packages/material-x | 194 passed | 1 expected fail (195)
+## the observer starts at the connect | webkit | packages/core | 1 failed | 18 passed (19)
+   useARIA > should sync a host that has never been connected
+## the observer starts at the connect | webkit | packages/material-x | 195 passed (195)

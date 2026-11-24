@@ -39,6 +39,11 @@
   }
 }
 
+.host:focus-visible {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
+}
+
 :host(:state(disabled)) slot {
   opacity: var(--_opacity);
 }

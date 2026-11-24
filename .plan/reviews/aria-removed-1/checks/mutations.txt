@@ -1,0 +1,281 @@
+useARIA.ts mutated by ../probes/mutations.mjs at 6e0ca1d4f: the rows of useARIA in core and of the text fields.
+
+## repair
+core chromium: Tests  13 passed (13)
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  13 passed (13)
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  13 passed (13)
+material-x webkit: Tests  62 passed (62)
+
+## one Set for every hook
+core chromium: Tests  13 passed (13)
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  13 passed (13)
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  13 passed (13)
+material-x webkit: Tests  62 passed (62)
+
+## the Set is emptied before each connect
+core chromium: Tests  5 failed | 8 passed (13)
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove an attribute mirrored after connection when it is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+material-x chromium: Tests  4 failed | 58 passed (62)
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+core firefox: Tests  5 failed | 8 passed (13)
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove an attribute mirrored after connection when it is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+material-x firefox: Tests  4 failed | 58 passed (62)
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+core webkit: Tests  5 failed | 8 passed (13)
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove an attribute mirrored after connection when it is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+material-x webkit: Tests  4 failed | 58 passed (62)
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+
+## no sync on connect
+core chromium: Tests  9 failed | 4 passed (13)
+  should sync existing aria attributes on connect
+  should apply the transformer before writing the aria value
+  should preserve multiple aria attributes independently
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove an attribute mirrored after connection when it is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+  should keep an aria attribute of the target that the host never had on reconnect
+material-x chromium: Tests  8 failed | 54 passed (62)
+  should restore slot label fallback after aria-labelledby removal
+  should restore slot label fallback after aria-labelledby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+core firefox: Tests  9 failed | 4 passed (13)
+  should sync existing aria attributes on connect
+  should apply the transformer before writing the aria value
+  should preserve multiple aria attributes independently
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove an attribute mirrored after connection when it is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+  should keep an aria attribute of the target that the host never had on reconnect
+material-x firefox: Tests  8 failed | 54 passed (62)
+  should restore slot label fallback after aria-labelledby removal
+  should restore slot label fallback after aria-labelledby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+core webkit: Tests  9 failed | 4 passed (13)
+  should sync existing aria attributes on connect
+  should apply the transformer before writing the aria value
+  should preserve multiple aria attributes independently
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove an attribute mirrored after connection when it is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+  should keep an aria attribute of the target that the host never had on reconnect
+material-x webkit: Tests  8 failed | 54 passed (62)
+  should restore slot label fallback after aria-labelledby removal
+  should restore slot label fallback after aria-labelledby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+
+## the connect forgets a lost name after it syncs it
+core chromium: Tests  13 passed (13)
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  13 passed (13)
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  13 passed (13)
+material-x webkit: Tests  62 passed (62)
+
+## a name is forgotten once it is synced from null, on connect or by the observer
+core chromium: Tests  13 passed (13)
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  13 passed (13)
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  13 passed (13)
+material-x webkit: Tests  62 passed (62)
+
+## lost names are synced, and those the host has are not
+core chromium: Tests  8 failed | 5 passed (13)
+  should sync existing aria attributes on connect
+  should apply the transformer before writing the aria value
+  should preserve multiple aria attributes independently
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+  should keep an aria attribute of the target that the host never had on reconnect
+material-x chromium: Tests  8 failed | 54 passed (62)
+  should restore slot label fallback after aria-labelledby removal
+  should restore slot label fallback after aria-labelledby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+core firefox: Tests  8 failed | 5 passed (13)
+  should sync existing aria attributes on connect
+  should apply the transformer before writing the aria value
+  should preserve multiple aria attributes independently
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+  should keep an aria attribute of the target that the host never had on reconnect
+material-x firefox: Tests  8 failed | 54 passed (62)
+  should restore slot label fallback after aria-labelledby removal
+  should restore slot label fallback after aria-labelledby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+core webkit: Tests  8 failed | 5 passed (13)
+  should sync existing aria attributes on connect
+  should apply the transformer before writing the aria value
+  should preserve multiple aria attributes independently
+  should remove the target attribute when the host attribute is removed while disconnected
+  should remove the target attribute when the host loses it and disconnects in one task
+  should remove the target attribute when the host loses it and moves in one task
+  should write the transformed null when the host attribute is removed while disconnected
+  should keep an aria attribute of the target that the host never had on reconnect
+material-x webkit: Tests  8 failed | 54 passed (62)
+  should restore slot label fallback after aria-labelledby removal
+  should restore slot label fallback after aria-labelledby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore support and counter fallback after aria-describedby removal
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore slot label fallback after aria-labelledby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+  should restore support and counter fallback after aria-describedby is removed while disconnected
+
+## the connect ignores the namespace
+core chromium: Tests  1 failed | 12 passed (13)
+  should ignore non-aria attributes during initial sync
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  1 failed | 12 passed (13)
+  should ignore non-aria attributes during initial sync
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  1 failed | 12 passed (13)
+  should ignore non-aria attributes during initial sync
+material-x webkit: Tests  62 passed (62)
+
+## the observer ignores the namespace
+core chromium: Tests  1 failed | 12 passed (13)
+  should ignore non-aria attribute mutations after connection
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  1 failed | 12 passed (13)
+  should ignore non-aria attribute mutations after connection
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  1 failed | 12 passed (13)
+  should ignore non-aria attribute mutations after connection
+material-x webkit: Tests  62 passed (62)
+
+## no Set: the connect copies, and the observer also runs while the host is out
+core chromium: Tests  13 passed (13)
+material-x chromium: Tests  62 passed (62)
+core firefox: Tests  13 passed (13)
+material-x firefox: Tests  62 passed (62)
+core webkit: Tests  13 passed (13)
+material-x webkit: Tests  62 passed (62)
+
+## The probes' readings (Chromium) that change from the head's, by mutation
+
+### noSet
+head  | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own",null,null]
+mutated  | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+head  | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mutated  | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","x"]]
+head  | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mutated  | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","x"]]
+head  | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+head  | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[]
+mutated  | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=null","aria-haspopup=null","ariaish=own"],["aria-expanded","aria-expanded","aria-haspopup","aria-haspopup"]]
+mutated  | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A","aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-details=d","aria-label=null"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-label=B","aria-details=null"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["ar
+
+### oneSet
+head  | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true",null],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true",null],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true",null],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+head  | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[]
+mutated  | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=null","aria-haspopup=null","ariaish=own"],["aria-activedescendant","aria-atomic","aria-autocomplete","aria-braillelabel","aria-brailleroledescription","aria-busy","aria-checked","aria-colcount","aria-colindex","aria-colindextext","aria-colspan","aria-controls","aria-current","aria-describedby","aria-descrip
+mutated  | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-activedescendant=null","aria-atomic=null","aria-autocomplete=null","aria-braillelabel=null","aria-brailleroledescription=null","aria-busy=null","aria-checked=null","aria-colcount=null","aria-colindex=null","aria-colindextext=null","aria-colspan=null","aria-controls=null","aria-current=null","aria-describedby=null","ar
+
+### anameisforgotten
+head  | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own",null,null]
+mutated  | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+head  | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+head  | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mutated  | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+head  | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[]
+mutated  | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]

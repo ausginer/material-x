@@ -1,0 +1,530 @@
+Read at 20997b0e2, core rebuilt for each candidate, with probes/ruling.mjs. 'out' and 'order' rows are own-out's and own-order's, 'mx' the feature proof's material-x probe, 'core' its core probe. The core probe's 54-name rows are left out: every candidate but main gives the head's, in the three engines, and main's are the proof's. The material-x probe's 'value left on the control' rows are left out too: no candidate but main differs from the head in them, in Chromium, and the engines agree.
+
+## main | chromium
+tests/controllers/useARIA.browser.test.ts: Tests  5 failed | 8 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  4 failed | 58 passed (62)
+core | ariaLabel = null while out | ["A","A"]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=B","aria-details=d"],["aria-label=B"]],[["aria-label=B","aria-details=d"],[]],[["aria-label=C","aria-details=d"],["aria-label=C"]],[["aria-details=d"],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | ["A","A"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Mine","Mine","Mine"],"move":["Use the arrow keys to move","Mine","Mine","Mine","Mine"]}
+out | mx-text-field has error, host aria-invalid removed while out | true
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | true
+out | mx-text-field has error, host aria-invalid attribute set while out too | true
+out | mx-text-field has required, host aria-required removed while out | true
+out | mx-text-field has required, host aria-required removed while out, then moved again | true
+out | mx-text-field has required, host aria-required attribute set while out too | true
+out | mx-switch-button has checked, host aria-checked removed while out | true
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | true
+out | mx-switch-button has checked, host aria-checked attribute set while out too | true
+out | mx-link-button has disabled, host aria-disabled removed while out | true
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | true
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | true
+out | mx-list-link-item has selected, host aria-current removed while out | page
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | page
+out | mx-list-link-item has selected, host aria-current attribute set while out too | page
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | loss, own in one task | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | own, then loss | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | loss, own in one task | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+## main | firefox
+tests/controllers/useARIA.browser.test.ts: Tests  5 failed | 8 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  4 failed | 58 passed (62)
+core | ariaLabel = null while out | ["A","A"]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=B","aria-details=d"],["aria-label=B"]],[["aria-label=B","aria-details=d"],[]],[["aria-label=C","aria-details=d"],["aria-label=C"]],[["aria-details=d"],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | ["A","A"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Mine","Mine","Mine"],"move":["Use the arrow keys to move","Mine","Mine","Mine","Mine"]}
+out | mx-text-field has error, host aria-invalid removed while out | true
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | true
+out | mx-text-field has error, host aria-invalid attribute set while out too | true
+out | mx-text-field has required, host aria-required removed while out | true
+out | mx-text-field has required, host aria-required removed while out, then moved again | true
+out | mx-text-field has required, host aria-required attribute set while out too | true
+out | mx-switch-button has checked, host aria-checked removed while out | true
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | true
+out | mx-switch-button has checked, host aria-checked attribute set while out too | true
+out | mx-link-button has disabled, host aria-disabled removed while out | true
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | true
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | true
+out | mx-list-link-item has selected, host aria-current removed while out | page
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | page
+out | mx-list-link-item has selected, host aria-current attribute set while out too | page
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | loss, own in one task | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | own, then loss | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | loss, own in one task | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+## main | webkit
+tests/controllers/useARIA.browser.test.ts: Tests  5 failed | 8 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  4 failed | 58 passed (62)
+core | ariaLabel = null while out | ["A","A"]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=B","aria-details=d"],["aria-label=B"]],[["aria-label=B","aria-details=d"],[]],[["aria-label=C","aria-details=d"],["aria-label=C"]],[["aria-details=d"],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | ["A","A"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Mine","Mine","Mine"],"move":["Use the arrow keys to move","Mine","Mine","Mine","Mine"]}
+out | mx-text-field has error, host aria-invalid removed while out | true
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | true
+out | mx-text-field has error, host aria-invalid attribute set while out too | true
+out | mx-text-field has required, host aria-required removed while out | true
+out | mx-text-field has required, host aria-required removed while out, then moved again | true
+out | mx-text-field has required, host aria-required attribute set while out too | true
+out | mx-switch-button has checked, host aria-checked removed while out | true
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | true
+out | mx-switch-button has checked, host aria-checked attribute set while out too | true
+out | mx-link-button has disabled, host aria-disabled removed while out | true
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | true
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | true
+out | mx-list-link-item has selected, host aria-current removed while out | page
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | page
+out | mx-list-link-item has selected, host aria-current attribute set while out too | page
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | loss, own in one task | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | own, then loss | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | loss, own in one task | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+## head: a Set that keeps every name | chromium
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own",null,null]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move null":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+## head: a Set that keeps every name | firefox
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own",null,null]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move null":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+## head: a Set that keeps every name | webkit
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own",null,null]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move null":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+## a Set that forgets a name synced from null | chromium
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+## a Set that forgets a name synced from null | firefox
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+## a Set that forgets a name synced from null | webkit
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+## an observer that also runs while out, flushed on connect | chromium
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A","aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=null","aria-haspopup=null","ariaish=own"],["aria-expanded","aria-expanded","aria-haspopup","aria-haspopup"]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+## an observer that also runs while out, flushed on connect | firefox
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A","aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=null","aria-haspopup=null","ariaish=own"],["aria-expanded","aria-expanded","aria-haspopup","aria-haspopup"]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+## an observer that also runs while out, flushed on connect | webkit
+tests/controllers/useARIA.browser.test.ts: Tests  13 passed (13)
+tests/text-field/text-field.browser.test.ts: Tests  62 passed (62)
+core | ariaLabel = null while out | ["A",null]
+core | several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A","aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null","aria-label=B"]],[[],["aria-label=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+core | never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=null","aria-haspopup=null","ariaish=own"],["aria-expanded","aria-expanded","aria-haspopup","aria-haspopup"]]
+core | host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+core | two hooks on one host | [null,"F"]
+mx | mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx | mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx | mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx | mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+out | mx-text-field has error, host aria-invalid removed while out | null
+out | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+out | mx-text-field has error, host aria-invalid attribute set while out too | null
+out | mx-text-field has required, host aria-required removed while out | null
+out | mx-text-field has required, host aria-required removed while out, then moved again | null
+out | mx-text-field has required, host aria-required attribute set while out too | null
+out | mx-switch-button has checked, host aria-checked removed while out | null
+out | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+out | mx-switch-button has checked, host aria-checked attribute set while out too | null
+out | mx-link-button has disabled, host aria-disabled removed while out | null
+out | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+out | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+out | mx-list-link-item has selected, host aria-current removed while out | null
+out | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+out | mx-list-link-item has selected, host aria-current attribute set while out too | null
+order | connected | own, then loss | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, own in one task | {"at once true, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after null, after a move null":["mx-list-link-item aria-current"]}
+order | connected | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}
+order | out, back in that task | own, then loss | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, own in one task | {"at once null, after null, after a move null":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-link-item aria-current","mx-list-button-item aria-selected"]}
+order | out, back in that task | loss, then own | {"at once true, after true, after a move true":["mx-text-field aria-invalid","mx-text-field aria-required","mx-switch-button aria-checked","mx-link-button aria-disabled","mx-list-button-item aria-selected"],"at once page, after page, after a move page":["mx-list-link-item aria-current"]}

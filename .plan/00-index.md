@@ -2402,6 +2402,47 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
 
+#### RD-53 — `mx-card` is a static container with one slot, its host is its box, and the divider doesn't come with it
+
+**Decided 2026-11-23 by the architect, on `material-x/card-1`,** on the coordinator's task for #171, as unit B of `RD-47`'s landing plan. `RD-52` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [plan](card-1/card-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** `mx-card` has one attribute, `variant` (`elevated` or `outlined`, and filled when omitted), the default slot, and four CSS properties: `--md-card-container-color`, `--md-card-container-shape`, `--md-card-outline-color` and `--md-card-padding`. It has no event, no part and no interactive attribute.
+2. **Its host is its box,** so it falls under the `.host` exception _The host is the box_, as `mx-list-item` does. The shadow root holds only the slot.
+3. **The slot draws the 16px padding and the outline,** so a page's universal reset changes neither. The outline takes no layout space and isn't a shadow. The card doesn't clip its content.
+4. **Elevation is the shared three layers,** drawn on a host box by one stylesheet that `mx-list-item` and `mx-card` both adopt. A single `box-shadow` list would save two pseudo-elements. It isn't adopted, because it paints differently from the other components' three boxes in all three engines ([reading](card-1/checks/card-box.txt)).
+5. **All three variants ship.** The landing plan kept cards from _elevated_ until `RF-77` was fixed. #152 (merged as `986ad3719`) fixed it, with `RF-78`.
+6. **It reads each set's enabled tokens,** and neither `icon.*`, the deprecated surface tint nor the interaction groups. It sets no text colour or font, because the sets have none.
+7. **No role, no tab stop and no activation,** as M3 says of a non-actionable card. What the consumer sets on the host stands. The interactive card isn't designed, and nothing here takes its vocabulary.
+8. **No divider in this unit.** No part of the page uses one, and `RD-47` adds a component when a page or a consumer asks for it.
+
+**Why.** M3 requires only the container, and its tokens specify only that. Slots for headlines or actions would be public surface with no specification behind it, and a slot can be added later without breaking a consumer, where one can't be removed. The card's use on the page, package entries and demo frames, needs a container that adds no semantics.
+
+**Costs.** A consumer writes its own headings and layout inside the card, and rounds a full-bleed image itself. `variant` is a new word beside `mx-button`'s `color`. `mx-list-item`'s stylesheet changes its source, though not its rendering.
+
+**Dated 2026-11-23 by the architect: `variant` is the specification's word, and the owner accepted it,** relayed by the coordinator, with the implementation authorized. He asked because `mx-button`'s `variant` was renamed to `color` to follow the specification. Each element follows its own page, and the architect read them the same day:
+
+- **Cards:** _"Three variants:"_ ([overview](https://m3.material.io/components/cards/overview)), _"There are three card variants:"_ ([guidelines](https://m3.material.io/components/cards/guidelines)) and _"Select a component variant below"_ ([specs](https://m3.material.io/components/cards/specs)).
+- **Buttons:** _"Two variants: default and toggle"_ and _"Five color options: elevated, filled, tonal, outlined, and text"_ ([overview](https://m3.material.io/components/buttons/overview)).
+
+So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specification's own difference between the two components, and not a departure from it.
+
+**Dated 2026-11-24 by the architect: the host draws the outline and the whole shadow,** on `reviewer-1` of #213's [feature proof](reviews/card-1/feature-proof-claude.md), relayed by the coordinator. The [disposition](card-1/card-plan.md#disposition-of-reviewer-1-the-host-draws-the-outline-and-the-whole-shadow) has the candidates, the readings in the three engines and the work. Nothing is the owner's to answer.
+
+- **What the card promises, added to clause 2:** whatever the consumer's layout and `overflow` do to the card's size, the background, the shape, the outline and the shadow stay on the host's box. The content and its padding overflow, are clipped or scroll.
+- **Clause 3 is amended:** the slot draws the padding only, and the host draws the outline, `!important`, so a page's universal reset changes neither. While the host matches `:focus-visible` the card declares no outline, because Chromium and Firefox focus a scrolling card, and the outline would take the place of the focus indicator. It still takes no layout space, isn't a shadow, and the card doesn't clip its content. The clause said that the slot draws both, and on the slot the outline leaves the host's box and scrolls away.
+- **Clause 4 is amended:** the shared host-box stylesheet draws the three layers in one `box-shadow` list on the host, for `mx-list-item` and `mx-card`. The clause rejected the list for painting differently from three boxes. Any `overflow` clips two of the three boxes, which loses about two thirds of the shadow's darkest point, and the list loses nothing. The list differs from three boxes by at most 24 of 255 per channel for a list item, and 26 for a card (WebKit, level 3). Away from the corners it is at most 1 for a list item, and at most 1 for a card in Chromium and Firefox, and 5 in WebKit. `.host` elements keep the three boxes.
+- **Costs:** on an outlined card a page's own `outline` is applied only while the host is `:focus-visible`. `mx-list-item`'s shadow changes by the pixels above, so the cost sentence _"though not its rendering"_ no longer holds. Content at the card's edge that is positioned, or has an `opacity` or a `transform`, still covers the outline, as it did.
+- **Witness:** `checks/outline-owner.txt` and `checks/elevation-overflow.txt`, in the card's record.
+
+**Dated 2026-11-24 by the architect: the host draws the padding too,** on `reviewer-5` of #213's [recheck](reviews/card-1/recheck-claude.md), relayed by the coordinator. The [disposition](card-1/card-plan.md#disposition-of-the-recheck-the-host-draws-the-padding-too) has the candidates, the readings in the three engines, the rulings on `reviewer-6` to `reviewer-9` and the work. Nothing is the owner's to answer.
+
+- **Clause 2 is amended:** the shadow root still holds only the slot, and the slot generates no box. The content is laid out in the host.
+- **Clause 3 is amended again:** the host draws the padding, `!important`, with `box-sizing: border-box`, `!important`, and the slot draws nothing. The note above left the padding on the slot, where an inline scroll reached its end with 0px after the content. On the host it is a plain box's padding in both axes.
+- **Clause 4 stands, with `position: relative` given its reason:** the card is the containing block of its content's absolutely positioned elements, and its shadow paints over the next block's background.
+- **Costs:** a page's `padding` on `mx-card` is ignored, where it was added to the slot's. `--md-card-padding` is the one way to set it. The card can't be smaller than its padding, 32px in each axis by default, as a `div` with `border-box` can't. With `block-size: 10px` it was 10px high. This was read on the implementation and accepted the same day.
+- **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
+- **Witness:** `checks/padding-owner.txt`, in the card's record.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -5123,7 +5164,7 @@ Tier A, **closed 2026-11-24** on `material-x/mx-prefix-1` (below), pre-existing.
 
 #### RF-124 — `useARIA` keeps an `aria-*` that was removed from the host while its observer wasn't watching
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/landing-record-1`, from an observation in the [slider's feature proof](https://github.com/ausginer/material-x/blob/3c36609c3/.plan/reviews/slider-1/feature-proof-claude.md#observations-no-finding) (#220), relayed by the coordinator. `RF-123` is the highest `RF-` on `main`, and `RF-119` to `RF-121` are on `material-x/slider-1`, so this is the next free number. No entry covers it: `RF-94` is about which node carries an `aria-*`, and its rejected option is about an attribute that the component removes itself. Read at `a4dee53d8` in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/readings.txt), probes of [core](aria-removed-1/probes/use-aria.browser.test.ts.txt) and [material-x](aria-removed-1/probes/controls.browser.test.ts.txt)).
+Tier A, **closed on 2026-11-24 on two conditions** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/landing-record-1`, from an observation in the [slider's feature proof](https://github.com/ausginer/material-x/blob/3c36609c3/.plan/reviews/slider-1/feature-proof-claude.md#observations-no-finding) (#220), relayed by the coordinator. `RF-123` is the highest `RF-` on `main`, and `RF-119` to `RF-121` are on `material-x/slider-1`, so this is the next free number. No entry covers it: `RF-94` is about which node carries an `aria-*`, and its rejected option is about an attribute that the component removes itself. Read at `a4dee53d8` in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/readings.txt), probes of [core](aria-removed-1/probes/use-aria.browser.test.ts.txt) and [material-x](aria-removed-1/probes/controls.browser.test.ts.txt)).
 
 - **What happens:** when the host connects, `useARIA` copies the `aria-*` that the host has then. It doesn't look at one that the host had before. Its `MutationObserver` runs only while the host is connected, and `disconnect()` drops the records it hasn't delivered. So the target keeps an `aria-*` that the host no longer has, in three cases:
   1. it is removed while the host is out of the document, and the host is put back;
@@ -5134,7 +5175,12 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 - **Where:** every caller. Case 1 was read on `mx-button`, `mx-fab`, `mx-list-button-item`, `mx-text-field` and `mx-multiline-text-field`, each with `aria-label`, `aria-labelledby` and `aria-describedby`. In the two text fields, the last two don't fall back to the label and the support text either, as they do after a removal while connected. Cases 2 and 3 were read in core. `mx-slider`, on its branch, has it by the proof's reading.
 - **Why it is a problem:** the control has a name or a description that the page took away. A page that keeps an element, changes it out of the document and puts it back meets it, and so does one that removes the attribute and moves the element in one task.
-- **Required property:** after each connect, for every `aria-*` that the hook has ever mirrored from this host, the target holds what the transformer gives for the host's current value, and no attribute if that is `null`. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return. An `aria-*` that the host has never had isn't touched, because the component may have set it on the target itself. What happens while the host is connected doesn't change.
+- **Required property,** amended 2026-11-24 (the ruling below):
+  1. **The mirror is one of two writers of the target's attribute, and the last write stands.** The component is the other. Each change of the host's attribute is one write, of what the transformer gives for the host's current value, and no attribute if that is `null`. A removal is a change like any other: it is written once, and the hook keeps no claim on the name afterward.
+  2. **A change is written as it is while connected, also when the host is out or moves:** in the microtask after it, and at the connect if that is first. After a connect, the target holds no value that the host has lost. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return.
+  3. **The connect still copies what the host has then,** so the host's value wins over the component's there, as before. It writes each name once.
+  4. **A connect doesn't remove a value that the component wrote after the host's loss was written.** An `aria-*` that the host has never had isn't touched.
+  5. What happens while the host stays connected doesn't change.
 - **Rows:** in core, the three cases, a transformer that gives a value for `null`, and a target's own `aria-*` that survives a reconnect. In material-x, the text field's fallback after case 1. The last core row passes before the repair, and the others fail.
 - **Sizes:** material-x's rows are measured and reported. Core has no row with the hook.
 - **In the same unit:** the row for `useARIA` in `packages/core/README.md` says that it syncs to `ElementInternals`. It syncs to a target element.
@@ -5143,9 +5189,89 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Ready** for an implementer. Nothing is left to decide. The source change is in core alone.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: implemented on `core/use-aria-1`, from `114270083`, for #223, and not closed.** Requested by the coordinator. `useARIA` keeps a `Set` of the names that it has mirrored from its host. The connect adds the host's `aria-*` names to it and then syncs every name in it, and the observer adds the names that it mirrors. The README's row and the hook's JSDoc say what it does.
+
+- **The set is needed.** No other place records which names were mirrored: the target's own attributes also hold what the component set, and the host has lost the name.
+- **The rows,** in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/implementation.txt), [mutations](aria-removed-1/probes/mutations.mjs)). Core's `useARIA` has six rows more: the three cases, the transformer's value for `null`, the target's own attribute, and one that this entry doesn't list, below. The text field has two per element, for `aria-labelledby` and for `aria-describedby`. With `main`'s `useARIA.ts`, five of core's six and the text fields' four fail in each engine, and the row of the target's own attribute passes. With the repair, all pass.
+- **The row added beyond the list** removes, while out, an attribute that the observer mirrored after the connect. It is the only row that fails when the observer doesn't record the name.
+- **The other mutations,** each with the same failures in the three engines: the connect not recording the names fails four core rows and the text fields' four. Syncing the target's own `aria-*` too fails the row of the target's own attribute alone. Removing a lost attribute without the transformer fails the transformer's row and the text fields' four.
+- **The browser projects pass** in the three engines: core's 235 rows in each, and material-x's 558, of which 10 are skipped in Firefox and in WebKit and one is an expected failure in Firefox. Both packages' typechecks pass.
+- **Sizes,** in Brotli bytes: `complete` 22844 to 22886, **+42**. The 11 entry rows that have the hook change from −15 to +41, the largest `text-field/multiline-text-field`. The other eight entry rows, and core's, box-quad's and drag's, are 0 ([every row](aria-removed-1/checks/sizes.txt)).
+- **Limits:** Safari, the spec projects and the visual project weren't run.
+
+**Ruled 2026-11-24 by the architect,** on the [feature proof](reviews/aria-removed-1/feature-proof-claude.md) at `6e0ca1d4f`, requested by the coordinator, from `20997b0e2`. Read there with four implementations in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/ruling.txt), [runner](aria-removed-1/probes/ruling.mjs), [the orders' probe](aria-removed-1/probes/own-order.browser.test.ts.txt)). `origin/main` at `ee7d838cc` is merged.
+
+- **`reviewer-1`: accepted. The property was wrong, and is amended above.** It made the hook keep every name it had ever mirrored, and so remove, at every connect, whatever the component wrote later. A name isn't owned for life: the host's value and the component's are writes to one attribute, as they are while the host is connected. So the host's loss is one write, and the component's later write stands. What it replaced is quoted below.
+- **The second case, read:** the component's own `aria-*` for six pairs of element and name, by the order of the loss and the component's write. `true` is the component's value kept, also after a further move. The engines agree in every row.
+
+  | Where the host loses it | Order | `main` | `6e0ca1d4f` | A `Set` that forgets a lost name | An observer that also runs while out |
+  | --- | --- | --- | --- | --- | --- |
+  | connected | the component's write, then the loss | gone | gone | gone | gone |
+  | connected | the loss, then the write, in one task | gone | gone | gone | gone |
+  | connected | the loss, then the write, in a later task | `true` | **gone at the next move** | `true` | `true` |
+  | out | the write, then the loss | `true` | gone | gone | gone |
+  | out | the loss, then the write, in one task | `true` | gone | gone | gone |
+  | out | the loss, then the write, in a later task | `true` | gone | **gone** | `true` |
+
+  `main` keeps the value in the `out` rows because it misses the loss: that is this entry's defect.
+
+- **The mechanism: an observer that runs from construction to collection, and no `Set`.** On connect the hook takes the observer's pending records first, and then copies the host's current names. It is the only one of the four in which being out of the document changes nothing. The record that the `Set` keeps is already in the observer. It passes the 13 core rows and the 62 text-field rows, and the proof's 54 names in each kind of loss read as at `6e0ca1d4f`, in the three engines. `useMutationObserver` isn't used, because it follows the connection.
+  - **Two readings change, by property 1.** A name that the host had only before its first connect, or only while out, is written when it is lost, as a name that came and went while connected is. Before, it was never written, and a value that the component had for it stayed. And a name set just before a connect is written twice in the candidate as read: property 3 asks for once.
+  - **Why the records are taken at the connect:** otherwise the write comes a microtask after it. Then the text fields still hold the lost label in the connect itself, and the sortable list's writer, which runs in the same connect, finds the lost `aria-description` and doesn't write its own. The second is by reasoning: an observer that doesn't take them was read by the proof, for the text fields.
+  - **Not adopted: a `Set` that forgets a name once it is synced from `null`,** the proof's limit. It repairs the first case, and loses a value that the component wrote while out.
+- **Not repaired here:** the component's write that comes before the loss, or with it in one task, is removed. The branch now does that for a host that is out, as `main` does for one that is connected. A mirror that gives the value back needs the component's own value, which is `RF-130`. No connect repeats it.
+- **`reviewer-2`: the route stands, and the finding closes with the mechanism.** A hook with no record of names can't share one. If the implementation keeps a per-host record after all, its row is owed.
+- **`reviewer-3`: the route stands, and the record is corrected.** The implementer's _"The set is needed"_ doesn't hold: what the connect needs is the pending records, above. A row reads the target synchronously.
+- **Work list,** for the implementer, on this branch:
+  1. Replace the `Set` by the observer, with properties 1 to 5. The JSDoc and the comment say what they are, and the README's row is read again.
+  2. Core rows: the loss while connected, then the target's own value, then a move. The loss while out, then the target's own value in a later task, then the connect. The loss and the move in one task, read synchronously after the move. A name set just before a connect reaches the transformer once in it. **Witnesses:** `6e0ca1d4f` fails the first two, the forgetting `Set` the second, the hook without taking the records the third, and the candidate as read the fourth.
+  3. Material-x rows, on `mx-link-button` with `disabled` and the host's `aria-disabled`: both cases. And in `mx-sortable-list`, a button item that loses its `aria-description` in a move gets the list's. **Witness:** the same as above, and the hook without taking the records.
+  4. The sizes, as the entry asks, and the browser projects in the three engines. The rows of the first implementation stay.
+- **Pending:** a recheck of `reviewer-1` by its reviewer. The proof isn't a pass until then. No code changed in this ruling.
+
+**Dated 2026-11-24 by the implementer: the ruling is implemented on `core/use-aria-1`, and the entry isn't closed.** Requested by the coordinator. It replaces the `Set` and the first note's statement that the set is needed. `useARIA` observes its host from construction. Its connect takes the pending records and writes the names of those and of the host once each, through one local `Set` that isn't kept. No machinery beyond the entry was needed, and properties 1 to 5 hold in the three engines. The JSDoc and the comments say so. The README's row was read again and is true.
+
+- **The rows:** core has five more: the ruling's four, and one that the list doesn't have, below. Material-x has three more: `mx-link-button`'s `aria-disabled` in both cases, and the sortable button item's description.
+- **The witnesses** ([readings](aria-removed-1/checks/mutations-2.txt), [script](aria-removed-1/probes/mutations-2.mjs)), the same failures in Chromium, Firefox and WebKit:
+  - `6e0ca1d4f` fails the first two core rows and both rows of the link button, and no other.
+  - The forgetting `Set` fails the second core row and the second row of the link button, and no other.
+  - Without taking the records, the synchronous row and the row of the single transformation fail. The second fails too, because the pending record is then written a second time.
+  - With a name written twice, only the row of the single transformation fails.
+  - With `114270083`'s hook, six core rows, the sortable row and the text fields' four fail.
+  - Six more mutations fail the rows that they concern: the records dropped, an observer that stops while out, no copy of the host's names, a connect that also syncs the target's, a removal without the transformer, and a hook that mirrors every attribute.
+- **One witness of the list doesn't hold:** the sortable item's row passes in the hook that doesn't take the records. The ruling's reason was by reasoning: that the list's writer runs in the same connect. It runs in a microtask after it, because the item waits for its parent's definition (`useContext`), and the observer's delivery, queued at the removal, comes first. The row does fail with `114270083`'s hook and with the records dropped. So it guards the repair and not the moment, which core's synchronous row guards.
+- **The row added beyond the list:** the host's value is copied over the target's own at a reconnect (property 3). Without it no row failed when the connect didn't copy the host's names.
+- **The orders' probe** on this hook ([reading](aria-removed-1/checks/own-order-built.txt)) reads as the ruling's last column: the component's value is kept in a later task, connected and out, also after a move, and gone in the other orders, which are `RF-130`'s. The engines agree.
+- **The browser projects pass** in the three engines, one at a time. Core's whole suite: 301 rows in each, and 302 with the row that was added after that run; its file then passed in the three engines. Material-x's browser projects: 561 in Chromium; 550, 1 expected failure and 10 skipped in Firefox; 551 and 10 skipped in WebKit. Both typechecks, format, lint, material-x's publint, `docs-build` and `docs-smoke` (112 of 112) pass.
+- **Sizes,** in Brotli bytes, against `114270083`: `complete` 22844 to 22869, **+25**, where the `Set` was +42. The rows that have the hook change from −48 (`button/split-button`) to +25 (`text-field/text-field`), and the rows of core, box-quad and drag are 0 ([every row](aria-removed-1/checks/sizes-2.txt)).
+- **Limits:** Safari, the spec projects and the visual project weren't run, and the feature proof's own probes weren't run again. They are the recheck's.
+
+**What the ruling replaced, in the required property:**
+
+> **Required property:** after each connect, for every `aria-*` that the hook has ever mirrored from this host, the target holds what the transformer gives for the host's current value, and no attribute if that is `null`. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return. An `aria-*` that the host has never had isn't touched, because the component may have set it on the target itself. What happens while the host is connected doesn't change.
+
+**Closed 2026-11-24 by the architect, on two conditions,** on the [recheck](reviews/aria-removed-1/feature-proof-recheck-claude.md) read at `80c5db113`, requested by the coordinator. `origin/main` at `864e5345a` is merged, and it doesn't touch the hook. The recheck passes: properties 1 to 5 hold in the three engines, and `reviewer-1` to `reviewer-3` are closed.
+
+- **The conditions,** for the implementer, in one commit on this branch:
+  1. **`reviewer-4`, accepted.** The JSDoc's sentence promises less: a connect doesn't remove what was written to the target after the host's loss **was written**, as property 4 says. Nothing else in the JSDoc changes.
+  2. **`reviewer-6`, accepted: the row is owed.** In core: a host that has never been connected gets an `aria-*` name, and its target has the value in a later task, before any connect. The same row then removes the name, and the target has lost it before any connect. **Witness:** with `observe()` moved into the connect callback, it fails in the three engines. Property 2 is what it guards.
+- **No architect round follows.** The entry is closed when the implementer's note here says that both are done, with the witness read in the three engines, core's `useARIA` file passes in them and `verify` passes on the head. #224 merges it, with `Closes #223`. If one of them fails, or the source outside the JSDoc changes, the entry is open again and comes back.
+- **The implementer's two departures are accepted.**
+  - **The sortable row.** The ruling above was wrong in two places. _"The sortable list's writer, which runs in the same connect"_: it runs from `customElements.whenDefined(…).then`, after the connect and after the delivery that the removal queued. So its work-list witness, _"and the hook without taking the records"_, doesn't hold for that row. The implementer's _"it guards the repair and not the moment"_ is right for the taking of the records and not for the whole: the row fails when the connect's writes are deferred by a microtask. So it guards their time against that writer. The taking is guarded by core's synchronous row, and the reason for it stands by the text fields, which hold the lost label in the connect itself without it.
+  - **The extra core row,** that the host's value is copied over the target's own at a reconnect, stays. It is property 3's only row.
+- **`reviewer-5` isn't this entry's:** `RF-131`. Its values that the `Set` had right, for a label that changed while the text field was out, were a side effect of writing a lost name again at each connect, which the ruling ended.
+- **Not run,** as before: Safari, screen readers, the spec and visual projects. `accessibility.md`'s stale names and paths, which the first proof observed, aren't this entry's.
+
+**Dated 2026-11-24 by the implementer: both conditions are done on `core/use-aria-1`.** Requested by the coordinator. No source outside the JSDoc changes.
+
+- **`reviewer-4`:** the JSDoc's sentence says _after the host's loss was written_, and nothing else in it changes.
+- **`reviewer-6`:** core's row _should sync a host that has never been connected_. **Witness** ([reading](aria-removed-1/checks/mutations-3.txt), [script](aria-removed-1/probes/mutations-2.mjs)): with `observe()` moved into the connect callback, it fails in Chromium, Firefox and WebKit, and no other row does.
+- **Core's `useARIA` file passes** in the three engines, 19 rows in each, and so do the three material-x files of the script. Format, lint and core's typecheck pass.
+- **Not run:** the other suites, Safari, and the spec and visual projects. `verify` on the head is CI's, and it wasn't awaited here.
+
 #### RF-125 — A list item's focus indicator takes the shared offset and not the list's own, so the next item covers it
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's first observation of that day about the sortable list, in chat with a screenshot, relayed by the coordinator: _"Outline скрыт нижним элементом"_ ("The outline is hidden by the element below"). `RF-124` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `114270083`, on the built elements, in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
+Tier A, **closed on 2026-11-24** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's first observation of that day about the sortable list, in chat with a screenshot, relayed by the coordinator: _"Outline скрыт нижним элементом"_ ("The outline is hidden by the element below"). `RF-124` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `114270083`, on the built elements, in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
 
 - **What happens:** the block end of the outline is covered in each list, `mx-list` and `mx-sortable-list`, for each item, static, button and link, when another item follows. 834 to 838 of its 863 to 871 pixels are covered (96 %). The last item's is whole. The other three sides are whole. A disabled and a selected neighbor cover it too. A lifted item's is whole, because it is in the top layer ([screenshot](sortable-observations-1/checks/lifted-chromium.png)). By reading, one in flight is too, because `landing()` raises it, and it is cut when the flight ends.
 - **Cause:** the outline is 3px wide and 2px outside the item, and the gap between items is 2px. Each item's box is positioned, so a later one paints over an earlier one's outline.
@@ -5161,6 +5287,32 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Ready** for an implementer. **The owner approved the start on 2026-11-24,** in chat, relayed by the coordinator: _"1) 👍"_.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: implemented on `material-x/focus-cover-1`, for #226, and not closed.** Requested by the coordinator. The direction holds in Chromium, Firefox and WebKit.
+
+- **Source:** the allow-list names `focus.indicator.color`, `.outline.offset` and `.thickness`. The three items no longer adopt the shared focus sheet, so the list's own variables apply, and `interactive-box.styles.css` has the rule that `static-box.styles.css` already had. No other allow-list in `src` has the misspelling.
+- **Rows:** in `list-item.spec`, the three values for each kind of item, and the block end's pixels for each kind of item followed by each kind, in both lists. The focus is the keyboard's. **Witnesses** ([reading](focus-cover-1/checks/witnesses.txt), [script](focus-cover-1/probes/mutate.mjs)), in the three engines: with each token misspelled, its row fails for the three kinds. With the shared sheet adopted after a box's own, or an offset of 2px, that box's offset and stacking rows fail, and no other. Without the outline on a box, its color rows fail. Which other rows of the static item fail then differs between the engines.
+- **The entry's probe on the built elements** ([reading](focus-cover-1/checks/focus-indicator-built.txt)): nothing is covered in any of the 25 cases, in the three engines.
+- **Read beside it** ([reading](focus-cover-1/checks/unfocused-and-hover.txt), [script](focus-cover-1/probes/unfocused-and-hover.mjs)): the indicator is inside the item now, so an interactive item's ripple tints it while the item is hovered, by at most 8 of 255 per channel, at the one pixel read. Nothing is changed for it.
+- **Visual baselines:** none is expected to change, because the list has no visual file. The sizes and the checks are in `RF-126`'s note, for both entries.
+
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/focus-cover-1/feature-proof-claude.md) at `e00c28db4`, relayed by the coordinator. **The entry holds as implemented, and lands alone:** `RF-126` waits (its note below). No source change is owed here.
+
+- **`reviewer-3`, accepted as a limit: the required property is about siblings, and an item's own content may cover the indicator.** Content that is positioned, or has an opacity below 1, paints over an indicator that lies inside its item. The page gives the content that, and a native button with an inside outline does the same. At most the side that the content lies on is lost. With the large leading image it is the start side, in the proof's 18 cases, and the other three sides are whole.
+- **Not taken:** the indicator on a layer above the content. The interactive items could draw it on their ripple, and the static item has none, so it would need a box of its own. A `z-index` in the content would still cover both, and the image's colors give it no contrast in any case. It was reasoned, and not read.
+- **Not owed:** a row, or a sentence in the documentation.
+- **The hover tint** that the implementer read stays: the proof reads at least 4.18:1 against the item's container in each state.
+
+**Dated 2026-11-24 by the implementer: `RF-126`'s raise is out of the branch, and this entry is alone on it.** No source of this entry changes.
+
+- **Size, Brotli, of this entry alone,** against `main` at `ee7d838cc`, built in the same worktree: `button/button` 4858 to 4866, `button/icon-button` 5140 to 5126, `button/link-button` 4829 to 4822, `button/switch-button` 5446 to 5440, `button/switch-icon-button` 5834 to 5847, `button/split-button` 7480 to 7455, `button-group/button-group` 3040 to 3049, `button-group/connected-button-group` 3809 to 3810, `fab/fab` 4137 to 4144, `list/list` 659 to 676, `list/list-item` 2868 to 2847, `list/list-button-item` 4854 to 4839, `list/list-link-item` 5065 to 5058, `list/sortable-list` 8906 to 8905, `text-field/text-field` 8489 to 8465, `complete` 22844 to 22826. No other row moves. The source outside the lists equals `main`'s, and the cause of the moves there wasn't read.
+- **Checks:** in `RF-126`'s note of the same date.
+
+**Dated 2026-11-24 by the architect: closed, on `59827b44e`.** #231 merges it, with `Closes #226`.
+
+- **The removal, read:** `packages/` differs from `origin/main` at `ee7d838cc` by this entry's four files in `src/list`, `list-item.spec` and `tests/focus-indicator.ts`, and `src/button` and `src/button-group` don't differ at all. From `e00c28db4`, which the proof read, only `RF-126`'s two stylesheets and its spec go. So the proof of this entry stands.
+- **Both required properties hold** by the [feature proof](reviews/focus-cover-1/feature-proof-claude.md), with the limit that the architect's note above states for an item's own content. `verify` passes on `59827b44e`. The revert's recheck that `RF-126`'s note asks for is this reading and [`without-raise.txt`](focus-cover-1/checks/without-raise.txt).
+- **Nothing is missing.** The size moves outside the lists, by at most 24 bytes in `text-field` and `split-button`, have no cause in their source, and they don't hold the entry.
+
 #### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
@@ -5172,6 +5324,109 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows,** `spec`, in each engine: the pixels of the indicator at the inner edge of each kind of button in each group. **Witness:** each row fails before the repair.
 - **Nothing is the owner's to answer.** **Ready** for an implementer. **The owner approved the start on 2026-11-24,** with `RF-125`: _"1) 👍"_.
 - **Size:** _small_.
+
+**Dated 2026-11-24 by the implementer: implemented on `material-x/focus-cover-1`, for #227, and not closed.** Requested by the coordinator. The direction holds in Chromium, Firefox and WebKit.
+
+- **Source:** the connected group's host has `isolation: isolate`, and it sets `--_focus-z-index: 1` on its slotted buttons. The button's `.host:focus-visible` has `z-index: var(--_focus-z-index)`, which is `auto` outside a group. A custom property is used because the button's host is `display: contents`, so it has no box for a `z-index`. `mx-split-button` has a connected group in its shadow tree, so it needs nothing of its own.
+- **Rows:** `button-group-focus.spec`, one for each of the five buttons of a connected group and one for a split button's leading one, on the inline end's pixels. The last button of a group has no later one, so it gets no row. Seven more read that a positioned element that follows stays above the focused button, in each group and for a button alone. **Witnesses** ([reading](focus-cover-1/checks/witnesses.txt)), in the three engines: without the `z-index`, on either side, the six covering rows fail, and no other. Without the isolation only the six stacking rows of the groups fail. With every focused button raised, only the row of the button alone fails.
+- **The entry's probe on the built elements** ([reading](focus-cover-1/checks/focus-indicator-built.txt)): 0 pixels are covered in the connected group, with buttons and with switch buttons. The split button's count falls from 92 to 6 or 7 of 172 to 174. The probe counts each dark pixel that changes there, which can include the indicator's antialiased edge over another background; those pixels weren't inspected. The row counts the indicator's own color and finds 0.
+- **The stacking context changes no paint without focus:** four built groups equal the same group with `isolation: auto`, in the three engines ([reading](focus-cover-1/checks/unfocused-and-hover.txt)). A page's `z-index` on a button's content no longer leaves the group. That follows from the declaration and wasn't read.
+- **Visual baselines:** none is expected to change: no visual test focuses a button in a connected group.
+- **Size, Brotli, for both entries together:** `button/button` 4858 to 4870, `button/icon-button` 5140 to 5107, `button/link-button` 4829 to 4833, `button/switch-button` 5446 to 5443, `button/switch-icon-button` 5834 to 5845, `button/split-button` 7480 to 7462, `button-group/button-group` 3040 to 3060, `button-group/connected-button-group` 3809 to 3830, `fab/fab` 4137 to 4144, `list/list` 659 to 676, `list/list-item` 2868 to 2847, `list/list-button-item` 4854 to 4839, `list/list-link-item` 5065 to 5058, `list/sortable-list` 8906 to 8905, `text-field/text-field` 8489 to 8453, `complete` 22844 to 22872. No other row moves. The causes of the moves in `fab/fab`, `text-field/text-field` and `button-group/button-group` were not read.
+- **Checks, for both entries,** before `origin/main` at `ee7d838cc` was merged (#225, records only): the suite without the visual project, one engine at a time: Chromium 1060 passed and 2 expected failures; Firefox 1049 passed, 3 expected failures and 10 skipped; WebKit 1050 passed, 2 expected failures and 10 skipped. Format, lint, typecheck, publint, `docs-build` and `docs-smoke` (112 of 112) pass.
+- **Not run, for both entries:** the visual project, Safari, forced colors, RTL.
+
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/focus-cover-1/feature-proof-claude.md) at `e00c28db4`, relayed by the coordinator. **The direction is withdrawn, the implementation leaves the branch, and the entry stays open for the owner's answer below.** `RF-125` lands without it.
+
+- **`reviewer-1`, accepted.** The required property asks for two things that the direction can't give together. A stacking context holds the content's `z-index` inside it, and paints as one block at the group's place. So it changes the page's stacking by being there, and raising without one changes it while a button has focus. The entry's sentence _"so the group needs one"_ was the architect's error: _"Not read: … the context"_ was the part that mattered.
+- **Read,** on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, each candidate as styles adopted after the elements' own ([reading](focus-cover-1/checks/stacking-candidates.txt), [probe](focus-cover-1/probes/stacking-candidates.mjs)). The engines agree on the table. Other pixels differ by a few:
+
+  | Candidate | The indicator's end edge | The page at rest | The page while a button has keyboard focus |
+  | --- | --- | --- | --- |
+  | As on `main` | Covered, 0 of 44 samples | Unchanged | Unchanged |
+  | Isolate at rest, raise (built) | Whole | **A tooltip with a `z-index` in a button is covered by positioned content after the group. A button that precedes the group isn't clickable over its empty end** | The same |
+  | Raise, no isolation | Whole | Unchanged | **The focused button is above a page's menu after the group, and above a bar before it with `z-index: 1`, such as `mx-top-app-bar`.** A tooltip in it is below `z-index: 1` content |
+  | Raise the ring only, no isolation | Whole | Unchanged | **The ring shows through that menu and that bar** (2351 to 2659 pixels) |
+  | Isolate while focus is inside, raise | Whole | Unchanged | The built candidate's two effects |
+  | An offset of −1px, so that the indicator lies in the gap | Whole | Unchanged | Unchanged |
+  | An offset of −3px, inside | Tinted by the focus layer in each edge | Unchanged | Unchanged |
+
+  `isolate` while a button matches `:focus-visible` can't be written: `:host(:has(:focus-visible))` doesn't see a focus in a button's shadow tree. The read of it equals _raise, no isolation_.
+
+- **Also found not to work:** a group can't style the button's box (`::slotted()::part()` isn't supported in any of the three). `order` on an item paints it last without a stacking context in Chromium and Firefox, and the hit test in WebKit doesn't follow it (read with a scratch probe that wasn't kept); it would also need the group as a grid, with each button's column. Reordering, the top layer and a box that the group positions over the button are machinery that the property doesn't need.
+- **Contrast of the indicator** against what lies beside it, where the indicator's end edge would lie ([reading](focus-cover-1/checks/stacking-candidates.txt)): the next button is 1.03:1 (filled), 5.05:1 (tonal), 5.87:1 (elevated). Outlined and text buttons are transparent and cover nothing of it. A selected switch button is 1.00 to 1.03:1 in each color except outlined, 2.02:1. An unselected one is 5.05:1 or more. **So in a group of filled buttons and beside a selected one, a raised edge isn't visible, and the proof's observation is right.** The entry didn't mean that, and meant the covering.
+- **`reviewer-2`, accepted and settled by the removal:** `--_focus-z-index` goes. If (b) is chosen below, the group sets the button's own `--_focus-indicator-outline-offset`, which each button declares on its host, so nothing slotted inherits it (by reading: the shared focus sheet's `:host` rule declares it unconditionally).
+- **`reviewer-4`, accepted and settled by the removal.** If (b) or (c) is chosen, the rows read each of the three members, and (c)'s rows are the tooltip and the click, at rest and focused.
+
+**The question for the owner: what does a connected group do about the edge?** [Screenshot](focus-cover-1/checks/options-chromium.png), the middle button focused, in Chromium.
+
+- **(a) Nothing. Recommended.** The indicator is open on the end side, for a tonal or elevated neighbor and for an unselected switch button. The other three sides are whole and keep the token's offset. In the default color and beside a selected button, a repair couldn't be seen. It costs the incomplete ring, which is what a page's own buttons placed closely have. The entry is then closed as a known limit, and no row is owed.
+- **(b) The indicator in the gap.** The offset in a connected group is the gap less the indicator's thickness, so −1px. All sides are whole and no stacking changes. It costs the token's offset, and the space between the button and its indicator, so on a filled and a selected button (1.03:1) the button seems to grow by 2px. One declaration.
+- **(c) The raise, with the group isolated while focus is inside.** The ring is the token's and whole. It costs a page's hand-made tooltip in a group's button, which is covered by positioned content below while the keyboard user is in the group, and a page's button before the group that loses clicks over its empty end.
+- **Not offered:** isolation at rest (`reviewer-1`'s effects always), and raising without it, which paints over a page's bar and menus.
+
+**The work now, for the implementer,** on the branch:
+
+1. **Take out `e00c28db4`'s source and tests, with a new commit that leaves the record as it is:** `isolation` and `--_focus-z-index` in `button-group/styles/connected/main.styles.css`, the `z-index` in `button/styles/default/main.styles.css`, and `button-group-focus.spec.browser.test.ts`. `tests/focus-indicator.ts` stays, because `list-item.spec` uses it. Nothing in the two entries' records goes.
+2. **The report,** here: the sizes of `RF-125` alone, the lists' rows and the groups' existing rows in the three engines, and the proof's `stack.mjs` and `hit.mjs` giving `main`'s reading.
+3. **The pull request** says `Closes #226` and `Refs #227`.
+
+**A recheck is owed of the revert only:** nothing of `main` differs in the groups. This entry's state is open until the owner answers, and its earlier sentence that nothing is the owner's to answer is withdrawn.
+
+**Dated 2026-11-24 by the implementer: the raise is taken out, and the entry isn't closed.** Requested by the coordinator.
+
+- **Source and tests:** the two stylesheets are as before `e00c28db4`, and `button-group-focus.spec` is gone. `packages/` differs from `main` at `ee7d838cc` by `RF-125`'s source, `list-item.spec` and `tests/focus-indicator.ts` only.
+- **The proof's `stack.mjs` and `hit.mjs`** on the built head give `main`'s reading, line for line, in Chromium, Firefox and WebKit ([reading](focus-cover-1/checks/without-raise.txt)). They equal `main` built in the same worktree, and the lines that the proof recorded for it.
+- **Sizes of `RF-125` alone:** in its note.
+- **Checks:** the suite without the visual project, one engine at a time, which has the lists' rows and the groups' existing ones: Chromium 1047 passed and 2 expected failures (with the node project); Firefox 1001 passed, 3 expected failures and 10 skipped; WebKit 1002 passed, 2 expected failures and 10 skipped. Typecheck, format, publint, `docs-build` and `docs-smoke` (112 of 112) pass. Lint doesn't apply to the changed files, which are CSS and Markdown.
+- **The record of the raise stays:** the group mutations of [`mutate.mjs`](focus-cover-1/probes/mutate.mjs) and their readings are of `e00c28db4`, and don't run on this head.
+- **Not run:** the visual project, Safari, forced colors, RTL.
+
+**Dated 2026-11-24: answered by the owner, (c).** In chat, relayed by the coordinator, on [`options-chromium.png`](focus-cover-1/checks/options-chromium.png): _"Обводка: с (raised на скрине, выглядит прям как надо)"_ ("The outline: (c) (raised in the screenshot, it looks just right)"). **The costs, as they were stated to him** by the architect of slot `b`, relayed by the coordinator: while the keyboard is in the group, a page's hand-made tooltip in it can be covered by content that follows, and a page's button before the group loses clicks over its empty end. The first direction stays withdrawn, and the question above is closed.
+
+**Dated 2026-11-24 by the architect: the contract. Ready for an implementer,** on a branch of its own from `main` after #231 merges. Read at `59827b44e` with the mechanism below built from a scratch change ([source](focus-cover-1/checks/keyboard-raise-scratch.patch.txt), restored afterward; [readings](focus-cover-1/checks/keyboard-raise.txt), [probe](focus-cover-1/probes/keyboard-raise.mjs)), in Playwright's Chromium 158, Firefox 159 and WebKit 27.2. The engines agree except where it says so.
+
+**Required properties.** They replace the entry's. A _member_ is an element that is assigned to the group's slot and is one of material-x's five buttons that a group takes. The split button's two buttons are the members of the group in its shadow tree.
+
+1. No other member covers a pixel of the indicator of a member that has keyboard focus, whichever member it is.
+2. **Keyboard focus means that the member's own control matches `:focus-visible`.** The group is a stacking context exactly while that holds for one of its members and focus is inside. At rest, with a pointer's focus, and after focus leaves, by any way, stacking in and around the group is `main`'s.
+3. No member is raised while the group isn't a stacking context. So a focused member never rises over anything of the page outside the group: a menu after it, or a bar with `z-index: 1` before it.
+4. The raise reaches members alone. A button inside a member's content, beside the members in a popover, or in a wrapper isn't raised, and doesn't make the group a stacking context.
+
+**The mechanism, so that nothing is left to choose:**
+
+- **How the group knows.** `mx-connected-button-group` keeps a custom state, `focus-visible`. It sets it on its own `focusin` and `keydown`, each time to whether one of its children has a `shadowRoot.activeElement` that matches `:focus-visible`. It reads the focused control then, and not the event's target: a roving arrow key moves focus inside `keydown`, so the target is the former control (the first scratch form read the target, and lost the raise after an arrow).
+- **`keydown` is needed.** After a click, the control starts to match `:focus-visible` at the next key without a `focusin`: in Chromium at Shift, in WebKit at a letter, in Firefox not at all. Without it, the indicator is covered in that case.
+- **The stacking context:** `:host(:state(focus-visible):focus-within) { isolation: isolate }`. `:focus-within` ends it when focus leaves, so no `focusout` listener is needed, and also when the focused member is disabled or removed. A hidden member keeps its focus in Firefox and WebKit, and the group stays a stacking context with it.
+- **The raise:** `:host(:state(focus-visible)) ::slotted(*) { --_focus-z-index: 1 }`, and the button's `.host:focus-visible` has `z-index: var(--_focus-z-index)`. The button's `:host` declares `--_focus-z-index: auto`, unconditionally, beside its other private properties. The group's `::slotted` rule wins over the button's own `:host` (read), and what is inside a member has its own declaration. This is `RF-122`'s rule, and its check needs no exception. The scratch change has `::slotted(:focus)`, and the form here reads the same.
+- **Where:** `connected-button-group.ts`, `button-group/styles/connected/main.styles.css` and `button/styles/default/main.styles.css`. `mx-split-button` needs nothing. `mx-button-group` doesn't change.
+
+**Why keyboard focus alone, and why not in CSS.** The stated costs are the keyboard's. With `:host(:focus-within)` alone they come with a pointer too, in the three engines: after a click on a member, its tooltip is covered and the page's button loses its clicks until focus leaves. CSS can't tell the two apart ([selectors](focus-cover-1/checks/focus-selectors.txt), [probe](focus-cover-1/probes/focus-selectors.mjs)): a button's host matches `:focus` and never `:focus-visible`, `:host(:has(…))` sees no light child in Chromium, and in the others it has nothing to match. So it takes a listener.
+
+**Costs:**
+
+- **The owner's two,** in the group and the split button, in each engine: a tooltip with a `z-index` in a member is covered by positioned content that follows, and a page's positioned button that precedes the group isn't clickable over the group's empty end. Both only while a member has keyboard focus.
+- **A third, inside the group, found in this reading:** a page's badge slotted beside the members, positioned and without a `z-index`, is below the focused member. With `z-index: 1` it isn't. The slot is documented for buttons.
+- **Size,** Brotli, of the scratch change: `connected-button-group` 3810 to 3931, `split-button` 7455 to 7577, `complete` 22826 to 22894, and no other row moves by more than 15.
+- **Not a repair of contrast:** beside a filled or selected member the raised edge is 1.00 to 1.03:1, as before.
+
+**Outside the properties:** a split button or a group as a member of a connected group, and a button in a wrapper. Their indicator may be covered by the outer group's next member, as on `main`. The five-button member is what the group documents.
+
+**Rows,** `spec`, in each engine, in `tests/button-group/button-group-focus.spec.browser.test.ts`, with a tonal group, because the tolerance hardly tells the indicator from a filled button. `tests/focus-indicator.ts` gets the left side. Focus is moved with the keyboard.
+
+| Rows | What | Witness (each in the three engines, and each fails no other group of rows unless it says so) |
+| --- | --- | --- |
+| A | For each of the five kinds, the end edge of the first and of the middle member, and the start edge of the last. The split button's leading end and trailing start. 0 covered | Without the `z-index`: the first and middle rows and the split's leading row fail. The start-edge rows are controls. With `::slotted([data-first])`: the middle rows alone (`reviewer-4`) |
+| B | A tooltip with `z-index: 10` in a member, then positioned content; and a page's positioned button before the group, over its empty end. In a group and in a split button. On top **at rest, with a pointer's focus, and after the keyboard's focus leaves** | Isolation at rest: all fail. `:host(:focus-within)` alone: the pointer rows fail. Without `:focus-within`: the rows after focus leaves fail |
+| C | While a member has keyboard focus, a menu after the group with `z-index: auto` and a bar before it with `z-index: 1` stay on top of the focused member, in a group and in a split button. A button alone: a positioned element that follows stays above it | Without the isolation: the group's and the split's fail. With every focused button raised: the button alone |
+| D | `reviewer-2`'s: an overlay in a popover, over a focused `mx-button` in that popover, in a member's content. The overlay is on top, and the group isn't isolated | `e00c28db4`'s rule, an unconditional `::slotted(*)` value with no declaration on the button's host |
+| E | The group's `isolation` is `isolate` exactly when a member's control matches `:focus-visible`, and that control's `z-index` is then 1 and otherwise `auto`: after Tab, a click, a click and then a letter, an arrow on switch buttons after a click, a click outside, and the focused member disabled and removed | Without `keydown`: the letter case fails in Chromium and WebKit, and not in Firefox, where the control doesn't start to match. With the event's target in place of the focused control: the arrow case |
+
+**A row doesn't assert the costs.** The keyboard's covered tooltip and lost click are what the owner accepted, and a later change that removes them isn't a defect.
+
+**Also owed:** one sentence on the pages of the connected group and the split button: while a button in it has keyboard focus, the group is a stacking context, so an overlay that a page puts in or near it belongs in the top layer, such as a popover. Not in an API comment. The probe above and the proof's `stack.mjs` and `hit.mjs` on the built head, with the differences that [`keyboard-raise.txt`](focus-cover-1/checks/keyboard-raise.txt) has. The sizes. A forced-colors and an RTL run of the rows isn't owed: the indicator is whole in RTL by the probe.
+
+**Not read:** Safari itself, where a click doesn't focus a button by default, forced colors, and screenshots. **No visual baseline** is expected to change. **Nothing is the owner's to answer.** **Size:** _small_.
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
@@ -5315,6 +5570,54 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `d
 - **Unit:** its own, in material-x alone, after `RF-127` and `DRD-71`, which it needs. They are separate because `RF-127` is small, changes drag's public API and can go at once, and this one changes what every lifted item shows. Both edit the footprint's rule, and `RF-118` the same file.
 - **Plan needed:** no. **Ready** for an implementer once `RF-127` and `DRD-71` are on `main`.
 - **Size:** _medium_.
+
+#### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `RF-124`'s ruling. `RF-129` is the highest `RF-` on any branch on `origin` (`drag/command-signal-1`), so this is the next free number. Read at `114270083` and at `20997b0e2` in Chromium, Firefox and WebKit, with the same result ([readings](aria-removed-1/checks/ruling.txt)).
+
+- **What happens:** a component writes its own value of an `aria-*` on its control, from its own source, and the host has the same name. When the page removes the host's attribute, `useARIA` removes the control's. The component's source hasn't changed, so it doesn't write its value again. The state stays, and the control doesn't say it. The same happens when the source and the host's attribute change in one task, because the mirror runs after. Read for `aria-disabled` (a link with `disabled`), `aria-current` (`mx-list-link-item` with `selected`), `aria-selected` (`mx-list-button-item`), `aria-checked` (`mx-switch-button`), and `aria-invalid` and `aria-required` (the text field).
+- **The reverse,** by reading: while the host has the name, the last of the two to change is on the control, and a connect gives the host's. So a disabled link whose host says `aria-disabled="false"` says it too.
+- **Why it is a problem:** the page doesn't have to misuse anything to meet it. A link's `aria-disabled` and `aria-current` are the page's to give, and it can change to `disabled` or `selected`. The validation names are less likely, because the JSDoc asks for `error` and `required`.
+- **Required property:** while the host doesn't give a name, the control shows the component's own value of it, whatever the order in which the two changed. What it shows while the host gives it is the plan's to say.
+- **Not established:** how the component's value reaches the mirror. The text fields do it for two names, in the transformer's answer for `null`. `useDisableableLinkable` reads the host's value when `disabled` goes, and nothing does the other direction.
+- **Order:** after `RF-124`. `RF-94`'s plan may replace the mirror, and answers this one with it or leaves it.
+- **Plan needed:** yes, by the architect.
+- **Size:** _medium_.
+
+**Added 2026-11-24 by the architect, for the plan,** from `RF-124`'s [recheck](reviews/aria-removed-1/feature-proof-recheck-claude.md), read in the three engines at `80c5db113`:
+
+- **Before the first connect.** A name that the host gets and loses in one task, before it is first connected, removes the component's own value whatever the order, also one written after the loss, because the connect writes the pending loss. Read for `mx-link-button`'s `aria-disabled` with `disabled`, `mx-text-field`'s `aria-required` with `required`, and `mx-switch-button`'s `aria-checked`. `main` at `114270083` keeps them, so here the defect is wider since `RF-124`. Its ruling accepts it.
+- **A template's value is the component's too.** `mx-switch-button`'s `aria-checked="false"` is in its template. A switch that isn't connected yet loses it when the host gets and loses the name across tasks, and nothing writes it until `checked` changes.
+- **The order that loses in one task while out:** the loss, then the component's write, then the connect, in one task. The pending record is written by the connect, after the component's value. In a later task the value is kept.
+
+#### RF-131 — An element whose slotted content changes while it is out of the document doesn't see the change, nor one that is built first and appended later
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `reviewer-5` of `RF-124`'s [recheck](reviews/aria-removed-1/feature-proof-recheck-claude.md), requested by the coordinator. `RF-130` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-124` is about the host's attributes, and `RF-75` and the button groups' entry are about which nodes `useSlot` passes. Read on built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, with the same result ([readings](aria-removed-1/checks/slot-out.txt), [probe](aria-removed-1/probes/slot-out.mjs)).
+
+- **The cause.** Core's `useSlot` registers its `slotchange` listener through `useEvents`, which is active only while the host is connected. A slot dispatches the event also when its host is out of the document, in a microtask after the change. With no listener it is lost, and nothing asks for the content again at the connect.
+- **What happens.** The report read a text field's label. The architect read the other callers, and two ways to meet it:
+
+  | Element | Content changes while it is out, then it is put back | Made out with its content, appended in a later task |
+  | --- | --- | --- |
+  | `mx-text-field`, label | The old `aria-labelledby` stays, or none is set | **The control has no name from its label** |
+  | `mx-text-field` and `mx-multiline-text-field`, support and counter | No `aria-describedby`, and **the text isn't shown** (56px high, not 76px) | The same |
+  | `mx-connected-button-group` | With the first button removed, **no button is a tab stop**. An added button has no `tabindex` from the group. The end shapes are on the wrong buttons | **No roving tab stop and no end shapes at all** |
+  | `mx-list-item` with a large image | 56px high, not 76px | The same |
+
+  A button's icon, a standard group's first button and a sortable list's added item read as while connected, in what the probe compares. By reading, the standard group keeps the old list of buttons for its press effect, which the probe doesn't press. The sortable list reads its slot again when an item upgrades.
+
+- **Why it is a problem:** building an element, waiting for something, and then appending it is ordinary. So is keeping an element and changing it out of the document. A control then has no name, or a group can't be reached with Tab. Where the change and the append are in one task, the event comes after the connect, and everything is right. That is why tests didn't find it.
+- **Required properties:**
+  1. After a connect, and after any later change, what an element says of its slotted content is what it would say if it had been connected at each change. It holds for a host that has never been connected.
+  2. Each change is one call of the callback, as now, with the nodes that the slot has then. A connect adds no call, when nothing changed.
+  3. The callback can run while the host is out of the document. `useSlot`'s JSDoc says so.
+- **Direction, settled:** `useSlot` adds its listener to the slot once, when it is called, and not through `useEvents`. The slot is in the host's own shadow tree, so nothing outside keeps the host alive. Read with the listener replaced in the bundle: each of the 22 rows is as while connected, in the three engines (the same readings).
+- **It changes a contract of core's public hook.** `useSlot.browser.test.ts` has _"should stop observing slot changes while host is disconnected"_ and _"should resume observing slot changes after host reconnect"_. The first says the opposite of property 1 and is replaced by a row for it. The second stays, with its expectation of what was missed corrected. **Not adopted: silent while out, with a call at the connect.** It would need a record of what was missed, or a call at each connect, also when nothing changed. None of the eight call sites in `src` needs the silence, by reading: `useRovingTabindex` reads `document.activeElement`, which finds no item of a host that is out, and the sortable list's controller is `null` then.
+- **Rows:** in core, a change while out, a change before the first connect, and no call at a connect without a change. In material-x, each element and column of the table above. **Witness:** each fails before the repair, except the row without a change.
+- **Order:** after `RF-124` merges, because the text field's rows read the same fallbacks. `useRovingTabindex`'s other users get it with the hook.
+- **Not read:** Safari, screen readers, page-built callers of `useSlot`, and the sizes.
+- **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
+- **Size:** _small_.
 
 ## Questions
 

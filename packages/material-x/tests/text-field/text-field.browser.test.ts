@@ -281,6 +281,57 @@ describe.each(FIELD_TAGS)('%s', (tag) => {
     expect(input.getAttribute('aria-describedby')).toBe('support counter');
   });
 
+  it('should restore slot label fallback after aria-labelledby is removed while disconnected', async () => {
+    const field = createField(tag);
+
+    addSlottedContent(field, 'label', 'Field label');
+    field.setAttribute('aria-labelledby', 'external-label');
+    document.body.append(field);
+
+    await nextFrame();
+
+    const input = getInput(field);
+
+    expect(input.getAttribute('aria-labelledby')).toBe('external-label');
+
+    field.remove();
+    field.removeAttribute('aria-labelledby');
+
+    await nextFrame();
+
+    document.body.append(field);
+
+    await nextFrame();
+
+    expect(input.getAttribute('aria-labelledby')).toBe('label');
+  });
+
+  it('should restore support and counter fallback after aria-describedby is removed while disconnected', async () => {
+    const field = createField(tag);
+
+    addSlottedContent(field, 'support', 'Supporting text');
+    addSlottedContent(field, 'counter', '1/10');
+    field.setAttribute('aria-describedby', 'external-description');
+    document.body.append(field);
+
+    await nextFrame();
+
+    const input = getInput(field);
+
+    expect(input.getAttribute('aria-describedby')).toBe('external-description');
+
+    field.remove();
+    field.removeAttribute('aria-describedby');
+
+    await nextFrame();
+
+    document.body.append(field);
+
+    await nextFrame();
+
+    expect(input.getAttribute('aria-describedby')).toBe('support counter');
+  });
+
   it('should remove fallback aria-describedby when related slots become empty', async () => {
     const field = createField(tag);
     const support = addSlottedContent(field, 'support', 'Supporting text');

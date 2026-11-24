@@ -1,0 +1,63 @@
+# chromium 158.0.8127.18
+## mx-card at level 1
+no shadow against the shadow: 1204px differ, max 96, mean 22.2, 127 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-card at level 3
+no shadow against the shadow: 3404px differ, max 97, mean 21.1, 519 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-list-item at level 1
+no shadow against the shadow: 1308px differ, max 96, mean 22.0, 231 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-list-item at level 8
+no shadow against the shadow: 8112px differ, max 95, mean 20.8, 1345 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+# firefox 159.0
+## mx-card at level 1
+no shadow against the shadow: 1566px differ, max 98, mean 17.9, 210 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-card at level 3
+no shadow against the shadow: 3280px differ, max 97, mean 20.7, 568 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-list-item at level 1
+no shadow against the shadow: 1676px differ, max 98, mean 18.0, 320 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-list-item at level 8
+no shadow against the shadow: 11584px differ, max 97, mean 15.8, 1761 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+# webkit 27.2
+## mx-card at level 1
+no shadow against the shadow: 1030px differ, max 98, mean 25.4, 126 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-card at level 3
+no shadow against the shadow: 3266px differ, max 95, mean 20.3, 554 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-list-item at level 1
+no shadow against the shadow: 1114px differ, max 98, mean 25.3, 210 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners
+## mx-list-item at level 8
+no shadow against the shadow: 8820px differ, max 96, mean 19.6, 1462 at the corners
+overflow hidden against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow auto against visible: 0px differ, max 0, mean 0, 0 at the corners
+overflow clip against visible: 0px differ, max 0, mean 0, 0 at the corners

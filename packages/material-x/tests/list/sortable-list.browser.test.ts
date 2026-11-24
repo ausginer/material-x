@@ -1251,6 +1251,23 @@ describe('mx-sortable-list values a consumer writes after the claim', () => {
     expect(visualOf(a!).getAttribute('aria-description')).toBe('Mine');
   });
 
+  it("should describe a button item's control that loses the host's description in a move", async () => {
+    const [list, [a]] = await createList(['A', 'B'], {
+      item: 'mx-list-button-item',
+    });
+    a!.setAttribute('aria-description', 'Mine');
+    await nextFrame();
+    const forwarded = visualOf(a!).getAttribute('aria-description');
+    a!.removeAttribute('aria-description');
+    list.append(a!);
+    await nextFrame();
+
+    expect([forwarded, visualOf(a!).getAttribute('aria-description')]).toEqual([
+      'Mine',
+      DESCRIPTION,
+    ]);
+  });
+
   it('should not write again an attribute the consumer removed, before or at the release', async () => {
     const [, [a]] = await createList(['A']);
     a!.removeAttribute('tabindex');
