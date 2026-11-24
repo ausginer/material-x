@@ -18,9 +18,10 @@ export const SLIDER_STATES = [
 const STATE_MAP: Readonly<Record<string, Param>> = {
   hover: pseudoClass('hover'),
   focus: pseudoClass('focus-visible'),
-  pressed: pseudoClass('active'),
   disabled: pseudoClass('disabled'),
 };
+
+const PRESSED = pseudoClass('state', 'pressed');
 
 /** Deprecated upstream, under names that other states still use. */
 const DEPRECATED_TOKENS: readonly string[] = [
@@ -61,21 +62,24 @@ export function createSliderExtensions(base?: TokenPackage): ExtensionCallback {
 export function createSliderDeclarationRenderer(
   size?: Param,
 ): DeclarationBlockRenderer {
-  const scope = size ? `${selector(':host', size)} ` : '';
+  return (path, declarations) => {
+    const pressed = path === 'pressed' ? PRESSED : null;
+    const scope = size || pressed ? `${selector(':host', size, pressed)} ` : '';
 
-  return (path, declarations) => ({
-    path,
-    declarations,
-    selectors: [
-      scope +
-        selector(
-          '.track',
-          STATE_MAP[path]
-            ? pseudoClass('has', selector('.input', STATE_MAP[path]))
-            : null,
-        ),
-    ],
-  });
+    return {
+      path,
+      declarations,
+      selectors: [
+        scope +
+          selector(
+            '.track',
+            STATE_MAP[path]
+              ? pseudoClass('has', selector('.input', STATE_MAP[path]))
+              : null,
+          ),
+      ],
+    };
+  };
 }
 
 export function renderSliderStylesInOrder(

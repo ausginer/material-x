@@ -17,8 +17,8 @@ interface Mouse {
     y: number,
     options?: Readonly<{ steps: number }>,
   ): Promise<void>;
-  down(): Promise<void>;
-  up(): Promise<void>;
+  down(options: Readonly<{ button: Button }>): Promise<void>;
+  up(options: Readonly<{ button: Button }>): Promise<void>;
 }
 
 interface ActionChain {
@@ -30,8 +30,8 @@ interface ActionChain {
       duration: number;
     }>,
   ): ActionChain;
-  down(params: Readonly<{ button: 0 }>): ActionChain;
-  up(params: Readonly<{ button: 0 }>): ActionChain;
+  down(params: Readonly<{ button: number }>): ActionChain;
+  up(params: Readonly<{ button: number }>): ActionChain;
   perform(skipRelease?: boolean): Promise<void>;
 }
 
@@ -44,6 +44,8 @@ interface Page {
   emulateMedia(options: Readonly<Record<string, string>>): Promise<void>;
   context(): { newCDPSession(page: Page): Promise<CdpSession> };
 }
+
+type Button = 'left' | 'right';
 
 type Context = Readonly<{
   provider: Readonly<{ name: string }>;
@@ -58,6 +60,9 @@ type Context = Readonly<{
     ): ActionChain;
   }>;
 }>;
+
+/** The buttons as WebDriver numbers them. */
+const BUTTONS: Readonly<Record<Button, number>> = { left: 0, right: 2 };
 
 /*
  * One WebDriver pointer under a fixed id, and `perform(true)` doesn't release
@@ -74,20 +79,20 @@ const sessions = new WeakMap<Page, Promise<CdpSession>>();
 export const inputBrowserCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
 > = {
-  pointerPress: defineBrowserCommand<[number, number]>(
-    async (context, x, y): Promise<void> => {
+  pointerPress: defineBrowserCommand<[number, number, Button?]>(
+    async (context, x, y, button = 'left'): Promise<void> => {
       const { provider, page, browser } = context as unknown as Context;
 
       if (provider.name === 'playwright') {
         await page.mouse.move(x, y);
-        await page.mouse.down();
+        await page.mouse.down({ button });
         return;
       }
 
       await browser
         .action('pointer', POINTER)
         .move({ x, y, origin: 'viewport', duration: 0 })
-        .down({ button: 0 })
+        .down({ button: BUTTONS[button] })
         .perform(true);
     },
   ),
@@ -136,7 +141,7 @@ export const inputBrowserCommands: Readonly<
   touch: defineBrowserCommand<
     [
       'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel',
-      ...Array<readonly [number, number]>,
+      ...Array<readonly [number, number, id?: number]>,
     ]
   >(async (context, type, ...points): Promise<void> => {
     const { provider, page } = context as unknown as Context;
@@ -157,17 +162,26 @@ export const inputBrowserCommands: Readonly<
       await session
     ).send('Input.dispatchTouchEvent', {
       type,
-      touchPoints: points.map(([x, y], id) => ({ x, y, id })),
+      touchPoints: points.map(([x, y, id], index) => ({
+        x,
+        y,
+        id: id ?? index,
+      })),
     });
   }),
-  pointerRelease: defineBrowserCommand<[]>(async (context): Promise<void> => {
-    const { provider, page, browser } = context as unknown as Context;
+  pointerRelease: defineBrowserCommand<[Button?]>(
+    async (context, button = 'left'): Promise<void> => {
+      const { provider, page, browser } = context as unknown as Context;
 
-    if (provider.name === 'playwright') {
-      await page.mouse.up();
-      return;
-    }
+      if (provider.name === 'playwright') {
+        await page.mouse.up({ button });
+        return;
+      }
 
-    await browser.action('pointer', POINTER).up({ button: 0 }).perform(true);
-  }),
+      await browser
+        .action('pointer', POINTER)
+        .up({ button: BUTTONS[button] })
+        .perform(true);
+    },
+  ),
 };

@@ -7,6 +7,7 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const DIR = 'packages/material-x/src/slider/';
 const TS = `${DIR}slider.ts`;
+const UTILS = `${DIR}styles/utils.ts`;
 const CSS = `${DIR}styles/default/main.styles.css`;
 const HTML = `${DIR}slider.tpl.html`;
 const ALL = ['chromium', 'firefox', 'webkit'];
@@ -63,24 +64,24 @@ const MUTATIONS = [
     TOUCH,
   ],
   [
-    'a second finger takes over a held press',
+    'a second finger takes over a press in progress',
     TS,
-    "if (press !== 'held' || isPrimary) {",
+    'if (pointer === null || isPrimary) {',
     'if (isPrimary || !isPrimary) {',
     TOUCH,
   ],
   [
     'a disconnection does not drop the press',
     TS,
-    '      disconnected: dropHeld,\n',
-    '',
+    'disconnected: endPress',
+    'disconnected: () => setPressed(false)',
     TOUCH,
   ],
   [
     'disabling does not drop the press',
     TS,
-    '        if (input.disabled) {\n          dropHeld();\n        }\n',
-    '',
+    '        if (input.disabled) {\n          endPress();',
+    '        if (input.disabled) {\n          setPressed(false);',
     TOUCH,
   ],
   [
@@ -182,17 +183,98 @@ const MUTATIONS = [
     'if (Math.random() < 2) {',
     ALL,
   ],
+  [
+    'a second finger takes over a press that is not held back',
+    TS,
+    'if (pointer === null || isPrimary) {',
+    "if (press !== 'held' || isPrimary) {",
+    TOUCH,
+  ],
+  [
+    'the indicator follows :active',
+    CSS,
+    ':host(:state(indicator):state(pressed)) .indicator,',
+    ':host(:state(indicator)) .input:active ~ .indicator,',
+    ALL,
+  ],
+  [
+    'the handle follows :active',
+    UTILS,
+    "  disabled: pseudoClass('disabled'),",
+    "  pressed: pseudoClass('active'),\n  disabled: pseudoClass('disabled'),",
+    ALL,
+    "path === 'pressed' ? PRESSED : null",
+    'null',
+  ],
+  [
+    'any button holds',
+    TS,
+    'setPressed(button === 0);',
+    'setPressed(true);',
+    ALL,
+  ],
+  [
+    'disabling does not end the held state',
+    TS,
+    '        if (input.disabled) {\n          endPress();',
+    '        if (input.disabled) {\n          dropHeld();',
+    ALL,
+  ],
+  [
+    'a disconnection does not end the held state',
+    TS,
+    'disconnected: endPress',
+    'disconnected: dropHeld',
+    ALL,
+  ],
+  [
+    'a release does not end the held state',
+    TS,
+    'pointer = null;\n            setPressed(false);',
+    'pointer = null;',
+    ALL,
+  ],
+  [
+    'a cancel does not end the held state',
+    TS,
+    "            endPress();\n            press = 'cancelled';",
+    "            dropHeld();\n            press = 'cancelled';",
+    TOUCH,
+  ],
+  [
+    'a release does not end the press',
+    TS,
+    'pointer = null;\n            setPressed(false);',
+    'setPressed(false);',
+    TOUCH,
+  ],
+  [
+    'a cancel does not end the press',
+    TS,
+    "press = 'cancelled';\n            pointer = null;",
+    "press = 'cancelled';",
+    TOUCH,
+  ],
+  [
+    'a second finger ends the held state',
+    TS,
+    '          if (pointerId === pointer) {\n            reportHeld();',
+    '          setPressed(false);\n          if (pointerId === pointer) {\n            reportHeld();',
+    TOUCH,
+  ],
 ];
 
 const only = process.argv[2];
-for (const [name, file, from, to, engines] of MUTATIONS) {
+for (const [name, file, from, to, engines, from2, to2] of MUTATIONS) {
   if (only && !name.includes(only)) continue;
   const good = readFileSync(file, 'utf8');
   if (from && good.split(from).length !== 2) throw new Error(name);
   if (from)
     writeFileSync(
       file,
-      good.replace(from, () => to),
+      good
+        .replace(from, () => to)
+        .replace(from2 ?? '', (match) => to2 ?? match),
     );
   try {
     for (const engine of engines) {

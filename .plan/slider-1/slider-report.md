@@ -80,6 +80,30 @@ Implemented on 2026-11-24, on `5f191a509`: the plan's work list with `SL-D2`, `S
 
 **WebKit drops `:active` from a range while the mouse is down.** In WebKit 27.2 a press on the track away from the thumb, held still, loses it after about 0.1 s, and the next move brings it back ([readings](checks/press-active.txt)). A press on the thumb, or moved at once, keeps it, and so does a button. It reproduces on a bare range, and Safari wasn't checked. So the 2 px handle and the indicator go away in that window, and `SL-D6`'s "the held state stays" doesn't hold there. It is as before this section. Row 12's fade passed without `@starting-style` for this reason, so it presses the handle now. The mechanism wasn't changed.
 
+## The held state and the second finger
+
+Implemented on 2026-11-24, on `943d3a912`: the plan's [rulings](slider-plan.md#the-implementation-reports-rulings) and the amended `SL-D3` and `SL-D6`.
+
+- **Held is `:state(pressed)`** on the host, set at `pointerdown` and cleared at the `pointerup` or `pointercancel` of that pointer, on disabling and on a disconnection. The tokens' `pressed` block and the indicator's rule follow it. Their specificity is as with `:active`, so the disabled look still wins.
+- **Another pointer** isn't followed while `pointer` is set, unless it is primary. The end of the press clears it.
+- **The reading** of the built element: [`held-state-built.txt`](checks/held-state-built.txt), with the plan's required values for each row in the three engines. After `display: none` it stays held, as the plan's limit says.
+- **Rows:** the plan's, and two more: a finger that isn't the first one down is followed after a tap and after a scroll. `pointerPress` and `pointerRelease` take a button, and `touch` takes a finger's id, because CDP's `touchEnd` lifts the points that it lists. Row 12's press is back on the track.
+- **Witnesses:** [15 mutations](checks/witnesses-held-state.txt), each failing its rows in every engine it ran in. Those of touch ran in Chromium. With the indicator or the handle on `:active`, WebKit fails the still press and the drag outside, the three engines fail the label, and Chromium and Firefox fail the disabled slider. The right button fails in Firefox and WebKit, and in Chromium in one run of two: there the probe read `:active` as false before and true now. The cause wasn't sought.
+- **Departure: in Chromium the second finger's lift commits the slide.** On a bare range the second finger's touch ends the native drag: no further `input` comes, and `change` fires when that finger lifts ([reading](checks/second-finger.txt), [script](probes/second-finger.mjs)). So after a second finger that touches and lifts, the first's later cancel has nothing to commit, where the plan has it commit. The value and the state don't change, and `change` fires once. A second row has the cancel while the second finger is down, where the cancel commits. The native `change` isn't stopped.
+- **Cost of a change,** in µs, minima of two runs of each build, before and after ([medians](checks/held-state-cost.txt)), at a load of 4 to 5. No build or state is consistently cheaper, except that Firefox's shown is 13 and 38 more:
+
+  | Engine   | Hidden before | Hidden after | Shown before | Shown after |
+  | -------- | ------------- | ------------ | ------------ | ----------- |
+  | Chromium | 48, 66        | 49, 63       | 67, 94       | 68, 106     |
+  | Firefox  | 220, 178      | 203, 198     | 318, 283     | 330, 320    |
+  | WebKit   | 358, 423      | 335, 403     | 510, 615     | 510, 570    |
+
+  This probe shows the indicator by keyboard focus, so it doesn't set the state. A move doesn't write it.
+
+- **Size (Brotli):** `slider/slider` 3888 to 3950 and `complete` 24718 to 24802. No other row moves.
+- **Tests,** whole material-x, one engine at a time, without the visual project: Chromium 1391 passed and 2 expected fail (with the node project); Firefox 1288 passed, 3 expected fail, 66 skipped; WebKit 1289 passed, 2 expected fail, 66 skipped. The two last rows were added after it, and `tests/slider` then passed in the three engines. Format, lint, typecheck, publint, `docs-build` and `docs-smoke` (120 of 120) pass.
+- **Not run:** the visual project, Safari, physical touch, and assistive technology.
+
 ## Verification
 
 - **Tests,** whole material-x, one engine at a time, with no visual project: Chromium 1297 passed and 2 expected fail (with the node project); Firefox 1221 passed, 3 expected fail, 39 skipped; WebKit 1222 passed, 2 expected fail, 39 skipped. After it, only the stories' layout changed.

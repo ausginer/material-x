@@ -94,6 +94,23 @@ function recordEvents(slider: Slider): string[] {
   return log;
 }
 
+type HeldLook = Readonly<{ handle: string; indicator: string }>;
+
+const HELD: HeldLook = { handle: '2px', indicator: 'flex' };
+const RESTING: HeldLook = { handle: '4px', indicator: 'none' };
+
+function readLook(slider: Slider): HeldLook {
+  return {
+    handle: getComputedStyle(getPart(slider, '.handle')).width,
+    indicator: getComputedStyle(getPart(slider, '.indicator')).display,
+  };
+}
+
+/** The indicator keeps its box until its fade ends. */
+async function expectResting(slider: Slider): Promise<void> {
+  await vi.waitFor(() => expect(readLook(slider)).toEqual(RESTING));
+}
+
 let listeners = new AbortController();
 
 afterEach(async () => {
@@ -936,6 +953,93 @@ describe.runIf(server.browser === 'chromium')('mx-slider touch', () => {
     expect(events).toEqual([]);
   });
 
+  it('should look held while a finger rests', async () => {
+    const slider = createScrollingSlider({ indicator: '' });
+
+    await touchAt(slider, 0.21);
+    expect(readLook(slider)).toEqual(HELD);
+
+    await lift();
+    await expectResting(slider);
+  });
+
+  it('should not look held after a scroll', async () => {
+    const slider = createScrollingSlider({ indicator: '' });
+
+    await touchAt(slider, 0.21);
+    await slide(pointAt(slider, 0.21), [0, -100]);
+    await vi.waitFor(() => expect(window.scrollY).toBeGreaterThan(0));
+    await expectResting(slider);
+  });
+
+  it('should not follow a second finger during a slide', async () => {
+    const slider = createScrollingSlider({ indicator: '' });
+    const events = recordEvents(slider);
+    const second = pointAt(slider, 0.9);
+
+    await touchAt(slider, 0.21);
+    await slide(pointAt(slider, 0.21), [60, 0]);
+    await commands.touch('touchStart', pointAt(slider, 0.51), second);
+    await settle();
+    expect(slider.value).toBe(51);
+    expect(readLook(slider)).toEqual(HELD);
+
+    // Chromium fires its own `change` when the second finger lifts.
+    await commands.touch('touchEnd', [...second, 1]);
+    await settle();
+    expect(slider.value).toBe(51);
+    expect(readLook(slider)).toEqual(HELD);
+
+    await commands.touch('touchCancel');
+    await settle();
+    expect(slider.value).toBe(51);
+    expect(events.filter((entry) => entry.startsWith('change'))).toEqual([
+      'change 51',
+    ]);
+    await expectResting(slider);
+  });
+
+  it('should commit a slide that is cancelled with a second finger down', async () => {
+    const slider = createScrollingSlider();
+    const events = recordEvents(slider);
+
+    await touchAt(slider, 0.21);
+    await slide(pointAt(slider, 0.21), [60, 0]);
+    await commands.touch(
+      'touchStart',
+      pointAt(slider, 0.51),
+      pointAt(slider, 0.9),
+    );
+    await settle();
+    await commands.touch('touchCancel');
+    await settle();
+
+    expect(slider.value).toBe(51);
+    expect(events.slice(-2)).toEqual(['input 51', 'change 51']);
+  });
+
+  it.each([
+    ['a tap', (slider: Slider) => touchAt(slider, 0.21).then(lift)],
+    ['a scroll', (slider: Slider) => pan(slider, 0.21)],
+  ] as const)(
+    'should follow a finger that is not the first one down after %s',
+    async (_, end) => {
+      const slider = createScrollingSlider({ indicator: '' });
+      await end(slider);
+      window.scrollTo(0, 0);
+      await expectResting(slider);
+      const [x, y] = pointAt(slider, 0.8);
+
+      // The first finger rests outside the slider.
+      await commands.touch('touchStart', [x, y + 300]);
+      await settle();
+      await commands.touch('touchStart', [x, y + 300], [x, y]);
+      await settle();
+
+      expect(readLook(slider)).toEqual(HELD);
+    },
+  );
+
   it('should drop a held press that is cancelled after a second finger', async () => {
     const slider = createScrollingSlider({ value: '30' });
     const events = recordEvents(slider);
@@ -1606,6 +1710,90 @@ describe('mx-slider value indicator', () => {
   });
 });
 
+describe('mx-slider held state', () => {
+  /** Longer than the time after which WebKit drops `:active`. */
+  const HOLD_MS = 400;
+
+  async function hold(slider: Slider, fraction = 0.2): Promise<void> {
+    await press(slider, fraction);
+    // The time is what the rows hold the press for.
+    await new Promise((resolve) => {
+      setTimeout(resolve, HOLD_MS);
+    });
+  }
+
+  it('should last while the pointer rests on the track', async () => {
+    const slider = createSlider({ indicator: '' });
+
+    await hold(slider);
+    expect(readLook(slider)).toEqual(HELD);
+
+    await release();
+    await expectResting(slider);
+  });
+
+  it('should last while the pointer is outside the slider', async () => {
+    const slider = createSlider({ indicator: '' });
+    const [x, y] = pointAt(slider, 0.2);
+
+    await hold(slider);
+    await commands.pointerMove(x, y + 150, 4);
+    await nextFrame();
+    await nextFrame();
+    expect(readLook(slider)).toEqual(HELD);
+
+    await release();
+    await expectResting(slider);
+  });
+
+  it('should not begin at a press on the label', async () => {
+    const slider = createSlider({ indicator: '' });
+    const { left, top, width, height } =
+      addLabelContent(slider).getBoundingClientRect();
+
+    await commands.pointerPress(left + width / 2, top + height / 2);
+    await nextFrame();
+    expect(readLook(slider)).toEqual(RESTING);
+  });
+
+  it('should not begin at a press of the right button', async () => {
+    const slider = createSlider({ indicator: '' });
+
+    await commands.pointerPress(...pointAt(slider, 0.2), 'right');
+
+    try {
+      await nextFrame();
+      expect(readLook(slider)).toEqual(RESTING);
+    } finally {
+      await commands.pointerRelease('right');
+    }
+  });
+
+  it('should end when the slider is disabled', async () => {
+    const slider = createSlider({ indicator: '' });
+
+    await press(slider, 0.2);
+    expect(readLook(slider)).toEqual(HELD);
+    slider.disabled = true;
+    await expectResting(slider);
+
+    slider.disabled = false;
+    expect(readLook(slider)).toEqual(RESTING);
+  });
+
+  it('should end when the slider is removed', async () => {
+    const slider = createSlider({ indicator: '' });
+
+    await press(slider, 0.2);
+    expect(readLook(slider)).toEqual(HELD);
+    slider.remove();
+    await release();
+    document.body.append(slider);
+
+    await expectResting(slider);
+  });
+});
+
 describe('mx-slider value indicator fade', () => {
   it('should run an opacity transition when it is shown', async () => {
     const slider = createSlider({ indicator: '' });
@@ -1619,8 +1807,7 @@ describe('mx-slider value indicator fade', () => {
     // The first style, from which the transition starts.
     await nextFrame();
 
-    // On the handle: WebKit drops `:active` soon after a press on the track.
-    await press(slider, 0.5);
+    await press(slider, 0.2);
 
     await vi.waitFor(() => expect(started).toContain('opacity'));
   });

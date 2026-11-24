@@ -305,7 +305,8 @@ export default class Slider extends SliderConstructor {
     // An input by touch may be a press that the browser turns into a scroll, so
     // it is held back until the browser has decided.
     let press: PressPhase = 'idle';
-    let pointer = 0;
+    // The pointer of the press in progress.
+    let pointer: number | null = null;
     let pressedValue = '';
     let isUncommitted = false;
 
@@ -328,19 +329,28 @@ export default class Slider extends SliderConstructor {
       }
     };
 
+    const setPressed = (pressed: boolean) => {
+      toggleState(innards, 'pressed', pressed);
+    };
+
+    const endPress = () => {
+      dropHeld();
+      setPressed(false);
+    };
+
     const commit = () => {
       isUncommitted = false;
       this.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
     use(this, {
-      disconnected: dropHeld,
+      disconnected: endPress,
       // The callback is also the `disabled` attribute's.
       formDisabled: () => {
         input.disabled = this.matches(':disabled');
 
         if (input.disabled) {
-          dropHeld();
+          endPress();
         }
       },
       formReset: () => {
@@ -393,13 +403,15 @@ export default class Slider extends SliderConstructor {
             press = 'idle';
           }
         },
-        pointerdown: ({ isPrimary, pointerId, pointerType }) => {
-          // A second finger doesn't take over a press that is held back.
-          if (press !== 'held' || isPrimary) {
+        pointerdown: ({ button, isPrimary, pointerId, pointerType }) => {
+          // A second finger isn't followed. A primary pointer's press begins
+          // anew, in case a release was missed.
+          if (pointer === null || isPrimary) {
             press = pointerType === 'mouse' ? 'idle' : 'pressed';
             pointer = pointerId;
             pressedValue = input.value;
             isUncommitted = false;
+            setPressed(button === 0);
           }
         },
         pointermove: ({ pointerId }) => {
@@ -411,13 +423,16 @@ export default class Slider extends SliderConstructor {
           if (pointerId === pointer) {
             reportHeld();
             press = 'idle';
+            pointer = null;
+            setPressed(false);
           }
         },
         // The browser took the press for a scroll, or the system took a slide.
         pointercancel: ({ pointerId }) => {
           if (pointerId === pointer) {
-            dropHeld();
+            endPress();
             press = 'cancelled';
+            pointer = null;
 
             if (isUncommitted) {
               commit();

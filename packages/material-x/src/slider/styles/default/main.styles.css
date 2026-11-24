@@ -191,7 +191,8 @@
   }
 }
 
-:host(:state(indicator)) .input:is(:active, :focus-visible) ~ .indicator {
+:host(:state(indicator):state(pressed)) .indicator,
+:host(:state(indicator)) .input:focus-visible ~ .indicator {
   display: flex;
   opacity: 1;
 
