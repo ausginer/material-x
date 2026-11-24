@@ -1,0 +1,150 @@
+// useARIA's callers in material-x where its observer runs while the element is
+// out or never connected. Copy to packages/material-x/tests/ and run there,
+// after building core. The last test fails on purpose: its message is the reading.
+import { afterEach, expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/button.ts';
+import '../src/button/icon-button.ts';
+import '../src/button/link-button.ts';
+import '../src/button/split-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/button/switch-icon-button.ts';
+import '../src/fab/fab.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+const rows: string[] = [];
+const read = (what: string, value: unknown) =>
+  rows.push(`READ ${server.browser} | ${what} | ${JSON.stringify(value)}`);
+afterEach(() => document.body.replaceChildren());
+const settle = async () => { await nextFrame(); await nextFrame(); };
+const errors: string[] = [];
+addEventListener('error', (e) => errors.push(e.message));
+addEventListener('unhandledrejection', (e) => errors.push(String(e.reason)));
+const control = (el: Element) => el.shadowRoot!.querySelector('.input, .host')!;
+
+// The text field's label changes while it is out, in a task after the loss.
+const L = '<span slot="label">L</span>';
+const SLOT: Record<string, [had: boolean, before: string, after: string]> = {
+  'had the name and lost it out, label removed': [true, L, ''],
+  'had the name and lost it out, label added': [true, '', L],
+  'never had the name, label removed': [false, L, ''],
+  'never had the name, label added': [false, '', L],
+};
+for (const tag of ['mx-text-field', 'mx-multiline-text-field']) {
+  it(`${tag} slots`, async () => {
+    const out: Record<string, unknown> = {};
+    for (const [what, [had, before, after]] of Object.entries(SLOT)) {
+      for (const when of ['in the same task', 'in a later task']) {
+        const el = document.createElement(tag);
+        el.innerHTML = before;
+        if (had) el.setAttribute('aria-labelledby', 'x');
+        document.body.replaceChildren(el);
+        await settle();
+        const c = control(el);
+        el.remove();
+        el.removeAttribute('aria-labelledby');
+        if (when.includes('later')) await settle();
+        el.innerHTML = after;
+        if (when.includes('later')) await settle();
+        document.body.append(el);
+        const sync = c.getAttribute('aria-labelledby');
+        await settle();
+        out[`${what} ${when}`] = [sync, c.getAttribute('aria-labelledby')];
+      }
+    }
+    // Lost while connected, then the label changes while out.
+    for (const [what, before, after] of [['label removed', L, ''], ['label added', '', L]] as const) {
+      const el = document.createElement(tag);
+      el.innerHTML = before;
+      el.setAttribute('aria-labelledby', 'x');
+      document.body.replaceChildren(el);
+      await settle();
+      el.removeAttribute('aria-labelledby');
+      await settle();
+      el.remove();
+      await settle();
+      el.innerHTML = after;
+      await settle();
+      document.body.append(el);
+      await settle();
+      out[`lost it while connected, then out, ${what}`] = control(el).getAttribute('aria-labelledby');
+    }
+    read(`${tag} | [at the connect, after] of aria-labelledby`, out);
+  });
+}
+
+const TAGS = [
+  'mx-button', 'mx-icon-button', 'mx-link-button', 'mx-switch-button',
+  'mx-switch-icon-button', 'mx-split-button', 'mx-fab', 'mx-list-button-item',
+  'mx-list-link-item', 'mx-text-field', 'mx-multiline-text-field',
+];
+const ATTRS = ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-invalid', 'aria-checked', 'aria-disabled', 'aria-current'];
+it('never connected, every caller', async () => {
+  const out: Record<string, unknown> = {};
+  for (const tag of TAGS) {
+    const el = document.createElement(tag);
+    const ctl = el.shadowRoot!.querySelector('.input, .host');
+    if (!ctl) { out[tag] = 'no control'; continue; }
+    const first = ATTRS.map((a) => ctl.getAttribute(a));
+    for (const a of ATTRS) el.setAttribute(a, 'x');
+    await settle();
+    const set = ATTRS.map((a) => ctl.getAttribute(a));
+    for (const a of ATTRS) el.removeAttribute(a);
+    await settle();
+    const lost = ATTRS.map((a) => ctl.getAttribute(a));
+    document.body.append(el);
+    await settle();
+    const conn = ATTRS.map((a) => ctl.getAttribute(a));
+    out[tag] = [first, set, lost, conn].map((r) => r.map((v) => v ?? '-').join());
+  }
+  read(`never connected: [before, set, lost, then connected], ${ATTRS.join()}`, out);
+});
+
+// The whole life of an element that a page makes, sets in one task and appends.
+it('set, changed and lost before the first connect, in one task', async () => {
+  const out: Record<string, unknown> = {};
+  for (const [tag, aria, set] of [
+    ['mx-switch-button', 'aria-checked', null],
+    ['mx-switch-button', 'aria-checked', 'checked'],
+    ['mx-link-button', 'aria-disabled', 'disabled'],
+    ['mx-text-field', 'aria-required', 'required'],
+  ] as const) {
+    for (const [order, acts] of Object.entries({ 'own, then set and lost': 'osl', 'set and lost, then own': 'slo', 'set, own, lost': 'sol' })) {
+      const el = document.createElement(tag);
+      for (const a of acts) {
+        if (a === 'o') { if (set) el.setAttribute(set, ''); }
+        else if (a === 's') el.setAttribute(aria, 'mixed');
+        else el.removeAttribute(aria);
+      }
+      document.body.append(el);
+      await settle();
+      out[`${tag} ${set} ${aria} ${order}`] = control(el).getAttribute(aria);
+    }
+  }
+  read('before the first connect, in one task', out);
+});
+
+it('many hosts', async () => {
+  const N = 3000;
+  const t: Record<string, number[]> = { make: [], append: [], churn: [], remove: [], outChurn: [], settle: [] };
+  for (let r = 0; r < 5; r++) {
+    const els: HTMLElement[] = [];
+    const box = document.createElement('div');
+    document.body.append(box);
+    const time = async (k: string, f: () => void) => { const s = performance.now(); f(); await null; await null; t[k]!.push(performance.now() - s); };
+    await time('make', () => { for (let i = 0; i < N; i++) { const e = document.createElement('mx-button'); e.setAttribute('aria-label', 'A'); e.setAttribute('class', 'c'); e.setAttribute('data-x', '1'); els.push(e); } });
+    await time('append', () => box.append(...els));
+    await time('churn', () => { for (const e of els) { e.setAttribute('aria-label', 'B'); e.className = 'd'; } });
+    await time('remove', () => box.remove());
+    await time('outChurn', () => { for (const e of els) { e.setAttribute('aria-label', 'C'); e.className = 'f'; } });
+  }
+  const med = (a: number[]) => a.length ? Math.round(a.toSorted((x, y) => x - y)[Math.floor(a.length / 2)]!) : null;
+  read(`timing of ${N} mx-button, median ms of 5`, Object.fromEntries(Object.entries(t).map(([k, v]) => [k, med(v)])));
+}, 120_000);
+
+it('errors', () => read('errors', errors));
+it('reading', () => expect.fail(`\n${rows.join('\n')}\nEND`));

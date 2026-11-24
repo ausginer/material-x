@@ -1,0 +1,36 @@
+Brotli bytes from size-limit, just size-reading. Before: 114270083. After: this branch.
+
+package | row | before | after | change
+box-quad | index | 1182 | 1182 | 0
+core | element | 277 | 277 | 0
+core | emitter | 198 | 198 | 0
+material-x | button/button | 4858 | 4881 | 23
+material-x | button/icon-button | 5140 | 5125 | -15
+material-x | button/link-button | 4829 | 4843 | 14
+material-x | button/switch-button | 5446 | 5466 | 20
+material-x | button/switch-icon-button | 5834 | 5851 | 17
+material-x | button/split-button | 7480 | 7474 | -6
+material-x | button-group/button-group | 3040 | 3040 | 0
+material-x | button-group/connected-button-group | 3809 | 3809 | 0
+material-x | checkbox/checkbox | 4226 | 4226 | 0
+material-x | fab/fab | 4137 | 4160 | 23
+material-x | icon/icon | 631 | 631 | 0
+material-x | list/list | 659 | 659 | 0
+material-x | list/list-item | 2868 | 2868 | 0
+material-x | list/list-button-item | 4854 | 4885 | 31
+material-x | list/list-link-item | 5065 | 5093 | 28
+material-x | list/sortable-list | 8906 | 8906 | 0
+material-x | radio/radio | 3781 | 3781 | 0
+material-x | text-field/multiline-text-field | 4457 | 4498 | 41
+material-x | text-field/text-field | 8489 | 8524 | 35
+material-x | complete | 22844 | 22886 | 42
+drag | draggable alone | 2189 | 2189 | 0
+drag | draggable + lift | 3932 | 3932 | 0
+drag | example: resize handle | 3265 | 3265 | 0
+drag | example: drop zone | 4570 | 4570 | 0
+drag | example: canvas group | 3261 | 3261 | 0
+drag | freeDrag | 4984 | 4984 | 0
+drag | freeDrag + bounds + landing | 5465 | 5465 | 0
+drag | sortable + y | 6533 | 6533 | 0
+drag | sortable + xy | 6484 | 6484 | 0
+drag | complete | 7143 | 7143 | 0
