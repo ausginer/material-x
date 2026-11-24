@@ -2395,27 +2395,40 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 #### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
 
-**Proposed 2026-11-24 by the architect, on `repo/findings-on-github-1` from `ee7d838cc`, and not in force.** It waits for the owner's answers to its [plan](findings-on-github-1/findings-on-github-plan.md#questions-for-the-owner), which has the owner's words, the counts, the alternatives, what is lost and the stages. Until it is accepted, `RD-22` and `work-queue.md` apply as they stand. `RD-55` (`material-x/slider-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number.
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over, and unimplemented.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
 
-**The owner's direction,** relayed by the coordinator: new findings live wholly in an issue, with additions as comments. Decisions, plans, probes and readings stay in the repository. Existing entries aren't migrated.
+**What is in force, and when:**
 
-**Properties proposed:**
+| Until | A new finding | An entry in a register | Who registers | In force |
+| --- | --- | --- | --- | --- |
+| Stages 1 and 2 are on `main` | `RF-`, `DRF-` or `RQ-` in its register | Changed in the register | The main slot's architect | `RD-1` and `RD-22`, whole. Nothing of this entry but the authority for stages 1 to 3 |
+| The cut-over | The same, **except the trial's one finding,** which is an issue with a `tier:` label and has no register number | The same | The same, and the main slot's architect for the trial's issue | `RD-1` and `RD-22`, and properties 1 to 8 and 10 for the trial's finding alone |
+| After the cut-over | An issue, `#N` | Frozen. A change goes into its issue (property 9) | Any slot's architect | All the properties, and the supersessions below |
+
+**The cut-over is the merge into `main` of stage 4's pull request,** which the owner orders after the trial. A merge of stage 1, 2 or 3 isn't it. An entry on a branch that is open then merges as it is and is frozen with the rest. If the owner stops at the trial, this entry is withdrawn, and the trial's finding is registered in its register.
+
+**Properties:**
 
 1. **A finding is one issue,** from its observation to its closure. `RF-`, `DRF-` and `RQ-` end at the numbers that are on any branch at the cut-over, and a new finding's address is `#N`. Old addresses keep resolving.
-2. **Its body is the contract, and current text.** Each change is one comment, _Amendment N_, which says what changed, why, what it replaced and whose answer asked for it, and nobody edits it afterward. The body ends with `Revision N`. A prompt pins `#N rM`, and a role that finds a later revision stops.
-3. **The tier is a label** and nothing else states it. The body has the headings that the plan's table lists.
-4. **The architect writes the body, the amendments and the tier,** in any slot. The coordinator writes `Status`, rank and package labels, and opens an `unregistered` issue. Other roles write only through a pull request's description.
-5. **A role takes only `Lodin`'s stamped text as the contract,** and a finding's issue is locked to strangers when it is registered. A tool reads an issue that way, and refuses a revision without its amendment or an edit by another account.
-6. **Evidence stays in the repository, linked by commit,** where no squash merge removes it.
+2. **Its body is the contract, and current text.** Each change of the body is one comment, _Amendment N_, posted after the body is edited, which says what changed, why, what it replaced and whose answer asked for it, and nobody edits it afterward. The body ends with `Revision N`. A prompt pins `#N rM`, and a role that finds a later revision stops.
+3. **The tier is a label** and nothing else states it. The body has the headings that the plan lists.
+4. **The architect writes the body, the amendments and the tier.** The coordinator writes `Status`, rank and package labels, and opens an `unregistered` issue. Other roles write only through a pull request's description.
+5. **A role takes only `Lodin`'s text with the architect's stamp as the contract,** and a finding's issue is opened by that account and locked when it is registered. A small tool reads an issue that way. It refuses a revision without its amendment, a body edited after its amendment, and an edit by another account. It keeps no copy.
+6. **Evidence stays in the repository,** on the branch of the unit that repairs the finding, and by a pull request of its own when the finding waits. The issue cites the path and the pull request.
 7. **Decisions, contracts, invariants, plans, reviews and readings stay in the repository,** with their series, their registers and their review. A ruling that changes a public surface or a package's contract is a decision.
 8. **`Closes #N` still closes a finding at the merge.** The architect's acceptance and the proof it rests on is a comment made before.
-9. **Open entries are frozen where they are.** Their frozen text is revision 0 of their issue, and the first change to one writes the whole contract into the body. Closed ones are the archive.
+9. **Open entries are frozen where they are.** Their frozen text is revision 0 of their issue, and the first change to one writes the whole contract into the body as Revision 1. Closed ones are the archive.
+10. **Everything on GitHub stays in English,** the owner's answers included. There is no export and no evidence branch.
 
-**What it supersedes, if accepted:** `RD-22`'s _"the `.plan/` records stay the only record"_ and its properties 1 to 5 for findings, and the rule that only the main slot's architect mints, for findings. `RD-22`'s board, `Status`, trust, stamp, language and closing rules stay. It amends `RD-1` by taking findings out of its series.
+**What the answers and the direction changed from the proposal:** property 6 had no choice of carrier, and the plan recommended an `evidence` branch. An export was recommended, and there is none. The tool had a cache and a draft check. Property 2 didn't say the order of edit and amendment, nor property 5 the refusal that rests on it. Property 4 said _"in any slot"_, which holds only after the cut-over. The rules get a document of their own, `findings.md`, and not a part of `work-queue.md`.
+
+**What it supersedes, at the cut-over and not before:** `RD-22`'s _"the `.plan/` records stay the only record"_ and its properties 1 to 5 for findings, and the rule that only the main slot's architect mints, for findings. `RD-22`'s board, `Status`, trust, stamp, language and closing rules stay. It amends `RD-1` by taking findings out of its series. For the trial's finding alone, stage 1's documents state the exception to them.
 
 **Why.** The counts of two weeks: 31 of 124 merges conflict in a register, and 19 of them in its findings alone. 19 commits of 95 change only records. The owner names two addresses for one thing. A finding is closed by its repair, so its text is short-lived, and a decision's isn't.
 
-**Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's and can be deleted, two edits of one body aren't reported, and offline work reads a cache. It saves 19 of the 31 conflicts and 2 of the 19 pull requests outright, and 7 more only if evidence needs no pull request of its own.
+**Why the tool doesn't use `gh issue view`.** `Revision N` is typed by a writer, and `gh issue view` returns neither the body's editor nor the time of its last edit. A body changed under the same number would read as the pinned revision. One GraphQL request returns both, and the tool is no larger.
+
+**Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's, a deletion there has no other copy, two edits of one body at once aren't reported, and a role without a network has no finding. It saves 19 of the 31 conflicts and 2 of the 19 pull requests.
 
 ## Findings
 
