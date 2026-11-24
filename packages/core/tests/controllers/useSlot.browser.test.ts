@@ -350,7 +350,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should stop observing slot changes while host is disconnected', async () => {
+  it('should observe a slot change while host is disconnected', async () => {
     const tag = nameCE();
     const [mock, ctr] = createDefaultHostWithSelectorMock();
 
@@ -373,6 +373,53 @@ describe('useSlot', () => {
 
     detachedChild.textContent = 'detached';
     host.append(detachedChild);
+
+    await nextFrame();
+
+    expect(mock).toHaveBeenCalledTimes(2);
+    expect(mock).toHaveBeenLastCalledWith(slotMatcher, [
+      matcher('<span>initial</span>'),
+      matcher('<span>detached</span>'),
+    ]);
+  });
+
+  it('should observe a slot change before the first connection', async () => {
+    const tag = nameCE();
+    const [mock, ctr] = createDefaultHostWithSelectorMock();
+
+    defineCE(tag, ctr);
+
+    const host = document.createElement(tag);
+    const initial = document.createElement('span');
+
+    initial.textContent = 'initial';
+    host.append(initial);
+
+    await nextFrame();
+
+    expect(mock).toHaveBeenCalledExactlyOnceWith(slotMatcher, [
+      matcher('<span>initial</span>'),
+    ]);
+  });
+
+  it('should not call callback at a connection without a slot change', async () => {
+    const tag = nameCE();
+    const [mock, ctr] = createDefaultHostWithSelectorMock();
+
+    defineCE(tag, ctr);
+
+    const host = document.createElement(tag);
+
+    host.append(document.createElement('span'));
+    document.body.append(host);
+
+    await nextFrame();
+
+    host.remove();
+
+    await nextFrame();
+
+    document.body.append(host);
 
     await nextFrame();
 
@@ -405,7 +452,7 @@ describe('useSlot', () => {
 
     await nextFrame();
 
-    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock).toHaveBeenCalledTimes(2);
 
     document.body.append(host);
 
@@ -418,6 +465,7 @@ describe('useSlot', () => {
 
     await nextFrame();
 
+    expect(mock).toHaveBeenCalledTimes(3);
     expect(mock).toHaveBeenLastCalledWith(slotMatcher, [
       matcher('<span>initial</span>'),
       matcher('<span>detached</span>'),
