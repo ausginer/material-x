@@ -21,3 +21,65 @@
 # webkit, adjacent
   move-cost  native 44.0 (min 26.0), inset 418.0 (264.0), all 484.0 (326.0)
   built      native 56.0 (min 28.0), plain 428.0 (354.0), indicator 464.0 (398.0)
+
+# The stop indicator as an element, 2026-11-24. "before" is the source at 8d77d1d00 and "after" the amendment, each engine's runs adjacent. The host was loaded by other sessions: compare adjacent runs only.
+# before, run 1, load 3.40
+# chromium 158.0.8127.18
+  native     median 21.2 us, min 14.6, max 52.6
+  plain      median 100.6 us, min 54.8, max 475.4
+  indicator  median 96.2 us, min 77.2, max 333.8
+# after, run 1, load 3.69
+# chromium 158.0.8127.18
+  native     median 14.2 us, min 12.8, max 18.2
+  plain      median 55.2 us, min 47.2, max 125.0
+  indicator  median 72.2 us, min 63.2, max 167.6
+# before, run 2, load 3.69
+# chromium 158.0.8127.18
+  native     median 16.8 us, min 15.2, max 51.0
+  plain      median 65.8 us, min 54.4, max 196.4
+  indicator  median 82.6 us, min 73.8, max 315.2
+# after, run 2, load 3.79
+# chromium 158.0.8127.18
+  native     median 21.6 us, min 16.8, max 43.2
+  plain      median 140.8 us, min 62.2, max 189.6
+  indicator  median 124.4 us, min 87.4, max 402.8
+# before, run 1, load 4.13
+# firefox 159.0
+  native     median 10.0 us, min 4.0, max 14.0
+  plain      median 276.0 us, min 198.0, max 482.0
+  indicator  median 324.0 us, min 266.0, max 676.0
+# after, run 1, load 4.27
+# firefox 159.0
+  native     median 12.0 us, min 4.0, max 14.0
+  plain      median 208.0 us, min 158.0, max 490.0
+  indicator  median 274.0 us, min 184.0, max 552.0
+# before, run 2, load 4.88
+# firefox 159.0
+  native     median 12.0 us, min 4.0, max 16.0
+  plain      median 278.0 us, min 220.0, max 532.0
+  indicator  median 346.0 us, min 260.0, max 660.0
+# after, run 2, load 4.88
+# firefox 159.0
+  native     median 12.0 us, min 4.0, max 18.0
+  plain      median 260.0 us, min 158.0, max 572.0
+  indicator  median 340.0 us, min 226.0, max 724.0
+# before, run 1, load 6.08
+# webkit 27.2
+  native     median 62.0 us, min 34.0, max 134.0
+  plain      median 600.0 us, min 400.0, max 902.0
+  indicator  median 624.0 us, min 464.0, max 976.0
+# after, run 1, load 5.65
+# webkit 27.2
+  native     median 40.0 us, min 26.0, max 112.0
+  plain      median 470.0 us, min 328.0, max 858.0
+  indicator  median 494.0 us, min 354.0, max 928.0
+# before, run 2, load 5.61
+# webkit 27.2
+  native     median 48.0 us, min 28.0, max 128.0
+  plain      median 498.0 us, min 372.0, max 876.0
+  indicator  median 532.0 us, min 412.0, max 874.0
+# after, run 2, load 5.29
+# webkit 27.2
+  native     median 42.0 us, min 28.0, max 114.0
+  plain      median 426.0 us, min 340.0, max 692.0
+  indicator  median 466.0 us, min 378.0, max 864.0

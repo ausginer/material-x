@@ -163,6 +163,9 @@ function useSliderReferences(
  * give the same result in any order. If an `input` handler rewrites the value,
  * take the final value from `input`: WebKit then fires no `change`.
  *
+ * **Width.** The slider fills its container and has no inline size of its own.
+ * Set one where the container shrinks to its content, such as a flex row.
+ *
  * **Name.** Put the name in the `label` slot, or use a `<label>`, a host
  * `aria-labelledby` or a host `aria-label`. If several are present, the order
  * is `aria-labelledby`, the slot, `aria-label`, `<label>`. A `<label>` or a

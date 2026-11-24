@@ -45,7 +45,30 @@
     pointer-events: none;
   }
 
+  /* The inactive track, which the stop indicator paints above. */
   &::before {
+    inset-block: calc(
+      (var(--_active-handle-height) - var(--_inactive-track-height)) / 2
+    );
+    inset-inline-end: 0;
+    inline-size: var(--_inactive-track-size);
+    border-start-start-radius: var(
+      --_active-track-inner-corner-corner-size-top-right
+    );
+    border-end-start-radius: var(
+      --_active-track-inner-corner-corner-size-bottom-right
+    );
+    border-start-end-radius: var(--_inactive-track-shape-trailing);
+    border-end-end-radius: var(--_inactive-track-shape-trailing);
+    background-color: var(
+      --md-slider-inactive-track-color,
+      var(--_inactive-track-color)
+    );
+    opacity: var(--_inactive-track-opacity, 1);
+  }
+
+  /* The active track. */
+  &::after {
     inset-block: calc(
       (var(--_active-handle-height) - var(--_active-track-height)) / 2
     );
@@ -64,57 +87,6 @@
       var(--_active-track-color)
     );
     opacity: var(--_active-track-opacity, 1);
-  }
-
-  /*
-   * The inactive track's background holds the stop indicator: the content box
-   * is the indicator's square at the inline end, which makes its place follow
-   * the direction. Both shrink with the track, so a short track is never
-   * longer than its paddings.
-   */
-  &::after {
-    --_stop-color: color-mix(
-      in srgb,
-      var(--md-slider-stop-indicator-color, var(--_stop-indicator-color))
-        calc(var(--_stop-indicator-opacity, 1) * 100%),
-      transparent
-    );
-
-    inset-block: calc(
-      (var(--_active-handle-height) - var(--_inactive-track-height)) / 2
-    );
-    inset-inline-end: 0;
-    inline-size: var(--_inactive-track-size);
-    padding-block: calc(
-      (var(--_inactive-track-height) - var(--_stop-indicator-size)) / 2
-    );
-    padding-inline: max(
-        0px,
-        var(--_inactive-track-size) - var(--_stop-indicator-trailing-space) -
-          var(--_stop-indicator-size)
-      )
-      min(var(--_inactive-track-size), var(--_stop-indicator-trailing-space));
-    border-start-start-radius: var(
-      --_active-track-inner-corner-corner-size-top-right
-    );
-    border-end-start-radius: var(
-      --_active-track-inner-corner-corner-size-bottom-right
-    );
-    border-start-end-radius: var(--_inactive-track-shape-trailing);
-    border-end-end-radius: var(--_inactive-track-shape-trailing);
-    background:
-      radial-gradient(
-          closest-side,
-          var(--_stop-color) calc(100% - 0.25px),
-          transparent calc(100% + 0.25px)
-        )
-        content-box no-repeat,
-      color-mix(
-        in srgb,
-        var(--md-slider-inactive-track-color, var(--_inactive-track-color))
-          calc(var(--_inactive-track-opacity, 1) * 100%),
-        transparent
-      );
   }
 }
 
@@ -149,6 +121,29 @@
   &:disabled {
     pointer-events: none;
   }
+}
+
+/* It shrinks to nothing as the handle comes to the end of the track. */
+.stop {
+  position: absolute;
+  inset-block: calc(
+    (var(--_active-handle-height) - var(--_stop-indicator-size)) / 2
+  );
+  inset-inline-end: var(--_stop-indicator-trailing-space);
+  inline-size: min(
+    var(--_stop-indicator-size),
+    max(
+      0px,
+      var(--_inactive-track-size) - var(--_stop-indicator-trailing-space)
+    )
+  );
+  border-radius: var(--_stop-indicator-shape);
+  background-color: var(
+    --md-slider-stop-indicator-color,
+    var(--_stop-indicator-color)
+  );
+  opacity: var(--_stop-indicator-opacity, 1);
+  pointer-events: none;
 }
 
 .handle {
@@ -224,23 +219,27 @@
     }
 
     &::before {
-      background-color: Highlight;
-    }
-
-    &::after {
-      --_stop-color: Canvas;
-
       background-color: var(--_part-color);
     }
 
-    &:has(.input:disabled)::before {
+    &::after {
+      background-color: Highlight;
+    }
+
+    &:has(.input:disabled)::after {
       background-color: GrayText;
     }
   }
 
   .track::before,
+  .track::after,
+  .stop,
   .handle {
     opacity: 1;
+  }
+
+  .stop {
+    background-color: Canvas;
   }
 
   .handle {

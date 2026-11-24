@@ -459,3 +459,340 @@ The line numbers are those of the test files at the time. A mutation that needs 
 :238 > mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
 :238 > mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
 :238 > mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+
+# The amendment (the stop indicator as an element). Read on 2026-11-24 on the rows of its commit, all 288 of tests/slider passing without a mutation, apart from the 29 that skip outside Chromium.
+
+## row 4: the stop indicator takes pointer events | chromium | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: the stop indicator takes pointer events | firefox | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: the stop indicator takes pointer events | webkit | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a native thumb 1px wide | chromium | 2
+mx-slider pointer > should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a native thumb 1px wide | firefox | 1
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a native thumb 1px wide | webkit | 2
+mx-slider pointer > should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should take the value under a press on the stop indicator
+
+## row 4: a press's default is prevented | chromium | 14
+mx-slider value ownership > should not follow the value attribute after a user move
+mx-slider value ownership > should keep the number the user chose through a later bound
+mx-slider pointer > should fire input and then change on a press on the track
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider pointer > should follow a drag and stop at each end
+mx-slider pointer > should draw the handle under the pointer
+mx-slider pointer > should mirror a press under RTL from dir
+mx-slider pointer > should mirror a press under RTL from CSS
+mx-slider pointer > should dispatch a plain bubbling input that crosses the host
+mx-slider pointer > should dispatch one plain bubbling change at the host
+mx-slider pointer > should have the value, the form value and the drawing current in the handler
+mx-slider pointer > should go on dragging when the handler writes the value
+mx-slider pointer > should fire change when the handler writes the same value back
+mx-slider value indicator > should hold the value
+
+## row 4: a press's default is prevented | firefox | 16
+mx-slider value ownership > should not follow the value attribute after a user move
+mx-slider value ownership > should keep the number the user chose through a later bound
+mx-slider pointer > should fire input and then change on a press on the track
+mx-slider pointer > should keep the value on a press -1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider pointer > should follow a drag and stop at each end
+mx-slider pointer > should draw the handle under the pointer
+mx-slider pointer > should mirror a press under RTL from dir
+mx-slider pointer > should mirror a press under RTL from CSS
+mx-slider pointer > should dispatch a plain bubbling input that crosses the host
+mx-slider pointer > should dispatch one plain bubbling change at the host
+mx-slider pointer > should have the value, the form value and the drawing current in the handler
+mx-slider pointer > should go on dragging when the handler writes the value
+mx-slider pointer > should fire change when the handler writes the same value back
+mx-slider value indicator > should hold the value
+
+## row 4: a press's default is prevented | webkit | 18
+mx-slider value ownership > should not follow the value attribute after a user move
+mx-slider value ownership > should keep the number the user chose through a later bound
+mx-slider pointer > should fire input and then change on a press on the track
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider pointer > should follow a drag and stop at each end
+mx-slider pointer > should draw the handle under the pointer
+mx-slider pointer > should mirror a press under RTL from dir
+mx-slider pointer > should mirror a press under RTL from CSS
+mx-slider pointer > should dispatch a plain bubbling input that crosses the host
+mx-slider pointer > should dispatch one plain bubbling change at the host
+mx-slider pointer > should have the value, the form value and the drawing current in the handler
+mx-slider pointer > should go on dragging when the handler writes the value
+mx-slider pointer > should fire change when the handler writes the same value back
+mx-slider value indicator > should be shown with keyboard focus
+mx-slider value indicator > should hold the value
+mx-slider rtl track ends contract > focus > should render the handle width on the value
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider handle contract > should draw the focus indicator around the handle
+
+## spec: the inactive track above the stop indicator | chromium | 2
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the inactive track above the stop indicator | firefox | 2
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the inactive track above the stop indicator | webkit | 2
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the two track pseudo-elements in the other order, active first | chromium | 29
+mx-slider xsmall geometry contract > should render the outer and the inner corners
+mx-slider small geometry contract > should render the outer and the inner corners
+mx-slider medium geometry contract > should render the outer and the inner corners
+mx-slider large geometry contract > should render the outer and the inner corners
+mx-slider xlarge geometry contract > should render the outer and the inner corners
+mx-slider RTL corners > should mirror the corners
+mx-slider ltr track ends contract > default > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > default > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider track ends > should have no size at 0 on its side
+mx-slider track ends > should have no size at 100 on its side
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+mx-slider default color contract > should paint the active.track
+mx-slider default color contract > should paint the inactive.track
+mx-slider focus color contract > should paint the active.track
+mx-slider focus color contract > should paint the inactive.track
+mx-slider pressed color contract > should paint the active.track
+mx-slider pressed color contract > should paint the inactive.track
+mx-slider disabled color contract > should paint the active.track
+mx-slider disabled color contract > should paint the inactive.track
+mx-slider public CSS overrides > should apply --md-slider-active-track-color
+mx-slider public CSS overrides > should apply --md-slider-inactive-track-color
+mx-slider public CSS overrides > should show nothing of a transparent inactive track
+
+## spec: the two track pseudo-elements in the other order, active first | firefox | 29
+mx-slider xsmall geometry contract > should render the outer and the inner corners
+mx-slider small geometry contract > should render the outer and the inner corners
+mx-slider medium geometry contract > should render the outer and the inner corners
+mx-slider large geometry contract > should render the outer and the inner corners
+mx-slider xlarge geometry contract > should render the outer and the inner corners
+mx-slider RTL corners > should mirror the corners
+mx-slider ltr track ends contract > default > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > default > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider track ends > should have no size at 0 on its side
+mx-slider track ends > should have no size at 100 on its side
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+mx-slider default color contract > should paint the active.track
+mx-slider default color contract > should paint the inactive.track
+mx-slider focus color contract > should paint the active.track
+mx-slider focus color contract > should paint the inactive.track
+mx-slider pressed color contract > should paint the active.track
+mx-slider pressed color contract > should paint the inactive.track
+mx-slider disabled color contract > should paint the active.track
+mx-slider disabled color contract > should paint the inactive.track
+mx-slider public CSS overrides > should apply --md-slider-active-track-color
+mx-slider public CSS overrides > should apply --md-slider-inactive-track-color
+mx-slider public CSS overrides > should show nothing of a transparent inactive track
+
+## spec: the two track pseudo-elements in the other order, active first | webkit | 29
+mx-slider xsmall geometry contract > should render the outer and the inner corners
+mx-slider small geometry contract > should render the outer and the inner corners
+mx-slider medium geometry contract > should render the outer and the inner corners
+mx-slider large geometry contract > should render the outer and the inner corners
+mx-slider xlarge geometry contract > should render the outer and the inner corners
+mx-slider RTL corners > should mirror the corners
+mx-slider ltr track ends contract > default > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > focus > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider ltr track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > default > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > focus > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > pressed > should leave the space tokens beside the handle
+mx-slider rtl track ends contract > disabled > should leave the space tokens beside the handle
+mx-slider track ends > should have no size at 0 on its side
+mx-slider track ends > should have no size at 100 on its side
+mx-slider ltr stop indicator contract > should paint above the inactive track
+mx-slider rtl stop indicator contract > should paint above the inactive track
+mx-slider default color contract > should paint the active.track
+mx-slider default color contract > should paint the inactive.track
+mx-slider focus color contract > should paint the active.track
+mx-slider focus color contract > should paint the inactive.track
+mx-slider pressed color contract > should paint the active.track
+mx-slider pressed color contract > should paint the inactive.track
+mx-slider disabled color contract > should paint the active.track
+mx-slider disabled color contract > should paint the inactive.track
+mx-slider public CSS overrides > should apply --md-slider-active-track-color
+mx-slider public CSS overrides > should apply --md-slider-inactive-track-color
+mx-slider public CSS overrides > should show nothing of a transparent inactive track
+
+## spec: the stop indicator keeps its size on a short track | chromium | 6
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator keeps its size on a short track | firefox | 6
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator keeps its size on a short track | webkit | 6
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator follows no direction | chromium | 5
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the stop indicator follows no direction | firefox | 5
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: the stop indicator follows no direction | webkit | 5
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should paint above the inactive track
+
+## spec: no trailing space in the stop indicator's place | chromium | 9
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: no trailing space in the stop indicator's place | firefox | 9
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: no trailing space in the stop indicator's place | webkit | 9
+mx-slider pointer > should take the value under a press on the stop indicator
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+
+## spec: the stop indicator fills the handle's height | chromium | 9
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator fills the handle's height | firefox | 9
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator fills the handle's height | webkit | 9
+mx-slider ltr stop indicator contract > should render its box at 25
+mx-slider ltr stop indicator contract > should render its box at 97
+mx-slider ltr stop indicator contract > should render its box at 98
+mx-slider ltr stop indicator contract > should render its box at 100
+mx-slider rtl stop indicator contract > should render its box at 25
+mx-slider rtl stop indicator contract > should render its box at 97
+mx-slider rtl stop indicator contract > should render its box at 98
+mx-slider rtl stop indicator contract > should render its box at 100
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no corner | chromium | 1
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no corner | firefox | 1
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no corner | webkit | 1
+mx-slider stop indicator shape > should render a full corner
+
+## spec: the stop indicator has no opacity | chromium | 1
+mx-slider disabled color contract > should paint the stop-indicator
+
+## spec: the stop indicator has no opacity | firefox | 1
+mx-slider disabled color contract > should paint the stop-indicator
+
+## spec: the stop indicator has no opacity | webkit | 1
+mx-slider disabled color contract > should paint the stop-indicator
+
+## spec: the stop indicator has the handle's color | chromium | 4
+mx-slider default color contract > should paint the stop-indicator
+mx-slider focus color contract > should paint the stop-indicator
+mx-slider pressed color contract > should paint the stop-indicator
+mx-slider public CSS overrides > should apply --md-slider-stop-indicator-color
+
+## spec: the stop indicator has the handle's color | firefox | 4
+mx-slider default color contract > should paint the stop-indicator
+mx-slider focus color contract > should paint the stop-indicator
+mx-slider pressed color contract > should paint the stop-indicator
+mx-slider public CSS overrides > should apply --md-slider-stop-indicator-color
+
+## spec: the stop indicator has the handle's color | webkit | 4
+mx-slider default color contract > should paint the stop-indicator
+mx-slider focus color contract > should paint the stop-indicator
+mx-slider pressed color contract > should paint the stop-indicator
+mx-slider public CSS overrides > should apply --md-slider-stop-indicator-color
+
+## spec: the inactive track has no opacity | chromium | 1
+mx-slider disabled color contract > should paint the inactive.track
+
+## spec: the inactive track has no opacity | firefox | 1
+mx-slider disabled color contract > should paint the inactive.track
+
+## spec: the inactive track has no opacity | webkit | 1
+mx-slider disabled color contract > should paint the inactive.track

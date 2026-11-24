@@ -28,6 +28,7 @@ const allowedTokensSelector = createAllowedTokensSelector([
   'active.handle.leading-space',
   'active.handle.trailing-space',
   'stop-indicator.color',
+  'stop-indicator.shape',
   'stop-indicator.size',
   'stop-indicator.trailing-space',
   'value-indicator.container.color',
@@ -44,6 +45,11 @@ const allowedTokensSelector = createAllowedTokensSelector([
 const fixHandleShape = createFullShapeFix(
   `calc(${CSSVariable.ref('handle.width')} / 2)`,
   (entry) => entry.endsWith('handle.shape'),
+);
+
+const fixStopIndicatorShape = createFullShapeFix(
+  `calc(${CSSVariable.ref('stop-indicator.size')} / 2)`,
+  (entry) => entry.endsWith('stop-indicator.shape'),
 );
 
 const specialTokens = {
@@ -69,7 +75,7 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .append('default', specialTokens)
     .append('default', focusTokens.value.effective('default')!)
     .append('disabled', disabledTokens)
-    .adjustTokens(fixHandleShape)
+    .adjustTokens(fixHandleShape, fixStopIndicatorShape)
     .extend(createSliderExtensions())
     .renderDeclarations(createSliderDeclarationRenderer())
     .build(),

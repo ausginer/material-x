@@ -335,7 +335,7 @@ describe('mx-slider pointer', () => {
     await vi.waitFor(() => expect(events).toEqual(['input 20', 'change 20']));
   });
 
-  it('should not change the value on a press on the handle', async () => {
+  it('should not change the value on a press on the centre of the handle', async () => {
     const slider = createSlider({ value: '20' });
     const events = recordEvents(slider);
 
@@ -344,6 +344,52 @@ describe('mx-slider pointer', () => {
 
     expect(events).toEqual([]);
     expect(slider.value).toBe(20);
+  });
+
+  it.each([
+    { offset: -1.5, pointed: 39 },
+    { offset: 1.5, pointed: 41 },
+  ])(
+    'should keep the value on a press $offset px off the centre of the handle, except in Firefox',
+    async ({ offset, pointed }) => {
+      const slider = createSlider({ value: '40' });
+      // A thumb of 4px travels 196px.
+      slider.style.inlineSize = '200px';
+      // Puts the pointer on a whole pixel, to which Firefox rounds it down.
+      slider.style.marginInlineStart = '0.15px';
+      const events = recordEvents(slider);
+      const { left, top, width, height } = getPart(
+        slider,
+        '.handle',
+      ).getBoundingClientRect();
+
+      await commands.pointerPress(left + width / 2 + offset, top + height / 2);
+      await release();
+
+      // Firefox's own: a press anywhere on a native thumb moves the value to
+      // the pointer.
+      const moved = server.browser === 'firefox';
+
+      await vi.waitFor(() =>
+        expect(events).toEqual(
+          moved ? [`input ${pointed}`, `change ${pointed}`] : [],
+        ),
+      );
+      expect(slider.value).toBe(moved ? pointed : 40);
+    },
+  );
+
+  it('should take the value under a press on the stop indicator', async () => {
+    const slider = createSlider();
+    const { left, top, width, height } = getPart(
+      slider,
+      '.stop',
+    ).getBoundingClientRect();
+
+    await commands.pointerPress(left + width / 2, top + height / 2);
+    await release();
+
+    expect(slider.value).toBe(98);
   });
 
   it('should follow a drag and stop at each end', async () => {

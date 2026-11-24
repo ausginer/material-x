@@ -54,11 +54,14 @@ function getPart(slider: Slider, selector: string): HTMLElement {
   return slider.shadowRoot!.querySelector<HTMLElement>(selector)!;
 }
 
-function trackEnd(
+function trackPart(
   slider: Slider,
-  pseudo: '::before' | '::after',
+  part: 'active' | 'inactive',
 ): CSSStyleDeclaration {
-  return getComputedStyle(getPart(slider, '.track'), pseudo);
+  return getComputedStyle(
+    getPart(slider, '.track'),
+    part === 'active' ? '::after' : '::before',
+  );
 }
 
 function handleCentre(slider: Slider): number {
@@ -113,13 +116,8 @@ function paintedColor(style: CSSStyleDeclaration): readonly number[] {
   return withOpacity(srgb(style.backgroundColor), style.opacity);
 }
 
-/** The colour of the stop indicator, the first stop of its gradient. */
 function stopColor(slider: Slider): readonly number[] {
-  const [color] = /(?:rgba?|color)\([^)]*\)/u.exec(
-    trackEnd(slider, '::after').backgroundImage,
-  )!;
-
-  return withOpacity(srgb(color), 1);
+  return paintedColor(getComputedStyle(getPart(slider, '.stop')));
 }
 
 describe.each(SIZES)('mx-slider %s geometry contract', (size) => {
@@ -144,11 +142,11 @@ describe.each(SIZES)('mx-slider %s geometry contract', (size) => {
     ]);
     const slider = createSlider({}, size);
 
-    for (const [pseudo, token] of [
-      ['::before', 'active.track.height'],
-      ['::after', 'inactive.track.height'],
+    for (const [part, token] of [
+      ['active', 'active.track.height'],
+      ['inactive', 'inactive.track.height'],
     ] as const) {
-      const style = trackEnd(slider, pseudo);
+      const style = trackPart(slider, part);
       const expected = pixels(tokens[token]);
 
       expect(pixels(style.height)).toBe(expected);
@@ -168,8 +166,8 @@ describe.each(SIZES)('mx-slider %s geometry contract', (size) => {
       'active.track.inner-corner.corner-size.bottom-right',
     ]);
     const slider = createSlider({}, size);
-    const active = trackEnd(slider, '::before');
-    const inactive = trackEnd(slider, '::after');
+    const active = trackPart(slider, 'active');
+    const inactive = trackPart(slider, 'inactive');
 
     expect([
       active.borderTopLeftRadius,
@@ -204,10 +202,10 @@ describe('mx-slider RTL corners', () => {
     ]);
     const slider = createSlider({ dir: 'rtl' }, 'large');
 
-    expect(trackEnd(slider, '::before').borderTopRightRadius).toBe(
+    expect(trackPart(slider, 'active').borderTopRightRadius).toBe(
       tokens['active.track.shape.leading'],
     );
-    expect(trackEnd(slider, '::after').borderTopLeftRadius).toBe(
+    expect(trackPart(slider, 'inactive').borderTopLeftRadius).toBe(
       tokens['inactive.track.shape.trailing'],
     );
   });
@@ -244,8 +242,8 @@ describe.each(['ltr', 'rtl'])('mx-slider %s track ends contract', (dir) => {
         const slider = createSlider({ dir, value: '25' });
         await enter(slider, state);
         const half = pixels(tokens['handle.width']) / 2;
-        const active = trackEnd(slider, '::before');
-        const inactive = trackEnd(slider, '::after');
+        const active = trackPart(slider, 'active');
+        const inactive = trackPart(slider, 'inactive');
 
         expect(pixels(active.width)).toBeCloseTo(
           102 - half - pixels(tokens['active.handle.leading-space']),
@@ -264,40 +262,85 @@ describe.each(['ltr', 'rtl'])('mx-slider %s track ends contract', (dir) => {
 
 describe('mx-slider track ends', () => {
   it.each([
-    ['0', '::before'],
-    ['100', '::after'],
-  ] as const)('should have no size at %s on its side', (value, pseudo) => {
-    const style = trackEnd(createSlider({ value }), pseudo);
+    ['0', 'active'],
+    ['100', 'inactive'],
+  ] as const)('should have no size at %s on its side', (value, part) => {
+    const style = trackPart(createSlider({ value }), part);
 
     expect(pixels(style.width)).toBe(0);
   });
 });
 
-describe('mx-slider stop indicator contract', () => {
-  it.each(['ltr', 'rtl'])('should render its place in %s', async (dir) => {
+describe.each(['ltr', 'rtl'])('mx-slider %s stop indicator contract', (dir) => {
+  // At 97 the track is too short for the whole indicator, and at 98 and 100 for
+  // any of it.
+  it.each([25, 97, 98, 100])('should render its box at %s', async (value) => {
     const tokens = await resolveTokens('slider.default', 'default', [
+      'handle.width',
+      'active.handle.trailing-space',
       'stop-indicator.size',
       'stop-indicator.trailing-space',
     ]);
-    const style = trackEnd(createSlider({ dir, value: '25' }), '::after');
-    const start = pixels(style.paddingLeft);
-    const end = pixels(style.paddingRight);
-
-    expect(dir === 'ltr' ? end : start).toBe(
-      pixels(tokens['stop-indicator.trailing-space']),
+    const slider = createSlider({ dir, value: String(value) });
+    const track = getPart(slider, '.track').getBoundingClientRect();
+    const stop = getPart(slider, '.stop').getBoundingClientRect();
+    const size = pixels(tokens['stop-indicator.size']);
+    const space = pixels(tokens['stop-indicator.trailing-space']);
+    const handleWidth = pixels(tokens['handle.width']);
+    const center = handleWidth / 2 + (value / 100) * (WIDTH - handleWidth);
+    const inactiveTrack = Math.max(
+      0,
+      WIDTH -
+        center -
+        handleWidth / 2 -
+        pixels(tokens['active.handle.trailing-space']),
     );
-    expect(pixels(style.width) - start - end).toBeCloseTo(
-      pixels(tokens['stop-indicator.size']),
-      2,
+
+    expect(stop.height).toBe(size);
+    expect(stop.top - track.top).toBe((track.height - size) / 2);
+    expect(stop.width).toBeCloseTo(
+      Math.min(size, Math.max(0, inactiveTrack - space)),
+      1,
     );
     expect(
-      pixels(style.height) -
-        pixels(style.paddingTop) -
-        pixels(style.paddingBottom),
-    ).toBe(pixels(tokens['stop-indicator.size']));
-    expect(style.paddingTop).toBe(style.paddingBottom);
-    expect(style.backgroundOrigin.split(', ')[0]).toBe('content-box');
-    expect(style.backgroundClip.split(', ')[0]).toBe('content-box');
+      dir === 'ltr' ? track.right - stop.right : stop.left - track.left,
+    ).toBeCloseTo(space, 1);
+  });
+
+  it('should paint above the inactive track', () => {
+    const slider = createSlider({ dir, value: '25' });
+    const root = slider.shadowRoot!;
+    const hittable = new CSSStyleSheet();
+    // The order of hits is the order of painting. A pseudo-element's hit is its
+    // element's.
+    hittable.replaceSync(
+      '.stop, .track::before, .track::after { pointer-events: auto !important }',
+    );
+    root.adoptedStyleSheets.push(hittable);
+    const { left, top, width, height } = getPart(
+      slider,
+      '.stop',
+    ).getBoundingClientRect();
+    const point = [left + width / 2, top + height / 2] as const;
+
+    expect(root.elementFromPoint(...point)).toBe(getPart(slider, '.stop'));
+  });
+});
+
+describe('mx-slider stop indicator shape', () => {
+  it('should render a full corner', async () => {
+    const { 'stop-indicator.shape': shape } = await resolveTokens(
+      'slider.default',
+      'default',
+      ['stop-indicator.shape'],
+    );
+    const stop = getPart(createSlider({ value: '25' }), '.stop');
+
+    // The package's form of `full` is half the indicator's size.
+    expect(shape).toMatch(/\/ 2\)$/u);
+    expect(pixels(getComputedStyle(stop).borderTopLeftRadius)).toBe(
+      stop.getBoundingClientRect().height / 2,
+    );
   });
 });
 
@@ -329,11 +372,11 @@ describe.each(['default', 'focus', 'pressed', 'disabled'] as const)(
       },
       {
         part: 'active.track',
-        read: (slider: Slider) => paintedColor(trackEnd(slider, '::before')),
+        read: (slider: Slider) => paintedColor(trackPart(slider, 'active')),
       },
       {
         part: 'inactive.track',
-        read: (slider: Slider) => paintedColor(trackEnd(slider, '::after')),
+        read: (slider: Slider) => paintedColor(trackPart(slider, 'inactive')),
       },
       { part: 'stop-indicator', read: stopColor },
     ])('should paint the $part', async ({ part, read }) => {
@@ -541,11 +584,11 @@ describe('mx-slider public CSS overrides', () => {
   it.each([
     [
       'active-track',
-      (slider: Slider) => paintedColor(trackEnd(slider, '::before')),
+      (slider: Slider) => paintedColor(trackPart(slider, 'active')),
     ],
     [
       'inactive-track',
-      (slider: Slider) => paintedColor(trackEnd(slider, '::after')),
+      (slider: Slider) => paintedColor(trackPart(slider, 'inactive')),
     ],
     [
       'handle',
@@ -564,6 +607,6 @@ describe('mx-slider public CSS overrides', () => {
     const slider = createSlider();
     slider.style.setProperty('--md-slider-inactive-track-color', 'transparent');
 
-    expect(paintedColor(trackEnd(slider, '::after'))[3]).toBe(0);
+    expect(paintedColor(trackPart(slider, 'inactive'))[3]).toBe(0);
   });
 });
