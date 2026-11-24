@@ -1,6 +1,6 @@
 Mutations of mx-slider's feature-proof dispositions: probes/mutations.ts. Read on 2026-11-24.
 "none" is the code as it is. A mutation of touch or of the accessibility tree ran in Chromium only.
-WebKit's fade row failed in five of its runs, "none" among them: it pressed the track, and WebKit
+WebKit's fade row failed in four of its runs, "none" among them: it pressed the track, and WebKit
 drops :active then (press-active.txt). The row now presses the handle, and "no @starting-style"
 was run again with it.
 
