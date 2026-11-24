@@ -12,6 +12,7 @@ import type {
   CollectionSnapshot,
   OnReorder,
   ReorderResolution,
+  SortableOperationKind,
   SortableResult,
 } from './domain.ts';
 import {
@@ -44,7 +45,7 @@ export type SortableConfig = Readonly<{
   axis: AxisInstaller;
   /** Commit the reorder and resolve it, for example `root.insertBefore(item, next)`. */
   onReorder: OnReorder;
-  onStart?(item: HTMLElement): void;
+  onStart?(item: HTMLElement, kind: SortableOperationKind): void;
   onEnd?(result: SortableResult): void;
   threshold?: number;
   handle?(item: HTMLElement): HTMLElement | null;

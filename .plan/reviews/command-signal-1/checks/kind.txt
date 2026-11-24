@@ -1,0 +1,138 @@
+# chromium 158.0.8127.18
+mouse | start:r0:pointer:args2 microtask task reorder:0>2 end:accepted | r1r2r0r3 ph:0 pop:0
+touch (CDP) | start:r0:pointer:args2 microtask task reorder:0>2 end:accepted | r1r2r0r3 ph:0 pop:0
+pen (CDP) | start:r0:pointer:args2 microtask task reorder:0>2 end:accepted | r1r2r0r3 ph:0 pop:0
+dispatched mouse | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched touch | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched pen | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched no type | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+key ArrowDown | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowUp | start:r1:command:args2 reorder:1>0 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+key ArrowLeft | start:r1:command:args2 reorder:1>0 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+key ArrowRight | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowDown, xy | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowRight, xy | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key, landing | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+declined: edge, end |  | r0r1r2r3 ph:0 pop:0
+declined: edge, start |  | r0r1r2r3 ph:0 pop:0
+declined: not an arrow |  | r0r1r2r3 ph:0 pop:0
+declined: Enter |  | r0r1r2r3 ph:0 pop:0
+declined: data-drag-ignore |  | r0r1r2r3 ph:0 pop:0
+declined: handle is null |  | r0r1r2r3 ph:0 pop:0
+declined: prevented before | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+declined: the item leaves at the second pull |  | r0r1r2r3 ph:0 pop:0
+declined: altKey pointer |  | r0r1r2r3 ph:0 pop:0
+press without a move |  | r0r1r2r3 ph:0 pop:0
+onStart cancels, key; then a key and a mouse | start:r1:command:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart cancels, mouse; then a key and a mouse | start:r1:pointer:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart destroys, key; then a key and a mouse | start:r1:command:args2 microtask task | | r0r1r2r3 ph:0 pop:0
+onStart destroys, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task | | r0r1r2r3 ph:0 pop:0
+onStart throws, key; then a key and a mouse | start:r1:command:args2 ERROR:drag: boom end:canceled:fault microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart throws, mouse; then a key and a mouse | start:r1:pointer:args2 ERROR:drag: boom end:canceled:fault microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart invalidates, key; then a key and a mouse | start:r1:command:args2 reorder:1>2 end:accepted microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart invalidates, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task reorder:1>2 end:accepted | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart removes the item, key; then a key and a mouse | start:r1:command:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:2>1 end:accepted | r2r3r0 ph:0 pop:0
+onStart removes the item, mouse; then a key and a mouse | start:r1:pointer:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:2>1 end:accepted | r2r3r0 ph:0 pop:0
+onStart reorders the list, key; then a key and a mouse | start:r1:command:args2 reorder:3>2 end:accepted microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart reorders the list, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task reorder:3>2 end:accepted | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onReorder rejects, key | start:r1:command:args2 reorder end:rejected microtask task | r0r1r2r3 ph:0 pop:0
+onReorder throws, key | start:r1:command:args2 reorder ERROR:drag: boom end:canceled:fault microtask task | r0r1r2r3 ph:0 pop:0
+onReorder pending, a key and a mouse refused, then settled | start:r1:command:args2 reorder microtask task end:accepted start:r0:pointer:args2 microtask task reorder end:accepted | r2r0r1r3 ph:0 pop:0
+key during a mouse drag | start:r0:pointer:args2 microtask task reorder:0>1 end:accepted | r1r0r2r3 ph:0 pop:0
+mixed: K M K K M M K | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted start:r1:command:args2 reorder:0>1 end:accepted microtask task start:r2:pointer:args2 microtask task end:noop start:r2:pointer:args2 microtask task reorder:3>2 end:accepted start:r0:command:args2 reorder:0>1 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+mixed with cancels: M Escape, K, M out and back, K | start:r0:pointer:args2 microtask task end:canceled:escape start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task end:noop start:r2:command:args2 reorder:2>1 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+onStart takes the item alone | start:r0 reorder:0>1 end:accepted start:r3 reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+no onStart | reorder:0>1 end:accepted reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart receiver | this:axis,items,onEnd,onReorder,onStart reorder:0>1 end:accepted | r1r0r2r3 ph:0 pop:0
+freeDrag onStart args | free:1:object | r0r1r2r3 ph:0 pop:0
+# firefox 159.0
+mouse | start:r0:pointer:args2 microtask task reorder:0>2 end:accepted | r1r2r0r3 ph:0 pop:0
+dispatched mouse | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched touch | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched pen | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched no type | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+key ArrowDown | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowUp | start:r1:command:args2 reorder:1>0 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+key ArrowLeft | start:r1:command:args2 reorder:1>0 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+key ArrowRight | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowDown, xy | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowRight, xy | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key, landing | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+declined: edge, end |  | r0r1r2r3 ph:0 pop:0
+declined: edge, start |  | r0r1r2r3 ph:0 pop:0
+declined: not an arrow |  | r0r1r2r3 ph:0 pop:0
+declined: Enter |  | r0r1r2r3 ph:0 pop:0
+declined: data-drag-ignore |  | r0r1r2r3 ph:0 pop:0
+declined: handle is null |  | r0r1r2r3 ph:0 pop:0
+declined: prevented before | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+declined: the item leaves at the second pull |  | r0r1r2r3 ph:0 pop:0
+declined: altKey pointer |  | r0r1r2r3 ph:0 pop:0
+press without a move |  | r0r1r2r3 ph:0 pop:0
+onStart cancels, key; then a key and a mouse | start:r1:command:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart cancels, mouse; then a key and a mouse | start:r1:pointer:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart destroys, key; then a key and a mouse | start:r1:command:args2 microtask task | | r0r1r2r3 ph:0 pop:0
+onStart destroys, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task | | r0r1r2r3 ph:0 pop:0
+onStart throws, key; then a key and a mouse | start:r1:command:args2 ERROR:drag: boom end:canceled:fault microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart throws, mouse; then a key and a mouse | start:r1:pointer:args2 ERROR:drag: boom end:canceled:fault microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart invalidates, key; then a key and a mouse | start:r1:command:args2 reorder:1>2 end:accepted microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart invalidates, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task reorder:1>2 end:accepted | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart removes the item, key; then a key and a mouse | start:r1:command:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:2>1 end:accepted | r2r3r0 ph:0 pop:0
+onStart removes the item, mouse; then a key and a mouse | start:r1:pointer:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:2>1 end:accepted | r2r3r0 ph:0 pop:0
+onStart reorders the list, key; then a key and a mouse | start:r1:command:args2 reorder:3>2 end:accepted microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart reorders the list, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task reorder:3>2 end:accepted | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onReorder rejects, key | start:r1:command:args2 reorder end:rejected microtask task | r0r1r2r3 ph:0 pop:0
+onReorder throws, key | start:r1:command:args2 reorder ERROR:drag: boom end:canceled:fault microtask task | r0r1r2r3 ph:0 pop:0
+onReorder pending, a key and a mouse refused, then settled | start:r1:command:args2 reorder microtask task end:accepted start:r0:pointer:args2 microtask task reorder end:accepted | r2r0r1r3 ph:0 pop:0
+key during a mouse drag | start:r0:pointer:args2 microtask task reorder:0>1 end:accepted | r1r0r2r3 ph:0 pop:0
+mixed: K M K K M M K | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted start:r1:command:args2 reorder:0>1 end:accepted microtask task start:r2:pointer:args2 microtask task end:noop start:r2:pointer:args2 microtask task reorder:3>2 end:accepted start:r0:command:args2 reorder:0>1 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+mixed with cancels: M Escape, K, M out and back, K | start:r0:pointer:args2 microtask task end:canceled:escape start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task end:noop start:r2:command:args2 reorder:2>1 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+onStart takes the item alone | start:r0 reorder:0>1 end:accepted start:r3 reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+no onStart | reorder:0>1 end:accepted reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart receiver | this:axis,items,onEnd,onReorder,onStart reorder:0>1 end:accepted | r1r0r2r3 ph:0 pop:0
+freeDrag onStart args | free:1:object | r0r1r2r3 ph:0 pop:0
+# webkit 27.2
+mouse | start:r0:pointer:args2 microtask task reorder:0>2 end:accepted | r1r2r0r3 ph:0 pop:0
+dispatched mouse | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched touch | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched pen | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+dispatched no type | start:r0:pointer:args2 reorder:0>2 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+key ArrowDown | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowUp | start:r1:command:args2 reorder:1>0 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+key ArrowLeft | start:r1:command:args2 reorder:1>0 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+key ArrowRight | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowDown, xy | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key ArrowRight, xy | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+key, landing | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+declined: edge, end |  | r0r1r2r3 ph:0 pop:0
+declined: edge, start |  | r0r1r2r3 ph:0 pop:0
+declined: not an arrow |  | r0r1r2r3 ph:0 pop:0
+declined: Enter |  | r0r1r2r3 ph:0 pop:0
+declined: data-drag-ignore |  | r0r1r2r3 ph:0 pop:0
+declined: handle is null |  | r0r1r2r3 ph:0 pop:0
+declined: prevented before | start:r1:command:args2 reorder:1>2 end:accepted microtask task | r0r2r1r3 ph:0 pop:0
+declined: the item leaves at the second pull |  | r0r1r2r3 ph:0 pop:0
+declined: altKey pointer |  | r0r1r2r3 ph:0 pop:0
+press without a move |  | r0r1r2r3 ph:0 pop:0
+onStart cancels, key; then a key and a mouse | start:r1:command:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart cancels, mouse; then a key and a mouse | start:r1:pointer:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart destroys, key; then a key and a mouse | start:r1:command:args2 microtask task | | r0r1r2r3 ph:0 pop:0
+onStart destroys, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task | | r0r1r2r3 ph:0 pop:0
+onStart throws, key; then a key and a mouse | start:r1:command:args2 ERROR:Script error. end:canceled:fault microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart throws, mouse; then a key and a mouse | start:r1:pointer:args2 ERROR:Script error. end:canceled:fault microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart invalidates, key; then a key and a mouse | start:r1:command:args2 reorder:1>2 end:accepted microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart invalidates, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task reorder:1>2 end:accepted | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart removes the item, key; then a key and a mouse | start:r1:command:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:2>1 end:accepted | r2r3r0 ph:0 pop:0
+onStart removes the item, mouse; then a key and a mouse | start:r1:pointer:args2 end:canceled:request microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:2>1 end:accepted | r2r3r0 ph:0 pop:0
+onStart reorders the list, key; then a key and a mouse | start:r1:command:args2 reorder:3>2 end:accepted microtask task | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onStart reorders the list, mouse; then a key and a mouse | start:r1:pointer:args2 microtask task reorder:3>2 end:accepted | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted | r2r0r3r1 ph:0 pop:0
+onReorder rejects, key | start:r1:command:args2 reorder end:rejected microtask task | r0r1r2r3 ph:0 pop:0
+onReorder throws, key | start:r1:command:args2 reorder ERROR:Script error. end:canceled:fault microtask task | r0r1r2r3 ph:0 pop:0
+onReorder pending, a key and a mouse refused, then settled | start:r1:command:args2 reorder microtask task end:accepted start:r0:pointer:args2 microtask task reorder end:accepted | r2r0r1r3 ph:0 pop:0
+key during a mouse drag | start:r0:pointer:args2 microtask task reorder:0>1 end:accepted | r1r0r2r3 ph:0 pop:0
+mixed: K M K K M M K | start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task reorder:3>2 end:accepted start:r1:command:args2 reorder:0>1 end:accepted microtask task start:r2:pointer:args2 microtask task end:noop start:r2:pointer:args2 microtask task reorder:3>2 end:accepted start:r0:command:args2 reorder:0>1 end:accepted microtask task | r1r0r2r3 ph:0 pop:0
+mixed with cancels: M Escape, K, M out and back, K | start:r0:pointer:args2 microtask task end:canceled:escape start:r0:command:args2 reorder:0>1 end:accepted microtask task start:r3:pointer:args2 microtask task end:noop start:r2:command:args2 reorder:2>1 end:accepted microtask task | r1r2r0r3 ph:0 pop:0
+onStart takes the item alone | start:r0 reorder:0>1 end:accepted start:r3 reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+no onStart | reorder:0>1 end:accepted reorder:3>2 end:accepted | r1r0r3r2 ph:0 pop:0
+onStart receiver | this:axis,items,onEnd,onReorder,onStart reorder:0>1 end:accepted | r1r0r2r3 ph:0 pop:0
+freeDrag onStart args | free:1:object | r0r1r2r3 ph:0 pop:0
+### the same probe on the base, ee7d838cc: apart from the kind and the count of arguments, every line is the same in the three engines

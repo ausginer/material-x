@@ -1943,6 +1943,14 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **Q6, answered on 2026-11-21,** relayed in English translation only: _"If we make everything draggable, we must give a choice. Either through a handle: then dragging, keyboard included, is by the handle. Or, if the author wants no handle, the items must *become* draggable and get a tabindex. List items must not be tab stops permanently, but must become one when the developer chooses 'no handle'."_
 - **Q6's follow-ups, the same day,** in translation: on the pointer with a handle, _"Yes, probably the handle's presence should switch on handle-only by itself"_, which retires `handle-only`. On the role, the missing `listitem` role (`RF-68`, #92) is a bug to fix in its own unit, outside this decision.
 
+**Amended an eighth time on 2026-11-24, before implementation,** for `RF-127` and `RF-129`, on the owner's answers: _"2) (а)"_ to the first, and _"Точно да 👍"_ ("Definitely yes") to the list's use of the `reorder` tokens. Property 4's item on the custom state and the footprint, its item on drag's `visual`, a new item on the operation's kind, and the first sentence, which said that drag doesn't change. The text states the recommended answers to `drag:DRD-71`'s Q1 and `RF-129`'s three questions. **The owner gave these answers on 2026-11-24,** in chat, relayed by the coordinator: _"Q1-Q4: (a)"_. The same day the architect added to property 4 that a key move's item keeps its resting corners, which follows from `RF-129`'s properties 1 and 4. The text holds on `main` when the two units land. `drag:DRD-71` also takes away the reason _"drag's `onEnd` doesn't say what started the drag"_ of the pointer drops' announcement, and the announcement stays: a pointer drop made with a screen reader says nothing otherwise. Its replaced text:
+
+> with `y()` and `landing()`, as drag is today. No drag change.
+
+> The placeholder has today's footprint style.
+
+> drag's `visual` is the item itself, and drag's lift keeps its padding, border, overflow, color and background color.
+
 **Dated 2026-11-23 by the architect, not an amendment:** property 4's _"once the slot shows the move"_ and _"each accepted move"_ are read by `RF-103` property 2, with the limit that it states.
 
 **Amended 2026-11-20, before implementation,** for Q1 to Q3: the status, properties 4 and 9, the reasons about the handle and about drag, and the list of what isn't adopted. **Amended again the same day, before implementation,** for Q4 and Q5: the status, property 4's keyboard, handle and announcement items, property 9, the reasons, and the list of what isn't adopted. **Amended a third time on 2026-11-21, before implementation,** for Q6 and its follow-ups: the status, the answers, property 4's handle, Q6 and handle-semantics items, property 7, a reason, and the list of what isn't adopted. It was written from slot b in `745fccb8c`, and the main slot's architect confirmed it the same day and corrected this list of what it changed, which named the keyboard item. **Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading [`item-focus.txt`](list-sortable-1/checks/item-focus.txt) and `RF-68`'s [reading](https://github.com/ausginer/material-x/blob/45272694ce5d6792f9c7590f839614aa9dc88289/.plan/list-roles-1/checks/list-roles.txt) on `material-x/list-roles-1`: three sentences of property 4's (Q6) item and a clause of its item on handle semantics. Proposed from slot b in the plan at `9f90572fb`. **Amended a fifth time on 2026-11-21, before implementation,** for the context between the list and its items, on the owner's rule that a parent–child link uses context: three passages of property 4, in the (Q6) item, the item on handle semantics and the last item, and a reason. Proposed from slot b in the plan at `d875ceb25`. **Amended a sixth time on 2026-11-21, before implementation,** for where the items' sortable writes live, on Mx Architect B's ruling on the implementer's size stop at `88801757e` (the plan's [Where the sortable writes live](list-sortable-1/list-sortable-plan.md#where-the-sortable-writes-live)): a passage of property 4's item on handle semantics, property 7's last sentence, and a reason. Proposed from slot b in the plan at `6de14c896`. The main slot's architect registered it with the item on handle semantics reworded, so that it reads with the fifth amendment: the item applies the writes, the (Q6) tab stop included, and the code that writes is in the list's module. **Amended a seventh time on 2026-11-21, after implementation,** for `RF-68`'s fold of `mx-list-item`'s inner element into its host, on `RF-68`'s re-plan: property 4's (Q6) item and its item on handle semantics, a new item of property 4 on drag's `visual`, property 7 and a reason. What each amendment replaced is at the end. The first amendment's new items in the list of what isn't adopted were a grab built in the list and `handle(item, event)`.
@@ -1952,7 +1960,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 1. **Core's `reorderable` trait is deleted:** `src/traits/reorderable.ts`, the `./traits/reorderable.js` export, the `files.json` entry, the size row, the README section and `tests/traits/reorderable.browser.test.ts`. Nothing replaces it in core. Only material-x used it, and core is on no registry, so no alias is kept (`CONTRIBUTING.md` §8).
 2. **Sorting is a separate element (Q1).** `@ydinjs/material-x/list/sortable-list.js` defines `mx-sortable-list`, whose class `SortableList` is the default export. It renders and styles like `mx-list`, and it takes the same items. `mx-list` doesn't sort, and has no `reorderable` attribute and no `reorder` event.
 3. **No runtime entry other than `list/sortable-list` reaches `@ydinjs/drag`,** directly or through other modules, the list items included. A test over the built package checks this, and a temporary drag import in `list.ts` makes the test fail. The published declarations of `list/sortable-list` and `react` name no drag type.
-4. **The sortable list runs drag's `sortable` with `y()` and `landing()`, as drag is today. No drag change.**
+4. **The sortable list runs drag's `sortable` with `y()` and `landing()`, as drag is today, with the kind that `drag:DRD-71` adds to `onStart`.**
    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
    - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface. There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
    - **(Q4) The keyboard is drag's ordinary model:** an arrow key moves the item one slot at once and proposes the move, inside the same `handle`. So an arrow key moves an item from its focused handle. If the item has no handle, an arrow key also moves it from any focused element inside it, such as an interactive item's own button or link. At the collection's edge the key keeps its meaning.
@@ -1961,8 +1969,9 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
    - In a sortable list only, a handle is made focusable, named _Reorder_, described with the arrow keys and given `touch-action: none`. A handle-less interactive item, on its button or link, and a static item while it is a tab stop, on its host, get the same description, which is how a focused item says that it moves. The item applies these, and the (Q6) item's tab stop, to its own handle, its control, or a static item's host, while it is in a sortable list. An interactive item writes nothing on its host. The code that writes them is in a module that only `list/sortable-list` imports, and reaches the item through the context's value, so a plain list's items don't contain it. That code runs only when the item calls the value with its own host and control, and it writes only on that item's elements. The list keeps no registry and queries no item. Values the consumer set are kept. The items' `listitem` role is `RF-68`'s fix, not this decision's.
    - `onReorder` dispatches a bubbling, composed, cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`, one per move. The event class is material-x's own. `preventDefault()` rejects the move. Otherwise the verdict is accepted once the slot shows the move, or after a named bound of 500 ms, and the item lands where the DOM has it.
    - A polite live region in the list's shadow root announces each accepted move by position, from the pointer or the keyboard.
-   - The item has the custom state `drag` from `onStart` to `onEnd`. The placeholder has today's footprint style. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
-   - drag's `visual` is the item itself, and drag's lift keeps its padding, border, overflow, color and background color.
+   - The item has the custom state `drag` from `onStart` to `onEnd`. In a pointer drag the lifted item takes Material's `reorder` tokens, and the placeholder is its drop zone, in `reorder`'s color. In a key move neither does: the placeholder paints nothing and the item keeps its resting colors and corners (`RF-127`, `RF-129`). The elevation is the same in both. The landing's timing reads `--_drag-duration` and `--_drag-easing`, and is zero under reduced motion.
+   - drag's `visual` is the item itself, and drag's lift keeps its padding, border and overflow. It keeps its color and background color too, except where a pointer drag's `reorder` tokens replace them.
+   - The list knows an operation's kind from `onStart`'s second argument (`drag:DRD-71`).
    - A disconnect destroys the list's drag controller and clears the lifted item's `drag` state, and a connect creates a new one, so a reconnected list sorts again.
 5. **`@ydinjs/drag` is an optional peer of material-x,** and a dev dependency in the workspace. Its range is set at material-x's release.
 6. **The list's behavior rows move to material-x,** against the real element with real input. Rows for drag's mechanics stay drag's, and rows for behavior that is gone are deleted, as the plan's [test map](list-sortable-1/list-sortable-plan.md#test-map) lists.
@@ -2433,6 +2442,27 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Costs:** a page's `padding` on `mx-card` is ignored, where it was added to the slot's. `--md-card-padding` is the one way to set it. The card can't be smaller than its padding, 32px in each axis by default, as a `div` with `border-box` can't. With `block-size: 10px` it was 10px high. This was read on the implementation and accepted the same day.
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
+
+#### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
+
+**Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
+
+**The dependency is approved by the owner,** the same day in chat, relayed by the coordinator: _"Согласие на axe-core сразу даю, зря что ли инициировал"_ ("I give my consent to axe-core right away, I didn't start this for nothing"). It is a development dependency only. axe-core 4.14.1 is MPL-2.0 and its manifest has no `dependencies` (read).
+
+1. **It is supplementary,** as `test-architecture.md` says of automated rule engines. A component's accessibility contract stays in the rows that assert it, and no such row is removed because axe passes.
+2. **Each component is checked, in each state that changes its role, name or ARIA:** for example, checked, selected, disabled, with an error, and open.
+3. **The expected result is exact.** A known violation is listed by rule id and target, with the entry that owns it. A violation that isn't listed fails the test, and so does a listed one that is gone. So the repair of a finding edits the list in its own pull request.
+4. **Nothing published depends on it,** and no module in `src` imports it. The version is exact.
+
+**Not adopted: Playwright's ARIA snapshots.** They compute the tree in page script. The relayed reading is that one showed no duplicate for a host `aria-label`, which the browsers' own trees do show (`RF-94`). Where a row needs a tree, it reads the browser's own, so widening `readAccessibilityTree` past Chromium is the better direction. It isn't part of this entry.
+
+**What it finds today,** on 35 elements and states, with a name on each element that takes one ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)), read at `eddf39e7b` with the same result in Chromium, Firefox and WebKit: `aria-allowed-attr` on a selected `mx-list-button-item` (`RF-132`), and `label` on every `mx-checkbox` and `mx-radio` (`RF-94`). The Explainer's run over the stories is relayed: the same two, with `label` in 6 checkbox and radio stories.
+
+**Its limits, read:** it reports only what it has a rule for. `mx-split-button`'s trailing control is a button named `keyboard_arrow_down` in Chromium's tree, the icon's ligature text, and no rule reports it. A name that a shadow control takes by `ariaLabelledByElements` is seen, in the three engines ([reading](accessibility-findings-1/checks/axe-ref.txt), [probe](accessibility-findings-1/probes/axe-ref.mjs.txt)), so a repair of `RF-94` by element reference doesn't read as a violation.
+
+**For the plan:** the rules that apply to an element rather than a page (`region` and `page-has-heading-one` don't), the states of property 2, the engines, where the check and its list live, and the run time that it adds. The readings give no difference between engines, so Chromium alone is the starting proposal.
+
+**Order:** it waits for nothing. It is most useful before `RF-132` and `RF-94`, whose repairs then change its list. **Size:** _large_, because a plan comes first. The plan is short.
 
 ## Findings
 
@@ -4459,6 +4489,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Next, the owner's:** he listens to VoiceOver in Safari, for whether it announces the second node at all. That is part of _Not established_. It answers for VoiceOver only.
 - **No other option is decided by this.** The required property stands, with _on the control only_.
 
+**Dated 2026-11-24 by the architect, on `repo/accessibility-findings-1`: a reading of another library's answer to the naming half,** proposed by Mx Architect Explainer and relayed by the coordinator. The source is [slab-elements](https://github.com/ynotdraw/slab-elements/blob/d7b3c2ca95b3cf43e134d088fd652e85a80e5a2c/src/library/aria-forwarding.ts), read at `d7b3c2ca9`. The repository was created on 2026-10-11 and has 28 stars. It has a `CLAUDE.md`, and 4 of its last 100 commits name Claude as a co-author; _"largely with Claude Code"_ is relayed and not confirmed. **It is a source of ideas and not an authority.**
+
+- **What it does.** It resolves the ids of the host's `aria-labelledby`, `aria-describedby`, `aria-details` and `aria-controls` in the host's root, and assigns the target's `ariaLabelledByElements`, `ariaDescribedByElements`, `ariaDetailsElements` and `ariaControlsElements`. A host's labels replace the target's own. Its descriptions, details and controlled elements are added to the target's own. When the host's attribute goes, the target's own references are put back as an attribute. It also copies `aria-label`, `aria-description`, `aria-expanded`, `aria-haspopup` and `aria-keyshortcuts`, unless the target has its own value.
+- **What it doesn't do.** It leaves the host's attributes in place, so the second node of `FV-F2` stays by reading. It gives no evidence that a screen reader ignores the host, so **the owner's VoiceOver check stays next.**
+- **What it adds here.** It is the element-reference mechanism that the note on `material-x/slider-1` read in three engines, with two parts this entry didn't have: the replace-or-add rule for each name, and the restoring of the control's own references.
+- **Its comment that Playwright and axe read only attributes doesn't hold for `aria-labelledby` in axe-core 4.14.1** ([reading](accessibility-findings-1/checks/axe-ref.txt)). Its changelog entry #177 says that Safari doesn't pass `aria-activedescendant` to VoiceOver when it is set as an element reference. Unverified. No material-x element uses one.
+- **The axe run has only `label`, critical, for this entry,** and its other violation is `RF-132`'s ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt)). The same elements in the Explainer's run over the stories are relayed: 6 checkbox and radio stories.
+
 #### RF-95 — `mx-checkbox` draws no error appearance
 
 Tier A, **open**. It applies once #155 merges, because that unit gives `mx-checkbox` its `error` attribute and `:state(error)`. Registered on 2026-11-22 by the architect, on `repo/register-observations-4`, from [#149](https://github.com/ausginer/material-x/issues/149), relayed by the coordinator. The finding was proposed as `FV-F3` in the [form-validation plan](https://github.com/ausginer/material-x/blob/be7d4c3b5/.plan/form-validation-1/form-validation-plan.md#8-proposed-findings) §8, on `material-x/form-validation-1` at `be7d4c3b5` (#155), not yet on `main`. `RF-94` is the highest `RF-` on any branch on `origin`, so this is the next free number. In the code at `6a67badfd`, the architect confirmed that the token grouping in `checkbox/styles/utils.ts` returns `null` for any token name that has an `error` part.
@@ -5443,7 +5481,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
+Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
 
 - **What happens:** an arrow key makes a whole operation. The item is lifted at its home (top layer), the placeholder is inserted and moved to the destination, and the neighbor takes the item's old slot under the lifted item. The consumer's commit then ends it, and the item flies from its old slot to its new one for 650 ms, with the placeholder gone. So the footprint lasts exactly as long as the commit. The runs are three stylesheets, two preferences and three engines, and the sheets don't change the number of frames:
 
@@ -5472,19 +5510,52 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
   - (c) No footprint and no flight: the item jumps, as with `reduce`. The user has to find it.
   - (d) The placeholder stays as it is.
 - **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`.
-- **How the list tells a command, settled by the architect on 2026-11-24:** by the run of its own callbacks, and not by a key. A command's drop follows `onStart` synchronously (drag's contract, _Consistency_), and the session asks for the verdict in the same pass, so `onStart` and `onReorder` are one run with no microtask between them. A pointer drag's `onStart` is in a `pointermove` and its `onReorder` in the `pointerup`. Read with real input in the three engines: a microtask queued in `onStart` hasn't run at a command's `onReorder` and has at a pointer drop's, also when the drop follows a single move ([reading](sortable-observations-1/checks/command-or-pointer.txt), [probe](sortable-observations-1/probes/command-or-pointer.mjs)).
-  1. `onStart` marks the operation as new, and a microtask ends the mark. `onReorder`, if the mark still holds, sets the list's state that hides the footprint, before it dispatches `reorder`. No `keydown` is listened to.
-  2. The state is cleared at `onEnd`, and at the list's disconnect, because a destruction calls no `onEnd`. The placeholder is removed at the operation's release, before `onEnd`, so it doesn't show again.
-  3. **A key that starts no command sets nothing,** because it reaches no `onStart`: a key at the edge, a key that isn't an arrow, one that drag declines, one inside `data-drag-ignore`, and one that goes to a handle-less item's other controls. A cancel between the two callbacks calls no `onReorder` and sets nothing. So the state can't outlive a key.
-  4. The placeholder keeps its size and place. Only its painting is hidden, and nothing else of the operation changes.
-  5. **Limit:** `pointermove` and `pointerup` that a script dispatches in one run are taken for a command, and the footprint is hidden while that commit is pending. No real input does this.
-- **Not adopted:** a captured `keydown`. A key whose command is declined leaves nothing to clear it, and a microtask set in a capture listener runs before drag's bubble listener does.
+- **How the list tells a command: drag tells it,** by `drag:DRD-71`, `onStart`'s second argument. Amended 2026-11-24, as the last paragraph says.
+  1. At each `onStart`, the list sets a custom state of its own to whether the kind is `'command'`. The footprint's rule doesn't paint while the list has it.
+  2. **Nothing clears it,** because every `onStart` writes it, and a placeholder exists only within an operation: drag inserts it just before `onStart` and removes it at release. So a pointer drag after a command, after a destruction or after a reconnect starts with the state off, before anything paints.
+  3. **A key that starts no command sets nothing,** because it reaches no `onStart`.
+  4. The placeholder keeps its size and place. Only its painting is hidden, and nothing else of the operation changes. The state's name is the implementer's.
 - **Plan needed:** no.
-- **Rows,** in each engine: a key with a React commit, a commit after 100 ms, and a refused one paint no footprint in any frame. A pointer drag does, in the drag and while its commit is pending. **Witness:** the first two fail before the repair. After a key at the edge and after one that drag declines (`data-drag-ignore`), the next pointer drag has its footprint. After a key move that is accepted, refused, or timed out after 500 ms, and after the list is disconnected during its commit and connected again, the next pointer drag has it too. **Witness:** without clearing at `onEnd`, and without clearing at the disconnect, each of its rows fails.
-- **Ready** for an implementer.
+- **Rows,** in each engine, with real input in `sortable-list.browser.test.ts`:
+  1. In a key move, the placeholder's computed style paints nothing when it is read in the `reorder` handler, and in each frame while a commit after 100 ms is pending. In a refused key move it paints nothing in the handler. **Witness:** each fails before the repair.
+  2. In a pointer drag the placeholder paints the footprint in the drag, in the `reorder` handler, and while a commit after 100 ms is pending. **Witness:** a state set at every `onStart` fails it.
+  3. The next pointer drag has its footprint after a key move that is accepted, refused, or timed out after 500 ms, and after the list is disconnected during a key move's commit and connected again. **Witness:** a state that a command sets and a pointer's `onStart` doesn't turn off fails each of these.
+- **The rows as first written, corrected on 2026-11-24 at the check for readiness.** The frames of a React commit don't prove the repair: the table above has runs with 0 frames before it, so a row that counts them can pass on today's code. The read in the handler doesn't depend on a frame, and no row needs React. The rows after a key at the edge and after one that drag declines had a witness that doesn't fail them, because neither key reaches `onStart` and nothing is set. `drag:DRD-71`'s rows prove that they call no `onStart`.
+- **Ready** for an implementer, on 2026-11-24: the owner answered `drag:DRD-71`'s Q1 with (a), in chat, relayed by the coordinator: _"Q1-Q4: (a)"_. One unit and one pull request with `DRD-71`, on `drag/command-signal-1`. material-x resolves drag through its build, so drag is built before material-x's typecheck and tests.
 - **Merges with** `RF-118`, which moves the hook's code. The second to land takes the first's lines.
-- **Seen, and not registered:** the footprint's color and opacity are the list item's `dragged` state layer, which the token set describes as _"baseline only"_: expressive lists use the `reorder` tokens, such as `reorder.list-item.drop-zone.color` and `reorder.list-item.container.color`. No rule reads them, apart from the shadow's color. `RD-31` fixed today's style, so it is the owner's to raise.
+- **The footprint's color** is `RF-129`'s, in its own unit after this one.
 - **Size:** _small_.
+
+**Amended 2026-11-24 by the architect, on `drag/command-signal-1`,** on the owner's answer about where the knowledge belongs, relayed by the coordinator: _"Выглядит так 🤔 Давай спросим отдельно"_ ("It looks like it. Let's ask separately"). `drag:DRD-71` has the signal and why it isn't inferred. The answer above to the owner's question, _"drag gets nothing"_, was true of the microtask, and isn't of this. What the amendment replaced:
+
+> - **How the list tells a command, settled by the architect on 2026-11-24:** by the run of its own callbacks, and not by a key. A command's drop follows `onStart` synchronously (drag's contract, _Consistency_), and the session asks for the verdict in the same pass, so `onStart` and `onReorder` are one run with no microtask between them. A pointer drag's `onStart` is in a `pointermove` and its `onReorder` in the `pointerup`. Read with real input in the three engines: a microtask queued in `onStart` hasn't run at a command's `onReorder` and has at a pointer drop's, also when the drop follows a single move ([reading](sortable-observations-1/checks/command-or-pointer.txt), [probe](sortable-observations-1/probes/command-or-pointer.mjs)).
+>   1. `onStart` marks the operation as new, and a microtask ends the mark. `onReorder`, if the mark still holds, sets the list's state that hides the footprint, before it dispatches `reorder`. No `keydown` is listened to.
+>   2. The state is cleared at `onEnd`, and at the list's disconnect, because a destruction calls no `onEnd`. The placeholder is removed at the operation's release, before `onEnd`, so it doesn't show again.
+>   3. **A key that starts no command sets nothing,** because it reaches no `onStart`: a key at the edge, a key that isn't an arrow, one that drag declines, one inside `data-drag-ignore`, and one that goes to a handle-less item's other controls. A cancel between the two callbacks calls no `onReorder` and sets nothing. So the state can't outlive a key.
+>   4. The placeholder keeps its size and place. Only its painting is hidden, and nothing else of the operation changes.
+>   5. **Limit:** `pointermove` and `pointerup` that a script dispatches in one run are taken for a command, and the footprint is hidden while that commit is pending. No real input does this.
+> - **Not adopted:** a captured `keydown`. A key whose command is declined leaves nothing to clear it, and a microtask set in a capture listener runs before drag's bubble listener does.
+> - **Plan needed:** no.
+> - **Rows,** in each engine: a key with a React commit, a commit after 100 ms, and a refused one paint no footprint in any frame. A pointer drag does, in the drag and while its commit is pending. **Witness:** the first two fail before the repair. After a key at the edge and after one that drag declines (`data-drag-ignore`), the next pointer drag has its footprint. After a key move that is accepted, refused, or timed out after 500 ms, and after the list is disconnected during its commit and connected again, the next pointer drag has it too. **Witness:** without clearing at `onEnd`, and without clearing at the disconnect, each of its rows fails.
+> - **Ready** for an implementer.
+> - **Merges with** `RF-118`, which moves the hook's code. The second to land takes the first's lines.
+> - **Seen, and not registered:** the footprint's color and opacity are the list item's `dragged` state layer, which the token set describes as _"baseline only"_: expressive lists use the `reorder` tokens, such as `reorder.list-item.drop-zone.color` and `reorder.list-item.container.color`. No rule reads them, apart from the shadow's color. `RD-31` fixed today's style, so it is the owner's to raise.
+
+**Dated 2026-11-24 by the implementer: implemented on `drag/command-signal-1`, with `drag:DRD-71`, for #228, and not closed.** Requested by the coordinator.
+
+- **Source:** at each `onStart`, `mx-sortable-list` sets its state `command` to whether the kind is `'command'`. The list's sheet hides the placeholder with `visibility: hidden` while it has the state, so its size and place stay. Nothing clears the state. It is internal and not documented.
+- **Rows:** ten in `sortable-list.browser.test.ts`, with real input: three on the key move, three on the pointer drag, and four on the pointer drag after a key move, which also expect the key move's `reorder`, so that the state was set. **Witnesses** ([reading](command-signal-1/checks/mutations.txt), [script](command-signal-1/probes/mutations.mjs)), in Chromium, Firefox and WebKit, one at a time, with the same failures: without the state, or without its rule, the three rows of the key move fail, and no other. With the state set at every start, the three rows of the pointer drag fail and the four after a key move. With a pointer that doesn't turn it off, the four fail, and no other. With the state on for a pointer, all ten fail.
+- **Suites,** without the visual project, one engine at a time: Chromium 1030 passed and 2 expected failures; Firefox 1019 passed, 3 expected failures and 10 skipped; WebKit 1020 passed, 2 expected failures and 10 skipped. Typecheck, format, lint, publint, `docs-build` and `docs-smoke` (112 of 112) pass.
+- **Size, Brotli:** `list/list` 659 to 687, `list/sortable-list` 8906 to 8944, `complete` 22844 to 22877. No other row moves. `mx-list` pays for the rule because the two lists share the sheet.
+- **Not read:** the flight and the pointer's frames on the built elements by the entry's probe, reduced motion in a key move, and Safari. The rows of the pointer drag and of `RF-107` pass unchanged.
+
+**Dated 2026-11-24 by the architect: closed,** on the [feature proof](reviews/command-signal-1/feature-proof-claude.md) at `48bd23f9a` and the rows added after it, read at `2e2c80ca0`. #235 merges it with `drag:DRD-71`, and `Closes #228`.
+
+- **Both required properties hold** by the proof, frame by frame on the built elements in the three engines, with reduced motion and without. What the implementer's note lists as not read, the proof read, apart from Safari.
+- **`reviewer-1` is settled:** the row of the handler also runs for `ArrowUp`, and fails in the three engines with a `'command'` toward the end alone. So the list has eleven rows of this entry.
+- **No recheck is owed,** for the reasons in `drag:DRD-71`'s note. `verify` passes on `2e2c80ca0`.
+- **The footprint's color is `RF-129`'s** (#230), which is ready once this is on `main`, in its own unit and on its own branch.
+- **The sizes in the implementer's note are against `ee7d838cc`,** before `main` was merged. On `2e2c80ca0`, by the gate's report against `f9729a393`: `list/list` 659 to 686, `list/sortable-list` 8905 to 8956, `complete` 23098 to 23045, and drag's rows as `drag:DRD-71` has them. Why `complete` falls by 53 where it rose by 33 before wasn't read. The source of the unit is the same.
 
 #### RF-128 — A handle shows the browser's focus indicator, and not Material's
 
@@ -5506,6 +5577,58 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not read:** an `mx-icon-button` handle's accessible nodes, where the host also has `role="button"`.
 - **Plan needed:** no. **Ready** for an implementer. The rule is adopted in the items' sheets, and takes the values of the shared `focusTokens`, 2px outside. `RF-125` gives the item's own variables the list's −3px, and both are on the item's `:host`, so the handle's offset needs a variable of its own. The two can land in either order.
 - **Size:** _small_.
+
+#### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `drag/command-signal-1`, from the note _"Seen, and not registered"_ of `RF-127`, on the owner's answer in chat, relayed by the coordinator: _"Точно да 👍"_ ("Definitely yes"). `RF-128` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `73a2320ef` on the built elements in Chromium, Firefox and WebKit ([readings](command-signal-1/checks/reorder-colors.txt), [probe](command-signal-1/probes/reorder-colors.mjs)).
+
+- **What happens:** the drop zone is `list-item.dragged.state-layer`'s color and opacity. The lifted item takes `list-item.dragged`'s shape, label color and elevation, with its resting container. The store's display group for these is _"Dragged (baseline only)"_, whose description says: _"The dragged state of baseline lists. Use "reorder" tokens for the dragged state of expressive lists."_ The package's lists are expressive: they take `container.expressive.shape` and `segmented.gap`. Of the reorder set they take the shadow's color alone (`RF-77`).
+- **The set, `md.comp.list.reorder`,** described as _"For reordering a list item using a drag handle or accessible alternative. Only use for Expressive lists."_ It has twelve tokens, none deprecated:
+
+  | Token | Value | Part, and what it is today |
+  | --- | --- | --- |
+  | `drop-zone.color` | `surface-container-low` | The placeholder. Today `on-surface` at 0.16 |
+  | `container.color` | `tertiary-container` | The lifted item's container. Today `surface`, or `secondary-container` when selected |
+  | `shape` | `corner.large`, 16 px | The lifted item's corners. Today `list-item.dragged`'s, the same 16 px |
+  | `shadow-color` | `shadow` | Its shadow. Already adopted |
+  | `label-text.color` | `on-tertiary-container` | Today `on-surface` |
+  | `overline.color`, `supporting-text.color`, `trailing-supporting-text.color` | `on-tertiary-container` | Today `on-surface-variant` |
+  | `leading-icon.color`, `trailing-icon.color` | `on-tertiary-container` | Today `on-surface-variant`, and `on-surface` for an interactive item's trailing icon. A handle with `mx-icon` is one of these |
+  | `state-layer.color`, `state-layer.opacity` | `on-tertiary-container`, 0.1 | The ripple of the held press, on an interactive item. Today `on-surface` at 0.1 |
+
+- **What the set doesn't have:** an elevation, and a shape or an opacity of the drop zone. `list-item.dragged.container.elevation`, level 4, is the only elevation Material names for a dragged list item, and the set's shadow color has a meaning only with one. **Compose Material3 does the same** (androidx `0c24a09f8`, read by the architect): `ListItemDefaults.kt` takes the container, the content and the shape from `ReorderListTokens`, and `draggedElevation` from `ListTokens.ItemDraggedContainerElevation`. Its order for the container is disabled, dragged, selected, and it animates the colors. Its `ItemDropZoneColor` isn't used in those two files. Material's own list pages don't describe a reorder, as `RF-127` read them.
+- **Why it is a problem:** the list shows the state of another kind of list, against the token set's own text.
+- **Required properties:**
+  1. **In a pointer drag,** from `onStart` to `onEnd`, the lifted item's container, shape, text, icons and press ripple take the reorder tokens, for a static, a button and a link item, with a handle or without. They take precedence over selected, hovered, focused and pressed. A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines.
+  2. **The container's color and the text's change together.** A static item's host is its container and drag's lift freezes the host's color and background inline, so the item needs its own over them. Read: without that, the static item's background stays at rest while its label takes the new color.
+  3. **The drop zone** is `reorder.list-item.drop-zone.color`, opaque. Its shape stays the list's.
+  4. **The elevation stays** `list-item.dragged.container.elevation`, over `--_drag-duration`, for both kinds of operation. No other `list-item.dragged` token is rendered.
+  5. **A key move** shows no reorder color and no drop zone (Q1). The lifted item keeps its resting colors, and its corners and press ripple take no `reorder` and no `list-item.dragged` token. Its elevation rises as today.
+  6. **Consumer overrides:** `--md-list-item-container-color` and `--md-list-item-container-shape` win on a lifted item, as at rest, and `--md-list-container-shape` on the drop zone. **A page's own `background-color` or `color` on an `mx-list-item` host holds at rest and in a key move, and not in a pointer drag.** Today it holds there too, so `RF-68` property 6 and a row of `list-roles` change. Its rect, padding, border and overflow still hold, with a page's rule on `[popover]` too.
+  7. **Only `list/sortable-list` carries the reorder item tokens** (`CONTRIBUTING.md` §7, in `RD-31`'s direction). A plain list never drags.
+- **Candidate read, and recommended:** the list's own sheet sets the item's private properties on `::slotted(:state(drag))`. In the three engines it reaches a static, a button and a selected button item while it is hovered, focused and pressed, because the list's tree outranks the item's own `:host` rules, so no order of states has to change. The same values on `:host(:state(drag))` in the items' main sheet lose on a selected item, and on a button item's trailing icon. For a static item, a rule of the list's sheet on its lifted host, by its tag name, sets its background color and color with `!important`. An important rule of the list's tree outranks the inline value that drag's lift writes, and the page's rules. It applies to static items alone, because an interactive item's host has no container of its own. **All of it is in the list's sheet, under the list's state from `RF-127`,** so it doesn't apply in a key move, the item gets no second state, and the item's sheets don't change for it. The rule for the private properties needs `:not(:state(disabled))` for property 1. Read on 2026-11-24 in the three engines, with a page's rules, a consumer's `--md-list-item-container-color` and a disabled item ([readings](command-signal-1/checks/reorder-list-sheet.txt), the same probe). It replaces the first candidate, a rule on `:host(:popover-open)` in the static item's sheet, which would need a second state on the item. The sheet is one that only `list/sortable-list` adopts (property 7), because `mx-list` adopts the default one too.
+- **What differs to see:**
+  - The lifted item is filled, `tertiary-container`, where today only its shadow and corners say that it is lifted. Its color changes at once, at the grab and at the drop. The 650 ms flight after the drop is in the resting colors, with the shadow falling as today.
+  - The drop zone is **much fainter.** In the default theme its contrast with `surface` is 1.05 in light and 1.08 in dark, and today's is 1.39 and 1.49. On a page whose background is `surface-container-low` it can't be seen. The lifted item is far stronger, 4.39 and 5.82 against `surface`.
+  - The text on the lifted item has a contrast of 4.53 and 4.63 in that theme.
+- **Why a key move is separate from RF-127's footprint:** with the reorder color set at `onStart` for every operation, a key move whose commit comes in the next task paints it for 1 or 2 frames, and one after 100 ms for 2 to 6 ([readings](command-signal-1/checks/reorder-colors.txt)). Without it, 0. So this unit needs `drag:DRD-71`.
+- **Answered by the owner on 2026-11-24:** (a) to all three, in chat, relayed by the coordinator: _"Q1-Q4: (a)"_. Its first letter is `drag:DRD-71`'s.
+- **Q1, for the owner — does a key move take the reorder colors?**
+  - **(a) No. Recommended. Chosen:** it would flash a filled item for a frame, as the footprint did. The set's _"accessible alternative"_ is best read as an alternative that has a progress, such as grab mode, which would take the look.
+  - (b) Yes, with the flash, or with a transition of the colors that hides most of it and needs Q2 (b).
+- **Q2, for the owner — do the colors change at once, or over time?**
+  - **(a) At once. Recommended for this unit. Chosen:** every other state of the package's items changes its colors at once.
+  - (b) Over time, as Compose does. It is a unit of its own: the colors are on five parts and on the consumer's slotted icons, the lift freezes the host's transitions, and it isn't read.
+- **Q3, for the owner — is the fainter drop zone accepted?**
+  - **(a) Yes, the token as Material gives it. Recommended,** on his answer. **Chosen.** The moving items and the lifted item also show where it lands.
+  - (b) Keep today's drop zone and take the rest. It mixes the two sets.
+- **`RD-31`** property 4 is amended, in its [eighth amendment](#rd-31--the-lists-sortable-items-are-a-separate-element-on-ydinjsdrag-and-cores-reorderable-trait-is-deleted), with the recommended answers, which are the owner's.
+- **Documentation:** `sortable-list.ts`' _Lift_ text no longer says that the lift keeps color and background color.
+- **Rows,** `spec`, in each engine: the lifted item's container, label and icons against the reorder tokens, resolved through the bridge, for a static, a button and a selected button item, held at the press and after a hover, and back at rest after the drop. A static item with `--md-list-item-container-color`. The drop zone against `drop-zone.color`, with opacity 1 (it replaces _"should give the placeholder the list footprint color"_). A disabled button item lifted by its handle keeps its disabled look. `browser`: in a key move the lifted item has its resting colors and corners in the `reorder` handler, and in each frame while a commit after 100 ms is pending. A row that counts the frames of a commit in the next task proves nothing: with the reorder look in a key move it read 0 frames in a run of WebKit. A static item's `background-color` set by a page holds at rest, in a key move, and after the drop. `list-roles`' lift row keeps rect, padding and overflow, and gets the new color expectation for a pointer drag. **Witness:** the token rows fail before the change, and the key row fails with the colors set for both kinds. Drag-state baselines, if any, are the owner's to record.
+- **Not read:** a link item (a pointer drag doesn't lift one in Chromium or Firefox, as the elevation row records), the ripple's colors, forced colors, and the transition of the corners.
+- **Unit:** its own, in material-x alone, after `RF-127` and `DRD-71`, which it needs. They are separate because `RF-127` is small, changes drag's public API and can go at once, and this one changes what every lifted item shows. Both edit the footprint's rule, and `RF-118` the same file.
+- **Plan needed:** no. **Ready** for an implementer once `RF-127` and `DRD-71` are on `main`.
+- **Size:** _medium_.
 
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 
@@ -5554,6 +5677,75 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `c
 - **Not read:** Safari, screen readers, page-built callers of `useSlot`, and the sizes.
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_.
+
+#### RF-132 — A selected `mx-list-button-item` gives its button `aria-selected`, which the button role doesn't support
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
+
+- **What happens:** axe-core 4.14.1 reports `aria-allowed-attr`, critical, on the inner `<button>` of a selected `mx-list-button-item`, in Chromium, Firefox and WebKit. It reports nothing on an item that was never selected.
+- **Cause:** core's `useSelectable` writes `aria-selected` on its target: `true` while `selected` is set, and `false` when it is removed. Core's own rows assert both.
+- **Who is affected:** `mx-list-button-item` is the only adopter of `useSelectable` in `packages/*/src` (read). `mx-list-link-item` doesn't use it: it writes `aria-current="page"`, which every role supports, and axe reports nothing on it. The `Selectable` trait, which both have for the attribute, writes no ARIA.
+- **Why it is a problem:** no assistive technology has to announce it. Chromium's tree exposes a selected item as a button with the same properties as one that isn't selected (read). Its selection is then only a color and a shape, and in forced colors not those either (`RF-133`).
+- **Required property:** a selected `mx-list-button-item` gives its button no ARIA that the role doesn't support, and says that it is selected, or the record says that the page says it.
+- **The replacement is the architect's ruling, and not the owner's.** The `@ydinjs` packages aren't on the registry, so core's hook can change or go with no compatibility to keep (`CONTRIBUTING.md` §8). The candidates:
+  - **`aria-current="true"` while selected, and no attribute otherwise.** It is the architect's proposal. It is valid on a button, has no unselected value to choose, and the link item writes the same attribute. A page that has several selected items says _current_ for each, and ARIA asks for one in a set.
+  - **`aria-pressed`.** It needs an explicit `false` for an unselected item, which `selected`, a boolean attribute, can't tell from an ordinary action. So the button would change between a toggle and a plain one.
+  - **Nothing written by the component.** The page writes its own `aria-*` on the host, which `useARIA` mirrors.
+- **Interaction:** `RF-130` is about a component's own value on the same control and reads `aria-selected` here. Its row changes with this repair, so the second to land merges the first. `RD-57`'s list names this violation, and the repair removes it there.
+- **Rows:** the rule is gone, and a selected item says what the ruling gives. Core's `selectable.browser.test.ts` changes, or goes with the hook.
+- **Order:** after `RD-57`, or before it with no list to edit. It doesn't wait for `RF-130`.
+- **Not read:** a screen reader, Safari.
+- **Plan needed:** no, only the ruling on the replacement.
+- **Size:** _small_, after the ruling.
+
+#### RF-133 — material-x doesn't adapt to forced colors: a checked, selected or filled element loses what tells it apart
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-132` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, at rest, with Playwright's `forcedColors: 'active'` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [Chromium](accessibility-findings-1/checks/forced-chromium.png), [Firefox](accessibility-findings-1/checks/forced-firefox.png), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
+
+- **Corrected from the proposal:** material-x has forced-colors handling in one place, not none. The ripple draws nothing while the query matches (`ripple.ts` and its stylesheet), and no test of material-x emulates forced colors. The proposal hadn't read the selected radio, the switch buttons, the FAB, the text field, the card, the list or a resting button. They are read here. The [card's reviews](reviews/card-1/checks/forced-colors.txt) and the focus indicators' read forced colors before.
+- **What happens.** Forced colors replace `background-color`, and Material's containers and states are drawn with it.
+
+  | Element | Chromium | Firefox |
+  | --- | --- | --- |
+  | Checkbox, checked or indeterminate | No box, only the mark | The same |
+  | Filled, tonal and elevated button, filled icon button, FAB, split button | No container, no outline. The three buttons are identical to a text button, and the filled icon button to a text one | A container in one color. The three buttons are identical |
+  | `mx-link-button`, filled | No container | No container |
+  | `mx-switch-button`, checked and not | **Identical** | Only the corner shape differs |
+  | `mx-switch-icon-button`, checked and not | **Identical** | **Identical** |
+  | Connected group, the checked button and the other | No containers, so no difference (screenshot) | One color, so only the corners differ (screenshot) |
+  | `mx-list-button-item`, selected and not | **Identical** | Only the corner shape differs |
+  | `mx-list-link-item`, selected and not | **Identical** | **Identical** |
+  | Text field with `error` and without | **Identical** | **Identical** |
+  | Filled and elevated card | No edge, only the text | The same |
+  | Radio, selected and not; outlined button, card and text field; checkbox unchecked | Drawn, and the radio's states differ | The same |
+
+  Identical means the same pixels in the element's box. Each pair differs without forced colors.
+
+- **Why it is a problem:** a user with a high-contrast theme, such as Windows' contrast themes, can't see whether a switch is on, which list item is selected or whether a field has an error, and a checked checkbox has no edge.
+- **Required properties,** for the plan to complete:
+  1. Under forced colors, each state that Material gives an element a different appearance for stays visible without color alone: checked, selected, disabled and error.
+  2. A control keeps a visible edge or container, as it does where its outline is drawn.
+  3. Colors come from system colors. Without the preference nothing changes.
+- **The survey comes first,** on every element and state, and not only at rest: hovered, pressed, focused, disabled, selected radio with each state, multiline and outlined text fields, the split button open, the sortable list while a drag is in flight, and a high-contrast theme in both color schemes. The probe here has 35 elements and states at rest. WebKit's emulation forces no color, so it can't be read there.
+- **The elements that aren't all on `main`:** `mx-card` is on `main` (its outline is read, above). `mx-slider` is on `material-x/slider-1` (#220) and has its own rule, which takes system colors for its parts, with visual rows and a command that emulates forced colors, `emulateForcedColors`. `mx-top-app-bar` is on `material-x/top-app-bar-1` (#211) and has none. The survey starts with the slider's rule, because the package's approach should be one.
+- **Tests** go with it, through the slider's command once it merges.
+- **RTL** is beside it and not in it: `RF-134`.
+- **Order:** after #220 merges, so that its command and its rule are the starting point. It doesn't wait for `RF-132`, whose selection is what a list item's forced-colors row would show.
+- **Not read:** Windows itself, Safari, a real contrast theme. Emulation is Chromium's and Firefox's, and the two don't agree on a button.
+- **Plan needed:** yes, by the architect, after the survey. Nothing is the owner's to answer now.
+- **Size:** _large_.
+
+#### RF-134 — No test covers the button groups in right-to-left text
+
+Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-133` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, by searching `packages/material-x/tests` for `rtl` and `direction`.
+
+- **What is missing:** no row in material-x observes `mx-button-group`, `mx-connected-button-group` or `mx-split-button` under RTL. The sortable list is the only element with one. Core's `useRovingTabindex` has rows for the arrow keys, and no row reads them through a group.
+- **What could break and not be seen:** the connected group's end shapes, the standard group's neighbors that widen when one is pressed, and the roving order. By reading, the standard group's `padding-inline` follows the direction, and `LEADING`/`TRAILING` props are logical.
+- **Required property:** in RTL, the first button of a group has its outer corners at the inline start, the press widens toward the correct side, and the arrow keys follow what is seen.
+- **Rows,** in each engine at `RD-20`'s floor: the connected group's corners, the standard group's press and the arrow keys, for `dir` on the group and on an ancestor. **Witness:** a deliberate reversal of the mapping fails them.
+- **Other elements:** the slider and the top app bar have RTL rows on their branches. Which of the rest need them is the survey's to say (`RF-133`), because both are per-element sweeps. This entry covers the groups only.
+- **Order:** it waits for nothing.
+- **Plan needed:** no. **Size:** _medium_.
 
 ## Questions
 

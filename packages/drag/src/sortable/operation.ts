@@ -89,7 +89,10 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   start(): void {
-    this.#behavior.config.onStart?.(this.#query.item);
+    this.#behavior.config.onStart?.(
+      this.#query.item,
+      this.#direction === null ? 'pointer' : 'command',
+    );
   }
 
   move(): void {
