@@ -57,10 +57,23 @@ const mutations = {
   'every attribute is synced': swap("name?.startsWith('aria-')", 'name'),
 };
 Object.assign(mutations, {
-  'the observer starts at the first connect': (s) => swap('  useConnected(host, () => {\n', '  useConnected(host, () => {\n    observer.observe(host, { attributes: true });\n')(swap('  observer.observe(host, { attributes: true });\n\n', '')(s)),
-  'the observer stops at the first disconnect': swap('  useConnected(host, () => {\n', '  use(host, { disconnected: () => observer.disconnect() });\n  useConnected(host, () => {\n'),
-  'the taken records are written a microtask later': swap('    ]).forEach(sync);', '    ]).forEach((n) => queueMicrotask(() => sync(n)));'),
-  'the taken records of lost names are dropped': swap('observer.takeRecords().map', 'observer.takeRecords().filter(({ attributeName: n }) => host.hasAttribute(n!)).map'),
+  'the observer starts at the first connect': (s) =>
+    swap(
+      '  useConnected(host, () => {\n',
+      '  useConnected(host, () => {\n    observer.observe(host, { attributes: true });\n',
+    )(swap('  observer.observe(host, { attributes: true });\n\n', '')(s)),
+  'the observer stops at the first disconnect': swap(
+    '  useConnected(host, () => {\n',
+    '  use(host, { disconnected: () => observer.disconnect() });\n  useConnected(host, () => {\n',
+  ),
+  'the taken records are written a microtask later': swap(
+    '    ]).forEach(sync);',
+    '    ]).forEach((n) => queueMicrotask(() => sync(n)));',
+  ),
+  'the taken records of lost names are dropped': swap(
+    'observer.takeRecords().map',
+    'observer.takeRecords().filter(({ attributeName: n }) => host.hasAttribute(n!)).map',
+  ),
 });
 const run = (cmd, cwd, env) => {
   try {
