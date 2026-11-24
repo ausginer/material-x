@@ -2247,7 +2247,7 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - **The token tables come first, in one unit,** at the manifest's current release, so the three component units don't each regenerate tproc's store.
 - **The plan's [component table](landing-1/landing-plan.md#missing-components-sized) is the list of further work,** in the plan's order. A component outside the first set needs a page or a consumer to ask for it.
 - **Hosting (Q1 (a)).** When the site unit lands, the landing page is the Pages root, Storybook moves to `storybook/`, `api/` stays, and the page redirects a request carrying Storybook's `path` parameter to `storybook/` with the same query.
-- **Build (Q2 (a)).** The page is a private workspace package, `packages/site`: plain HTML and TypeScript, built by Vite, importing the packages through their builds. Storybook's React demos stay as they are, and the page writes its own.
+- **Build (Q2 (a)).** The page is a private workspace package, `packages/site`: plain HTML and TypeScript, built by Vite, importing the packages through their builds. It has no client framework, and no site generator makes the page. It may use `@preact/signals-core` where values depend on each other: the box-quad demo's sliders and `RD-49`'s picker. A plain listener is enough for the theme switch and the copy button. Nothing is built on top of signals: no wrapper, no templating layer and no mini-framework. Storybook's React demos stay as they are, and the page writes its own.
 - **Packages presented (Q4 (a)).** Cards for material-x, core, box-quad and drag. An install command only for a package on npm, which today is box-quad, and _not yet published_ for the others. tproc and the Vite plugins in a short _Tooling_ note.
 - **Theme (Q5).** The colours come from the owner's Material Theme Builder export. Its exports carry colours only ([reading](landing-1/checks/mtb-export.txt)), so the type scale comes from tproc's `md.sys.typescale` tokens. Where each lives is open as the plan's Q5b and Q6. The page follows `prefers-color-scheme` before any script runs, and its theme switch overrides it.
 - **Owed when the site unit lands:** an amendment of `RD-14` property 6, so `docs-smoke` loads the landing page and Storybook at its new base path, and of property 2 or 4 if the recipe's output layout changes.
@@ -2261,6 +2261,17 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - **A manifest row is a whole table,** so the App bars row also carries the medium, large and flexible bars and the deprecated `md.comp.top-app-bar.*` sets. No component uses them.
 - **`md.comp.top-app-bar.small` is deprecated upstream.** The small bar's current tokens are `md.comp.app-bar` and `md.comp.app-bar.small`.
 - **Deprecated tokens are stored and flagged.** `md.comp.slider` has 43 of 96.
+
+**Amended 2026-11-24 by the architect, on `repo/landing-record-1`: the page may use signals, and the reason for Q2 (a) is another.** On the owner's ruling of the same day in chat, relayed by Mx Architect Explainer and the coordinator: _"Вообще я соглашусь с HTML/TS/signals, наверное. Даже без вопроса 'что мне приятнее', это довольно интересный опыт, и он часто отличается от того, что все делают на всяких jekyll или других подобный static generators."_ ("I'll agree with HTML/TS/signals, I suppose. Even leaving aside what I like better, it's quite an interesting experience, and it often differs from what everyone does with jekyll or other such static generators.") _"I suppose"_ is his hedge. What he agreed to is in the relay's wording, and the _Build_ bullet above now states it. Until then the bullet named no framework, generator or signals. Q2 (a) stands.
+
+- **The old reason is withdrawn.** The plan rejected a framework because of material-x's pitch. No README or documentation page says that. The READMEs say only _"framework-agnostic"_ (text search at `a4dee53d8`), which is about what a consumer may use.
+- **The owner's reason:** the experience is interesting, and often differs from what others do with a static site generator.
+- **The relay's reasons, checked by the architect:**
+  - **There is little to render.** No part in the plan's [table](landing-1/landing-plan.md#the-page) needs routing. The one list whose order changes is the sortable demo's, and a listener can move its existing elements. In the box-quad story that the demo follows, React's state is two slider values, and the file's other stories hold slider values only too.
+  - **`@preact/signals-core` 1.14.5 is already a root `devDependency`.** Which manifest declares it for the page is the site unit's.
+  - **A bundle of `signal`, `computed`, `effect` and `batch` is about 1.7 KB gzipped:** 1687 bytes as esbuild minifies it (4683 before gzip), and 1662 as rolldown does (4665).
+- **The relay's reasons that are the design's own,** and have nothing to read before the page exists: the text is in the HTML before any script runs, with no prerender step, and the page exercises the packages with no layer between.
+- **Not answered separately:** how `/spec/` (`RD-51`) generates its pages. The relay's proposal is that it is decided with `/spec/`.
 
 #### RD-48 — The page's theme is a Material Theme Builder JSON export in `packages/site`, its type scale comes from tproc, and a light and dark switch is part of the site
 
@@ -2369,7 +2380,7 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 - **Q2 (a): tokens and values first.** The guidelines' original texts, with links to the original, are a wish for later.
 - **Q3 (a): all of Material in the store.** Today the manifest lists the tables that the components and the planned pages need (`RD-28` property 7).
 - **What it needs from other entries:** the store's complete context (`RD-28` property 9), and `RD-50`'s notice on every page that shows Google's data. A page that shows the guidelines' texts needs its own reading of the licence. The sentence that `RD-50` quotes does name guidelines. Such a page names Google and links to the original beside each text.
-- **Not decided:** the pages' structure, the plain files for tools, and how far the store grows.
+- **Not decided:** the pages' structure, how they are generated, the plain files for tools, and how far the store grows. `RD-47`'s amendment of 2026-11-24, which lets no site generator make the landing page, isn't about these pages.
 
 #### RD-52 — An event with data of its own is a named class, and every other event is a plain `Event`
 
@@ -4814,7 +4825,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   - **The fade's cancel** stays, and gets a row per engine: an element removed during its fade and put back has no animation. Without the cancel it keeps one that fills forwards.
 - **`reviewer-5`: accepted.** The implementer's paragraph names the touch after a put-back, the animations left, `RF-114`'s row and three of the four fade orders as the rows that fail on the base. The fade after a removal, the moved press and the touch's whole delay fail there too, in each engine. That makes the 15 of the [reading](css-props-1/checks/ripple-rows.txt). The paragraph is read with this correction.
 - **Observation 1 is `RF-115`, and is repaired in this pull request.** It costs no statement: `clearTimeout` moves from the disconnect to where a touch arms its timer. The moved statement serves the put-back too.
-- **Observation 2, `moveBefore`, follows the ruling _"A move disconnects too, so it ends the press"_.** `ControlledElement` defines no `connectedMoveCallback`, so in Chromium and Firefox `moveBefore` runs the disconnect and the connect. WebKit has no `moveBefore`. A held press ended by it is accepted with that ruling. Why core's documented hook for it never runs is `RF-116`, and it changes nothing here. If `RF-116` gives elements a move without a disconnect, the press lives through `moveBefore`, as the base's did.
+- **Observation 2, `moveBefore`, follows the ruling _"A move disconnects too, so it ends the press"_.** `ControlledElement` defines no `connectedMoveCallback`, so in Chromium and Firefox `moveBefore` runs the disconnect and the connect. WebKit has no `moveBefore`. A held press ended by it is accepted with that ruling. Why core's documented hook for it never runs is `RF-116`, and it changes nothing here. If `RF-116` gives elements a move without a disconnect, the press lives through `moveBefore`, as the base's did. **Corrected 2026-11-24 by the architect:** `RF-116` deleted the hook and gives elements no such move, so `moveBefore` ends the press.
 - **Observation 3, the release after a put-back in Firefox, is explained, and nothing is owed.** Firefox dispatches a trusted `click` with `detail` 1 on the element that was put back, and Chromium and WebKit dispatch none. Firefox does so for a native `<button>` too, so the activation is the engine's and the consumer gets it. The ripple is new with this branch: on the base the state was still _waiting for the click_, so the click faded the held press. Now the press ended at the disconnect, and the click starts a ripple as any click without a press does. An activated element shows a ripple, so this is accepted. A filter on `detail` isn't taken, because it would hide an activation that happened.
 - **The implementer,** on this branch, after merging `main`: the two edits of the ripple (the timer's clear moves, the flag's reset goes), the row of the fade's cancel, `RF-115`'s rows, a new reading of the sizes, and a dated paragraph. Nothing else changes.
 - **Size of the addition:** _small_.
@@ -4999,7 +5010,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `c
 
 #### RF-116 — Core's `moved` hook never runs, because browsers call `connectedMoveCallback`
 
-Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here) of #199, relayed by the coordinator. `RF-115` is the entry before this one, so this is the next free number. Read at `c933bfd7b` ([reading](css-props-1/checks/ripple-recheck.txt), [probe](css-props-1/probes/move-before.mjs.txt)).
+Tier A, **closed 2026-11-24** on `core/remove-moved-1` (below), pre-existing since `df8442878`. Before closure: open. Registered on 2026-11-23 by the architect, on `core/css-props-1`, from the [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here) of #199, relayed by the coordinator. `RF-115` is the entry before this one, so this is the next free number. Read at `c933bfd7b` ([reading](css-props-1/checks/ripple-recheck.txt), [probe](css-props-1/probes/move-before.mjs.txt)).
 
 - **What happens:** `ControlledElement` has `movedCallback()`, documented as _"invoked when the host is moved within the DOM without being disconnected (for example via `moveBefore`)"_, and it dispatches the controllers' `moved` hook. The platform's name is `connectedMoveCallback`, and nothing calls `movedCallback`. So in Chromium and Firefox `moveBefore` runs `disconnected` and then `connected`, on every element of core and material-x, and `moved` never runs. WebKit has no `moveBefore`. The core row calls `movedCallback()` by hand, so it can't see this.
 - **Why it is a problem:** `moved` is public, and a consumer who registers a controller for it gets nothing. No package in this repository uses it.
@@ -5018,6 +5029,24 @@ Tier A, **open**, pre-existing since `df8442878`. Registered on 2026-11-23 by th
 - **Size:** _small_. Until the answer it was _small_ for (a) and _large_ for (b).
 
 **Amended 2026-11-23 by the architect,** on the owner's answer. Until then the entry waited for it, and its required property was: _"what the hook's documentation says is what the platform does, and a row observes it with a real `moveBefore` in an engine that has one."_
+
+**Dated 2026-11-24 by the implementer: implemented on `core/remove-moved-1`, from `a4dee53d8`, for #205, and not closed.** Requested by the coordinator. The two declarations, the method and the row are deleted, and nothing else in the source or the tests changes. No alias, no `connectedMoveCallback` and no row is added.
+
+- **Nothing uses the hook.** A text search of `packages/` outside the records finds neither `movedCallback` nor `moved?` of a controller after the deletion, and the built `core/element.js` and `element.d.ts` hold neither. Core's and material-x's typechecks pass, material-x's against the rebuilt core. With the deleted row put back, core's typecheck fails with three errors, two on `moved` and one on `movedCallback`.
+- **The browser projects pass** in Chromium, Firefox and WebKit, run one engine at a time: core's 229 rows in each, and material-x's 554, of which 10 are skipped in Firefox and in WebKit and one is an expected failure in Firefox ([readings](remove-moved-1/checks/suites.txt)). No row failed, so none was rerun.
+- **Sizes,** in Brotli bytes: core `element` 275 to 277, **+2**, under its limit of 340. Material-x's `complete` 22871 to 22844, **−27**. Its 19 entry rows change from −15 to +27: 13 shrink and six grow, the largest `text-field/text-field`, +27. The box-quad, drag and core `emitter` rows are 0, as expected ([every row](remove-moved-1/checks/sizes.txt)).
+- **The changes of sign are the compressor's.** Every row that has the class loses exactly 42 minified bytes, core's `element` 770 to 728 among them ([probe](remove-moved-1/probes/minified.mjs), which puts the method back into the built file). The removed method repeats its neighbors, so Brotli stores it in a few bytes.
+- **Limits:** no row reads `moveBefore`, as this entry says. Required property 2 rests on the code: nothing defines `connectedMoveCallback`, and the reading at `c933bfd7b` stands. Safari, the spec projects and the visual project weren't run.
+
+**Closed 2026-11-24 by the architect** on `core/remove-moved-1`, read at `a7af02420` (#221, not yet merged), relayed by the coordinator. Both required properties hold, and the note above is accurate.
+
+- **Property 1:** the diff in `packages/` deletes 33 lines in the two files that _What goes_ names, and changes nothing else. No alias is kept. No tracked file in `packages/` outside the records names `movedCallback`, and neither do the built `core/element.js` and `element.d.ts`. Core's and material-x's typechecks, run again by the architect, pass.
+- **Property 2:** no tracked file in `packages/` outside the records names `connectedMoveCallback` or `moveBefore`, so the platform keeps running the disconnect and the connect. Neither Chromium nor Firefox called `movedCallback` in the reading at `c933bfd7b`, so its deletion can't change which callbacks run.
+- **Sizes:** accepted. The minified code shrinks by 42 bytes in every row that has the class, and the Brotli signs depend on the bundle around it: `text-field/text-field` is +27 in size-limit and −36 in the probe.
+- **No feature proof is owed.** The change only deletes, nothing reads what it deletes, the typechecks would fail on a use, and the platform never called the method. A proof would have no behavior to observe that the entry's reading and the browser projects don't already cover.
+- **Other records:** `RF-109`'s statement about this entry is corrected. The [recheck](reviews/css-props-1/feature-proof-claude.md#observed-and-not-introduced-here), the readings and the probes name the hook at the commits they read, and stay as they are.
+- **Not run:** Safari, the spec projects and the visual project. The architect didn't run the browser projects again.
+- **When:** on the branch. The closure reaches `main` with #221, whose description says `Closes #205`, so the issue and the entry change at the same merge.
 
 #### RF-117 — `createEventNotifier` and `DEFAULT_EVENT_INIT` are a factory for events that a plain `Event` states
 
@@ -5175,6 +5204,28 @@ Tier A, **closed 2026-11-24** on `material-x/mx-prefix-1` (below), pre-existing.
 - **The feature proof's one finding,** `reviewer-1`, tier C, is corrected above.
 - **Not run:** Safari, and pointer interaction on the built elements. The proof covers the second by the JavaScript's identity apart from the names.
 - **When:** on the branch. The closure reaches `main` with #219, whose description says `Closes #218`, so the issue and the entry change at the same merge.
+
+#### RF-124 — `useARIA` keeps an `aria-*` that was removed from the host while its observer wasn't watching
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/landing-record-1`, from an observation in the [slider's feature proof](https://github.com/ausginer/material-x/blob/3c36609c3/.plan/reviews/slider-1/feature-proof-claude.md#observations-no-finding) (#220), relayed by the coordinator. `RF-123` is the highest `RF-` on `main`, and `RF-119` to `RF-121` are on `material-x/slider-1`, so this is the next free number. No entry covers it: `RF-94` is about which node carries an `aria-*`, and its rejected option is about an attribute that the component removes itself. Read at `a4dee53d8` in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/readings.txt), probes of [core](aria-removed-1/probes/use-aria.browser.test.ts.txt) and [material-x](aria-removed-1/probes/controls.browser.test.ts.txt)).
+
+- **What happens:** when the host connects, `useARIA` copies the `aria-*` that the host has then. It doesn't look at one that the host had before. Its `MutationObserver` runs only while the host is connected, and `disconnect()` drops the records it hasn't delivered. So the target keeps an `aria-*` that the host no longer has, in three cases:
+  1. it is removed while the host is out of the document, and the host is put back;
+  2. it is removed and the host is taken out in the same task, and the host is put back later;
+  3. it is removed and the host is moved in the same task.
+
+  The value stays until the attribute is written again, or removed again while the host is connected. A changed value is copied, and a removal while connected is mirrored, as the probes' controls show.
+
+- **Where:** every caller. Case 1 was read on `mx-button`, `mx-fab`, `mx-list-button-item`, `mx-text-field` and `mx-multiline-text-field`, each with `aria-label`, `aria-labelledby` and `aria-describedby`. In the two text fields, the last two don't fall back to the label and the support text either, as they do after a removal while connected. Cases 2 and 3 were read in core. `mx-slider`, on its branch, has it by the proof's reading.
+- **Why it is a problem:** the control has a name or a description that the page took away. A page that keeps an element, changes it out of the document and puts it back meets it, and so does one that removes the attribute and moves the element in one task.
+- **Required property:** after each connect, for every `aria-*` that the hook has ever mirrored from this host, the target holds what the transformer gives for the host's current value, and no attribute if that is `null`. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return. An `aria-*` that the host has never had isn't touched, because the component may have set it on the target itself. What happens while the host is connected doesn't change.
+- **Rows:** in core, the three cases, a transformer that gives a value for `null`, and a target's own `aria-*` that survives a reconnect. In material-x, the text field's fallback after case 1. The last core row passes before the repair, and the others fail.
+- **Sizes:** material-x's rows are measured and reported. Core has no row with the hook.
+- **In the same unit:** the row for `useARIA` in `packages/core/README.md` says that it syncs to `ElementInternals`. It syncs to a target element.
+- **Order:** it depends on nothing. `RF-94`'s plan may replace the mirror for some components. Until it does, this repair stands by itself.
+- **Not read:** Safari, and what a screen reader says.
+- **Ready** for an implementer. Nothing is left to decide. The source change is in core alone.
+- **Size:** _small_.
 
 ## Questions
 
