@@ -1,0 +1,313 @@
+## no mutation | chromium | 77 passed (77)
+## no mutation | firefox | 74 passed | 3 skipped (77)
+## no mutation | webkit | 74 passed | 3 skipped (77)
+## outline on the slot | chromium | 6 failed | 71 passed (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+   mx-card outline contract > should draw no outline on the slot
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline on the slot | firefox | 6 failed | 68 passed | 3 skipped (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+   mx-card outline contract > should draw no outline on the slot
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline on the slot | webkit | 6 failed | 68 passed | 3 skipped (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+   mx-card outline contract > should draw no outline on the slot
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline without !important | chromium | 1 failed | 76 passed (77)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline without !important | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline without !important | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline under a page's universal reset
+## no !important | chromium | 2 failed | 75 passed (77)
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+## no !important | firefox | 2 failed | 72 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+## no !important | webkit | 2 failed | 72 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+## no :not(:focus-visible) | chromium | 2 failed | 75 passed (77)
+   mx-card outline contract > should let the page's focus indicator replace the outline
+   mx-card outline contract > should let the browser's focus indicator replace the outline
+## no :not(:focus-visible) | firefox | 2 failed | 72 passed | 3 skipped (77)
+   mx-card outline contract > should let the page's focus indicator replace the outline
+   mx-card outline contract > should let the browser's focus indicator replace the outline
+## no :not(:focus-visible) | webkit | 2 failed | 72 passed | 3 skipped (77)
+   mx-card outline contract > should let the page's focus indicator replace the outline
+   mx-card outline contract > should let the browser's focus indicator replace the outline
+## outline drawn outside | chromium | 4 failed | 73 passed (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+## outline drawn outside | firefox | 4 failed | 70 passed | 3 skipped (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+## outline drawn outside | webkit | 4 failed | 70 passed | 3 skipped (77)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+   mx-card outline contract > should keep the outline when a click focuses the card
+## own outline color ignored | chromium | 2 failed | 75 passed (77)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## own outline color ignored | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## own outline color ignored | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## own shape ignored | chromium | 1 failed | 76 passed (77)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## own shape ignored | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## own shape ignored | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container
+## padding without !important | chromium | 6 failed | 71 passed (77)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+## padding without !important | firefox | 6 failed | 68 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+## padding without !important | webkit | 6 failed | 68 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+## padding on a block slot | chromium | 4 failed | 73 passed (77)
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card content > should end a scroll in both axes with the padding
+## padding on a block slot | firefox | 4 failed | 70 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card content > should end a scroll in both axes with the padding
+## padding on a block slot | webkit | 4 failed | 70 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card content > should end a scroll in both axes with the padding
+## slot a block | chromium | 2 failed | 75 passed (77)
+   mx-card content > should fill a card that a grid stretches
+   mx-card content > should end a scroll in both axes with the padding
+## slot a block | firefox | 2 failed | 72 passed | 3 skipped (77)
+   mx-card content > should fill a card that a grid stretches
+   mx-card content > should end a scroll in both axes with the padding
+## slot a block | webkit | 2 failed | 72 passed | 3 skipped (77)
+   mx-card content > should fill a card that a grid stretches
+   mx-card content > should end a scroll in both axes with the padding
+## slot that scrolls | chromium | 4 failed | 73 passed (77)
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card content > should end a scroll in both axes with the padding
+## slot that scrolls | firefox | 4 failed | 70 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card content > should end a scroll in both axes with the padding
+## slot that scrolls | webkit | 4 failed | 70 passed | 3 skipped (77)
+   mx-card filled container contract > should keep the inset under a page's padding on the card
+   mx-card elevated container contract > should keep the inset under a page's padding on the card
+   mx-card outlined container contract > should keep the inset under a page's padding on the card
+   mx-card content > should end a scroll in both axes with the padding
+## host a block | chromium | 1 failed | 76 passed (77)
+   mx-card content > should keep its content's margins inside
+## host a block | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should keep its content's margins inside
+## host a block | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should keep its content's margins inside
+## no box-sizing | chromium | 1 failed | 76 passed (77)
+   mx-card content > should include the padding in its size under a page's box-sizing
+## no box-sizing | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should include the padding in its size under a page's box-sizing
+## no box-sizing | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should include the padding in its size under a page's box-sizing
+## box-sizing without !important | chromium | 1 failed | 76 passed (77)
+   mx-card content > should include the padding in its size under a page's box-sizing
+## box-sizing without !important | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should include the padding in its size under a page's box-sizing
+## box-sizing without !important | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should include the padding in its size under a page's box-sizing
+## host clips | chromium | 1 failed | 76 passed (77)
+   mx-card content > should not clip its content
+## host clips | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not clip its content
+## host clips | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not clip its content
+## own padding ignored | chromium | 1 failed | 76 passed (77)
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## own padding ignored | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## own padding ignored | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## no --_level reset | chromium | 1 failed | 76 passed (77)
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## no --_level reset | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## no --_level reset | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## no --_container-color reset | chromium | 1 failed | 76 passed (77)
+   mx-card content > should not give its container colour to a checkbox inside it
+## no --_container-color reset | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not give its container colour to a checkbox inside it
+## no --_container-color reset | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should not give its container colour to a checkbox inside it
+## outline-offset without !important | chromium | 1 failed | 76 passed (77)
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+## outline-offset without !important | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+## outline-offset without !important | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline's offset under a page's outline-offset
+## outline on every variant | chromium | 2 failed | 75 passed (77)
+   mx-card outline contract > should leave a page's outline on the filled card
+   mx-card outline contract > should leave a page's outline on the elevated card
+## outline on every variant | firefox | 2 failed | 72 passed | 3 skipped (77)
+   mx-card outline contract > should leave a page's outline on the filled card
+   mx-card outline contract > should leave a page's outline on the elevated card
+## outline on every variant | webkit | 2 failed | 72 passed | 3 skipped (77)
+   mx-card outline contract > should leave a page's outline on the filled card
+   mx-card outline contract > should leave a page's outline on the elevated card
+## :not(:focus) | chromium | 1 failed | 76 passed (77)
+   mx-card outline contract > should keep the outline when a click focuses the card
+## :not(:focus) | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline when a click focuses the card
+## :not(:focus) | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card outline contract > should keep the outline when a click focuses the card
+## no umbra | chromium | 7 failed | 70 passed (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no umbra | firefox | 7 failed | 67 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no umbra | webkit | 7 failed | 67 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no penumbra | chromium | 7 failed | 70 passed (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no penumbra | firefox | 7 failed | 67 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no penumbra | webkit | 7 failed | 67 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no ambient | chromium | 7 failed | 70 passed (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no ambient | firefox | 7 failed | 67 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## no ambient | webkit | 7 failed | 67 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should draw each layer of mx-list-item transparent
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should raise the layers continuously from level 0
+## another order | chromium | 3 failed | 74 passed (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## another order | firefox | 3 failed | 71 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## another order | webkit | 3 failed | 71 passed | 3 skipped (77)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## box on ::before | chromium | 2 failed | 75 passed (77)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::before | firefox | 2 failed | 72 passed | 3 skipped (77)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::before | webkit | 2 failed | 72 passed | 3 skipped (77)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::after | chromium | 2 failed | 75 passed (77)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::after | firefox | 2 failed | 72 passed | 3 skipped (77)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## box on ::after | webkit | 2 failed | 72 passed | 3 skipped (77)
+   host-box elevation layers > should generate no pseudo-element box on mx-card
+   host-box elevation layers > should generate no pseudo-element box on a lifted mx-list-item
+## no position on the host | chromium | 1 failed | 76 passed (77)
+   mx-card content > should be the containing block of positioned content
+## no position on the host | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should be the containing block of positioned content
+## no position on the host | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card content > should be the containing block of positioned content
+## no shadow.color in the package | chromium | 1 failed | 76 passed (77)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no shadow.color in the package | firefox | 1 failed | 73 passed | 3 skipped (77)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no shadow.color in the package | webkit | 1 failed | 73 passed | 3 skipped (77)
+   mx-card elevation layers > should draw its layers in its own shadow colour

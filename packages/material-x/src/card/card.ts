@@ -57,14 +57,19 @@ const CardConstructor: Composed<
  *
  * @summary Cards display content and actions about a single subject.
  *
- * The card is a static container. It has no role, takes no focus, and handles
- * no activation. A `role`, an `aria-*` attribute or a `tabindex` set on it
- * stands. It doesn't clip its content, and the content inherits the page's
- * text color and font.
+ * The card is a static container. It has no role, adds no tab stop of its own,
+ * and handles no activation. A `role`, an `aria-*` attribute or a `tabindex`
+ * set on it stands. It doesn't clip its content, and the content inherits the
+ * page's text color and font.
  *
  * The card may be smaller than its content, or scroll it: the container, the
- * outline and the shadow stay on its own box. Positioned content at the card's
- * edge paints over the outline.
+ * outline and the shadow stay on its own box. A browser may make a scrolling
+ * card a tab stop: Chromium and Firefox do when it has no focusable content,
+ * and WebKit doesn't. Content at the card's edge that is positioned, or has an
+ * `opacity` or a `transform`, paints over the outline.
+ *
+ * `--md-card-padding` sets the padding. A `padding` that the page sets on the
+ * card doesn't apply.
  *
  * On an outlined card, an `outline` that the page sets applies only while the
  * card matches `:focus-visible`.

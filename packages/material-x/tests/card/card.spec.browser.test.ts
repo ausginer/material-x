@@ -188,6 +188,12 @@ describe.each(CASES)('mx-card $name container contract', (testCase) => {
 
     expect(contentInset(createCard(testCase))).toEqual(insetOf(PADDING));
   });
+
+  it("should keep the inset under a page's padding on the card", () => {
+    addPageRule('mx-card { padding: 40px; }');
+
+    expect(contentInset(createCard(testCase))).toEqual(insetOf(PADDING));
+  });
 });
 
 describe('mx-card outline contract', () => {
@@ -199,6 +205,25 @@ describe('mx-card outline contract', () => {
     addUniversalReset();
 
     expect(outlineOf(createCard(OUTLINED))).toEqual(await expectedOutline());
+  });
+
+  it("should keep the outline's offset under a page's outline-offset", async () => {
+    addPageRule('mx-card { outline-offset: 4px; }');
+
+    expect(outlineOf(createCard(OUTLINED))).toEqual(await expectedOutline());
+  });
+
+  it('should keep the outline when a click focuses the card', async () => {
+    const card = createCard(OUTLINED);
+    card.tabIndex = 0;
+
+    await userEvent.click(card);
+
+    expect({
+      focused: document.activeElement === card,
+      focusVisible: card.matches(':focus-visible'),
+    }).toEqual({ focused: true, focusVisible: false });
+    expect(outlineOf(card)).toEqual(await expectedOutline());
   });
 
   it('should draw no outline on the slot', () => {
@@ -226,6 +251,20 @@ describe('mx-card outline contract', () => {
     'should render no outline on the $name card',
     (testCase) => {
       expect(outlineOf(createCard(testCase))['style']).toBe('none');
+    },
+  );
+
+  it.each([FILLED, ELEVATED])(
+    "should leave a page's outline on the $name card",
+    (testCase) => {
+      addPageRule('mx-card { outline: 2px dotted rgb(1, 2, 3); }');
+
+      expect(outlineOf(createCard(testCase))).toEqual({
+        color: 'rgb(1, 2, 3)',
+        style: 'dotted',
+        width: '2px',
+        offset: '0px',
+      });
     },
   );
 });
@@ -283,6 +322,65 @@ describe('mx-card content', () => {
     // The row measures a card that the grid stretches past its content.
     expect(card.getBoundingClientRect().height).toBe(300);
     expect(contentInset(card)).toEqual(insetOf(PADDING));
+  });
+
+  it('should end a scroll in both axes with the padding', () => {
+    const card = createCard(OUTLINED);
+    card.style.cssText =
+      'inline-size: 100px; block-size: 100px; overflow: auto;';
+    const content = card.firstElementChild as HTMLElement;
+    content.style.cssText = 'inline-size: 500px; block-size: 400px;';
+
+    card.scrollTo(card.scrollWidth, card.scrollHeight);
+
+    const outer = card.getBoundingClientRect();
+    const inner = content.getBoundingClientRect();
+    // A classic scrollbar lies between the card's edge and the padding.
+    expect({
+      scrolled: card.scrollLeft > 0 && card.scrollTop > 0,
+      inline: outer.left + card.clientWidth - inner.right,
+      block: outer.top + card.clientHeight - inner.bottom,
+    }).toEqual({ scrolled: true, inline: PADDING, block: PADDING });
+  });
+
+  it("should keep its content's margins inside", () => {
+    const card = createCard(FILLED, { '--md-card-padding': '0' });
+    const { height } = card.getBoundingClientRect();
+    const content = card.firstElementChild as HTMLElement;
+
+    content.style.marginBlock = '20px';
+
+    expect(card.getBoundingClientRect().height).toBe(height + 40);
+  });
+
+  it("should include the padding in its size under a page's box-sizing", () => {
+    addPageRule('* { box-sizing: content-box !important; }');
+    const card = createCard(FILLED);
+
+    card.style.inlineSize = '200px';
+
+    expect(card.getBoundingClientRect().width).toBe(200);
+  });
+
+  it('should be the containing block of positioned content', () => {
+    const card = createCard(FILLED);
+    const content = card.firstElementChild as HTMLElement;
+
+    content.style.cssText = 'position: absolute; inset: 0;';
+
+    expect(contentInset(card)).toEqual(insetOf(0));
+  });
+
+  it('should not clip its content', () => {
+    const card = createCard(FILLED);
+    card.style.inlineSize = '100px';
+    const content = card.firstElementChild as HTMLElement;
+    content.style.inlineSize = '200px';
+
+    const { right, top } = content.getBoundingClientRect();
+
+    expect(card.getBoundingClientRect().right).toBeLessThan(right - 1);
+    expect(document.elementFromPoint(right - 1, top + 1)).toBe(content);
   });
 
   // An unchecked checkbox sets no container colour, so it paints the one it

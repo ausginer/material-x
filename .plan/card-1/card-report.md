@@ -73,3 +73,22 @@ By the implementer, on the coordinator's task, on the [plan's disposition](card-
 - **Size, Brotli,** before and after on the merged tree: `card/card` 1341 to 1321, `list/list-item` 2876 to 2847, `complete` 23068 to 23036. No other row moves.
 - **Not run:** the visual project and Safari. `card-variants.png` still has no baseline, and it is the owner's to record.
 - **Next:** the reviewer's recheck of the changed rows and the two stylesheets.
+
+## Disposition of the recheck, implemented 2026-11-24
+
+By the implementer, on the coordinator's task, on the [plan's disposition](card-plan.md#disposition-of-the-recheck-the-host-draws-the-padding-too). `origin/main` at `dbdae0a98` was merged first, as `39c41d3cf`. Each declaration holds in Chromium, Firefox and WebKit, and no list item's row changed, so the plan's stop wasn't reached.
+
+- **Source:** the host is a `flow-root` and draws the padding, with `box-sizing: border-box`, both `!important`. The slot keeps its two resets and nothing else. JSDoc and `card.mdx` carry the words of `reviewer-6` and `reviewer-7`, and JSDoc says that a page's `padding` doesn't apply.
+- **The two resets hold on a slot without a box:** the content inherits from the slot in the flat tree. Without either, only its own row fails, in the three engines.
+- **Rows:** the plan's nine, as twelve tests, because the page's padding is read per variant and the page's outline on two. The scroll row subtracts a classic scrollbar, through `clientWidth` and `clientHeight`.
+- **Witnesses** ([reading](checks/witnesses-4.txt), [script](probes/mutate-4.mjs)): 29 mutations and a control, in the three engines. Every mutation fails at least one row, and the engines fail the same rows, apart from _own outline color ignored_, which fails a level-0 row in Chromium too. Each of the plan's witnesses fails the row it names. Three fail others as well:
+  - A block slot that draws the padding fails the end of the scroll, and also the three rows on the page's padding, because the page's `padding` is added to the slot's. The same holds for a slot that scrolls.
+  - A slot as a block on a host that keeps its padding fails the percentage row and the end of the scroll.
+  - The outline drawn outside, or on the slot, also fails the rows on `outline-offset` and on the click.
+- **`no position on the host`,** which passed before, now fails the containing-block row, alone.
+- **The built element** ([padding](checks/padding-owner-built.txt), [script](probes/padding-owner-built.ts)): the scrolled cases equal the `div`'s, and 0 of 18 screenshots differ from the layout before, emulated by a stylesheet on the built card, in the three engines. The recheck's focus probe paints an indicator in the same cases ([reading](checks/focus-built.txt)), and the end of an inline scroll is 16px. The count of changed pixels differs in _smaller, tabindex_, in Chromium and WebKit. The cause wasn't read.
+- **Not stated by the plan: the host can't be smaller than its padding.** The recheck's box probe has a case of `block-size: 10px`, and the card is 32px high there, where it was 10px with the padding on the slot. A `div` with `padding: 16px` and `border-box` is the same: with that padding on the probe's reference, no pixel of this case differs ([reading](checks/box-padded-reference.txt)), and the card is as high as in the reference. The other 12 cases equal the reference, by at most 1 pixel by 2 of 255 in WebKit. The plan's property 2, _"a size that the page gives the card includes the padding"_, holds from 32px up, and its _"Nothing else changes"_ doesn't list this case. It isn't an engine difference, so the work wasn't stopped. **The architect's, with the recheck.**
+- **Checks:** the suite without the visual project, one engine at a time: Chromium 1081 passed and 2 expected failures; Firefox 1067 passed, 3 expected failures and 13 skipped; WebKit 1068 passed, 2 expected failures and 13 skipped. Format, lint, typecheck, publint and `docs-build` pass, and `docs-smoke` passes 117 of 117 pages. Lint doesn't apply to Markdown, MDX or the `.plan` probes.
+- **Size, Brotli,** before and after on the merged tree: `card/card` 1323 to 1314, `complete` 23063 to 23066, `list/list-item` 2838 and unchanged. No other row moves.
+- **Not run:** the visual project and Safari. `card-variants.png` still has no baseline, and it is the owner's to record.
+- **Next:** the reviewer's narrow recheck that the plan owes.
