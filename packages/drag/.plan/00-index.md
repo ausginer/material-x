@@ -3278,6 +3278,12 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 - **The bench:** the two injections' `find` and `replace` follow the new text, and each applies with `--dry --only`. **Found beside it:** `--prove --dry` and `--floors --dry` stop at another injection, _one forced layout per move_ and its floors, whose `find` is `this.#lift.translate(drag.x - drag.originX, …)`, and the source has `this.#drag.x`. It isn't this unit's text, so it isn't repaired. Not registered: the architect's.
 - **Not run:** Safari, a touch device, and the bench itself.
 
+**Dated 2026-11-24 by the implementer: `reviewer-1` of the [feature proof](../../../.plan/reviews/command-signal-1/feature-proof-claude.md) has its row.** Requested by the coordinator. No source changes. `origin/main` at `eddf39e7b` is merged.
+
+- **Rows:** _should report 'command' once for …, before onReorder_ runs for `ArrowDown` and `ArrowUp`, and so does the list's _should paint nothing in the handler of a move by …_. So drag's file has seven rows of this entry, and the list's eleven.
+- **Witness** ([reading](../../../.plan/command-signal-1/checks/mutations-2.txt), [script](../../../.plan/command-signal-1/probes/mutations.mjs)): with `'command'` only toward the end, the `ArrowUp` row fails in Chromium, Firefox and WebKit, in the source and the consumer project, and no other. With that drag built, the list's `ArrowUp` row fails in the three engines, and no other. The second was by hand, with the mutation in drag's source and a build.
+- **Suites,** on the merge, one engine at a time: drag's browser, shipped and consumer projects: Chromium 878 passed; Firefox and WebKit 858 passed and 20 skipped. Node and declaration projects: 76. material-x without the visual project: Chromium 1128 passed and 2 expected fail (with the node project); Firefox 1078 passed, 3 expected fail, 13 skipped; WebKit 1079 passed, 2 expected fail, 13 skipped. The traits snapshot passes unchanged, and drag's size rows are at their ceilings. The root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations` pass.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).

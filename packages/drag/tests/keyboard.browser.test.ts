@@ -175,13 +175,16 @@ describe("drag:DRD-71 onStart's operation kind", () => {
     },
   );
 
-  it("should report 'command' once for an arrow key, before onReorder", async () => {
-    kindSortable(focusableList(3));
-    row('r0').focus();
-    await commands.keyPress('ArrowDown');
-    await frames();
-    expect(log).toEqual(['start:command', 'reorder', 'end:accepted']);
-  });
+  it.each(['ArrowDown', 'ArrowUp'])(
+    "should report 'command' once for %s, before onReorder",
+    async (key) => {
+      kindSortable(focusableList(3));
+      row('r1').focus();
+      await commands.keyPress(key);
+      await frames();
+      expect(log).toEqual(['start:command', 'reorder', 'end:accepted']);
+    },
+  );
 
   it("should report 'pointer' for the drag after a command", async () => {
     kindSortable(focusableList(4));

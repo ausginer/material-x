@@ -23,6 +23,11 @@ const mutations = [
     op,
     swap(kind, "this.#direction === null ? 'command' : 'pointer'"),
   ],
+  [
+    "drag: a command's kind only toward the end",
+    op,
+    swap(kind, "this.#direction === 111 ? 'command' : 'pointer'"),
+  ],
   ['drag: no kind', op, swap(`${kind},\n`, '')],
   [
     'drag: onStart called at the drop too',

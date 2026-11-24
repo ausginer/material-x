@@ -730,16 +730,20 @@ describe('mx-sortable-list footprint', () => {
     await userEvent.keyboard('{ArrowDown}');
   }
 
-  it('should paint nothing in the handler of a key move', async () => {
-    const [list, [a]] = await createList(['A', 'B', 'C']);
-    const read = readInHandler(list);
-    commitOnReorder(list);
+  it.each(['ArrowDown', 'ArrowUp'])(
+    'should paint nothing in the handler of a move by %s',
+    async (key) => {
+      const [list, [, b]] = await createList(['A', 'B', 'C']);
+      const read = readInHandler(list);
+      commitOnReorder(list);
 
-    await moveDown(a!);
-    await whenSettled(list, a!);
+      b!.focus();
+      await userEvent.keyboard(`{${key}}`);
+      await whenSettled(list, b!);
 
-    expect(read).toEqual([false]);
-  });
+      expect(read).toEqual([false]);
+    },
+  );
 
   it('should paint nothing in any frame while the commit of a key move is pending', async () => {
     const [list, [a]] = await createList(['A', 'B', 'C']);
