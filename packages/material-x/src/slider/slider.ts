@@ -94,6 +94,16 @@ const SliderConstructor: Composed<
 > = compose(ControlledElement);
 
 /**
+ * What the browser has decided about a press that isn't a mouse's:
+ * - `idle`: there is none to decide on, and an `input` is the user's;
+ * - `pressed`: it hasn't moved, so its first `input` is held back;
+ * - `held`: its `input` is held back;
+ * - `cancelled`: it wasn't the slider's, and what the engine fires after it
+ *   isn't the user's.
+ */
+type PressPhase = 'idle' | 'pressed' | 'held' | 'cancelled';
+
+/**
  * The host's `aria-*` that the control doesn't take as they are: the native
  * range reports its own value and bounds, and ids don't resolve in the shadow
  * tree, so {@link useSliderReferences} passes the referenced elements.
@@ -128,7 +138,7 @@ function useSliderReferences(
     if (!labelledBy?.length) {
       if (slot.assignedElements().length > 0) {
         labelledBy = [label];
-      } else if (host.hasAttribute('aria-label')) {
+      } else if (host.ariaLabel?.trim()) {
         labelledBy = null;
       } else {
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -188,7 +198,10 @@ function useSliderReferences(
  * @attr {"small"|"medium"|"large"|"xlarge"} size - Track and handle size. Omit
  *   for the extra small default.
  * @attr {boolean} indicator - Shows the value above the handle while the
- *   handle is held or has keyboard focus.
+ *   handle is held or has keyboard focus. It is centred on the handle and stops
+ *   at the slider's ends. A container that clips its overflow cuts it. Its text
+ *   takes its direction from its own characters, so a negative number has its
+ *   sign at the left in both directions.
  * @attr {string} valuetext - The value in words, such as a number with a unit.
  *   The value indicator and assistive technology show it instead of the
  *   number. A host `aria-valuetext` replaces it for assistive technology only.
@@ -211,8 +224,9 @@ function useSliderReferences(
  * @cssprop --md-slider-stop-indicator-color - Overrides the stop indicator's
  *   color.
  *
- * @event input - Fired when the user changes the value, at each move. Also
- *   fired when a press that becomes a scroll restores the value.
+ * @event input - Fired when the user changes the value, at each move. A touch
+ *   fires it at the lift or at the first step of a slide. A touch that becomes a
+ *   scroll changes nothing and fires nothing.
  * @event change - Fired when the user commits the value.
  * @event invalid - Fired at the host when a validity check finds it invalid.
  *   It doesn't bubble and is cancelable.
@@ -222,7 +236,7 @@ export default class Slider extends SliderConstructor {
 
   readonly #input: HTMLInputElement;
   readonly #track: HTMLElement;
-  readonly #handle: HTMLElement;
+  readonly #text: HTMLElement;
   /**
    * The number that the user or a script asked for last, `null` for the
    * midpoint, and `undefined` while the value follows the `value` attribute.
@@ -230,6 +244,11 @@ export default class Slider extends SliderConstructor {
    * the number itself.
    */
   #requested: number | null | undefined;
+  /**
+   * The number that the slider shows, as the input's string. The input holds
+   * another one while a press is held back.
+   */
+  #shown = '';
 
   constructor() {
     super();
@@ -248,7 +267,7 @@ export default class Slider extends SliderConstructor {
 
     this.#input = input;
     this.#track = root.querySelector<HTMLElement>('.track')!;
-    this.#handle = root.querySelector<HTMLElement>('.handle')!;
+    this.#text = root.querySelector<HTMLElement>('.text')!;
     this.#write();
 
     useValidatable(this, input);
@@ -283,10 +302,46 @@ export default class Slider extends SliderConstructor {
       }),
     });
 
+    // An input by touch may be a press that the browser turns into a scroll, so
+    // it is held back until the browser has decided.
+    let press: PressPhase = 'idle';
+    let pointer = 0;
+    let pressedValue = '';
+    let isUncommitted = false;
+
+    const reportHeld = () => {
+      if (press === 'held') {
+        press = 'idle';
+
+        if (input.value !== this.#shown) {
+          input.dispatchEvent(
+            new Event('input', { bubbles: true, composed: true }),
+          );
+        }
+      }
+    };
+
+    const dropHeld = () => {
+      if (press === 'held') {
+        press = 'idle';
+        this.#write();
+      }
+    };
+
+    const commit = () => {
+      isUncommitted = false;
+      this.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
     use(this, {
+      disconnected: dropHeld,
       // The callback is also the `disabled` attribute's.
       formDisabled: () => {
         input.disabled = this.matches(':disabled');
+
+        if (input.disabled) {
+          dropHeld();
+        }
       },
       formReset: () => {
         this.#requested = undefined;
@@ -303,28 +358,70 @@ export default class Slider extends SliderConstructor {
     });
     useSliderReferences(this, input);
 
-    let pressedValue = '';
-
     useEvents(
       this,
       {
-        input: () => {
-          this.#requested = input.valueAsNumber;
-          this.#sync();
+        input: (event) => {
+          if (press === 'pressed') {
+            press = 'held';
+            event.stopImmediatePropagation();
+          } else if (
+            press === 'cancelled' &&
+            // Firefox puts back the number that it had at the press, which the
+            // bounds may have changed since.
+            (input.value === pressedValue || input.value === this.#shown)
+          ) {
+            event.stopImmediatePropagation();
+            this.#write();
+          } else {
+            press = 'idle';
+            isUncommitted = true;
+            this.#requested = input.valueAsNumber;
+            this.#sync();
+          }
         },
         change: () => {
-          this.dispatchEvent(new Event('change', { bubbles: true }));
+          // Chromium fires it at the lift after the cancel if a script wrote.
+          if (press !== 'cancelled') {
+            reportHeld();
+            commit();
+          }
         },
-        pointerdown: () => {
-          pressedValue = input.value;
+        // A key after a cancelled press is the user's.
+        keydown: () => {
+          if (press === 'cancelled') {
+            press = 'idle';
+          }
         },
-        // The browser took the press for a scroll.
-        pointercancel: () => {
-          if (input.value !== pressedValue) {
-            input.value = pressedValue;
-            input.dispatchEvent(
-              new Event('input', { bubbles: true, composed: true }),
-            );
+        pointerdown: ({ isPrimary, pointerId, pointerType }) => {
+          // A second finger doesn't take over a press that is held back.
+          if (press !== 'held' || isPrimary) {
+            press = pointerType === 'mouse' ? 'idle' : 'pressed';
+            pointer = pointerId;
+            pressedValue = input.value;
+            isUncommitted = false;
+          }
+        },
+        pointermove: ({ pointerId }) => {
+          if (press === 'pressed' && pointerId === pointer) {
+            press = 'idle';
+          }
+        },
+        pointerup: ({ pointerId }) => {
+          if (pointerId === pointer) {
+            reportHeld();
+            press = 'idle';
+          }
+        },
+        // The browser took the press for a scroll, or the system took a slide.
+        pointercancel: ({ pointerId }) => {
+          if (pointerId === pointer) {
+            dropHeld();
+            press = 'cancelled';
+
+            if (isUncommitted) {
+              commit();
+            }
           }
         },
       },
@@ -333,7 +430,7 @@ export default class Slider extends SliderConstructor {
   }
 
   override get value(): number {
-    return this.#input.valueAsNumber;
+    return Number(this.#shown);
   }
 
   override set value(value: number | null) {
@@ -358,6 +455,7 @@ export default class Slider extends SliderConstructor {
   /** Shows the input's value in the drawing and in the form value. */
   #sync(): void {
     const { value } = this.#input;
+    this.#shown = value;
     const min = this.min ?? 0;
     // Equal bounds divide zero by zero.
     const fraction = (Number(value) - min) / ((this.max ?? 100) - min) || 0;
@@ -369,7 +467,7 @@ export default class Slider extends SliderConstructor {
 
   #writeIndicator(): void {
     if (this.indicator) {
-      this.#handle.dataset['value'] = this.valuetext ?? this.#input.value;
+      this.#text.textContent = this.valuetext ?? this.#shown;
     }
   }
 }

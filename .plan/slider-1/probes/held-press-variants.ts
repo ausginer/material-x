@@ -15,14 +15,20 @@ const { output } = await build.generate({
 });
 export const built = output.map((c) => ('code' in c ? c.code : '')).join('\n');
 
+// A built element that holds the press itself has no variants.
+const isHeld = built.includes('reportHeld');
+
 // The handlers on the input, replaced in the built code. The private fields
 // keep their names in the bundle, because the package isn't mangled.
 const start = built.indexOf('let pressedValue');
 const end = built.indexOf('}, input);', start);
-if (start < 0 || end < 0) throw new Error('the built handlers were not found');
+if (!isHeld && (start < 0 || end < 0))
+  throw new Error('the built handlers were not found');
 const swap = (body: string) =>
   built.slice(0, start) + body + built.slice(end + '}, input);'.length);
-export const restoreOwner = swap(`
+export const restoreOwner = isHeld
+  ? null
+  : swap(`
   let before, pressed;
   useEvents(this, {
     input: () => { this.#requested = input.valueAsNumber; this.#sync(); },
@@ -71,12 +77,17 @@ const HOLD = `
       if (slid) commit();
     },
   }, input);`;
-export const hold = swap(HOLD)
-  .replace(/#sync\(\) \{/u, '#sync() { this.shown$ = this.#input.value;')
-  .replace(
-    /get value\(\) \{\s*return this\.#input\.valueAsNumber/u,
-    'get value() { return Number(this.shown$)',
-  );
+export const hold = isHeld
+  ? null
+  : swap(HOLD)
+      .replace(/#sync\(\) \{/u, '#sync() { this.shown$ = this.#input.value;')
+      .replace(
+        /get value\(\) \{\s*return this\.#input\.valueAsNumber/u,
+        'get value() { return Number(this.shown$)',
+      );
 // The places of the built code that the variant replaces, beside the handlers.
-if (!hold.includes('Number(this.shown$)') || !hold.includes('{ this.shown$ ='))
+if (
+  hold &&
+  (!hold.includes('Number(this.shown$)') || !hold.includes('{ this.shown$ ='))
+)
   throw new Error('not replaced');

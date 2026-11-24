@@ -93,6 +93,7 @@ for (const [label, code] of [
   ['restores the owner', restoreOwner],
   ['holds the press', hold],
 ] as const) {
+  if (!code) continue;
   console.log(`## ${label}`);
   const ev =
     (js: string) =>

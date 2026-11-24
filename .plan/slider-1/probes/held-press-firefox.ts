@@ -85,6 +85,7 @@ try {
     ['built', built],
     ['holds the press', hold],
   ] as const) {
+    if (!code) continue;
     console.log(`## ${label}`);
     type At = (f: number) => [number, number];
     const run = async (
@@ -197,6 +198,15 @@ try {
       'value=30',
       during('s.value = 90', 'touchcancel'),
     );
+    await run(
+      'the attribute is set to 60 during',
+      'value=30',
+      during('s.setAttribute("value", "60")', 'touchcancel'),
+    );
+    await run('max=20 during, then max=100', 'value=30', async (at) => {
+      await during('s.max = 20', 'touchcancel')(at);
+      await content('s.max = 100');
+    });
     await run(
       'script sets 90 during a tap',
       'value=30',

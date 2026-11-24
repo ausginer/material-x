@@ -1,0 +1,424 @@
+Mutations of mx-slider's feature-proof dispositions: probes/mutations.ts. Read on 2026-11-24.
+"none" is the code as it is. A mutation of touch or of the accessibility tree ran in Chromium only.
+WebKit's fade row failed in five of its runs, "none" among them: it pressed the track, and WebKit
+drops :active then (press-active.txt). The row now presses the handle, and "no @starting-style"
+was run again with it.
+
+## none | chromium | 0 failed, 360 passed
+
+## none | firefox | 0 failed, 308 passed
+
+## none | webkit | 1 failed, 307 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+
+## the press is not held | chromium | 16 failed, 344 passed
+mx-slider touch should do nothing on a vertical scroll that starts on the track
+mx-slider touch should not write the pressed number to the value indicator before a scroll
+mx-slider touch should follow the value attribute after a scroll
+mx-slider touch should follow the midpoint after a scroll
+mx-slider touch should keep a number out of bounds through a scroll
+mx-slider touch should keep value written during a press that becomes a scroll
+mx-slider touch should keep the value attribute written during a press that becomes a scroll
+mx-slider touch should keep a bound written during a press that becomes a scroll
+mx-slider touch should keep a form reset written during a press that becomes a scroll
+mx-slider touch should fire input and then change on a tap
+mx-slider touch should keep a number written during a tap
+mx-slider touch should take a key after a scroll
+mx-slider touch should take a tap after a scroll
+mx-slider touch should drop a held press when it is moved in the DOM
+mx-slider touch should drop a held press when it is disabled
+mx-slider touch should drop a held press that is cancelled after a second finger
+
+## the press's number is taken as asked for | chromium | 9 failed, 351 passed
+mx-slider touch should do nothing on a vertical scroll that starts on the track
+mx-slider touch should follow the value attribute after a scroll
+mx-slider touch should follow the midpoint after a scroll
+mx-slider touch should keep a number out of bounds through a scroll
+mx-slider touch should keep the value attribute written during a press that becomes a scroll
+mx-slider touch should take a key after a scroll
+mx-slider touch should drop a held press when it is moved in the DOM
+mx-slider touch should drop a held press when it is disabled
+mx-slider touch should drop a held press that is cancelled after a second finger
+
+## the number at pointerdown is restored | chromium | 5 failed, 355 passed
+mx-slider touch should follow the value attribute after a scroll
+mx-slider touch should follow the midpoint after a scroll
+mx-slider touch should keep a number out of bounds through a scroll
+mx-slider touch should keep value written during a press that becomes a scroll
+mx-slider touch should keep the value attribute written during a press that becomes a scroll
+
+## the engine's change after a cancel is not dropped | chromium | 3 failed, 357 passed
+mx-slider touch should keep value written during a press that becomes a scroll
+mx-slider touch should keep the value attribute written during a press that becomes a scroll
+mx-slider touch should keep a bound written during a press that becomes a scroll
+
+## the first input is also held after a move | chromium | 1 failed, 359 passed
+mx-slider touch should follow a slide from the handle at its first step
+
+## a cancelled slide is not committed | chromium | 1 failed, 359 passed
+mx-slider touch should commit a slide that the system cancels
+
+## a key does not end a cancelled press | chromium | 1 failed, 359 passed
+mx-slider touch should take a key that gives the number from before a scroll
+
+## a second finger takes over a held press | chromium | 1 failed, 359 passed
+mx-slider touch should drop a held press that is cancelled after a second finger
+
+## a disconnection does not drop the press | chromium | 1 failed, 359 passed
+mx-slider touch should drop a held press when it is moved in the DOM
+
+## disabling does not drop the press | chromium | 1 failed, 359 passed
+mx-slider touch should drop a held press when it is disabled
+
+## value reads the input's number | chromium | 1 failed, 359 passed
+mx-slider touch should do nothing on a vertical scroll that starts on the track
+
+## the indicator shows the input's number | chromium | 1 failed, 359 passed
+mx-slider touch should not write the pressed number to the value indicator before a scroll
+
+## the dispatched input is not composed | chromium | 3 failed, 357 passed
+mx-slider touch should fire input and then change on a tap
+mx-slider touch should dispatch the input of a tap with the native flags
+mx-slider touch should take a tap after a scroll
+
+## a tap reports a number that is shown | chromium | 1 failed, 359 passed
+mx-slider touch should keep a number written during a tap
+
+## no touch-action | chromium | 1 failed, 359 passed
+mx-slider touch action should leave vertical panning to the browser
+
+## no touch-action | firefox | 1 failed, 307 passed
+mx-slider touch action should leave vertical panning to the browser
+
+## no touch-action | webkit | 1 failed, 307 passed
+mx-slider touch action should leave vertical panning to the browser
+
+## no guard for equal bounds | chromium | 1 failed, 359 passed
+mx-slider attributes and properties with equal bounds should be drawn as at 0
+
+## no guard for equal bounds | firefox | 1 failed, 307 passed
+mx-slider attributes and properties with equal bounds should be drawn as at 0
+
+## no guard for equal bounds | webkit | 1 failed, 307 passed
+mx-slider attributes and properties with equal bounds should be drawn as at 0
+
+## an empty aria-label is a source | chromium | 4 failed, 356 passed
+mx-slider name should refer to a label beside the aria-label ""
+mx-slider name should refer to a label beside the aria-label " "
+mx-slider in Chromium's accessibility tree should name the control from a label beside the aria-label ""
+mx-slider in Chromium's accessibility tree should name the control from a label beside the aria-label " "
+
+## an empty aria-label is a source | firefox | 2 failed, 306 passed
+mx-slider name should refer to a label beside the aria-label ""
+mx-slider name should refer to a label beside the aria-label " "
+
+## an empty aria-label is a source | webkit | 2 failed, 306 passed
+mx-slider name should refer to a label beside the aria-label ""
+mx-slider name should refer to a label beside the aria-label " "
+
+## a white-space aria-label is a source | chromium | 2 failed, 358 passed
+mx-slider name should refer to a label beside the aria-label " "
+mx-slider in Chromium's accessibility tree should name the control from a label beside the aria-label " "
+
+## a white-space aria-label is a source | firefox | 1 failed, 307 passed
+mx-slider name should refer to a label beside the aria-label " "
+
+## a white-space aria-label is a source | webkit | 1 failed, 307 passed
+mx-slider name should refer to a label beside the aria-label " "
+
+## no aria-hidden | chromium | 1 failed, 359 passed
+mx-slider in Chromium's accessibility tree should not expose the value indicator
+
+## no @starting-style | chromium | 1 failed, 359 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+## no @starting-style | firefox | 1 failed, 307 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+## no @starting-style | webkit | 1 failed, 307 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+
+## no unicode-bidi | chromium | 3 failed, 357 passed
+mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+mx-slider signed indicator in rtl should draw the sign of the number at the left
+mx-slider signed indicator in rtl should draw the sign of valuetext at the left
+
+## no unicode-bidi | firefox | 3 failed, 305 passed
+mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+mx-slider signed indicator in rtl should draw the sign of the number at the left
+mx-slider signed indicator in rtl should draw the sign of valuetext at the left
+
+## no unicode-bidi | webkit | 3 failed, 305 passed
+mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+mx-slider signed indicator in rtl should draw the sign of the number at the left
+mx-slider signed indicator in rtl should draw the sign of valuetext at the left
+
+## the spaces do not shrink | chromium | 26 failed, 334 passed
+mx-slider layout in ltr with the indicator shown for 100 should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for 100 should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for 100 should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for 100 should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for 1000000 should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for 1000000 should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long valuetext should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should add no overflow to the page at the fraction 1
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl with the indicator shown for 100 should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for 100 should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+
+## the spaces do not shrink | firefox | 26 failed, 282 passed
+mx-slider layout in ltr with the indicator shown for 100 should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for 100 should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for 100 should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for 100 should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for 1000000 should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for 1000000 should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long valuetext should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should add no overflow to the page at the fraction 1
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl with the indicator shown for 100 should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for 100 should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+
+## the spaces do not shrink | webkit | 27 failed, 281 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+mx-slider layout in ltr with the indicator shown for 100 should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for 100 should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for 100 should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for 100 should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for 1000000 should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for 1000000 should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long valuetext should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should add no overflow to the page at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should add no overflow to the page at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should add no overflow to the page at the fraction 1
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl with the indicator shown for 100 should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for 100 should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for 1000000 should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+
+## no basis at the start | chromium | 4 failed, 356 passed
+mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+
+## no basis at the start | firefox | 4 failed, 304 passed
+mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+
+## no basis at the start | webkit | 4 failed, 304 passed
+mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+
+## no basis at the end | chromium | 6 failed, 354 passed
+mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+mx-slider value indicator contract should be centred on the handle in ltr
+mx-slider value indicator contract should be centred on the handle in rtl
+
+## no basis at the end | firefox | 6 failed, 302 passed
+mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+mx-slider value indicator contract should be centred on the handle in ltr
+mx-slider value indicator contract should be centred on the handle in rtl
+
+## no basis at the end | webkit | 7 failed, 301 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in ltr the indicator place should touch the end where it does not fit
+mx-slider layout in rtl the indicator place should be centred on the handle at the first value where it fits
+mx-slider layout in rtl the indicator place should touch the end where it does not fit
+mx-slider value indicator contract should be centred on the handle in ltr
+mx-slider value indicator contract should be centred on the handle in rtl
+
+## no max-inline-size | chromium | 8 failed, 352 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## no max-inline-size | firefox | 8 failed, 300 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## no max-inline-size | webkit | 9 failed, 299 passed
+mx-slider value indicator fade should run an opacity transition when it is shown
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## no box-sizing on the text | chromium | 9 failed, 351 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider value indicator contract should render its box
+
+## no box-sizing on the text | firefox | 9 failed, 299 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider value indicator contract should render its box
+
+## no box-sizing on the text | webkit | 9 failed, 299 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider value indicator contract should render its box
+
+## the page's white-space | chromium | 4 failed, 356 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## the page's white-space | firefox | 4 failed, 304 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## the page's white-space | webkit | 8 failed, 300 passed
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long valuetext should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## no overflow-wrap | chromium | 2 failed, 358 passed
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## no overflow-wrap | firefox | 2 failed, 306 passed
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## no overflow-wrap | webkit | 4 failed, 304 passed
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in ltr with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 0
+mx-slider layout in rtl with the indicator shown for a long word should stay between the ends without overflow at the fraction 1
+
+## the input's opacity | chromium | 1 failed, 359 passed
+mx-slider native range should be transparent
+
+## the input's opacity | firefox | 1 failed, 307 passed
+mx-slider native range should be transparent
+
+## the input's opacity | webkit | 1 failed, 307 passed
+mx-slider native range should be transparent
+
+## the indicator is shown at rest | chromium | 4 failed, 356 passed
+mx-slider value indicator should not be shown at rest
+mx-slider value indicator should be shown while the handle is held
+mx-slider value indicator should be shown with keyboard focus
+mx-slider value indicator should not be shown without the attribute
+
+## the indicator is shown at rest | firefox | 4 failed, 304 passed
+mx-slider value indicator should not be shown at rest
+mx-slider value indicator should be shown while the handle is held
+mx-slider value indicator should be shown with keyboard focus
+mx-slider value indicator should not be shown without the attribute
+
+## the indicator is shown at rest | webkit | 4 failed, 304 passed
+mx-slider value indicator should not be shown at rest
+mx-slider value indicator should be shown while the handle is held
+mx-slider value indicator should be shown with keyboard focus
+mx-slider value indicator should not be shown without the attribute
+
+## the text is written without the attribute | chromium | 1 failed, 359 passed
+mx-slider value indicator should write no text without the attribute
+
+## the text is written without the attribute | firefox | 1 failed, 307 passed
+mx-slider value indicator should write no text without the attribute
+
+## the text is written without the attribute | webkit | 1 failed, 307 passed
+mx-slider value indicator should write no text without the attribute
+
+## Firefox, probes/held-press-firefox.ts: the engine's restoring input is not dropped
+with the drop: slide, cancel | p.down t.start p.move t.move input75 p.move t.move input80 change80 p.cancel t.cancel | 80
+without it: slide, cancel | p.down t.start p.move t.move input75 p.move t.move input80 change80 p.cancel t.cancel input30 | 30
+with the drop: script sets 90 during | p.down t.start p.cancel t.cancel | 90
+without it: script sets 90 during | p.down t.start p.cancel t.cancel input30 | 30
+with the drop: the attribute is set to 60 during | p.down t.start p.cancel t.cancel | 60
+without it: the attribute is set to 60 during | p.down t.start p.cancel t.cancel input30 | 30

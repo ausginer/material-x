@@ -37,7 +37,6 @@ interface ActionChain {
 
 interface CdpSession {
   send(method: string, params?: unknown): Promise<unknown>;
-  detach(): Promise<void>;
 }
 
 interface Page {
@@ -70,7 +69,7 @@ const POINTER = {
   parameters: { pointerType: 'mouse' },
 } as const;
 
-const TOUCH_MOVES = 10;
+const sessions = new WeakMap<Page, Promise<CdpSession>>();
 
 export const inputBrowserCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
@@ -134,41 +133,33 @@ export const inputBrowserCommands: Readonly<
   ),
   // `Input.dispatchTouchEvent` goes through Chromium's own gesture recognition,
   // so a pan scrolls the page and cancels the pointer, as a finger's does.
-  touchDrag: defineBrowserCommand<[number, number, number, number]>(
-    async (context, x, y, dx, dy): Promise<void> => {
-      const { provider, page } = context as unknown as Context;
+  touch: defineBrowserCommand<
+    [
+      'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel',
+      ...Array<readonly [number, number]>,
+    ]
+  >(async (context, type, ...points): Promise<void> => {
+    const { provider, page } = context as unknown as Context;
 
-      if (provider.name !== 'playwright') {
-        throw new Error('touchDrag needs Playwright');
-      }
+    if (provider.name !== 'playwright') {
+      throw new Error('touch needs Playwright');
+    }
 
-      const cdp = await page.context().newCDPSession(page);
+    // One session for a page, because a finger is down across calls.
+    let session = sessions.get(page);
 
-      try {
-        await cdp.send('Input.dispatchTouchEvent', {
-          type: 'touchStart',
-          touchPoints: [{ x, y }],
-        });
+    if (!session) {
+      session = page.context().newCDPSession(page);
+      sessions.set(page, session);
+    }
 
-        for (let i = 1; i <= TOUCH_MOVES; i += 1) {
-          // oxlint-disable-next-line no-await-in-loop -- one move at a time
-          await cdp.send('Input.dispatchTouchEvent', {
-            type: 'touchMove',
-            touchPoints: [
-              { x: x + (dx * i) / TOUCH_MOVES, y: y + (dy * i) / TOUCH_MOVES },
-            ],
-          });
-        }
-
-        await cdp.send('Input.dispatchTouchEvent', {
-          type: 'touchEnd',
-          touchPoints: [],
-        });
-      } finally {
-        await cdp.detach();
-      }
-    },
-  ),
+    await (
+      await session
+    ).send('Input.dispatchTouchEvent', {
+      type,
+      touchPoints: points.map(([x, y], id) => ({ x, y, id })),
+    });
+  }),
   pointerRelease: defineBrowserCommand<[]>(async (context): Promise<void> => {
     const { provider, page, browser } = context as unknown as Context;
 

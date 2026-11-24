@@ -51,6 +51,35 @@ Implemented on 2026-11-24, on `8d77d1d00` merged with `origin/main` at `3aef04f7
 - **Docs:** `docs-build` passes, and `docs-smoke` with 120 of 120 pages.
 - **Not run:** as below. The phone check is after the merge, by the owner's ruling.
 
+## The feature proof's dispositions
+
+Implemented on 2026-11-24, on `5f191a509`: the plan's work list with `SL-D2`, `SL-D3` and `SL-D6` as amended, and `repo:RD-55` clause 4. The sections below it are of `ed272a010`.
+
+- **A finger's press is held** until it isn't a scroll, in `slider.ts` only. Core's `useARIA` isn't touched. The [built element's readings](checks/held-press-built.txt) in Chromium and [in Firefox](checks/held-press-firefox-built.txt) are the events and values of the plan's variant that holds the press.
+- **The indicator** is an element as wide as the track, with two pseudo-elements beside its text.
+- **The name:** an `aria-label` that is empty or white space isn't a source.
+- **Rows:** 1, 8, 10, 12 and 13 of the plan, the spec layer's indicator, and the transparent input. `touch` replaces the command `touchDrag`, and `readAccessibilityTree` can give text nodes.
+- **Additions the plan doesn't state,** each with a row: a held press is dropped when the slider is disabled; a key ends a cancelled press; a second finger doesn't take over a held press; and in Firefox the restored number is also dropped when it is the number shown, because bounds written during the press can change it.
+- **A page's capturing listener on an ancestor still sees the held native `input`,** with `value` as before the press. The component's listener stops the event at the input, after the ancestors' capture phase.
+- **Witnesses:** [31 mutations](checks/witnesses-feature-proof.txt). Each makes its rows fail, in every engine it ran in. Those of touch and of the accessibility tree ran in Chromium. Without the drop of Firefox's restoring `input`, three cases of `held-press-firefox.ts` end at 30 and not at 90, 60 and 80.
+- **Cost of a change,** in µs, minima of two runs of each build, before and after ([readings with medians](checks/indicator-built-cost.txt)). The load average was 8 to 18.
+
+  | Engine   | Hidden before | Hidden after | Shown before | Shown after |
+  | -------- | ------------- | ------------ | ------------ | ----------- |
+  | Chromium | 75, 81        | 64, 62       | 89, 97       | 97, 100     |
+  | Firefox  | 210, 180      | 198, 180     | 280, 243     | 330, 283    |
+  | WebKit   | 410, 355      | 375, 360     | 503, 478     | 555, 500    |
+
+  Shown costs 2 to 8 more in Chromium, 40 to 50 in Firefox and 23 to 53 in WebKit. The plan's bounds are 9, 45 and 155. Firefox's first run is over by 5, at the load of 15.
+
+- **Size (Brotli):** `slider/slider` 3593 to 3888 and `complete` 24508 to 24718. No other row of the reading changes.
+- **Tests,** whole material-x, one engine at a time, without the visual project: Chromium 1381 passed and 2 expected fail (with the node project); Firefox 1282 passed, 3 expected fail, 62 skipped; WebKit 1283 passed, 2 expected fail, 62 skipped. Format, lint, typecheck, publint, `docs-build` and `docs-smoke` (120 of 120) pass. The [accessibility readings](checks/built.txt) are unchanged.
+- **Not run:** the visual project, Safari, physical touch, and assistive technology.
+
+### For the architect
+
+**WebKit drops `:active` from a range while the mouse is down.** In WebKit 27.2 a press on the track away from the thumb, held still, loses it after about 0.1 s, and the next move brings it back ([readings](checks/press-active.txt)). A press on the thumb, or moved at once, keeps it, and so does a button. It reproduces on a bare range, and Safari wasn't checked. So the 2 px handle and the indicator go away in that window, and `SL-D6`'s "the held state stays" doesn't hold there. It is as before this section. Row 12's fade passed without `@starting-style` for this reason, so it presses the handle now. The mechanism wasn't changed.
+
 ## Verification
 
 - **Tests,** whole material-x, one engine at a time, with no visual project: Chromium 1297 passed and 2 expected fail (with the node project); Firefox 1221 passed, 3 expected fail, 39 skipped; WebKit 1222 passed, 2 expected fail, 39 skipped. After it, only the stories' layout changed.

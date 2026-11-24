@@ -203,8 +203,22 @@ describe('mx-slider attributes and properties', () => {
     expect(slider.value).toBe(50);
   });
 
-  it('should draw the handle at 0 when the bounds are equal', () => {
-    expect(drawnFraction(createSlider({ min: '5', max: '5' }))).toBe(0);
+  describe('with equal bounds', () => {
+    function boxes(slider: Slider): readonly unknown[] {
+      return [
+        drawnFraction(slider),
+        getComputedStyle(getPart(slider, '.track'), '::before').width,
+        getPart(slider, '.stop').getBoundingClientRect().width,
+      ];
+    }
+
+    it('should be drawn as at 0', () => {
+      const equal = createSlider({ min: '5', max: '5' });
+      const zero = createSlider({ value: '0' });
+
+      expect(boxes(equal)).toEqual(boxes(zero));
+      expect(drawnFraction(equal)).toBe(0);
+    });
   });
 
   it('should never write the value attribute of the input', () => {
@@ -545,33 +559,238 @@ describe('mx-slider pointer', () => {
   });
 });
 
+describe('mx-slider touch action', () => {
+  it('should leave vertical panning to the browser', () => {
+    expect(getComputedStyle(getInput(createSlider())).touchAction).toBe(
+      'pan-y',
+    );
+  });
+});
+
 describe.runIf(server.browser === 'chromium')('mx-slider touch', () => {
-  function createScrollingSlider(): Slider {
-    const slider = createSlider();
+  type Offset = readonly [dx: number, dy: number];
+
+  const TOUCH_STEPS = 10;
+
+  function createScrollingSlider(attrs: Attributes = {}): Slider {
+    const form = document.createElement('form');
     const spacer = document.createElement('div');
     spacer.style.blockSize = '3000px';
-    document.body.append(spacer);
+    document.body.append(form, spacer);
 
-    return slider;
+    return createSlider({ name: 'n', ...attrs }, form);
   }
 
-  afterEach(() => {
+  async function settle(): Promise<void> {
+    await nextFrame();
+    await nextFrame();
+  }
+
+  async function touchAt(slider: Slider, fraction: number): Promise<void> {
+    await commands.touch('touchStart', pointAt(slider, fraction));
+    await settle();
+  }
+
+  /** Moves the finger along the offsets from its first point. */
+  async function slide(
+    [x, y]: readonly [number, number],
+    ...offsets: readonly Offset[]
+  ): Promise<void> {
+    let [fromX, fromY] = [0, 0];
+
+    for (const [dx, dy] of offsets) {
+      for (let i = 1; i <= TOUCH_STEPS; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one move at a time
+        await commands.touch('touchMove', [
+          x + fromX + ((dx - fromX) * i) / TOUCH_STEPS,
+          y + fromY + ((dy - fromY) * i) / TOUCH_STEPS,
+        ]);
+        // oxlint-disable-next-line no-await-in-loop -- one move at a time
+        await nextFrame();
+      }
+
+      [fromX, fromY] = [dx, dy];
+    }
+  }
+
+  async function lift(): Promise<void> {
+    await commands.touch('touchEnd');
+    await settle();
+  }
+
+  /** A press on the slider that the browser takes for a scroll. */
+  async function pan(
+    slider: Slider,
+    fraction: number,
+    during?: () => void,
+  ): Promise<void> {
+    const point = pointAt(slider, fraction);
+
+    await touchAt(slider, fraction);
+    during?.();
+    await slide(point, [0, -100]);
+    await vi.waitFor(() => expect(window.scrollY).toBeGreaterThan(0));
+    await lift();
+  }
+
+  function read(slider: Slider): readonly unknown[] {
+    return [
+      slider.value,
+      new FormData(slider.form!).get('n'),
+      Math.round(drawnFraction(slider) * 100),
+    ];
+  }
+
+  afterEach(async () => {
+    // A row that fails mid-gesture leaves the finger down.
+    await commands.touch('touchCancel').catch(() => {});
     window.scrollTo(0, 0);
   });
 
-  it('should restore the value when a press becomes a vertical scroll', async () => {
+  it.each([
+    ['the track', 0.21],
+    ['the handle', 0.5],
+  ])(
+    'should do nothing on a vertical scroll that starts on %s',
+    async (_, fraction) => {
+      const slider = createScrollingSlider();
+      const events = recordEvents(slider);
+      const before = [50, '50', 50];
+      const point = pointAt(slider, fraction);
+
+      await touchAt(slider, fraction);
+      expect(read(slider)).toEqual(before);
+
+      await slide(point, [0, -100]);
+      await vi.waitFor(() => expect(window.scrollY).toBeGreaterThan(0));
+      expect(read(slider)).toEqual(before);
+
+      await lift();
+      expect(read(slider)).toEqual(before);
+      expect(getInput(slider).value).toBe('50');
+      expect(events).toEqual([]);
+    },
+  );
+
+  it('should not write the pressed number to the value indicator before a scroll', async () => {
+    const slider = createScrollingSlider({ indicator: '' });
+
+    await touchAt(slider, 0.21);
+    expect(getPart(slider, '.text').textContent).toBe('50');
+
+    slider.valuetext = 'V';
+    slider.valuetext = null;
+    expect(getPart(slider, '.text').textContent).toBe('50');
+  });
+
+  it('should follow the value attribute after a scroll', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+
+    await pan(slider, 0.7);
+    slider.setAttribute('value', '60');
+
+    expect(slider.value).toBe(60);
+  });
+
+  it('should follow the midpoint after a scroll', async () => {
+    const slider = createScrollingSlider();
+
+    await pan(slider, 0.3);
+    slider.max = 300;
+
+    expect(slider.value).toBe(150);
+  });
+
+  it('should keep a number out of bounds through a scroll', async () => {
+    const slider = createScrollingSlider();
+    slider.value = 200;
+
+    await pan(slider, 0.3);
+    slider.max = 300;
+
+    expect(slider.value).toBe(200);
+  });
+
+  it.each([
+    [
+      'value',
+      '30',
+      90,
+      (slider: Slider) => {
+        slider.value = 90;
+      },
+    ],
+    [
+      'the value attribute',
+      '30',
+      60,
+      (slider: Slider) => slider.setAttribute('value', '60'),
+    ],
+    [
+      'a bound',
+      '80',
+      50,
+      (slider: Slider) => {
+        slider.max = 50;
+      },
+    ],
+    ['a form reset', '30', 30, (slider: Slider) => slider.form!.reset()],
+  ])(
+    'should keep %s written during a press that becomes a scroll',
+    async (_, value, expected, write) => {
+      const slider = createScrollingSlider({ value });
+      const events = recordEvents(slider);
+
+      await pan(slider, 0.7, () => write(slider));
+
+      expect(slider.value).toBe(expected);
+      expect(getInput(slider).value).toBe(String(expected));
+      expect(events).toEqual([]);
+    },
+  );
+
+  it('should fire input and then change on a tap', async () => {
+    const slider = createScrollingSlider();
+    const seen: string[] = [];
+
+    for (const type of ['input', 'change']) {
+      slider.addEventListener(type, () => {
+        seen.push(`${type} ${slider.value}`);
+      });
+    }
+
+    await touchAt(slider, 0.21);
+    expect(seen).toEqual([]);
+
+    await lift();
+    expect(seen).toEqual(['input 21', 'change 21']);
+    expect(read(slider)).toEqual([21, '21', 21]);
+  });
+
+  // Chromium's own: the script's number wins over the tap's.
+  it('should keep a number written during a tap', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await touchAt(slider, 0.7);
+    slider.value = 90;
+    await lift();
+
+    expect(events).toEqual(['change 90']);
+    expect(slider.value).toBe(90);
+  });
+
+  it('should fire nothing on a tap on the handle', async () => {
     const slider = createScrollingSlider();
     const events = recordEvents(slider);
 
-    await commands.touchDrag(...pointAt(slider, 0.21), 0, -100);
-    await vi.waitFor(() => expect(window.scrollY).toBeGreaterThan(0));
-    await vi.waitFor(() => expect(events).toEqual(['input 21', 'input 50']));
+    await touchAt(slider, 0.5);
+    await lift();
 
-    expect(slider.value).toBe(50);
-    expect(drawnFraction(slider)).toBeCloseTo(0.5, 3);
+    expect(events).toEqual([]);
   });
 
-  it('should dispatch the restoring input with the native flags', async () => {
+  it('should dispatch the input of a tap with the native flags', async () => {
     const slider = createScrollingSlider();
     const seen: Event[] = [];
     document.body.addEventListener(
@@ -579,16 +798,15 @@ describe.runIf(server.browser === 'chromium')('mx-slider touch', () => {
       (event) => {
         seen.push(event);
       },
-      {
-        signal: listeners.signal,
-      },
+      { signal: listeners.signal },
     );
 
-    await commands.touchDrag(...pointAt(slider, 0.21), 0, -100);
-    await vi.waitFor(() => expect(seen).toHaveLength(2));
+    await touchAt(slider, 0.21);
+    await lift();
 
-    expect(seen[1]!.constructor).toBe(Event);
-    expect(seen[1]).toMatchObject({
+    expect(seen).toHaveLength(1);
+    expect(seen[0]!.constructor).toBe(Event);
+    expect(seen[0]).toMatchObject({
       target: slider,
       bubbles: true,
       composed: true,
@@ -596,15 +814,145 @@ describe.runIf(server.browser === 'chromium')('mx-slider touch', () => {
     });
   });
 
-  it('should keep the value of a horizontal drag', async () => {
+  it.each([
+    { name: 'a horizontal slide', offsets: [[60, 0]], value: 51 },
+    {
+      name: 'a slide that turns vertical',
+      offsets: [
+        [60, 0],
+        [60, -100],
+      ],
+      value: 51,
+    },
+  ] as const)(
+    'should fire input and one change on $name',
+    async ({ offsets, value }) => {
+      const slider = createScrollingSlider();
+      const events = recordEvents(slider);
+
+      await touchAt(slider, 0.21);
+      await slide(pointAt(slider, 0.21), ...offsets);
+      expect(events.at(-1)).toBe(`input ${value}`);
+
+      await lift();
+      expect(events.filter((entry) => entry.startsWith('change'))).toEqual([
+        `change ${value}`,
+      ]);
+      expect(slider.value).toBe(value);
+      expect(window.scrollY).toBe(0);
+    },
+  );
+
+  it('should follow a slide from the handle at its first step', async () => {
+    const slider = createScrollingSlider({ step: '25' });
+    const events = recordEvents(slider);
+
+    await touchAt(slider, 0.5);
+    await slide(pointAt(slider, 0.5), [60, 0]);
+    expect(events).toEqual(['input 75']);
+    expect(slider.value).toBe(75);
+
+    await lift();
+    expect(events).toEqual(['input 75', 'change 75']);
+    expect(window.scrollY).toBe(0);
+  });
+
+  it('should commit a slide that the system cancels', async () => {
     const slider = createScrollingSlider();
     const events = recordEvents(slider);
 
-    await commands.touchDrag(...pointAt(slider, 0.21), 60, 0);
-    await vi.waitFor(() => expect(events.at(-1)).toBe('change 51'));
+    await touchAt(slider, 0.21);
+    await slide(pointAt(slider, 0.21), [60, 0]);
+    await commands.touch('touchCancel');
+    await settle();
 
     expect(slider.value).toBe(51);
-    expect(window.scrollY).toBe(0);
+    expect(events.slice(-2)).toEqual(['input 51', 'change 51']);
+    expect(events.filter((entry) => entry.startsWith('change'))).toHaveLength(
+      1,
+    );
+  });
+
+  it('should take a key after a scroll', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await pan(slider, 0.7);
+    slider.focus();
+    await userEvent.keyboard('{ArrowUp}');
+
+    expect(events).toEqual(['input 31', 'change 31']);
+  });
+
+  it('should take a key that gives the number from before a scroll', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+
+    await pan(slider, 0.7);
+    slider.value = 29;
+    const events = recordEvents(slider);
+    slider.focus();
+    await userEvent.keyboard('{ArrowUp}');
+
+    expect(events).toEqual(['input 30', 'change 30']);
+    expect(slider.value).toBe(30);
+  });
+
+  it('should take a tap after a scroll', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await pan(slider, 0.7);
+    window.scrollTo(0, 0);
+    await settle();
+    await touchAt(slider, 0.5);
+    await lift();
+
+    expect(events).toEqual(['input 50', 'change 50']);
+  });
+
+  it('should drop a held press when it is moved in the DOM', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await touchAt(slider, 0.7);
+    document.body.append(slider);
+    await lift();
+
+    expect(slider.value).toBe(30);
+    expect(getInput(slider).value).toBe('30');
+    expect(events).toEqual([]);
+  });
+
+  it('should drop a held press when it is disabled', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await touchAt(slider, 0.7);
+    slider.disabled = true;
+    await lift();
+
+    expect(slider.value).toBe(30);
+    expect(getInput(slider).value).toBe('30');
+    expect(events).toEqual([]);
+  });
+
+  it('should drop a held press that is cancelled after a second finger', async () => {
+    const slider = createScrollingSlider({ value: '30' });
+    const events = recordEvents(slider);
+
+    await touchAt(slider, 0.7);
+    await commands.touch(
+      'touchStart',
+      pointAt(slider, 0.7),
+      pointAt(slider, 0.9),
+    );
+    await settle();
+    await commands.touch('touchCancel');
+    await settle();
+
+    expect(slider.value).toBe(30);
+    expect(getInput(slider).value).toBe('30');
+    expect(events).toEqual([]);
   });
 });
 
@@ -949,6 +1297,24 @@ describe('mx-slider name', () => {
     expect(inputName(slider)).toBe('L');
   });
 
+  it.each(['', ' '])(
+    'should refer to a label beside the aria-label "%s"',
+    async (value) => {
+      const slider = await createNamedSlider(['label']);
+      slider.setAttribute('aria-label', value);
+      await nextFrame();
+      expect(inputName(slider)).toBe('L');
+
+      slider.setAttribute('aria-label', 'A');
+      await nextFrame();
+      expect(inputName(slider)).toBe('A');
+
+      slider.setAttribute('aria-label', value);
+      await nextFrame();
+      expect(inputName(slider)).toBe('L');
+    },
+  );
+
   it('should describe the input by the element that the host names', async () => {
     const slider = await createNamedSlider(['slot']);
     const description = document.createElement('span');
@@ -1139,22 +1505,38 @@ describe.runIf(server.browser === 'chromium')(
       expect(control.properties).toMatchObject({ valuemin: -55, valuemax: 55 });
     });
 
+    it.each(['', ' '])(
+      'should name the control from a label beside the aria-label "%s"',
+      async (value) => {
+        const slider = await createNamedSlider(['label']);
+        slider.setAttribute('aria-label', value);
+        await nextFrame();
+
+        expect((await readControl()).name).toBe('L');
+      },
+    );
+
     it('should not expose the value indicator', async () => {
       const slider = await createNamedSlider(['slot']);
       slider.indicator = true;
       slider.valuetext = 'Shown';
       await userEvent.keyboard(TAB);
+      expect(getPart(slider, '.text').checkVisibility()).toBe(true);
 
-      const tree = await commands.readAccessibilityTree('#fixture');
+      const tree = JSON.stringify(
+        await commands.readAccessibilityTree('#fixture', true),
+      );
 
-      expect(JSON.stringify(tree.children)).not.toMatch(/"name":"Shown"/u);
+      // The reader gives text nodes, the label's among them.
+      expect(tree).toContain('"role":"StaticText","name":"S"');
+      expect(tree).not.toMatch(/"name":"Shown"/u);
     });
   },
 );
 
 describe('mx-slider value indicator', () => {
   function indicatorDisplay(slider: Slider): string {
-    return getComputedStyle(getPart(slider, '.handle'), '::after').display;
+    return getComputedStyle(getPart(slider, '.indicator')).display;
   }
 
   it('should not be shown at rest', () => {
@@ -1164,8 +1546,8 @@ describe('mx-slider value indicator', () => {
   it('should be shown while the handle is held', async () => {
     const slider = createSlider({ indicator: '' });
 
-    await press(slider, 0.2);
-    expect(indicatorDisplay(slider)).toBe('block');
+    await press(slider, 0.5);
+    expect(indicatorDisplay(slider)).toBe('flex');
 
     await release();
     await vi.waitFor(() => expect(indicatorDisplay(slider)).toBe('none'));
@@ -1175,7 +1557,7 @@ describe('mx-slider value indicator', () => {
     const slider = createSlider({ indicator: '' });
 
     await userEvent.keyboard(TAB);
-    expect(indicatorDisplay(slider)).toBe('block');
+    expect(indicatorDisplay(slider)).toBe('flex');
 
     getInput(slider).blur();
     await vi.waitFor(() => expect(indicatorDisplay(slider)).toBe('none'));
@@ -1184,33 +1566,31 @@ describe('mx-slider value indicator', () => {
   it('should not be shown without the attribute', async () => {
     const slider = createSlider();
 
-    await press(slider, 0.2);
+    await press(slider, 0.5);
 
-    expect(
-      getComputedStyle(getPart(slider, '.handle'), '::after').content,
-    ).toBe('none');
+    expect(indicatorDisplay(slider)).toBe('none');
   });
 
   it('should hold the value', async () => {
     const slider = createSlider({ indicator: '' });
 
-    expect(getPart(slider, '.handle').dataset['value']).toBe('50');
+    expect(getPart(slider, '.text').textContent).toBe('50');
 
     await press(slider, 0.2);
 
-    expect(getPart(slider, '.handle').dataset['value']).toBe('20');
+    expect(getPart(slider, '.text').textContent).toBe('20');
   });
 
   it('should hold valuetext in place of the value', () => {
     const slider = createSlider({ indicator: '', valuetext: '-18°' });
 
-    expect(getPart(slider, '.handle').dataset['value']).toBe('-18°');
+    expect(getPart(slider, '.text').textContent).toBe('-18°');
   });
 
   it('should ignore a host aria-valuetext', () => {
     const slider = createSlider({ indicator: '', 'aria-valuetext': 'H' });
 
-    expect(getPart(slider, '.handle').dataset['value']).toBe('50');
+    expect(getPart(slider, '.text').textContent).toBe('50');
   });
 
   it('should write no text without the attribute', () => {
@@ -1218,30 +1598,197 @@ describe('mx-slider value indicator', () => {
 
     slider.value = 30;
 
-    expect(getPart(slider, '.handle').dataset['value']).toBeUndefined();
+    expect(getPart(slider, '.text').textContent).toBe('');
 
     slider.indicator = true;
 
-    expect(getPart(slider, '.handle').dataset['value']).toBe('V');
+    expect(getPart(slider, '.text').textContent).toBe('V');
   });
 });
 
+describe('mx-slider value indicator fade', () => {
+  it('should run an opacity transition when it is shown', async () => {
+    const slider = createSlider({ indicator: '' });
+    const started: string[] = [];
+    getPart(slider, '.indicator').addEventListener(
+      'transitionrun',
+      ({ propertyName }) => {
+        started.push(propertyName);
+      },
+    );
+    // The first style, from which the transition starts.
+    await nextFrame();
+
+    // On the handle: WebKit drops `:active` soon after a press on the track.
+    await press(slider, 0.5);
+
+    await vi.waitFor(() => expect(started).toContain('opacity'));
+  });
+});
+
+/** The left edge of the first character of the text that matches. */
+function leftOf(slider: Slider, pattern: RegExp): number {
+  const node = getPart(slider, '.text').firstChild!;
+  const index = node.textContent!.search(pattern);
+  const range = document.createRange();
+  range.setStart(node, index);
+  range.setEnd(node, index + 1);
+
+  return range.getBoundingClientRect().left;
+}
+
+describe.each(['ltr', 'rtl'])('mx-slider signed indicator in %s', (dir) => {
+  async function showText(attrs: Attributes): Promise<Slider> {
+    const slider = createSlider({
+      dir,
+      indicator: '',
+      min: '-55',
+      max: '55',
+      value: '-18',
+      ...attrs,
+    });
+    await userEvent.keyboard(TAB);
+
+    return slider;
+  }
+
+  it.each([
+    ['the number', {}],
+    ['valuetext', { valuetext: '-18°' }],
+  ])('should draw the sign of %s at the left', async (_, attrs) => {
+    const slider = await showText(attrs);
+
+    expect(leftOf(slider, /-/u)).toBeLessThan(leftOf(slider, /\d/u));
+  });
+
+  it('should lay out a valuetext of Arabic letters from right to left', async () => {
+    const slider = await showText({ valuetext: '-18 درجة' });
+
+    expect(leftOf(slider, /-/u)).toBeGreaterThan(leftOf(slider, /\d/u));
+  });
+});
+
+const TEXTS = [
+  { name: '100', attrs: {} },
+  { name: '1000000', attrs: { max: '1000000' } },
+  {
+    name: 'a long valuetext',
+    attrs: { valuetext: 'A value text that is longer than the slider' },
+  },
+  {
+    name: 'a long word',
+    attrs: { valuetext: 'Avaluetextthatislongerthantheslider' },
+  },
+] as const;
+
 describe.each(['ltr', 'rtl'])('mx-slider layout in %s', (dir) => {
+  function overflowOf(element: Element): number {
+    return element.scrollWidth - element.clientWidth;
+  }
+
+  function createContainer(): HTMLElement {
+    const container = document.createElement('div');
+    container.dir = dir;
+    container.style.cssText = `overflow: auto; inline-size: ${WIDTH}px; padding-block-start: 120px; white-space: nowrap`;
+    document.body.append(container);
+
+    return container;
+  }
+
   it.each(['0', '1', '99', '100'])(
     'should have no scrollable overflow at %s',
     (value) => {
-      const container = document.createElement('div');
-      container.style.cssText = `overflow: auto; inline-size: ${WIDTH}px`;
-      document.body.append(container);
+      const container = createContainer();
       createSlider(
-        { dir, value, indicator: '', valuetext: 'A long text' },
+        { value, indicator: '', valuetext: 'A long text' },
         container,
       );
 
-      expect(container.scrollWidth).toBe(WIDTH);
+      expect(overflowOf(container)).toBe(0);
       expect(container.scrollHeight).toBe(container.clientHeight);
     },
   );
+
+  describe.each(TEXTS)('with the indicator shown for $name', ({ attrs }) => {
+    it.each([0, 1])(
+      'should stay between the ends without overflow at the fraction %s',
+      async (fraction) => {
+        const container = createContainer();
+        const slider = createSlider({ indicator: '', ...attrs }, container);
+        slider.value = fraction * (slider.max ?? 100);
+        await userEvent.keyboard(TAB);
+        const track = getPart(slider, '.track').getBoundingClientRect();
+        const text = getPart(slider, '.text').getBoundingClientRect();
+
+        expect(text.width).toBeGreaterThan(0);
+        expect(text.left).toBeGreaterThanOrEqual(track.left - 0.05);
+        expect(text.right).toBeLessThanOrEqual(track.right + 0.05);
+        expect(overflowOf(container)).toBe(0);
+        expect(container.scrollHeight).toBe(container.clientHeight);
+      },
+    );
+
+    it.each([0, 1])(
+      'should add no overflow to the page at the fraction %s',
+      async (fraction) => {
+        // A slider as wide as the page, whose own direction is the row's.
+        const page = document.createElement('div');
+        page.style.cssText =
+          'position: absolute; inset-inline: 0; padding-block-start: 120px';
+        document.body.append(page);
+        const slider = createSlider({ dir, indicator: '', ...attrs }, page);
+        slider.style.inlineSize = 'auto';
+        slider.value = fraction * (slider.max ?? 100);
+        await userEvent.keyboard(TAB);
+
+        expect(getPart(slider, '.text').checkVisibility()).toBe(true);
+        expect(overflowOf(document.documentElement)).toBe(0);
+      },
+    );
+  });
+
+  describe('the indicator place', () => {
+    async function show(value: number): Promise<{
+      offset: number;
+      text: DOMRect;
+      track: DOMRect;
+    }> {
+      const slider = createSlider({ dir, indicator: '', valuetext: 'Value' });
+      slider.value = value;
+      await userEvent.keyboard(TAB);
+      const handle = getPart(slider, '.handle').getBoundingClientRect();
+      const text = getPart(slider, '.text').getBoundingClientRect();
+      const offset =
+        text.left + text.width / 2 - handle.left - handle.width / 2;
+      const track = getPart(slider, '.track').getBoundingClientRect();
+      slider.remove();
+
+      return { offset, text, track };
+    }
+
+    it('should be centred on the handle at 50', async () => {
+      expect((await show(50)).offset).toBeCloseTo(0, 1);
+    });
+
+    it('should be centred on the handle at the first value where it fits', async () => {
+      const { text } = await show(50);
+      // The handle's centre is 2px from the end at 0, and 2px further at each 1.
+      const first = Math.ceil((text.width / 2 - 2) / 2);
+
+      expect((await show(first)).offset).toBeCloseTo(0, 1);
+      expect((await show(100 - first)).offset).toBeCloseTo(0, 1);
+      expect(Math.abs((await show(first - 2)).offset)).toBeGreaterThan(1);
+    });
+
+    it('should touch the end where it does not fit', async () => {
+      const start = await show(0);
+      const end = await show(100);
+      const [left, right] = dir === 'ltr' ? [start, end] : [end, start];
+
+      expect(left.text.left).toBeCloseTo(left.track.left, 1);
+      expect(right.text.right).toBeCloseTo(right.track.right, 1);
+    });
+  });
 });
 
 describe('mx-slider connection', () => {

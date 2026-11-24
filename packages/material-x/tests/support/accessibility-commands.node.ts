@@ -114,10 +114,11 @@ export const accessibilityBrowserCommands: Readonly<
   /**
    * The accessibility tree below the first element of the test's document
    * that matches `selector`. Ignored nodes are left out and their children
-   * take their place, as an assistive technology sees them.
+   * take their place, as an assistive technology sees them. Text nodes are
+   * left out unless `withText` is true.
    */
-  readAccessibilityTree: defineBrowserCommand<[string]>(
-    async (context, selector): Promise<AccessibilityNode> => {
+  readAccessibilityTree: defineBrowserCommand<[string, boolean?]>(
+    async (context, selector, withText = false): Promise<AccessibilityNode> => {
       const { provider, page, frame } = context as unknown as Context;
 
       if (provider.name !== 'playwright') {
@@ -149,7 +150,10 @@ export const accessibilityBrowserCommands: Readonly<
         (node.childIds ?? []).flatMap((id) => {
           const child = byId.get(id);
 
-          if (!child || TEXT_ROLES.has(child.role?.value ?? '')) {
+          if (
+            !child ||
+            (!withText && TEXT_ROLES.has(child.role?.value ?? ''))
+          ) {
             return [];
           }
 

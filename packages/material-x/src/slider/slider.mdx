@@ -72,6 +72,10 @@ Set `indicator` to show the value above the handle while the handle is held or h
 
 <Canvas of={Stories.ValueIndicator} />
 
+The indicator is centred on the handle and stops at the slider's ends. A container that clips its overflow cuts it.
+
+Its text takes its direction from its own characters, so a negative number has its sign at the left in both directions. For another place, put a direction mark in `valuetext`.
+
 For a value with a unit, set `valuetext` in the `input` handler. The indicator shows it, and assistive technology reads it:
 
 <Source code={unitSnippet} language="ts" />
@@ -105,7 +109,7 @@ Use the live example below to inspect interaction states:
 - **`value`, `min`, `max` and `step`** give the same result in any order.
 - **`input`** fires at each move and **`change`** when the user commits the value. Both are plain events: read `value` from the element.
 - If an `input` handler rewrites the value, take the final value from `input`. WebKit then fires no `change`.
-- **A touch that becomes a scroll** restores the value, and fires `input` again if it changed.
+- **A touch** moves the handle at the lift or at the first step of a slide, and not at the touch. A touch that becomes a scroll changes nothing and fires nothing.
 
 ## Validation
 
