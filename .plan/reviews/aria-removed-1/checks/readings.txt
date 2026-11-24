@@ -1,0 +1,143 @@
+Read at 6e0ca1d4f, core rebuilt, one engine at a time. In each run every test passes except the last, which fails on purpose and carries the reading. The three engines' readings are identical at the head, and Chromium's are below.
+
+## head (6e0ca1d4f)
+54 names, set after connect, adopted by another document, removed, back | {"host null target null":54}
+54 names, set after connect, changed and moved in one task (B) | {"host \"B\" target \"B\"":54}
+54 names, set after connect, changed to empty while out | {"host \"\" target \"\"":54}
+54 names, set after connect, changed while out (B) | {"host \"B\" target \"B\"":54}
+54 names, set after connect, out, removed and reinserted in one task | {"host null target null":54}
+54 names, set after connect, reinserted, then removed in one task | {"host null target null":54}
+54 names, set after connect, removed and added again while out (B) | {"host \"B\" target \"B\"":54}
+54 names, set after connect, removed and added again while out, with frames (B) | {"host \"B\" target \"B\"":54}
+54 names, set after connect, removed and its ancestor moved in one task | {"host null target null":54}
+54 names, set after connect, removed and moveBefore in one task | {"host null target null":54}
+54 names, set after connect, removed and moved in one task | {"host null target null":54}
+54 names, set after connect, removed and reinserted in one task | {"host null target null":54}
+54 names, set after connect, removed in a document fragment, reinserted | {"host null target null":54}
+54 names, set after connect, removed while connected | {"host null target null":54}
+54 names, set after connect, removed while out | {"host null target null":54}
+54 names, set after connect, removed, taken out in one task, back later | {"host null target null":54}
+54 names, set before connect, adopted by another document, removed, back | {"host null target null":54}
+54 names, set before connect, changed and moved in one task (B) | {"host \"B\" target \"B\"":54}
+54 names, set before connect, changed to empty while out | {"host \"\" target \"\"":54}
+54 names, set before connect, changed while out (B) | {"host \"B\" target \"B\"":54}
+54 names, set before connect, out, removed and reinserted in one task | {"host null target null":54}
+54 names, set before connect, reinserted, then removed in one task | {"host null target null":54}
+54 names, set before connect, removed and added again while out (B) | {"host \"B\" target \"B\"":54}
+54 names, set before connect, removed and added again while out, with frames (B) | {"host \"B\" target \"B\"":54}
+54 names, set before connect, removed and its ancestor moved in one task | {"host null target null":54}
+54 names, set before connect, removed and moveBefore in one task | {"host null target null":54}
+54 names, set before connect, removed and moved in one task | {"host null target null":54}
+54 names, set before connect, removed and reinserted in one task | {"host null target null":54}
+54 names, set before connect, removed in a document fragment, reinserted | {"host null target null":54}
+54 names, set before connect, removed while connected | {"host null target null":54}
+54 names, set before connect, removed while out | {"host null target null":54}
+54 names, set before connect, removed, taken out in one task, back later | {"host null target null":54}
+ariaLabel = null while out | ["A",null]
+host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own",null,null]
+mx-button | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-fab | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-icon-button | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-link-button | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-list-button-item | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page",null],"the component set it, host had and lost it":[null,null]}
+mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-list-link-item | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx-multiline-text-field | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"],"label":["labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert"],"support counter":["describedby/connected","describedby/out","describedby/move","describedby/reinsert"]}
+mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"move":["Use the arrow keys to move","Mine","Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"]}
+mx-split-button | value left on the control | {"aria-label connected":"NOT MIRRORED","aria-label out":"NOT MIRRORED","aria-label move":"NOT MIRRORED","aria-label reinsert":"NOT MIRRORED","aria-labelledby connected":"NOT MIRRORED","aria-labelledby out":"NOT MIRRORED","aria-labelledby move":"NOT MIRRORED","aria-labelledby reinsert":"NOT MIRRORED","aria-describedby connected":"NOT MIRRORED","aria-describedby out":"NOT MIRRORED","aria-describedby move":"NOT MIRRORED","aria-describedby reinsert":"NOT MIRRORED","aria-details connected":"NOT MIRRORED","aria-details out":"NOT MIRRORED","aria-details move":"NOT MIRRORED","aria-details reinsert":"NOT MIRRORED","aria-haspopup connected":"NOT MIRRORED","aria-haspopup out":"NOT MIRRORED","aria-haspopup move":"NOT MIRRORED","aria-haspopup reinsert":"NOT MIRRORED"}
+mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-switch-button | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-switch-icon-button | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert","describedby/connected","describedby/out","describedby/move","describedby/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true",null],"the component set it, host had and lost it":[null,null]}
+mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","label","y"],["synchronously after the connect","label"]]
+mx-text-field | value left on the control | {"null":["label/connected","label/out","label/move","label/reinsert","details/connected","details/out","details/move","details/reinsert","haspopup/connected","haspopup/out","haspopup/move","haspopup/reinsert"],"label":["labelledby/connected","labelledby/out","labelledby/move","labelledby/reinsert"],"support counter":["describedby/connected","describedby/out","describedby/move","describedby/reinsert"]}
+never mirrored: target, and transformer calls | [["role=own","title=own","data-x=own","aria-expanded=own","aria-haspopup=own","ariaish=own"],[]]
+several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-details=d"],["aria-label=null","aria-details=d"]],[["aria-label=B"],["aria-label=B","aria-details=null"]],[[],["aria-label=null","aria-details=null"]],[["aria-label=C"],["aria-label=C"]],[[],["aria-label=null"]]]
+two hooks on one host | [null,"F"]
+
+## main (useARIA.ts at 114270083), the rows that differ from the head's
+Firefox reads as Chromium. WebKit differs in the two moveBefore rows alone, because it has no moveBefore there and the probe then only removes the attribute.
+54 names, set after connect, adopted by another document, removed, back | {"host null target \"A\"":54}
+54 names, set after connect, out, removed and reinserted in one task | {"host null target \"A\"":54}
+54 names, set after connect, removed and its ancestor moved in one task | {"host null target \"A\"":54}
+54 names, set after connect, removed and moveBefore in one task | {"host null target \"A\"":54}
+54 names, set after connect, removed and moved in one task | {"host null target \"A\"":54}
+54 names, set after connect, removed and reinserted in one task | {"host null target \"A\"":54}
+54 names, set after connect, removed in a document fragment, reinserted | {"host null target \"A\"":54}
+54 names, set after connect, removed while out | {"host null target \"A\"":54}
+54 names, set after connect, removed, taken out in one task, back later | {"host null target \"A\"":54}
+54 names, set before connect, adopted by another document, removed, back | {"host null target \"A\"":54}
+54 names, set before connect, out, removed and reinserted in one task | {"host null target \"A\"":54}
+54 names, set before connect, removed and its ancestor moved in one task | {"host null target \"A\"":54}
+54 names, set before connect, removed and moveBefore in one task | {"host null target \"A\"":54}
+54 names, set before connect, removed and moved in one task | {"host null target \"A\"":54}
+54 names, set before connect, removed and reinserted in one task | {"host null target \"A\"":54}
+54 names, set before connect, removed in a document fragment, reinserted | {"host null target \"A\"":54}
+54 names, set before connect, removed while out | {"host null target \"A\"":54}
+54 names, set before connect, removed, taken out in one task, back later | {"host null target \"A\"":54}
+ariaLabel = null while out | ["A","A"]
+host had it and lost it while connected, then the target's own value: before the move, after a move, after another | ["own","own","own"]
+mx-button | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-fab | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-icon-button | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-link-button aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-link-button | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-list-button-item aria-selected, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-list-button-item | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-list-link-item aria-current, [before a move, after it] | {"host never had it":["page","page"],"host had and lost it, then the component set it":["page","page"],"the component set it, host had and lost it":[null,null]}
+mx-list-link-item aria-disabled, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-list-link-item | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-multiline-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-multiline-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx-multiline-text-field | value left on the control | {"null":["label/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"],"label":["labelledby/connected"],"support counter":["describedby/connected"]}
+mx-sortable-list, the button item control's aria-description over the steps | {"never":["Use the arrow keys to move","Use the arrow keys to move","Use the arrow keys to move"],"connected":["Use the arrow keys to move","Mine",null,"Use the arrow keys to move","Use the arrow keys to move"],"out":["Use the arrow keys to move","Mine","Mine","Mine","Mine"],"move":["Use the arrow keys to move","Mine","Mine","Mine","Mine"]}
+mx-switch-button aria-checked, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-switch-button aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-switch-button | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-switch-icon-button | value left on the control | {"null":["label/connected","labelledby/connected","describedby/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"]}
+mx-text-field aria-invalid, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-text-field aria-required, [before a move, after it] | {"host never had it":["true","true"],"host had and lost it, then the component set it":["true","true"],"the component set it, host had and lost it":[null,null]}
+mx-text-field | slots | [["label removed while out",null],["label added while out","label"],["two connects, then set","x","y"],["synchronously after the connect","x"]]
+mx-text-field | value left on the control | {"null":["label/connected","details/connected","haspopup/connected"],"x":["label/out","label/move","label/reinsert","labelledby/out","labelledby/move","labelledby/reinsert","describedby/out","describedby/move","describedby/reinsert","details/out","details/move","details/reinsert","haspopup/out","haspopup/move","haspopup/reinsert"],"label":["labelledby/connected"],"support counter":["describedby/connected"]}
+several connects: [target, transformer calls] after each step | [[["aria-label=A"],["aria-label=A"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=A","aria-details=d"],["aria-details=d"]],[["aria-label=B","aria-details=d"],["aria-label=B"]],[["aria-label=B","aria-details=d"],[]],[["aria-label=C","aria-details=d"],["aria-label=C"]],[["aria-details=d"],["aria-label=null"]]]
+two hooks on one host | ["A","A"]
+
+## The component's own value, the host's attribute removed while out (own-out probe)
+Chromium's; Firefox and WebKit read the same.
+head | mx-link-button has disabled, host aria-disabled attribute set while out too | null
+head | mx-link-button has disabled, host aria-disabled removed while out | null
+head | mx-link-button has disabled, host aria-disabled removed while out, then moved again | null
+head | mx-list-link-item has selected, host aria-current attribute set while out too | null
+head | mx-list-link-item has selected, host aria-current removed while out | null
+head | mx-list-link-item has selected, host aria-current removed while out, then moved again | null
+head | mx-switch-button has checked, host aria-checked attribute set while out too | null
+head | mx-switch-button has checked, host aria-checked removed while out | null
+head | mx-switch-button has checked, host aria-checked removed while out, then moved again | null
+head | mx-text-field has error, host aria-invalid attribute set while out too | null
+head | mx-text-field has error, host aria-invalid removed while out | null
+head | mx-text-field has error, host aria-invalid removed while out, then moved again | null
+head | mx-text-field has required, host aria-required attribute set while out too | null
+head | mx-text-field has required, host aria-required removed while out | null
+head | mx-text-field has required, host aria-required removed while out, then moved again | null
+main | mx-link-button has disabled, host aria-disabled attribute set while out too | true
+main | mx-link-button has disabled, host aria-disabled removed while out | true
+main | mx-link-button has disabled, host aria-disabled removed while out, then moved again | true
+main | mx-list-link-item has selected, host aria-current attribute set while out too | page
+main | mx-list-link-item has selected, host aria-current removed while out | page
+main | mx-list-link-item has selected, host aria-current removed while out, then moved again | page
+main | mx-switch-button has checked, host aria-checked attribute set while out too | true
+main | mx-switch-button has checked, host aria-checked removed while out | true
+main | mx-switch-button has checked, host aria-checked removed while out, then moved again | true
+main | mx-text-field has error, host aria-invalid attribute set while out too | true
+main | mx-text-field has error, host aria-invalid removed while out | true
+main | mx-text-field has error, host aria-invalid removed while out, then moved again | true
+main | mx-text-field has required, host aria-required attribute set while out too | true
+main | mx-text-field has required, host aria-required removed while out | true
+main | mx-text-field has required, host aria-required removed while out, then moved again | true
