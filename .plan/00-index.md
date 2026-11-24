@@ -5253,6 +5253,13 @@ Tier A, **closed on 2026-11-24 on two conditions** (the last note), pre-existing
 - **`reviewer-5` isn't this entry's:** `RF-131`. Its values that the `Set` had right, for a label that changed while the text field was out, were a side effect of writing a lost name again at each connect, which the ruling ended.
 - **Not run,** as before: Safari, screen readers, the spec and visual projects. `accessibility.md`'s stale names and paths, which the first proof observed, aren't this entry's.
 
+**Dated 2026-11-24 by the implementer: both conditions are done on `core/use-aria-1`.** Requested by the coordinator. No source outside the JSDoc changes.
+
+- **`reviewer-4`:** the JSDoc's sentence says _after the host's loss was written_, and nothing else in it changes.
+- **`reviewer-6`:** core's row _should sync a host that has never been connected_. **Witness** ([reading](aria-removed-1/checks/mutations-3.txt), [script](aria-removed-1/probes/mutations-2.mjs)): with `observe()` moved into the connect callback, it fails in Chromium, Firefox and WebKit, and no other row does.
+- **Core's `useARIA` file passes** in the three engines, 19 rows in each, and so do the three material-x files of the script. Format, lint and core's typecheck pass.
+- **Not run:** the other suites, Safari, and the spec and visual projects. `verify` on the head is CI's, and it wasn't awaited here.
+
 #### RF-125 — A list item's focus indicator takes the shared offset and not the list's own, so the next item covers it
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's first observation of that day about the sortable list, in chat with a screenshot, relayed by the coordinator: _"Outline скрыт нижним элементом"_ ("The outline is hidden by the element below"). `RF-124` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `114270083`, on the built elements, in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).

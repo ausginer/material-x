@@ -45,6 +45,11 @@ const mutations = {
     '      ...host.getAttributeNames(),\n',
     '',
   ),
+  'the observer starts at the connect': (s) =>
+    swap(
+      '  useConnected(host, () => {\n',
+      '  useConnected(host, () => {\n    observer.observe(host, { attributes: true });\n',
+    )(swap('  observer.observe(host, { attributes: true });\n\n', '')(s)),
   "the connect also syncs each of the target's": swap(
     '      ...host.getAttributeNames(),\n',
     '      ...host.getAttributeNames(),\n      ...target.getAttributeNames(),\n',

@@ -310,6 +310,22 @@ describe('useARIA', () => {
     expect(target).toHaveAttribute('aria-label', 'Launch');
   });
 
+  it('should sync a host that has never been connected', async () => {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target);
+    });
+
+    el.setAttribute('aria-label', 'Launch');
+    await nextFrame();
+    expect(target).toHaveAttribute('aria-label', 'Launch');
+
+    el.removeAttribute('aria-label');
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute('aria-label');
+  });
+
   it('should transform a name set just before the connect once', async () => {
     const transform = vi.fn<ARIATransformer>((_, value) => value);
     const el = host((h) => {

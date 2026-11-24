@@ -26,8 +26,8 @@ export type ARIATransformer = (
  *
  * The target's own writer may set the same attribute, and the last write
  * stands. A connect doesn't remove what was written to the target after the
- * host's loss, nor an `aria-*` attribute that the host has never had.
- * Attributes outside the `aria-*` namespace are ignored.
+ * host's loss was written, nor an `aria-*` attribute that the host has never
+ * had. Attributes outside the `aria-*` namespace are ignored.
  *
  * @param host - The host element whose `aria-*` attributes should be observed.
  * @param target - The target element that receives the synchronized values.
