@@ -1,0 +1,285 @@
+# chromium 158.0.8127.18
+  native range aria-valuetext    control {"role":"slider","name":"N","value":0,"min":-55,"max":55,"valuetext":"0"} host {"role":"slider","name":"N","value":0,"min":-55,"max":55,"valuetext":"0"}
+  ARIA slider aria-valuetext     control {"role":"slider","name":"N","value":3,"min":0,"max":100,"valuetext":""} host {"role":"slider","name":"N","value":3,"min":0,"max":100,"valuetext":""}
+  button                         control {"role":"button","name":"A"} host {"role":"generic","name":"A"}
+  icon-button                    control {"role":"button","name":"A"} host {"role":"generic","name":"A"}
+  link-button                    control {"role":"link","name":"A"} host {"role":"generic","name":"A"}
+  switch-button                  control {"role":"switch","name":"A"} host {"role":"generic","name":"A"}
+  switch-icon-button             control {"role":"switch","name":"A"} host {"role":"generic","name":"A"}
+  fab                            control {"role":"button","name":"A"} host {"role":"generic","name":"A"}
+  list-button-item               control {"role":"button","name":"A"} host {"role":"listitem","name":"A"}
+  list-link-item                 control {"role":"link","name":"A"} host {"role":"listitem","name":"A"}
+  checkbox                       control {"role":"checkbox"} host {"role":"generic","name":"A"}
+  radio                          control {"role":"radio"} host {"role":"generic","name":"A"}
+  multiline                      control {"role":"textbox","name":"A"} host {"role":"generic","name":"A"}
+  tf-label                       control {"role":"textbox","name":"A"} host {"role":"generic","name":"A"}
+  tf-slot                        control {"role":"textbox","name":"S"} host {"role":"generic"}
+  tf-slot+label                  control {"role":"textbox","name":"S"} host {"role":"generic","name":"A"}
+  tf-labelledby                  control {"role":"textbox"} host {"role":"generic","name":"R"}
+  tf-slot+labelledby             control {"role":"textbox","name":"S"} host {"role":"generic","name":"R"}
+  tf-describedby                 control {"role":"textbox","name":"A"} host {"role":"generic","name":"A","description":"D"}
+  tf-for                         control {"role":"textbox"} host {"role":"generic","name":"L"}
+  tf-slot+for                    control {"role":"textbox","name":"S"} host {"role":"generic","name":"L"}
+  tf: aria-label                 control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: slot                       control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: slot+aria-label            control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: labelledby                 control {"role":"slider","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  tf: slot+labelledby            control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  tf: labelledby+aria-label      control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  tf: for                        control {"role":"slider","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"L"}
+  tf: for+slot                   control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"L"}
+  tf: for+aria-label             control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: for+labelledby             control {"role":"slider","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  tf: for+slot+aria-label        control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: wrap                       control {"role":"slider","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"L"}
+  tf: wrap+slot                  control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"L"}
+  tf: wrap+aria-label            control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: describedby                control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","description":"D"}
+  tf: valuetext                  control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: aria-valuetext             control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: both valuetexts            control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: aria-valuenow 5            control {"role":"slider","name":"S","value":5,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: aria-valuemin, max         control {"role":"slider","name":"S","value":-18,"min":0,"max":9,"valuetext":"-18"} host {"role":"generic"}
+  tf: label attribute            control {"role":"slider","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: aria-invalid               control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18","invalid":true} host {"role":"generic","invalid":true}
+  tf: runtime add label          control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: runtime remove label       control {"role":"slider","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"L"}
+  tf: runtime remove lby         control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  tf: runtime fill slot          control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  tf: runtime remove vt          control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic"}
+  plan: aria-label               control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: slot                     control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: slot+aria-label          control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: labelledby               control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  plan: slot+labelledby          control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  plan: labelledby+aria-label    control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  plan: for                      control {"role":"slider","name":"L","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: for+slot                 control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: for+aria-label           control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: for+labelledby           control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  plan: for+slot+aria-label      control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: wrap                     control {"role":"slider","name":"L ","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: wrap+slot                control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: wrap+aria-label          control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: describedby              control {"role":"slider","name":"S","description":"D","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","description":"D"}
+  plan: valuetext                control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: aria-valuetext           control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: both valuetexts          control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: aria-valuenow 5          control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: aria-valuemin, max       control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: label attribute          control {"role":"slider","name":"B","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: aria-invalid             control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18","invalid":true} host {"ignored":true}
+  plan: runtime add label        control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: runtime remove label     control {"role":"slider","name":"L","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: runtime remove lby       control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  plan: runtime fill slot        control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  plan: runtime remove vt        control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+# firefox 159.0
+  native range aria-valuetext    control {"role":"slider","name":"N"} host {"role":"slider","name":"N"}
+  ARIA slider aria-valuetext     control {"role":"slider","name":"N"} host {"role":"slider","name":"N"}
+  button                         control {"role":"button","name":"A"} host {"role":"generic","name":"A"}
+  icon-button                    control {"role":"button","name":"A"} host {"role":"generic","name":"A"}
+  link-button                    control {"role":"link","name":"A"} host {"role":"generic","name":"A"}
+  switch-button                  control {"role":"switch","name":"A"} host {"role":"generic","name":"A"}
+  switch-icon-button             control {"role":"switch","name":"A"} host {"role":"generic","name":"A"}
+  fab                            control {"role":"button","name":"A"} host {"role":"generic","name":"A"}
+  list-button-item               control {"role":"button","name":"A"} host {"role":"listitem","name":"A"}
+  list-link-item                 control {"role":"link","name":"A"} host {"role":"listitem","name":"A"}
+  checkbox                       control {"role":"checkbox"} host {"role":"generic","name":"A"}
+  radio                          control {"role":"radio"} host {"role":"generic","name":"A"}
+  multiline                      control {"role":"textbox","name":"A"} host {"role":"generic","name":"A"}
+  tf-label                       control {"role":"textbox","name":"A"} host {"role":"generic","name":"A"}
+  tf-slot                        control {"role":"textbox","name":"S"} host {"ignored":true}
+  tf-slot+label                  control {"role":"textbox","name":"S"} host {"role":"generic","name":"A"}
+  tf-labelledby                  control {"role":"textbox"} host {"role":"generic","name":"R"}
+  tf-slot+labelledby             control {"role":"textbox","name":"S"} host {"role":"generic","name":"R"}
+  tf-describedby                 control {"role":"textbox","name":"A"} host {"role":"generic","name":"A"}
+  tf-for                         control {"role":"textbox"} host {"role":"generic","name":"L"}
+  tf-slot+for                    control {"role":"textbox","name":"S"} host {"role":"generic","name":"L"}
+  tf: aria-label                 control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  tf: slot                       control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: slot+aria-label            control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  tf: labelledby                 control {"role":"slider"} host {"role":"generic","name":"R"}
+  tf: slot+labelledby            control {"role":"slider","name":"S"} host {"role":"generic","name":"R"}
+  tf: labelledby+aria-label      control {"role":"slider","name":"A"} host {"role":"generic","name":"R"}
+  tf: for                        control {"role":"slider"} host {"role":"generic","name":"L"}
+  tf: for+slot                   control {"role":"slider","name":"S"} host {"role":"generic","name":"L"}
+  tf: for+aria-label             control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  tf: for+labelledby             control {"role":"slider"} host {"role":"generic","name":"R"}
+  tf: for+slot+aria-label        control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  tf: wrap                       control {"role":"slider"} host {"ignored":true}
+  tf: wrap+slot                  control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: wrap+aria-label            control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  tf: describedby                control {"role":"slider","name":"S"} host {"role":"generic"}
+  tf: valuetext                  control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: aria-valuetext             control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: both valuetexts            control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: aria-valuenow 5            control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: aria-valuemin, max         control {"role":"slider","name":"S"} host {"ignored":true}
+  tf: label attribute            control {"role":"slider"} host {"ignored":true}
+  tf: aria-invalid               control {"role":"slider","name":"S"} host {"role":"generic"}
+  tf: runtime add label          control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  tf: runtime remove label       control {"role":"slider"} host {"role":"generic","name":"L"}
+  tf: runtime remove lby         control {"role":"slider","name":"S"} host {"role":"generic"}
+  tf: runtime fill slot          control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  tf: runtime remove vt          control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: aria-label               control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  plan: slot                     control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: slot+aria-label          control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  plan: labelledby               control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  plan: slot+labelledby          control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  plan: labelledby+aria-label    control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  plan: for                      control {"role":"slider","name":"L"} host {"role":"generic","name":"L"}
+  plan: for+slot                 control {"role":"slider","name":"S"} host {"role":"generic","name":"L"}
+  plan: for+aria-label           control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  plan: for+labelledby           control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  plan: for+slot+aria-label      control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  plan: wrap                     control {"role":"slider","name":"L"} host {"ignored":true}
+  plan: wrap+slot                control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: wrap+aria-label          control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  plan: describedby              control {"role":"slider","name":"S"} host {"role":"generic"}
+  plan: valuetext                control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: aria-valuetext           control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: both valuetexts          control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: aria-valuenow 5          control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: aria-valuemin, max       control {"role":"slider","name":"S"} host {"ignored":true}
+  plan: label attribute          control {"role":"slider","name":"B"} host {"ignored":true}
+  plan: aria-invalid             control {"role":"slider","name":"S"} host {"role":"generic"}
+  plan: runtime add label        control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  plan: runtime remove label     control {"role":"slider","name":"L"} host {"role":"generic","name":"L"}
+  plan: runtime remove lby       control {"role":"slider","name":"S"} host {"role":"generic"}
+  plan: runtime fill slot        control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  plan: runtime remove vt        control {"role":"slider","name":"S"} host {"ignored":true}
+  sliders in document order, name | value | description
+    native range aria-valuetext    N | T | 
+    ARIA slider aria-valuetext     N | T | 
+    tf: aria-label                 A | -18 | 
+    tf: slot                       S | -18 | 
+    tf: slot+aria-label            S | -18 | 
+    tf: labelledby                 null | -18 | 
+    tf: slot+labelledby            S | -18 | 
+    tf: labelledby+aria-label      A | -18 | 
+    tf: for                        null | -18 | 
+    tf: for+slot                   S | -18 | 
+    tf: for+aria-label             A | -18 | 
+    tf: for+labelledby             null | -18 | 
+    tf: for+slot+aria-label        S | -18 | 
+    tf: wrap                       null | -18 | 
+    tf: wrap+slot                  S | -18 | 
+    tf: wrap+aria-label            A | -18 | 
+    tf: describedby                S | -18 | 
+    tf: valuetext                  S | -18 | 
+    tf: aria-valuetext             S | H | 
+    tf: both valuetexts            S | H | 
+    tf: aria-valuenow 5            S | -18 | 
+    tf: aria-valuemin, max         S | -18 | 
+    tf: label attribute            null | -18 | 
+    tf: aria-invalid               S | -18 | 
+    tf: runtime add label          A | -18 | 
+    tf: runtime remove label       null | -18 | 
+    tf: runtime remove lby         S | -18 | 
+    tf: runtime fill slot          S | -18 | 
+    tf: runtime remove vt          S | -18 | 
+    plan: aria-label               A | -18 | 
+    plan: slot                     S | -18 | 
+    plan: slot+aria-label          S | -18 | 
+    plan: labelledby               R | -18 | 
+    plan: slot+labelledby          R | -18 | 
+    plan: labelledby+aria-label    R | -18 | 
+    plan: for                      L | -18 | 
+    plan: for+slot                 S | -18 | 
+    plan: for+aria-label           A | -18 | 
+    plan: for+labelledby           R | -18 | 
+    plan: for+slot+aria-label      S | -18 | 
+    plan: wrap                     L | -18 | 
+    plan: wrap+slot                S | -18 | 
+    plan: wrap+aria-label          A | -18 | 
+    plan: describedby              S | -18 | D
+    plan: valuetext                S | V | 
+    plan: aria-valuetext           S | H | 
+    plan: both valuetexts          S | H | 
+    plan: aria-valuenow 5          S | -18 | 
+    plan: aria-valuemin, max       S | -18 | 
+    plan: label attribute          B | -18 | 
+    plan: aria-invalid             S | -18 | 
+    plan: runtime add label        A | -18 | 
+    plan: runtime remove label     L | -18 | 
+    plan: runtime remove lby       S | -18 | 
+    plan: runtime fill slot        S | -18 | 
+    plan: runtime remove vt        S | V | 
+# webkit 27.2
+  native range aria-valuetext    control {"role":"slider","name":"N"} host {"role":"slider","name":"N"}
+  ARIA slider aria-valuetext     control {"role":"slider","name":"N"} host {"role":"slider","name":"N"}
+  button                         control {"role":"button","name":"A"} host {"role":"group","name":"A"}
+  icon-button                    control {"role":"button","name":"A"} host {"role":"group","name":"A"}
+  link-button                    control {"role":"link","name":"A"} host {"role":"group","name":"A"}
+  switch-button                  control {"role":"switch","name":"A"} host {"role":"group","name":"A"}
+  switch-icon-button             control {"role":"switch","name":"A"} host {"role":"group","name":"A"}
+  fab                            control {"role":"button","name":"A"} host {"role":"group","name":"A"}
+  list-button-item               control {"role":"button","name":"A"} host {"role":"listitem","name":"A"}
+  list-link-item                 control {"role":"link","name":"A"} host {"role":"listitem","name":"A"}
+  checkbox                       control {"role":"checkbox"} host {"role":"group","name":"A"}
+  radio                          control {"role":"radio"} host {"role":"group","name":"A"}
+  multiline                      control {"role":"textbox","name":"A"} host {"role":"group","name":"A"}
+  tf-label                       control {"role":"textbox","name":"A"} host {"role":"group","name":"A"}
+  tf-slot                        control {"role":"textbox","name":"S"} host {"role":"group"}
+  tf-slot+label                  control {"role":"textbox","name":"S"} host {"role":"group","name":"A"}
+  tf-labelledby                  control {"role":"textbox"} host {"role":"group","name":"R"}
+  tf-slot+labelledby             control {"role":"textbox","name":"S"} host {"role":"group","name":"R"}
+  tf-describedby                 control {"role":"textbox","name":"A"} host {"role":"group","name":"A"}
+  tf-for                         control {"role":"textbox"} host {"ignored":true}
+  tf-slot+for                    control {"role":"textbox","name":"S"} host {"role":"group","name":"L"}
+  tf: aria-label                 control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  tf: slot                       control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: slot+aria-label            control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  tf: labelledby                 control {"role":"slider"} host {"role":"group","name":"R"}
+  tf: slot+labelledby            control {"role":"slider","name":"S"} host {"role":"group","name":"R"}
+  tf: labelledby+aria-label      control {"role":"slider","name":"A"} host {"role":"group","name":"R"}
+  tf: for                        control {"role":"slider"} host {"ignored":true}
+  tf: for+slot                   control {"role":"slider","name":"S"} host {"role":"group","name":"L"}
+  tf: for+aria-label             control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  tf: for+labelledby             control {"role":"slider"} host {"role":"group","name":"R"}
+  tf: for+slot+aria-label        control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  tf: wrap                       control {"role":"slider"} host {"ignored":true}
+  tf: wrap+slot                  control {"role":"slider","name":"S"} host {"role":"group","name":"L"}
+  tf: wrap+aria-label            control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  tf: describedby                control {"role":"slider","name":"S"} host {"role":"group","name":"D"}
+  tf: valuetext                  control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: aria-valuetext             control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: both valuetexts            control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: aria-valuenow 5            control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: aria-valuemin, max         control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: label attribute            control {"role":"slider"} host {"ignored":true}
+  tf: aria-invalid               control {"role":"slider","name":"S","invalid":"true"} host {"role":"group","invalid":"true"}
+  tf: runtime add label          control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  tf: runtime remove label       control {"role":"slider"} host {"ignored":true}
+  tf: runtime remove lby         control {"role":"slider","name":"S"} host {"role":"group"}
+  tf: runtime fill slot          control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  tf: runtime remove vt          control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: aria-label               control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  plan: slot                     control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: slot+aria-label          control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  plan: labelledby               control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  plan: slot+labelledby          control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  plan: labelledby+aria-label    control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  plan: for                      control {"role":"slider","name":"L"} host {"ignored":true}
+  plan: for+slot                 control {"role":"slider","name":"S"} host {"role":"group","name":"L"}
+  plan: for+aria-label           control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  plan: for+labelledby           control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  plan: for+slot+aria-label      control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  plan: wrap                     control {"role":"slider","name":"L"} host {"ignored":true}
+  plan: wrap+slot                control {"role":"slider","name":"S"} host {"role":"group","name":"L"}
+  plan: wrap+aria-label          control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  plan: describedby              control {"role":"slider","name":"S"} host {"role":"group","name":"D"}
+  plan: valuetext                control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: aria-valuetext           control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: both valuetexts          control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: aria-valuenow 5          control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: aria-valuemin, max       control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: label attribute          control {"role":"slider","name":"B"} host {"ignored":true}
+  plan: aria-invalid             control {"role":"slider","name":"S","invalid":"true"} host {"role":"group","invalid":"true"}
+  plan: runtime add label        control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  plan: runtime remove label     control {"role":"slider","name":"L"} host {"ignored":true}
+  plan: runtime remove lby       control {"role":"slider","name":"S"} host {"role":"group"}
+  plan: runtime fill slot        control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  plan: runtime remove vt        control {"role":"slider","name":"S"} host {"role":"group"}

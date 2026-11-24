@@ -1,0 +1,2 @@
+touchEnd-second pointerdown id2P input 11 input 16 input 21 input 27 input 32 input 37 -2nd pointerdown id3 -lift2 pointerup id3 change 37 -more -cancel pointercancel id2P
+touchEnd-none pointerdown id2P input 11 input 16 input 21 input 27 input 32 input 37 -2nd pointerdown id3 -lift2 -more -cancel pointercancel id2P pointercancel id3

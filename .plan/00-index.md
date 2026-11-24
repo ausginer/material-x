@@ -2443,6 +2443,73 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
+#### RD-55 — `mx-slider` is a native range whose value is the user's, and it mirrors host `aria-*` as the text fields do
+
+**Decided 2026-11-23, on `material-x/slider-1`,** for #173, as unit C of `RD-47`'s landing plan. Mx Architect B wrote the [plan](slider-1/slider-plan.md) and proposed this entry, on the coordinator's task. The architect read the plan and minted the entry at `eaff88884`. `RD-54` is the highest `RD-` on any branch on `origin` (`material-x/top-app-bar-1`), so this is the next free number. The plan's `SL-D1` to `SL-D9` hold each decision with its readings, what wasn't adopted and what wasn't measured.
+
+1. **The control (`SL-D1`)** is an `<input type="range">` in the shadow tree: the focus target, the pointer target and the accessible node. It falls under the `.host` exception _The focus target can't be a container_. An ARIA slider isn't taken, because Firefox gives assistive technology no way to set its value, by reading of its source.
+2. **The surface (`SL-D2`):** `value`, `min`, `max`, `step`, `size`, `indicator`, `valuetext`, `name`, `disabled`, and `Validatable`'s `error` and `required`; the slot `label`, the part `impl` and four color properties. `value` is a number.
+3. **The value is the user's (`SL-D2`),** as a text field's text is. This is the second exception to the controlled principle in `architecture.md`, by the owner's answer to Q1. `value`, `min`, `max` and `step` give the same result in whatever order they are set.
+4. **Events (`SL-D3`)** are plain `Event`s (`RD-52`). A press by anything but a mouse, such as a touch or a pen, is held back until the browser has decided what it is. If the browser turns it into a scroll, it changes nothing and fires nothing, unless the engine committed it first, as that engine commits a native range's. Every other part of the native range's gesture and commit is its own.
+5. **The name (`SL-D4`)** comes from a host `aria-labelledby`, the `label` slot, a host `aria-label` or a `<label>`, in that order. Host `aria-*` is mirrored, so a host `aria-label` leaves a second named node. The owner accepted it for now, and its repair is `RF-94`'s.
+6. **Forms (`SL-D5`), anatomy and states (`SL-D6`), direction (`SL-D7`), the cost of a move (`SL-D8`) and tokens (`SL-D9`)** are the plan's. The drawing comes from one custom property on an inner element, a move reads no layout, and no deprecated token is read.
+
+**The owner's answers,** of 2026-11-23, in chat, relayed by the coordinator:
+
+- **Q1, whose the value is:** _"q1 a"_, the user's.
+- **Q2, what a host's `aria-label` does:** _"Безобразие, но тогда делаем как в text-field. Решать, как починить, будем потом (добавь в ишуи)"_ ("An outrage, but then we do it as in text-field. How to fix it, we'll decide later (add it to the issues)"). It is the plan's (c), and the plan had recommended (a).
+
+**Why.** A pointer move is as frequent as a frame, and the owner's reason for the text fields' exception, that speed matters more than the principle, applies to it. The native range gives the arithmetic, the keyboard, touch and the accessible node, and only drawing is left.
+
+**Costs.** The horizontal arrow keys don't mirror in RTL in WebKit. WebKit drops `change` if an `input` handler rewrites the value. `RF-94`'s second node gains one more element. A slider doesn't restore its value after a navigation until `RF-120`.
+
+**Checked by the architect when minting.** The plan reads the value indicator's 10px inline padding through a subagent, and calls its full corner an inference. Both are in Material Components for Android's source at `3a2969935`: `Widget.Material3.Slider.Label` has `paddingStart` and `paddingEnd` of 10dp, and inherits `ShapeAppearance.Material3.Corner.Full` from `Widget.Material3.Tooltip`. Its block padding is the token `value-indicator.active.bottom-space`, as in the plan. These are the literals' provenance.
+
+**Dated 2026-11-24 by the architect: the plan's amendment is implemented at `6ecdc0155`,** relayed by the coordinator. The [report](slider-1/slider-report.md#the-amendment) names no departure, and the numbered clauses above stay true. Pending: the baselines (`RD-13`), and the review of the amendment.
+
+- **The stop indicator (`SL-D6`)** is an element of its own, between the input and the handle, and the two track pseudo-elements change places. It reads `stop-indicator.shape`, and no color is mixed.
+- **A press on the handle (`SL-D1`).** Chromium and WebKit keep the value. Firefox moves it to the pointer, as on every native range there, after it rounds the pointer down to a whole CSS pixel. So with narrow steps even a press on the centre changes the value there: 400 of 1000 gave 398 and 395. The move is under 3 px. The plan said about 2.4 px, and that the centre changes nothing in the three engines, which holds at 100 steps on 200 px. Both are [corrected](slider-1/slider-plan.md#revisions).
+- **Width (`SL-D6`).** The slider has no inline size of its own, as the text field has none, and its documentation says so.
+- **The cost of a move (`SL-D8`)** is the built element's: 52, 135 and 328 µs in Chromium, Firefox and WebKit, from the probe that drew the element, at a load average of 1 to 2. The built change was read on a loaded host only, so only its adjacent runs compare. Firefox's minimum falls by 40 and 62 µs, which agrees with the probe's 42. Chromium's minima are 47 and 62 after and 55 and 54 before, so no difference is established, and the probe's up to 5 µs more isn't excluded. WebKit's are lower in both runs, while the load fell, and the probe found no saving, so none is claimed.
+- **The check on phones is after the merge,** by the owner's ruling, relayed by the coordinator on 2026-11-24: he tries the stories in the Storybook built from `main`, and a defect is a follow-on unit. The plan had asked for it before the merge. The check's steps are in #220's description.
+- **`RF-123`'s prefix reaches the slider with no source change.** In the package built from this branch merged with `main` at `a4dee53d8`, each of the slider's 43 private names has the prefix, and the script's write of the fraction takes the published name too, `--mx-ds` ([reading](slider-1/checks/published-names.txt)). After a press at 70 % the handle is drawn where the value puts it in the three engines ([reading](slider-1/checks/press-rounding.txt)). Brotli: `slider/slider` 3575 to 3602 B and `complete` 24425 to 24505 B.
+
+**Dated 2026-11-24 by the architect: clause 4 is amended, and the value indicator's place and text, for the [feature proof](reviews/slider-1/feature-proof-claude.md),** relayed by the coordinator. Mx Architect B ruled on the proof in the plan's [dispositions](slider-1/slider-plan.md#feature-proof-dispositions) and proposed this note. The architect read the proposal and its readings when minting, and agrees with the rulings. It is decided and not implemented: `85d11833c` still restores the value.
+
+- **Clause 4 said:** _"A press that the browser turns into a scroll restores the value."_ A restoration can't tell the user's press from a script's write that followed it, so `SL-D2` and `SL-D3` gave different answers (`reviewer-1`). A press that isn't reported can't conflict with a write.
+- **The value indicator (`SL-D6`)** is two elements inside the track. It stays between the slider's ends and adds no scrollable overflow (`reviewer-2`). Its text takes its direction from its own characters, and a text with no letters is left to right, so a negative number has its sign at the left in both directions (`reviewer-3`).
+- **An empty `aria-label` isn't a source of the name** (`SL-D4`, `reviewer-4`).
+- **The owner's answers,** of 2026-11-24, in chat, relayed by the coordinator. He was asked as the plan's two [questions](slider-1/slider-plan.md#the-owners-answers-on-the-amendment):
+  - on touch, the handle waits for the lift or the first slide: _"Q1: думаю, да, соглашусь"_ ("I think yes, I agree");
+  - the indicator stops at the slider's end: _"Q2: тоже да"_ ("also yes").
+- **Costs:** with a finger the handle moves at the lift or the first step of the slide, and not at the touch. The indicator is off the handle's centre at the ends, by up to half its width. A change while it is shown costs up to 9, 45 and 155 µs more in Chromium, Firefox and WebKit, as upper bounds (`SL-D8`).
+- **Limits, added by the architect when minting,** from the proposal's own readings in [Chromium](slider-1/checks/held-press.txt) and [Firefox](slider-1/checks/held-press-firefox.txt):
+  - a script's write during a **tap**, and not a scroll: Chromium keeps the script's number, with `change` and no `input`, so the tap is lost, as on a native range. Firefox ends on the pressed number, with `input` and `change`. Both are as built before;
+  - a slider **moved in the DOM during a held press:** Chromium drops the press, where the built element kept it, with a `change`. Firefox's own touch ends as a tap at the lift, which the slider reports, and it ends on the pressed number as before.
+- **Not read:** Safari, iOS and Android, and a pen. Firefox's own decision to scroll: its probe sends the cancel.
+
+**Dated 2026-11-24 by the architect: the held state comes from pointer events, on the [report](slider-1/slider-report.md#the-feature-proofs-dispositions)'s return,** relayed by the coordinator. No clause changes. The [rulings](slider-1/slider-plan.md#the-implementation-reports-rulings) have the readings and the work.
+
+- **`SL-D6` is amended.** It took the held state from `:active`, and said that it stays while the pointer is outside, in all three engines. In WebKit 27.2 `:active` goes about 0.1 s after a still press on the track and isn't back for a drag that leaves the slider. A press on the label sets it in the three engines, the right button in Firefox and WebKit, and it stays on a slider that is disabled under a press in Chromium and Firefox. Chromium gives no `:active` to an emulated finger. The component already follows the press.
+- **Accepted:** the report's four additions, the second finger's made a rule for any press in progress; the limit that a page's capturing listener sees the native `input` of a press that isn't reported; and the cost while the indicator is shown, 2 to 8, 40 to 50 and 23 to 53 µs, in place of the bounds in the note above.
+- **Cost:** a custom state that a press sets and its end clears. A slider hidden with `display: none` during a press has it until the next press ends. A scroll that starts on the slider shows it until the browser takes the touch.
+- **Not read:** Safari, a physical touch and a pen.
+
+**Dated 2026-11-24 by the architect: clause 4 is amended for the [recheck](reviews/slider-1/feature-proof-recheck-claude.md), and the slider is accepted for the merge,** on the [second recheck](reviews/slider-1/feature-proof-recheck-2-claude.md) at `715bca7fd`, relayed by the coordinator. Mx Architect B ruled on the recheck in the plan's [rulings](slider-1/slider-plan.md#the-rechecks-rulings) and proposed a note. The architect agrees with the rulings. No behavior of the source changes.
+
+- **Clause 4 said:** _"A press that the browser turns into a scroll changes nothing and fires nothing: the component holds back a finger's press until the browser has decided."_ The proposal left the clause as it was. It is amended here because the entry governs where it and the plan differ, and the sentence was false in two ways: an engine can commit the press before the scroll, and a pen's press is held too.
+- **The one rule (`SL-D3`):** the component holds back the press's first `input`, and the rest is the native range's. It ends the hold at whatever native `input` or `change` comes next. So these are the user's: in Chromium and Firefox, a press whose focused slider loses its focus; in Chromium, one whose focused slider is disabled, moved or removed, or that another finger's lift ends; in Firefox, the number of another finger that lifts, and the number shown when the slider is hidden. The recheck read a bare range beside the slider where a case reports a press, and they agree, so a rule of the component's own would depart from the platform. The one difference that the plan leaves unexplained, a focused slider moved in Firefox in the middle of a touch, isn't one of these.
+- **The cost:** such a press keeps its number also if it then scrolls. It needs a resting finger, and an act of the page or a second finger on the slider.
+- **A pen** is held because `touch-action` governs a pen's panning as it does a finger's. Its release reports it. The owner's answer to the first question, above, was about touch, and nothing here asks him again: the plan's _a finger's press_ and the code's _anything but a mouse_ differed, and the texts now say what is built. No engine was seen to take a pen's press for a scroll by itself.
+- **The held look** follows the pointer of the press and ignores a second finger. The proposal said that it ignores a second button too, and that isn't so: a pointer's press begins with its first button and ends with its last. So in Chromium and Firefox the look stays at rest when the left button is pressed while the right is down, and stays held until the right is released when the left was first (`reviewer-11`, a limit).
+- **The second recheck is accepted.** It has no tier A or B finding. `reviewer-12` and the accepted part of `reviewer-13` are closed, and so is `reviewer-14` in the package. `reviewer-15` is #220's description, and the coordinator's. Its three observations get no row: a press reported twice through `change` would need a second report of a hold that has ended, a pen's look has the same code as a finger's, and the spaces beside the indicator's text were not ruled on.
+- **The baselines** (`RD-13`) were recorded at `8223fa371` by #236, `15375ec43`. Nothing that is drawn has changed since.
+- **What remains after the merge** is none of it this entry's to hold open:
+  - the owner's check on phones, in the Storybook built from `main`, as the note above says. A defect is a follow-on unit, with a finding of its own. The steps are in #220's description, and the second finger and a pen can be tried with them;
+  - the documentation unit that the plan's [tests section](slider-1/slider-plan.md#tests-the-unit-owes) and the [card plan](card-1/card-plan.md) name: `architecture.md`, `accessibility.md` and the component list, for the three components together;
+  - `RF-94`'s second named node, `RF-120`'s restoring of the value, and `RF-121`.
+- **Not read:** Safari, a physical touch, and assistive technology.
+
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
 **Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
@@ -4481,6 +4548,29 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Order:** the form-validation unit doesn't wait for this entry, because `useValidatable` writes the control directly. The two units overlap in `useCheckableCore` only, and the second to land merges the first. The owner confirmed that they are separate units (plan, _Inputs_).
 - **Size:** _large_. A decision on the label mechanism comes before implementation.
 
+**Dated 2026-11-23 by the architect, from the [slider plan](slider-1/slider-plan.md) of Mx Architect B (`RD-55`), relayed by the coordinator. No finding is added.**
+
+- **The owner's answer** (`RD-55`, Q2): `mx-slider` mirrors host `aria-*` as the text fields do, the second node is accepted there for now, and how to repair it is decided later, here. `mx-slider` joins the elements that the repair covers, by its plan until it is built.
+- **Every element with a control, read as built, with a host `aria-label="A"`** ([readings](slider-1/checks/mirroring.txt)), the same in Chromium, Firefox and WebKit. This replaces _"By reading, every `useARIA` adopter does the same"_:
+
+  | Elements | Control | Host |
+  | --- | --- | --- |
+  | `mx-button`, `mx-icon-button`, `mx-link-button`, `mx-switch-button`, `mx-switch-icon-button`, `mx-fab`, `mx-text-field`, `mx-multiline-text-field` | named `A` | a second node named `A`: `generic` in Chromium and Firefox, `group` in WebKit |
+  | `mx-list-button-item`, `mx-list-link-item` | named `A` | its own `listitem`, named `A` as well. The node is the item's and stays. Only its name is repeated |
+  | `mx-checkbox`, `mx-radio` | unnamed | named `A`: `generic` or `group` |
+
+  `mx-split-button`, the groups, `mx-list` and `mx-list-item` weren't read.
+
+- **More of the same cause, read on `mx-text-field`:** a host `aria-labelledby` names nothing, and a `<label>` leaves the control unnamed, in the three engines. A host `aria-describedby` doesn't describe the control, read in Chromium only. The ids don't resolve, which settles that point of _Not established_.
+- **What carries a light-DOM reference to a shadow control, in the three engines,** on the slider's prototype: the element references, `ariaLabelledByElements` and `ariaDescribedByElements` (the latter read in Chromium and Firefox). This answers how a light-DOM label reaches a shadow control. They don't hide the host.
+- **Possible repairs of the second node. None is chosen:**
+  - **Move the attribute:** the component sets the name on the control and removes `aria-label` from the host. One named node in the three engines. It edits the consumer's attributes, and a framework or a test can't read it back.
+  - **A plain attribute in place of `aria-label`,** such as `label`: one named node in the three engines, read on the prototype. A consumer who writes `aria-label` is where they are now, and it is new surface on every element.
+  - **The host as the accessible control,** through its internals: one named node in the three engines for a slider role, and `<label for>` works by itself. The native control inside would leave the accessibility tree and stop taking focus, so its behavior is written by hand. `RD-55` rejects it for the slider. It wasn't weighed for the others.
+  - **Role `none` on the host** isn't a repair: every engine ignores it while the host has `aria-label` or `aria-labelledby`.
+  - **The platform's reference target** for shadow roots, once it is Baseline. Not read.
+- **The size and the unit** stay as they are, and the unit's plan decides.
+
 **Dated 2026-11-23 by the architect, on `repo/private-props-1`: the owner rejected an option and set the next step.** His words, to Mx Architect Explainer, relayed by the coordinator: _"Со снятием с хоста - согласен на 100%, сам думал так же. Это надо добавить в описание issue как точно отвергнутый вариант. Следующая задача - послушать voiceover"_ ("On removing it from the host I agree 100%, I thought the same. Add it to the issue's description as a definitely rejected option. The next task is to listen to VoiceOver").
 
 - **Rejected: the component copies the host's `aria-*` to its control and removes it from the host.** It is _Move the attribute_ in this entry's other note of the same date, on `material-x/slider-1`, and option (b) of that branch's slider plan, Q2. Both name `aria-label` only.
@@ -5126,6 +5216,49 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Depends on `RF-117`,** for `ReorderEvent`.
 - **Ready,** after `RF-117`.
 - **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
+
+#### RF-119 — A control in a disabled fieldset isn't disabled
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F1` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-118` is the highest `RF-` on any branch on `origin`, so this is the next free number. Run on the elements as built from `92a386a17`, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](observations-9/checks/form-and-hidden.txt), [probe](observations-9/probes/form-and-hidden.mjs)).
+
+- **What happens,** in a `<fieldset disabled>`: the host of `mx-button`, `mx-icon-button`, `mx-switch-button`, `mx-switch-icon-button`, `mx-checkbox`, `mx-radio`, `mx-text-field` and `mx-multiline-text-field` matches `:disabled`, and its native control doesn't. Each control takes focus, from a script and from Tab, in the three engines. A native `<input>` in the same fieldset takes neither.
+  - **The keyboard operates it.** Space on the checkbox, the radio and the switches dispatches `input` and `change` in the three engines, and `click` in Chromium. Space on a button dispatches `click` in Chromium only.
+  - **Typing changes the text fields,** in the three engines. Firefox dispatches no `input` on the host for it.
+  - **The pointer doesn't.** A click on any of them dispatches nothing.
+- **`mx-fab` isn't form-associated,** so its host doesn't match `:disabled` either, and it acts on the keyboard and the pointer in the three engines. A native `<button>` in the fieldset would be disabled.
+- **The cause:** the control is in a shadow tree, and a fieldset disables only its own tree's controls. The platform tells the host through `formDisabledCallback(disabled)`. Core drops that argument and no component listens. `useDisableable` transfers only the host's attribute.
+- **Why it is a problem:** a form that disables a section while it submits leaves the section editable from the keyboard. Nothing in it is submitted, so what the user types is lost.
+- **Required property:** in each engine at `RD-20`'s floor, a control is disabled while its own `disabled` attribute, a fieldset or its button group says so. Then its native control is disabled, takes no focus and no input, and draws its disabled state. Removing one source leaves the others in force. The `disabled` attribute and property keep what the consumer wrote.
+- **For the unit's plan:** whether core passes the argument to `formDisabled` controllers, or components read `:disabled` as the slider does (`RD-55`, `SL-D5`); and whether `mx-fab` becomes form-associated. `ButtonCore`'s group context writes `target.disabled` from two of the sources, so it has to learn the third.
+- **Not read:** `mx-split-button`, controls in groups, and the drawing.
+- **Size:** _medium_.
+
+#### RF-120 — A form control doesn't restore its value after a navigation
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F2` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-119` is the entry before this one, so this is the next free number. Same [reading](observations-9/checks/form-and-hidden.txt) and [probe](observations-9/probes/form-and-hidden.mjs).
+
+- **What happens:** type into `mx-text-field` and `mx-multiline-text-field`, check `mx-checkbox` and `mx-switch-button`, follow a link and go back, with the page not kept in the back/forward cache. In Chromium, Firefox and WebKit the native `<input>` and checkbox beside them have their values back. All four elements are empty or unchecked.
+- **The cause:** each engine calls `formStateRestoreCallback(state, 'restore')`. Core's `formStateRestoreCallback` takes no argument, so `formStateRestore` controllers get neither the state nor the reason, and no component registers one. Autofill uses the same callback.
+- **Why it is a problem:** a user who goes back to a half-filled form loses what they typed, and not in the native fields beside it.
+- **Required property:** in each engine at `RD-20`'s floor, an element whose value is the user's has that value back after a navigation that restores a native field's: the text fields, and `mx-slider` (`RD-55`). Its form value, `value` and drawing agree. No event is fired, as for a native field.
+- **Not owed by the controlled elements:** the checkbox, the radio and the switches show what the consumer sets, and nothing else changes it (`architecture.md`). The consumer restores the state that it owns. Core passes the arguments to every controller, so a consumer's subclass can.
+- **Not established, and for the unit to settle first:** in this reading Firefox handed both text fields the state `on`, and not `typed`. `on` is the form value of the checkbox and the switch. Why isn't read: the probe defines the elements after the page is parsed, and the order may matter. A repair that writes the state it is given would put `on` in a text field there. Autofill wasn't read.
+- **Order:** it changes the same core callbacks as `RF-119` may. The second to land merges the first.
+- **Size:** _medium_: two callbacks' arguments in core, the text fields, and rows that navigate.
+
+#### RF-121 — `hidden` doesn't hide any material-x element
+
+Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, relayed by the coordinator. The architect saw it by reading while planning `mx-card` (#171). `RF-120` is the entry before this one, so this is the next free number. Same [reading](observations-9/checks/form-and-hidden.txt) and [probe](observations-9/probes/form-and-hidden.mjs).
+
+- **What happens:** every element with the `hidden` attribute is still rendered, in Chromium, Firefox and WebKit: all 19 entries of `files.json`, from `mx-button` to `mx-sortable-list`.
+- **The cause:** each component declares a `display` on `:host`, and an author declaration beats the user agent's `[hidden] { display: none }`.
+- **Why it is a problem:** `hidden` is how a page and a framework hide an element, and it also keeps it from assistive technology. Here it does neither, with no error.
+- **Required property:** in each engine at `RD-20`'s floor, a material-x element with `hidden` isn't rendered, whatever state it is in. A page's own `display` on the element still wins, as it does over a native element's `hidden`. `hidden="until-found"` isn't `display: none`, so the rule leaves it out. What a `display: contents` host does with it isn't read.
+- **Where:** a rule in a sheet that `useCore` adopts is one place for every element. `RF-107`'s repair needs such a sheet as well, and the second to land uses the first one's. The rule has to beat each component's conditional `:host(…)` display, and the rows decide.
+- **Rows:** each element in `files.json`, and one whose state gives it another display. A new element's row is added with it: `mx-card`, `mx-top-app-bar` and `mx-slider` are planned and have the same cause.
+- **Size:** _small_.
+
+**Dated 2026-11-24 by the architect: what it waits for,** on the coordinator's relay. The unit is taken after the last of the first set's three components has merged: `mx-card` is on `main` (#213), and `mx-slider` (#220) and `mx-top-app-bar` (#211) aren't. One unit then covers every element at once, and the rows read `files.json`, so no component's branch owes a row of its own. This replaces _"A new element's row is added with it"_ for these three. By reading their sheets, each declares a `display` on its host, so each has the cause. The elements are 21 with the slider, and 22 with the top app bar. The entry's shared sheet with `RF-107` is unchanged: the second to land uses the first one's. **Plan needed:** no. **Ready** for an implementer when the three are on `main`. Nothing is the owner's to answer.
 
 #### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
 

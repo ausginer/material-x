@@ -1,0 +1,3 @@
+rests 400 ms, lifts: pointerdown 0, pointerup 416
+scrolls at once: pointerdown 0, pointermove 33, pointermove 50, pointercancel 50
+rests 150 ms, then scrolls: pointerdown 0, pointermove 183, pointermove 200, pointercancel 200

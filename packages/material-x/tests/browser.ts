@@ -46,6 +46,24 @@ export function resolveComputed(property: string, value: string): string {
   return computed;
 }
 
+/**
+ * A computed colour as 8-bit sRGB channels and an alpha, whichever of the
+ * `rgb()` and `color(srgb …)` serializations the engine gives it.
+ */
+export function srgb(computed: string): readonly number[] {
+  const [red, green, blue, alpha = 1] = computed
+    .match(/\d+(?:\.\d+)?(?:e-?\d+)?/gu)!
+    .map(Number);
+  const scale = computed.startsWith('color(srgb') ? 255 : 1;
+
+  return [
+    Math.round(red! * scale),
+    Math.round(green! * scale),
+    Math.round(blue! * scale),
+    alpha,
+  ];
+}
+
 /** Resolves when the element's custom-element definition has upgraded. */
 export async function whenUpgraded(element: HTMLElement): Promise<void> {
   await customElements.whenDefined(element.localName);

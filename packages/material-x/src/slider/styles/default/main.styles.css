@@ -1,0 +1,278 @@
+/*
+ * Public CSS custom properties
+ *
+ * `--md-slider-active-track-color`
+ * `--md-slider-inactive-track-color`
+ * `--md-slider-handle-color`
+ * `--md-slider-stop-indicator-color`
+ *   Each wins over its part's color in every state. With the tracks and the
+ *   stop indicator transparent, a gradient behind the slider shows through.
+ */
+
+:host {
+  display: block;
+}
+
+.label {
+  display: block;
+}
+
+.track {
+  /* The centre of the handle and of the native thumb, which travel together. */
+  --_center: calc(
+    var(--_thumb-width) / 2 + var(--_fraction) * (100% - var(--_thumb-width))
+  );
+  /* The length of the track from each edge to the space beside the handle. */
+  --_active-track-size: max(
+    0px,
+    var(--_center) - var(--_handle-width) / 2 -
+      var(--_active-handle-leading-space)
+  );
+  --_inactive-track-size: max(
+    0px,
+    100% - var(--_center) - var(--_handle-width) / 2 -
+      var(--_active-handle-trailing-space)
+  );
+
+  position: relative;
+  block-size: var(--_active-handle-height);
+
+  &::before,
+  &::after {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  /* The inactive track, which the stop indicator paints above. */
+  &::before {
+    inset-block: calc(
+      (var(--_active-handle-height) - var(--_inactive-track-height)) / 2
+    );
+    inset-inline-end: 0;
+    inline-size: var(--_inactive-track-size);
+    border-start-start-radius: var(
+      --_active-track-inner-corner-corner-size-top-right
+    );
+    border-end-start-radius: var(
+      --_active-track-inner-corner-corner-size-bottom-right
+    );
+    border-start-end-radius: var(--_inactive-track-shape-trailing);
+    border-end-end-radius: var(--_inactive-track-shape-trailing);
+    background-color: var(
+      --md-slider-inactive-track-color,
+      var(--_inactive-track-color)
+    );
+    opacity: var(--_inactive-track-opacity, 1);
+  }
+
+  /* The active track. */
+  &::after {
+    inset-block: calc(
+      (var(--_active-handle-height) - var(--_active-track-height)) / 2
+    );
+    inset-inline-start: 0;
+    inline-size: var(--_active-track-size);
+    border-start-start-radius: var(--_active-track-shape-leading);
+    border-end-start-radius: var(--_active-track-shape-leading);
+    border-start-end-radius: var(
+      --_active-track-inner-corner-corner-size-top-right
+    );
+    border-end-end-radius: var(
+      --_active-track-inner-corner-corner-size-bottom-right
+    );
+    background-color: var(
+      --md-slider-active-track-color,
+      var(--_active-track-color)
+    );
+    opacity: var(--_active-track-opacity, 1);
+  }
+}
+
+/* The native range is transparent, and its thumb has the handle's width. */
+.input {
+  all: unset;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0;
+  touch-action: pan-y;
+
+  &::-webkit-slider-runnable-track {
+    block-size: 100%;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: var(--_thumb-width);
+    block-size: 100%;
+  }
+
+  &::-moz-range-thumb {
+    box-sizing: border-box;
+    inline-size: var(--_thumb-width);
+    block-size: var(--_active-handle-height);
+    border: 0;
+  }
+
+  &:disabled {
+    pointer-events: none;
+  }
+}
+
+/* It shrinks to nothing as the handle comes to the end of the track. */
+.stop {
+  position: absolute;
+  inset-block: calc(
+    (var(--_active-handle-height) - var(--_stop-indicator-size)) / 2
+  );
+  inset-inline-end: var(--_stop-indicator-trailing-space);
+  inline-size: min(
+    var(--_stop-indicator-size),
+    max(
+      0px,
+      var(--_inactive-track-size) - var(--_stop-indicator-trailing-space)
+    )
+  );
+  border-radius: var(--_stop-indicator-shape);
+  background-color: var(
+    --md-slider-stop-indicator-color,
+    var(--_stop-indicator-color)
+  );
+  opacity: var(--_stop-indicator-opacity, 1);
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--_center) - var(--_handle-width) / 2);
+  inline-size: var(--_handle-width);
+  border-radius: var(--_handle-shape);
+  background-color: var(--md-slider-handle-color, var(--_handle-color));
+  opacity: var(--_handle-opacity, 1);
+  pointer-events: none;
+}
+
+.input:focus-visible ~ .handle {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
+}
+
+/*
+ * The value indicator. While it isn't shown it has no box. It is as wide as the
+ * track, and its pseudo-elements are the spaces beside the text. Each takes half
+ * of the free space beside its basis, so the text is centred on the handle, and
+ * the longer one gives way first, so the text stops at the slider's ends.
+ */
+.indicator {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  inset-block-end: calc(100% + var(--_value-indicator-active-bottom-space));
+  inset-inline: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--_value-indicator-duration) var(--_value-indicator-easing),
+    display var(--_value-indicator-duration) allow-discrete;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1 1 max(0px, 2 * var(--_center) - 100%);
+  }
+
+  &::after {
+    flex-basis: max(0px, 100% - 2 * var(--_center));
+  }
+}
+
+:host(:state(indicator):state(pressed)) .indicator,
+:host(:state(indicator)) .input:focus-visible ~ .indicator {
+  display: flex;
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+.text {
+  box-sizing: border-box;
+  flex: none;
+  max-inline-size: 100%;
+  /* The inline padding and the full corner are Material Components for Android's. */
+  padding: var(--_value-indicator-active-bottom-space) 10px;
+  border-radius: calc(
+    var(--_value-indicator-label-label-text-line-height) / 2 +
+      var(--_value-indicator-active-bottom-space)
+  );
+  background-color: var(--_value-indicator-container-color);
+  color: var(--_value-indicator-label-label-text-color);
+  font-family: var(--_value-indicator-label-label-text-font);
+  font-size: var(--_value-indicator-label-label-text-size);
+  font-weight: var(--_value-indicator-label-label-text-weight);
+  line-height: var(--_value-indicator-label-label-text-line-height);
+  letter-spacing: var(--_value-indicator-label-label-text-tracking);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  /* A text with no letters, such as a negative number, is left to right. */
+  unicode-bidi: plaintext;
+}
+
+/*
+ * Forced colors replace every background color, and the native range is
+ * transparent, so each part takes a system color.
+ */
+@media (forced-colors: active) {
+  .track {
+    --_part-color: CanvasText;
+
+    forced-color-adjust: none;
+
+    &:has(.input:disabled) {
+      --_part-color: GrayText;
+    }
+
+    &::before {
+      background-color: var(--_part-color);
+    }
+
+    &::after {
+      background-color: Highlight;
+    }
+
+    &:has(.input:disabled)::after {
+      background-color: GrayText;
+    }
+  }
+
+  .track::before,
+  .track::after,
+  .stop,
+  .handle {
+    opacity: 1;
+  }
+
+  .stop {
+    background-color: Canvas;
+  }
+
+  .handle {
+    background-color: var(--_part-color);
+  }
+
+  .input:focus-visible ~ .handle {
+    outline-color: Highlight;
+  }
+
+  .text {
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+}

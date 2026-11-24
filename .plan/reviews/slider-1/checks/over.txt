@@ -1,0 +1,30 @@
+# chromium 158.0.8127.18
+100 rest  {"overflow":0,"boxHeight":124,"after":220}
+100 shown {"overflow":19,"boxHeight":124,"after":220}
+  scrollLeft after scrolling 19
+1000000 rest  {"overflow":0,"boxHeight":124,"after":220}
+1000000 shown {"overflow":34,"boxHeight":124,"after":220}
+  scrollLeft after scrolling 34
+16px page gutter, 10000: page overflow 11
+   with valuetext 44
+
+# firefox 159.0
+100 rest  {"overflow":0,"boxHeight":124,"after":220}
+100 shown {"overflow":21,"boxHeight":124,"after":220}
+  scrollLeft after scrolling 21.350000381469727
+1000000 rest  {"overflow":0,"boxHeight":124,"after":220}
+1000000 shown {"overflow":39,"boxHeight":124,"after":220}
+  scrollLeft after scrolling 39.150001525878906
+16px page gutter, 10000: page overflow 14
+   with valuetext 47
+
+# webkit 27.2
+100 rest  {"overflow":0,"boxHeight":124,"after":220}
+100 shown {"overflow":21,"boxHeight":124,"after":220}
+  scrollLeft after scrolling 21
+1000000 rest  {"overflow":0,"boxHeight":124,"after":220}
+1000000 shown {"overflow":39,"boxHeight":124,"after":220}
+  scrollLeft after scrolling 39
+16px page gutter, 10000: page overflow 14
+   with valuetext 47
+

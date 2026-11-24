@@ -1,0 +1,25 @@
+# firefox 159.0
+## built
+tap | p.down t.start input70 p.up t.end change70 | 70
+drag | p.down t.start input70 p.move t.move input75 p.move t.move input80 p.up t.end change80 | 80
+drag from the handle, step 25 | p.down t.start p.move t.move p.move t.move input75 p.up t.end change75 | 75
+press, cancel | p.down t.start input70 input30 p.cancel t.cancel | 30
+press, vertical move, cancel | p.down t.start input70 p.move t.move input30 p.cancel t.cancel | 30
+press on the handle, cancel | p.down t.start p.cancel t.cancel | 30
+slide, cancel | p.down t.start input70 p.move t.move input75 p.move t.move input80 input30 p.cancel t.cancel | 30
+press, cancel, then the attribute is 60 | p.down t.start input70 input30 p.cancel t.cancel | 30
+script sets 90 during | p.down t.start input70 input30 p.cancel t.cancel | 30
+script sets 90 during a tap | p.down t.start input70 p.up t.end input70 change70 | 70
+moved in the DOM during | p.down t.start input70 t.end change70 | [70,"70"]
+## holds the press
+tap | p.down t.start input70 p.up t.end change70 | 70
+drag | p.down t.start p.move t.move input75 p.move t.move input80 p.up t.end change80 | 80
+drag from the handle, step 25 | p.down t.start p.move t.move p.move t.move input75 p.up t.end change75 | 75
+press, cancel | p.down t.start p.cancel t.cancel | 30
+press, vertical move, cancel | p.down t.start p.move t.move p.cancel t.cancel | 30
+press on the handle, cancel | p.down t.start p.cancel t.cancel | 30
+slide, cancel | p.down t.start p.move t.move input75 p.move t.move input80 change80 p.cancel t.cancel | 80
+press, cancel, then the attribute is 60 | p.down t.start p.cancel t.cancel | 60
+script sets 90 during | p.down t.start p.cancel t.cancel | 90
+script sets 90 during a tap | p.down t.start p.up t.end input70 change70 | 70
+moved in the DOM during | p.down t.start t.end input70 change70 | [70,"70"]

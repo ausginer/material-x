@@ -1,0 +1,154 @@
+# chromium 158.0.8127.18
+  box                                      {"x":20,"y":40,"w":204,"h":44}
+  press at 20                              i20 c20 => 20
+  events at the document                   ["input:Event:bubbles=true,composed=true,cancelable=false"]
+  focus after a press                      {"focused":true,"focusVisible":false}
+  press on the thumb, no move              - => 20
+  press on the thumb, move one unit        i22 c22 => 22
+  drag 30, 80, past the end, past the start i30 i80 i100 i0 c0 => 0
+  clamped to 60 in the handler             i55 i70 i80 i40 i90 c60 => 60
+  reverted to 50 in the handler            i20 i30 i80 => 50
+  reverted, committed next frame           i20 i30 i80 c80 => 80
+  the same value written in the handler    i20 i30 i80 c80 => 80
+  signed -55..55, press at the middle      i0 c0 => 0
+  dir=rtl, press at 20 from the left       i80 c80 => 80
+  direction:rtl, press at 20 from the left i80 c80 => 80
+  in a disabled fieldset                   - => 50 formDisabled=true matches=true
+  plain ArrowRight                         i51 c51 => 51
+  plain ArrowLeft                          i50 c50 => 50
+  plain ArrowUp                            i51 c51 => 51
+  plain ArrowDown                          i50 c50 => 50
+  plain PageUp                             i60 c60 => 60
+  plain PageDown                           i50 c50 => 50
+  plain End                                i100 c100 => 100
+  plain Home                               i0 c0 => 0
+  rtl ArrowRight                           i49 c49 => 49
+  rtl ArrowLeft                            i50 c50 => 50
+  rtl ArrowUp                              i51 c51 => 51
+  rtl ArrowDown                            i50 c50 => 50
+  rtl PageUp                               i60 c60 => 60
+  rtl PageDown                             i50 c50 => 50
+  rtl End                                  i100 c100 => 100
+  rtl Home                                 i0 c0 => 0
+  cssrtl ArrowRight                        i49 c49 => 49
+  cssrtl ArrowLeft                         i50 c50 => 50
+  signed ArrowRight                        i1 c1 => 1
+  signed PageUp                            i12 c12 => 12
+  signed Home                              i-55 c-55 => -55
+  signed PageUp                            i-44 c-44 => -44
+  frac ArrowRight                          i0.1 c0.1 => 0.1
+  frac ArrowRight                          i0.2 c0.2 => 0.2
+  frac ArrowRight                          i0.3 c0.3 => 0.3
+  frac ArrowRight                          i0.4 c0.4 => 0.4
+  frac ArrowRight                          i0.5 c0.5 => 0.5
+  frac ArrowRight                          i0.6 c0.6 => 0.6
+  frac ArrowRight                          i0.7 c0.7 => 0.7
+  revert ArrowRight                        i51 c50 => 50
+  revert ArrowRight                        i51 c50 => 50
+  focus-visible from the keyboard          async true
+  a click on the slotted label focuses     lab
+  value set before max                     property then max: 100; attribute then max: 100; -55..55 default: 50; step 1, 12.7: 13
+  touch: horizontal 60px from 21           i21 i30 i33 i36 i39 i42 i45 i48 i51 c51 => 51, scrollY 0
+  touch: vertical 100px from 21            i21 c21 => 21, scrollY 106
+  touch: vertical, restored on pointercancel down50 i21 cancel21 i50 => 50, scrollY 102
+  touch: horizontal, the same element      down50 i21 i30 i33 i36 i39 i42 i45 i48 i51 c51 => 51, scrollY 0
+# firefox 159.0
+  box                                      {"x":20,"y":40,"w":204,"h":44}
+  press at 20                              i20 c20 => 20
+  events at the document                   ["input:Event:bubbles=true,composed=true,cancelable=false"]
+  focus after a press                      {"focused":true,"focusVisible":false}
+  press on the thumb, no move              - => 20
+  press on the thumb, move one unit        i21 i22 c22 => 22
+  drag 30, 80, past the end, past the start i30 i80 i100 i0 c0 => 0
+  clamped to 60 in the handler             i55 i70 i80 i40 i90 i90 c60 => 60
+  reverted to 50 in the handler            i20 i30 i80 i80 => 50
+  reverted, committed next frame           i20 i30 i80 c80 => 80
+  the same value written in the handler    i20 i30 i80 c80 => 80
+  signed -55..55, press at the middle      i0 c0 => 0
+  dir=rtl, press at 20 from the left       i80 c80 => 80
+  direction:rtl, press at 20 from the left i80 c80 => 80
+  in a disabled fieldset                   - => 50 formDisabled=true matches=true
+  plain ArrowRight                         i51 c51 => 51
+  plain ArrowLeft                          i50 c50 => 50
+  plain ArrowUp                            i51 c51 => 51
+  plain ArrowDown                          i50 c50 => 50
+  plain PageUp                             i60 c60 => 60
+  plain PageDown                           i50 c50 => 50
+  plain End                                i100 c100 => 100
+  plain Home                               i0 c0 => 0
+  rtl ArrowRight                           i49 c49 => 49
+  rtl ArrowLeft                            i50 c50 => 50
+  rtl ArrowUp                              i51 c51 => 51
+  rtl ArrowDown                            i50 c50 => 50
+  rtl PageUp                               i60 c60 => 60
+  rtl PageDown                             i50 c50 => 50
+  rtl End                                  i100 c100 => 100
+  rtl Home                                 i0 c0 => 0
+  cssrtl ArrowRight                        i49 c49 => 49
+  cssrtl ArrowLeft                         i50 c50 => 50
+  signed ArrowRight                        i1 c1 => 1
+  signed PageUp                            i12 c12 => 12
+  signed Home                              i-55 c-55 => -55
+  signed PageUp                            i-44 c-44 => -44
+  frac ArrowRight                          i0.1 c0.1 => 0.1
+  frac ArrowRight                          i0.2 c0.2 => 0.2
+  frac ArrowRight                          i0.3 c0.3 => 0.3
+  frac ArrowRight                          i0.4 c0.4 => 0.4
+  frac ArrowRight                          i0.5 c0.5 => 0.5
+  frac ArrowRight                          i0.6 c0.6 => 0.6
+  frac ArrowRight                          i0.7 c0.7 => 0.7
+  revert ArrowRight                        i51 => 50
+  revert ArrowRight                        i51 => 50
+  focus-visible from the keyboard          async true
+  a click on the slotted label focuses     lab
+  value set before max                     property then max: 100; attribute then max: 100; -55..55 default: 50; step 1, 12.7: 13
+# webkit 27.2
+  box                                      {"x":20,"y":40,"w":204,"h":44}
+  press at 20                              i20 c20 => 20
+  events at the document                   ["input:Event:bubbles=true,composed=true,cancelable=false"]
+  focus after a press                      {"focused":true,"focusVisible":false}
+  press on the thumb, no move              - => 20
+  press on the thumb, move one unit        i22 c22 => 22
+  drag 30, 80, past the end, past the start i30 i80 i100 i0 c0 => 0
+  clamped to 60 in the handler             i55 i70 i80 i40 i90 => 60
+  reverted to 50 in the handler            i20 i30 i80 => 50
+  reverted, committed next frame           i20 i30 i80 => 80
+  the same value written in the handler    i20 i30 i80 c80 => 80
+  signed -55..55, press at the middle      i0 c0 => 0
+  dir=rtl, press at 20 from the left       i80 c80 => 80
+  direction:rtl, press at 20 from the left i80 c80 => 80
+  in a disabled fieldset                   - => 50 formDisabled=true matches=true
+  plain ArrowRight                         i51 c51 => 51
+  plain ArrowLeft                          i50 c50 => 50
+  plain ArrowUp                            i51 c51 => 51
+  plain ArrowDown                          i50 c50 => 50
+  plain PageUp                             i60 c60 => 60
+  plain PageDown                           i50 c50 => 50
+  plain End                                i100 c100 => 100
+  plain Home                               i0 c0 => 0
+  rtl ArrowRight                           i51 c51 => 51
+  rtl ArrowLeft                            i50 c50 => 50
+  rtl ArrowUp                              i51 c51 => 51
+  rtl ArrowDown                            i50 c50 => 50
+  rtl PageUp                               i60 c60 => 60
+  rtl PageDown                             i50 c50 => 50
+  rtl End                                  i100 c100 => 100
+  rtl Home                                 i0 c0 => 0
+  cssrtl ArrowRight                        i51 c51 => 51
+  cssrtl ArrowLeft                         i50 c50 => 50
+  signed ArrowRight                        i1 c1 => 1
+  signed PageUp                            i12 c12 => 12
+  signed Home                              i-55 c-55 => -55
+  signed PageUp                            i-44 c-44 => -44
+  frac ArrowRight                          i0.1 c0.1 => 0.1
+  frac ArrowRight                          i0.2 c0.2 => 0.2
+  frac ArrowRight                          i0.3 c0.3 => 0.3
+  frac ArrowRight                          i0.4 c0.4 => 0.4
+  frac ArrowRight                          i0.5 c0.5 => 0.5
+  frac ArrowRight                          i0.6 c0.6 => 0.6
+  frac ArrowRight                          i0.7 c0.7 => 0.7
+  revert ArrowRight                        i51 c50 => 50
+  revert ArrowRight                        i51 c50 => 50
+  focus-visible from the keyboard          async true
+  a click on the slotted label focuses     lab
+  value set before max                     property then max: 100; attribute then max: 200; -55..55 default: 0; step 1, 12.7: 13
