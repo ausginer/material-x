@@ -1,0 +1,39 @@
+The browser projects, one engine at a time, on a host that also runs other suites (load averages below).
+
+start
+ 08:20:27 up 13:04,  0 users,  load average: 11.42, 7.79, 5.94
+## core chromium
+rc 0
+ Test Files  22 passed (22)
+      Tests  229 passed (229)
+ 08:20:32 up 13:04,  0 users,  load average: 12.43, 8.06, 6.04
+## core firefox
+rc 0
+ Test Files  22 passed (22)
+      Tests  229 passed (229)
+ 08:20:44 up 13:04,  0 users,  load average: 12.53, 8.30, 6.15
+## core webkit
+rc 0
+ Test Files  22 passed (22)
+      Tests  229 passed (229)
+ 08:20:52 up 13:04,  0 users,  load average: 12.41, 8.34, 6.18
+## material-x chromium
+rc 0
+ Test Files  18 passed (18)
+      Tests  554 passed (554)
+ 08:21:36 up 13:05,  0 users,  load average: 9.57, 8.17, 6.22
+## material-x firefox
+rc 0
+ Test Files  18 passed (18)
+      Tests  543 passed | 1 expected fail | 10 skipped (554)
+ 08:23:01 up 13:06,  0 users,  load average: 6.50, 7.50, 6.16
+## material-x webkit
+rc 0
+ Test Files  18 passed (18)
+      Tests  544 passed | 10 skipped (554)
+ 08:23:40 up 13:07,  0 users,  load average: 6.50, 7.44, 6.20
+
+## core typecheck, with the deleted row's file put back at a4dee53d8 as tests/tmp-old.browser.test.ts (removed afterwards)
+tests/tmp-old.browser.test.ts(182,16): error TS2353: Object literal may only specify known properties, and 'moved' does not exist in type 'ElementController'.
+tests/tmp-old.browser.test.ts(183,16): error TS2353: Object literal may only specify known properties, and 'moved' does not exist in type 'ElementController'.
+tests/tmp-old.browser.test.ts(186,7): error TS2339: Property 'movedCallback' does not exist on type 'ControlledElement'.

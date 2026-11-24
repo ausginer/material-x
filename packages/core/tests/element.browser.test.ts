@@ -174,21 +174,6 @@ describe('ControlledElement', () => {
     expect(secondAdopted).toHaveBeenCalledOnce();
   });
 
-  it('should call moved hooks for all registered controllers', () => {
-    const firstMoved = vi.fn();
-    const secondMoved = vi.fn();
-
-    const h = host((h) => {
-      use(h, { moved: firstMoved });
-      use(h, { moved: secondMoved });
-    });
-
-    h.movedCallback();
-
-    expect(firstMoved).toHaveBeenCalledOnce();
-    expect(secondMoved).toHaveBeenCalledOnce();
-  });
-
   it('should call formAssociated hooks for all registered controllers', () => {
     const firstFormAssociated = vi.fn();
     const secondFormAssociated = vi.fn();
