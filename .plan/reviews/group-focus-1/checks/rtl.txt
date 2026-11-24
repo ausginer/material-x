@@ -1,0 +1,108 @@
+== head
+# chromium 158.0.8127.18
+ltr group #b1: painted 1854, covered 0, radii 20,8,8,20
+ltr group #b2: painted 2271, covered 0, radii 8,8,8,8
+ltr group #b3: painted 2071, covered 0, radii 8,20,20,8
+ltr switches #b1: painted 1854, covered 0, radii 20,8,8,20
+ltr switches #b2: painted 2271, covered 0, radii 8,8,8,8
+ltr switches #b3: painted 2071, covered 0, radii 8,20,20,8
+ltr split mx-button: painted 1854, covered 0, radii 20,8,8,20
+ltr split mx-icon-button: painted 1710, covered 0, radii 8,20,20,8
+rtl group #b1: painted 1872, covered 0, radii 20,8,8,20
+rtl group #b2: painted 2269, covered 0, radii 8,8,8,8
+rtl group #b3: painted 2054, covered 0, radii 8,20,20,8
+rtl switches #b1: painted 1872, covered 0, radii 20,8,8,20
+rtl switches #b2: painted 2269, covered 0, radii 8,8,8,8
+rtl switches #b3: painted 2054, covered 0, radii 8,20,20,8
+rtl split mx-button: painted 1872, covered 0, radii 20,8,8,20
+rtl split mx-icon-button: painted 1695, covered 0, radii 8,20,20,8
+== head without the two declarations
+# chromium 158.0.8127.18
+ltr group #b1: painted 1854, covered 367, radii 20,8,8,20
+ltr group #b2: painted 2271, covered 367, radii 8,8,8,8
+ltr group #b3: painted 2071, covered 0, radii 8,20,20,8
+ltr switches #b1: painted 1854, covered 367, radii 20,8,8,20
+ltr switches #b2: painted 2271, covered 367, radii 8,8,8,8
+ltr switches #b3: painted 2071, covered 0, radii 8,20,20,8
+ltr split mx-button: painted 1854, covered 367, radii 20,8,8,20
+ltr split mx-icon-button: painted 1710, covered 0, radii 8,20,20,8
+rtl group #b1: painted 1872, covered 170, radii 20,8,8,20
+rtl group #b2: painted 2269, covered 184, radii 8,8,8,8
+rtl group #b3: painted 2054, covered 0, radii 8,20,20,8
+rtl switches #b1: painted 1872, covered 170, radii 20,8,8,20
+rtl switches #b2: painted 2269, covered 184, radii 8,8,8,8
+rtl switches #b3: painted 2054, covered 0, radii 8,20,20,8
+rtl split mx-button: painted 1872, covered 122, radii 20,8,8,20
+rtl split mx-icon-button: painted 1695, covered 0, radii 8,20,20,8
+== head
+# firefox 159.0
+ltr group #b1: painted 1814, covered 0, radii 20,8,8,20
+ltr group #b2: painted 2160, covered 0, radii 8,8,8,8
+ltr group #b3: painted 2054, covered 0, radii 8,20,20,8
+ltr switches #b1: painted 1814, covered 0, radii 20,8,8,20
+ltr switches #b2: painted 2160, covered 0, radii 8,8,8,8
+ltr switches #b3: painted 2054, covered 0, radii 8,20,20,8
+ltr split mx-button: painted 1857, covered 0, radii 20,8,8,20
+ltr split mx-icon-button: painted 1657, covered 0, radii 8,20,20,8
+rtl group #b1: painted 1868, covered 0, radii 20,8,8,20
+rtl group #b2: painted 2161, covered 0, radii 8,8,8,8
+rtl group #b3: painted 2052, covered 0, radii 8,20,20,8
+rtl switches #b1: painted 1868, covered 0, radii 20,8,8,20
+rtl switches #b2: painted 2161, covered 0, radii 8,8,8,8
+rtl switches #b3: painted 2052, covered 0, radii 8,20,20,8
+rtl split mx-button: painted 1912, covered 0, radii 20,8,8,20
+rtl split mx-icon-button: painted 1646, covered 0, radii 8,20,20,8
+== head without the two declarations
+# firefox 159.0
+ltr group #b1: painted 1814, covered 323, radii 20,8,8,20
+ltr group #b2: painted 2160, covered 323, radii 8,8,8,8
+ltr group #b3: painted 2054, covered 0, radii 8,20,20,8
+ltr switches #b1: painted 1814, covered 323, radii 20,8,8,20
+ltr switches #b2: painted 2160, covered 323, radii 8,8,8,8
+ltr switches #b3: painted 2054, covered 0, radii 8,20,20,8
+ltr split mx-button: painted 1857, covered 314, radii 20,8,8,20
+ltr split mx-icon-button: painted 1657, covered 0, radii 8,20,20,8
+rtl group #b1: painted 1868, covered 176, radii 20,8,8,20
+rtl group #b2: painted 2161, covered 168, radii 8,8,8,8
+rtl group #b3: painted 2052, covered 0, radii 8,20,20,8
+rtl switches #b1: painted 1868, covered 176, radii 20,8,8,20
+rtl switches #b2: painted 2161, covered 168, radii 8,8,8,8
+rtl switches #b3: painted 2052, covered 0, radii 8,20,20,8
+rtl split mx-button: painted 1912, covered 113, radii 20,8,8,20
+rtl split mx-icon-button: painted 1646, covered 0, radii 8,20,20,8
+== head
+# webkit 27.2
+ltr group #b1: painted 1856, covered 0, radii 20,8,8,20
+ltr group #b2: painted 2246, covered 0, radii 8,8,8,8
+ltr group #b3: painted 2119, covered 0, radii 8,20,20,8
+ltr switches #b1: painted 1856, covered 0, radii 20,8,8,20
+ltr switches #b2: painted 2246, covered 0, radii 8,8,8,8
+ltr switches #b3: painted 2119, covered 0, radii 8,20,20,8
+ltr split mx-button: painted 1911, covered 0, radii 20,8,8,20
+ltr split mx-icon-button: painted 1707, covered 0, radii 8,20,20,8
+rtl group #b1: painted 1864, covered 0, radii 20,8,8,20
+rtl group #b2: painted 2248, covered 0, radii 8,8,8,8
+rtl group #b3: painted 2119, covered 0, radii 8,20,20,8
+rtl switches #b1: painted 1864, covered 0, radii 20,8,8,20
+rtl switches #b2: painted 2248, covered 0, radii 8,8,8,8
+rtl switches #b3: painted 2119, covered 0, radii 8,20,20,8
+rtl split mx-button: painted 1931, covered 0, radii 20,8,8,20
+rtl split mx-icon-button: painted 1692, covered 0, radii 8,20,20,8
+== head without the two declarations
+# webkit 27.2
+ltr group #b1: painted 1856, covered 367, radii 20,8,8,20
+ltr group #b2: painted 2246, covered 367, radii 8,8,8,8
+ltr group #b3: painted 2119, covered 0, radii 8,20,20,8
+ltr switches #b1: painted 1856, covered 367, radii 20,8,8,20
+ltr switches #b2: painted 2246, covered 367, radii 8,8,8,8
+ltr switches #b3: painted 2119, covered 0, radii 8,20,20,8
+ltr split mx-button: painted 1911, covered 367, radii 20,8,8,20
+ltr split mx-icon-button: painted 1707, covered 0, radii 8,20,20,8
+rtl group #b1: painted 1864, covered 168, radii 20,8,8,20
+rtl group #b2: painted 2248, covered 184, radii 8,8,8,8
+rtl group #b3: painted 2119, covered 0, radii 8,20,20,8
+rtl switches #b1: painted 1864, covered 168, radii 20,8,8,20
+rtl switches #b2: painted 2248, covered 184, radii 8,8,8,8
+rtl switches #b3: painted 2119, covered 0, radii 8,20,20,8
+rtl split mx-button: painted 1931, covered 121, radii 20,8,8,20
+rtl split mx-icon-button: painted 1692, covered 0, radii 8,20,20,8

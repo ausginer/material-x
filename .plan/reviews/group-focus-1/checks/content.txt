@@ -1,0 +1,54 @@
+== head
+# chromium 158.0.8127.18
+a z-index -1 decoration in the focused member, inside its box: rest b1 204 238 161 | pointer b1 191 224 149 | keyboard b1 220 175 173
+the same in another member: rest b2 204 238 161 | pointer b2 204 238 161 | keyboard b2 204 238 161
+a mark with no z-index in the first member, over the second, second focused: rest b2 204 238 161 | pointer b2 191 224 149 | keyboard b2 179 212 138
+a mark with z-index 1 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard b2 179 212 138
+a mark with z-index 2 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a tooltip with z-index 10 in the focused member, a badge with z-index 1 in the next over it: rest x 255 192 203 | pointer x 255 192 203 | keyboard y 255 192 203
+the same, a badge with z-index 2: rest x 255 192 203 | pointer x 255 192 203 | keyboard y 255 192 203
+== head without the two declarations
+# chromium 158.0.8127.18
+a z-index -1 decoration in the focused member, inside its box: rest b1 204 238 161 | pointer b1 191 224 149 | keyboard b1 179 212 138
+the same in another member: rest b2 204 238 161 | pointer b2 204 238 161 | keyboard b2 204 238 161
+a mark with no z-index in the first member, over the second, second focused: rest b2 204 238 161 | pointer b2 191 224 149 | keyboard b2 179 212 138
+a mark with z-index 1 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a mark with z-index 2 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a tooltip with z-index 10 in the focused member, a badge with z-index 1 in the next over it: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+the same, a badge with z-index 2: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+== head
+# firefox 159.0
+a z-index -1 decoration in the focused member, inside its box: rest b1 204 238 161 | pointer b1 199 233 156 | keyboard b1 236 183 186
+the same in another member: rest b2 204 238 161 | pointer b2 204 238 161 | keyboard b2 204 238 161
+a mark with no z-index in the first member, over the second, second focused: rest b2 204 238 161 | pointer b2 191 224 148 | keyboard b2 179 211 137
+a mark with z-index 1 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard b2 179 211 137
+a mark with z-index 2 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a tooltip with z-index 10 in the focused member, a badge with z-index 1 in the next over it: rest x 255 192 203 | pointer x 255 192 203 | keyboard y 255 192 203
+the same, a badge with z-index 2: rest x 255 192 203 | pointer x 255 192 203 | keyboard y 255 192 203
+== head without the two declarations
+# firefox 159.0
+a z-index -1 decoration in the focused member, inside its box: rest b1 204 238 161 | pointer b1 204 238 161 | keyboard b1 191 224 148
+the same in another member: rest b2 204 238 161 | pointer b2 204 238 161 | keyboard b2 204 238 161
+a mark with no z-index in the first member, over the second, second focused: rest b2 204 238 161 | pointer b2 191 224 148 | keyboard b2 179 211 137
+a mark with z-index 1 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a mark with z-index 2 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a tooltip with z-index 10 in the focused member, a badge with z-index 1 in the next over it: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+the same, a badge with z-index 2: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+== head
+# webkit 27.2
+a z-index -1 decoration in the focused member, inside its box: rest b1 204 238 161 | pointer b1 191 224 148 | keyboard b1 219 175 171
+the same in another member: rest b2 204 238 161 | pointer b2 204 238 161 | keyboard b2 204 238 161
+a mark with no z-index in the first member, over the second, second focused: rest b2 204 238 161 | pointer b2 191 224 148 | keyboard b2 179 211 137
+a mark with z-index 1 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard b2 179 211 137
+a mark with z-index 2 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a tooltip with z-index 10 in the focused member, a badge with z-index 1 in the next over it: rest x 255 192 203 | pointer x 255 192 203 | keyboard y 255 192 203
+the same, a badge with z-index 2: rest x 255 192 203 | pointer x 255 192 203 | keyboard y 255 192 203
+== head without the two declarations
+# webkit 27.2
+a z-index -1 decoration in the focused member, inside its box: rest b1 204 238 161 | pointer b1 191 224 148 | keyboard b1 179 211 137
+the same in another member: rest b2 204 238 161 | pointer b2 204 238 161 | keyboard b2 204 238 161
+a mark with no z-index in the first member, over the second, second focused: rest b2 204 238 161 | pointer b2 191 224 148 | keyboard b2 179 211 137
+a mark with z-index 1 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a mark with z-index 2 in the first member, over the second, second focused: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+a tooltip with z-index 10 in the focused member, a badge with z-index 1 in the next over it: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
+the same, a badge with z-index 2: rest x 255 192 203 | pointer x 255 192 203 | keyboard x 255 192 203
