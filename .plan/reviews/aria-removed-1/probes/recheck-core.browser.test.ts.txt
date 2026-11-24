@@ -324,7 +324,7 @@ it('a mirror of a mirror', async () => {
   await nextFrame();
   el.removeAttribute('aria-label'); document.body.prepend(el); at('lost, moved');
   await nextFrame(); at('frame');
-  el.remove(); el.setAttribute('aria-label', 'B'); await micro(); await micro(); at('set while out'); 
+  el.remove(); el.setAttribute('aria-label', 'B'); await micro(); await micro(); at('set while out');
   el.removeAttribute('aria-label'); await nextFrame(); at('lost while out');
   document.body.append(el); await nextFrame(); at('back');
   read('a mirror of a mirror: [step, inner host, leaf]', out);
