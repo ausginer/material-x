@@ -1,6 +1,6 @@
 # `mx-card` — plan
 
-**Status: decided as [`repo:RD-53`](../00-index.md), with no question open. Ready for an implementer.** Written by the architect on 2026-11-23, on the coordinator's task for [#171](https://github.com/ausginer/material-x/issues/171), on `material-x/card-1` from `origin/main` at `92a386a17`. It is unit B of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-53`](../00-index.md), with no question open. Ready for an implementer.** Written by the architect on 2026-11-23, on the coordinator's task for [#171](https://github.com/ausginer/material-x/issues/171), on `material-x/card-1` from `origin/main` at `92a386a17`. It is unit B of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). Where the entry and this plan differ, the entry governs. Size: medium. **Amended 2026-11-24** on `reviewer-1` of the feature proof: the [disposition](#disposition-of-reviewer-1-the-host-draws-the-outline-and-the-whole-shadow) has the reason and what it replaced.
 
 ## Readings
 
@@ -30,10 +30,10 @@
 
 ### Anatomy, as required properties
 
-1. **The host is the card's box** (the `.host` exception _The host is the box_, as `mx-list-item`). It carries the container colour, the shape and the elevation layers. The shadow root holds the slot and nothing else. Size comes from the content or from the consumer's layout.
-2. **The slot draws the padding and the outline,** so that a page's universal reset changes neither. They cover a host that the layout stretches, such as a grid item.
-3. **The outline takes no layout space:** the content is inset 16px from the container's edge in every variant, and changing `variant` moves nothing. The outline stays visible in forced colors, so it isn't a shadow.
-4. **The elevation layers are the three boxes** that the other components draw, and not one list, so that an elevated card paints as an elevated button does. `static-box.styles.css` has these rules for a host box today. The card is their second user, so they move into a shared stylesheet in `core/styles/elevation`, which both adopt. `mx-list-item` renders as before.
+1. **The host is the card's box** (the `.host` exception _The host is the box_, as `mx-list-item`). It carries the container colour, the shape, the outline and the elevation layers, so all of them stay on its box whatever the card's size and `overflow` are. The shadow root holds the slot and nothing else. Size comes from the content or from the consumer's layout.
+2. **The slot draws the padding,** so that a page's universal reset doesn't change it. The padding belongs to the content: in a card that is smaller than its content, it overflows or scrolls with the content, and the 16px after the last of the content is reached at the end of the scroll. The slot fills a host that the layout stretches, so content with a percentage block size fills the card.
+3. **The outline takes no layout space:** the content is inset 16px from the container's edge in every variant, and changing `variant` moves nothing. The outline stays visible in forced colors, so it isn't a shadow. The host's declarations of it are `!important`, so a page's rule, such as a universal reset, doesn't change it. While the host matches `:focus-visible` the card declares no outline, so that the focus indicator, the browser's or the page's, shows.
+4. **The host's `box-shadow` is the three elevation layers in one list,** umbra, penumbra, ambient, and no pseudo-element draws one. The host is still `position: relative`. `mx-list-item` and the card adopt one stylesheet in `core/styles/elevation` for it.
 5. **`variant` selects a custom state,** through `useAttributes` and `switchState`, as every component's variant does.
 
 ### Tokens
@@ -81,14 +81,71 @@ Not designed here: whether it is an element of its own or not, and its name. Wha
   - the outline's colour and width on the outlined card, and no outline on the other two;
   - the content's inset from the container's edge, 16px, the same in the three variants. The literal carries its provenance: M3's measurements for inline, this plan for block;
   - each of the four CSS properties overrides what it names;
-  - with a page's universal reset of padding, border and outline, the inset and the outline are unchanged. **Witness:** the row fails with the padding or the outline on the host;
-  - in a grid that stretches the card, the outline's box is the host's box. **Witness:** the row fails with a host that doesn't stretch its slot.
-- **`core/elevation.spec`:** an elevated card draws the three layers at its token's level and in its token's colour. With its own `--_container-shadow-color` set to red, it draws red. **Witness:** the red row fails when the package gives no `shadow.color`. A filled and an outlined card join the level-0 rows. The list item's rows pass unchanged.
+  - the host draws the outline and the slot draws none. **Witness:** the row fails with the outline on the slot;
+  - with a page's universal reset of padding, border and outline, the inset and the outline are unchanged. **Witness:** the inset's row fails with the padding on the host, and the outline's row fails, alone, without `!important`;
+  - on an outlined card with `tabindex="0"` that has keyboard focus, a page's `mx-card:focus-visible` outline is the host's, and without that rule the host's computed outline style is the browser's `auto`. **Witness:** both fail without `:not(:focus-visible)`;
+  - in a grid that stretches the card, content with `block-size: 100%` ends 16px from the card's end edge. **Witness:** the row fails with a host that doesn't stretch its slot.
+- **`core/elevation.spec`:** an elevated card's `box-shadow` is the three layers, in order, at its token's level and in its token's colour, and its pseudo-elements generate no box. The same holds for a static list item, lifted. **Witness:** the row fails without each layer. The four rows on the pseudo-elements' boxes go, because there is no such box. With its own `--_container-shadow-color` set to red, it draws red. **Witness:** the red row fails when the package gives no `shadow.color`. A filled and an outlined card join the level-0 rows.
 - **`card.visual.browser.test.ts`:** one screenshot of the three variants with a heading, text and a button. The owner records its baseline (`RD-13`).
 
 ### Stopping boundary
 
 The implementer stops and returns to the architect if a property above can't hold in an engine at the floor, or if sharing the host-box elevation rules changes a list item's rendering or its tests.
+
+## Disposition of `reviewer-1`: the host draws the outline and the whole shadow
+
+**Decided 2026-11-24 by the architect,** on the coordinator's task, for `reviewer-1` of the [feature proof](../reviews/card-1/feature-proof-claude.md) at `f63cc1e79`. **Accepted: an element change.** Readings are on the built element in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, and each candidate is a stylesheet adopted after the card's own: [`outline-owner`](probes/outline-owner.ts) ([reading](checks/outline-owner.txt)) reads the outline as painted pixels, and [`elevation-overflow`](probes/elevation-overflow.ts) ([reading](checks/elevation-overflow.txt)) the shadow outside the box.
+
+**The promise:** whatever the consumer's layout and `overflow` do to the card's size, the background, the shape, the outline and the shadow are on the host's box. The padding and the content behave as in any box: they overflow, are clipped, or scroll.
+
+### The outline
+
+| Candidate | On the host's box when smaller, and when scrolled | Universal reset | What it costs |
+| --- | --- | --- | --- |
+| The slot (until now) | No, no | Kept | — |
+| The slot, which shrinks | Yes, no | Kept | The padding after the content is lost in a scroll |
+| The slot, which shrinks and inherits `overflow` | Yes, yes | Kept | The slot scrolls, so the host's `scrollTop` and `scrollHeight` don't work |
+| The host's outline | Yes, yes | **Lost** | A focus indicator of the browser's is never shown |
+| The host's outline, `!important` | Yes, yes | Kept | No focus indicator at all, the browser's or the page's |
+| **The host's outline, `!important`, not when `:focus-visible`** | Yes, yes | Kept | A page's own `outline` on an unfocused outlined card isn't applied |
+| The host's border, `!important` | Yes, yes | Kept | The content is 17px from the edge, and the card 2px higher. With padding 0, 1px and 2px |
+| The same, the slot's margin −1px | Yes, yes | Kept | Full-bleed content covers the border. In Chromium 32px follow the content at the end of a scroll, and not 16px |
+| The host's inset shadow | Yes, yes | Kept | Not painted in forced colors (Chromium, Firefox). Content covers it, and a classic scrollbar |
+| The host's `::after`, with a border | Yes, no | **Lost** | — |
+
+- **Chosen: the host's outline, `!important`, and not while the host matches `:focus-visible`.** It is the only one that keeps the outline on the host's box, the 16px inset and `--md-card-padding: 0`, forced colors, a page's reset, the focus indicator and the host's own scrolling. An unscrolled card paints the same screenshot as before, natural and stretched, with the default shape, in the three engines.
+- **Why `!important` is right here:** a page's rule beats `:host` in the cascade, and for `!important` declarations the order is reversed, so the element's wins. `item/main.styles.css` uses it on the host already. It holds against a reset whose own declarations are `!important` as well.
+- **Why the focus exception isn't optional:** Chromium and Firefox make a scrolling card with no focusable content a tab stop with no `tabindex`. Without the exception that card shows no focus. The exception also lets a page's `mx-card:focus-visible` rule apply. A click on a card with `tabindex="0"` keeps the card's outline, because it doesn't match `:focus-visible`.
+- **The border was the close second.** It also leaves `outline` to the page, and positioned content doesn't cover it in a scroll. But its 1px is layout space: subtracting it from the padding in `calc()` refuses `--md-card-padding: 0`, which the element documents, and a list such as `8px 24px`.
+
+**Limits, accepted:**
+
+- While the host is `:focus-visible`, the focus indicator replaces the outline. A page that removes both (`* { outline: 0 }`) gets neither.
+- On an outlined card, a page's `outline` is applied only while the host is `:focus-visible`. `--md-card-outline-color` changes the color. Until now a page's outline was drawn beside the card's.
+- Positioned content at the card's edge paints over the outline, full-bleed or passing the edge in a scroll. The slot's outline had the same limit, and `isolation` doesn't change it.
+- `min-block-size` gives no definite size, so percentage content doesn't fill such a card. It didn't before.
+
+### The shadow, which is the same defect
+
+`overflow` other than `visible` clips the host's pseudo-elements, so a card with `overflow: auto`, `hidden` or `clip` loses the umbra and the ambient. The shadow loses up to 61 to 66 of its 93 to 98 levels per channel, in the three engines, and `mx-list-item` the same. `overflow: hidden` is how a consumer would clip full-bleed media, so this is not only the scrolling card. No mechanism for the outline repairs it.
+
+**With the three shadows in one list on the host, the difference between `overflow` and none is 0 pixels,** for both elements, at levels 1 and 3 or 8, in the three engines. So the list is adopted on the host box, and `RD-53`'s clause 4 is amended. The list's difference from three boxes, for which clause 4 rejected it, is read again: at most 3 (Chromium), 18 (Firefox) and 24 (WebKit) of 255, with a mean of 1.0 to 6.3. At level 1 it is 20 to 280 pixels: in Chromium and Firefox all are at the corners. That difference is accepted: it is in the corners' antialiasing against other elements' shadows, where clipping takes about two thirds of the shadow's darkest point.
+
+It costs that the host-box elements are drawn unlike `.host` ones, which keep the three boxes, and that `mx-list-item`'s shadow changes by those pixels. It removes two pseudo-elements for each element, and `reviewer-3`'s class of defect, because a host's own shadow can't be missing its box.
+
+### What the implementer changes
+
+1. **`card/styles/outlined/main.styles.css`:** the outline and its offset go from the slot to `:host(:state(outlined):not(:focus-visible))`, `!important` on both. **`default/main.styles.css`:** the slot's `border-radius` goes, its comment says what it still draws, and `flex: 1 0 auto` and the two resets stay (`RF-122` removes the resets).
+2. **`core/styles/elevation/host-box.styles.css`:** one `box-shadow` list on `:host`, `position: relative` stays, the pseudo-elements go.
+3. **Tests,** as amended above. The row on the outline's corners reads the host only. `reviewer-3`'s four rows go with the boxes they read. `reviewer-4`'s row keeps its meaning, with the witness above. The screenshot's baseline is recorded after this change.
+4. **JSDoc and `card.mdx`:** the card's own outline limits above (the page's `outline`, and positioned full-bleed content), and one sentence that a card may be smaller than its content or scroll.
+5. **The report:** witnesses, the suite's affected files in the three engines, and the size rows. The elevation rows of `.host` elements don't change.
+
+**The implementer stops** if one of the host's declarations can't hold in an engine, or if a list-item row other than those named must change.
+
+**Nothing is the owner's to answer.** The element is unreleased, its surface doesn't change, and clause 3 already gave the outline to the card.
+
+**Not read:** Safari, Edge, a mobile browser, a page zoom or a device pixel ratio other than 1, print, RTL scrollbars, and classic scrollbars outside Chromium. Forced colors in WebKit aren't emulated. A real implementation wasn't built.
 
 ## Owed after the merge
 

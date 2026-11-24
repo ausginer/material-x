@@ -2406,6 +2406,14 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specification's own difference between the two components, and not a departure from it.
 
+**Dated 2026-11-24 by the architect: the host draws the outline and the whole shadow,** on `reviewer-1` of #213's [feature proof](reviews/card-1/feature-proof-claude.md), relayed by the coordinator. The [disposition](card-1/card-plan.md#disposition-of-reviewer-1-the-host-draws-the-outline-and-the-whole-shadow) has the candidates, the readings in the three engines and the work. Nothing is the owner's to answer.
+
+- **What the card promises, added to clause 2:** whatever the consumer's layout and `overflow` do to the card's size, the background, the shape, the outline and the shadow stay on the host's box. The content and its padding overflow, are clipped or scroll.
+- **Clause 3 is amended:** the slot draws the padding only, and the host draws the outline, `!important`, so a page's universal reset changes neither. While the host matches `:focus-visible` the card declares no outline, because Chromium and Firefox focus a scrolling card, and the outline would take the place of the focus indicator. It still takes no layout space, isn't a shadow, and the card doesn't clip its content. The clause said that the slot draws both, and on the slot the outline leaves the host's box and scrolls away.
+- **Clause 4 is amended:** the shared host-box stylesheet draws the three layers in one `box-shadow` list on the host, for `mx-list-item` and `mx-card`. The clause rejected the list for painting differently from three boxes. Any `overflow` clips two of the three boxes, which loses about two thirds of the shadow's darkest point, and the list loses nothing. The list differs from three boxes by at most 24 of 255 per channel, mostly at the corners. `.host` elements keep the three boxes.
+- **Costs:** on an outlined card a page's own `outline` is applied only while the host is `:focus-visible`. `mx-list-item`'s shadow changes by the pixels above, so the cost sentence _"though not its rendering"_ no longer holds. Positioned content at the card's edge still covers the outline, as it did.
+- **Witness:** `checks/outline-owner.txt` and `checks/elevation-overflow.txt`, in the card's record.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
