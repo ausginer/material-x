@@ -5504,6 +5504,15 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `c
 - **A template's value is the component's too.** `mx-switch-button`'s `aria-checked="false"` is in its template. A switch that isn't connected yet loses it when the host gets and loses the name across tasks, and nothing writes it until `checked` changes.
 - **The order that loses in one task while out:** the loss, then the component's write, then the connect, in one task. The pending record is written by the connect, after the component's value. In a later task the value is kept.
 
+**Dated 2026-11-24 by the architect, on `core/aria-own-value-1`: planned, and ready for an implementer.** The [plan](aria-own-value-1/aria-own-value-plan.md) has the mechanism, the readings, the costs, the rows with their witnesses and the work list, and is accepted.
+
+- **What the control shows while the host gives the name: the host's value, in every order.** Answered by the owner on 2026-11-24, in chat, relayed by the coordinator: _"Q1 (a)"_. The cost that he accepted: a page that says something false about its own element is believed, such as `aria-disabled="false"` on a link with `disabled`. So the second item above, _The reverse_, is part of the repair.
+- **The component's value reaches the mirror by a call,** `setOwnARIA(target, name, value)`, a new export of core's `useARIA.js`. `useARIA` writes the host's value, or else the component's. The host's attributes aren't touched, so the option rejected in `RF-94` isn't taken, and `RF-94` stays open. This answers _Not established_, and the _Order_ line's doubt.
+- **Read** with the candidate in the three engines: 0 wrong of 709 reads for each of nine pairs, in random orders, where `main` has 79 (138 for `aria-checked`) with no name on the host. `complete` is +51 B Brotli, and the elements +27 to +70.
+- **Order:** independent of `RF-131`. **Size:** _small_ to _medium_, mostly rows.
+- **Not repaired:** the sortable list's own `aria-description`, which the list writes itself.
+- **Seen, and not registered:** core's `useCheckable` has a branch for a target that isn't an input. It writes `aria-checked` on a change of the host's `aria-checked` attribute, and not of `checked`. No caller passes such a target.
+
 #### RF-131 — An element whose slotted content changes while it is out of the document doesn't see the change, nor one that is built first and appended later
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `reviewer-5` of `RF-124`'s [recheck](reviews/aria-removed-1/feature-proof-recheck-claude.md), requested by the coordinator. `RF-130` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-124` is about the host's attributes, and `RF-75` and the button groups' entry are about which nodes `useSlot` passes. Read on built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, with the same result ([readings](aria-removed-1/checks/slot-out.txt), [probe](aria-removed-1/probes/slot-out.mjs)).

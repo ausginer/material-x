@@ -1,13 +1,13 @@
 # The component's own `aria-*` value — plan
 
-**For `repo:RF-130` (#232).** Planned on 2026-11-24 by an architect, on the coordinator's task, on `core/aria-own-value-1` from `main` at `eddf39e7b`. The owner approved planning it: _"понял, да, делаем"_ ("got it, yes, let's do it"). **Status: ready for an implementer once [Q1](#q1--what-does-the-control-show-while-the-host-gives-the-name) is answered.** Labels `OV-…` are local to this plan. Where this plan and the entry differ, the entry governs until the owner's answer is recorded there.
+**For `repo:RF-130` (#232).** Planned on 2026-11-24 by an architect, on the coordinator's task, on `core/aria-own-value-1` from `main` at `eddf39e7b`. The owner approved planning it: _"понял, да, делаем"_ ("got it, yes, let's do it"). **Status: accepted, with no question open, and ready for an implementer.** The owner answered [Q1](#q1--what-does-the-control-show-while-the-host-gives-the-name) on 2026-11-24 with (a), and the entry's note records it. Labels `OV-…` are local to this plan.
 
 ## The answer in short
 
 - **The component gives its own value to the mirror, and the mirror writes the control** (`OV-1`). A component calls `setOwnARIA(target, name, value)` in place of writing the attribute. `useARIA` keeps the value and writes **the host's value, or the component's own if the host gives none.** The control is then a function of the two, so no order matters.
 - **The host's attributes stay as they are.** Nothing is removed from the host, so `RF-94`'s rejection isn't met. `RF-94` stays open.
 - **Cost:** `complete` +51 bytes Brotli, and at most +70 on an element. It isn't expensive for the defect, so there is no reason for a narrower repair.
-- **One question for the owner,** Q1. The recommended answer is the one measured.
+- **While the host gives the name, the control shows the host's value,** by the owner's answer to Q1. It is the candidate measured.
 
 ## Readings
 
@@ -19,7 +19,7 @@
 | **push, host wins (`OV-1`)** | **0** | **0** |
 | pull, last write stands | 0 | 0 to 17, as `main` |
 
-The second column for `main` and _pull_ isn't a defect against the entry, which leaves that case to Q1. It is what differs by order today.
+The second column for `main` and _pull_ isn't a defect against the entry as registered. It is what differs by order today, and what Q1's answer settles.
 
 **Sizes,** Brotli bytes from `size-limit` against `main` ([every row](checks/sizes.txt)):
 
@@ -46,7 +46,7 @@ A row of `complete` differs from its neighbors by a few tens of bytes for reason
 - **A value that was written straight to the target isn't its own value.** The sortable list's `aria-description` is written so. It isn't in this unit ([below](#not-in-this-unit)).
 - **A setup call, for a template's value.** `useSwitchCore` gives `aria-checked="false"` by `setOwnARIA` right after its `useARIA`, and the two templates drop the attribute. A template's value is the component's and nothing else says it. The snapshot of the target's attributes at `useARIA` does it for any template, for 14 bytes in `complete` and 6 to 56 in the elements, and reads each target's attributes at construction. The call is what the package needs today. `setOwnARIA` called before `useARIA` is lost as an own value, and its JSDoc says so: call it after `useARIA` in the setup, or later from a handler.
 - **The text fields' transformer stays.** It already answers for `null` with the ids of the filled slots, and the property holds for it. The pushed form of it depends on `RF-131` and is [below](#not-in-this-unit).
-- **Not adopted, pull:** each component's transformer computes the same value from the host's attributes. It is smaller for a few elements and keeps every value in two places, the writer and the transformer. `useARIA`'s parameter then passes through three cores. It doesn't answer Q1 without changing the writers too, where they would have to read the host for elements that have no mirror.
+- **Not adopted, pull:** each component's transformer computes the same value from the host's attributes. It is smaller for a few elements and keeps every value in two places, the writer and the transformer. `useARIA`'s parameter then passes through three cores. It doesn't give Q1's answer without changing the writers too, where they would have to read the host for elements that have no mirror.
 - **Not adopted, a memory of the target's value from before the host's:** a component that writes `"true"` while the host has `"true"` leaves no trace of having written, so the loss takes it. It is the ordinary case of `aria-disabled="true"` beside `disabled`.
 - **Not adopted, the host's internals as the place for the own value:** it gives the host semantics, which is `RF-94`'s second node.
 
@@ -76,14 +76,11 @@ A row of `complete` differs from its neighbors by a few tens of bytes for reason
 
 ## Q1 — What does the control show while the host gives the name?
 
-The entry doesn't say. Today it is the later of the two changes, and a connect gives the host's. An example for each answer, `mx-link-button` with `disabled` and the host's `aria-disabled="false"`, and `mx-list-link-item` with `selected` and the host's `aria-current="step"`:
+**Answered by the owner on 2026-11-24,** in chat, relayed by the coordinator: _"Q1 (a)"_. The options, the recommendation and the cost were shown to him. **The host's value, in every order.** So `mx-link-button` with `disabled` and the host's `aria-disabled="false"` says `"false"`, and `mx-list-link-item` with `selected` and `aria-current="step"` says `"step"`.
 
-- **(a) The host's. Recommended.** `"false"`, and `"step"`. The page can always give a value, and it stands in every order.
-  - It is what a custom element's default semantics do: the host's attribute overrides them. `useARIA`'s JSDoc says of a connect that the host's value wins. The text fields' ids already do it, and the slider's `valuetext` does, so two of the mirror's users agree with it.
-  - It keeps a choice for `aria-current`, where `page` is a guess of the component, and `aria-selected` and `aria-checked` stay the page's to give.
-  - **Cost:** a page that says something false about its own element is believed. The link in the example looks disabled and blocks clicks, and says that it isn't. Its attribute is the page's. A framework that writes `aria-disabled` from the same state as `disabled` gives the same value.
-- **(b) The component's, where it has one.** `"true"`, and `"page"`. The control can't say what the element isn't, and the page's `"step"` is never reached while `selected` is set. `aria-checked` and, once `selected` has changed, `aria-selected` always have a value, so the page could never give them. It is the same code, with the two sides exchanged. An `aria-invalid="grammar"` would be lost beside `error`.
-- **(c) As today, the later change.** The property of the entry holds, and the control depends on the order still, where a connect changes it. No saving in bytes is established against (a), and it leaves the reverse half of the entry. The probe's second column counts it.
+- **Why.** A custom element's default semantics work so: the host's attribute overrides them. `useARIA`'s connect already gave the host's value, and the text fields' ids follow the rule. `aria-current`'s `page` is the component's guess.
+- **Cost, accepted:** a page that says something false about its own element is believed. The link in the example looks disabled and blocks clicks, and says that it isn't.
+- **Not chosen:** (b) the component's value where it has one: the page could then never give `aria-checked`. (c) The later change, as today: it depends on the order, and no saving in bytes is established.
 
 ## The implementer's work
 
@@ -98,7 +95,7 @@ On `core/aria-own-value-1`, in this order:
    - the transformer's answer comes before the own value, and its `null` gives the own value;
    - in one task: the loss and the own value's change, in both orders, connected; while out with the connect in the same task; before the first connect. Each is read after the task, and the connect also synchronously.
    - **Witnesses:** without the own value the first and the fourth fail. With `setOwnARIA` writing straight, the second fails. With the own value written before a pending loss and not kept, the last fails.
-4. **In material-x,** a table of the nine pairs of the probe, at `tests/aria-own-value.browser.test.ts`, each in four cases: the source set, the host's name set and lost, while connected; the loss and the source in one task while out, then the connect in that task; the name set and lost before the first connect, with the source set; the source changed while the host has the name (Q1). And the switch's `aria-checked="false"` after the host gets and loses the name before its first connect, with no change of `checked`. **Witness:** `main` fails each of the first three for each pair, and the template's, in the three engines. For the fourth, `main` fails the pairs that the probe counts. It asserts Q1's answer.
+4. **In material-x,** a table of the nine pairs of the probe, at `tests/aria-own-value.browser.test.ts`, each in four cases: the source set, the host's name set and lost, while connected; the loss and the source in one task while out, then the connect in that task; the name set and lost before the first connect, with the source set; the source changed while the host has the name, to a state whose own value differs from the host's, where the control keeps the host's, and after the loss has the own value. And the switch's `aria-checked="false"` after the host gets and loses the name before its first connect, with no change of `checked`. **Witness:** `main` fails each of the first three for each pair, and the template's, in the three engines. `main` fails the fourth too for each pair, at the host's value or after the loss.
 5. The [probe](probes/own-value.browser.test.ts.txt) on the built change reads 0 in both columns. The two existing rows of `mx-link-button` in `button.browser.test.ts` and the sortable row stay.
 6. Sizes against `main`, and the whole browser projects of core and material-x in each engine.
 
@@ -119,4 +116,4 @@ On `core/aria-own-value-1`, in this order:
 | Bytes | `complete` +51 B Brotli. Elements +27 to +70, `checkbox` and `radio` +35 and +31 for a function that they use as plain writing |
 | Memory | a `Map` for each mirrored host, and a `WeakMap` entry |
 | Contract | one new export in core, one rule in `useARIA`'s JSDoc, and `useDisableableLinkable` without the host's `aria-disabled` |
-| Behavior | Q1's answer (a) changes the control where the host gives a name and the component writes after it |
+| Behavior | Where the host gives a name and the component changes after it, the control keeps the host's value. It took the component's before |
