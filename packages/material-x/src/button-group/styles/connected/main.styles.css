@@ -48,10 +48,10 @@
  * content stacks. `:focus-within` ends it when focus leaves, also when the
  * focused member is disabled or removed.
  */
-:host(:state(focus-visible)) ::slotted(*) {
-  --_focus-z-index: 1;
-}
-
 :host(:state(focus-visible):focus-within) {
   isolation: isolate;
+}
+
+:host(:state(focus-visible)) ::slotted(*) {
+  --_focus-z-index: 1;
 }
