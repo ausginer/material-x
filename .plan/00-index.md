@@ -2510,6 +2510,45 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
   - `RF-94`'s second named node, `RF-120`'s restoring of the value, and `RF-121`.
 - **Not read:** Safari, a physical touch, and assistive technology.
 
+#### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
+
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
+
+**What is in force, and when:**
+
+| Until | A new finding | An entry in a register | Who registers | In force |
+| --- | --- | --- | --- | --- |
+| Stages 1 and 2 are on `main` | `RF-`, `DRF-` or `RQ-` in its register | Changed in the register | The main slot's architect | `RD-1` and `RD-22`, whole. Nothing of this entry but the authority for stages 1 and 2 |
+| The cut-over | The same, **except the trial's one finding,** which is an issue with a `tier:` label and has no register number | The same | The same, and the main slot's architect for the trial's issue | `RD-1` and `RD-22`, and properties 1 to 8 and 10 for the trial's finding alone |
+| After the cut-over | An issue, `#N` | Frozen. A change goes into its issue (property 9) | Any slot's architect | All the properties, and the supersessions below |
+
+**The cut-over is the merge into `main` of stage 4's pull request,** which the owner orders after the trial. A merge of stage 1, 2 or 3 isn't it. An entry on a branch that is open then merges as it is and is frozen with the rest. If the owner stops at the trial, this entry is withdrawn, and the trial's finding is registered in its register.
+
+**Properties:**
+
+1. **A finding is one issue,** from its observation to its closure. `RF-`, `DRF-` and `RQ-` end at the numbers that are on any branch at the cut-over, and a new finding's address is `#N`. Old addresses keep resolving.
+2. **Its body is the contract, and current text.** Each change of the body is one comment, _Amendment N_, posted after the body is edited, which says what changed, why, what it replaced and whose answer asked for it, and nobody edits it afterward. The body ends with `Revision N`. A prompt pins `#N rM`, and a role that finds a later revision stops.
+3. **The tier is a label** and nothing else states it. The body has the headings that the plan lists.
+4. **The architect writes the body, the amendments and the tier.** The coordinator writes `Status`, rank and package labels, and opens an `unregistered` issue. Other roles write only through a pull request's description.
+5. **A role takes only `Lodin`'s text with the architect's stamp as the contract,** and a finding's issue is opened by that account and locked when it is registered. A small tool reads an issue that way. It refuses a revision without its amendment, a body edited after its amendment, and an edit by another account. It keeps no copy.
+6. **Evidence stays in the repository,** on the branch of the unit that repairs the finding, and by a pull request of its own when the finding waits. The issue cites the path and the pull request.
+7. **Decisions, contracts, invariants, plans, reviews and readings stay in the repository,** with their series, their registers and their review. A ruling that changes a public surface or a package's contract is a decision.
+8. **`Closes #N` still closes a finding at the merge.** The architect's acceptance and the proof it rests on is a comment made before.
+9. **Open entries are frozen where they are.** Their frozen text is revision 0 of their issue, and the first change to one writes the whole contract into the body as Revision 1. Closed ones are the archive.
+10. **Everything on GitHub stays in English,** the owner's answers included. There is no export and no evidence branch.
+
+**What the answers and the direction changed from the proposal:** property 6 had no choice of carrier, and the plan recommended an `evidence` branch. An export was recommended, and there is none. The tool had a cache and a draft check. Property 2 didn't say the order of edit and amendment, nor property 5 the refusal that rests on it. Property 4 said _"in any slot"_, which holds only after the cut-over. The rules get a document of their own, `findings.md`, and not a part of `work-queue.md`.
+
+**What it supersedes, at the cut-over and not before:** `RD-22`'s _"the `.plan/` records stay the only record"_ and its properties 1 to 5 for findings, and the rule that only the main slot's architect mints, for findings. `RD-22`'s board, `Status`, trust, stamp, language and closing rules stay. It amends `RD-1` by taking findings out of its series. For the trial's finding alone, stage 1's documents state the exception to them.
+
+**Why.** The counts of two weeks: 31 of 124 merges conflict in a register, and 19 of them in its findings alone. 19 commits of 95 change only records. The owner names two addresses for one thing. A finding is closed by its repair, so its text is short-lived, and a decision's isn't.
+
+**Why the tool doesn't use `gh issue view`.** `Revision N` is typed by a writer, and `gh issue view` returns neither the body's editor nor the time of its last edit. A body changed under the same number would read as the pinned revision. One GraphQL request returns both, and the tool is no larger.
+
+**Dated 2026-11-24 by the architect, on stage 1's review:** no property changes. The [rulings](findings-on-github-1/findings-on-github-plan.md#stage-1-the-reviews-rulings) have the remediation. The owner approved the start of stages 1 and 2 only, so the table's first row says so. It said _"the authority for stages 1 to 3"_. `findings.md` applies wherever another document says otherwise of a finding's issue, which replaces the plan's list of limited statements. A faulty amendment is deleted and posted again by the architect, which property 2's _nobody edits it afterward_ doesn't cover. Property 4 stands as written: the coordinator sets the package labels.
+
+**Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's, a deletion there has no other copy, two edits of one body at once aren't reported, and a role without a network has no finding. It saves 19 of the 31 conflicts and 2 of the 19 pull requests.
+
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
 **Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.

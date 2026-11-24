@@ -1,0 +1,42 @@
+# `gh issue view --json` on 2026-11-24: the fields gh lists when given an unknown one (`locked`)
+gh version 2.104.0 (2026-11-12)
+Unknown JSON field: "locked"
+Available fields:
+  assignees
+  author
+  blockedBy
+  blocking
+  body
+  closed
+  closedAt
+  closedByPullRequestsReferences
+  comments
+  createdAt
+  id
+  isPinned
+  issueType
+  labels
+  milestone
+  number
+  parent
+  projectCards
+  projectItems
+  reactionGroups
+  state
+  stateReason
+  subIssues
+  subIssuesSummary
+  title
+  updatedAt
+  url
+
+# GraphQL returns what it lacks (#228), and a rename after the last body edit does not move lastEditedAt (#82)
+{"createdAt":"2026-11-24T09:25:17Z","editor":{"login":"Lodin"},"lastEditedAt":"2026-11-24T09:45:41Z","number":228,"timelineItems":{"nodes":[]}}
+{"createdAt":"2026-11-20T08:08:32Z","editor":{"login":"Lodin"},"lastEditedAt":"2026-11-20T08:47:06Z","number":82,"timelineItems":{"nodes":[{"createdAt":"2026-11-20T08:47:08Z"}]}}
+
+# A pull request number is not an issue to GraphQL
+gh: Could not resolve to an Issue with the number of 225.
+# A merged pull request head whose branch is gone (#206)
+repo/register-observations-8 MERGED
+1c9954eb21f0d4d11ee7830dd6a60d49b64ff44d	refs/pull/206/head
+heads matching: 0

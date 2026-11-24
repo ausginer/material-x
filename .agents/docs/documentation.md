@@ -187,7 +187,8 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `.agents/docs/agent-workflow.md` | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime |
 | `.agents/docs/coordinator.md`, `coordinator-setup.md` | Operation — local Codex or Claude coordination, owner-relayed or directly sent handoffs and Claude role startup |
 | `.agents/docs/work-queue.md` | Operation — the rules for the work queue on GitHub |
-| GitHub Issues and the `Work queue` board | The work queue — what is next and whom it waits on, never a reason (`work-queue.md`) |
+| `.agents/docs/findings.md` | Operation — how an issue that is a finding is written, read, amended and closed |
+| GitHub Issues and the `Work queue` board | The work queue — what is next and whom it waits on, never a reason (`work-queue.md`), except an issue with a `tier:` label, whose body is its contract (`findings.md`) |
 | Other files under `.agents/docs/` | Convention, operation, design reference or retired measurement record — consulted, not resident |
 | `.claude/agents/` | Operation — the role definitions, and the store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |
@@ -215,3 +216,4 @@ What this document used to say, and what changed it. Section numbers are permane
 | 2026-11-06 | Introduction, §2, §4, §5, §7 | **Removed** point-in-time statements, written here because no record carries them and not rechecked: _a published type surface in which decision narrative outweighs the library it describes by seven to one_; _All 55 citations in this repository address a section number_; `CONTRIBUTING.md` §18's former _121 B vocabulary root with 29 B of slack_, _re-based twice_; _the current tree writes them the same way_; _the published-declaration weight has no measured regression behind it yet_ |
 | 2026-11-15 | §7 | **Removed:** the row for citations in drag2's normative tree, whose instrument was deleted with drag2. Its withdrawal is stated in the record, not here. Links into drag2 in this table name its paths at `0870abd75`. Record: `repo:RD-5` |
 | 2026-11-18 | §8 | **Added:** `work-queue.md`, and GitHub Issues with the `Work queue` board as the work queue, outside the four kinds of document. Record: `repo:RD-22` |
+| 2026-11-24 | §8 | **Added:** `findings.md`, and an issue with a `tier:` label as a finding whose body is its contract. Record: `repo:RD-56` |
