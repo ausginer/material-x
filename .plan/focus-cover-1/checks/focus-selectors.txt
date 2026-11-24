@@ -1,0 +1,37 @@
+# Which selectors see a member that has focus (detect): Chromium, Firefox, WebKit
+# chromium 158.0.8127.18
+rest active= inner:fv=undefined host matches :focus=false :fv=false group: fw=0 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=- f=- fw=-; g.matches(:has(:fv))=false
+tab active=b1 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b2 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b3 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b4 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+click b1 active=b1 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then Shift active=b1 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then a active=b1 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+click b4 active=b4 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then Shift active=b4 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then a active=b4 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=0 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+# firefox 159.0
+rest active= inner:fv=undefined host matches :focus=false :fv=false group: fw=0 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=- f=- fw=-; g.matches(:has(:fv))=false
+tab active=b1 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b2 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b3 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b4 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+click b1 active=b1 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then Shift active=b1 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then a active=b1 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+click b4 active=b4 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then Shift active=b4 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then a active=b4 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+# webkit 27.2
+rest active= inner:fv=undefined host matches :focus=false :fv=false group: fw=0 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=0 slotted: fv=- f=- fw=-; g.matches(:has(:fv))=false
+tab active=b1 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b2 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b3 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+tab active=b4 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+click b1 active=b1 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then Shift active=b1 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then a active=b1 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+click b4 active=b4 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then Shift active=b4 inner:fv=false host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false
+ then a active=b4 inner:fv=true host matches :focus=true :fv=false group: fw=1 has(*)=1 has(:fv)=0 has(>:fv)=0 :host:has=0 has(:focus)=1 slotted: fv=0 f=1 fw=1; g.matches(:has(:fv))=false

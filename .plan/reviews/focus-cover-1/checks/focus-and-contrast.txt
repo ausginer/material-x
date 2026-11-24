@@ -1,0 +1,498 @@
+# chromium 158.0.8127.18 {}
+mx-list-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-item unselected hovered (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-button-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-button-item unselected hovered (outline solid): indicator 70,94,39 | container 224,228,212 5.61 | page 255,255,255 7.26
+mx-list-button-item unselected pressed (outline solid): indicator 65,87,37 | container 204,207,192 5.07 | page 255,255,255 8.03
+mx-list-button-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-button-item selected hovered (outline solid): indicator 70,94,39 | container 186,216,146 4.61 | page 255,255,255 7.26
+mx-list-button-item selected pressed (outline solid): indicator 65,87,37 | container 170,197,133 4.22 | page 255,255,255 8.03
+mx-list-link-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-link-item unselected hovered (outline solid): indicator 70,94,39 | container 224,228,212 5.61 | page 255,255,255 7.26
+mx-list-link-item unselected pressed (outline solid): indicator 65,87,37 | container 204,207,192 5.07 | page 255,255,255 8.03
+mx-list-link-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-link-item selected hovered (outline solid): indicator 70,94,39 | container 186,216,146 4.61 | page 255,255,255 7.26
+mx-list-link-item selected pressed (outline solid): indicator 65,87,37 | container 170,197,133 4.22 | page 255,255,255 8.03
+# chromium 158.0.8127.18 {"colorScheme":"dark"}
+mx-list-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 18,18,18 2.88
+mx-list-item unselected hovered (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 18,18,18 2.88
+mx-list-button-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 18,18,18 2.88
+mx-list-button-item unselected hovered (outline solid): indicator 70,94,39 | container 224,228,212 5.61 | page 18,18,18 2.58
+mx-list-button-item unselected pressed (outline solid): indicator 65,87,37 | container 204,207,192 5.07 | page 18,18,18 2.33
+mx-list-button-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 18,18,18 2.88
+mx-list-button-item selected hovered (outline solid): indicator 70,94,39 | container 186,216,146 4.61 | page 18,18,18 2.58
+mx-list-button-item selected pressed (outline solid): indicator 65,87,37 | container 170,197,133 4.22 | page 18,18,18 2.33
+mx-list-link-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 18,18,18 2.88
+mx-list-link-item unselected hovered (outline solid): indicator 70,94,39 | container 224,228,212 5.61 | page 18,18,18 2.58
+mx-list-link-item unselected pressed (outline solid): indicator 65,87,37 | container 204,207,192 5.07 | page 18,18,18 2.33
+mx-list-link-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 18,18,18 2.88
+mx-list-link-item selected hovered (outline solid): indicator 70,94,39 | container 186,216,146 4.61 | page 18,18,18 2.58
+mx-list-link-item selected pressed (outline solid): indicator 65,87,37 | container 170,197,133 4.22 | page 18,18,18 2.33
+# firefox 159.0 {}
+mx-list-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-item unselected hovered (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-button-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-button-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 255,255,255 7.28
+mx-list-button-item unselected pressed (outline solid): indicator 63,87,37 | container 202,206,191 5.03 | page 255,255,255 8.07
+mx-list-button-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-button-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 255,255,255 7.28
+mx-list-button-item selected pressed (outline solid): indicator 63,87,37 | container 168,196,133 4.19 | page 255,255,255 8.07
+mx-list-link-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-link-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 255,255,255 7.28
+mx-list-link-item unselected pressed (outline solid): indicator 63,87,37 | container 202,206,191 5.03 | page 255,255,255 8.07
+mx-list-link-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-link-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 255,255,255 7.28
+mx-list-link-item selected pressed (outline solid): indicator 63,87,37 | container 168,196,133 4.19 | page 255,255,255 8.07
+# firefox 159.0 {"colorScheme":"dark"}
+mx-list-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 28,27,34 2.63
+mx-list-item unselected hovered (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 28,27,34 2.63
+mx-list-button-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 28,27,34 2.63
+mx-list-button-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 28,27,34 2.35
+mx-list-button-item unselected pressed (outline solid): indicator 63,87,37 | container 202,206,191 5.03 | page 28,27,34 2.12
+mx-list-button-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 28,27,34 2.63
+mx-list-button-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 28,27,34 2.35
+mx-list-button-item selected pressed (outline solid): indicator 63,87,37 | container 168,196,133 4.19 | page 28,27,34 2.12
+mx-list-link-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 28,27,34 2.63
+mx-list-link-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 28,27,34 2.35
+mx-list-link-item unselected pressed (outline solid): indicator 63,87,37 | container 202,206,191 5.03 | page 255,255,255 8.07
+mx-list-link-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-link-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 255,255,255 7.28
+mx-list-link-item selected pressed (outline solid): indicator 63,87,37 | container 168,196,133 4.19 | page 255,255,255 8.07
+# webkit 27.2 {}
+mx-list-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-item unselected hovered (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-button-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-button-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 255,255,255 7.28
+mx-list-button-item unselected pressed (outline solid): indicator 65,87,37 | container 203,207,191 5.05 | page 255,255,255 8.03
+mx-list-button-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-button-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 255,255,255 7.28
+mx-list-button-item selected pressed (outline solid): indicator 65,87,37 | container 169,196,133 4.18 | page 255,255,255 8.03
+mx-list-link-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 255,255,255 6.50
+mx-list-link-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 255,255,255 7.28
+mx-list-link-item unselected pressed (outline solid): indicator 65,87,37 | container 203,207,191 5.05 | page 255,255,255 8.03
+mx-list-link-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 255,255,255 6.50
+mx-list-link-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 255,255,255 7.28
+mx-list-link-item selected pressed (outline solid): indicator 65,87,37 | container 169,196,133 4.18 | page 255,255,255 8.03
+# webkit 27.2 {"colorScheme":"dark"}
+mx-list-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 30,30,30 2.57
+mx-list-item unselected hovered (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 30,30,30 2.57
+mx-list-button-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 30,30,30 2.57
+mx-list-button-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 30,30,30 2.29
+mx-list-button-item unselected pressed (outline solid): indicator 65,87,37 | container 203,207,191 5.05 | page 30,30,30 2.08
+mx-list-button-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 30,30,30 2.57
+mx-list-button-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 30,30,30 2.29
+mx-list-button-item selected pressed (outline solid): indicator 65,87,37 | container 169,196,133 4.18 | page 30,30,30 2.08
+mx-list-link-item unselected rest (outline solid): indicator 75,102,42 | container 247,251,234 6.17 | page 30,30,30 2.57
+mx-list-link-item unselected hovered (outline solid): indicator 69,94,39 | container 223,227,211 5.57 | page 30,30,30 2.29
+mx-list-link-item unselected pressed (outline solid): indicator 65,87,37 | container 203,207,191 5.05 | page 30,30,30 2.08
+mx-list-link-item selected rest (outline solid): indicator 75,102,42 | container 204,238,161 5.05 | page 30,30,30 2.57
+mx-list-link-item selected hovered (outline solid): indicator 69,94,39 | container 185,215,146 4.58 | page 30,30,30 2.29
+mx-list-link-item selected pressed (outline solid): indicator 65,87,37 | container 169,196,133 4.18 | page 30,30,30 2.08
+## main
+# chromium 158.0.8127.18
+static, no tabindex | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+static, tabindex 0 | Tab: active f | f.: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px 2px rgb(75, 102, 42)
+   click: active f | no outline
+static in sortable | Tab: active f | f.: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px 2px rgb(75, 102, 42)
+   click: active f | no outline
+button | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, selected | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, disabled | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+link | Tab: active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+link, no href | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+link, disabled | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button outside a list | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button item in sortable with a handle | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active mx-icon | mx-icon.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active mx-icon | no outline
+static with a slotted button | Tab: active in | in.: auto 1px 0px rgb(16, 16, 16)
+   Tab again: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+static with a slotted mx-checkbox | Tab: active in>input | span.indicator: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+mx-list-item lifted by the pointer, open true: active f1 | f1.: solid 3px 2px rgb(75, 102, 42)
+mx-list-item after a keyboard move: active f1 | f1.: solid 3px 2px rgb(75, 102, 42)
+mx-list-button-item lifted by the pointer, open true: active f1>host | button.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-button-item after a keyboard move: active f1>host | button.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-link-item lifted by the pointer, open false: active f1>host | a.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-link-item after a keyboard move: active f1>host | a.host: solid 3px 2px rgb(75, 102, 42)
+paint at rest, static, no tabindex: 39bc98eb69
+paint at rest, static, tabindex 0: 39bc98eb69
+paint at rest, static in sortable: 39bc98eb69
+paint at rest, button: 39bc98eb69
+paint at rest, button, selected: 78e6a083f1
+paint at rest, button, disabled: 5346374550
+paint at rest, link: 39bc98eb69
+paint at rest, link, no href: 39bc98eb69
+paint at rest, link, disabled: 5346374550
+paint at rest, button outside a list: 39bc98eb69
+paint at rest, button item in sortable with a handle: d141ef5f14
+paint at rest, static with a slotted button: c424aad8f6
+paint at rest, static with a slotted mx-checkbox: 02daa2ccd3
+paint at rest, groups : 612a4a9b1a
+paint at rest, groups outlined: f6592de015
+paint at rest, groups elevated: 7e4c97f5e1
+paint at rest, groups text: 92c252f44c
+paint at rest, groups tonal: 2c2b11c3ce
+## main
+# firefox 159.0
+static, no tabindex | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+static, tabindex 0 | Tab: active f | f.: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px 2px rgb(75, 102, 42)
+   click: active f | no outline
+static in sortable | Tab: active f | f.: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px 2px rgb(75, 102, 42)
+   click: active f | no outline
+button | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, selected | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, disabled | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+link | Tab: active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+link, no href | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+link, disabled | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button outside a list | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button item in sortable with a handle | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active mx-icon | mx-icon.: auto 1px 0px rgb(66, 73, 55)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active mx-icon | no outline
+static with a slotted button | Tab: active in | in.: auto 1px 0px rgb(66, 73, 55)
+   Tab again: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+static with a slotted mx-checkbox | Tab: active in>input | span.indicator: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+mx-list-item lifted by the pointer, open true: active f1 | f1.: solid 3px 2px rgb(75, 102, 42)
+mx-list-item after a keyboard move: active f1 | f1.: solid 3px 2px rgb(75, 102, 42)
+mx-list-button-item lifted by the pointer, open true: active f1>host | button.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-button-item after a keyboard move: active f1>host | button.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-link-item lifted by the pointer, open false: active f1>host | a.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-link-item after a keyboard move: active f1>host | a.host: solid 3px 2px rgb(75, 102, 42)
+paint at rest, static, no tabindex: 6006b17afe
+paint at rest, static, tabindex 0: b4614a5e39
+paint at rest, static in sortable: 6006b17afe
+paint at rest, button: b4614a5e39
+paint at rest, button, selected: 1523828bcf
+paint at rest, button, disabled: 1842e4547f
+paint at rest, link: b4614a5e39
+paint at rest, link, no href: b4614a5e39
+paint at rest, link, disabled: 1842e4547f
+paint at rest, button outside a list: b4614a5e39
+paint at rest, button item in sortable with a handle: 1eb7dc6a4b
+paint at rest, static with a slotted button: a2ce07bbf4
+paint at rest, static with a slotted mx-checkbox: 58dc60056e
+paint at rest, groups : c64c8b64ed
+paint at rest, groups outlined: f81f42c0d6
+paint at rest, groups elevated: dc656ffa86
+paint at rest, groups text: 126375e651
+paint at rest, groups tonal: 39c5f4cc41
+## main
+# webkit 27.2
+static, no tabindex | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+static, tabindex 0 | Tab: active f | f.: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px 2px rgb(75, 102, 42)
+   click: active f | no outline
+static in sortable | Tab: active f | f.: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px 2px rgb(75, 102, 42)
+   click: active f | no outline
+button | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, selected | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, disabled | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+link | Tab: active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+link, no href | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+link, disabled | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active f>host | a.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button outside a list | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active f>host | no outline
+button item in sortable with a handle | Tab: active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active mx-icon | mx-icon.: auto 3px 0px rgb(66, 73, 55)
+   focus(): active f>host | button.host: solid 3px 2px rgb(75, 102, 42)
+   click: active mx-icon | no outline
+static with a slotted button | Tab: active in | in.: auto 3px 0px rgb(66, 73, 55)
+   Tab again: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+static with a slotted mx-checkbox | Tab: active in>input | span.indicator: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+mx-list-item lifted by the pointer, open true: active f1 | f1.: solid 3px 2px rgb(75, 102, 42)
+mx-list-item after a keyboard move: active f1 | f1.: solid 3px 2px rgb(75, 102, 42)
+mx-list-button-item lifted by the pointer, open true: active f1>host | button.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-button-item after a keyboard move: active f1>host | button.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-link-item lifted by the pointer, open true: active f1>host | a.host: solid 3px 2px rgb(75, 102, 42)
+mx-list-link-item after a keyboard move: active f1>host | a.host: solid 3px 2px rgb(75, 102, 42)
+paint at rest, static, no tabindex: e617ca68d7
+paint at rest, static, tabindex 0: e617ca68d7
+paint at rest, static in sortable: e617ca68d7
+paint at rest, button: e617ca68d7
+paint at rest, button, selected: 037a3551a7
+paint at rest, button, disabled: 58452de0d3
+paint at rest, link: e617ca68d7
+paint at rest, link, no href: e617ca68d7
+paint at rest, link, disabled: 58452de0d3
+paint at rest, button outside a list: e617ca68d7
+paint at rest, button item in sortable with a handle: afe1f5a667
+paint at rest, static with a slotted button: 37d626e050
+paint at rest, static with a slotted mx-checkbox: 50876cfeb9
+paint at rest, groups : 47d1084d88
+paint at rest, groups outlined: 85249b4560
+paint at rest, groups elevated: a30e90fe22
+paint at rest, groups text: 519e26b021
+paint at rest, groups tonal: a39b1865e0
+## head
+# chromium 158.0.8127.18
+static, no tabindex | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+static, tabindex 0 | Tab: active f | f.: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px -3px rgb(75, 102, 42)
+   click: active f | no outline
+static in sortable | Tab: active f | f.: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px -3px rgb(75, 102, 42)
+   click: active f | no outline
+button | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, selected | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, disabled | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+link | Tab: active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+link, no href | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+link, disabled | Tab: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button outside a list | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button item in sortable with a handle | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   Tab again: active mx-icon | mx-icon.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active mx-icon | no outline
+static with a slotted button | Tab: active in | in.: auto 1px 0px rgb(16, 16, 16)
+   Tab again: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+static with a slotted mx-checkbox | Tab: active in>input | span.indicator: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active end | end.: auto 1px 0px rgb(16, 16, 16)
+   focus(): active before | before.: auto 1px 0px rgb(16, 16, 16)
+   click: active body | no outline
+mx-list-item lifted by the pointer, open true: active f1 | f1.: solid 3px -3px rgb(75, 102, 42)
+mx-list-item after a keyboard move: active f1 | f1.: solid 3px -3px rgb(75, 102, 42)
+mx-list-button-item lifted by the pointer, open true: active f1>host | button.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-button-item after a keyboard move: active f1>host | button.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-link-item lifted by the pointer, open false: active f1>host | a.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-link-item after a keyboard move: active f1>host | a.host: solid 3px -3px rgb(75, 102, 42)
+paint at rest, static, no tabindex: 39bc98eb69
+paint at rest, static, tabindex 0: 39bc98eb69
+paint at rest, static in sortable: 39bc98eb69
+paint at rest, button: 39bc98eb69
+paint at rest, button, selected: 78e6a083f1
+paint at rest, button, disabled: 5346374550
+paint at rest, link: 39bc98eb69
+paint at rest, link, no href: 39bc98eb69
+paint at rest, link, disabled: 5346374550
+paint at rest, button outside a list: 39bc98eb69
+paint at rest, button item in sortable with a handle: d141ef5f14
+paint at rest, static with a slotted button: c424aad8f6
+paint at rest, static with a slotted mx-checkbox: 02daa2ccd3
+paint at rest, groups : 612a4a9b1a
+paint at rest, groups outlined: f6592de015
+paint at rest, groups elevated: 7e4c97f5e1
+paint at rest, groups text: 92c252f44c
+paint at rest, groups tonal: 2c2b11c3ce
+## head
+# firefox 159.0
+static, no tabindex | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+static, tabindex 0 | Tab: active f | f.: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px -3px rgb(75, 102, 42)
+   click: active f | no outline
+static in sortable | Tab: active f | f.: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px -3px rgb(75, 102, 42)
+   click: active f | no outline
+button | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, selected | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, disabled | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+link | Tab: active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+link, no href | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+link, disabled | Tab: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button outside a list | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button item in sortable with a handle | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   Tab again: active mx-icon | mx-icon.: auto 1px 0px rgb(66, 73, 55)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active mx-icon | no outline
+static with a slotted button | Tab: active in | in.: auto 1px 0px rgb(66, 73, 55)
+   Tab again: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+static with a slotted mx-checkbox | Tab: active in>input | span.indicator: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active end | end.: auto 1px 0px rgb(0, 0, 0)
+   focus(): active before | before.: auto 1px 0px rgb(0, 0, 0)
+   click: active body | no outline
+mx-list-item lifted by the pointer, open true: active f1 | f1.: solid 3px -3px rgb(75, 102, 42)
+mx-list-item after a keyboard move: active f1 | f1.: solid 3px -3px rgb(75, 102, 42)
+mx-list-button-item lifted by the pointer, open true: active f1>host | button.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-button-item after a keyboard move: active f1>host | button.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-link-item lifted by the pointer, open false: active f1>host | a.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-link-item after a keyboard move: active f1>host | a.host: solid 3px -3px rgb(75, 102, 42)
+paint at rest, static, no tabindex: 6006b17afe
+paint at rest, static, tabindex 0: 6006b17afe
+paint at rest, static in sortable: b4614a5e39
+paint at rest, button: b4614a5e39
+paint at rest, button, selected: 1523828bcf
+paint at rest, button, disabled: 1842e4547f
+paint at rest, link: b4614a5e39
+paint at rest, link, no href: b4614a5e39
+paint at rest, link, disabled: 1842e4547f
+paint at rest, button outside a list: b4614a5e39
+paint at rest, button item in sortable with a handle: 1eb7dc6a4b
+paint at rest, static with a slotted button: a2ce07bbf4
+paint at rest, static with a slotted mx-checkbox: 58dc60056e
+paint at rest, groups : c64c8b64ed
+paint at rest, groups outlined: f81f42c0d6
+paint at rest, groups elevated: dc656ffa86
+paint at rest, groups text: 126375e651
+paint at rest, groups tonal: 39c5f4cc41
+## head
+# webkit 27.2
+static, no tabindex | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+static, tabindex 0 | Tab: active f | f.: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px -3px rgb(75, 102, 42)
+   click: active f | no outline
+static in sortable | Tab: active f | f.: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f | f.: solid 3px -3px rgb(75, 102, 42)
+   click: active f | no outline
+button | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, selected | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button, disabled | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+link | Tab: active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+link, no href | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+link, disabled | Tab: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active f>host | a.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button outside a list | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active f>host | no outline
+button item in sortable with a handle | Tab: active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   Tab again: active mx-icon | mx-icon.: auto 3px 0px rgb(66, 73, 55)
+   focus(): active f>host | button.host: solid 3px -3px rgb(75, 102, 42)
+   click: active mx-icon | no outline
+static with a slotted button | Tab: active in | in.: auto 3px 0px rgb(66, 73, 55)
+   Tab again: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+static with a slotted mx-checkbox | Tab: active in>input | span.indicator: solid 3px 2px rgb(75, 102, 42)
+   Tab again: active end | end.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   focus(): active before | before.: auto 3px 0px rgba(0, 0, 0, 0.8)
+   click: active body | no outline
+mx-list-item lifted by the pointer, open true: active f1 | f1.: solid 3px -3px rgb(75, 102, 42)
+mx-list-item after a keyboard move: active f1 | f1.: solid 3px -3px rgb(75, 102, 42)
+mx-list-button-item lifted by the pointer, open true: active f1>host | button.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-button-item after a keyboard move: active f1>host | button.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-link-item lifted by the pointer, open true: active f1>host | a.host: solid 3px -3px rgb(75, 102, 42)
+mx-list-link-item after a keyboard move: active f1>host | a.host: solid 3px -3px rgb(75, 102, 42)
+paint at rest, static, no tabindex: e617ca68d7
+paint at rest, static, tabindex 0: e617ca68d7
+paint at rest, static in sortable: e617ca68d7
+paint at rest, button: e617ca68d7
+paint at rest, button, selected: 037a3551a7
+paint at rest, button, disabled: 58452de0d3
+paint at rest, link: e617ca68d7
+paint at rest, link, no href: e617ca68d7
+paint at rest, link, disabled: 58452de0d3
+paint at rest, button outside a list: e617ca68d7
+paint at rest, button item in sortable with a handle: afe1f5a667
+paint at rest, static with a slotted button: 37d626e050
+paint at rest, static with a slotted mx-checkbox: 50876cfeb9
+paint at rest, groups : 47d1084d88
+paint at rest, groups outlined: 85249b4560
+paint at rest, groups elevated: a30e90fe22
+paint at rest, groups text: 519e26b021
+paint at rest, groups tonal: a39b1865e0

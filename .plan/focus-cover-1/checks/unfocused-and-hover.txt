@@ -1,0 +1,21 @@
+# chromium 158.0.8127.18
+buttons: same paint without isolation
+elevated buttons: same paint without isolation
+selected switches: same paint without isolation
+split button: same paint without isolation
+mx-list-button-item: indicator 75 102 42, hovered 70 94 39
+mx-list-link-item: indicator 70 94 39, hovered 70 94 39
+# firefox 159.0
+buttons: same paint without isolation
+elevated buttons: same paint without isolation
+selected switches: same paint without isolation
+split button: same paint without isolation
+mx-list-button-item: indicator 75 102 42, hovered 69 94 39
+mx-list-link-item: indicator 69 94 39, hovered 69 94 39
+# webkit 27.2
+buttons: same paint without isolation
+elevated buttons: same paint without isolation
+selected switches: same paint without isolation
+split button: same paint without isolation
+mx-list-button-item: indicator 75 102 42, hovered 69 94 39
+mx-list-link-item: indicator 69 94 39, hovered 69 94 39
