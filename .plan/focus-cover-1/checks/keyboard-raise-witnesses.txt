@@ -1,0 +1,317 @@
+## no mutation | chromium | 47 passed (47)
+## no mutation | firefox | 47 passed (47)
+## no mutation | webkit | 47 passed (47)
+## the button does not read the z-index | chromium | 14 failed | 33 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the button does not read the z-index | firefox | 13 failed | 34 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the button does not read the z-index | webkit | 14 failed | 33 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the group sets no z-index | chromium | 14 failed | 33 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the group sets no z-index | firefox | 13 failed | 34 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the group sets no z-index | webkit | 14 failed | 33 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the first member alone is raised | chromium | 5 failed | 42 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+## the first member alone is raised | firefox | 5 failed | 42 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+## the first member alone is raised | webkit | 5 failed | 42 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+## no isolation | chromium | 7 failed | 40 passed (47)
+   button with keyboard focus in the page > of mx-connected-button-group > should stay below a menu that follows the group
+   button with keyboard focus in the page > of mx-connected-button-group > should stay below a bar with a z-index that precedes the group
+   button with keyboard focus in the page > of mx-split-button > should stay below a menu that follows the group
+   button with keyboard focus in the page > of mx-split-button > should stay below a bar with a z-index that precedes the group
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## no isolation | firefox | 6 failed | 41 passed (47)
+   button with keyboard focus in the page > of mx-connected-button-group > should stay below a menu that follows the group
+   button with keyboard focus in the page > of mx-connected-button-group > should stay below a bar with a z-index that precedes the group
+   button with keyboard focus in the page > of mx-split-button > should stay below a menu that follows the group
+   button with keyboard focus in the page > of mx-split-button > should stay below a bar with a z-index that precedes the group
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## no isolation | webkit | 7 failed | 40 passed (47)
+   button with keyboard focus in the page > of mx-connected-button-group > should stay below a menu that follows the group
+   button with keyboard focus in the page > of mx-connected-button-group > should stay below a bar with a z-index that precedes the group
+   button with keyboard focus in the page > of mx-split-button > should stay below a menu that follows the group
+   button with keyboard focus in the page > of mx-split-button > should stay below a bar with a z-index that precedes the group
+   connected group stacking context > should exist after Tab
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## isolation at rest | chromium | 19 failed | 28 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top at rest
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top at rest
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top at rest
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top at rest
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top after keyboard focus leaves
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after a click
+   connected group stacking context > should not exist after a click outside
+   connected group stacking context > should not exist after the focused button is disabled
+   connected group stacking context > should not exist after the focused button is removed
+## isolation at rest | firefox | 20 failed | 27 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top at rest
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top at rest
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top at rest
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top at rest
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top after keyboard focus leaves
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after a click
+   connected group stacking context > should follow the focused control after a click and a letter
+   connected group stacking context > should not exist after a click outside
+   connected group stacking context > should not exist after the focused button is disabled
+   connected group stacking context > should not exist after the focused button is removed
+## isolation at rest | webkit | 19 failed | 28 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top at rest
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top at rest
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top at rest
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top at rest
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top after keyboard focus leaves
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after a click
+   connected group stacking context > should not exist after a click outside
+   connected group stacking context > should not exist after the focused button is disabled
+   connected group stacking context > should not exist after the focused button is removed
+## isolation with any focus inside | chromium | 6 failed | 41 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after a click
+## isolation with any focus inside | firefox | 9 failed | 38 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after a click
+   connected group stacking context > should follow the focused control after a click and a letter
+## isolation with any focus inside | webkit | 6 failed | 41 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top with a pointer's focus
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top with a pointer's focus
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should not exist after a click
+## isolation after focus leaves | chromium | 7 failed | 40 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top after keyboard focus leaves
+   connected group stacking context > should not exist after a click outside
+   connected group stacking context > should not exist after the focused button is disabled
+   connected group stacking context > should not exist after the focused button is removed
+## isolation after focus leaves | firefox | 7 failed | 40 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top after keyboard focus leaves
+   connected group stacking context > should not exist after a click outside
+   connected group stacking context > should not exist after the focused button is disabled
+   connected group stacking context > should not exist after the focused button is removed
+## isolation after focus leaves | webkit | 7 failed | 40 passed (47)
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the tooltip over later content on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-connected-button-group > should keep the button over the empty end on top after keyboard focus leaves
+   page around a connected group without keyboard focus > of mx-split-button > should keep the button over the empty end on top after keyboard focus leaves
+   connected group stacking context > should not exist after a click outside
+   connected group stacking context > should not exist after the focused button is disabled
+   connected group stacking context > should not exist after the focused button is removed
+## every focused button is raised | chromium | 4 failed | 43 passed (47)
+   button with keyboard focus in the page > should stay below a positioned element that follows it alone
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover of a member
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a wrapper
+## every focused button is raised | firefox | 4 failed | 43 passed (47)
+   button with keyboard focus in the page > should stay below a positioned element that follows it alone
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover of a member
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a wrapper
+## every focused button is raised | webkit | 4 failed | 43 passed (47)
+   button with keyboard focus in the page > should stay below a positioned element that follows it alone
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover of a member
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a wrapper
+## an unconditional raise, with no declaration on the button | chromium | 3 failed | 44 passed (47)
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover of a member
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a wrapper
+## an unconditional raise, with no declaration on the button | firefox | 3 failed | 44 passed (47)
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover of a member
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a wrapper
+## an unconditional raise, with no declaration on the button | webkit | 3 failed | 44 passed (47)
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover of a member
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should stay below an overlay that follows it in a wrapper
+## no declaration on the button | chromium | 47 passed (47)
+## no declaration on the button | firefox | 47 passed (47)
+## no declaration on the button | webkit | 47 passed (47)
+## no keydown | chromium | 1 failed | 46 passed (47)
+   connected group stacking context > should follow the focused control after a click and a letter
+## no keydown | firefox | 47 passed (47)
+## no keydown | webkit | 1 failed | 46 passed (47)
+   connected group stacking context > should follow the focused control after a click and a letter
+## no focusin | chromium | 8 failed | 39 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should exist after Tab
+## no focusin | firefox | 10 failed | 37 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover of a member
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a popover beside the members
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should exist after Tab
+## no focusin | webkit | 8 failed | 39 passed (47)
+   focus indicator in a connected group > of mx-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-link-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the first button
+   focus indicator in a connected group > of mx-split-button > should not be covered on the right of the leading button
+   focused mx-button in a group that isn't the group's member > should not make the group a stacking context in a wrapper
+   connected group stacking context > should exist after Tab
+## the event's target in place of the focused control | chromium | 3 failed | 44 passed (47)
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the event's target in place of the focused control | firefox | 3 failed | 44 passed (47)
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   connected group stacking context > should exist after a click on a switch button and an arrow
+## the event's target in place of the focused control | webkit | 3 failed | 44 passed (47)
+   focus indicator in a connected group > of mx-switch-button > should not be covered on the right of the middle button
+   focus indicator in a connected group > of mx-switch-icon-button > should not be covered on the right of the middle button
+   connected group stacking context > should exist after a click on a switch button and an arrow

@@ -1,0 +1,129 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import LinkTo from '@storybook/addon-links/react';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './top-app-bar.stories';
+
+export const TAG = 'mx-top-app-bar';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet =
+  "import '@ydinjs/material-x/top-app-bar/top-app-bar.js';";
+export const usageSnippet = `<body>
+  <mx-top-app-bar role="banner">
+    <mx-icon-button slot="lead" color="standard" aria-label="Menu">
+      <mx-icon>menu</mx-icon>
+    </mx-icon-button>
+    <h1>Headline</h1>
+    <mx-icon-button slot="trail" color="standard" aria-label="Search">
+      <mx-icon>search</mx-icon>
+    </mx-icon-button>
+  </mx-top-app-bar>
+  <main>…</main>
+</body>`;
+export const scrollPaddingSnippet = `html {
+  scroll-padding-block-start: 64px;
+}`;
+export const stateSnippet = `mx-top-app-bar:state(scrolled) {
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}`;
+
+<Meta of={Stories} />
+
+# Top app bar
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Examples
+
+### Actions
+
+<Canvas of={Stories.Actions} />
+
+### Scrolling page
+
+<Canvas of={Stories.ScrollingPage} />
+
+## Playground
+
+<LinkTo kind="Top app bar" story="Playground">
+  Playground
+</LinkTo>
+
+## Position
+
+- The bar is `position: sticky` at the block start, with `z-index: 1`. A page rule on `mx-top-app-bar` overrides both, and `position: static` unpins it.
+- It pins within its parent, so make it a child of `body`. A `<header>` around it needs `display: contents`, and `height: 100%` on `body` lets the bar scroll away with it.
+- It follows the document's scroll only. In another scroll container it is sticky there and stays at rest. `overflow-x: hidden` on both `html` and `body` makes `body` one, so the bar scrolls away. `overflow-x: clip` on `body` doesn't.
+
+## Scrolled state
+
+The bar matches `:state(scrolled)` while the document is scrolled away from its start, and its container changes color. The state is the platform's, as `:hover` is: nothing sets it and no event reports it. A bar in the page that isn't rendered isn't in the state, so one that the page shows while the document is scrolled draws its resting color and then changes. So does a bar that is inserted there for the first time. A bar that the page removes keeps its state: inserted again, it draws the color that it had, and changes if the scroll position no longer matches.
+
+<Source code={stateSnippet} language="css" />
+
+## Accessibility
+
+- **Landmark:** the bar has no role of its own. Set `role="banner"` on the page's own bar.
+- **Heading:** slot the heading, at the level the page needs. It takes the bar's text style, unless the page styles it.
+- **Focused and targeted content:** a pinned bar covers it unless the page's scroller has `scroll-padding-block-start`. No component can set it for the page.
+
+<Source code={scrollPaddingSnippet} language="css" />
+
+- **Focus:** the bar takes no focus of its own. Tab goes through `lead`, the headline and `trail`, in the document's order, so write them in that order.
+
+## Content guidelines
+
+- The headline isn't truncated. A long one wraps, and the bar grows, so keep it short.
+
+## Anatomy
+
+- `lead` slot: the navigation icon.
+- `default` slot: the headline.
+- `trail` slot: the actions.
+
+## Theming
+
+Uses Material 3 Expressive app bar tokens and works with the global Storybook light/dark theme toggle.
+
+<ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview: [https://m3.material.io/components/app-bars/overview](https://m3.material.io/components/app-bars/overview)
+- Deltas:
+  - Only the small app bar, without a subtitle, a centered headline or search.
+  - The scrolled bar changes color and draws no shadow. Content in `surface-container` at the top of a scrolled page shows no edge under it.
+  - `mx-icon-button` is 40px wide, with no 48px target, so its icon is 4px nearer the edge.
+  - `mx-icon-button` keeps its own icon color in `lead`.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}
