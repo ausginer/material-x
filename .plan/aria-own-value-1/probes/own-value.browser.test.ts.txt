@@ -1,0 +1,81 @@
+// Seeded random orders of: the host's attribute set or removed, the component's
+// source set or removed, connect, disconnect, move, and the end of a task. The
+// control is read at the end of each task and synchronously after each connect.
+// Two counts for each pair: wrong while the host doesn't give the name (the
+// entry's property), and wrong while it gives it (the host's value expected).
+// Copy to packages/material-x/tests/ and run there, after building core. The last
+// test fails on purpose: its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/link-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+type Own = (on: boolean) => ReadonlyArray<string | null>;
+const orNull =
+  (value: string): Own =>
+  (on) => [on ? value : null];
+const PAIRS: ReadonlyArray<readonly [string, string, string, string, Own]> = [
+  ['mx-text-field', 'aria-invalid', 'error', 'false', orNull('true')],
+  ['mx-multiline-text-field', 'aria-required', 'required', 'false', orNull('true')],
+  ['mx-switch-button', 'aria-checked', 'checked', 'mixed', (on) => [String(on)]],
+  ['mx-switch-button', 'aria-invalid', 'error', 'grammar', orNull('true')],
+  ['mx-link-button', 'aria-disabled', 'disabled', 'false', orNull('true')],
+  ['mx-link-button', 'aria-disabled', 'disabled', 'true', orNull('true')],
+  ['mx-list-link-item', 'aria-disabled', 'disabled', 'false', orNull('true')],
+  ['mx-list-link-item', 'aria-current', 'selected', 'step', orNull('page')],
+  // Nothing writes `false` before the first change of `selected`.
+  ['mx-list-button-item', 'aria-selected', 'selected', 'true', (on) => (on ? ['true'] : ['false', null])],
+];
+const rows: string[] = [];
+for (const [tag, aria, attr, given, own] of PAIRS) {
+  it(`${tag} ${aria} ${given}`, async () => {
+    const wrong = { absent: 0, given: 0, absentSync: 0, givenSync: 0 };
+    let reads = 0;
+    let first = '';
+    for (let seed = 1; seed <= 150; seed++) {
+      let state = seed * 2654435761;
+      const next = (n: number) => {
+        state = (Math.imul(state ^ (state >>> 15), 2246822519) + 0x9e3779b9) | 0;
+        return ((state >>> 8) % n + n) % n;
+      };
+      const el = document.createElement(tag);
+      const control = el.shadowRoot!.querySelector('.input, .host')!;
+      const log: string[] = [];
+      const check = (sync: boolean) => {
+        reads++;
+        const host = el.getAttribute(aria);
+        const want = host == null ? own(el.hasAttribute(attr)) : [host];
+        if (!want.includes(control.getAttribute(aria))) {
+          wrong[`${host == null ? 'absent' : 'given'}${sync ? 'Sync' : ''}`]++;
+          if (host == null && !first) first = `${log.join(' ')} => ${control.getAttribute(aria)}`;
+        }
+      };
+      for (let i = 0; i < 12; i++) {
+        const op = next(7);
+        log.push(['+host', '-host', '+own', '-own', 'connect', 'out', 'task'][op]!);
+        if (op === 0) el.setAttribute(aria, given);
+        else if (op === 1) el.removeAttribute(aria);
+        else if (op === 2) el.setAttribute(attr, '');
+        else if (op === 3) el.removeAttribute(attr);
+        else if (op === 4) {
+          document.body.append(el);
+          check(true);
+        } else if (op === 5) el.remove();
+        else {
+          await new Promise((r) => setTimeout(r));
+          check(false);
+        }
+      }
+      await nextFrame();
+      check(false);
+      el.remove();
+    }
+    rows.push(`READ ${server.browser} | ${tag} ${aria}="${given}" | reads ${reads} | wrong ${JSON.stringify(wrong)} | ${first}`);
+  });
+}
+it('reading', () => expect.fail(`\n${rows.join('\n')}\nEND`));

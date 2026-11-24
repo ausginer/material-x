@@ -1,0 +1,16 @@
+The core and material-x browser suites in Chromium, at eddf39e7b and with the candidate 'push, host wins, no snapshot', run with '--project browser --browser=chromium'.
+
+## main
+core
+      Tests  303 passed (303)
+material-x
+      Tests  573 passed (573)
+
+## push, host wins, no snapshot
+core
+      Tests  1 failed | 302 passed (303)
+
+ FAIL  |browser (chromium)| tests/traits/linkable.browser.test.ts:110 > useDisableableLinkable > should restore host-provided tabindex and aria-disabled when re-enabled
+AssertionError: expected null to be 'false' // Object.is equality
+material-x
+      Tests  573 passed (573)
