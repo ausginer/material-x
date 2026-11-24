@@ -2,6 +2,8 @@
 
 **Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). Stages 1 to 3 are authorized and stage 1 is next. No document, tool, label or issue has changed yet.** The architect proposed it on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
 
+**On 2026-11-24 the owner approved the start of stages 1 and 2,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. The status above is of the acceptance, and stage 1 is on this branch.
+
 ## The direction
 
 The owner, in chat on 2026-11-24, relayed by the coordinator: _"у нас внезапно образовалось задвоение. Ты постоянно ссылаешься и на тикет в github, и на локальную находку. Может, полностью переехать на гитхаб? И дополнения писать отдельными комментариями? Тут останутся в основном записи проб"_ ("We suddenly have a duplication. You always refer to both a GitHub ticket and a local finding. Maybe move to GitHub completely, and write additions as separate comments? What stays here is mostly the records of probes"). The coordinator proposed, and he approved as the direction (_"Ага, давай!"_, "Yes, go ahead!"): new findings live wholly in an issue, decisions, plans, probes and readings stay in the repository, existing entries aren't migrated, and closed ones stay as an archive.

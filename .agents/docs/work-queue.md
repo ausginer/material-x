@@ -4,6 +4,8 @@
 
 GitHub Issues, shown on one Projects board, are the repository's work queue: what is next, in what order, and whom it waits on. The `.plan/` records stay the only record: decisions, findings, reasons and evidence. An issue says what the item is, in a few plain sentences, and the board's `Status` says where it is in the queue. Neither says why. The decision and its reasons are `repo:RD-22`.
 
+**An issue with a `tier:` label is a finding.** [`findings.md`](findings.md) governs its title, body, amendments and reading, and the rest of this document still applies to it. These statements hold for the other issues only: that the record is the only one; that the queue holds no reason, evidence or tier; that what first appears on GitHub is copied into the record; that an issue's subject is a record entry; the title's address and the `Record:` line; that the record governs a description; that the coordinator edits a description or a question; and that the pull request carries the entry's record changes, or that an issue closes while its entry stays open.
+
 ## What the queue holds
 
 - **Queue state and a description only:** the work item and a short description of it, its `Status` and its rank within that status, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record.
@@ -65,6 +67,7 @@ The description is a summary of the record entry for reading the queue. It isn't
 ## Writers
 
 - **The coordinator** is the routine writer. It creates and edits issues, sets labels, adds items to the board and sets their `Status`, comments, and closes issues that no pull request closes. It writes on the owner's direction, or on a role's closing message that proposes a queue change.
+- **The architect** writes the body, the amendments and the tier of a finding that [`findings.md`](findings.md) governs. The coordinator doesn't edit its body.
 - **The owner** sets the order and may create, edit, move or close any item. The coordinator applies an order that the owner states in chat.
 - **Roles** write to the queue only through a pull request description: `Closes #N` when the pull request completes the work item, `Refs #N` when it only advances it. A role's report may propose queue changes, and it doesn't make them. The exception is an implementer on a step of the [work-queue plan](../../.plan/work-queue-1/work-queue-plan.md#implementation) that the owner ordered, such as the first population and the descriptions of the issues already open when descriptions were adopted.
 - **Workflows** write only what their own definitions say, as `safari.yml` does.
@@ -117,8 +120,9 @@ One organization project, `Work queue`, owned by `ausginer` and linked to `mater
 | `pkg:core`, `pkg:material-x`, `pkg:drag`, `pkg:box-quad`, `pkg:tproc` | The package whose code changes |
 | `pkg:build-tools` | `vite-traits-plugin`, `vite-custom-element-assets` or `size-limit-preset-rolldown` |
 | `repo` | Repository-level: CI, the harness, the record tooling |
+| `tier:A`, `tier:B`, `tier:C` | The tier of a finding that [`findings.md`](findings.md) governs, which the architect sets |
 
-- **No label states a tier.** The tier is the record's, and the record re-tiers entries. A tier that matters for the order reaches the queue as the owner's order.
+- **No label states a tier,** except on a finding that [`findings.md`](findings.md) governs, where the label is the only copy of the tier. Elsewhere the tier is the record's, and the record re-tiers entries. A tier that matters for the order reaches the queue as the owner's order.
 - **GitHub's default labels, `record-baselines`, `safari` and `tokens-release` aren't queue labels.** `record-baselines` starts `baselines.yml`. `safari.yml` comments its next failure on any open issue that has `safari`, and `tokens.yml` comments a new token database on any open issue that has `tokens-release`. So no queue issue has either label. A `safari` issue stays the workflow's signal: the coordinator attributes its failures to record entries in a comment, and then closes it. A `tokens-release` issue closes with the pull request that updates the store.
 
 ## Language and links
