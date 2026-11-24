@@ -4,7 +4,7 @@ import '../../src/button-group/button-group.ts';
 import '../../src/button/button.ts';
 import '../../src/button/icon-button.ts';
 import '../../src/button/link-button.ts';
-import { contextResolved } from '../browser.ts';
+import { contextResolved, nextFrame } from '../browser.ts';
 
 type ButtonTag = 'mx-button' | 'mx-icon-button';
 
@@ -275,6 +275,39 @@ describe('mx-link-button', () => {
     element.disabled = true;
 
     expect(getNativeAnchor(element).getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it("should keep the disabled anchor's aria-disabled when it moves after the host lost its own", async () => {
+    const element = createElement('mx-link-button');
+    const anchor = getNativeAnchor(element);
+    element.setAttribute('aria-disabled', 'false');
+    await nextFrame();
+    expect(anchor.getAttribute('aria-disabled')).toBe('false');
+
+    element.removeAttribute('aria-disabled');
+    await nextFrame();
+    element.disabled = true;
+    document.body.prepend(element);
+    await nextFrame();
+
+    expect(anchor.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it("should keep the disabled anchor's aria-disabled set after the host lost its own while disconnected", async () => {
+    const element = createElement('mx-link-button');
+    const anchor = getNativeAnchor(element);
+    element.setAttribute('aria-disabled', 'false');
+    await nextFrame();
+    expect(anchor.getAttribute('aria-disabled')).toBe('false');
+
+    element.remove();
+    element.removeAttribute('aria-disabled');
+    await nextFrame();
+    element.disabled = true;
+    document.body.append(element);
+    await nextFrame();
+
+    expect(anchor.getAttribute('aria-disabled')).toBe('true');
   });
 
   it('should remove the disabled anchor from the tab order', () => {

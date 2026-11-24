@@ -1,0 +1,155 @@
+Base 114270083. Core rebuilt for each section, one engine at a time, by ../probes/mutations.mjs: the two changed test files, by mutation of useARIA.ts. "main" is useARIA.ts at the base.
+
+## repair
+core chromium: passed 13, failed 0
+material-x chromium: passed 62, failed 0
+core firefox: passed 13, failed 0
+material-x firefox: passed 62, failed 0
+core webkit: passed 13, failed 0
+material-x webkit: passed 62, failed 0
+
+## main
+core chromium: passed 8, failed 5
+  FAIL useARIA should remove the target attribute when the host attribute is removed while disconnected
+  FAIL useARIA should remove an attribute mirrored after connection when it is removed while disconnected
+  FAIL useARIA should remove the target attribute when the host loses it and disconnects in one task
+  FAIL useARIA should remove the target attribute when the host loses it and moves in one task
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x chromium: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+core firefox: passed 8, failed 5
+  FAIL useARIA should remove the target attribute when the host attribute is removed while disconnected
+  FAIL useARIA should remove an attribute mirrored after connection when it is removed while disconnected
+  FAIL useARIA should remove the target attribute when the host loses it and disconnects in one task
+  FAIL useARIA should remove the target attribute when the host loses it and moves in one task
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x firefox: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+core webkit: passed 8, failed 5
+  FAIL useARIA should remove the target attribute when the host attribute is removed while disconnected
+  FAIL useARIA should remove an attribute mirrored after connection when it is removed while disconnected
+  FAIL useARIA should remove the target attribute when the host loses it and disconnects in one task
+  FAIL useARIA should remove the target attribute when the host loses it and moves in one task
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x webkit: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+
+## the observer does not record the name
+core chromium: passed 12, failed 1
+  FAIL useARIA should remove an attribute mirrored after connection when it is removed while disconnected
+material-x chromium: passed 62, failed 0
+core firefox: passed 12, failed 1
+  FAIL useARIA should remove an attribute mirrored after connection when it is removed while disconnected
+material-x firefox: passed 62, failed 0
+core webkit: passed 12, failed 1
+  FAIL useARIA should remove an attribute mirrored after connection when it is removed while disconnected
+material-x webkit: passed 62, failed 0
+
+## the connect does not record the names
+core chromium: passed 9, failed 4
+  FAIL useARIA should remove the target attribute when the host attribute is removed while disconnected
+  FAIL useARIA should remove the target attribute when the host loses it and disconnects in one task
+  FAIL useARIA should remove the target attribute when the host loses it and moves in one task
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x chromium: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+core firefox: passed 9, failed 4
+  FAIL useARIA should remove the target attribute when the host attribute is removed while disconnected
+  FAIL useARIA should remove the target attribute when the host loses it and disconnects in one task
+  FAIL useARIA should remove the target attribute when the host loses it and moves in one task
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x firefox: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+core webkit: passed 9, failed 4
+  FAIL useARIA should remove the target attribute when the host attribute is removed while disconnected
+  FAIL useARIA should remove the target attribute when the host loses it and disconnects in one task
+  FAIL useARIA should remove the target attribute when the host loses it and moves in one task
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x webkit: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+
+## the connect also syncs each aria-* of the target
+core chromium: passed 12, failed 1
+  FAIL useARIA should keep an aria attribute of the target that the host never had on reconnect
+material-x chromium: passed 62, failed 0
+core firefox: passed 12, failed 1
+  FAIL useARIA should keep an aria attribute of the target that the host never had on reconnect
+material-x firefox: passed 62, failed 0
+core webkit: passed 12, failed 1
+  FAIL useARIA should keep an aria attribute of the target that the host never had on reconnect
+material-x webkit: passed 62, failed 0
+
+## the connect removes a lost attribute without the transformer
+core chromium: passed 12, failed 1
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x chromium: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+core firefox: passed 12, failed 1
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x firefox: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+core webkit: passed 12, failed 1
+  FAIL useARIA should write the transformed null when the host attribute is removed while disconnected
+material-x webkit: passed 58, failed 4
+  FAIL mx-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+  FAIL mx-multiline-text-field should restore slot label fallback after aria-labelledby is removed while disconnected
+  FAIL mx-multiline-text-field should restore support and counter fallback after aria-describedby is removed while disconnected
+
+## The browser projects with the repair, one engine at a time, on a host that runs other suites (load averages)
+start
+ 09:04:25 up 13:48,  0 users,  load average: 14.83, 12.81, 9.98
+## core chromium
+rc 0
+ Test Files  22 passed (22)
+      Tests  235 passed (235)
+ 09:04:30 up 13:48,  0 users,  load average: 15.25, 12.93, 10.03
+## core firefox
+rc 0
+ Test Files  22 passed (22)
+      Tests  235 passed (235)
+ 09:04:44 up 13:48,  0 users,  load average: 13.21, 12.59, 9.97
+## core webkit
+rc 0
+ Test Files  22 passed (22)
+      Tests  235 passed (235)
+ 09:04:51 up 13:48,  0 users,  load average: 12.71, 12.49, 9.95
+## material-x chromium
+rc 0
+ Test Files  18 passed (18)
+      Tests  558 passed (558)
+ 09:05:34 up 13:49,  0 users,  load average: 10.08, 11.83, 9.85
+## material-x firefox
+rc 0
+ Test Files  18 passed (18)
+      Tests  547 passed | 1 expected fail | 10 skipped (558)
+ 09:07:10 up 13:50,  0 users,  load average: 11.37, 11.85, 10.05
+## material-x webkit
+rc 0
+ Test Files  18 passed (18)
+      Tests  548 passed | 10 skipped (558)
+ 09:07:57 up 13:51,  0 users,  load average: 14.49, 12.55, 10.37

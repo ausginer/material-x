@@ -1,0 +1,287 @@
+// useARIA's target after each way that the host can lose, regain or change an
+// aria-*, for every ARIA name. Copy to packages/core/tests/ and run there. The
+// last test fails on purpose: its message is the reading, because the reporter
+// drops console output.
+import { afterEach, expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import { useARIA } from '../src/controllers/useARIA.ts';
+import type { ControlledElement } from '../src/element.ts';
+import { cleanupDOM, host, nextFrame } from './browser.ts';
+
+const NAMES = `activedescendant atomic autocomplete braillelabel
+brailleroledescription busy checked colcount colindex colindextext colspan
+controls current describedby description details disabled dropeffect
+errormessage expanded flowto grabbed haspopup hidden invalid keyshortcuts label
+labelledby level live modal multiline multiselectable orientation owns
+placeholder posinset pressed readonly relevant required roledescription rowcount
+rowindex rowindextext rowspan selected setsize sort valuemax valuemin valuenow
+valuetext x-unknown`
+  .split(/\s+/)
+  .map((n) => `aria-${n}`);
+
+const rows: string[] = [];
+const read = (what: string, value: unknown) =>
+  rows.push(`READ ${server.browser} | ${what} | ${JSON.stringify(value)}`);
+
+afterEach(cleanupDOM);
+
+type Act = (el: ControlledElement, n: string) => void | Promise<void>;
+const lose: Act = (el, n) => el.removeAttribute(n);
+const LOSSES: Record<string, Act> = {
+  'removed while connected': lose,
+  'removed while out': async (el, n) => {
+    el.remove();
+    await nextFrame();
+    lose(el, n);
+    await nextFrame();
+    document.body.append(el);
+  },
+  'removed, taken out in one task, back later': async (el, n) => {
+    lose(el, n);
+    el.remove();
+    await nextFrame();
+    document.body.append(el);
+  },
+  'removed and moved in one task': (el, n) => {
+    lose(el, n);
+    document.body.prepend(el);
+  },
+  'removed and reinserted in one task': (el, n) => {
+    lose(el, n);
+    el.remove();
+    document.body.append(el);
+  },
+  'out, removed and reinserted in one task': (el, n) => {
+    el.remove();
+    lose(el, n);
+    document.body.append(el);
+  },
+  'reinserted, then removed in one task': (el, n) => {
+    el.remove();
+    document.body.append(el);
+    lose(el, n);
+  },
+  'removed and its ancestor moved in one task': (el, n) => {
+    lose(el, n);
+    const p = el.parentElement!;
+    const q = document.createElement('div');
+    document.body.append(q);
+    q.append(p === document.body ? el : p);
+  },
+  'removed and moveBefore in one task': (el, n) => {
+    lose(el, n);
+    if ('moveBefore' in document.body) {
+      (document.body as any).moveBefore(el, document.body.firstChild);
+    }
+  },
+  'removed in a document fragment, reinserted': (el, n) => {
+    const f = document.createDocumentFragment();
+    f.append(el);
+    lose(el, n);
+    document.body.append(f);
+  },
+  'adopted by another document, removed, back': (el, n) => {
+    const d = document.implementation.createHTMLDocument();
+    d.body.append(el);
+    lose(el, n);
+    document.body.append(el);
+  },
+  'removed and added again while out (B)': (el, n) => {
+    el.remove();
+    lose(el, n);
+    el.setAttribute(n, 'B');
+    document.body.append(el);
+  },
+  'removed and added again while out, with frames (B)': async (el, n) => {
+    el.remove();
+    lose(el, n);
+    await nextFrame();
+    el.setAttribute(n, 'B');
+    await nextFrame();
+    document.body.append(el);
+  },
+  'changed while out (B)': async (el, n) => {
+    el.remove();
+    await nextFrame();
+    el.setAttribute(n, 'B');
+    await nextFrame();
+    document.body.append(el);
+  },
+  'changed to empty while out': (el, n) => {
+    el.remove();
+    el.setAttribute(n, '');
+    document.body.append(el);
+  },
+  'changed and moved in one task (B)': (el, n) => {
+    el.setAttribute(n, 'B');
+    document.body.prepend(el);
+  },
+};
+
+for (const origin of ['before connect', 'after connect'] as const) {
+  for (const [what, act] of Object.entries(LOSSES)) {
+    it(`${origin}: ${what}`, async () => {
+      const results = new Map<string, string[]>();
+      for (const n of NAMES) {
+        document.body.replaceChildren();
+        const target = document.createElement('div');
+        const el = host((h) => useARIA(h, target));
+        const box = document.createElement('div');
+        document.body.append(document.createElement('i'), box);
+        if (origin === 'before connect') el.setAttribute(n, 'A');
+        box.append(el);
+        if (origin === 'after connect') el.setAttribute(n, 'A');
+        await nextFrame();
+        if (target.getAttribute(n) !== 'A') throw Error(`not mirrored ${n}`);
+        await act(el, n);
+        await nextFrame();
+        const key = `host ${JSON.stringify(el.getAttribute(n))} target ${JSON.stringify(target.getAttribute(n))}`;
+        results.set(key, [...(results.get(key) ?? []), n]);
+      }
+      read(
+        `${NAMES.length} names, set ${origin}, ${what}`,
+        Object.fromEntries([...results].map(([k, v]) => [k, v.length])),
+      );
+    }, 120_000);
+  }
+}
+
+it('reflected property, set to null while out', async () => {
+  const target = document.createElement('div');
+  const el = host((h) => useARIA(h, target));
+  el.ariaLabel = 'A';
+  document.body.append(el);
+  await nextFrame();
+  const before = target.getAttribute('aria-label');
+  el.remove();
+  el.ariaLabel = null;
+  document.body.append(el);
+  await nextFrame();
+  read('ariaLabel = null while out', [before, target.getAttribute('aria-label')]);
+});
+
+it('several connects', async () => {
+  const target = document.createElement('div');
+  const calls: string[] = [];
+  const el = host((h) =>
+    useARIA(h, target, (n, v) => {
+      calls.push(`${n}=${v}`);
+      return v;
+    }),
+  );
+  const log: unknown[] = [];
+  const at = async () => {
+    await nextFrame();
+    log.push([
+      target.getAttributeNames().map((n) => `${n}=${target.getAttribute(n)}`),
+      calls.splice(0),
+    ]);
+  };
+  el.setAttribute('aria-label', 'A');
+  document.body.append(el);
+  await at();
+  el.setAttribute('aria-details', 'd');
+  await at();
+  el.remove();
+  el.removeAttribute('aria-label');
+  document.body.append(el);
+  await at();
+  el.remove();
+  document.body.append(el);
+  await at();
+  el.remove();
+  el.setAttribute('aria-label', 'B');
+  el.removeAttribute('aria-details');
+  document.body.append(el);
+  await at();
+  el.remove();
+  el.removeAttribute('aria-label');
+  document.body.append(el);
+  await at();
+  el.setAttribute('aria-label', 'C');
+  await at();
+  el.removeAttribute('aria-label');
+  await at();
+  read('several connects: [target, transformer calls] after each step', log);
+});
+
+it('attributes outside the namespace, and never mirrored', async () => {
+  const target = document.createElement('div');
+  const own = ['role', 'title', 'data-x', 'aria-expanded', 'aria-haspopup', 'ariaish'];
+  for (const n of own) target.setAttribute(n, 'own');
+  const calls: string[] = [];
+  const el = host((h) =>
+    useARIA(h, target, (n, v) => {
+      calls.push(n);
+      return v;
+    }),
+  );
+  for (const n of ['role', 'title', 'data-x', 'ariaish']) el.setAttribute(n, 'h');
+  document.body.append(el);
+  await nextFrame();
+  el.remove();
+  for (const n of ['role', 'title', 'data-x', 'ariaish']) el.removeAttribute(n);
+  document.body.append(el);
+  await nextFrame();
+  // On the host only while it is out: the hook never mirrors these.
+  el.remove();
+  el.setAttribute('aria-expanded', 'h');
+  await nextFrame();
+  el.removeAttribute('aria-expanded');
+  document.body.append(el);
+  await nextFrame();
+  // On the host within one task, and moved: no record is delivered.
+  el.setAttribute('aria-haspopup', 'h');
+  el.removeAttribute('aria-haspopup');
+  document.body.prepend(el);
+  await nextFrame();
+  read(
+    'never mirrored: target, and transformer calls',
+    [own.map((n) => `${n}=${target.getAttribute(n)}`), calls],
+  );
+});
+
+it("the target's own value, written after the host lost the name", async () => {
+  const target = document.createElement('div');
+  const el = host((h) => useARIA(h, target));
+  el.setAttribute('aria-expanded', 'A');
+  document.body.append(el);
+  await nextFrame();
+  el.removeAttribute('aria-expanded');
+  await nextFrame();
+  target.setAttribute('aria-expanded', 'own');
+  await nextFrame();
+  const connected = target.getAttribute('aria-expanded');
+  document.body.prepend(el);
+  await nextFrame();
+  const moved = target.getAttribute('aria-expanded');
+  target.setAttribute('aria-expanded', 'own');
+  el.remove();
+  document.body.append(el);
+  await nextFrame();
+  read("host had it and lost it while connected, then the target's own value: before the move, after a move, after another", [
+    connected,
+    moved,
+    target.getAttribute('aria-expanded'),
+  ]);
+});
+
+it('two hooks on one host', async () => {
+  const a = document.createElement('div');
+  const b = document.createElement('div');
+  const el = host((h) => {
+    useARIA(h, a);
+    useARIA(h, b, (_, v) => v ?? 'F');
+  });
+  el.setAttribute('aria-label', 'A');
+  document.body.append(el);
+  await nextFrame();
+  el.removeAttribute('aria-label');
+  document.body.prepend(el);
+  await nextFrame();
+  read('two hooks on one host', [a.getAttribute('aria-label'), b.getAttribute('aria-label')]);
+});
+
+it('reading', () => {
+  expect.fail(`\n${rows.join('\n')}\nEND`);
+});
