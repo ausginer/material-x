@@ -80,7 +80,7 @@ export const stateSnippet = `mx-top-app-bar:state(scrolled) {
 
 ## Scrolled state
 
-The bar matches `:state(scrolled)` while the document is scrolled away from its start, and its container changes color. The state is the platform's, as `:hover` is: nothing sets it and no event reports it. A bar that isn't rendered isn't in the state, and a bar that the page shows or inserts while the document is scrolled draws its resting color and then changes.
+The bar matches `:state(scrolled)` while the document is scrolled away from its start, and its container changes color. The state is the platform's, as `:hover` is: nothing sets it and no event reports it. A bar in the page that isn't rendered isn't in the state, so one that the page shows while the document is scrolled draws its resting color and then changes. So does a bar that is inserted there for the first time. A bar that the page removes keeps its state: inserted again, it draws the color that it had, and changes if the scroll position no longer matches.
 
 <Source code={stateSnippet} language="css" />
 

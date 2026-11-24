@@ -20,8 +20,8 @@ export type TopAppBarCSSProperties = Readonly<{
  * document's start. The side margins are larger than a page, so that scrolling
  * sideways doesn't move the target out of the area. The top one is the length
  * that the state follows in one jump, and isn't larger, because with
- * 100000000px WebKit misses the first pixel. The threshold is above 0, because the target touches the area
- * at the start, and a touch isn't a crossing.
+ * 100000000px WebKit misses the first pixel. The threshold is above 0, because
+ * the target touches the area at the start, and a touch isn't a crossing.
  */
 const SCROLL_OBSERVER_OPTIONS: IntersectionObserverInit = {
   root: document,
@@ -44,8 +44,8 @@ const SCROLL_OBSERVER_OPTIONS: IntersectionObserverInit = {
  * @slot lead - The navigation icon.
  * @slot trail - The actions.
  *
- * @cssstate scrolled - The bar is rendered, and the document is scrolled away
- * from its start.
+ * @cssstate scrolled - The document is scrolled away from its start while the
+ * bar is rendered. A removed bar keeps the state that it had.
  *
  * @cssprop --md-top-app-bar-container-color - Overrides the container color at the document's start.
  * @cssprop --md-top-app-bar-on-scroll-container-color - Overrides the container color while the document is scrolled.

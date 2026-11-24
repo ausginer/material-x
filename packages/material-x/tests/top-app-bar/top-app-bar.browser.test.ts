@@ -439,6 +439,27 @@ describe('mx-top-app-bar position', () => {
   });
 });
 
+describe('mx-top-app-bar scroll start', () => {
+  it("should neither draw nor take a hit at the page's corner", async () => {
+    const bar = createPage();
+    const button = document.createElement('button');
+    button.style.cssText =
+      'position: fixed; inset: 0 auto auto 0; z-index: 2; inline-size: 40px; block-size: 40px; border: 0;';
+    document.body.append(button);
+    await observed();
+
+    expect.soft(document.elementFromPoint(0.5, 0.5)).toBe(button);
+    expect
+      .soft(
+        bar.shadowRoot!.querySelector('.scroll-start')!.checkVisibility({
+          visibilityProperty: true,
+          opacityProperty: true,
+        }),
+      )
+      .toBe(false);
+  });
+});
+
 describe('mx-top-app-bar accessibility', () => {
   it('should hold only its three slots and the scroll start in its shadow root', () => {
     const bar = createPage();

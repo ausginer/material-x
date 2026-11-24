@@ -385,3 +385,15 @@ By the architect, 2026-11-24, on the [report](../reviews/top-app-bar-1/feature-p
 **Then the owner** records the two baselines (`RD-13`) on the merged head, and merges.
 
 **Limits of this section:** no suite was run, and the row isn't written. The row's reading is on edits of the built box, outside Vitest. Firefox and Chromium weren't read under a page zoom.
+
+## The disposition of the second recheck implemented 2026-11-24
+
+On `material-x/top-app-bar-1` from `e365bcc5f`, with `origin/main` at `f9729a393` merged as `eb3171c7f`.
+
+- **The merge:** the two conflicts of item 1, resolved as it says, and no conflict elsewhere. **One edit beyond item 1:** `packages/material-x/tests/__snapshots__/traits-baseline.json` gains `"CardLike": false` on the bar, because `main` brings the card's trait and the snapshot lists each trait for each element. The bar's row fails without it. It is in the merge commit.
+- **Source:** the two texts, as given, and the comment wrapped. No code or style changes.
+- **Test:** one row in `top-app-bar.browser.test.ts`, with the two assertions soft, so that a run reports both.
+- **Witnesses** ([reading](checks/mutations-3.txt), [script](probes/mutations-3.mjs)): the three engines agree with the table. Without `visibility: hidden` both assertions fail. With `opacity: 0` in its place only the hit fails, and with `pointer-events: none` only the visibility. No other row fails. The unchanged styles pass.
+- **Checks, on the merged tree:** the suite without the visual project, with the node project, in Chromium: 1202 passed and 2 expected failures. The bar, the traits snapshot, the card and the elevation core in Firefox and in WebKit: 159 passed and 5 skipped in each. Format, lint, typecheck, publint and `docs-build` pass, and `docs-smoke` passes 121 of 121 pages.
+- **Size, Brotli, on the merged tree:** `top-app-bar/top-app-bar` 1449 B, as expected, and `complete` 23461 B.
+- **Departure from the disposition:** the snapshot's line only. Neither stop of item 7 was reached. Not run: Safari, and the visual project.
