@@ -1,0 +1,42 @@
+// The component's own aria-* when the host has the same name, and loses it
+// while the element is out, after the component wrote its own. Run as the other
+// probe in packages/material-x/tests/.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/link-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/list/list-link-item.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+const rows: string[] = [];
+const OWN: ReadonlyArray<readonly [string, string, string]> = [
+  ['mx-text-field', 'aria-invalid', 'error'],
+  ['mx-text-field', 'aria-required', 'required'],
+  ['mx-switch-button', 'aria-checked', 'checked'],
+  ['mx-link-button', 'aria-disabled', 'disabled'],
+  ['mx-list-link-item', 'aria-current', 'selected'],
+];
+for (const [tag, aria, attr] of OWN) {
+  for (const way of ['removed while out', 'removed while out, then moved again', 'attribute set while out too']) {
+    it(`${tag} ${aria} ${way}`, async () => {
+      const el = document.createElement(tag);
+      el.setAttribute(aria, 'true');
+      document.body.append(el);
+      await nextFrame();
+      if (!way.startsWith('attr')) el.setAttribute(attr, '');
+      await nextFrame();
+      el.remove();
+      await nextFrame();
+      el.removeAttribute(aria);
+      if (way.startsWith('attr')) el.setAttribute(attr, '');
+      await nextFrame();
+      document.body.append(el);
+      if (way.includes('again')) { await nextFrame(); document.body.prepend(el); }
+      await nextFrame();
+      rows.push(`READ ${server.browser} | ${tag} has ${attr}, host ${aria} ${way} | ${el.shadowRoot!.querySelector('.input, .host')!.getAttribute(aria)}`);
+      el.remove();
+    });
+  }
+}
+it('reading', () => expect.fail(`\n${rows.join('\n')}\nEND`));
