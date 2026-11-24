@@ -188,7 +188,7 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `.agents/docs/coordinator.md`, `coordinator-setup.md` | Operation — local Codex or Claude coordination, owner-relayed or directly sent handoffs and Claude role startup |
 | `.agents/docs/work-queue.md` | Operation — the rules for the work queue on GitHub |
 | `.agents/docs/findings.md` | Operation — how an issue that is a finding is written, read, amended and closed |
-| GitHub Issues and the `Work queue` board | The work queue — what is next and whom it waits on, never a reason (`work-queue.md`). An issue with a `tier:` label is a finding too, and its body is its contract (`findings.md`) |
+| GitHub Issues and the `Work queue` board | The work queue — what is next and whom it waits on, never a reason (`work-queue.md`), except an issue with a `tier:` label, whose body is its contract (`findings.md`) |
 | Other files under `.agents/docs/` | Convention, operation, design reference or retired measurement record — consulted, not resident |
 | `.claude/agents/` | Operation — the role definitions, and the store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |

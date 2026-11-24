@@ -2,23 +2,29 @@
 
 > Retrieved before reading a finding that a prompt pins as `#N rM`, and before writing one.
 
-An issue with a `tier:` label is a finding, and its body is the finding's contract. Only the finding that the trial of `repo:RD-56` names has the label. Every other finding is registered in its scope's register, as [review findings](review-findings.md) says. [`work-queue.md`](work-queue.md) governs the finding's place in the queue.
+An issue with a `tier:` label is a finding, and its body is the finding's contract. Only the finding that the trial of `repo:RD-56` names has the label. Every other finding is registered in its scope's register, as [review findings](review-findings.md) says. [`work-queue.md`](work-queue.md) governs the finding's place in the queue. Where another document says otherwise of such an issue, this one applies.
+
+A finding is one issue, from its observation to its closure.
 
 ## Address
 
 - **The address is `#N`,** and `ausginer/material-x#N` outside the repository.
 - **The title is plain words,** without an address.
-- **A code comment may carry `(#N)` as its one bare pointer** ([documentation, §5.2](documentation.md#52-internal-comments)). Published JSDoc never carries it.
+- **A code comment may carry `(#N)` as its one bare pointer.** Published JSDoc never carries it.
 - **A commit message may name `#N`,** with no closing keyword.
 
 ## Reading
 
+A prompt names a finding as `#N rM` and copies none of its text.
+
 1. Run `node .scripts/finding.ts <number> r<revision>` with the pinned revision.
 2. When the tool refuses, or the revision is later than the pinned one, stop and report it.
 
+Without a revision, the tool prints the current one. A writer, or the coordinator that writes the prompt, learns `M` that way.
+
 The body alone is the contract. An amendment explains a change and isn't a source. No other comment is part of the contract.
 
-**Only text by `Lodin` with the architect's stamp is the contract.** A stamp isn't a proof, because every agent writes as that account.
+**Only text by `Lodin`, the owner's account, with the architect's stamp is the contract.** A stamp isn't a proof, because every agent writes as that account.
 
 ## The body
 
@@ -46,6 +52,7 @@ Revision 0
 — ARCHITECT
 ```
 
+- **`Revision N`** is the number of the last amendment, and 0 at registration.
 - **The description** is bounded as an issue's description is in [`work-queue.md`](work-queue.md#issues).
 - **The first four headings are always present.** _Not read_ and _Questions_ are present only when they have something.
 - **A question** has its options, the recommendation and, once there is one, the answer.
@@ -69,31 +76,44 @@ Nobody edits an amendment after it is posted. A correction is the next amendment
 
 ## Registering
 
-1. Filter the open issues locally for the same subject ([Searching](#searching)).
-2. Create the issue from [the body's form](#the-body) with `Revision 0`, the `tier:` label and the `pkg:` labels.
+The main slot's architect registers.
+
+1. Compare the subject with every issue that the command in [Searching](#searching) lists, unfiltered and of every state, and with the scope's register.
+2. Create the issue from [the body's form](#the-body) with `Revision 0` and the `tier:` label.
 3. Lock it with `gh issue lock`.
 4. Run the tool.
 
-**From an `unregistered` issue by the owner's account:** write the body into that issue as `Revision 1`, post Amendment 1, remove the `unregistered` label, set the `tier:` and `pkg:` labels, then lock it and run the tool.
+**From an `unregistered` issue by the owner's account:** write the body into that issue as `Revision 1`, post Amendment 1, set the `tier:` label, then lock it and run the tool.
+
+The coordinator sets the package or `repo` label and removes `unregistered`, as [`work-queue.md`](work-queue.md#labels) says.
 
 **An issue that another account opened is never made a finding.** The architect opens a new one, and the coordinator closes the other with a link to it.
 
 ## Amending
 
-In this order:
+First read the issue's other comments. A comment of the owner's is recorded as an amendment. Then, in this order:
 
 1. Run the tool at the current revision.
-2. Edit the body with `gh issue edit --body-file`, with the next `Revision`.
+2. Edit the body with `gh issue edit --body-file`, with the next `Revision`. Set the label of a changed tier with this edit.
 3. Post the amendment with `gh issue comment --body-file`.
 4. Run the tool at the new revision.
 
-A change of tier is an amendment, and the body then has a new revision with no other change. A refusal at any step stops the work.
+A change of tier is an amendment, and the body then has a new revision with no other change.
+
+## A fault
+
+A role that isn't the architect stops at a refusal and reports it. The architect repairs the finding:
+
+- **An amendment that is out of form or out of number** is deleted with every later one. They are posted again in order, each with its text.
+- **A body edited without an amendment, or by another account,** gets the next revision by [Amending](#amending), without the first run of the tool.
+
+The next amendment, or the one posted again, names the fault.
 
 ## Writers
 
-- **The architect alone** writes the body, the amendments and the `tier:` label.
-- **The coordinator** writes what `work-queue.md` says, and never the body. The architect amends a description that no longer holds.
-- **The owner** answers in chat. The architect records the answer as an amendment, in English.
+- **The architect alone** writes the body, the amendments, the `tier:` label, the lock and the acceptance.
+- **The coordinator** writes the rest, as `work-queue.md` says, and never the body. The architect amends a description that no longer holds.
+- **The owner** answers in chat. The architect records the answer as an amendment, in English. When the coordinator then moves the item, its comment names the amendment.
 - **An implementer or a reviewer** writes only its pull request or its report.
 
 ## Evidence
@@ -105,9 +125,9 @@ A change of tier is an amendment, and the body then has a new revision with no o
 
 ## Closing
 
-Before the merge, the architect comments _Accepted for closure at `<sha>`_ with what the acceptance rests on. The pull request says `Closes #N`, and the rest is [`work-queue.md`'s](work-queue.md#closing).
+Before the merge, the architect reads the issue's other comments, as before an amendment, and then comments _Accepted for closure at `<sha>`, revision N_ with what the acceptance rests on. A later amendment needs a new acceptance. The pull request says `Closes #N`, and the rest is [`work-queue.md`'s](work-queue.md#closing). Without a pull request, the acceptance comes before the coordinator's closing comment.
 
-A finding that comes back is the same issue, reopened, with an amendment.
+The issue's state is the finding's status. A finding that comes back is the same issue: the coordinator reopens it, and the architect amends it.
 
 ## What isn't a finding
 
@@ -116,7 +136,7 @@ A finding that comes back is the same issue, reopened, with an amendment.
 
 ## Searching
 
-List the findings of every state, and filter them locally for a `tier:` label:
+List the issues of every state. For the findings, filter the list locally for a `tier:` label:
 
 ```sh
 gh issue list --state all --limit 1000 --json number,title,body,labels
