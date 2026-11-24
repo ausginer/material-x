@@ -2430,7 +2430,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Clause 2 is amended:** the shadow root still holds only the slot, and the slot generates no box. The content is laid out in the host.
 - **Clause 3 is amended again:** the host draws the padding, `!important`, with `box-sizing: border-box`, `!important`, and the slot draws nothing. The note above left the padding on the slot, where an inline scroll reached its end with 0px after the content. On the host it is a plain box's padding in both axes.
 - **Clause 4 stands, with `position: relative` given its reason:** the card is the containing block of its content's absolutely positioned elements, and its shadow paints over the next block's background.
-- **Costs:** a page's `padding` on `mx-card` is ignored, where it was added to the slot's. `--md-card-padding` is the one way to set it.
+- **Costs:** a page's `padding` on `mx-card` is ignored, where it was added to the slot's. `--md-card-padding` is the one way to set it. The card can't be smaller than its padding, 32px in each axis by default, as a `div` with `border-box` can't. With `block-size: 10px` it was 10px high. This was read on the implementation and accepted the same day.
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
