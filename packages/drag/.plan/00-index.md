@@ -3264,6 +3264,20 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 - **Rows,** in each engine and in the consumer project against the published build (`DRD-54`): a mouse drag reports `'pointer'`, once. An arrow key reports `'command'`, once, before `onReorder`. After a command, the next pointer drag reports `'pointer'`. A key at the edge, and one that `data-drag-ignore` declines, call no `onStart`. Emulated touch reports `'pointer'`, in Chromium. **Witness:** each kind passed for the other fails its row. A declaration test, beside `DRD-39`'s: an `onStart` that takes only the item is accepted, and `SortableOperationKind` is exported.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: implemented on `drag/command-signal-1`, from `44c041ddf`, for #228, and not closed.** Requested by the coordinator. The contract states it now, so the heading's _"Unimplemented, and the contract doesn't state it yet"_ no longer holds.
+
+- **Source:** `SortableOperation.start` passes the kind, from the direction that it already keeps. `sortable/domain.ts` declares `SortableOperationKind`, and `sortable.js` exports it. The kernel, the request, the results and `freeDrag` don't change.
+- **Documents:** the contract's public surface has properties 1 to 3 and the type, and the change record a row. The README had no text on what an arrow key does, so a paragraph is new. The API documents are built from the JSDoc.
+- **Rows:** `keyboard.browser.test.ts` has seven, with emulated touch in Chromium only, in the source and the consumer project. `published-types.declaration.test.ts` has two.
+- **Witnesses** ([reading](../../../.plan/command-signal-1/checks/mutations.txt), [script](../../../.plan/command-signal-1/probes/mutations.mjs)), in Chromium, Firefox and WebKit, one at a time, in both projects:
+  - A pointer's kind for a command fails the row of the arrow key and the row of the drag after it, and no other. A command's kind for a pointer fails the mouse's, the touch's and the row of the drag after a command, and no other. The kinds exchanged, and no kind, fail each of them.
+  - A second `onStart` at the drop fails the rows that count it. A start at a key at the edge fails the edge's row, and a `data-drag-ignore` that declines nothing fails its row.
+  - Without the export, and with an `onStart` that takes no kind, `tsc` fails in the declaration rows.
+- **Suites,** one engine at a time, source, shipped and consumer projects: Chromium 876 passed; Firefox 856 passed and 20 skipped; WebKit 856 passed and 20 skipped. Node project: 49 passed. Typecheck, format and lint pass.
+- **Size,** as the entry's reading: minified +35 on each, Brotli "sortable + y" 6533 to 6538, "sortable + xy" 6484 to 6506, "complete" 7143 to 7156. The three ceilings are those readings (`DRO-20`). Every other row reads 0, and "draggable alone" is 2189.
+- **The bench:** the two injections' `find` and `replace` follow the new text, and each applies with `--dry --only`. **Found beside it:** `--prove --dry` and `--floors --dry` stop at another injection, _one forced layout per move_ and its floors, whose `find` is `this.#lift.translate(drag.x - drag.originX, …)`, and the source has `this.#drag.x`. It isn't this unit's text, so it isn't repaired. Not registered: the architect's.
+- **Not run:** Safari, a touch device, and the bench itself.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).

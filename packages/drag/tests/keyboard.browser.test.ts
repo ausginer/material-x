@@ -6,8 +6,14 @@
 import { describe, expect, it } from 'vitest';
 import { cdp } from 'vitest/browser';
 import {
+  ReorderResolution,
+  type SortableOperationKind,
+} from '../src/sortable.ts';
+import {
   basicSortable,
+  centerOf,
   commands,
+  dragAndDrop,
   focusableList,
   frames,
   grab,
@@ -128,6 +134,83 @@ describe('drag:DRI-14 commands', () => {
     expect(prevented).toEqual([false]);
     expect(log).toEqual([]);
     expect(order(list)).toBe('r0,r1,r2');
+  });
+});
+
+describe("drag:DRD-71 onStart's operation kind", () => {
+  /** A sortable that logs each start's kind, and each reorder. */
+  function kindSortable(list: HTMLElement): void {
+    basicSortable(list, {
+      onStart(_, kind: SortableOperationKind) {
+        log.push(`start:${kind}`);
+      },
+      onReorder({ item, next }) {
+        log.push('reorder');
+        list.insertBefore(item, next);
+        return ReorderResolution.accept();
+      },
+    });
+  }
+
+  it("should report 'pointer' once for a mouse drag", async () => {
+    kindSortable(focusableList(4));
+    await dragAndDrop('#r1', 90);
+    expect(log).toEqual(['start:pointer', 'reorder', 'end:accepted']);
+  });
+
+  it.runIf(isChromium)(
+    "should report 'pointer' once for a touch drag",
+    async () => {
+      kindSortable(focusableList(4));
+
+      const { x, y } = centerOf('#r0');
+
+      await commands.touch('touchStart', [{ id: 1, x, y }]);
+      await commands.touch('touchMove', [{ id: 1, x, y: y + 20 }]);
+      await commands.touch('touchMove', [{ id: 1, x, y: y + 50 }]);
+      await frames();
+      await commands.touch('touchEnd', []);
+      await frames();
+      expect(log).toEqual(['start:pointer', 'reorder', 'end:accepted']);
+    },
+  );
+
+  it("should report 'command' once for an arrow key, before onReorder", async () => {
+    kindSortable(focusableList(3));
+    row('r0').focus();
+    await commands.keyPress('ArrowDown');
+    await frames();
+    expect(log).toEqual(['start:command', 'reorder', 'end:accepted']);
+  });
+
+  it("should report 'pointer' for the drag after a command", async () => {
+    kindSortable(focusableList(4));
+    row('r0').focus();
+    await commands.keyPress('ArrowDown');
+    await frames();
+    await dragAndDrop('#r2', 50);
+    expect(log.filter((entry) => entry.startsWith('start'))).toEqual([
+      'start:command',
+      'start:pointer',
+    ]);
+  });
+
+  it('should report no start for an arrow key at the edge', async () => {
+    kindSortable(focusableList(3));
+    row('r2').focus();
+    await commands.keyPress('ArrowDown');
+    await frames();
+    expect(log).toEqual([]);
+  });
+
+  it('should report no start for an arrow key that data-drag-ignore declines', async () => {
+    const list = makeList(3);
+
+    kindSortable(list);
+    focusedInput('r1', true);
+    await commands.keyPress('ArrowRight');
+    await frames();
+    expect(log).toEqual([]);
   });
 });
 

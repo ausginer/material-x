@@ -26,7 +26,7 @@
 | `lift.js` | `Lifter`, and the types `Lift` and `Landing` |
 | `lift/landing.js` | `landing` |
 | `fault.js` | `DragFault` |
-| `sortable.js` | `sortable`, `ReorderResolution` |
+| `sortable.js` | `sortable`, `ReorderResolution`, and the types that `sortable`'s options, request and results name, including `SortableOperationKind` |
 | `sortable/y.js`, `sortable/xy.js` | `y`, `xy` |
 | `sortable/landing.js`, `sortable/layout-animation.js` | `landing`, `layoutAnimation` |
 | `free-drag.js` | `freeDrag`, `FreeDragResolution` |
@@ -38,6 +38,8 @@ Each landing entry also exports the types `Landing`, `LandingOptions` and `Landi
 **A type that a published signature names is exported from an entry,** so a consumer can name every type it is given or must supply. The exception is the `axis` and `displacement` slots' installer types, which are not published (`DRD-39`).
 
 `@ydinjs/box-quad` is the coordinate API for behaviors. This package does not re-export it. The `sortable` and `freeDrag` options are those of the prototype's `sortable.ts` and `free-drag.ts`, with the changes below. **A callback in those options receives only the values its type documents, in an object of its own.** It never receives the kernel's `Drag` or a behavior's operation.
+
+**`sortable`'s `onStart(item, kind)` says how the operation runs** (`DRD-71`). `kind` is `'pointer'` for an operation that `admit` admitted, by mouse, touch or pen, and `'command'` for one that `command` admitted, which is an arrow key. The kinds are told apart by how the operation runs, not by its device: a `'command'` is complete in one run, and its drop follows `onStart` with no pointer between them, unless `onStart` cancels or destroys. No method of `SortableController` starts an operation, so a consumer has no command of its own. `freeDrag`'s `onStart` has no kind, because `freeDrag` runs no command.
 
 **Capabilities.** An option of `sortable` or `freeDrag` that holds a capability, and `land`'s `Landing`, are slots. A host calls a capability only from its own hooks and steps. A capability holds no controller or operation state, so one configuration serves every controller. A per-operation capability receives the operation's `Drag` narrowed by type, and that operation holds what it returns. **A geometry cache that lasts as long as the controller,** such as `bounds`' box, is measured again in each operation before that operation first uses it. The required properties are C1 to C10 of `DRD-33`. A third party may fill a slot whose type is published. The `axis` and `displacement` slots' types are not published.
 
@@ -370,6 +372,7 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-24 | Public surface | **Added:** `sortable`'s `onStart` takes a second argument, the operation's kind, and `sortable.js` exports its type `SortableOperationKind`. It used to take the item alone. The row of `sortable.js` also names the types it already exported. `DRD-71` |
 | 2026-11-15 | Public surface | **Changed:** a member of a controller, of a `Lifter` or of a `Drag` is called on its object, and the contract makes no statement about calling one detached. `cancelLanding` is passed to `use` with the lifter as its receiver. It used to say that `DraggableController`'s methods may depend on the controller as their receiver, and that the members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. `DRD-69` |
 | 2026-11-15 | `DRI-6` | **Removed:** development builds no longer count refused events. The suite counts them from outside the library, against the source and the published build. It used to say that development builds count each event a running pass refuses once. `DRD-67` |
 | 2026-11-15 | `DRI-14` | **Added:** the term `y()` depends on, that moving the placeholder moves only the items it crosses, by one distance; that a block column whose margins collapse on both sides of an item doesn't meet it unless the placeholder has the items' margins; and the precision of `y()`'s geometry, 1/16 px, under which a pointer within 1/8 px of equidistant from two centers may give either gap. No behavior changes. The paragraph used to state no term that excluded collapsing margins, and no precision. `DRD-65`, `DRF-46`, `DRF-47` |

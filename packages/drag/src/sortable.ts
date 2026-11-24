@@ -13,6 +13,7 @@ import {
   type SortableAcceptedResult,
   type SortableCanceledResult,
   type SortableNoopResult,
+  type SortableOperationKind,
   type SortableRejectedResult,
   type SortableResult,
 } from './sortable/domain.ts';
@@ -30,6 +31,7 @@ export type {
   SortableAcceptedResult,
   SortableCanceledResult,
   SortableNoopResult,
+  SortableOperationKind,
   SortableRejectedResult,
   SortableConfig,
   SortableResult,
