@@ -37,12 +37,6 @@ export interface ElementController {
   adopted?(): void | Promise<void>;
 
   /**
-   * Invoked when the host is moved within the DOM without being disconnected
-   * (for example via `moveBefore`).
-   */
-  moved?(): void | Promise<void>;
-
-  /**
    * Invoked when the host is associated with a form.
    */
   formAssociated?(): void | Promise<void>;
@@ -125,12 +119,6 @@ export interface CustomElement {
   adoptedCallback(): void;
 
   /**
-   * Invoked when the host is moved within the DOM without being disconnected
-   * (for example via `moveBefore`).
-   */
-  movedCallback(): void;
-
-  /**
    * Invoked when the host is associated with a form.
    */
   formAssociatedCallback(): void;
@@ -211,12 +199,6 @@ export class ControlledElement extends HTMLElement implements CustomElement {
   adoptedCallback(): void {
     forEachMaybePromise(this.#controllers, (controller) =>
       controller.adopted?.(),
-    );
-  }
-
-  movedCallback(): void {
-    forEachMaybePromise(this.#controllers, (controller) =>
-      controller.moved?.(),
     );
   }
 
