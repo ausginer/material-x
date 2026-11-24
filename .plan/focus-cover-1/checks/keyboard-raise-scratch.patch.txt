@@ -1,0 +1,76 @@
+diff --git a/packages/material-x/src/button-group/connected-button-group.ts b/packages/material-x/src/button-group/connected-button-group.ts
+index add0d3f7c..955b9b5d1 100644
+--- a/packages/material-x/src/button-group/connected-button-group.ts
++++ b/packages/material-x/src/button-group/connected-button-group.ts
+@@ -1,11 +1,14 @@
++import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+ import { useRovingTabindex } from '@ydinjs/core/controllers/useRovingTabindex.js';
+ import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
+ import {
+   ControlledElement,
++  internals,
+   type ControlledElementConstructor,
+ } from '@ydinjs/core/element.js';
+ import type { Checkable } from '@ydinjs/core/traits/checkable.js';
+ import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
++import { toggleState } from '@ydinjs/core/utils/DOM.js';
+ import type { ButtonLike } from '../button/ButtonCore.ts';
+ import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
+ import {
+@@ -58,6 +61,18 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
+ 
+     useRovingTabindex(this);
+ 
++    const innards = internals(this);
++    const update = () => {
++      toggleState(
++        innards,
++        'focus-visible',
++        Array.from(this.children).some((member) =>
++          member.shadowRoot?.activeElement?.matches(':focus-visible'),
++        ),
++      );
++    };
++    useEvents(this, { focusin: update, keydown: update });
++
+     useSlot(this, 'slot', (slot) => {
+       // The slot's elements, without the text and comment nodes between them.
+       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+diff --git a/packages/material-x/src/button-group/styles/connected/main.styles.css b/packages/material-x/src/button-group/styles/connected/main.styles.css
+index dc465c28c..12b56a636 100644
+--- a/packages/material-x/src/button-group/styles/connected/main.styles.css
++++ b/packages/material-x/src/button-group/styles/connected/main.styles.css
+@@ -38,4 +38,13 @@
+     --_border-radius: var(--_inner-corner) var(--_outer-corner)
+       var(--_outer-corner) var(--_inner-corner);
+   }
++
++}
++
++:host(:state(focus-visible)) ::slotted(:focus) {
++  --_focus-z-index: 1;
++}
++
++:host(:state(focus-visible):focus-within) {
++  isolation: isolate;
+ }
+diff --git a/packages/material-x/src/button/styles/default/main.styles.css b/packages/material-x/src/button/styles/default/main.styles.css
+index a7b2e2391..6ded866a1 100644
+--- a/packages/material-x/src/button/styles/default/main.styles.css
++++ b/packages/material-x/src/button/styles/default/main.styles.css
+@@ -48,6 +48,7 @@
+       ) /
+       2
+   );
++  --_focus-z-index: auto;
+   display: contents;
+ }
+ 
+@@ -101,6 +102,7 @@
+ .host:focus-visible {
+   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+   outline-offset: var(--_focus-indicator-outline-offset);
++  z-index: var(--_focus-z-index);
+ }
+ 
+ /*
