@@ -1,5 +1,5 @@
 import subprocess,re,collections,json
-def sh(*a): 
+def sh(*a):
     r=subprocess.run(a,capture_output=True,text=True); return r.stdout
 log=sh('git','log','origin/main','--since=2026-11-10T00:00:00','--first-parent','--format=@%h|%ad|%s','--date=short','--numstat')
 cs=[]

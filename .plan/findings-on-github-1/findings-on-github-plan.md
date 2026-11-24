@@ -1,8 +1,6 @@
 # Findings on GitHub — plan
 
-**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). Stages 1 to 3 are authorized and stage 1 is next. No document, tool, label or issue has changed yet.** The architect proposed it on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
-
-**On 2026-11-24 the owner approved the start of stages 1 and 2,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. The status above is of the acceptance, and stage 1 is on this branch.
+**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is written on this branch and reviewed, and [the rulings](#stage-1-the-reviews-rulings) have its remediation. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
 
 ## The direction
 
@@ -196,7 +194,7 @@ With Q4 (b) and Q5 (b), two losses are larger than in the proposal: a deletion o
 | --- | --- | --- | --- |
 | 1 | **The documents** of stage 1 above, on this branch, with `RD-56` and this plan, in one pull request. _Small_ | Implementer, then a reviewer against this plan | Nothing |
 | 2 | **The tool,** on `repo/finding-tool-1`, stacked on this branch, in its own pull request. _Small_ | Implementer, then a reviewer | Nothing. It can be written beside stage 1 |
-| 3 | **One real finding as a trial,** below. _Small_ | Coordinator, architect, and the unit that repairs it | Stages 1 and 2 on `main` |
+| 3 | **One real finding as a trial,** below. _Small_ | Coordinator, architect, and the unit that repairs it | Stages 1 and 2 on `main`, and **the owner's word** |
 | 4 | **The cut-over:** the freeze commit, the documents of stage 4, and issues for the open entries that have none (#60). One pull request. _Medium_ | Architect for the registers, implementer for the rest | The trial's end, and **the owner's word** |
 | 5 | **A look back** two weeks after stage 4: the same counts again. _Small_ | Architect | Stage 4 |
 
@@ -204,7 +202,7 @@ With Q4 (b) and Q5 (b), two losses are larger than in the proposal: a deletion o
 
 **The trial.**
 
-1. It is the next new finding, after stages 1 and 2 are on `main`, that a unit repairs at once. The coordinator names it and creates the labels `tier:A`, `tier:B` and `tier:C`. It gets no `RF-` or `DRF-` number, and it is the only issue with a tier label. Tier A isn't excluded.
+1. It is the next new finding, after stages 1 and 2 are on `main` and the owner has approved the trial, that a unit repairs at once. The coordinator names it and creates the labels `tier:A`, `tier:B` and `tier:C`. It gets no `RF-` or `DRF-` number, and it is the only issue with a tier label. Tier A isn't excluded.
 2. The main slot's architect opens the issue and runs the tool. The coordinator adds it to the board.
 3. The implementer and a fresh reviewer each get `#N rM` and no copy of its text. Each reports what it couldn't find or had to ask.
 4. It ends when the finding closes. The coordinator gives the owner the reports, the number of amendments, and each refusal of the tool. A trial without an amendment hasn't tried the revision rule, and the coordinator says so.
@@ -212,7 +210,7 @@ With Q4 (b) and Q5 (b), two losses are larger than in the proposal: a deletion o
 
 ## Work list for stages 1 and 2
 
-The text is the implementer's, in [technical English](../../.agents/docs/technical-english.md). The rules and the forms aren't. A rule that can't be written as listed comes back to the architect.
+The text is the implementer's, in [technical English](../../.agents/docs/technical-english.md). The rules and the forms aren't. A rule that can't be written as listed comes back to the architect. **Stage 1's list is as reviewed. Where [the rulings](#stage-1-the-reviews-rulings) differ from it or from the sections above, the rulings govern.**
 
 ### Stage 1: the documents
 
@@ -283,6 +281,58 @@ Branch `repo/findings-on-github-1`, this one.
 6. Checks: `handoff.md`'s Markdown checks. The pull request names `RD-56` and this plan. If an issue for the move exists, it says `Refs #N`.
 
 The reviewer reads: each rule of item 1 is stated once and none is added, nothing outside the trial changes for an issue without a `tier:` label, and no sentence is false while the trial's finding is the only one.
+
+### Stage 1: the review's rulings
+
+Ruled on 2026-11-24 by the architect, on the [feature proof](../reviews/findings-on-github-1/feature-proof-claude.md) at `b8d8dce76` and the implementer's six disagreements, relayed by the coordinator. Nothing is the owner's to answer, and no property of `RD-56` changes.
+
+**One rule replaces most of the repairs: `findings.md` says that it applies wherever another document says otherwise of a finding's issue.** A list of limited statements has to be complete, is matched by hand, and is needed again for each document. One sentence of precedence covers `work-queue.md`, `handoff.md`, `coordinator.md` and `documentation.md` §5.2. Every other sentence that a neighboring document has keeps its meaning for the other issues.
+
+| Finding | Ruling |
+| --- | --- |
+| `reviewer-1` | **Accepted.** The precedence replaces the list. `findings.md` states that a finding is one issue |
+| `reviewer-2` | **Accepted.** Before creation, the architect compares the subject with every issue in the list of _Searching_, unfiltered and of every state, and with the scope's register |
+| `reviewer-3` | **Accepted.** A prompt about a finding pins `#N rM` and copies none of its text. `work-queue.md`'s paragraph says it, because the coordinator reads that file, and a writer reaches `findings.md` through it. No role definition changes |
+| `reviewer-4` | **Accepted.** One way back, below. The label of a changed tier is set with the body's edit |
+| `reviewer-5` | **Accepted.** The owner's comment still counts. Before an amendment and before the acceptance, the architect reads the issue's other comments and records the owner's as an amendment. The tool doesn't change |
+| `reviewer-6` | **Accepted.** The acceptance names the revision, a later amendment needs a new acceptance, the coordinator reopens, and the issue's state is the finding's status. Without a pull request the coordinator's closing comment is as `work-queue.md` says, after the acceptance. The links to the report and the review aren't a rule: the acceptance says what it rests on |
+| `reviewer-7` | **Accepted for `documentation.md` §8,** which contradicts itself. `handoff.md` and `coordinator.md` stay as they are, and the precedence covers them until stage 4. `findings.md` drops its link to §5.2: the sentence on the code comment stands alone. §5.2 changes in stage 4 |
+| `reviewer-8` | **Accepted.** The `AGENTS.md` sentence is one clause, below. `work-queue.md`'s header excepts the pinned finding |
+| `reviewer-9` | 1: **accepted,** the main slot's architect registers. 2 and 3: **the entry stands.** The coordinator sets `pkg:` or `repo`, as for any issue, and `findings.md` names no package label. 4: **accepted** for the meaning of `Revision N` and for the tool without a revision, which prints the current one. _One writer per body at a time_ is dropped: there is one minting architect until stage 4, and no rule enforces it |
+| `reviewer-10` | 1: **accepted,** done in this commit. 2: **accepted,** the account is named once as the owner's, `Lodin`. 3: **accepted.** The whitespace is removed from the probe in this commit, and the description names the range |
+
+**The implementer's disagreements:** 1 accepted, done in this commit. 2 accepted through the precedence, and the coordinator's comment at an answer names the amendment. 3 accepted through the writers below. 4 accepted: `unregistered` means that the observation isn't registered yet. 5 answered below. 6 **rejected**: that the numbers end is true from the cut-over and not before, and `findings.md` says what holds while the trial's finding is the only one. Stage 4 writes it.
+
+**Why it is less:** the paragraph of limited statements goes, and no list is kept. The architect does not set package labels or remove `unregistered`, so the two documents' writers no longer disagree.
+
+**#244 merges first,** and stage 2's pull request, which is stacked on it, is retargeted to `main` after. They needn't merge together: until stage 2 is on `main` no label exists, no prompt pins a finding, and a role that tries has no tool and stops. The trial waits for both.
+
+#### The remediation, for the implementer
+
+On this branch. Four files. The text is the implementer's, and the rules aren't.
+
+1. **`findings.md`:**
+   - opening: where another document says otherwise of such an issue, this one applies. A finding is one issue, from its observation to its closure;
+   - _Address_: no link to `documentation.md` §5.2;
+   - _Reading_: a prompt names a finding as `#N rM` and copies none of its text. Without a revision the tool prints the current one, which is how a writer or the coordinator learns `M`. The owner's account is `Lodin`, said where `Lodin` is first named;
+   - _The body_: `Revision N` is the number of the last amendment, and 0 at registration;
+   - _Registering_: the main slot's architect registers. Step 1 as `reviewer-2`. No `pkg:` label and no removal of `unregistered`. The coordinator does both, as `work-queue.md` says;
+   - _Amending_: a changed tier's label is set with the body's edit in step 2. Before step 1, the architect reads the issue's other comments, and an owner's comment is recorded as an amendment;
+   - _A fault_: a role that isn't the architect stops and reports a refusal, as now. The architect repairs it. An amendment that is out of form or of number is deleted with every later one, and they are posted again in order, each with its text. A body edited without an amendment, or by another account, gets the next revision, and the first run of the tool is left out. The next amendment, or the one posted again, names the fault;
+   - _Writers_: the architect writes the body, the amendments, the `tier:` label, the lock and the acceptance. The coordinator writes the rest, as `work-queue.md` says;
+   - _Closing_: _Accepted for closure at `<sha>`, revision N_. A later amendment needs a new one. Without a pull request, the acceptance comes before the coordinator's closing comment. The coordinator reopens, and the architect amends. The issue's state is the finding's status. When an answer is recorded, the coordinator's comment names the amendment.
+2. **`work-queue.md`:**
+   - the paragraph after the opening is replaced by: an issue with a `tier:` label is a finding, `findings.md` governs what it contains and who writes it and applies where they differ, the other rules here apply to it, and a prompt about it pins its revision;
+   - the header: before reading an issue's text, except the finding that a prompt pins, for which `findings.md` is read instead;
+   - _Writers_: the architect's bullet says that the architect writes a finding's issue as `findings.md` says, and that the coordinator doesn't edit its body. The sentence that other roles write only through the pull request's description names the exception with the implementer's;
+   - _Labels_: `unregistered` is _The observation isn't registered yet, and the architect owes that_.
+3. **`AGENTS.md`:** the added sentences become one: _To read an issue that a prompt pins as `#N rM`, read `findings.md` instead._ with its link, and nothing more.
+4. **`documentation.md` §8:** the row for GitHub Issues: the work queue holds what is next and never a reason, except an issue with a `tier:` label, whose body is its contract. §9's line is as it is.
+5. **#244's description:** `git diff --check` with its range, and what it no longer says. No `pkg:` text is added.
+
+**Checks:** `handoff.md`'s Markdown checks, the root `fmt-check`, links and anchors, and `git diff --check origin/main...HEAD`.
+
+**Recheck: owed, bounded.** By a reviewer who reads the changed sentences against this section, and that no added sentence contradicts another document for an issue without a `tier:` label. It doesn't reread item 1 as a whole.
 
 ### Stage 2: the tool
 

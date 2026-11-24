@@ -2436,13 +2436,13 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
 
-**Accepted 2026-11-24 by the owner, with a trial before the cut-over, and unimplemented.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
 
 **What is in force, and when:**
 
 | Until | A new finding | An entry in a register | Who registers | In force |
 | --- | --- | --- | --- | --- |
-| Stages 1 and 2 are on `main` | `RF-`, `DRF-` or `RQ-` in its register | Changed in the register | The main slot's architect | `RD-1` and `RD-22`, whole. Nothing of this entry but the authority for stages 1 to 3 |
+| Stages 1 and 2 are on `main` | `RF-`, `DRF-` or `RQ-` in its register | Changed in the register | The main slot's architect | `RD-1` and `RD-22`, whole. Nothing of this entry but the authority for stages 1 and 2 |
 | The cut-over | The same, **except the trial's one finding,** which is an issue with a `tier:` label and has no register number | The same | The same, and the main slot's architect for the trial's issue | `RD-1` and `RD-22`, and properties 1 to 8 and 10 for the trial's finding alone |
 | After the cut-over | An issue, `#N` | Frozen. A change goes into its issue (property 9) | Any slot's architect | All the properties, and the supersessions below |
 
@@ -2468,6 +2468,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Why.** The counts of two weeks: 31 of 124 merges conflict in a register, and 19 of them in its findings alone. 19 commits of 95 change only records. The owner names two addresses for one thing. A finding is closed by its repair, so its text is short-lived, and a decision's isn't.
 
 **Why the tool doesn't use `gh issue view`.** `Revision N` is typed by a writer, and `gh issue view` returns neither the body's editor nor the time of its last edit. A body changed under the same number would read as the pinned revision. One GraphQL request returns both, and the tool is no larger.
+
+**Dated 2026-11-24 by the architect, on stage 1's review:** no property changes. The [rulings](findings-on-github-1/findings-on-github-plan.md#stage-1-the-reviews-rulings) have the remediation. The owner approved the start of stages 1 and 2 only, so the table's first row says so. It said _"the authority for stages 1 to 3"_. `findings.md` applies wherever another document says otherwise of a finding's issue, which replaces the plan's list of limited statements. A faulty amendment is deleted and posted again by the architect, which property 2's _nobody edits it afterward_ doesn't cover. Property 4 stands as written: the coordinator sets the package labels.
 
 **Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's, a deletion there has no other copy, two edits of one body at once aren't reported, and a role without a network has no finding. It saves 19 of the 31 conflicts and 2 of the 19 pull requests.
 
