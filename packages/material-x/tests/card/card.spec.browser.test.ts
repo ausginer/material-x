@@ -353,6 +353,31 @@ describe('mx-card content', () => {
     expect(card.getBoundingClientRect().height).toBe(height + 40);
   });
 
+  it('should collapse the margins of adjacent content', () => {
+    const card = createCard(FILLED);
+    const first = card.firstElementChild as HTMLElement;
+    const second = first.cloneNode() as HTMLElement;
+    first.style.marginBlock = '20px';
+    second.style.marginBlock = '20px';
+    card.append(second);
+
+    expect(
+      second.getBoundingClientRect().top - first.getBoundingClientRect().bottom,
+    ).toBe(20);
+  });
+
+  it('should fill its container', () => {
+    const card = createCard(FILLED);
+    const content = card.firstElementChild as HTMLElement;
+    content.style.inlineSize = '100px';
+    const container = document.createElement('div');
+    container.style.inlineSize = '400px';
+    container.append(card);
+    document.body.append(container);
+
+    expect(card.getBoundingClientRect().width).toBe(400);
+  });
+
   it("should include the padding in its size under a page's box-sizing", () => {
     addPageRule('* { box-sizing: content-box !important; }');
     const card = createCard(FILLED);

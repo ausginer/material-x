@@ -83,7 +83,7 @@ On an outlined card, an `outline` that the page sets applies only while the card
 
 - **Role:** The card is a plain container and has no role. Where it is an article or a list item, set the role on it, or put it inside the element that has that role.
 - **Name:** A card with a role such as `article` takes its name from the `aria-label` that you set on it.
-- **Keyboard:** The card adds no tab stop of its own. Each link, button or other control inside it is one. A browser may make a scrolling card a tab stop: Chromium and Firefox do when it has no focusable content, and WebKit doesn't. Such a card needs `tabindex="0"`, a role and a name to be scrolled from the keyboard in each browser.
+- **Keyboard:** The card adds no tab stop of its own. Each link, button or other control inside it is one. A browser may make a scrolling card a tab stop, as it does a `div`: Firefox does, Chromium does when Tab reaches nothing inside it, and WebKit doesn't. With `tabindex="0"`, a role and a name, a scrolling card is a named tab stop in each browser, and can be scrolled from the keyboard there.
 - **Headings:** Use heading elements of the level that fits the page.
 
 ## Content guidelines

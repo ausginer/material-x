@@ -64,9 +64,9 @@ const CardConstructor: Composed<
  *
  * The card may be smaller than its content, or scroll it: the container, the
  * outline and the shadow stay on its own box. A browser may make a scrolling
- * card a tab stop: Chromium and Firefox do when it has no focusable content,
- * and WebKit doesn't. Content at the card's edge that is positioned, or has an
- * `opacity` or a `transform`, paints over the outline.
+ * card a tab stop, as it does a `div`: Firefox does, Chromium does when Tab
+ * reaches nothing inside it, and WebKit doesn't. Content at the card's edge that
+ * is positioned, or has an `opacity` or a `transform`, paints over the outline.
  *
  * `--md-card-padding` sets the padding. A `padding` that the page sets on the
  * card doesn't apply.

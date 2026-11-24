@@ -92,3 +92,14 @@ By the implementer, on the coordinator's task, on the [plan's disposition](card-
 - **Size, Brotli,** before and after on the merged tree: `card/card` 1323 to 1314, `complete` 23063 to 23066, `list/list-item` 2838 and unchanged. No other row moves.
 - **Not run:** the visual project and Safari. `card-variants.png` still has no baseline, and it is the owner's to record.
 - **Next:** the reviewer's narrow recheck that the plan owes.
+
+## Disposition of the second recheck, implemented 2026-11-24
+
+By the implementer, on the coordinator's task, on the [plan's disposition](card-plan.md#disposition-of-the-second-recheck-the-tab-stops-words-and-two-rows), from `e1a336ea5`. No source declaration changes.
+
+- **`reviewer-10`:** JSDoc and `card.mdx` carry the plan's words.
+- **`reviewer-11`:** two rows in `card.spec`'s _mx-card content_, _should collapse the margins of adjacent content_ and _should fill its container_.
+- **Witnesses** ([reading](checks/witnesses-5.txt), [script](probes/mutate-5.mjs)): three mutations and a control, in Chromium, Firefox and WebKit. `display: grid` fails the first row, alone. A flex column fails it and also the end of the scroll. `inline-size: fit-content` fails the second row, alone.
+- **Checks:** the control is `tests/card` without the visual file, with `tests/core/elevation.spec`: 79 passed in Chromium, and 76 passed and 3 skipped in Firefox and in WebKit. Format, lint and the typecheck of material-x pass. `docs-build` passes, and `docs-smoke` with 117 of 117 pages. The links of this section were checked by a script.
+- **Not run:** the rest of the suite, the visual project and Safari.
+- **Next:** nothing is owed before the owner's baseline. The plan's documentation unit follows the merge.
