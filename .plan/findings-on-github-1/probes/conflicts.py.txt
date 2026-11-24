@@ -1,0 +1,23 @@
+# The merges that conflicted, and in which files. As conflict-parts.
+import subprocess,collections
+H='.plan/findings-on-github-1/checks/pull-request-heads.txt'
+def sh(*a): return subprocess.run(a,capture_output=True,text=True)
+shas=[l.split()[1] for l in open(H)]
+out=sh('git','rev-list','--merges','--since=2026-11-10T00:00:00',*shas,'--not').stdout.split()
+out=sorted(set(out))
+n=0;idx=0;other=0;only=0;by=collections.Counter()
+seen=[]
+for m in out:
+    ps=sh('git','rev-list','--parents','-n1',m).stdout.split()[1:]
+    if len(ps)!=2: continue
+    n+=1
+    r=sh('git','merge-tree','--write-tree','--name-only','--no-messages',*ps)
+    if r.returncode==1:
+        fs=[l for l in r.stdout.split('\n')[1:] if l.strip()]
+        i=[f for f in fs if f.endswith('.plan/00-index.md')]
+        if i: idx+=1; seen.append((m[:9],sorted(set(fs))))
+        if i and len(set(fs))==len(set(i)): only+=1
+        if not i: other+=1
+        for f in set(fs): by[f]+=1
+print('two-parent merges',n,'| conflict in a register',idx,'| register only',only,'| other conflicts',other); print(by.most_common(8))
+for s in seen: print(s[0],s[1][:4])

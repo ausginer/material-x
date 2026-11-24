@@ -1,0 +1,60 @@
+# chromium 158.0.8127.18
+fuzz {"n":12000,"bad":0,"first":[]}
+bounds text [
+ "0x10 min 16 value 60 nativeValue 60 drawn 0.5238 natFrac 0.6",
+ "+5 min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ " 5  min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ "5. min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ "Infinity min Infinity value 60 nativeValue 60 drawn 0 natFrac 0.6",
+ "1e2x min  value 60 nativeValue 60 drawn 0.6 natFrac 0.6",
+ ".5 min 0.5 value 60.5 nativeValue 60.5 drawn 0.603 natFrac 0.598",
+ "-5 min -5 value 60 nativeValue 60 drawn 0.619 natFrac 0.619",
+ " min  value 60 nativeValue 60 drawn 0.6 natFrac 0.6"
+]
+odd writes ["NaN -> 50 ","Infinity -> 50 ","undefined -> 30 ","42 -> 42 "," -> 50 ","x -> 50 ","true -> 50 "]
+disabled {"attrBeforeConnect":true,"attrThenConnect":true,"prop":true,"clone":true,"inFs":true,"movedOut":false,"back":true,"removed":false,"reattached":false,"legend":[false,true],"nested":true,"nestedOff":false}
+form {"init":"10","set":"-3.5","rename":"k,-3.5","reset":[30,"30"],"removed":false,"formAttr":"30","validity":[true,false,"bad"],"disabledValidity":[false,true],"invalidEvents":1}
+Enter submits from s 0
+Enter submits from t 0
+Enter submits from r 1
+
+# firefox 159.0
+fuzz {"n":12000,"bad":0,"first":[]}
+bounds text [
+ "0x10 min 16 value 60 nativeValue 60 drawn 0.5238 natFrac 0.6",
+ "+5 min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ " 5  min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ "5. min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ "Infinity min Infinity value 60 nativeValue 60 drawn 0 natFrac 0.6",
+ "1e2x min  value 60 nativeValue 60 drawn 0.6 natFrac 0.6",
+ ".5 min 0.5 value 60.5 nativeValue 60.5 drawn 0.603 natFrac 0.598",
+ "-5 min -5 value 60 nativeValue 60 drawn 0.619 natFrac 0.619",
+ " min  value 60 nativeValue 60 drawn 0.6 natFrac 0.6"
+]
+odd writes ["NaN -> 50 ","Infinity -> 50 ","undefined -> 30 ","42 -> 42 "," -> 50 ","x -> 50 ","true -> 50 "]
+disabled {"attrBeforeConnect":true,"attrThenConnect":true,"prop":true,"clone":true,"inFs":true,"movedOut":false,"back":true,"removed":false,"reattached":false,"legend":[false,true],"nested":true,"nestedOff":false}
+form {"init":"10","set":"-3.5","rename":"k,-3.5","reset":[30,"30"],"removed":false,"formAttr":"30","validity":[true,false,"bad"],"disabledValidity":[false,true],"invalidEvents":1}
+Enter submits from s 0
+Enter submits from t 0
+Enter submits from r 0
+
+# webkit 27.2
+fuzz {"n":12000,"bad":0,"first":[]}
+bounds text [
+ "0x10 min 16 value 60 nativeValue 60 drawn 0.5238 natFrac 0.6",
+ "+5 min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ " 5  min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.6",
+ "5. min 5 value 60 nativeValue 60 drawn 0.5789 natFrac 0.5789",
+ "Infinity min Infinity value 60 nativeValue 60 drawn 0 natFrac 0.6",
+ "1e2x min  value 60 nativeValue 60 drawn 0.6 natFrac 0.6",
+ ".5 min 0.5 value 60.5 nativeValue 60.5 drawn 0.603 natFrac 0.598",
+ "-5 min -5 value 60 nativeValue 60 drawn 0.619 natFrac 0.619",
+ " min  value 60 nativeValue 60 drawn 0.6 natFrac 0.6"
+]
+odd writes ["NaN -> 50 ","Infinity -> 50 ","undefined -> 30 ","42 -> 42 "," -> 50 ","x -> 50 ","true -> 50 "]
+disabled {"attrBeforeConnect":true,"attrThenConnect":true,"prop":true,"clone":true,"inFs":true,"movedOut":false,"back":true,"removed":false,"reattached":false,"legend":[false,true],"nested":true,"nestedOff":false}
+form {"init":"10","set":"-3.5","rename":"k,-3.5","reset":[30,"30"],"removed":false,"formAttr":"30","validity":[true,false,"bad"],"disabledValidity":[false,true],"invalidEvents":1}
+Enter submits from s 0
+Enter submits from t 0
+Enter submits from r 1
+

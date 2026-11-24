@@ -1,0 +1,186 @@
+# chromium 158.0.8127.18
+press and rest 400 ms, drag 150 px below, release there | input70 -rest[v70 HELD h2px flex] -below[v70 HELD h2px flex] -below[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+press on the handle and rest | -rest[v30 HELD h2px flex] -end[v30 rest h4px none]
+drag out of the window, release there | input50 input19 input0 -out[v0 HELD h2px flex] change0 -end[v0 rest h4px none]
+right button | -down[v30 rest h4px none] -end[v30 rest h4px none]
+middle button | -down[v30 rest h4px none] -end[v30 rest h4px none]
+left pressed while the right is down, drag | input70 -both[v70 rest h4px none] input73 input77 input80 -moved[v80 rest h4px none] change80 -left up[v80 rest h4px none] -end[v80 rest h4px none]
+right pressed while the left is down, drag | input70 -both[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -left up[v80 HELD h2px flex] -end[v80 rest h4px none]
+down at 70, disabled, moved to 80, up | input70 change70 -did[v70 rest h4px flex] -moved[v70 rest h4px flex] -end[v70 rest h4px none]
+down at 70, fieldset, moved to 80, up | input70 change70 -did[v70 rest h4px flex] -moved[v70 rest h4px none] -end[v70 rest h4px none]
+down at 70, removed, moved to 80, up | input70 change70 -did[v70 rest h ] -moved[v70 rest h ] -end[v70 rest h4px none]
+down at 70, moved, moved to 80, up | input70 change70 -did[v70 rest h4px none] -moved[v70 rest h4px none] -end[v70 rest h4px none]
+down at 70, hidden, moved to 80, up | input70 change70 -did[v70 HELD h2px flex] -moved[v70 HELD h2px flex] -end[v70 HELD h2px flex]
+down at 70, value 90, moved to 80, up | input70 -did[v90 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, reset, moved to 80, up | input70 -did[v30 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, max 50, moved to 80, up | input70 -did[v50 HELD h2px flex] input37 input38 input40 -moved[v40 HELD h2px flex] change40 -end[v40 rest h4px none]
+down at 70, size, moved to 80, up | input70 -did[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, indicator off and on, moved to 80, up | input70 -did[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+disabled and enabled in a press, then a new press | input70 change70 -enabled[v70 rest h4px flex] input20 -down[v20 HELD h2px flex] change20 -end[v20 rest h4px none]
+Escape, arrow and Tab while down | input70 input71 change71 -arrow[v71 HELD h2px flex] -escape[v71 HELD h2px flex] -end[v71 rest h2px flex]
+a page that prevents pointerdown | -down[v30 HELD h2px flex] -end[v30 rest h4px none]
+a page that takes the capture | input70 -down[v70 HELD h2px flex] input80 change80 -end[v80 rest h4px none]
+held handle, xsmall  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, xsmall disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=small  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=small disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=medium  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=medium disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=large  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=large disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=xlarge  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=xlarge disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+ltr -18 | "- 1 8"
+ltr -18° | "- 1 8 °"
+ltr −18° U+2212 | "− 1 8 °"
+ltr +5 | "+ 5"
+ltr -18 % | "- 1 8   %"
+ltr -1.5e-7 | "- 1 . 5 e - 7"
+ltr 18–20 | "1 8 – 2 0"
+ltr Arabic | "ة ج ر د   1 8 -"
+ltr Hebrew | "ת ו ל ע מ   - 1 8"
+ltr digits first, Arabic | "ة ج ر د   1 8"
+ltr Intl ar | "١ ٨ -"
+ltr Intl he | "- 1 8"
+ltr (18) | "( 1 8 )"
+ltr blank valuetext | {"width":20,"aria":""}
+ltr space valuetext | ""
+rtl -18 | "- 1 8"
+rtl -18° | "- 1 8 °"
+rtl −18° U+2212 | "− 1 8 °"
+rtl +5 | "+ 5"
+rtl -18 % | "- 1 8   %"
+rtl -1.5e-7 | "- 1 . 5 e - 7"
+rtl 18–20 | "1 8 – 2 0"
+rtl Arabic | "ة ج ر د   1 8 -"
+rtl Hebrew | "ת ו ל ע מ   - 1 8"
+rtl digits first, Arabic | "ة ج ر د   1 8"
+rtl Intl ar | "١ ٨ -"
+rtl Intl he | "- 1 8"
+rtl (18) | "( 1 8 )"
+rtl blank valuetext | {"width":20,"aria":""}
+rtl space valuetext | ""
+# firefox 159.0
+press and rest 400 ms, drag 150 px below, release there | input70 -rest[v70 HELD h2px flex] -below[v70 HELD h2px flex] -below[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+press on the handle and rest | -rest[v30 HELD h2px flex] -end[v30 rest h4px none]
+drag out of the window, release there | input50 input19 input0 -out[v0 HELD h2px flex] -end[v0 HELD h2px flex]
+right button | -down[v30 rest h4px none] -end[v30 rest h4px none]
+middle button | -down[v30 rest h4px none] -end[v30 rest h4px none]
+left pressed while the right is down, drag | -both[v30 rest h4px none] -moved[v30 rest h4px none] -left up[v30 rest h4px none] -end[v30 rest h4px none]
+right pressed while the left is down, drag | input70 -both[v70 HELD h2px flex] input30 -moved[v30 HELD h2px flex] -left up[v30 HELD h2px flex] -end[v30 rest h4px none]
+down at 70, disabled, moved to 80, up | input70 change70 -did[v70 rest h4px none] -moved[v70 rest h4px none] -end[v70 rest h4px none]
+down at 70, fieldset, moved to 80, up | input70 change70 -did[v70 rest h4px none] -moved[v70 rest h4px none] -end[v70 rest h4px none]
+down at 70, removed, moved to 80, up | input70 -did[v70 rest h ] -moved[v70 rest h ] -end[v70 rest h4px none]
+down at 70, moved, moved to 80, up | input70 -did[v70 rest h4px none] input73 input77 input80 -moved[v80 rest h4px none] change80 -end[v80 rest h4px none]
+down at 70, hidden, moved to 80, up | input70 change70 -did[v70 HELD h2px flex] -moved[v70 HELD h2px flex] -end[v70 HELD h2px flex]
+down at 70, value 90, moved to 80, up | input70 -did[v90 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, reset, moved to 80, up | input70 -did[v30 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, max 50, moved to 80, up | input70 -did[v50 HELD h2px flex] input37 input38 input40 -moved[v40 HELD h2px flex] change40 -end[v40 rest h4px none]
+down at 70, size, moved to 80, up | input70 -did[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, indicator off and on, moved to 80, up | input70 -did[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+disabled and enabled in a press, then a new press | input70 -enabled[v70 rest h4px none] input30 input20 -down[v20 HELD h2px flex] change20 -end[v20 rest h4px none]
+Escape, arrow and Tab while down | input70 input71 change71 -arrow[v71 HELD h2px flex] input30 -escape[v30 HELD h2px flex] -end[v30 rest h4px none]
+a page that prevents pointerdown | -down[v30 HELD h2px flex] -end[v30 rest h4px none]
+a page that takes the capture | input70 -down[v70 HELD h2px flex] -end[v70 HELD h2px flex]
+held handle, xsmall  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, xsmall disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=small  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=small disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=medium  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=medium disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=large  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=large disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=xlarge  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=xlarge disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+ltr -18 | "- 1 8"
+ltr -18° | "- 1 8 °"
+ltr −18° U+2212 | "− 1 8 °"
+ltr +5 | "+ 5"
+ltr -18 % | "- 1 8   %"
+ltr -1.5e-7 | "- 1 . 5 e - 7"
+ltr 18–20 | "1 8 – 2 0"
+ltr Arabic | "ة ج ر د   1 8 -"
+ltr Hebrew | "ת ו ל ע מ   - 1 8"
+ltr digits first, Arabic | "ة ج ر د   1 8"
+ltr Intl ar | "١ ٨ -"
+ltr Intl he | "- 1 8"
+ltr (18) | "( 1 8 )"
+ltr blank valuetext | {"width":20,"aria":""}
+ltr space valuetext | ""
+rtl -18 | "- 1 8"
+rtl -18° | "- 1 8 °"
+rtl −18° U+2212 | "− 1 8 °"
+rtl +5 | "+ 5"
+rtl -18 % | "- 1 8   %"
+rtl -1.5e-7 | "- 1 . 5 e - 7"
+rtl 18–20 | "1 8 – 2 0"
+rtl Arabic | "ة ج ر د   1 8 -"
+rtl Hebrew | "ת ו ל ע מ   - 1 8"
+rtl digits first, Arabic | "ة ج ر د   1 8"
+rtl Intl ar | "١ ٨ -"
+rtl Intl he | "- 1 8"
+rtl (18) | "( 1 8 )"
+rtl blank valuetext | {"width":20,"aria":""}
+rtl space valuetext | ""
+# webkit 27.2
+press and rest 400 ms, drag 150 px below, release there | input70 -rest[v70 HELD h2px flex] -below[v70 HELD h2px flex] -below[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+press on the handle and rest | -rest[v30 HELD h2px flex] -end[v30 rest h4px none]
+drag out of the window, release there | input50 input19 input0 -out[v0 HELD h2px flex] change0 -end[v0 rest h4px none]
+right button | -down[v30 rest h4px none] -end[v30 rest h4px none]
+middle button | -down[v30 rest h4px none] -end[v30 rest h4px none]
+left pressed while the right is down, drag | input70 -both[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -left up[v80 HELD h2px flex] -end[v80 rest h4px none]
+right pressed while the left is down, drag | input70 -both[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -left up[v80 rest h4px flex] -end[v80 rest h4px none]
+down at 70, disabled, moved to 80, up | input70 -did[v70 rest h4px flex] -moved[v70 rest h4px flex] -end[v70 rest h4px none]
+down at 70, fieldset, moved to 80, up | input70 -did[v70 rest h4px flex] -moved[v70 rest h4px flex] -end[v70 rest h4px none]
+down at 70, removed, moved to 80, up | input70 -did[v70 rest h ] -moved[v70 rest h ] -end[v70 rest h4px none]
+down at 70, moved, moved to 80, up | input70 -did[v70 rest h4px none] -moved[v70 rest h4px none] -end[v70 rest h4px none]
+down at 70, hidden, moved to 80, up | input70 -did[v70 HELD h2px flex] -moved[v70 HELD h2px flex] -end[v70 HELD h2px flex]
+down at 70, value 90, moved to 80, up | input70 -did[v90 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, reset, moved to 80, up | input70 -did[v30 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, max 50, moved to 80, up | input70 -did[v50 HELD h2px flex] input37 input38 input40 -moved[v40 HELD h2px flex] change40 -end[v40 rest h4px none]
+down at 70, size, moved to 80, up | input70 -did[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+down at 70, indicator off and on, moved to 80, up | input70 -did[v70 HELD h2px flex] input73 input77 input80 -moved[v80 HELD h2px flex] change80 -end[v80 rest h4px none]
+disabled and enabled in a press, then a new press | input70 -enabled[v70 rest h4px flex] input20 -down[v20 HELD h2px flex] change20 -end[v20 rest h4px none]
+Escape, arrow and Tab while down | input70 input71 change71 -arrow[v71 HELD h2px flex] -escape[v71 HELD h2px flex] -end[v71 rest h2px flex]
+a page that prevents pointerdown | -down[v30 HELD h2px flex] -end[v30 rest h4px none]
+a page that takes the capture | input70 -down[v70 HELD h2px flex] -end[v70 HELD h2px flex]
+held handle, xsmall  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, xsmall disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=small  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=small disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=medium  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=medium disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=large  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=large disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+held handle, size=xlarge  | input70 -down[v70 HELD h2px flex] change70 -end[v70 rest h4px none]
+held handle, size=xlarge disabled | -down[v30 rest h4px none] -end[v30 rest h4px none]
+ltr -18 | "- 1 8"
+ltr -18° | "- 1 8 °"
+ltr −18° U+2212 | "− 1 8 °"
+ltr +5 | "+ 5"
+ltr -18 % | "- 1 8   %"
+ltr -1.5e-7 | "- 1 . 5 e - 7"
+ltr 18–20 | "1 8 – 2 0"
+ltr Arabic | "ة ج ر د   1 8 -"
+ltr Hebrew | "ת ו ל ע מ   - 1 8"
+ltr digits first, Arabic | "ة ج ر د   1 8"
+ltr Intl ar | "١ ٨ -"
+ltr Intl he | "- 1 8"
+ltr (18) | "( 1 8 )"
+ltr blank valuetext | {"width":20,"aria":""}
+ltr space valuetext | ""
+rtl -18 | "- 1 8"
+rtl -18° | "- 1 8 °"
+rtl −18° U+2212 | "− 1 8 °"
+rtl +5 | "+ 5"
+rtl -18 % | "- 1 8   %"
+rtl -1.5e-7 | "- 1 . 5 e - 7"
+rtl 18–20 | "1 8 – 2 0"
+rtl Arabic | "ة ج ر د   1 8 -"
+rtl Hebrew | "ת ו ל ע מ   - 1 8"
+rtl digits first, Arabic | "ة ج ر د   1 8"
+rtl Intl ar | "١ ٨ -"
+rtl Intl he | "- 1 8"
+rtl (18) | "( 1 8 )"
+rtl blank valuetext | {"width":20,"aria":""}
+rtl space valuetext | ""

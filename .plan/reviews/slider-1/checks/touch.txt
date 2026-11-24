@@ -1,0 +1,21 @@
+# chromium 158.0.8127.18
+vertical pan | pointerdown input21 input50 pointercancel | [50,0.5,101,false,"none",4]
+vertical pan, held at the end | pointerdown input21 input50 pointercancel | [50,0.5,85,false,"none",4]
+pan on a page that cannot scroll | pointerdown input21 input50 pointercancel | [50,0.5,0,false,"inline",4]
+horizontal drag | pointerdown input21 input30 input33 input36 input39 input42 input45 input48 input51 pointerup change51 | [51,0.51,0,false,"inline",4]
+diagonal 30 down, 60 across | pointerdown input21 input30 input33 input36 input39 input42 input45 input48 input51 pointerup change51 | [51,0.51,0,false,"inline",4]
+horizontal, then far vertical | pointerdown input21 input31 input36 input41 input46 pointerup change46 | [46,0.46,0,false,"inline",4]
+attribute followed after a cancelled press? | pointerdown input70 input30 pointercancel | 30
+  control: no press |  | 60
+requested number after a cancelled press? (value=200, then max=300) | pointerdown input30 input100 pointercancel | 100
+  control: no press |  | 200
+midpoint followed after a cancelled press? (max=300) | pointerdown input30 input50 pointercancel | 50
+  control: no press |  | 150
+a script write during the press | pointerdown input70 input30 pointercancel | 30
+cancelled, then blur | pointerdown input70 input30 pointercancel | 30
+cancelled, then a tap | pointerdown input70 input30 pointercancel pointerdown input50 pointerup change50 | 50
+two fingers, second on the slider, then a pan | pointerdown input70 pointerdown pointerup change70 pointerup | [70,0.7,0,false,"inline",4]
+form value after a cancelled press | pointerdown input70 input30 pointercancel | [30,"30"]
+disabled: pan scrolls |  | [50,0.5,103,false,"inline",4]
+label: pan scrolls |  | [50,0.5,101,false,"inline",4]
+in a horizontal scroller, horizontal drag | pointerdown input60 input51 input48 input45 input42 input39 input36 input33 input30 pointerup change30 | [30,0]

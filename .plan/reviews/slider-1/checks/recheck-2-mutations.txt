@@ -1,0 +1,161 @@
+Mutations of mx-slider's second recheck: probes/recheck-2-mutate.ts on 715bca7fd, tests/slider/slider.browser.test.ts, read on 2026-11-24.
+Chromium 158, Firefox 159 and WebKit 27.2. "RC" names the report's own mutations. Messages of Firefox and WebKit, which are paths, are left out.
+
+## none | chromium | 0 failed, 293 passed
+## none | firefox | 0 failed, 231 passed
+## none | webkit | 0 failed, 231 passed
+## RC commit keeps uncommitted | chromium | 1 failed, 292 passed
+   mx-slider touch should not follow a second finger during a slide :: AssertionError: expected [ 'change 51', 'change 51' ] to deeply equal [ 'change 51' ]
+## RC commit keeps uncommitted, with the old recordEvents | chromium | 0 failed, 293 passed
+## RC scroll not decided anew | chromium | 1 failed, 292 passed
+   mx-slider touch should do nothing on a second scroll :: AssertionError: expected 70 to be 30 // Object.is equality
+## RC press keeps uncommitted | chromium | 1 failed, 292 passed
+   mx-slider touch should fire nothing on a scroll after a slide that was ended by disabling :: AssertionError: expected [ 'change 51' ] to deeply equal []
+## RC change does not report | chromium | 1 failed, 292 passed
+   mx-slider touch should take a held press when another element takes the focus :: AssertionError: expected [ 'change 30' ] to deeply equal [ 'input 70', 'change 70' ]
+## RC only a finger is held | chromium | 1 failed, 292 passed
+   mx-slider touch should hold a pen's press until its release :: AssertionError: expected 70 to be 30 // Object.is equality
+## RC indicator takes pointer events | chromium | 1 failed, 292 passed
+   mx-slider value indicator hit test should pass through the indicator :: AssertionError: expected <mx-slider indicator …(1)></mx-slider> not to be <mx-slider indicator …(1)></mx-slider> // Object.is equality
+## RC indicator takes pointer events | firefox | 1 failed, 230 passed
+   mx-slider value indicator hit test should pass through the indicator
+## RC indicator takes pointer events | webkit | 1 failed, 230 passed
+   mx-slider value indicator hit test should pass through the indicator
+## RC primary press not anew | chromium | 1 failed, 292 passed
+   mx-slider held state should begin anew after a release that was missed :: AssertionError: expected { handle: '4px', indicator: 'none' } to deeply equal { handle: '2px', indicator: 'flex' }
+## RC primary press not anew | firefox | 1 failed, 230 passed
+   mx-slider held state should begin anew after a release that was missed
+## RC primary press not anew | webkit | 1 failed, 230 passed
+   mx-slider held state should begin anew after a release that was missed
+## row hidden only | chromium | 0 failed, 293 passed
+## row hidden only | firefox | 0 failed, 231 passed
+## row hidden only | webkit | 0 failed, 231 passed
+## row hidden only, primary press not anew | chromium | 0 failed, 293 passed
+## row hidden only, primary press not anew | firefox | 0 failed, 231 passed
+## row hidden only, primary press not anew | webkit | 0 failed, 231 passed
+## disabling forgets the pointer, primary press not anew | chromium | 0 failed, 293 passed
+## disabling forgets the pointer, primary press not anew | firefox | 0 failed, 231 passed
+## disabling forgets the pointer, primary press not anew | webkit | 0 failed, 231 passed
+## cancel commits twice | chromium | 2 failed, 291 passed
+   mx-slider touch should commit a slide that the system cancels :: AssertionError: expected [ 'change 51', 'change 51' ] to deeply equal [ 'input 51', 'change 51' ]
+   mx-slider touch should commit a slide that is cancelled with a second finger down :: AssertionError: expected [ 'change 51', 'change 51' ] to deeply equal [ 'input 51', 'change 51' ]
+## cancel commits twice, with the old recordEvents | chromium | 0 failed, 293 passed
+## a change commits twice | chromium | 31 failed, 262 passed
+   mx-slider pointer should fire input and then change on a press on the track :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 20', 'change 20' ]
+   mx-slider pointer should follow a drag and stop at each end :: AssertionError: expected [ 'input 30', 'input 80', …(4) ] to deeply equal [ 'input 30', 'input 80', …(3) ]
+   mx-slider pointer should dispatch one plain bubbling change at the host :: AssertionError: expected [ [ …(2) ], [ …(2) ] ] to have a length of 1 but got 2
+   mx-slider touch should fire input and then change on a tap :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 21', 'change 21' ]
+   mx-slider touch should keep a number written during a tap :: AssertionError: expected [ 'change 90', 'change 90' ] to deeply equal [ 'change 90' ]
+   mx-slider touch should fire input and one change on a horizontal slide :: AssertionError: expected [ 'change 51', 'change 51' ] to deeply equal [ 'change 51' ]
+   mx-slider touch should fire input and one change on a slide that turns vertical :: AssertionError: expected [ 'change 51', 'change 51' ] to deeply equal [ 'change 51' ]
+   mx-slider touch should follow a slide from the handle at its first step :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 75', 'change 75' ]
+   mx-slider touch should take a held press when another element takes the focus :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 70', 'change 70' ]
+   mx-slider touch should hold a pen's press until its release :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 70', 'change 70' ]
+   mx-slider touch should take a key after a scroll :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 31', 'change 31' ]
+   mx-slider touch should take a key that gives the number from before a scroll :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 30', 'change 30' ]
+   mx-slider touch should take a tap after a scroll :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 50', 'change 50' ]
+   mx-slider touch should not follow a second finger during a slide :: AssertionError: expected [ 'change 51', 'change 51' ] to deeply equal [ 'change 51' ]
+   mx-slider keyboard in ltr should fire input and then change on ArrowUp :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 51', 'change 51' ]
+   mx-slider keyboard in ltr should fire input and then change on ArrowDown :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 49', 'change 49' ]
+   mx-slider keyboard in ltr should fire input and then change on PageUp :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 60', 'change 60' ]
+   mx-slider keyboard in ltr should fire input and then change on PageDown :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 40', 'change 40' ]
+   mx-slider keyboard in ltr should fire input and then change on Home :: AssertionError: expected [ 'input 0', 'change 0', 'change 0' ] to deeply equal [ 'input 0', 'change 0' ]
+   mx-slider keyboard in ltr should fire input and then change on End :: AssertionError: expected [ 'input 100', 'change 100', …(1) ] to deeply equal [ 'input 100', 'change 100' ]
+   mx-slider keyboard in ltr should fire input and then change on ArrowRight :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 51', 'change 51' ]
+   mx-slider keyboard in ltr should fire input and then change on ArrowLeft :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 49', 'change 49' ]
+   mx-slider keyboard in rtl should fire input and then change on ArrowUp :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 51', 'change 51' ]
+   mx-slider keyboard in rtl should fire input and then change on ArrowDown :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 49', 'change 49' ]
+   mx-slider keyboard in rtl should fire input and then change on PageUp :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 60', 'change 60' ]
+   mx-slider keyboard in rtl should fire input and then change on PageDown :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 40', 'change 40' ]
+   mx-slider keyboard in rtl should fire input and then change on Home :: AssertionError: expected [ 'input 0', 'change 0', 'change 0' ] to deeply equal [ 'input 0', 'change 0' ]
+   mx-slider keyboard in rtl should fire input and then change on End :: AssertionError: expected [ 'input 100', 'change 100', …(1) ] to deeply equal [ 'input 100', 'change 100' ]
+   mx-slider keyboard in rtl should fire input and then change on ArrowRight :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 49', 'change 49' ]
+   mx-slider keyboard in rtl should fire input and then change on ArrowLeft :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 51', 'change 51' ]
+   mx-slider connection should fire each event once after a reconnection and a move :: AssertionError: expected [ 'input', 'change', 'change' ] to deeply equal [ 'input', 'change' ]
+## a change commits twice | firefox | 22 failed, 209 passed
+   mx-slider pointer should fire input and then change on a press on the track
+   mx-slider pointer should keep the value on a press -1.5 px off the centre of the handle, except in Firefox
+   mx-slider pointer should keep the value on a press 1.5 px off the centre of the handle, except in Firefox
+   mx-slider pointer should follow a drag and stop at each end
+   mx-slider pointer should dispatch one plain bubbling change at the host
+   mx-slider keyboard in ltr should fire input and then change on ArrowUp
+   mx-slider keyboard in ltr should fire input and then change on ArrowDown
+   mx-slider keyboard in ltr should fire input and then change on PageUp
+   mx-slider keyboard in ltr should fire input and then change on PageDown
+   mx-slider keyboard in ltr should fire input and then change on Home
+   mx-slider keyboard in ltr should fire input and then change on End
+   mx-slider keyboard in ltr should fire input and then change on ArrowRight
+   mx-slider keyboard in ltr should fire input and then change on ArrowLeft
+   mx-slider keyboard in rtl should fire input and then change on ArrowUp
+   mx-slider keyboard in rtl should fire input and then change on ArrowDown
+   mx-slider keyboard in rtl should fire input and then change on PageUp
+   mx-slider keyboard in rtl should fire input and then change on PageDown
+   mx-slider keyboard in rtl should fire input and then change on Home
+   mx-slider keyboard in rtl should fire input and then change on End
+   mx-slider keyboard in rtl should fire input and then change on ArrowRight
+   mx-slider keyboard in rtl should fire input and then change on ArrowLeft
+   mx-slider connection should fire each event once after a reconnection and a move
+## a change commits twice | webkit | 20 failed, 211 passed
+   mx-slider pointer should fire input and then change on a press on the track
+   mx-slider pointer should follow a drag and stop at each end
+   mx-slider pointer should dispatch one plain bubbling change at the host
+   mx-slider keyboard in ltr should fire input and then change on ArrowUp
+   mx-slider keyboard in ltr should fire input and then change on ArrowDown
+   mx-slider keyboard in ltr should fire input and then change on PageUp
+   mx-slider keyboard in ltr should fire input and then change on PageDown
+   mx-slider keyboard in ltr should fire input and then change on Home
+   mx-slider keyboard in ltr should fire input and then change on End
+   mx-slider keyboard in ltr should fire input and then change on ArrowRight
+   mx-slider keyboard in ltr should fire input and then change on ArrowLeft
+   mx-slider keyboard in rtl should fire input and then change on ArrowUp
+   mx-slider keyboard in rtl should fire input and then change on ArrowDown
+   mx-slider keyboard in rtl should fire input and then change on PageUp
+   mx-slider keyboard in rtl should fire input and then change on PageDown
+   mx-slider keyboard in rtl should fire input and then change on Home
+   mx-slider keyboard in rtl should fire input and then change on End
+   mx-slider keyboard in rtl should fire input and then change on ArrowRight
+   mx-slider keyboard in rtl should fire input and then change on ArrowLeft
+   mx-slider connection should fire each event once after a reconnection and a move
+## a change commits twice, with the old recordEvents | chromium | 3 failed, 290 passed
+   mx-slider pointer should dispatch one plain bubbling change at the host :: AssertionError: expected [ [ …(2) ], [ …(2) ] ] to have a length of 1 but got 2
+   mx-slider touch should fire input and then change on a tap :: AssertionError: expected [ Array(3) ] to deeply equal [ 'input 21', 'change 21' ]
+   mx-slider connection should fire each event once after a reconnection and a move :: AssertionError: expected [ 'input', 'change', 'change' ] to deeply equal [ 'input', 'change' ]
+## a change commits twice, with the old recordEvents | firefox | 2 failed, 229 passed
+   mx-slider pointer should dispatch one plain bubbling change at the host
+   mx-slider connection should fire each event once after a reconnection and a move
+## a change commits twice, with the old recordEvents | webkit | 2 failed, 229 passed
+   mx-slider pointer should dispatch one plain bubbling change at the host
+   mx-slider connection should fire each event once after a reconnection and a move
+## the change comes before the report | chromium | 1 failed, 292 passed
+   mx-slider touch should take a held press when another element takes the focus :: AssertionError: expected [ 'change 30', 'input 70' ] to deeply equal [ 'input 70', 'change 70' ]
+## a change reports twice | chromium | 0 failed, 293 passed
+## a lift does not report | chromium | 4 failed, 289 passed
+   mx-slider touch should fire input and then change on a tap :: AssertionError: expected [ 'change 50' ] to deeply equal [ 'input 21', 'change 21' ]
+   mx-slider touch should dispatch the input of a tap with the native flags :: AssertionError: expected [] to have a length of 1 but got +0
+   mx-slider touch should hold a pen's press until its release :: AssertionError: expected [ 'change 30' ] to deeply equal [ 'input 70', 'change 70' ]
+   mx-slider touch should take a tap after a scroll :: AssertionError: expected [ 'change 30' ] to deeply equal [ 'input 50', 'change 50' ]
+## a pen lift does not report or end the hold | chromium | 0 failed, 293 passed
+## a pen is held for ever | chromium | 2 failed, 291 passed
+   mx-slider touch should take a held press when another element takes the focus :: AssertionError: expected [ 'change 30' ] to deeply equal [ 'input 70', 'change 70' ]
+   mx-slider touch should hold a pen's press until its release :: AssertionError: expected [ 'change 30' ] to deeply equal [ 'input 70', 'change 70' ]
+## a cancel ends in idle | chromium | 4 failed, 289 passed
+   mx-slider touch should keep value written during a press that becomes a scroll :: AssertionError: expected [ 'change 90' ] to deeply equal []
+   mx-slider touch should keep the value attribute written during a press that becomes a scroll :: AssertionError: expected [ 'change 60' ] to deeply equal []
+   mx-slider touch should keep a bound written during a press that becomes a scroll :: AssertionError: expected [ 'change 50' ] to deeply equal []
+   mx-slider touch should fire nothing on a scroll after a slide that was ended by disabling :: AssertionError: expected [ 'change 51' ] to deeply equal []
+## the hold works once | chromium | 2 failed, 291 passed
+   mx-slider touch should do nothing on a second scroll :: AssertionError: expected 70 to be 30 // Object.is equality
+   mx-slider touch should fire nothing on a scroll after a slide that was ended by disabling :: AssertionError: expected 70 to be 51 // Object.is equality
+## the text takes pointer events | chromium | 1 failed, 292 passed
+   mx-slider value indicator hit test should pass through the indicator :: AssertionError: expected <mx-slider indicator …(1)></mx-slider> not to be <mx-slider indicator …(1)></mx-slider> // Object.is equality
+## the text takes pointer events | firefox | 1 failed, 230 passed
+   mx-slider value indicator hit test should pass through the indicator
+## the text takes pointer events | webkit | 1 failed, 230 passed
+   mx-slider value indicator hit test should pass through the indicator
+## the spaces take pointer events | chromium | 0 failed, 293 passed
+## the spaces take pointer events | firefox | 0 failed, 231 passed
+## the spaces take pointer events | webkit | 0 failed, 231 passed
+## hit test is not shown | chromium | 0 failed, 293 passed
+## hit test is not shown | firefox | 0 failed, 231 passed
+## hit test is not shown | webkit | 0 failed, 231 passed
+DONE

@@ -1,0 +1,62 @@
+## conflict-parts
+Counter({('findings',): 19, ('decisions',): 8, ('decisions', 'findings'): 4})
+
+## conflicts
+two-parent merges 124 | conflict in a register 31 | register only 28 | other conflicts 7
+[('.plan/00-index.md', 29), ('packages/material-x/src/list/ListItemCore.ts', 4), ('packages/material-x/src/list/sortable-list.ts', 3), ('packages/material-x/src/text-field/multiline-text-field.ts', 2), ('packages/material-x/src/core/utils/polyfills.ts', 2), ('packages/drag/.plan/00-index.md', 2), ('packages/material-x/tests/core/traits/focus-forwarding.browser.test.ts', 2), ('packages/material-x/tests/list/sortable-list.browser.test.ts', 2)]
+20abcb7f6 ['.plan/00-index.md']
+2122475c1 ['.plan/00-index.md']
+26192a1a2 ['.plan/00-index.md']
+28f630922 ['.plan/00-index.md', 'AGENTS.md']
+4df80913f ['.plan/00-index.md', 'packages/material-x/tests/core/traits/polyfills.browser.test.ts']
+5194f5069 ['.plan/00-index.md']
+54d4347eb ['.plan/00-index.md']
+59ca99e6a ['.plan/00-index.md']
+5b1a4d35d ['.plan/00-index.md']
+668b034d7 ['.plan/00-index.md']
+68debb425 ['.plan/00-index.md']
+7420cbb9a ['packages/drag/.plan/00-index.md']
+76d227f3d ['.plan/00-index.md']
+7b90a846f ['.plan/00-index.md', '.plan/list-sortable-1/probes/list-a11y.ts', 'packages/material-x/src/list/ListItemCore.ts', 'packages/material-x/src/list/list-item.ts']
+84cc4e45e ['.plan/00-index.md']
+8dc3e78d1 ['.plan/00-index.md']
+90d0831e2 ['.plan/00-index.md']
+9895c985c ['packages/drag/.plan/00-index.md']
+a09272b02 ['.plan/00-index.md']
+a3ce6d8b3 ['.plan/00-index.md']
+a4f83c06e ['.plan/00-index.md']
+b0d0f3464 ['.plan/00-index.md']
+b44c655d7 ['.plan/00-index.md']
+b77795e25 ['.plan/00-index.md']
+bdab5f733 ['.plan/00-index.md']
+be491e375 ['.plan/00-index.md']
+c128c5ba6 ['.plan/00-index.md']
+cf8261417 ['.plan/00-index.md']
+d6838d0f1 ['.plan/00-index.md']
+e9b7aeab6 ['.plan/00-index.md']
+f8acb005b ['.plan/00-index.md']
+
+## record-only
+first-parent commits on main since 2026-11-10: 95
+ee7d838cc 2026-11-24 index + evidence | new findings 4 decisions 0 | files 10 evidence 9 | repo: register four findings about focus and keyboard moves in lists (
+114270083 2026-11-24 index + evidence | new findings 1 decisions 0 | files 5 evidence 3 | repo: let the landing page use signals and replace the reason for Q2 (
+3aef04f7e 2026-11-23 index + evidence | new findings 2 decisions 0 | files 9 evidence 7 | repo: private custom properties leak into slotted content and collide 
+92a386a17 2026-11-23 index only | new findings 0 decisions 0 | files 1 evidence 0 | repo: record the owner's answer to RF-116 (delete core's moved hook, b
+15b2e6b7d 2026-11-23 index only | new findings 2 decisions 1 | files 1 evidence 0 | repo: rule that an event with data is a named class and others are pla
+5259fe368 2026-11-23 index + evidence | new findings 4 decisions 2 | files 9 evidence 7 | repo: register RF-111 to RF-113 and DRF-54, and rule the token store's
+35ea25892 2026-11-23 index + evidence | new findings 1 decisions 0 | files 11 evidence 8 | repo: register RF-110 (tproc selects tokens across contexts), with one
+246b64754 2026-11-23 index + evidence | new findings 7 decisions 0 | files 20 evidence 18 | repo: register RF-103 and RF-104 (mx-sortable-list's announcements and
+fa056ff71 2026-11-22 index + evidence | new findings 0 decisions 3 | files 3 evidence 1 | repo: landing page plan — Card, Top app bar and Slider first, then the
+c5da3821c 2026-11-22 index only | new findings 6 decisions 0 | files 1 evidence 0 | repo: register RF-97 to RF-102 from the text-field contracts' report a
+903c3540e 2026-11-22 index + evidence | new findings 3 decisions 0 | files 3 evidence 2 | repo: register RF-93 to RF-95 (the index's broken links, unnamed check
+6a67badfd 2026-11-22 index + evidence | new findings 14 decisions 1 | files 9 evidence 7 | repo: adopt #122's visual-contract coverage map as RD-34, register its
+4fd8b9a67 2026-11-22 index + evidence | new findings 3 decisions 0 | files 5 evidence 4 | repo: register RF-76 to RF-78 from #120's feature proof: the link item
+f1387729d 2026-11-22 record without index | new findings 0 decisions 0 | files 3 evidence 1 | box-quad: read 1.0.0 after the publish: latest on the registry, proven
+c08dbd7fc 2026-11-22 index + evidence | new findings 2 decisions 0 | files 7 evidence 6 | repo: register RF-74 and RF-75 with their decisions, and settle RF-71'
+682639048 2026-11-22 index + evidence | new findings 4 decisions 0 | files 4 evidence 2 | repo: register four material-x observations as RF-70 to RF-73, and dat
+b46b840d8 2026-11-22 index + evidence | new findings 0 decisions 0 | files 6 evidence 5 | repo: read RF-48 on aube 2.10.1: the workspace links are still dropped
+640658b5c 2026-11-21 index only | new findings 0 decisions 1 | files 1 evidence 0 | repo: register RD-32, a unit's plan and its implementation share one p
+d69e3ddbc 2026-11-20 record without index | new findings 0 decisions 0 | files 22 evidence 7 | repo: flattened traits against mixins, measured: the whole library is 
+Counter({'index + evidence': 13, 'index only': 4, 'record without index': 2})
+commits touching a register 73
+

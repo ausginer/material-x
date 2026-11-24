@@ -1,0 +1,37 @@
+# chromium 158.0.8127.18
+## built
+vertical pan | p.down p.move p.cancel | [50,98]
+vertical pan, 1 px steps | p.down p.move p.cancel | [50,85]
+pan at 20 deg, 2 px steps | p.down p.move input285 p.move input295 input680 p.up change680 | [680,0]
+pan at 30 deg, 2 px steps | p.down p.move input279 p.move input288 input643 p.up change643 | [643,0]
+pan at 40 deg, 2 px steps | p.down p.move input271 p.move input279 input593 p.up change593 | [593,0]
+pan at 45 deg, 2 px steps | p.down p.move p.cancel | [500,60]
+pan at 50 deg, 2 px steps | p.down p.move p.cancel | [500,66]
+pan at 60 deg, 2 px steps | p.down p.move p.cancel | [500,74]
+pan at 70 deg, 2 px steps | p.down p.move p.cancel | [500,80]
+pan at 80 deg, 2 px steps | p.down p.move p.cancel | [500,84]
+tap | p.down input21 p.up change21 | 21
+long press, no move | p.down input21 p.up change21 | 21
+horizontal drag | p.down p.move input30 p.move input33 input51 p.up change51 | 51
+horizontal, then far vertical | p.down p.move input31 p.move input36 p.move input41 p.move input46 p.move p.up change46 | [46,0]
+slide, then the system cancels | p.down p.move input31 p.move input36 p.move input41 p.move input46 change46 p.cancel touchcancel | 46
+drag from the handle, step 25 | p.down p.move input75 p.move p.up change75 | 75
+drag off the handle, step 25 | p.down p.move input50 p.move p.up | 50
+cancelled pan, then a key | p.down p.move p.cancel input31 change31 | 31
+cancelled pan, then a tap | p.down p.move p.cancel p.down input50 p.up change50 | 50
+mouse press and drag | p.move p.down input50 p.move input60 p.up change60 | 60
+pan on the handle | p.down p.move p.cancel | 50
+attribute 30, then 60 | p.down p.move p.cancel | 60
+midpoint, then max=300 | p.down p.move p.cancel | 150
+value=200, then max=300 | p.down p.move p.cancel | 200
+script sets 90 during | p.down p.move p.cancel | 90
+attribute set to 60 during | p.down p.move p.cancel | 60
+form reset during | p.down p.move p.cancel | 30
+max=50 during | p.down p.move p.cancel | 50
+echo in input (controlled) | p.down p.move p.cancel | 30
+snap to 20 in input | p.down p.move p.cancel | 40
+feedback from a player | p.down p.move p.cancel | [30,30]
+script sets 90 during a tap | p.down p.up change90 | 90
+disabled during | p.down p.move p.cancel | 30
+moved in the DOM during | p.down | [30,"30"]
+two fingers | p.down p.move input70 p.up change70 p.up | [70,"70"]

@@ -1,0 +1,18 @@
+## drag: no mutation | chromium | 42 passed (42)
+## drag: no mutation | firefox | 38 passed | 4 skipped (42)
+## drag: no mutation | webkit | 38 passed | 4 skipped (42)
+## drag: a command's kind only toward the end | chromium | 2 failed | 40 passed (42)
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for ArrowUp, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for ArrowUp, before onReorder
+## drag: a command's kind only toward the end | firefox | 2 failed | 36 passed | 4 skipped (42)
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for ArrowUp, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for ArrowUp, before onReorder
+## drag: a command's kind only toward the end | webkit | 2 failed | 36 passed | 4 skipped (42)
+   browser: drag:DRD-71 onStart's operation kind > should report 'command' once for ArrowUp, before onReorder
+   consumer: drag:DRD-71 onStart's operation kind > should report 'command' once for ArrowUp, before onReorder
+## list with drag's command only toward the end | chromium | Tests  1 failed | 116 passed (117)
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:734 > mx-sortable-list footprint > should paint nothing in the handler of a move by ArrowUp
+## list with drag's command only toward the end | firefox | Tests  1 failed | 116 passed (117)
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:734 > mx-sortable-list footprint > should paint nothing in the handler of a move by ArrowUp
+## list with drag's command only toward the end | webkit | Tests  1 failed | 116 passed (117)
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:734 > mx-sortable-list footprint > should paint nothing in the handler of a move by ArrowUp

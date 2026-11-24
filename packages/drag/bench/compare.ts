@@ -1196,9 +1196,9 @@ const INJECTIONS: ReadonlyArray<
   {
     name: 'one object of about 1 KB retained per operation past destruction',
     file: 'sortable/operation.ts',
-    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
+    find: 'start(): void {\n    this.#behavior.config.onStart?.(',
     replace:
-      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#behavior.config.onStart?.(this.#query.item);",
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#behavior.config.onStart?.(",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
     expect: /FLAG retains more/u,
   },
@@ -1304,9 +1304,9 @@ const FLOORS: ReadonlyArray<Injection & Readonly<{ scenario: string }>> = [
   {
     name: 'one object with two number properties retained per operation',
     file: 'sortable/operation.ts',
-    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
+    find: 'start(): void {\n    this.#behavior.config.onStart?.(',
     replace:
-      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior.config.onStart?.(this.#query.item);",
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior.config.onStart?.(",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
   },
   ...[30, 10, 5, 2].map((us) => ({
