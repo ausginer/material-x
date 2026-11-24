@@ -15,6 +15,15 @@ class EmptyingContainer extends HTMLElement {
 
 customElements.define('test-emptying-container', EmptyingContainer);
 
+/** Moves its children to `body` when it connects. */
+class MovingContainer extends HTMLElement {
+  connectedCallback(): void {
+    document.body.prepend(...this.children);
+  }
+}
+
+customElements.define('test-moving-container', MovingContainer);
+
 /** Inserts the bar in a container that removes it in the same insertion. */
 function insertAndRemove(bar: HTMLElement): void {
   const container = document.createElement('test-emptying-container');
@@ -27,6 +36,23 @@ function addPageRule(css: string): void {
   style.textContent = css;
   document.head.append(style);
   onTestFinished(() => style.remove());
+}
+
+/** The errors reported on the window during the current test. */
+function collectErrors(): readonly string[] {
+  const errors: string[] = [];
+  const listeners = new AbortController();
+  onTestFinished(() => listeners.abort());
+  window.addEventListener(
+    'error',
+    (event) => {
+      event.preventDefault();
+      errors.push(event.message);
+    },
+    { signal: listeners.signal },
+  );
+
+  return errors;
 }
 
 /** A page taller than the viewport, with a bar as a child of `body`. */
@@ -128,17 +154,7 @@ describe('mx-top-app-bar scrolled state', () => {
   );
 
   it('should report no error when another element removes the bar as it connects', () => {
-    const errors: string[] = [];
-    const listeners = new AbortController();
-    onTestFinished(() => listeners.abort());
-    window.addEventListener(
-      'error',
-      (event) => {
-        event.preventDefault();
-        errors.push(event.message);
-      },
-      { signal: listeners.signal },
-    );
+    const errors = collectErrors();
     const bar = document.createElement('mx-top-app-bar');
 
     insertAndRemove(bar);
@@ -165,6 +181,57 @@ describe('mx-top-app-bar scrolled state', () => {
       expect([inserted, isScrolled(bar)]).toEqual([top > 0, top === 0]);
     },
   );
+
+  it('should follow the scroll position when another element moves the bar as it connects', async () => {
+    const errors = collectErrors();
+    createPage().remove();
+    const bar = document.createElement('mx-top-app-bar');
+    const container = document.createElement('test-moving-container');
+    container.append(bar);
+    document.body.append(container);
+    await observed();
+    const read: boolean[] = [];
+
+    for (const top of [0, 300, 0]) {
+      // oxlint-disable-next-line no-await-in-loop -- each position is a crossing
+      await scrollPage(top);
+      read.push(isScrolled(bar));
+    }
+
+    expect([bar.parentElement, read, errors]).toEqual([
+      document.body,
+      [false, true, false],
+      [],
+    ]);
+  });
+
+  it("should leave the page's open popover open when the bar connects", async () => {
+    createPage().remove();
+    const popover = document.createElement('div');
+    popover.popover = 'auto';
+    document.body.append(popover);
+    popover.showPopover();
+    document.body.prepend(document.createElement('mx-top-app-bar'));
+    await observed();
+
+    expect(popover.matches(':popover-open')).toBe(true);
+  });
+
+  it('should be on at a scrolled position after a click on the page', async () => {
+    const bar = createPage();
+    const target = document.createElement('div');
+    target.style.cssText =
+      'position: fixed; inset: 200px auto auto 0; inline-size: 20px; block-size: 20px;';
+    document.body.append(target);
+    const clicked = vi.fn<() => void>();
+    target.addEventListener('click', clicked);
+    await observed();
+
+    await userEvent.click(target);
+    await scrollPage(300);
+
+    expect([clicked.mock.calls.length, isScrolled(bar)]).toEqual([1, true]);
+  });
 
   it('should keep its value while the bar is disconnected', async () => {
     const bar = createPage();
@@ -235,6 +302,72 @@ describe('mx-top-app-bar scrolled state', () => {
     await observed();
 
     expect(isScrolled(bar)).toBe(true);
+  });
+
+  it.each<readonly [string, (bar: HTMLElement) => () => void]>([
+    [
+      'display: none',
+      (bar) => {
+        bar.style.display = 'none';
+        document.body.prepend(bar);
+
+        return () => {
+          bar.style.display = '';
+        };
+      },
+    ],
+    [
+      'a closed dialog',
+      (bar) => {
+        const dialog = document.createElement('dialog');
+        dialog.append(bar);
+        document.body.prepend(dialog);
+
+        return () => dialog.showModal();
+      },
+    ],
+  ])(
+    'should draw its resting color from its first frame when it is shown from %s at the start',
+    async (_, hide) => {
+      const rest = getComputedStyle(createPage()).backgroundColor;
+      const bar = document.createElement('mx-top-app-bar');
+      const transition = vi.fn<(event: TransitionEvent) => void>();
+      bar.addEventListener('transitionrun', transition);
+      const show = hide(bar);
+      await observed();
+      const hidden = isScrolled(bar);
+      const colors = new Set<string>();
+      show();
+
+      // Longer than the observer's report takes.
+      for (let frame = 0; frame < 12; frame += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one read per frame
+        await nextFrame();
+        colors.add(getComputedStyle(bar).backgroundColor);
+      }
+
+      expect({
+        hidden,
+        colors: [...colors],
+        transitions: transition.mock.calls.filter(
+          ([{ propertyName }]) => propertyName === 'background-color',
+        ).length,
+      }).toEqual({ hidden: false, colors: [rest], transitions: 0 });
+    },
+  );
+
+  it('should be off while the bar is hidden on a scrolled page, and on when it is shown there', async () => {
+    const bar = createPage();
+    await scrollPage(300);
+    const read = [isScrolled(bar)];
+    bar.style.display = 'none';
+    await observed();
+    read.push(isScrolled(bar));
+    bar.style.display = '';
+    await observed();
+    read.push(isScrolled(bar));
+
+    expect(read).toEqual([true, false, true]);
   });
 
   it('should change once over many scroll steps away from the start', async () => {

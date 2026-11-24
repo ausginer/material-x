@@ -15,13 +15,18 @@ export type TopAppBarCSSProperties = Readonly<{
 
 /*
  * `root` is the document, because with the default root a frame's observer
- * measures against the outermost page. The side margins are larger than a page,
- * so that scrolling sideways doesn't move the target out of the area. The block
- * margins are 0, because a top margin delays the state by its size.
+ * measures against the outermost page. The margins make the area everything
+ * above the viewport, so a target that isn't rendered reads as one at the
+ * document's start. The side margins are larger than a page, so that scrolling
+ * sideways doesn't move the target out of the area. The top one is the length
+ * that the state follows in one jump, and isn't larger, because with
+ * 100000000px WebKit misses the first pixel. The threshold is above 0, because the target touches the area
+ * at the start, and a touch isn't a crossing.
  */
 const SCROLL_OBSERVER_OPTIONS: IntersectionObserverInit = {
   root: document,
-  rootMargin: '0px 1000000px',
+  rootMargin: '10000000px 1000000px -100%',
+  threshold: 1e-9,
 };
 
 /**
@@ -39,7 +44,8 @@ const SCROLL_OBSERVER_OPTIONS: IntersectionObserverInit = {
  * @slot lead - The navigation icon.
  * @slot trail - The actions.
  *
- * @cssstate scrolled - The document is scrolled away from its start.
+ * @cssstate scrolled - The bar is rendered, and the document is scrolled away
+ * from its start.
  *
  * @cssprop --md-top-app-bar-container-color - Overrides the container color at the document's start.
  * @cssprop --md-top-app-bar-on-scroll-container-color - Overrides the container color while the document is scrolled.
@@ -55,7 +61,11 @@ export default class TopAppBar extends ControlledElement {
     const scrollStart =
       this.shadowRoot!.querySelector<HTMLElement>('.scroll-start')!;
     const observer = new IntersectionObserver((entries) => {
-      toggleState(internals(this), 'scrolled', !entries.at(-1)!.isIntersecting);
+      toggleState(
+        internals(this),
+        'scrolled',
+        entries.at(-1)!.boundingClientRect.top < 0,
+      );
     }, SCROLL_OBSERVER_OPTIONS);
 
     use(this, {

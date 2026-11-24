@@ -79,12 +79,15 @@
   margin-inline-end: 0;
 }
 
-/* A point at the document's scroll start, without the user agent's popover box. */
+/*
+ * A pixel at the document's scroll start, without the user agent's popover box.
+ * With no size, it would have no part inside the observer's area.
+ */
 .scroll-start {
   position: absolute;
   inset: 0;
-  inline-size: 0;
-  block-size: 0;
+  inline-size: 1px;
+  block-size: 1px;
   margin: 0;
   border: 0;
   padding: 0;
