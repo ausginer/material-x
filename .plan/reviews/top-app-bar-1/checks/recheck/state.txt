@@ -1,0 +1,150 @@
+# chromium 158.0.8127.18
+plain  off@0 on@1 on@300 on@4464 off@0
+quirks BackCompat off@0 on@1 on@300 on@4464 off@0
+html margin-top  off@0 on@1 on@300 on@4510 off@0
+html top  off@0 on@1 on@300 on@4484 off@0
+html negative margin  off@0 on@1 on@300 on@4434 off@0
+html height 0  off@0 on@1 on@300 on@4464 off@0
+body absolute  off@0 on@1 on@300 on@4464 off@0
+html zoom 1.5  off@0 on@1 on@300 on@6996 off@0
+body zoom .5  off@0 on@1 on@300 on@1932 off@0
+html zoom 3  off@0 on@1 on@300 on@14592 off@0
+html rtl  off@0 on@1 on@300 on@4464 off@0
+html transform  off@0 on@1 on@300 on@4504 off@0
+html perspective+contain  off@0 on@1 on@300 on@4464 off@0
+bar content-visibility  off@0 on@1 on@300 on@4464 off@0
+bar display contents  off@0 on@1 on@300 on@4428 off@0
+bar opacity/filter/transform  off@0 on@1 on@300 on@4464 off@0
+bar fixed  off@0 on@1 on@300 on@4400 off@0
+bar clip  off@0 on@1 on@300 on@4464 off@0
+bar visibility hidden  off@0 on@1 on@300 on@4464 off@0
+page rules on popovers  off@0 on@1 on@300 on@4464 off@0
+universal !important  off@0 on@1 on@300 on@4605 off@0
+div rules  off@0 off@0 off@0 off@0 off@0
+scroll-padding/snap  off@0 on@1 on@300 on@4464 off@0
+body transformed  off@0 on@1 on@300 on@4464 off@0
+overflow-y scroll html  off@0 on@1 on@300 on@4464 off@0
+dsf 1 fractions off@0 off@0 off@0 on@1 on@1 on@1 on@1 on@1 off@0
+dsf 1.5 fractions off@0 off@0 off@0 on@1 on@1 on@1 on@1 on@1 off@0
+dsf 2 fractions off@0 off@0 off@0 on@1 on@1 on@1 on@1 on@1 off@0
+dsf 3 fractions off@0 off@0 off@0 on@1 on@1 on@1 on@1 on@1 off@0
+frame out of view off@0 on@1 on@300 on@4764 off@0
+frame half in view off@0 on@1 on@300 on@4764 off@0
+frame hidden and shown off@0 off@0 on@1 on@300 on@4764 off@0
+removed and inserted at 0 off@0 true off@0 on@1 on@300 on@4464 off@0
+removed and inserted at 300 on@300 true off@0 on@1 on@300 on@4464 off@0
+moved at 300 on@236 true off@0 on@1 on@300 on@4464 off@0
+moved back at 0 off@0 true off@0 on@1 on@300 on@4464 off@0
+moveBefore on@300 true off@0 on@1 on@300 on@4464 off@0
+moved twice in a task on@300 true off@0 on@1 on@300 on@4464 off@0
+into an open dialog on@236 true off@0 on@1 on@300 on@4400 off@0
+out of it, dialog removed off@0 true off@0 on@1 on@300 on@4464 off@0
+cloned on@300 true off@0 on@1 on@300 on@4464 off@0
+popover hidden by force then reconnected off@0 true off@0 on@1 on@300 on@4464 off@0
+moved as it connected off@0 on@1 on@300 on@4464 off@0
+two bars off@0 on@1 on@300 on@4528 off@0 | off@0 on@5 off@0
+body fixed at -300 (a scroll lock) off@0
+  unlocked on@300
+html overflow hidden (a scroll lock) on@300
+display:none at 0: on WRONG@0 | shown at 0: off@0 | transitions background-color | frames with a color other than rest 9 of 16
+
+# firefox 159.0
+plain  off@0 on@1 on@300 on@4464 off@0
+quirks BackCompat off@0 on@1 on@300 on@4464 off@0
+html margin-top  off@0 on@1 on@300 on@4510 off@0
+html top  off@0 on@1 on@300 on@4484 off@0
+html negative margin  off@0 on@1 on@300 on@4434 off@0
+html height 0  off@0 on@1 on@300 on@4464 off@0
+body absolute  off@0 on@1 on@300 on@4464 off@0
+html zoom 1.5  off@0 on@1 on@300 on@6996 off@0
+body zoom .5  off@0 on@1 on@300 on@1932 off@0
+html zoom 3  off@0 on@1 on@300 on@14592 off@0
+html rtl  off@0 on@1 on@300 on@4464 off@0
+html transform  off@0 on@1 on@300 on@4504 off@0
+html perspective+contain  off@0 on@1 on@300 on@4464 off@0
+bar content-visibility  off@0 on@1 on@300 on@4464 off@0
+bar display contents  off@0 on@1 on@300 on@4428 off@0
+bar opacity/filter/transform  off@0 on@1 on@300 on@4464 off@0
+bar fixed  off@0 on@1 on@300 on@4400 off@0
+bar clip  off@0 on@1 on@300 on@4464 off@0
+bar visibility hidden  off@0 on@1 on@300 on@4464 off@0
+page rules on popovers  off@0 on@1 on@300 on@4464 off@0
+universal !important  off@0 on@1 on@300 on@4596 off@0
+div rules  off@0 off@0 off@0 off@0 off@0
+scroll-padding/snap  off@0 on@1 on@300 on@4464 off@0
+body transformed  off@0 on@1 on@300 on@4464 off@0
+overflow-y scroll html  off@0 on@1 on@300 on@4464 off@0
+dsf 1 fractions off@0 on@0.25 on@0.33 on@0.5 on@0.67 on@0.75 on@1 on@0.5 off@0
+dsf 1.5 fractions off@0 on@0.25 on@0.33 on@0.5 on@0.67 on@0.75 on@1 on@0.5 off@0
+dsf 2 fractions off@0 on@0.25 on@0.33 on@0.5 on@0.67 on@0.75 on@1 on@0.5 off@0
+dsf 3 fractions off@0 on@0.25 on@0.33 on@0.5 on@0.67 on@0.75 on@1 on@0.5 off@0
+frame out of view off@0 on@1 on@300 on@4764 off@0
+frame half in view off@0 on@1 on@300 on@4764 off@0
+frame hidden and shown off@0 off@0 on@1 on@300 on@4764 off@0
+removed and inserted at 0 off@0 true off@0 on@1 on@300 on@4464 off@0
+removed and inserted at 300 on@300 true off@0 on@1 on@300 on@4464 off@0
+moved at 300 on@236 true off@0 on@1 on@300 on@4464 off@0
+moved back at 0 off@0 true off@0 on@1 on@300 on@4464 off@0
+moveBefore on@300 true off@0 on@1 on@300 on@4464 off@0
+moved twice in a task on@300 true off@0 on@1 on@300 on@4464 off@0
+into an open dialog on@236 true off@0 on@1 on@300 on@4400 off@0
+out of it, dialog removed off@0 true off@0 on@1 on@300 on@4464 off@0
+cloned on@300 true off@0 on@1 on@300 on@4464 off@0
+popover hidden by force then reconnected off@0 true off@0 on@1 on@300 on@4464 off@0
+moved as it connected off@0 on@1 on@300 on@4464 off@0
+two bars off@0 on@1 on@300 on@4528 off@0 | off@0 on@5 off@0
+body fixed at -300 (a scroll lock) off@0
+  unlocked on@300
+html overflow hidden (a scroll lock) on@300
+display:none at 0: on WRONG@0 | shown at 0: off@0 | transitions background-color | frames with a color other than rest 9 of 16
+
+# webkit 27.2
+plain  off@0 on@1 on@300 on@4464 off@0
+quirks BackCompat off@0 on@1 on@300 on@4464 off@0
+html margin-top  off@0 on@1 on@300 on@4510 off@0
+html top  off@0 on@1 on@300 on@4484 off@0
+html negative margin  off@0 on@1 on@300 on@4434 off@0
+html height 0  off@0 on@1 on@300 on@4464 off@0
+body absolute  off@0 on@1 on@300 on@4464 off@0
+html zoom 1.5  off@0 on@1 on@300 on@6996 off@0
+body zoom .5  off@0 on@1 on@300 on@1932 off@0
+html zoom 3  off@0 on@1 on@300 on@14592 off@0
+html rtl  off@0 on@1 on@300 on@4464 off@0
+html transform  off@0 on@1 on@300 on@4504 off@0
+html perspective+contain  off@0 on@1 on@300 on@4464 off@0
+bar content-visibility  off@0 on@1 on@300 on@4464 off@0
+bar display contents  off@0 on@1 on@300 on@4428 off@0
+bar opacity/filter/transform  off@0 on@1 on@300 on@4464 off@0
+bar fixed  off@0 on@1 on@300 on@4400 off@0
+bar clip  off@0 on@1 on@300 on@4464 off@0
+bar visibility hidden  off@0 on@1 on@300 on@4464 off@0
+page rules on popovers  off@0 on@1 on@300 on@4464 off@0
+universal !important  off@0 on@1 on@300 on@4605 off@0
+div rules  off@0 off@0 off@0 off@0 off@0
+scroll-padding/snap  off@0 on@1 on@300 on@4464 off@0
+body transformed  off@0 on@1 on@300 on@4464 off@0
+overflow-y scroll html  off@0 on@1 on@300 on@4464 off@0
+dsf 1 fractions off@0 off@0 off@0 off@0 off@0 off@0 on@1 off@0 off@0
+dsf 1.5 fractions off@0 off@0 off@0 off@0 off@0 off@0 on@1 off@0 off@0
+dsf 2 fractions off@0 off@0 off@0 off@0 off@0 off@0 on@1 off@0 off@0
+dsf 3 fractions off@0 off@0 off@0 off@0 off@0 off@0 on@1 off@0 off@0
+frame out of view off@0 on@1 on@300 on@4764 off@0
+frame half in view off@0 on@1 on@300 on@4764 off@0
+frame hidden and shown off@0 off@0 on@1 on@300 on@4764 off@0
+removed and inserted at 0 off@0 true off@0 on@1 on@300 on@4464 off@0
+removed and inserted at 300 on@300 true off@0 on@1 on@300 on@4464 off@0
+moved at 300 on@236 true off@0 on@1 on@300 on@4464 off@0
+moved back at 0 off@0 true off@0 on@1 on@300 on@4464 off@0
+moveBefore on@300 true off@0 on@1 on@300 on@4464 off@0
+moved twice in a task on@300 true off@0 on@1 on@300 on@4464 off@0
+into an open dialog on@236 true off@0 on@1 on@300 on@4400 off@0
+out of it, dialog removed off@0 true off@0 on@1 on@300 on@4464 off@0
+cloned on@300 true off@0 on@1 on@300 on@4464 off@0
+popover hidden by force then reconnected off@0 true off@0 on@1 on@300 on@4464 off@0
+moved as it connected off@0 on@1 on@300 on@4464 off@0
+two bars off@0 on@1 on@300 on@4528 off@0 | off@0 on@5 off@0
+body fixed at -300 (a scroll lock) off@0
+  unlocked on@300
+html overflow hidden (a scroll lock) on@300
+display:none at 0: on WRONG@0 | shown at 0: off@0 | transitions background-color | frames with a color other than rest 8 of 16
+
