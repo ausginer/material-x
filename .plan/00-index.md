@@ -5132,6 +5132,16 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Ready** for an implementer. Nothing is left to decide. The source change is in core alone.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: implemented on `core/use-aria-1`, from `114270083`, for #223, and not closed.** Requested by the coordinator. `useARIA` keeps a `Set` of the names that it has mirrored from its host. The connect adds the host's `aria-*` names to it and then syncs every name in it, and the observer adds the names that it mirrors. The README's row and the hook's JSDoc say what it does.
+
+- **The set is needed.** No other place records which names were mirrored: the target's own attributes also hold what the component set, and the host has lost the name.
+- **The rows,** in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/implementation.txt), [mutations](aria-removed-1/probes/mutations.mjs)). Core's `useARIA` has six rows more: the three cases, the transformer's value for `null`, the target's own attribute, and one that this entry doesn't list, below. The text field has two per element, for `aria-labelledby` and for `aria-describedby`. With `main`'s `useARIA.ts`, five of core's six and the text fields' four fail in each engine, and the row of the target's own attribute passes. With the repair, all pass.
+- **The row added beyond the list** removes, while out, an attribute that the observer mirrored after the connect. It is the only row that fails when the observer doesn't record the name.
+- **The other mutations,** each with the same failures in the three engines: the connect not recording the names fails four core rows and the text fields' four. Syncing the target's own `aria-*` too fails the row of the target's own attribute alone. Removing a lost attribute without the transformer fails the transformer's row and the text fields' four.
+- **The browser projects pass** in the three engines: core's 235 rows in each, and material-x's 558, of which 10 are skipped in Firefox and in WebKit and one is an expected failure in Firefox. Both packages' typechecks pass.
+- **Sizes,** in Brotli bytes: `complete` 22844 to 22886, **+42**. The 11 entry rows that have the hook change from −15 to +41, the largest `text-field/multiline-text-field`. The other eight entry rows, and core's, box-quad's and drag's, are 0 ([every row](aria-removed-1/checks/sizes.txt)).
+- **Limits:** Safari, the spec projects and the visual project weren't run.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

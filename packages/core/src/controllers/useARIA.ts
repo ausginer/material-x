@@ -21,6 +21,9 @@ export type ARIATransformer = (
  *
  * Existing `aria-*` attributes are copied when the host connects, and further
  * `aria-*` attribute mutations are mirrored through a `MutationObserver`.
+ * Each connect also synchronizes every attribute that was mirrored before, so
+ * one that the host has lost since then is transformed from `null`. An
+ * `aria-*` attribute that the host has never had isn't changed on the target.
  * Attributes outside the `aria-*` namespace are ignored.
  *
  * @param host - The host element whose `aria-*` attributes should be observed.
@@ -33,12 +36,22 @@ export function useARIA(
   target: HTMLElement,
   transform: ARIATransformer = (_, value) => value,
 ): void {
+  // The observer doesn't report a removal made while the host is disconnected,
+  // and drops its undelivered records on disconnect.
+  const mirrored = new Set<string>();
+
+  const sync = (name: string): void => {
+    setAttribute(target, name, transform(name, host.getAttribute(name)));
+  };
+
   useConnected(host, () => {
     for (const { name } of host.attributes) {
       if (name.startsWith('aria-')) {
-        setAttribute(target, name, transform(name, host.getAttribute(name)));
+        mirrored.add(name);
       }
     }
+
+    mirrored.forEach(sync);
   });
 
   useMutationObserver(
@@ -46,7 +59,8 @@ export function useARIA(
     (records) => {
       for (const { type, attributeName: name } of records) {
         if (type === 'attributes' && name?.startsWith('aria-')) {
-          setAttribute(target, name, transform(name, host.getAttribute(name)));
+          mirrored.add(name);
+          sync(name);
         }
       }
     },
