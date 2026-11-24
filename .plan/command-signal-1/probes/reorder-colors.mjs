@@ -68,6 +68,8 @@ console.log(
 
 const TOKENS = `${container}: rgb(1, 1, 1); ${label}: rgb(2, 2, 2); ${trailing}: rgb(3, 3, 3); ${shape}: 33px;`;
 const LIST_SHEET = `:host(:not([data-command])) ::slotted(:state(drag)) { ${TOKENS} }`;
+// Everything in the list's own sheet, with no rule and no state in the item.
+const LIST_ONLY = `:host(:not([data-command])) ::slotted(:state(drag):not(:state(disabled))) { ${TOKENS} } :host(:not([data-command])) ::slotted(mx-list-item:state(drag)) { background-color: var(--md-list-item-container-color, var(${container})) !important; color: var(${label}) !important; }`;
 const ITEM_SHEET = `:host(:state(drag)) { ${TOKENS} }`;
 const BOX_RESET = `:host(:popover-open) { background-color: var(--md-list-item-container-color, var(${container})) !important; color: var(${label}) !important; }`;
 
@@ -144,6 +146,21 @@ for (const E of ['chromium', 'firefox', 'webkit']) {
       BOX_RESET,
       'mx-sortable-list>*{--md-list-item-container-color:rgb(9,9,9)}',
     ],
+    ["all in the list's sheet", LIST_ONLY, '', '', ''],
+    [
+      "all in the list's sheet, with a page rule and a popover rule",
+      LIST_ONLY,
+      '',
+      '',
+      '#s{background-color:rgb(0,0,255)} [popover]{background:red;color:blue}',
+    ],
+    [
+      "all in the list's sheet, with --md-list-item-container-color on the items",
+      LIST_ONLY,
+      '',
+      '',
+      'mx-sortable-list>*{--md-list-item-container-color:rgb(9,9,9)}',
+    ],
     [
       "on :host(:state(drag)) in the items' main sheet",
       '',
@@ -180,6 +197,34 @@ for (const E of ['chromium', 'firefox', 'webkit']) {
       await page.close();
     }
   }
+  // A disabled button item, dragged by its handle, with the list-only sheet.
+  {
+    const page = await browser.newPage({
+      viewport: { width: 500, height: 420 },
+    });
+    await page.setContent(
+      HTML().replace(
+        '<mx-list-button-item id=b>',
+        '<mx-list-button-item id=b disabled><b slot=lead data-handle>=</b>',
+      ),
+    );
+    await page.waitForTimeout(150);
+    await push(page, LIST_ONLY, '', '');
+    const at = await page.evaluate(() => {
+      const r = document
+        .querySelector('#b [data-handle]')
+        .getBoundingClientRect();
+      return [r.left + r.width / 2, r.top + r.height / 2];
+    });
+    console.log(`disabled at rest: ${await read(page, 'b')}`);
+    await page.mouse.move(...at);
+    await page.mouse.down();
+    await page.mouse.move(at[0], at[1] + 12, { steps: 4 });
+    await page.waitForTimeout(500);
+    console.log(`disabled in a pointer drag: ${await read(page, 'b')}`);
+    await page.mouse.up();
+    await page.close();
+  }
   // A key move: the item's background in each frame, by whether the list keeps
   // the reorder look from a command. A commit after 100 ms, and React's delay.
   for (const [name, command] of [
@@ -197,9 +242,12 @@ for (const E of ['chromium', 'firefox', 'webkit']) {
         ([c, d]) => {
           const l = document.getElementById('l');
           if (c) l.toggleAttribute('data-command', true);
-          l.addEventListener('reorder', (e) =>
-            setTimeout(() => l.insertBefore(e.item, e.next), d),
-          );
+          l.addEventListener('reorder', (e) => {
+            window.atReorder_ = getComputedStyle(
+              e.item.shadowRoot.querySelector('.host'),
+            ).backgroundColor;
+            setTimeout(() => l.insertBefore(e.item, e.next), d);
+          });
           const b = document.getElementById('b');
           b.focus();
           window.frames_ = [];
@@ -227,7 +275,7 @@ for (const E of ['chromium', 'firefox', 'webkit']) {
           ).length,
       );
       console.log(
-        `key, ${name}, commit after ${delay} ms: ${n} frames in the reorder color; order ${await page.evaluate(() => [...document.getElementById('l').children].map((x) => x.id).join(''))}`,
+        `key, ${name}, commit after ${delay} ms: ${n} frames in the reorder color, in the handler ${await page.evaluate(() => window.atReorder_)}; order ${await page.evaluate(() => [...document.getElementById('l').children].map((x) => x.id).join(''))}`,
       );
       await page.close();
     }
