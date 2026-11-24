@@ -1,6 +1,6 @@
 # Findings on GitHub — plan
 
-**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is written on this branch and reviewed, and the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings) have its remediation. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
+**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is on `main` as `8663d722b` (#244), with the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings). Stage 2 is written on `repo/finding-tool-1` (#250) and reviewed, and [the rulings on that review](#stage-2-the-reviews-rulings) have its remediation. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
 
 ## The direction
 
@@ -418,14 +418,14 @@ Branch `repo/finding-tool-1` from this branch's head, and its pull request's bas
 
 **Use:** `node .scripts/finding.ts <number> [r<revision>]`. Any other argument form prints the usage and exits 1. There is no shell wrapper and no option.
 
-**It asks once,** with `gh api graphql`, for the issue's number, title, URL, state, body, author, editor, time of last edit, labels, and its first 100 comments with the total, and each one's author, body, creation time and time of last edit. The repository `ausginer/material-x` and the account `Lodin` are constants. Line ends are normalized before any check, because the web editor writes CRLF. An absent author or editor is `null`: an absent author isn't `Lodin`, and an absent editor means never edited.
+**It asks once,** with `gh api graphql`, for the issue's number, title, URL, state, body, author, editor, time of last edit, labels, and its first 100 comments with the total, and each one's author, body, creation time and time of last edit. The repository `ausginer/material-x` and the account `Lodin` are constants. Line ends are normalized before any check, because the web editor writes CRLF. An absent author or editor is `null`: an absent author isn't `Lodin`. An absent editor with no time of last edit means that the body was never edited. With a time, it is the editor's deleted account, which isn't `Lodin` either.
 
 **It prints,** when every check passes, to standard output and exits 0: `#<number> r<N> <tier label> <state> <url>`, the title, the body, and each amendment in order under a line that says amendments aren't the contract, with its time. Then one line with the number of comments left out. Other comments are never printed.
 
 **It refuses** with exit 1, one message on standard error that names the cause, and nothing on standard output, when:
 
 1. `gh` fails, with `gh`'s own message. A pull request's number and an unknown number fail this way;
-2. the author isn't `Lodin`, or the last editor is another account;
+2. the author isn't `Lodin`, or the body has an editor or a time of last edit and the editor isn't `Lodin`. The message calls an absent editor _an absent account_, as it does an absent author;
 3. the issue hasn't exactly one label of `tier:A`, `tier:B` and `tier:C`;
 4. the body's last two non-empty lines aren't `Revision <N>` and `— ARCHITECT`;
 5. the issue has more than 100 comments;
@@ -436,9 +436,47 @@ Branch `repo/finding-tool-1` from this branch's head, and its pull request's bas
 
 A comment by another account is never an amendment, whatever it says.
 
-**Tests** run the command as `cl.node.test.ts` does, with a stub `gh` first on `PATH` that prints a saved answer and fails on a call that isn't `api graphql`. One passing case each for r0, for r2 with other comments around it, for r2 with a third account's `### Amendment 3`, for CRLF, for a closed issue and for a given revision that matches. One refusing case for each of 1 to 9, two for each of 2, 6, 7 (a missing and a surplus amendment), 8 (N of 0 and more) and 9 (earlier and later), each asserting the message, the exit code and an empty standard output. Removing any one check makes a test fail, and the report says so.
+**Tests** run the command as `cl.node.test.ts` does, with a stub `gh` first on `PATH` that prints a saved answer and fails on a call that isn't `api graphql`. One passing case each for r0, for r2 with other comments around it, for r2 with a third account's `### Amendment 3`, for CRLF, for a closed issue and for a given revision that matches. One refusing case for each of 1 to 9, three for 2 (another author, another editor and an absent one), two for each of 6, 7 (a missing and a surplus amendment), 8 (N of 0 and more) and 9 (earlier and later), each asserting the message, the exit code and an empty standard output. Removing any one check makes a test fail, and the report says so.
 
 **Live readings,** in the report: `node .scripts/finding.ts 228` refuses for its labels, and `225`, a pull request, refuses as `gh` fails. The order of checks is the order above. The `.ts` checks of `handoff.md` apply, with the repository-level commands.
+
+### Stage 2: the review's rulings
+
+Ruled on 2026-11-24 by the architect, on the [feature proof](../reviews/finding-tool-1/feature-proof-claude.md) at `77f5df0e5`. Nothing is the owner's to answer, and no property of `RD-56` changes. The branch has `origin/main` at `8663d722b` merged in as `d346862dc`. The [section above](#stage-2-the-tool) is corrected in two places. It said _"an absent editor means never edited"_, and its check 2 refused when _"the last editor is another account"_.
+
+| Finding | Ruling |
+| --- | --- |
+| `reviewer-1` | **Accepted.** The plan's sentence was false and is corrected. Check 2 has the time of last edit too, and one row is added |
+| `reviewer-2` | **Accepted, with one assertion.** A field that is removed from the question removes a check and nothing says so, because the code's types say that the field is there |
+| `reviewer-3` | **Accepted for 6 of the 15 forms,** each by a change to a row that exists. Rejected for 9, below |
+| `reviewer-4` | **Rejected.** A color setting or a null issue ends with exit 1 and an empty output, so no role takes it for a contract. The message is poor, and nothing in the repository or in this session's environment sets either variable. The plan's list of refusals doesn't have an answer that isn't an issue, and it isn't added |
+| The observations | None is work. `r01` reads as `r1`, and the plan's forms don't forbid it |
+
+**Why check 2 keeps a named editor without a time.** GitHub returns no such state, so the time alone would do. But the [repair model](probes/repair-model.mjs) has it, and the tool then prints 4 states that the model refuses. With both conditions the tool agrees with the model on all 46,800 states and all 376,296 stopped repairs.
+
+**The 9 rejected forms:** any `tier:` label, since only three exist. A revision with text before it, one with text after it, and a stamp at the end of a longer line: the code reads the exact line, and the weaker forms read the same number in the same place. An amendment's heading of another level, or with text after the number: no other role writes such a comment, by [`findings.md`](../../.agents/docs/findings.md#writers). The two ends of the usage's patterns: `300x` and `r2x` are refused without them too, by `gh` and by check 9. The message when `gh` isn't installed.
+
+#### The remediation, for the implementer
+
+On `repo/finding-tool-1`, two files. Nothing else in them changes.
+
+1. **`.scripts/finding.ts`, check 2.** The body passes when the editor is `Lodin`, or when the editor and the time of last edit are both `null`. Otherwise it is refused with `#300 was last edited by <login>, not Lodin`, where an absent editor is `an absent account`. The comment above the condition says why both are read. The query and the order of the checks stay.
+2. **`.scripts/finding.node.test.ts`:**
+   - **One new row** after _a body that another account edited last_: r2 with a `null` editor and its time of edit is refused as `#300 was last edited by an absent account, not Lodin`.
+   - _should ask GitHub once, for the given number_ also asserts the whole text of the question, written out in the test and not imported. The stub doesn't change. A change of the question's layout changes that text too.
+   - _should read CRLF line ends_ also ends the body and each amendment with a line end, and its name says so.
+   - _should print r2 with its amendments and without other comments_: one other comment by `Lodin` has `### Amendment 3` on a later line.
+   - _should refuse a body without its revision_: the body has `Revision 0` above its last paragraph, and not as its last line but one.
+   - _should refuse an amendment without its stamp_: Amendment 1 ends with `Reason. — ARCHITECT` on one line.
+   - _should refuse an amendment that was edited_: Amendment 2 is the edited one, and Amendment 1 isn't.
+
+**Proof:** a copy of the review's [`mutate.ts`](../reviews/finding-tool-1/probes/mutate.ts) with its check 2 patterns following the new condition, and its [`agreement.ts`](../reviews/finding-tool-1/probes/agreement.ts). Neither is changed in the review's record, and the copy isn't committed. In the first, the unchanged tool passes 38 rows, every row of the list applies, the 9 forms above survive and no other mutation does. The mutation that restores the old condition fails the new row alone. In the second, every disagreement and refusal is 0. The pull request's description has both, the count of 38 rows, and no longer says that GitHub's answer for a deleted editor is unread. The architect made these changes in a scratch copy on 2026-11-24 and read exactly that, the second probe with its default arguments only.
+
+**Checks:** the `.ts` checks of `handoff.md` with the repository-level commands, the `repo` Vitest project, and the live readings for `228` and `225` again.
+
+**No recheck is owed,** if the diff is these changes and the two probes read as above. The coordinator compares the diff with the list. Another change, or another survivor, comes back to the architect.
+
+**Unread:** a live author with a deleted editor, as the review says, and everything that needs a write. The trial reads the latter.
 
 ## Questions for the owner
 
