@@ -440,6 +440,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": true,
@@ -2787,6 +2788,7 @@
       "SliderLike": true,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
+      "CardLike": false,
       "Indeterminable": false,
       "TextFieldLike": false,
       "FocusForwarding": false

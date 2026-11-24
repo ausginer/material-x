@@ -104,6 +104,21 @@ Implemented on 2026-11-24, on `943d3a912`: the plan's [rulings](slider-plan.md#t
 - **Tests,** whole material-x, one engine at a time, without the visual project: Chromium 1391 passed and 2 expected fail (with the node project); Firefox 1288 passed, 3 expected fail, 66 skipped; WebKit 1289 passed, 2 expected fail, 66 skipped. The two last rows were added after it, and `tests/slider` then passed in the three engines. Format, lint, typecheck, publint, `docs-build` and `docs-smoke` (120 of 120) pass.
 - **Not run:** the visual project, Safari, physical touch, and assistive technology.
 
+## The recheck's work list
+
+Implemented on 2026-11-24, on `8223fa371`: the plan's [rulings](slider-plan.md#the-rechecks-rulings). In `src`, one comment and JSDoc in `slider.ts` and a sentence in `slider.mdx` change. No behavior, style or template does.
+
+- **The second finger, in both engines** (`SL-D3`): the component's tracking and the held look ignore it. The native range's own answer is a bare range's: in Firefox its lift moves the value to that finger, and in Chromium its touch ends the slide and `change` comes at the first lift of either finger. This replaces the departure in [the section on it](#the-held-state-and-the-second-finger), which states Chromium only. Nothing here was read again in Firefox.
+- **`reviewer-12`:** `recordEvents` merges repeats of `input` only. Every row that states one `change` passes through it in the three engines, where it runs.
+- **`reviewer-13`:** six rows. Chromium: a second scroll, a scroll after a slide that was ended by disabling, a held press that meets the focus of another element, and a pen's press. The three engines: a press after a release that was missed, and the hit test at the indicator. `commands.pen` is new.
+- **`reviewer-14`:** JSDoc's `@event input`, `slider.mdx` and the comment on `pointerdown` as ruled.
+- **Witnesses:** [seven mutations](checks/witnesses-recheck.txt), each failing its row in every engine it ran in.
+- **Departure: the row after a missed release also disables and enables the slider while it is hidden.** With `display: none` alone the first press's held look stays, which is the plan's limit 7, and the mouse has one `pointerId`, so its `pointerup` ends the second press too: the mutation then fails nothing in any engine. The recheck's own reading removed the slider, which ends the look.
+- **The traits snapshot:** the merge of `mx-card` at `8223fa371` left two lines out of `traits-baseline.json`, `SliderLike` on the card and `CardLike` on the slider, and `traits-baseline` failed in the three engines. Both are added, and nothing else in the snapshot changes.
+- **Tests,** on the merge of `d59e28c4d`, whole material-x, one engine at a time, without the visual project, with the slider's, card's, list's and traits rows: Chromium 1496 passed and 2 expected fail (with the node project); Firefox 1383 passed, 3 expected fail, 75 skipped; WebKit 1384 passed, 2 expected fail, 75 skipped. The root `fmt-check`, `lint`, `typecheck` and `typecheck-declarations` pass, and publint, `docs-build` and `docs-smoke` (125 of 125).
+- **Size (Brotli),** against `d59e28c4d`: `slider/slider` 3947 and `complete` 25074, both unchanged, and no other row moves.
+- **Not run:** Safari, physical touch, and assistive technology.
+
 ## Verification
 
 - **Tests,** whole material-x, one engine at a time, with no visual project: Chromium 1297 passed and 2 expected fail (with the node project); Firefox 1221 passed, 3 expected fail, 39 skipped; WebKit 1222 passed, 2 expected fail, 39 skipped. After it, only the stories' layout changed.
