@@ -1,0 +1,78 @@
+
+# chromium 158.0.8127.18
+lead, hidden, mx-icon-button: 1914 (324); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-icon-button, standard: 1909 (324); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-icon-button, xsmall: 1520 (271); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-button: 2015 (330); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-checkbox: 1909 (324); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a native button: 562 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a link: 550 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a tabindex on mx-icon: 454 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button: 1521 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button, standard: 1516 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button, xsmall: 1143 (54); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-button: 1616 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-checkbox: 1516 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a native button: 430 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a link: 316 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a tabindex on mx-icon: 290 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button: 1914 (324); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button, standard: 1909 (324); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button, xsmall: 1520 (271); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-button: 2015 (330); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-checkbox: 1909 (324); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a native button: 550 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a link: 464 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a tabindex on mx-icon: 454 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+
+# firefox 159.0
+lead, hidden, mx-icon-button: 1908 (321); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-icon-button, standard: 1904 (321); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-icon-button, xsmall: 1535 (296); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-button: 2002 (327); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-checkbox: 1890 (321); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a native button: 530 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a link: 566 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a tabindex on mx-icon: 464 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button: 1352 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button, standard: 1348 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button, xsmall: 1033 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-button: 1439 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-checkbox: 1334 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a native button: 318 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a link: 226 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a tabindex on mx-icon: 200 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button: 1908 (321); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button, standard: 1904 (321); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button, xsmall: 1535 (296); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-button: 2001 (327); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-checkbox: 1890 (321); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a native button: 512 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a link: 470 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a tabindex on mx-icon: 464 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+
+# webkit 27.2
+lead, hidden, mx-icon-button: 1905 (317); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-icon-button, standard: 1900 (317); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-icon-button, xsmall: 1521 (275); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-button: 2008 (319); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, mx-checkbox: 1904 (317); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a native button: 490 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a link: 446 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+lead, hidden, a tabindex on mx-icon: 386 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button: 1522 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button, standard: 1517 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-icon-button, xsmall: 1144 (54); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-button: 1613 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, mx-checkbox: 1521 (92); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a native button: 442 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a link: 266 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, hidden, a tabindex on mx-icon: 214 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button: 1905 (317); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button, standard: 1900 (317); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-icon-button, xsmall: 1521 (275); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-button: 2003 (319); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, mx-checkbox: 1904 (317); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a native button: 442 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a link: 386 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item
+trail, visible, a tabindex on mx-icon: 386 (0); hit: mx-list-item mx-list-item mx-list-item mx-list-item

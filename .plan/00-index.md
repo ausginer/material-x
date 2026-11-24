@@ -5798,7 +5798,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: 
 
 #### RF-128 — A handle shows the browser's focus indicator, and not Material's
 
-Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
+Tier A, **open**, pre-existing. Until the last note it was Tier C. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
 
 - **Whose element:** the consumer's, in the item's `lead` or `trail` slot. In a sortable list the package makes it a button: `sortItem` writes its `tabindex`, `role="button"`, name, description and `touch-action`.
 - **What draws it:** the browser. Nothing in the package or the story has a rule for it, and the computed outline is `auto`, 1px in Chromium and Firefox and 3px in WebKit, in the engine's color. That is the same for `mx-icon`, a `span` and a native `button`. A `mx-icon-button` as a handle already draws Material's, on its inner button.
@@ -5830,6 +5830,30 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
   - A padding of 5px with a margin of −5px, under `:has-slotted`: whole on button items in Firefox alone. In Chromium and WebKit the sheet changed nothing there. The cause wasn't read, and this isn't evidence against the form.
 - **What the rule needs otherwise holds:** the list's own thickness and color equal `focusTokens`' (3px, `md.sys.color.secondary`), so only the offset needs a variable, `--_handle-focus-indicator-outline-offset`.
 - **Not read:** Safari, sizes, rows, and the list's long trailing text.
+
+**Dated 2026-11-24 by the architect, on the implementer's return, relayed by the coordinator. The owner's (a) stands. The trail slot's clip goes, as `RF-135`, in the same unit. Ready again for an implementer,** on `material-x/handle-focus-1` with `main` at `751b1fb81` merged. Read on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2.
+
+- **The return is right, and so is its reading.** The entry's candidate read computed styles only. (a) needs the indicator to be seen, and in `trail` it isn't while the slot clips.
+- **What the clip protects: nothing that was found** ([reading](handle-focus-1/checks/trail-clip.txt), [probe](handle-focus-1/probes/trail-clip.mjs), 19 contents, two kinds of item, two directions, three engines). Between `hidden` and `visible` no box moves, and no size differs. **Long trailing text isn't clipped today:** the slot is `flex: 0 0 min-content` and the text is `nowrap`, so in a 300px item the slot is 538 to 581px wide and the text runs out of the item in either case, with no ellipsis. Short and wrapped text, icons, buttons, a checkbox, and 56px and 150px boxes are drawn the same, but for at most 5 pixels of a glyph's edge in wrapped text. What the clip does cut:
+  - what a page lets overflow a child that it bounded itself, such as `display: block; max-inline-size: 80px` (480 to 750 pixels). With its own `overflow: hidden; text-overflow: ellipsis`, which is the form that gives an ellipsis, it reads the same in both;
+  - a shadow (an elevated `mx-button`, 105 to 130 pixels, and any page's own), a negative margin, and focus indicators (`RF-135`).
+- **Where it came from:** `3632ccd77` wrote the clip and the ellipsis for the **slotted texts** of `.label`, `.overline`, `.support` and `.trail`, and `663e921c7` moved it to the slots. `md.comp.list` has color, font, size, weight, tracking and line height for the trailing text, and nothing of overflow. Material's pages weren't read.
+- **Tier.** It was C, for _"focus is visible today, so nothing is inaccessible"_. That sentence is false for a trailing `mx-icon` in Firefox, and by the vocabulary of [review-findings.md](../.agents/docs/review-findings.md#tier) a page sees another rendering, so it is A. The invisible focus itself is **a finding of its own, `RF-135`,** because it isn't the handle's: a `mx-icon-button` in a plain list has it too.
+- **Not taken, for `trail`:** `overflow: clip` with a margin (WebKit paints nothing); an offset of −3px (the indicator lies on the handle's content, and it leaves `mx-icon-button` clipped, so `RF-135` needs another repair anyway); padding with a negative margin (it reads whole in one engine and one kind of item, and keeps a clip that protects nothing); `overflow: visible` only while a handle has focus (the slot would change its overflow with focus, for no gain); and (b), (c) or (d) for trailing handles only, which makes the same handle look different by slot.
+- **Nothing is the owner's to answer.** (a) is his answer, and what the repair removes has no use that was found. **Told to him, as a cost:** a page that lets its own bounded trailing child overflow sees it spill.
+
+**The implementer's list,** for this entry and `RF-135`, one pull request with `Closes #229` and the issue of `RF-135`:
+
+1. **`list/styles/item/main.styles.css`:** `.trail` leaves the rule of `overflow: hidden` and `text-overflow: ellipsis`, and keeps `align-content: center`. The other three slots keep all three declarations.
+2. **The rule of (a),** as the [scratch patch](handle-focus-1/checks/handle-focus-scratch.patch.txt) has it: `::slotted([data-handle]:focus-visible)` with the list's own `--_focus-indicator-thickness` and `--_focus-indicator-color`, and `--_handle-focus-indicator-outline-offset`, a special token of `md.sys.state.focus-indicator.outer-offset`.
+3. **Rows,** `spec`, in each engine, in `list-item.spec.browser.test.ts`, with the keyboard's focus:
+   - **`RF-128`:** a focused handle (`mx-icon`, `span`, native `button`), in `lead` and in `trail`, in static and button items of a sortable list, has the three computed values of `focusTokens`' thickness, color and 2px offset. **Witness:** with the rule out, they fail. A page's rule on the handle wins, in both slots.
+   - **`RF-135`:** along each of its left, right and bottom edges, a focused `mx-icon-button` in `trail` paints at least nine tenths of the pixels that it paints in `lead` (`coveredIndicator` with no siblings gives `painted`, and `lead` is also the control that the row reads an indicator at all). In a static, a button and a link item of a plain `mx-list`, and for an `mx-icon` handle in a sortable list. **Witness:** with the clip in `.trail`, the trail rows fail, and no computed-style row does.
+4. **The implementer's [probe](handle-focus-1/probes/handle-paint.mjs)** on the built head gives, in `trail`, what it gives for _rule, .trail overflow: visible_, and [`trail-clip.mjs`](handle-focus-1/probes/trail-clip.mjs) reads no box that moves.
+5. Sizes by the gate, the whole browser project of material-x in the three engines without the visual one, typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`.
+6. **Stop** and return if a visual baseline or another element's row changes, or if a control paints less in `trail` than in `lead` in an engine.
+
+**A feature proof is owed,** and it reads the two entries together. **Not read:** Safari, forced colors, RTL of `trail-focus`, the lifted item. **Size:** _small_.
 
 #### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
 
@@ -6011,6 +6035,27 @@ Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier 
 - **The repair's form** is the implementer's. `--md-button-group-inner-corner-size` works as it does, in both directions.
 - **`RF-126` isn't affected:** its indicator is whole in RTL by the proof's pixels, and follows the button's shape.
 - **Plan needed:** no. **Ready** for an implementer. **Size:** _medium_, unchanged: the repair is a few lines, and the rows are the rest.
+
+#### RF-135 — A list item's trail slot clips the focus indicator of what is in it, and in Firefox all of it
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `material-x/handle-focus-1`, from the implementer's return of `RF-128`, on the coordinator's question whether it is a finding of its own. `RF-134` is the highest `RF-` on any branch on `origin` and in the local slots, so this is the next free number. Read at `751b1fb81` merged, on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](handle-focus-1/checks/trail-focus.txt), [probe](handle-focus-1/probes/trail-focus.mjs)).
+
+- **What happens:** `.trail` has `overflow: hidden` and fits its content, so the indicator, which lies 2px outside the control, is cut. In a plain `mx-list` with a static item, the indicator's own pixels, whole in `lead` and cut in `trail`:
+
+  | Control in the slot | Chromium, lead / trail | Firefox | WebKit |
+  | --- | --- | --- | --- |
+  | `mx-icon-button` | 324 / **92** | 321 / **0** | 317 / **92** |
+  | `mx-icon-button`, xsmall | 271 / **54** | 296 / **0** | 275 / **54** |
+  | `mx-button` | 330 / **92** | 327 / **0** | 319 / **92** |
+  | `mx-checkbox` | 324 / **92** | 321 / **0** | 317 / **92** |
+
+  A page's own button, link or `tabindex` element loses the browser's outline in the same way: in Firefox a `tabindex` on `mx-icon` shows none of it in `trail`. What focus changes there besides is the item's own focused shape (`:focus-within`), about 200 pixels at its corners, and, on a package button, its state layer.
+
+- **Why it matters:** the controls in `trail` are the ordinary ones, and the story has an `mx-icon-button` there. A keyboard user in Firefox doesn't see which control has focus.
+- **Required property:** nothing of a list item covers or cuts a pixel of the focus indicator of a control in its `lead` or `trail` slot. Content that a page puts in `trail` keeps its layout.
+- **Direction:** the clip goes, as `RF-128`'s last note reads and orders, with its rows. The two are one unit, because a rule for `RF-128` alone makes a trailing handle worse.
+- **Costs:** what that note says of a page's bounded child.
+- **Plan needed:** no. **Ready.** The owner's approval of the start is for the coordinator to ask. **Size:** _small_.
 
 ## Questions
 

@@ -1,0 +1,234 @@
+
+# chromium 158.0.8127.18
+ltr, mx-list-item, short text: 0 px differ, no box moved; hidden: item 300, trail 28x16, scroll 28x16, page 1000; visible: item 300, trail 28x16, scroll 28x16, page 1000
+ltr, mx-list-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+ltr, mx-list-item, long text: 0 px differ, no box moved; hidden: item 300, trail 538x16, scroll 538x16, page 1000; visible: item 300, trail 538x16, scroll 538x16, page 1000
+ltr, mx-list-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+ltr, mx-list-item, long text, the page bounds the span: 573 px differ, no box moved; hidden: item 300, trail 80x16, scroll 268x16, page 1000; visible: item 300, trail 80x16, scroll 268x16, page 1000
+ltr, mx-list-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+ltr, mx-list-item, a long unbreakable word, a bounded span: 480 px differ, no box moved; hidden: item 300, trail 80x16, scroll 240x16, page 1000; visible: item 300, trail 80x16, scroll 240x16, page 1000
+ltr, mx-list-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+ltr, mx-list-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, mx-button, elevated: 105 px differ, no box moved; hidden: item 300, trail 82x40, scroll 82x40, page 1000; visible: item 300, trail 82x40, scroll 82x40, page 1000
+ltr, mx-list-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+ltr, mx-list-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+ltr, mx-list-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+ltr, mx-list-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+ltr, mx-list-button-item, short text: 0 px differ, no box moved; hidden: item 300, trail 28x16, scroll 28x16, page 1000; visible: item 300, trail 28x16, scroll 28x16, page 1000
+ltr, mx-list-button-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+ltr, mx-list-button-item, long text: 0 px differ, no box moved; hidden: item 300, trail 538x16, scroll 538x16, page 1000; visible: item 300, trail 538x16, scroll 538x16, page 1000
+ltr, mx-list-button-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+ltr, mx-list-button-item, long text, the page bounds the span: 573 px differ, no box moved; hidden: item 300, trail 80x16, scroll 268x16, page 1000; visible: item 300, trail 80x16, scroll 268x16, page 1000
+ltr, mx-list-button-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+ltr, mx-list-button-item, a long unbreakable word, a bounded span: 480 px differ, no box moved; hidden: item 300, trail 80x16, scroll 240x16, page 1000; visible: item 300, trail 80x16, scroll 240x16, page 1000
+ltr, mx-list-button-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+ltr, mx-list-button-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, mx-button, elevated: 105 px differ, no box moved; hidden: item 300, trail 82x40, scroll 82x40, page 1000; visible: item 300, trail 82x40, scroll 82x40, page 1000
+ltr, mx-list-button-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+ltr, mx-list-button-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+ltr, mx-list-button-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+ltr, mx-list-button-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+rtl, mx-list-item, short text: 0 px differ, no box moved; hidden: item 300, trail 28x16, scroll 28x16, page 1000; visible: item 300, trail 28x16, scroll 28x16, page 1000
+rtl, mx-list-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+rtl, mx-list-item, long text: 1 px differ, no box moved; hidden: item 300, trail 538x16, scroll 538x16, page 1000; visible: item 300, trail 538x16, scroll 538x16, page 1000
+rtl, mx-list-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+rtl, mx-list-item, long text, the page bounds the span: 586 px differ, no box moved; hidden: item 300, trail 80x16, scroll 268x16, page 1000; visible: item 300, trail 80x16, scroll 268x16, page 1000
+rtl, mx-list-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+rtl, mx-list-item, a long unbreakable word, a bounded span: 483 px differ, no box moved; hidden: item 300, trail 80x16, scroll 240x16, page 1000; visible: item 300, trail 80x16, scroll 240x16, page 1000
+rtl, mx-list-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+rtl, mx-list-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, mx-button, elevated: 105 px differ, no box moved; hidden: item 300, trail 82x40, scroll 82x40, page 1000; visible: item 300, trail 82x40, scroll 82x40, page 1000
+rtl, mx-list-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+rtl, mx-list-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+rtl, mx-list-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+rtl, mx-list-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+rtl, mx-list-button-item, short text: 0 px differ, no box moved; hidden: item 300, trail 28x16, scroll 28x16, page 1000; visible: item 300, trail 28x16, scroll 28x16, page 1000
+rtl, mx-list-button-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+rtl, mx-list-button-item, long text: 1 px differ, no box moved; hidden: item 300, trail 538x16, scroll 538x16, page 1000; visible: item 300, trail 538x16, scroll 538x16, page 1000
+rtl, mx-list-button-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+rtl, mx-list-button-item, long text, the page bounds the span: 586 px differ, no box moved; hidden: item 300, trail 80x16, scroll 268x16, page 1000; visible: item 300, trail 80x16, scroll 268x16, page 1000
+rtl, mx-list-button-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+rtl, mx-list-button-item, a long unbreakable word, a bounded span: 483 px differ, no box moved; hidden: item 300, trail 80x16, scroll 240x16, page 1000; visible: item 300, trail 80x16, scroll 240x16, page 1000
+rtl, mx-list-button-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 47x16, scroll 47x16, page 1000; visible: item 300, trail 47x16, scroll 47x16, page 1000
+rtl, mx-list-button-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, mx-button, elevated: 105 px differ, no box moved; hidden: item 300, trail 82x40, scroll 82x40, page 1000; visible: item 300, trail 82x40, scroll 82x40, page 1000
+rtl, mx-list-button-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+rtl, mx-list-button-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+rtl, mx-list-button-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+rtl, mx-list-button-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+
+# firefox 159.0
+ltr, mx-list-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+ltr, mx-list-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+ltr, mx-list-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+ltr, mx-list-item, long text, the page lets it wrap: 5 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+ltr, mx-list-item, long text, the page bounds the span: 725 px differ, no box moved; hidden: item 300, trail 80x16, scroll 289x16, page 1000; visible: item 300, trail 80x16, scroll 289x16, page 1000
+ltr, mx-list-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+ltr, mx-list-item, a long unbreakable word, a bounded span: 525 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+ltr, mx-list-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+ltr, mx-list-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, mx-button, elevated: 130 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+ltr, mx-list-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+ltr, mx-list-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+ltr, mx-list-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+ltr, mx-list-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+ltr, mx-list-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+ltr, mx-list-button-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+ltr, mx-list-button-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+ltr, mx-list-button-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+ltr, mx-list-button-item, long text, the page lets it wrap: 5 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+ltr, mx-list-button-item, long text, the page bounds the span: 725 px differ, no box moved; hidden: item 300, trail 80x16, scroll 289x16, page 1000; visible: item 300, trail 80x16, scroll 289x16, page 1000
+ltr, mx-list-button-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+ltr, mx-list-button-item, a long unbreakable word, a bounded span: 525 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+ltr, mx-list-button-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+ltr, mx-list-button-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, mx-button, elevated: 130 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+ltr, mx-list-button-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+ltr, mx-list-button-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+ltr, mx-list-button-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+ltr, mx-list-button-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+ltr, mx-list-button-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+rtl, mx-list-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+rtl, mx-list-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+rtl, mx-list-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+rtl, mx-list-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+rtl, mx-list-item, long text, the page bounds the span: 750 px differ, no box moved; hidden: item 300, trail 80x16, scroll 289x16, page 1000; visible: item 300, trail 80x16, scroll 289x16, page 1000
+rtl, mx-list-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+rtl, mx-list-item, a long unbreakable word, a bounded span: 524 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+rtl, mx-list-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+rtl, mx-list-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, mx-button, elevated: 130 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+rtl, mx-list-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+rtl, mx-list-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+rtl, mx-list-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+rtl, mx-list-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+rtl, mx-list-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+rtl, mx-list-button-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+rtl, mx-list-button-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+rtl, mx-list-button-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+rtl, mx-list-button-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+rtl, mx-list-button-item, long text, the page bounds the span: 750 px differ, no box moved; hidden: item 300, trail 80x16, scroll 289x16, page 1000; visible: item 300, trail 80x16, scroll 289x16, page 1000
+rtl, mx-list-button-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+rtl, mx-list-button-item, a long unbreakable word, a bounded span: 524 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+rtl, mx-list-button-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+rtl, mx-list-button-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, mx-button, elevated: 130 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+rtl, mx-list-button-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+rtl, mx-list-button-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+rtl, mx-list-button-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+rtl, mx-list-button-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+rtl, mx-list-button-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+
+# webkit 27.2
+ltr, mx-list-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+ltr, mx-list-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+ltr, mx-list-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+ltr, mx-list-item, long text, the page lets it wrap: 5 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+ltr, mx-list-item, long text, the page bounds the span: 677 px differ, no box moved; hidden: item 300, trail 80x16, scroll 288x16, page 1000; visible: item 300, trail 80x16, scroll 288x16, page 1000
+ltr, mx-list-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+ltr, mx-list-item, a long unbreakable word, a bounded span: 517 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+ltr, mx-list-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+ltr, mx-list-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, mx-button, elevated: 116 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+ltr, mx-list-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+ltr, mx-list-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+ltr, mx-list-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+ltr, mx-list-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+ltr, mx-list-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+ltr, mx-list-button-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+ltr, mx-list-button-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+ltr, mx-list-button-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+ltr, mx-list-button-item, long text, the page lets it wrap: 5 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+ltr, mx-list-button-item, long text, the page bounds the span: 677 px differ, no box moved; hidden: item 300, trail 80x16, scroll 288x16, page 1000; visible: item 300, trail 80x16, scroll 288x16, page 1000
+ltr, mx-list-button-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+ltr, mx-list-button-item, a long unbreakable word, a bounded span: 517 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+ltr, mx-list-button-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+ltr, mx-list-button-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, mx-button, elevated: 116 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+ltr, mx-list-button-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+ltr, mx-list-button-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+ltr, mx-list-button-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+ltr, mx-list-button-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+ltr, mx-list-button-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+ltr, mx-list-button-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+ltr, mx-list-button-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+rtl, mx-list-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+rtl, mx-list-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+rtl, mx-list-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+rtl, mx-list-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+rtl, mx-list-item, long text, the page bounds the span: 732 px differ, no box moved; hidden: item 300, trail 80x16, scroll 288x16, page 1000; visible: item 300, trail 80x16, scroll 288x16, page 1000
+rtl, mx-list-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+rtl, mx-list-item, a long unbreakable word, a bounded span: 516 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+rtl, mx-list-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+rtl, mx-list-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, mx-button, elevated: 116 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+rtl, mx-list-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+rtl, mx-list-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+rtl, mx-list-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+rtl, mx-list-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+rtl, mx-list-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
+rtl, mx-list-button-item, short text: 0 px differ, no box moved; hidden: item 300, trail 32x16, scroll 32x16, page 1000; visible: item 300, trail 32x16, scroll 32x16, page 1000
+rtl, mx-list-button-item, descenders: 0 px differ, no box moved; hidden: item 300, trail 45x16, scroll 45x16, page 1000; visible: item 300, trail 45x16, scroll 45x16, page 1000
+rtl, mx-list-button-item, long text: 0 px differ, no box moved; hidden: item 300, trail 581x16, scroll 581x16, page 1000; visible: item 300, trail 581x16, scroll 581x16, page 1000
+rtl, mx-list-button-item, long text, the page lets it wrap: 0 px differ, no box moved; hidden: item 300, trail 36x160, scroll 36x160, page 1000; visible: item 300, trail 36x160, scroll 36x160, page 1000
+rtl, mx-list-button-item, long text, the page bounds the span: 732 px differ, no box moved; hidden: item 300, trail 80x16, scroll 288x16, page 1000; visible: item 300, trail 80x16, scroll 288x16, page 1000
+rtl, mx-list-button-item, the same, with its own clip and ellipsis: 0 px differ, no box moved; hidden: item 300, trail 80x16, scroll 80x16, page 1000; visible: item 300, trail 80x16, scroll 80x16, page 1000
+rtl, mx-list-button-item, a long unbreakable word, a bounded span: 516 px differ, no box moved; hidden: item 300, trail 80x16, scroll 213x16, page 1000; visible: item 300, trail 80x16, scroll 213x16, page 1000
+rtl, mx-list-button-item, two texts: 0 px differ, no box moved; hidden: item 300, trail 53x16, scroll 53x16, page 1000; visible: item 300, trail 53x16, scroll 53x16, page 1000
+rtl, mx-list-button-item, mx-icon: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, mx-icon with a long name and no font: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, mx-icon-button: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, mx-button, elevated: 116 px differ, no box moved; hidden: item 300, trail 85x40, scroll 85x40, page 1000; visible: item 300, trail 85x40, scroll 85x40, page 1000
+rtl, mx-list-button-item, mx-switch-button: 0 px differ, no box moved; hidden: item 300, trail 41x40, scroll 41x40, page 1000; visible: item 300, trail 41x40, scroll 41x40, page 1000
+rtl, mx-list-button-item, mx-checkbox: 0 px differ, no box moved; hidden: item 300, trail 40x40, scroll 40x40, page 1000; visible: item 300, trail 40x40, scroll 40x40, page 1000
+rtl, mx-list-button-item, an image of 56px: 0 px differ, no box moved; hidden: item 300, trail 56x56, scroll 56x56, page 1000; visible: item 300, trail 56x56, scroll 56x56, page 1000
+rtl, mx-list-button-item, a box of 150px in height: 0 px differ, no box moved; hidden: item 300, trail 40x150, scroll 40x150, page 1000; visible: item 300, trail 40x150, scroll 40x150, page 1000
+rtl, mx-list-button-item, a badge on an icon, 6px out: 0 px differ, no box moved; hidden: item 300, trail 20x20, scroll 20x20, page 1000; visible: item 300, trail 20x20, scroll 20x20, page 1000
+rtl, mx-list-button-item, a shadow: 1176 px differ, no box moved; hidden: item 300, trail 30x30, scroll 30x30, page 1000; visible: item 300, trail 30x30, scroll 30x30, page 1000
+rtl, mx-list-button-item, a negative margin: 300 px differ, no box moved; hidden: item 300, trail 20x30, scroll 30x30, page 1000; visible: item 300, trail 20x30, scroll 30x30, page 1000
