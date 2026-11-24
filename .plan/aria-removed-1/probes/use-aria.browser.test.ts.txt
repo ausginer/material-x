@@ -1,0 +1,58 @@
+// What useARIA's target holds after the host's aria-label changes, or goes away,
+// in each place where the host's observer doesn't report it. Copy to
+// packages/core/tests/ and run there. The last test fails on purpose, because
+// the reporter drops console output, and its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import { useARIA } from '../src/controllers/useARIA.ts';
+import { host, nextFrame } from './browser.ts';
+
+const rows: string[] = [];
+
+const cases: Record<string, (el: HTMLElement) => void | Promise<void>> = {
+  'control: removed while connected': (el) => el.removeAttribute('aria-label'),
+  'control: changed while out': (el) => {
+    el.remove();
+    el.setAttribute('aria-label', 'B');
+    document.body.append(el);
+  },
+  'removed while out': async (el) => {
+    el.remove();
+    await nextFrame();
+    el.removeAttribute('aria-label');
+    await nextFrame();
+    document.body.append(el);
+  },
+  'removed, then taken out in the same task, put back later': async (el) => {
+    el.removeAttribute('aria-label');
+    el.remove();
+    await nextFrame();
+    document.body.append(el);
+  },
+  'removed, then moved in the same task': (el) => {
+    el.removeAttribute('aria-label');
+    document.body.prepend(el);
+  },
+};
+
+for (const [name, act] of Object.entries(cases)) {
+  it(name, async () => {
+    const target = document.createElement('div');
+    const el = host((h) => useARIA(h, target));
+    el.setAttribute('aria-label', 'A');
+    document.body.append(el);
+    await nextFrame();
+    expect(target.getAttribute('aria-label')).toBe('A');
+    await act(el);
+    await nextFrame();
+    await nextFrame();
+    rows.push(
+      `READ core useARIA | ${server.browser} | ${name} | host ${el.getAttribute('aria-label')} | target ${target.getAttribute('aria-label')}`,
+    );
+    el.remove();
+  });
+}
+
+it('reading', () => {
+  expect.fail(`\n${rows.join('\n')}\nEND`);
+});
