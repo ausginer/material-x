@@ -1,0 +1,118 @@
+Read at a4dee53d8, core rebuilt, one engine at a time with MX_TEST_ENGINES. In each run every test passes except the last, which fails on purpose and carries the reading.
+
+## core, chromium: Tests  1 failed | 5 passed (6)
+READ core useARIA | chromium | control: changed while out | host B | target B
+READ core useARIA | chromium | control: removed while connected | host null | target null
+READ core useARIA | chromium | removed while out | host null | target A
+READ core useARIA | chromium | removed, then moved in the same task | host null | target A
+READ core useARIA | chromium | removed, then taken out in the same task, put back later | host null | target A
+
+## core, firefox: Tests  1 failed | 5 passed (6)
+READ core useARIA | firefox | control: changed while out | host B | target B
+READ core useARIA | firefox | control: removed while connected | host null | target null
+READ core useARIA | firefox | removed while out | host null | target A
+READ core useARIA | firefox | removed, then moved in the same task | host null | target A
+READ core useARIA | firefox | removed, then taken out in the same task, put back later | host null | target A
+
+## core, webkit: Tests  1 failed | 5 passed (6)
+READ core useARIA | webkit | control: changed while out | host B | target B
+READ core useARIA | webkit | control: removed while connected | host null | target null
+READ core useARIA | webkit | removed while out | host null | target A
+READ core useARIA | webkit | removed, then moved in the same task | host null | target A
+READ core useARIA | webkit | removed, then taken out in the same task, put back later | host null | target A
+
+## material-x, chromium: Tests  1 failed | 30 passed (31)
+READ mx-button | chromium | aria-describedby removed while connected | button null
+READ mx-button | chromium | aria-describedby removed while out | button x
+READ mx-button | chromium | aria-label removed while connected | button null
+READ mx-button | chromium | aria-label removed while out | button x
+READ mx-button | chromium | aria-labelledby removed while connected | button null
+READ mx-button | chromium | aria-labelledby removed while out | button x
+READ mx-fab | chromium | aria-describedby removed while connected | button null
+READ mx-fab | chromium | aria-describedby removed while out | button x
+READ mx-fab | chromium | aria-label removed while connected | button null
+READ mx-fab | chromium | aria-label removed while out | button x
+READ mx-fab | chromium | aria-labelledby removed while connected | button null
+READ mx-fab | chromium | aria-labelledby removed while out | button x
+READ mx-list-button-item | chromium | aria-describedby removed while connected | button null
+READ mx-list-button-item | chromium | aria-describedby removed while out | button x
+READ mx-list-button-item | chromium | aria-label removed while connected | button null
+READ mx-list-button-item | chromium | aria-label removed while out | button x
+READ mx-list-button-item | chromium | aria-labelledby removed while connected | button null
+READ mx-list-button-item | chromium | aria-labelledby removed while out | button x
+READ mx-multiline-text-field | chromium | aria-describedby removed while connected | textarea support
+READ mx-multiline-text-field | chromium | aria-describedby removed while out | textarea x
+READ mx-multiline-text-field | chromium | aria-label removed while connected | textarea null
+READ mx-multiline-text-field | chromium | aria-label removed while out | textarea x
+READ mx-multiline-text-field | chromium | aria-labelledby removed while connected | textarea label
+READ mx-multiline-text-field | chromium | aria-labelledby removed while out | textarea x
+READ mx-text-field | chromium | aria-describedby removed while connected | input support
+READ mx-text-field | chromium | aria-describedby removed while out | input x
+READ mx-text-field | chromium | aria-label removed while connected | input null
+READ mx-text-field | chromium | aria-label removed while out | input x
+READ mx-text-field | chromium | aria-labelledby removed while connected | input label
+READ mx-text-field | chromium | aria-labelledby removed while out | input x
+
+## material-x, firefox: Tests  1 failed | 30 passed (31)
+READ mx-button | firefox | aria-describedby removed while connected | button null
+READ mx-button | firefox | aria-describedby removed while out | button x
+READ mx-button | firefox | aria-label removed while connected | button null
+READ mx-button | firefox | aria-label removed while out | button x
+READ mx-button | firefox | aria-labelledby removed while connected | button null
+READ mx-button | firefox | aria-labelledby removed while out | button x
+READ mx-fab | firefox | aria-describedby removed while connected | button null
+READ mx-fab | firefox | aria-describedby removed while out | button x
+READ mx-fab | firefox | aria-label removed while connected | button null
+READ mx-fab | firefox | aria-label removed while out | button x
+READ mx-fab | firefox | aria-labelledby removed while connected | button null
+READ mx-fab | firefox | aria-labelledby removed while out | button x
+READ mx-list-button-item | firefox | aria-describedby removed while connected | button null
+READ mx-list-button-item | firefox | aria-describedby removed while out | button x
+READ mx-list-button-item | firefox | aria-label removed while connected | button null
+READ mx-list-button-item | firefox | aria-label removed while out | button x
+READ mx-list-button-item | firefox | aria-labelledby removed while connected | button null
+READ mx-list-button-item | firefox | aria-labelledby removed while out | button x
+READ mx-multiline-text-field | firefox | aria-describedby removed while connected | textarea support
+READ mx-multiline-text-field | firefox | aria-describedby removed while out | textarea x
+READ mx-multiline-text-field | firefox | aria-label removed while connected | textarea null
+READ mx-multiline-text-field | firefox | aria-label removed while out | textarea x
+READ mx-multiline-text-field | firefox | aria-labelledby removed while connected | textarea label
+READ mx-multiline-text-field | firefox | aria-labelledby removed while out | textarea x
+READ mx-text-field | firefox | aria-describedby removed while connected | input support
+READ mx-text-field | firefox | aria-describedby removed while out | input x
+READ mx-text-field | firefox | aria-label removed while connected | input null
+READ mx-text-field | firefox | aria-label removed while out | input x
+READ mx-text-field | firefox | aria-labelledby removed while connected | input label
+READ mx-text-field | firefox | aria-labelledby removed while out | input x
+
+## material-x, webkit: Tests  1 failed | 30 passed (31)
+READ mx-button | webkit | aria-describedby removed while connected | button null
+READ mx-button | webkit | aria-describedby removed while out | button x
+READ mx-button | webkit | aria-label removed while connected | button null
+READ mx-button | webkit | aria-label removed while out | button x
+READ mx-button | webkit | aria-labelledby removed while connected | button null
+READ mx-button | webkit | aria-labelledby removed while out | button x
+READ mx-fab | webkit | aria-describedby removed while connected | button null
+READ mx-fab | webkit | aria-describedby removed while out | button x
+READ mx-fab | webkit | aria-label removed while connected | button null
+READ mx-fab | webkit | aria-label removed while out | button x
+READ mx-fab | webkit | aria-labelledby removed while connected | button null
+READ mx-fab | webkit | aria-labelledby removed while out | button x
+READ mx-list-button-item | webkit | aria-describedby removed while connected | button null
+READ mx-list-button-item | webkit | aria-describedby removed while out | button x
+READ mx-list-button-item | webkit | aria-label removed while connected | button null
+READ mx-list-button-item | webkit | aria-label removed while out | button x
+READ mx-list-button-item | webkit | aria-labelledby removed while connected | button null
+READ mx-list-button-item | webkit | aria-labelledby removed while out | button x
+READ mx-multiline-text-field | webkit | aria-describedby removed while connected | textarea support
+READ mx-multiline-text-field | webkit | aria-describedby removed while out | textarea x
+READ mx-multiline-text-field | webkit | aria-label removed while connected | textarea null
+READ mx-multiline-text-field | webkit | aria-label removed while out | textarea x
+READ mx-multiline-text-field | webkit | aria-labelledby removed while connected | textarea label
+READ mx-multiline-text-field | webkit | aria-labelledby removed while out | textarea x
+READ mx-text-field | webkit | aria-describedby removed while connected | input support
+READ mx-text-field | webkit | aria-describedby removed while out | input x
+READ mx-text-field | webkit | aria-label removed while connected | input null
+READ mx-text-field | webkit | aria-label removed while out | input x
+READ mx-text-field | webkit | aria-labelledby removed while connected | input label
+READ mx-text-field | webkit | aria-labelledby removed while out | input x

@@ -25,6 +25,7 @@ Given on 2026-11-22, in chat, relayed by the coordinator and quoted in translati
 | New | A sticky header is required | Top app bar moves from _after v1_ into the first set ([Top app bar](#top-app-bar-the-first-sets-third-component)) |
 | [Q5b](#q5b--where-does-the-page-take-its-type-scale-from) | (a) | The type scale is generated for the page from tproc's `md.sys.typescale` tokens (`RD-48`) |
 | [Q6](#q6--which-builder-export-and-where-does-it-go) | (a) | The JSON export is kept in `packages/site`, and the page's CSS is generated from it. tproc's default theme doesn't change, so the conditional theme-swap unit is gone (`RD-48`) |
+| [Q2](#q2--what-is-the-page-built-with), again on 2026-11-24 | HTML, TypeScript and signals | The page may use `@preact/signals-core`, and the reason for (a) changed ([Record changes](#record-changes), `RD-47`) |
 | New | _"The theme switch must stay, and (possibly as a separate improvement) a color picker for changing the theme, as in material-web"_ | The switch's properties are in `RD-48`, and the site unit carries them. The picker is a unit after the site ([Theme picker](#theme-picker-a-unit-after-the-site), `RD-49`) |
 
 ## What exists
@@ -138,7 +139,7 @@ Decided by `RD-47` on the owner's Q1 (a) and Q2 (a).
 **When the site unit lands:**
 
 1. **The landing page is the site's root.** Storybook moves to `storybook/`, and `api/` stays. The page redirects a request whose query has Storybook's `path` parameter to `storybook/` with the same query, so links to `?path=/docs/…` keep working. Links to the old `iframe.html` break, and they aren't shared links.
-2. **The source is a private workspace package, `packages/site`,** with its own `Justfile`, Vite config, `tsconfig` and lint configuration, as every other package has. It is plain HTML and TypeScript modules with no framework, since material-x's own pitch is that it needs none. It imports the packages through their builds, as Storybook does after `_package-builds`, so the page is a real consumer of the published artifacts.
+2. **The source is a private workspace package, `packages/site`,** with its own `Justfile`, Vite config, `tsconfig` and lint configuration, as every other package has. It is plain HTML and TypeScript modules, with no client framework and no site generator for the page. It may use `@preact/signals-core` where values depend on each other, with nothing built on top of it. `RD-47` states this and its reasons. It imports the packages through their builds, as Storybook does after `_package-builds`, so the page is a real consumer of the published artifacts.
 3. **The demos are written for the page.** Storybook's demos are React stories and stay as they are. Framework-free demo modules shared by both wait until a second user needs them.
 4. **The theme is the owner's Material Theme Builder JSON export, kept in `packages/site`,** and the page's colour CSS is generated from it at build time. The type scale is generated from tproc's `md.sys.typescale` tokens. The page follows `prefers-color-scheme` before any script runs, and the theme switch overrides it. `RD-48` states the properties.
 5. **The gate covers the page.** `just docs-build` builds the page into `.docs` and Storybook into `.docs/storybook`. `just docs-smoke` loads the landing page under its existing rules. That is an amendment of `RD-14`, owed when the site unit lands (`RD-47`). `deploy` doesn't change.
@@ -147,7 +148,8 @@ Decided by `RD-47` on the owner's Q1 (a) and Q2 (a).
 **Not adopted:**
 
 - **The landing page at a subpath** with Storybook kept at the root: a visitor to the site's address meets Storybook, which is the situation the page exists to change.
-- **React for the page,** to reuse the stories: it contradicts material-x's pitch, and the stories' controls are Storybook's, not React's.
+- **React for the page,** to reuse the stories, or another client framework: the page has little to render, and a framework would stand between it and the packages that it shows. `RD-47`'s amendment of 2026-11-24 has the owner's reason and the others.
+- **A site generator for the page:** the owner agreed to plain HTML, TypeScript and signals (the same amendment). How `/spec/` generates its pages isn't decided by this (`RD-51`).
 - **A root-level `site/` directory** that isn't a package: it would have none of the package recipes that `handoff.md`'s checks run.
 - **A separate repository or a custom domain:** nothing asks for one, and it would need a second Pages setup.
 - **A page built in stages before the components exist:** the owner prefers to stay with Storybook until they do (Q3).
@@ -241,6 +243,7 @@ Material Theme Builder doesn't export one ([above](#what-material-theme-builder-
 
 ## Record changes
 
+- **Corrected on 2026-11-24,** with `RD-47`'s amendment. In [Where the page lives](#where-the-page-lives-and-how-it-is-built), item 2 said _"with no framework, since material-x's own pitch is that it needs none"_, and _Not adopted_ rejected React because _"it contradicts material-x's pitch, and the stories' controls are Storybook's, not React's"_. The pitch has no source: the READMEs say only _"framework-agnostic"_. The controls of box-quad's stories are React's own range inputs. Q2 (a) stands.
 - **Made:** `RD-47`, its dated note of the answers to Q5b and Q6, `RD-48` and `RD-49`, in the [index](../00-index.md), on this branch.
 - **Corrected on 2026-11-23,** from `reviewer-2` of #188's feature proof: in [the table](#missing-components-sized), Card said _"Three token tables"_ and the larger bars said _"Two more token tables"_. One Cards row and one App bars row in tproc's manifest each hold every variant. The same day, [Order](#order) gained unit S, so A, P and _Further work_ moved from 3, 4 and 5 to 4, 5 and 6. The parallel units moved from 2 to 3.
 - **Owed when the site unit lands:** an amendment of `RD-14` property 6, so `docs-smoke` loads the landing page and Storybook at its new base path, and of property 2 or 4 if the recipe's output layout changes. The architect makes it on the site unit's plan.
