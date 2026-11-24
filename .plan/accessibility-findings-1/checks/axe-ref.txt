@@ -1,0 +1,3 @@
+chromium 158.0.8127.18 | by element reference, then by aria-label | names in the browser's tree: "Named" "Named" | axe: none
+firefox 159.0 | by element reference, then by aria-label | names in the browser's tree: not read | axe: none
+webkit 27.2 | by element reference, then by aria-label | names in the browser's tree: not read | axe: none
