@@ -1,0 +1,36 @@
+# chromium 158.0.8127.18, load average 17.6
+  before, hidden  (display none) median 173.8, min 75.3
+  before, shown   (display on) median 174.0, min 88.5
+  after, hidden   (display none) median 98.8, min 63.5
+  after, shown    (display on) median 175.0, min 96.8
+  load average 15.3
+# firefox 159.0, load average 15.3
+  before, hidden  (display none) median 362.5, min 210.0
+  before, shown   (display on) median 462.5, min 280.0
+  after, hidden   (display none) median 357.5, min 197.5
+  after, shown    (display on) median 570.0, min 330.0
+  load average 11.7
+# webkit 27.2, load average 11.7
+  before, hidden  (display none) median 565.0, min 410.0
+  before, shown   (display on) median 702.5, min 502.5
+  after, hidden   (display none) median 542.5, min 375.0
+  after, shown    (display on) median 785.0, min 555.0
+  load average 9.6
+# chromium 158.0.8127.18, load average 9.6
+  before, hidden  (display none) median 127.5, min 80.7
+  before, shown   (display on) median 185.7, min 97.2
+  after, hidden   (display none) median 91.3, min 61.5
+  after, shown    (display on) median 162.8, min 99.5
+  load average 9.0
+# firefox 159.0, load average 9.0
+  before, hidden  (display none) median 262.5, min 180.0
+  before, shown   (display on) median 377.5, min 242.5
+  after, hidden   (display none) median 272.5, min 180.0
+  after, shown    (display on) median 445.0, min 282.5
+  load average 10.8
+# webkit 27.2, load average 10.8
+  before, hidden  (display none) median 505.0, min 355.0
+  before, shown   (display on) median 637.5, min 477.5
+  after, hidden   (display none) median 512.5, min 360.0
+  after, shown    (display on) median 730.0, min 500.0
+  load average 8.0

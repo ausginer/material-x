@@ -1,0 +1,111 @@
+## a held input reaches the host | chromium | 13
+   mx-slider touch should do nothing on a vertical scroll that starts on the track
+   mx-slider touch should keep value written during a press that becomes a scroll
+   mx-slider touch should keep the value attribute written during a press that becomes a scroll
+   mx-slider touch should keep a bound written during a press that becomes a scroll
+## a lift does not end the pressed phase | chromium | 0
+## another pointer's move ends the pressed phase | chromium | 0
+## another pointer's cancel ends the press | chromium | 0
+## another pointer's release ends the press | chromium | 1
+   mx-slider touch should not follow a second finger during a slide
+## a mouse is held | chromium | 7
+   mx-slider pointer should follow a drag and stop at each end
+   mx-slider pointer should mirror a press under RTL from dir
+   mx-slider pointer should mirror a press under RTL from CSS
+   mx-slider pointer should dispatch a plain bubbling input that crosses the host
+## a mouse is held | firefox | 7
+   mx-slider pointer should follow a drag and stop at each end
+   mx-slider pointer should mirror a press under RTL from dir
+   mx-slider pointer should mirror a press under RTL from CSS
+   mx-slider pointer should dispatch a plain bubbling input that crosses the host
+## a mouse is held | webkit | 7
+   mx-slider pointer should follow a drag and stop at each end
+   mx-slider pointer should mirror a press under RTL from dir
+   mx-slider pointer should mirror a press under RTL from CSS
+   mx-slider pointer should dispatch a plain bubbling input that crosses the host
+## a pen is not held | chromium | 0
+## a pen is not held | firefox | 0
+## a pen is not held | webkit | 0
+## a press does not reset the uncommitted slide | chromium | 0
+## a commit does not reset the uncommitted slide | chromium | 0
+## a change does not report the held press | chromium | 0
+## a primary press does not begin anew | chromium | 0
+## a primary press does not begin anew | firefox | 0
+## a primary press does not begin anew | webkit | 0
+## a press after a scroll is not decided anew | chromium | 0
+## a cancel commits a scroll too | chromium | 9
+   mx-slider touch should do nothing on a vertical scroll that starts on the track
+   mx-slider touch should do nothing on a vertical scroll that starts on the handle
+   mx-slider touch should keep value written during a press that becomes a scroll
+   mx-slider touch should keep the value attribute written during a press that becomes a scroll
+## a cancel of a held press keeps its number | chromium | 3
+   mx-slider touch should do nothing on a vertical scroll that starts on the track
+   mx-slider touch should take a key after a scroll
+   mx-slider touch should drop a held press that is cancelled after a second finger
+## the report is not bubbling | chromium | 2
+   mx-slider touch should dispatch the input of a tap with the native flags
+   mx-slider touch should take a tap after a scroll
+## the indicator takes pointer events | chromium | 0
+## the indicator takes pointer events | firefox | 0
+## the indicator takes pointer events | webkit | 0
+## the indicator is not shown on focus | chromium | 46
+   mx-slider in Chromium's accessibility tree should not expose the value indicator
+   mx-slider value indicator should be shown with keyboard focus
+   mx-slider signed indicator in ltr should draw the sign of the number at the left
+   mx-slider signed indicator in ltr should draw the sign of valuetext at the left
+## the indicator is not shown on focus | firefox | 45
+   mx-slider value indicator should be shown with keyboard focus
+   mx-slider signed indicator in ltr should draw the sign of the number at the left
+   mx-slider signed indicator in ltr should draw the sign of valuetext at the left
+   mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+## the indicator is not shown on focus | webkit | 45
+   mx-slider value indicator should be shown with keyboard focus
+   mx-slider signed indicator in ltr should draw the sign of the number at the left
+   mx-slider signed indicator in ltr should draw the sign of valuetext at the left
+   mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+## the indicator is shown without the attribute on a press | chromium | 1
+   mx-slider value indicator should not be shown without the attribute
+## the indicator is shown without the attribute on a press | firefox | 1
+   mx-slider value indicator should not be shown without the attribute
+## the indicator is shown without the attribute on a press | webkit | 1
+   mx-slider value indicator should not be shown without the attribute
+## the indicator spans from the left only | chromium | 8
+   mx-slider layout in ltr the indicator place should be centred on the handle at 50
+   mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+   mx-slider layout in ltr the indicator place should touch the end where it does not fit
+   mx-slider layout in rtl the indicator place should be centred on the handle at 50
+## the indicator spans from the left only | firefox | 8
+   mx-slider layout in ltr the indicator place should be centred on the handle at 50
+   mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+   mx-slider layout in ltr the indicator place should touch the end where it does not fit
+   mx-slider layout in rtl the indicator place should be centred on the handle at 50
+## the indicator spans from the left only | webkit | 8
+   mx-slider layout in ltr the indicator place should be centred on the handle at 50
+   mx-slider layout in ltr the indicator place should be centred on the handle at the first value where it fits
+   mx-slider layout in ltr the indicator place should touch the end where it does not fit
+   mx-slider layout in rtl the indicator place should be centred on the handle at 50
+## isolated text, not plaintext | chromium | 2
+   mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+   mx-slider signed indicator in rtl should lay out a valuetext of Arabic letters from right to left
+## isolated text, not plaintext | firefox | 2
+   mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+   mx-slider signed indicator in rtl should lay out a valuetext of Arabic letters from right to left
+## isolated text, not plaintext | webkit | 2
+   mx-slider signed indicator in ltr should lay out a valuetext of Arabic letters from right to left
+   mx-slider signed indicator in rtl should lay out a valuetext of Arabic letters from right to left
+## the text breaks no word | chromium | 0
+## the text breaks no word | firefox | 0
+## the text breaks no word | webkit | 0
+## the held handle is wide in a size | chromium | 0
+## the held handle is wide in a size | firefox | 0
+## the held handle is wide in a size | webkit | 0
+DONE
+
+# What four of these change, read in Chromium by recheck-touch.ts ("mutants") and recheck-touch.ts ("2nd on it, lifts; then cancel")
+as it is                                     | two scrolls: no event, 30 | a press after a missed release: HELD | a slide left by disabling, then a scroll: no event
+a press after a scroll is not decided anew   | two scrolls: input70 change70, 70
+a primary press does not begin anew          | a press after a missed release: rest, h4px, indicator none
+a press does not reset the uncommitted slide | a slide left by disabling, then a scroll: change65
+a commit does not reset the uncommitted slide | slide, 2nd finger lifts, cancel: change65 change65 (as it is: change65)
+# `change` dispatched twice: fails 3 rows in Chromium (lines 495, 769, 1982) and 2 in Firefox and WebKit (495, 1982)
+# the tap's `input` dispatched twice: fails 2 rows in Chromium (769, 810)

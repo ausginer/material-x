@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
 import '../../src/text-field/multiline-text-field.ts';
 import '../../src/text-field/text-field.ts';
-import { nextFrame, pixels, resolveComputed } from '../browser.ts';
+import { nextFrame, pixels, resolveComputed, srgb } from '../browser.ts';
 
 const TAGS = ['mx-text-field', 'mx-multiline-text-field'] as const;
 
@@ -174,24 +174,6 @@ function paintedOpacity(element: Element): number {
   }
 
   return opacity;
-}
-
-/**
- * A computed colour as 8-bit sRGB channels and an alpha, whichever of the
- * `rgb()` and `color(srgb …)` serializations the engine gives it.
- */
-function srgb(computed: string): readonly number[] {
-  const [red, green, blue, alpha = 1] = computed
-    .match(/\d+(?:\.\d+)?(?:e-?\d+)?/gu)!
-    .map(Number);
-  const scale = computed.startsWith('color(srgb') ? 255 : 1;
-
-  return [
-    Math.round(red! * scale),
-    Math.round(green! * scale),
-    Math.round(blue! * scale),
-    alpha,
-  ];
 }
 
 function withAlpha(

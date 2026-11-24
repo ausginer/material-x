@@ -1,0 +1,108 @@
+# chromium 158.0.8127.18
+  aria-label                     control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  slot                           control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  slot+aria-label                control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  labelledby                     control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  slot+labelledby                control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  labelledby+aria-label          control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  for                            control {"role":"slider","name":"L","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  for+slot                       control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  for+aria-label                 control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  for+labelledby                 control {"role":"slider","name":"R","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"R"}
+  for+slot+aria-label            control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  wrap                           control {"role":"slider","name":"L","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  wrap+slot                      control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  wrap+aria-label                control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  describedby                    control {"role":"slider","name":"S","description":"D","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","description":"D"}
+  valuetext                      control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  aria-valuetext                 control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  both valuetexts                control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  aria-valuenow 5                control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  aria-valuemin, max             control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  aria-invalid                   control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18","invalid":true} host {"ignored":true}
+  runtime add label              control {"role":"slider","name":"A","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  runtime remove label           control {"role":"slider","name":"L","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  runtime remove lby             control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+  runtime fill slot              control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"role":"generic","name":"A"}
+  runtime remove vt              control {"role":"slider","name":"S","value":-18,"min":-55,"max":55,"valuetext":"-18"} host {"ignored":true}
+# firefox 159.0
+  aria-label                     control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  slot                           control {"role":"slider","name":"S"} host {"ignored":true}
+  slot+aria-label                control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  labelledby                     control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  slot+labelledby                control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  labelledby+aria-label          control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  for                            control {"role":"slider","name":"L"} host {"role":"generic","name":"L"}
+  for+slot                       control {"role":"slider","name":"S"} host {"role":"generic","name":"L"}
+  for+aria-label                 control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  for+labelledby                 control {"role":"slider","name":"R"} host {"role":"generic","name":"R"}
+  for+slot+aria-label            control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  wrap                           control {"role":"slider","name":"L"} host {"ignored":true}
+  wrap+slot                      control {"role":"slider","name":"S"} host {"ignored":true}
+  wrap+aria-label                control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  describedby                    control {"role":"slider","name":"S"} host {"role":"generic"}
+  valuetext                      control {"role":"slider","name":"S"} host {"ignored":true}
+  aria-valuetext                 control {"role":"slider","name":"S"} host {"ignored":true}
+  both valuetexts                control {"role":"slider","name":"S"} host {"ignored":true}
+  aria-valuenow 5                control {"role":"slider","name":"S"} host {"ignored":true}
+  aria-valuemin, max             control {"role":"slider","name":"S"} host {"ignored":true}
+  aria-invalid                   control {"role":"slider","name":"S"} host {"role":"generic"}
+  runtime add label              control {"role":"slider","name":"A"} host {"role":"generic","name":"A"}
+  runtime remove label           control {"role":"slider","name":"L"} host {"role":"generic","name":"L"}
+  runtime remove lby             control {"role":"slider","name":"S"} host {"role":"generic"}
+  runtime fill slot              control {"role":"slider","name":"S"} host {"role":"generic","name":"A"}
+  runtime remove vt              control {"role":"slider","name":"S"} host {"ignored":true}
+  sliders in document order, name | value | description
+    aria-label                     A | -18 | 
+    slot                           S | -18 | 
+    slot+aria-label                S | -18 | 
+    labelledby                     R | -18 | 
+    slot+labelledby                R | -18 | 
+    labelledby+aria-label          R | -18 | 
+    for                            L | -18 | 
+    for+slot                       S | -18 | 
+    for+aria-label                 A | -18 | 
+    for+labelledby                 R | -18 | 
+    for+slot+aria-label            S | -18 | 
+    wrap                           L | -18 | 
+    wrap+slot                      S | -18 | 
+    wrap+aria-label                A | -18 | 
+    describedby                    S | -18 | D
+    valuetext                      S | V | 
+    aria-valuetext                 S | H | 
+    both valuetexts                S | H | 
+    aria-valuenow 5                S | -18 | 
+    aria-valuemin, max             S | -18 | 
+    aria-invalid                   S | -18 | 
+    runtime add label              A | -18 | 
+    runtime remove label           L | -18 | 
+    runtime remove lby             S | -18 | 
+    runtime fill slot              S | -18 | 
+    runtime remove vt              S | V | 
+# webkit 27.2
+  aria-label                     control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  slot                           control {"role":"slider","name":"S"} host {"role":"group"}
+  slot+aria-label                control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  labelledby                     control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  slot+labelledby                control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  labelledby+aria-label          control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  for                            control {"role":"slider","name":"L"} host {"ignored":true}
+  for+slot                       control {"role":"slider","name":"S"} host {"role":"group","name":"L"}
+  for+aria-label                 control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  for+labelledby                 control {"role":"slider","name":"R"} host {"role":"group","name":"R"}
+  for+slot+aria-label            control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  wrap                           control {"role":"slider","name":"L"} host {"ignored":true}
+  wrap+slot                      control {"role":"slider","name":"S"} host {"role":"group","name":"L"}
+  wrap+aria-label                control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  describedby                    control {"role":"slider","name":"S"} host {"role":"group","name":"D"}
+  valuetext                      control {"role":"slider","name":"S"} host {"role":"group"}
+  aria-valuetext                 control {"role":"slider","name":"S"} host {"role":"group"}
+  both valuetexts                control {"role":"slider","name":"S"} host {"role":"group"}
+  aria-valuenow 5                control {"role":"slider","name":"S"} host {"role":"group"}
+  aria-valuemin, max             control {"role":"slider","name":"S"} host {"role":"group"}
+  aria-invalid                   control {"role":"slider","name":"S","invalid":"true"} host {"role":"group","invalid":"true"}
+  runtime add label              control {"role":"slider","name":"A"} host {"role":"group","name":"A"}
+  runtime remove label           control {"role":"slider","name":"L"} host {"ignored":true}
+  runtime remove lby             control {"role":"slider","name":"S"} host {"role":"group"}
+  runtime fill slot              control {"role":"slider","name":"S"} host {"role":"group","name":"A"}
+  runtime remove vt              control {"role":"slider","name":"S"} host {"role":"group"}

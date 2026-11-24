@@ -1,0 +1,15 @@
+# The slider's published names, 2026-11-24, in the package built from 3e432eb70 (this branch merged with main at a4dee53d8).
+## grep -ohP '(?<![\w-])--[\w-]+' over slider/**/*.js, distinct, without --md-*: the names without --mx-, then the count with it
+  without --mx-: 0
+  with --mx-: 43
+## The script's write, and the map
+  setProperty("--mx-ds", String(fraction)
+  "--_fraction": "--mx-ds",
+## size-limit, B (Brotli)
+  slider/slider 3602
+  complete 24505
+## unprefixed.mjs
+  107 files, 350 names; 267 of the map's 268; the map's values without --mx-: 0
+  names that are neither --md-* nor --mx-*: --activate (button/SwitchCore.js), --gi (button/styles/default/switch-control.css.js), --gj (button/styles/default/switch-control.css.js), --gh (button/styles/default/switch-control.css.js)
+  --mx-* names not in the map: none
+  The three --g* names are in switch-control.css.js, a file of 2026-11-18 that no source makes and nothing imports: an old build's, left in the worktree.

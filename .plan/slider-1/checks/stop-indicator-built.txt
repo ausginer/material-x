@@ -1,0 +1,17 @@
+# chromium 158.0.8127.18
+  forced colors none: 160 pixels differ, page 1616px of 1900px
+  forced colors active: 398 pixels differ, page 1616px of 1900px
+# firefox 159.0
+  forced colors none: 500 pixels differ, page 1616px of 1900px
+  forced colors active: 454 pixels differ, page 1616px of 1900px
+# webkit 27.2
+  forced colors none: 166 pixels differ, page 1616px of 1900px
+# control: the amendment without the stop indicator against before
+# chromium 158.0.8127.18
+  forced colors none: 2709 pixels differ, page 1616px of 1900px
+  forced colors active: 2956 pixels differ, page 1616px of 1900px
+# firefox 159.0
+  forced colors none: 2982 pixels differ, page 1616px of 1900px
+  forced colors active: 2926 pixels differ, page 1616px of 1900px
+# webkit 27.2
+  forced colors none: 2706 pixels differ, page 1616px of 1900px

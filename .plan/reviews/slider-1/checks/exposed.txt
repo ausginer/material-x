@@ -1,0 +1,4 @@
+# chromium 158.0.8127.18
+aria-hidden true ["RootWebArea::","group:F:","LabelText::","generic::","StaticText:S:","slider:S:50","InlineTextBox:S:"]
+aria-hidden false ["RootWebArea::","group:F:","LabelText::","generic::","StaticText:S:","slider:S:50","generic::","InlineTextBox:S:","StaticText:Shown:","InlineTextBox:Shown:","InlineTextBox:Shown:"]
+touch-action [ 'pan-y', 'auto', 'auto' ]
