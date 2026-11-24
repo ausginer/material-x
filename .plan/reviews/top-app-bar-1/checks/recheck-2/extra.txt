@@ -1,0 +1,205 @@
+Read at 634dae5ef, the packages rebuilt, the three engines at once on a machine with other load.
+# chromium 158.0.8127.18
+display: none | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 131ms, transitions background-color, then on@364 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+the bar display: none | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@364 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+hidden attribute | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@364
+modal dialog | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 133ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+full-screen modal dialog | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 134ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+dialog, show() | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 0 frames, transitions none, then off@0
+manual popover | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+auto popover | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@300
+media query | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 134ms, transitions background-color, then on@364
+container query | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 133ms, transitions background-color, then on@364
+unslotted, then slotted | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 133ms, transitions background-color, then on@314
+details | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 10 frames 135ms, transitions background-color, then on@364
+content-visibility: hidden | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 10 frames 135ms, transitions background-color, then on@364
+hidden=until-found | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 10 frames 136ms, transitions background-color, then on@364
+display: contents wrapper from none | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@364
+hidden and shown in one task | 0 frames, transitions none, then on@300
+hidden and shown in one task, with a style flush | 0 frames, transitions none, then on@300
+hidden for one frame | 8 frames 154ms, transitions background-color, then on@300
+hidden for two frames | 8 frames 170ms, transitions background-color, then on@300
+moved at 300 | 0 frames, transitions none, then on@236
+removed, inserted later at 300 | 0 frames, transitions none, then on@300
+removed at 300, inserted later at 0 | 10 frames 336ms, transitions background-color, then off@0
+visibility hidden: shown 0ms after the state turned off, frames not at rest: 7 7 7 7 7 7
+visibility hidden: shown 60ms after the state turned off, frames not at rest: 4 4 4 4 4 4
+visibility hidden: shown 120ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 180ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 240ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 500ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 0ms after the state turned off, frames not at rest: 7 7 7 7 7 7
+visibility never hidden (control): shown 60ms after the state turned off, frames not at rest: 4 4 4 4 4 4
+visibility never hidden (control): shown 120ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 180ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 240ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 500ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+frame scaled .3 | off@0 on@1 on@300 on@4764 off@0
+frame scaled 3 | off@0 on@1 on@300 on@4764 off@0
+frame rotated | off@0 on@1 on@300 on@4764 off@0
+frame zoom .5 | off@0 on@2 on@300 on@4764 off@0
+frame zoom 2.2 | off@0 on@0.91 on@300 on@4764.09 off@0
+frame clipped by an ancestor | off@0 on@1 on@300 on@4764 off@0
+frame opacity 0 | off@0 on@1 on@300 on@4764 off@0
+frame 0 height | off@0 on@1 on@300 on@5064 off@0
+frame cross-origin | off@0 on@1 on@300 on@4764 off@0 | half out off@0 on@1 on@300 on@4764 off@0 | scrolled to 300 while out off WRONG@300 | back in view on@300 | off@0 on@1 on@300 on@4764 off@0
+frame sandboxed, opaque origin | off@0 on@1 on@300 on@4764 off@0 | half out off@0 on@1 on@300 on@4764 off@0 | scrolled to 300 while out off WRONG@300 | back in view on@300 | off@0 on@1 on@300 on@4764 off@0
+reload while scrolled | on@700 | back on@700 | off@0 on@1 on@300 on@4344 off@0
+box's part, plain, tall page: DIFFERS layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1]] / without the box: layout shifts [[0.0075,1],[0.0075,1]]
+  document size [800,4114,800,600,800]; the furthest scroll [0,3514,0,0,0,0]; hits ["mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","","mx-top-app-bar/body/html"]; scroll anchoring [0,101,101,140,400]; layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1]]; select all ["L\nT\ntext",6]; a drag from the corner 10; events at the corner ["pointerover:mx-top-app-bar","pointerdown:mx-top-app-bar","click:mx-top-app-bar"]; a hint popover true; element capture of a screenshot differs from no box 113; window.find and innerText 9; getAnimations 0; activeElement after focus() "body"
+box's part, plain, short page: 13 readings the same
+  document size [800,600,800,600,800]; the furthest scroll [0,0,0,0,0,0]; hits ["mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","","mx-top-app-bar/body/html"]; scroll anchoring [0,0,0,0,0]; layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1]]; select all ["L\nT\ntext",5]; a drag from the corner 8; events at the corner ["pointerover:mx-top-app-bar","pointerdown:mx-top-app-bar","click:mx-top-app-bar"]; a hint popover true; element capture of a screenshot differs from no box 113; window.find and innerText 9; getAnimations 0; activeElement after focus() "body"
+box's part, rtl, tall page: DIFFERS layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1]] / without the box: layout shifts [[0.0075,1],[0.0075,1]]
+box's part, rtl, short page: DIFFERS layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1]] / without the box: layout shifts [[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1]]
+box's part, vertical-rl, tall page: 13 readings the same
+box's part, vertical-rl, short page: 13 readings the same
+box's part, vertical-lr, tall page: 13 readings the same
+box's part, vertical-lr, short page: 13 readings the same
+box's part, zoom 3, tall page: 13 readings the same
+box's part, zoom 3, short page: 13 readings the same
+box's part, zoom .1, tall page: 13 readings the same
+box's part, zoom .1, short page: 13 readings the same
+box's part, quirks, tall page: 13 readings the same
+box's part, quirks, short page: DIFFERS layout shifts [[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1]] / without the box: layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1],[0.0075,1]]
+box's part, root transform, tall page: 13 readings the same
+box's part, root transform, short page: 13 readings the same
+box's part, forced pointer events, tall page: DIFFERS layout shifts [[0.001565625,1],[0.0075,1],[0.0075,1]] / without the box: layout shifts [[0.0075,1],[0.0075,1]]
+box's part, forced pointer events, short page: 13 readings the same
+{"forcedColors":"active"} | off@0 on@1 on@300 on@4464 off@0
+{"reducedMotion":"reduce"} | off@0 on@1 on@300 on@4464 off@0
+# firefox 159.0
+display: none | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@364 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+the bar display: none | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 134ms, transitions background-color, then on@364 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+hidden attribute | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@364
+modal dialog | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 123ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+full-screen modal dialog | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 138ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+dialog, show() | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 0 frames, transitions none, then off@0
+manual popover | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 133ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+auto popover | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@300
+media query | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 134ms, transitions background-color, then on@364
+container query | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 134ms, transitions background-color, then on@364
+unslotted, then slotted | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 132ms, transitions background-color, then on@311
+details | at 0: hidden off, 14 frames 201ms, transitions background-color, then off@0 | at 300: hidden off, 14 frames 215ms, transitions background-color,background-color, then on@364
+content-visibility: hidden | at 0: hidden off, 14 frames 200ms, transitions background-color, then off@0 | at 300: hidden off, 14 frames 215ms, transitions background-color,background-color, then on@364
+hidden=until-found | at 0: hidden off, 13 frames 197ms, transitions background-color, then off@0 | at 300: hidden off, 14 frames 215ms, transitions background-color,background-color, then on@364
+display: contents wrapper from none | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 9 frames 131ms, transitions background-color, then on@364
+hidden and shown in one task | 0 frames, transitions none, then on@300
+hidden and shown in one task, with a style flush | 0 frames, transitions none, then on@300
+hidden for one frame | 8 frames 168ms, transitions background-color, then on@300
+hidden for two frames | 8 frames 184ms, transitions background-color, then on@300
+moved at 300 | 0 frames, transitions none, then on@236
+removed, inserted later at 300 | 0 frames, transitions none, then on@300
+removed at 300, inserted later at 0 | 11 frames 349ms, transitions background-color, then off@0
+visibility hidden: shown 0ms after the state turned off, frames not at rest: 7 7 7 7 7 7
+visibility hidden: shown 60ms after the state turned off, frames not at rest: 4 4 4 4 4 4
+visibility hidden: shown 120ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 180ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 240ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 500ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 0ms after the state turned off, frames not at rest: 7 7 7 7 7 7
+visibility never hidden (control): shown 60ms after the state turned off, frames not at rest: 4 4 4 4 4 4
+visibility never hidden (control): shown 120ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 180ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 240ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 500ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+frame scaled .3 | off@0 on@1 on@300 on@4764 off@0
+frame scaled 3 | off@0 on@1 on@300 on@4764 off@0
+frame rotated | off@0 on@1 on@300 on@4764 off@0
+frame zoom .5 | off@0 on@1 on@300 on@4764 off@0
+frame zoom 2.2 | off@0 on@1 on@300 on@4767 off@0
+frame clipped by an ancestor | off@0 on@1 on@300 on@4764 off@0
+frame opacity 0 | off@0 on@1 on@300 on@4764 off@0
+frame 0 height | off@0 on@1 on@300 on@5064 off@0
+frame cross-origin | off@0 on@1 on@300 on@4764 off@0 | half out off@0 on@1 on@300 on@4764 off@0 | scrolled to 300 while out on@300 | back in view on@300 | off@0 on@1 on@300 on@4764 off@0
+frame sandboxed, opaque origin | off@0 on@1 on@300 on@4764 off@0 | half out off@0 on@1 on@300 on@4764 off@0 | scrolled to 300 while out on@300 | back in view on@300 | off@0 on@1 on@300 on@4764 off@0
+reload while scrolled | on@700 | back on@700 | off@0 on@1 on@300 on@4344 off@0
+box's part, plain, tall page: 13 readings the same
+  document size [800,4117,800,600,800]; the furthest scroll [0,3517,0,0,0,0]; hits ["mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html"]; scroll anchoring [0,101,101,140,400]; layout shifts "not supported"; select all ["L\nT\n\ntext",6]; a drag from the corner 10; events at the corner ["pointerover:mx-top-app-bar","pointerdown:mx-top-app-bar","click:mx-top-app-bar"]; a hint popover true; element capture of a screenshot differs from no box 95; window.find and innerText 9; getAnimations 0; activeElement after focus() "body"
+box's part, plain, short page: 13 readings the same
+  document size [800,600,800,600,800]; the furthest scroll [0,0,0,0,0,0]; hits ["mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html"]; scroll anchoring [0,0,0,0,0]; layout shifts "not supported"; select all ["L\nT\n\ntext",5]; a drag from the corner 9; events at the corner ["pointerover:mx-top-app-bar","pointerdown:mx-top-app-bar","click:mx-top-app-bar"]; a hint popover true; element capture of a screenshot differs from no box 95; window.find and innerText 9; getAnimations 0; activeElement after focus() "body"
+box's part, rtl, tall page: 13 readings the same
+box's part, rtl, short page: 13 readings the same
+box's part, vertical-rl, tall page: 13 readings the same
+box's part, vertical-rl, short page: 13 readings the same
+box's part, vertical-lr, tall page: 13 readings the same
+box's part, vertical-lr, short page: 13 readings the same
+box's part, zoom 3, tall page: 13 readings the same
+box's part, zoom 3, short page: 13 readings the same
+box's part, zoom .1, tall page: 13 readings the same
+box's part, zoom .1, short page: 13 readings the same
+box's part, quirks, tall page: 13 readings the same
+box's part, quirks, short page: 13 readings the same
+box's part, root transform, tall page: 13 readings the same
+box's part, root transform, short page: 13 readings the same
+box's part, forced pointer events, tall page: 13 readings the same
+box's part, forced pointer events, short page: 13 readings the same
+{"forcedColors":"active"} | off@0 on@1 on@300 on@4464 off@0
+{"reducedMotion":"reduce"} | off@0 on@1 on@300 on@4464 off@0
+# webkit 27.2
+display: none | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@364 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+the bar display: none | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@364 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+hidden attribute | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@364
+modal dialog | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 7 frames 120ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+full-screen modal dialog | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 6 frames 119ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+dialog, show() | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 0 frames, transitions none, then off@0
+manual popover | at 0: hidden off, 0 frames, transitions none, then off@0 | hidden there, shown at 0: 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@300 | hidden there, shown at 0: 0 frames, transitions none, then off@0
+auto popover | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@300
+media query | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 122ms, transitions background-color, then on@300
+container query | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 110ms, transitions background-color, then on@364
+unslotted, then slotted | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@311
+details | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 112ms, transitions background-color, then on@364
+content-visibility: hidden | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 111ms, transitions background-color, then on@364
+hidden=until-found | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 8 frames 113ms, transitions background-color, then on@364
+display: contents wrapper from none | at 0: hidden off, 0 frames, transitions none, then off@0 | at 300: hidden off, 7 frames 114ms, transitions background-color, then on@364
+hidden and shown in one task | 0 frames, transitions none, then on@300
+hidden and shown in one task, with a style flush | 0 frames, transitions none, then on@300
+hidden for one frame | 7 frames 96ms, transitions background-color, then on@300
+hidden for two frames | 7 frames 96ms, transitions background-color, then on@300
+moved at 300 | 0 frames, transitions none, then on@236
+removed, inserted later at 300 | 0 frames, transitions none, then on@300
+removed at 300, inserted later at 0 | 8 frames 112ms, transitions background-color, then off@0
+visibility hidden: shown 0ms after the state turned off, frames not at rest: 7 8 8 8 8 8
+visibility hidden: shown 60ms after the state turned off, frames not at rest: 6 6 6 6 6 6
+visibility hidden: shown 120ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 180ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 240ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility hidden: shown 500ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 0ms after the state turned off, frames not at rest: 6 6 6 6 6 6
+visibility never hidden (control): shown 60ms after the state turned off, frames not at rest: 3 3 3 3 3 3
+visibility never hidden (control): shown 120ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 180ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 240ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+visibility never hidden (control): shown 500ms after the state turned off, frames not at rest: 0 0 0 0 0 0
+frame scaled .3 | off@0 on@1 on@300 on@4764 off@0
+frame scaled 3 | off@0 on@1 on@300 on@4764 off@0
+frame rotated | off@0 on@1 on@300 on@4764 off@0
+frame zoom .5 | off@0 off@0 on@300 on@4764 off@0
+frame zoom 2.2 | off@0 off@0 off WRONG@300 on@4763 off@0
+frame clipped by an ancestor | off@0 on@1 on@300 on@4764 off@0
+frame opacity 0 | off@0 on@1 on@300 on@4764 off@0
+frame 0 height | off@0 on@1 on@300 on@5064 off@0
+frame cross-origin | off@0 on@1 on@300 on@4764 off@0 | half out off@0 on@1 on@300 on@4764 off@0 | scrolled to 300 while out on@300 | back in view on@300 | off@0 on@1 on@300 on@4764 off@0
+frame sandboxed, opaque origin | off@0 on@1 on@300 on@4764 off@0 | half out off@0 on@1 on@300 on@4764 off@0 | scrolled to 300 while out on@300 | back in view on@300 | off@0 on@1 on@300 on@4764 off@0
+reload while scrolled | off@0 | back off@0 | off@0 on@1 on@300 on@4344 off@0
+box's part, plain, tall page: DIFFERS element capture of a screenshot differs from no box 195 / without the box: element capture of a screenshot differs from no box 196; getAnimations 1 / without the box: getAnimations 0
+  document size [800,4117,800,600,800]; the furthest scroll [0,3517,0,0,0,0]; hits ["mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html"]; scroll anchoring [0,0,101,140,400]; layout shifts "not supported"; select all ["L\nT\ntext",6]; a drag from the corner 10; events at the corner ["pointerover:mx-top-app-bar","pointerdown:mx-top-app-bar","click:mx-top-app-bar"]; a hint popover true; element capture of a screenshot differs from no box 195; window.find and innerText 9; getAnimations 1; activeElement after focus() "body"
+box's part, plain, short page: 13 readings the same
+  document size [800,600,800,600,800]; the furthest scroll [0,0,0,0,0,0]; hits ["mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html","mx-top-app-bar/body/html"]; scroll anchoring [0,0,0,0,0]; layout shifts "not supported"; select all ["L\nT\ntext",5]; a drag from the corner 8; events at the corner ["pointerover:mx-top-app-bar","pointerdown:mx-top-app-bar","click:mx-top-app-bar"]; a hint popover true; element capture of a screenshot differs from no box 183; window.find and innerText 9; getAnimations 0; activeElement after focus() "body"
+box's part, rtl, tall page: DIFFERS getAnimations 1 / without the box: getAnimations 0
+box's part, rtl, short page: 13 readings the same
+box's part, vertical-rl, tall page: 13 readings the same
+box's part, vertical-rl, short page: 13 readings the same
+box's part, vertical-lr, tall page: 13 readings the same
+box's part, vertical-lr, short page: 13 readings the same
+box's part, zoom 3, tall page: DIFFERS getAnimations 1 / without the box: getAnimations 0
+box's part, zoom 3, short page: 13 readings the same
+box's part, zoom .1, tall page: 13 readings the same
+box's part, zoom .1, short page: 13 readings the same
+box's part, quirks, tall page: DIFFERS element capture of a screenshot differs from no box 195 / without the box: element capture of a screenshot differs from no box 196; getAnimations 1 / without the box: getAnimations 0
+box's part, quirks, short page: 13 readings the same
+box's part, root transform, tall page: DIFFERS getAnimations 1 / without the box: getAnimations 0
+box's part, root transform, short page: 13 readings the same
+box's part, forced pointer events, tall page: DIFFERS getAnimations 1 / without the box: getAnimations 0
+box's part, forced pointer events, short page: 13 readings the same
+{"forcedColors":"active"} | off@0 on@1 on@300 on@4464 off@0
+{"reducedMotion":"reduce"} | off@0 on@1 on@300 on@4464 off@0

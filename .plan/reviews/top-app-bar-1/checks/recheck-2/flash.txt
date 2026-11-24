@@ -1,0 +1,16 @@
+Read at 634dae5ef, the packages rebuilt.
+# chromium 158.0.8127.18
+a full-screen dialog opened at the start | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 91, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+display:none at 500px, shown by a wider viewport | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 90, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+a closed details, opened | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 92, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+control: connects visible | before off@0 | after off@0 | transitions none; drawn frames not at rest 6 of 91, for 83 ms, first rgba(247, 251, 234, 0.906) rest rgb(247, 251, 234)
+# firefox 159.0
+a full-screen dialog opened at the start | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 90, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+display:none at 500px, shown by a wider viewport | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 89, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+a closed details, opened | before off@0 | after off@0 | transitions background-color; drawn frames not at rest 13 of 91, for 200 ms, first rgba(0, 0, 0, 0) rest rgb(247, 251, 234)
+control: connects visible | before off@0 | after off@0 | transitions none; drawn frames not at rest 5 of 91, for 66 ms, first rgba(247, 251, 234, 0.946) rest rgb(247, 251, 234)
+# webkit 27.2
+a full-screen dialog opened at the start | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 90, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+display:none at 500px, shown by a wider viewport | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 94, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+a closed details, opened | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 94, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
+control: connects visible | before off@0 | after off@0 | transitions none; drawn frames not at rest 0 of 94, for 0 ms, first rgb(247, 251, 234) rest rgb(247, 251, 234)
