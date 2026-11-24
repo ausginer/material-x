@@ -3268,7 +3268,7 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 
 - **Source:** `SortableOperation.start` passes the kind, from the direction that it already keeps. `sortable/domain.ts` declares `SortableOperationKind`, and `sortable.js` exports it. The kernel, the request, the results and `freeDrag` don't change.
 - **Documents:** the contract's public surface has properties 1 to 3 and the type, and the change record a row. The README had no text on what an arrow key does, so a paragraph is new. The API documents are built from the JSDoc.
-- **Rows:** `keyboard.browser.test.ts` has seven, with emulated touch in Chromium only, in the source and the consumer project. `published-types.declaration.test.ts` has two.
+- **Rows:** `keyboard.browser.test.ts` has six, with emulated touch in Chromium only, in the source and the consumer project. `published-types.declaration.test.ts` has two.
 - **Witnesses** ([reading](../../../.plan/command-signal-1/checks/mutations.txt), [script](../../../.plan/command-signal-1/probes/mutations.mjs)), in Chromium, Firefox and WebKit, one at a time, in both projects:
   - A pointer's kind for a command fails the row of the arrow key and the row of the drag after it, and no other. A command's kind for a pointer fails the mouse's, the touch's and the row of the drag after a command, and no other. The kinds exchanged, and no kind, fail each of them.
   - A second `onStart` at the drop fails the rows that count it. A start at a key at the edge fails the edge's row, and a `data-drag-ignore` that declines nothing fails its row.
