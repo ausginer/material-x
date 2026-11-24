@@ -3193,6 +3193,75 @@ Decided on 2026-11-15 by the architect, on the hypothesis and the [probe](probes
 - **A real operation, not steps:** a grab built from one-step commands would commit and land at every arrow press, and Escape couldn't put the item home without a second reorder. Holding one operation needs the kernel's help, because today the kernel drops a command right after it activates (`Session`'s constructor and `#activate`).
 - **Its own keyboard handle,** because `handle` gates pointer presses and commands alike. `repo:RD-31` Q3 needs a whole-surface pointer drag with a keyboard grab on a handle.
 
+#### DRD-71 — `sortable` tells `onStart` whether the operation is a pointer's or a command's
+
+**Decided on 2026-11-24 by the architect, waiting for the owner's answer to Q1. Unimplemented, and the contract doesn't state it yet.** From the owner's answer about `repo:RF-127`, in chat, relayed by the coordinator. The architect had told him that the list infers the kind of operation from the order of drag's callbacks, and offered the alternative that drag says it: _"Выглядит так 🤔 Давай спросим отдельно"_ ("It looks like it. Let's ask separately"). Planned on `drag/command-signal-1`. `DRD-70` is the highest `DRD-` on any branch on `origin`. Bytes aren't a constraint now, as the coordinator relays, and architecture is.
+
+**The signal is `onStart`'s second argument.** It is the string `'pointer'` or `'command'`, of the type `SortableOperationKind`, which `sortable.js` exports:
+
+```ts
+/**
+ * `'pointer'`: a pointer drags the item until its release.
+ * `'command'`: no pointer. The drop follows `onStart` synchronously. An arrow key starts one.
+ */
+type SortableOperationKind = 'pointer' | 'command';
+
+onStart?(item: HTMLElement, kind: SortableOperationKind): void;
+```
+
+**Properties.**
+
+1. **`onStart` receives `'pointer'` for an operation that `admit` admitted,** by mouse, touch or pen, and `'command'` for one that `command` admitted, which today is an arrow key.
+2. **The kinds are told apart by how the operation runs, not by its device.** A `'command'` is complete in one run: its drop follows `onStart` with no pointer between them. So `'command'` means that nothing is in progress for the user to see before the consumer's commit. A device name wouldn't say that: an operation held between key presses (`DRD-70`, deferred) is a keyboard's too, and has such a progress. If drag ever gets one, it gets a value of its own, and code that compares with `'command'` stays right.
+3. **A consumer's own command doesn't exist.** No method of `SortableController` starts an operation. If one is added, its operation runs as a key's does, and is `'command'`.
+4. **One place.** The request, the results, the `placeholder` factory's context, the DOM and the controller don't carry the kind. A controller runs one operation at a time, and `onStart` comes before `onReorder` and `onEnd`, so a consumer that needs the kind there keeps it. One that needs it on a custom placeholder keeps the element from its factory and changes it in `onStart`, which runs before anything paints.
+5. **The kernel doesn't change,** and "draggable alone" stays byte-identical. A custom behavior already knows: the kernel called its `admit` or its `command`, and `drag.pointerId` is `-1` for a command. `freeDrag` runs no command, so its `onStart` doesn't change.
+6. **A consumer whose `onStart` takes only the item doesn't change,** in types or at runtime.
+7. **Who uses it:** `mx-sortable-list` (`repo:RF-127`, `repo:RF-129`), the only consumer of `sortable` in the repository outside drag. drag's stories don't change: they commit with `flushSync`, so a command paints no placeholder frame in them. drag writes no style and no state for a command, as before.
+
+**Why.**
+
+- **drag holds the fact and the consumer has to guess it.** `SortableOperation` has kept the command's direction, or `null` for a pointer, since activation. The consumer can only see when callbacks run.
+- **At `onStart`, because what a consumer shows starts there.** The list's two uses are the item's look and the placeholder's, both before the first paint.
+- **A string, not a boolean or a number.** The call site reads `kind === 'command'`, a third value can be added, and drag's public vocabulary is strings already (`CancelOrigin`, the results' `type`). `CONTRIBUTING.md` §4's test holds: a consumer has to write this value.
+- **A positional argument, not an object.** It is one value, and an object of its own would need an ownership reason (§9).
+- **The contract allows it.** An option's callback receives documented values and never the kernel's `Drag` (`DRD-25`).
+
+**Cost,** on the published build, against `73a2320ef` ([readings](../../../.plan/command-signal-1/checks/drag-sizes.txt)). Minified, Brotli in brackets:
+
+| Candidate | "sortable + y" | "sortable + xy" | "complete" |
+| --- | --- | --- | --- |
+| **`onStart(item, 'pointer' \| 'command')`** | **+35 (+5)** | **+35 (+22)** | **+35 (+13)** |
+| `onStart(item, isCommand)`, a boolean | +15 (+3) | +15 (+10) | +15 (+6) |
+| `onStart(item, { kind })` | +42 (+13) | +42 (+11) | +42 (+17) |
+| `data-drag-placeholder="command"` | +70 (+15) | +70 (+8) | +70 (+11) |
+| `kind` on the request | +32 (+14) | +32 (+11) | +32 (+16) |
+
+Every other row reads 0. The argument is additive, so drag's release (#57) doesn't wait for it. No pointer sample, frame or drop does more work. The three rows' ceilings move to their readings after the owner's acceptance (`DRO-20`).
+
+**Not adopted:**
+
+- **The microtask between `onStart` and `onReorder`** (`repo:RF-127`). It isn't the better choice. It works, with no change in drag, and its readings stand: a command is recognized in the three engines. But it knows at `onReorder` what drag knows at `onStart`, so a look set at `onStart` has to be undone. Each consumer has to write it, and to know the contract's _Consistency_ rule to trust it. And a scripted pointer drag in one run is taken for a command.
+- **The request or the result** (`request.kind`). Too late for `onStart`, and a cancel before the drop has no request.
+- **The `placeholder` factory's context.** It serves one use, and a consumer that gives no factory would need one to learn the kind.
+- **An attribute on the placeholder.** It serves CSS alone, and makes a DOM value part of the public surface.
+- **A property of the controller or an observer's state.** It could be read between operations, where it has no meaning, and drag has no observer that a consumer reads.
+- **The event that started the operation.** It is a richer promise: a `pointerdown` from before the threshold, held by the consumer, and a programmatic command would have none.
+- **A separate option, such as `onCommand`.** A consumer would handle the start in two callbacks.
+
+**Q1, for the owner — is this how drag says it?**
+
+- **(a) `onStart(item, kind)`, as above. Recommended.**
+- (b) `onStart(item, isCommand)`, a boolean. The smallest, and it can't take a third kind.
+- (c) The microtask, with no change in drag, as `repo:RF-127` had it.
+
+**Implementation,** on `drag/command-signal-1` with `repo:RF-127`, as one unit:
+
+- `SortableOperation.start` passes the kind. `sortable/domain.ts` declares the type, and `sortable.js` exports it (`DRD-39`).
+- **The contract:** the public surface names the type with `sortable.js`'s exports and states properties 1 to 3 in the paragraph on the options, and the change record gets a row. The README's keyboard text says what `kind` is.
+- **Rows,** in each engine and in the consumer project against the published build (`DRD-54`): a mouse drag reports `'pointer'`, once. An arrow key reports `'command'`, once, before `onReorder`. After a command, the next pointer drag reports `'pointer'`. A key at the edge, and one that `data-drag-ignore` declines, call no `onStart`. Emulated touch reports `'pointer'`, in Chromium. **Witness:** each kind passed for the other fails its row. A declaration test: an `onStart` that takes only the item is accepted, and `SortableOperationKind` is exported.
+- **Size:** _small_.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -5640,3 +5709,5 @@ No timing was taken.
 | DRD-67 | active, decided on 2026-11-15 by the architect on the owner's follow-up hypothesis, relayed by the coordinator, from the [probe](probes/test-side-oracles/README.md) at `883836d96`. Supersedes `DRD-66`, and amends `DRD-52` property 7 and `DRD-65` property 4. It amends the contract's `DRI-6` in the implementing commit. **When decided, unimplemented:** [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) item 3 implements it. **Implemented** at `953a0fcc6`, reported at `1c1e93bd9`. Property 2 amended on 2026-11-15: the bench keeps the define for earlier revisions. Property 7's stop decided the same day: the fixture of `layout-animation.browser.test.ts:266` is wrong. Property 4 clarified the same day: an event of any realm counts. [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) repairs both. Its rationale is `DRO-19`. **Accepted on 2026-11-15:** repaired at `cc3b839f9` and rechecked at `349616213` |
 | DRD-68 | active, decided on 2026-11-15 by the architect on the owner's acceptance of drag's current size, at `3228d1f07` on `drag/size-acceptance`. **Amended the same day at `988643dc9`, before implementation,** on the owner's policy `DRO-20`: every row's ceiling and the control move to their readings at `988643dc9`, and until release each change the owner approves moves them again. Answers `DRO-4`'s size re-base, and records the owner's acceptance of decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) item 1 implements it. **Implemented at `e9ca3732f`,** and the unit's final re-measure at `a3423c793` moved no row. Read by the architect at `7f963e54a` (§Disposition of the size acceptance cleanup report) |
 | DRD-69 | active, decided on 2026-11-15 by the architect on the owner's commit `988643dc9` and direction `DRO-21`. Adopts the commit. No member carries a guarantee about its receiver, and no built-in declares `this` for a receiver check. Amended the contract's public surface in its record commit. Supersedes `DRD-20`'s bullet on controller methods and `this`, `DRD-35` property 7's `this` requirement, `DRD-37` property 4 and `DRD-63` property 2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 7 to 9 implement it. **Implemented at `a3423c793`** apart from `SortableBehavior.invalidate`'s `this`. **Property 4 amended on 2026-11-15 at `7f963e54a`** to name that member, which its rule covered and its list left out. [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) item 1 implements it. **Implemented in full at `7763a67a1`,** and accepted at `db76672a3` (§Disposition of the size acceptance follow-up report) |
+| DRD-70 | proposed on 2026-11-20 and deferred by the owner the same day. Not in force |
+| DRD-71 | decided on 2026-11-24 by the architect, waiting for the owner's answer to its Q1. Unimplemented, and not in the contract. `repo:RF-127` and `repo:RF-129` use it |

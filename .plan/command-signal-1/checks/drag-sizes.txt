@@ -1,0 +1,73 @@
+packages/drag, `aube exec just size` at 73a2320ef with each candidate applied to src/sortable, then reverted.
+
+# unchanged
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20916 min   7232 gz   6533 br  20 modules
+sortable + xy                   20607 min   7191 gz   6484 br  19 modules
+complete                        22652 min   7900 gz   7143 br  22 modules
+
+# A: onStart(item, 'pointer' | 'command')
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20951 min   7243 gz   6538 br  20 modules
+sortable + xy                   20642 min   7202 gz   6506 br  19 modules
+complete                        22687 min   7911 gz   7156 br  22 modules
+
+# B: onStart(item, boolean)
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20931 min   7236 gz   6536 br  20 modules
+sortable + xy                   20622 min   7195 gz   6494 br  19 modules
+complete                        22667 min   7904 gz   7149 br  22 modules
+
+# C: onStart(item, { kind })
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20958 min   7249 gz   6546 br  20 modules
+sortable + xy                   20649 min   7207 gz   6495 br  19 modules
+complete                        22694 min   7916 gz   7160 br  22 modules
+
+# D: data-drag-placeholder="command"
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20986 min   7245 gz   6548 br  20 modules
+sortable + xy                   20677 min   7204 gz   6492 br  19 modules
+complete                        22722 min   7912 gz   7154 br  22 modules
+
+# E: request.kind, for onReorder and onEnd
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20948 min   7250 gz   6547 br  20 modules
+sortable + xy                   20639 min   7209 gz   6495 br  19 modules
+complete                        22684 min   7919 gz   7159 br  22 modules
