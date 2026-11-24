@@ -1,5 +1,5 @@
 /** `drag:DRD-39`: a type that a published signature names is exported from its entry. Checked by `tsc`, with no run. */
-import { assertType, describe, it } from 'vitest';
+import { assertType, describe, expectTypeOf, it } from 'vitest';
 import type { BehaviorOperation, VerdictAwaiter } from '../src/draggable.ts';
 import type {
   BoundsInstaller,
@@ -16,6 +16,7 @@ import type {
   FreeDragSubject,
   ResolveHome,
 } from '../src/free-drag.ts';
+import type { SortableConfig, SortableOperationKind } from '../src/sortable.ts';
 
 describe('drag:DRD-39 the published types', () => {
   it('should let an operation name the type its drop returns', () => {
@@ -33,6 +34,30 @@ describe('drag:DRD-39 the published types', () => {
       return { x: rect.left, y: rect.top };
     };
     const config: Pick<FreeDragConfig, 'axis' | 'home'> = { axis, home };
+
+    assertType(config);
+  });
+});
+
+describe('drag:DRD-71 the published operation kind', () => {
+  it('should let a consumer name the kind that onStart receives', () => {
+    const onStart = (_: HTMLElement, kind: SortableOperationKind): void => {
+      expectTypeOf(kind).toEqualTypeOf<'pointer' | 'command'>();
+    };
+    const config: Pick<SortableConfig, 'onStart'> = { onStart };
+
+    assertType(config);
+    expectTypeOf<
+      Parameters<NonNullable<SortableConfig['onStart']>>
+    >().toEqualTypeOf<[item: HTMLElement, kind: SortableOperationKind]>();
+  });
+
+  it('should accept an onStart that takes only the item', () => {
+    const config: Pick<SortableConfig, 'onStart'> = {
+      onStart: (item: HTMLElement) => {
+        item.focus();
+      },
+    };
 
     assertType(config);
   });

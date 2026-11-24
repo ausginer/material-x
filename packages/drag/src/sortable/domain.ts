@@ -33,6 +33,13 @@ export function insertionAt(
 }
 
 /**
+ * `'pointer'`: a pointer drags the item until its release.
+ * `'command'`: no pointer. Unless `onStart` ends the operation, the drop follows it
+ * synchronously. An arrow key starts one.
+ */
+export type SortableOperationKind = 'pointer' | 'command';
+
+/**
  * A proposed reorder. `previous` and `next` are the items on either side of the
  * gap, so `root.insertBefore(item, next)` applies it.
  */
