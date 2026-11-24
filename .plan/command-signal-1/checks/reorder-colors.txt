@@ -1,0 +1,85 @@
+container --mx-bh, label --mx-h, trailing icon --mx-k, shape --mx-cs
+# chromium 158.0.8127.18
+## on ::slotted in the list, no reset in the static box
+s: lifted true, active true, background rgb(247, 251, 234), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(25, 29, 19), radius 33px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## on ::slotted in the list, with the reset
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+   after: lifted false, active false, background rgb(247, 251, 234), label rgb(25, 29, 19), trailing rgb(66, 73, 55), handle rgb(25, 29, 19), radius 16px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+   after: lifted false, active false, background color(srgb 0.968627 0.984314 0.917647), label rgb(25, 29, 19), trailing rgb(25, 29, 19), radius 16px
+c: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+   after: lifted false, active false, background color(srgb 0.8 0.933333 0.631373), label rgb(81, 109, 47), trailing rgb(81, 109, 47), radius 16px
+## the same, with a page rule on the static item and a popover rule
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## the same, with --md-list-item-container-color on the items
+s: lifted true, active true, background rgb(9, 9, 9), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.0352941 0.0352941 0.0352941), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.0352941 0.0352941 0.0352941), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## on :host(:state(drag)) in the items' main sheet
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(25, 29, 19), radius 33px
+c: lifted true, active true, background color(srgb 0.8 0.933333 0.631373), label rgb(81, 109, 47), trailing rgb(25, 29, 19), radius 16px
+key, the reorder look in a key move, commit after 0 ms: 2 frames in the reorder color; order scbz
+key, the reorder look in a key move, commit after 100 ms: 6 frames in the reorder color; order scbz
+key, no reorder look in a key move, commit after 0 ms: 0 frames in the reorder color; order scbz
+key, no reorder look in a key move, commit after 100 ms: 0 frames in the reorder color; order scbz
+# firefox 159.0
+## on ::slotted in the list, no reset in the static box
+s: lifted true, active true, background rgb(247, 251, 234), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(25, 29, 19), radius 33px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## on ::slotted in the list, with the reset
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+   after: lifted false, active false, background rgb(247, 251, 234), label rgb(25, 29, 19), trailing rgb(66, 73, 55), handle rgb(25, 29, 19), radius 16px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+   after: lifted false, active false, background color(srgb 0.968627 0.984314 0.917647), label rgb(25, 29, 19), trailing rgb(25, 29, 19), radius 16px
+c: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+   after: lifted false, active false, background color(srgb 0.8 0.933333 0.631373), label rgb(81, 109, 47), trailing rgb(81, 109, 47), radius 16px
+## the same, with a page rule on the static item and a popover rule
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## the same, with --md-list-item-container-color on the items
+s: lifted true, active true, background rgb(9, 9, 9), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.0352941 0.0352941 0.0352941), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.0352941 0.0352941 0.0352941), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## on :host(:state(drag)) in the items' main sheet
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.00392157 0.00392157 0.00392157), label rgb(2, 2, 2), trailing rgb(25, 29, 19), radius 33px
+c: lifted true, active true, background color(srgb 0.8 0.933333 0.631373), label rgb(81, 109, 47), trailing rgb(25, 29, 19), radius 16px
+key, the reorder look in a key move, commit after 0 ms: 1 frames in the reorder color; order scbz
+key, the reorder look in a key move, commit after 100 ms: 6 frames in the reorder color; order scbz
+key, no reorder look in a key move, commit after 0 ms: 0 frames in the reorder color; order scbz
+key, no reorder look in a key move, commit after 100 ms: 0 frames in the reorder color; order scbz
+# webkit 27.2
+## on ::slotted in the list, no reset in the static box
+s: lifted true, active true, background rgb(247, 251, 234), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(25, 29, 19), radius 33px
+b: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## on ::slotted in the list, with the reset
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+   after: lifted false, active false, background rgb(247, 251, 234), label rgb(25, 29, 19), trailing rgb(66, 73, 55), handle rgb(25, 29, 19), radius 16px
+b: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+   after: lifted false, active false, background color(srgb 0.968627 0.984314 0.917647), label rgb(25, 29, 19), trailing rgb(25, 29, 19), radius 16px
+c: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+   after: lifted false, active false, background color(srgb 0.8 0.933333 0.631373), label rgb(81, 109, 47), trailing rgb(81, 109, 47), radius 16px
+## the same, with a page rule on the static item and a popover rule
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## the same, with --md-list-item-container-color on the items
+s: lifted true, active true, background rgb(9, 9, 9), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.035294 0.035294 0.035294), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+c: lifted true, active true, background color(srgb 0.035294 0.035294 0.035294), label rgb(2, 2, 2), trailing rgb(3, 3, 3), radius 33px
+## on :host(:state(drag)) in the items' main sheet
+s: lifted true, active true, background rgb(1, 1, 1), label rgb(2, 2, 2), trailing rgb(3, 3, 3), handle rgb(2, 2, 2), radius 33px
+b: lifted true, active true, background color(srgb 0.003922 0.003922 0.003922), label rgb(2, 2, 2), trailing rgb(25, 29, 19), radius 33px
+c: lifted true, active true, background color(srgb 0.8 0.933333 0.631373), label rgb(81, 109, 47), trailing rgb(25, 29, 19), radius 16px
+key, the reorder look in a key move, commit after 0 ms: 1 frames in the reorder color; order scbz
+key, the reorder look in a key move, commit after 100 ms: 2 frames in the reorder color; order scbz
+key, no reorder look in a key move, commit after 0 ms: 0 frames in the reorder color; order scbz
+key, no reorder look in a key move, commit after 100 ms: 0 frames in the reorder color; order scbz

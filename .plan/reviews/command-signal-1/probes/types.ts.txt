@@ -1,0 +1,15 @@
+import { sortable, ReorderResolution, type SortableConfig, type SortableOperationKind } from '@ydinjs/drag/sortable.js';
+import { y } from '@ydinjs/drag/sortable/y.js';
+import { freeDrag, type FreeDragConfig } from '@ydinjs/drag/free-drag.js';
+const base = { items: () => [] as HTMLElement[], axis: y(), onReorder: () => ReorderResolution.accept() };
+declare const root: HTMLElement;
+sortable(root, { ...base });
+sortable(root, { ...base, onStart() {} });
+sortable(root, { ...base, onStart: (item: HTMLElement) => item.focus() });
+sortable(root, { ...base, onStart: (item, kind) => { const k: 'pointer' | 'command' = kind; void [item, k]; } });
+sortable(root, { ...base, onStart: (_: HTMLElement, kind: SortableOperationKind) => { switch (kind) { case 'pointer': case 'command': return; default: { const n: never = kind; void n; } } } });
+// @ts-expect-error a kind that doesn't exist
+sortable(root, { ...base, onStart: (_, kind) => { if (kind === 'keyboard') return; } });
+// @ts-expect-error freeDrag has no kind
+const f: FreeDragConfig['onStart'] = (a: unknown, kind: SortableOperationKind) => { void [a, kind]; };
+void [f, freeDrag]; export type C = SortableConfig;

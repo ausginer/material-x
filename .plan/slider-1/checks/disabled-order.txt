@@ -1,0 +1,10 @@
+# chromium 158.0.8127.18, 2026-11-24, recheck-touch.ts and recheck-pen.ts on the built slider.js of 2230ead7b.
+# Second block: the built file with `endPress()` run before `input.disabled = …` in formDisabled, then restored.
+## built
+focused: held, disabled, lift | p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.up -end[v70 in70 fnull d70 t"70" rest h4px none]
+focused: held, fieldset, lift | p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.up -end[v70 in70 fnull d70 t"70" rest h4px none]
+pen down at 70, then disabled, then up | p.down(pen) mousedown input70(disabled) change70(disabled) -did[v70 in70 fnull]
+## endPress() first
+focused: held, disabled, lift | p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.up -end[v70 in70 fnull d70 t"70" rest h4px none]
+focused: held, fieldset, lift | p.down input70!formnull change70!formnull -did[v70 in70 fnull d70 t"70" rest h4px flex] p.up -end[v70 in70 fnull d70 t"70" rest h4px none]
+pen down at 70, then disabled, then up | p.down(pen) mousedown input70(disabled) change70(disabled) -did[v70 in70 fnull]

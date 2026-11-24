@@ -1,0 +1,72 @@
+# chromium 158.0.8127.18
+  ltr set 0                value 0: active 0..0, handle 0..4, inactive 10..204
+  ltr set 1                value 1: active 0..0, handle 2..6, inactive 12..204
+  ltr set 50               value 50: active 0..94, handle 100..104, inactive 110..204
+  ltr set 100              value 100: active 0..194, handle 200..204, inactive 210..210
+  ltr pressed at 62        value 30: active 0..55, handle 61..63, inactive 69..204
+  ltr held outside         value 100: active 0..195, handle 201..203, inactive 209..209
+  ltr released             value 100: active 0..194, handle 200..204, inactive 210..210
+  rtl set 0                value 0: active 204..204, handle 200..204, inactive 0..194
+  rtl set 1                value 1: active 204..204, handle 198..202, inactive 0..192
+  rtl set 50               value 50: active 110..204, handle 100..104, inactive 0..94
+  rtl set 100              value 100: active 10..204, handle 0..4, inactive -6..-6
+  rtl pressed at 62        value 70: active 69..204, handle 61..63, inactive 0..55
+  rtl held outside         value 0: active 204..204, handle 201..203, inactive 0..195
+  rtl released             value 0: active 204..204, handle 200..204, inactive 0..194
+  css set 0                value 0: active 204..204, handle 200..204, inactive 0..194
+  css set 1                value 1: active 204..204, handle 198..202, inactive 0..192
+  css set 50               value 50: active 110..204, handle 100..104, inactive 0..94
+  css set 100              value 100: active 10..204, handle 0..4, inactive -6..-6
+  css pressed at 62        value 70: active 69..204, handle 61..63, inactive 0..55
+  css held outside         value 0: active 204..204, handle 201..203, inactive 0..195
+  css released             value 0: active 204..204, handle 200..204, inactive 0..194
+  css keyboard focus       value 0: active 204..204, handle 201..203, inactive 0..195
+  formDisabled arg/:disabled true/true,false/false,true/true input.disabled=true
+# firefox 159.0
+  ltr set 0                value 0: active 0..0, handle 0..4, inactive 10..204
+  ltr set 1                value 1: active 0..0, handle 2..6, inactive 12..204
+  ltr set 50               value 50: active 0..94, handle 100..104, inactive 110..204
+  ltr set 100              value 100: active 0..194, handle 200..204, inactive 210..210
+  ltr pressed at 62        value 30: active 0..55, handle 61..63, inactive 69..204
+  ltr held outside         value 100: active 0..195, handle 201..203, inactive 209..209
+  ltr released             value 100: active 0..194, handle 200..204, inactive 210..210
+  rtl set 0                value 0: active 204..204, handle 200..204, inactive 0..194
+  rtl set 1                value 1: active 208..208, handle 198..202, inactive 0..192
+  rtl set 50               value 50: active 110..204, handle 100..104, inactive 0..94
+  rtl set 100              value 100: active 10..204, handle 0..4, inactive -6..-6
+  rtl pressed at 62        value 70: active 69..204, handle 61..63, inactive 0..55
+  rtl held outside         value 0: active 204..204, handle 201..203, inactive 0..195
+  rtl released             value 0: active 210..210, handle 200..204, inactive 0..194
+  css set 0                value 0: active 204..204, handle 200..204, inactive 0..194
+  css set 1                value 1: active 208..208, handle 198..202, inactive 0..192
+  css set 50               value 50: active 110..204, handle 100..104, inactive 0..94
+  css set 100              value 100: active 10..204, handle 0..4, inactive -6..-6
+  css pressed at 62        value 70: active 69..204, handle 61..63, inactive 0..55
+  css held outside         value 0: active 204..204, handle 201..203, inactive 0..195
+  css released             value 0: active 210..210, handle 200..204, inactive 0..194
+  css keyboard focus       value 0: active 209..209, handle 201..203, inactive 0..195
+  formDisabled arg/:disabled true/true,false/false,true/true input.disabled=true
+# webkit 27.2
+  ltr set 0                value 0: active 0..0, handle 0..4, inactive 10..204
+  ltr set 1                value 1: active 0..0, handle 2..6, inactive 12..204
+  ltr set 50               value 50: active 0..94, handle 100..104, inactive 110..204
+  ltr set 100              value 100: active 0..194, handle 200..204, inactive 210..210
+  ltr pressed at 62        value 30: active 0..55, handle 61..63, inactive 69..204
+  ltr held outside         value 100: active 0..195, handle 201..203, inactive 209..209
+  ltr released             value 100: active 0..194, handle 200..204, inactive 210..210
+  rtl set 0                value 0: active 204..204, handle 200..204, inactive 0..194
+  rtl set 1                value 1: active 204..204, handle 198..202, inactive 0..192
+  rtl set 50               value 50: active 110..204, handle 100..104, inactive 0..94
+  rtl set 100              value 100: active 10..204, handle 0..4, inactive -6..-6
+  rtl pressed at 62        value 70: active 69..204, handle 61..63, inactive 0..55
+  rtl held outside         value 0: active 204..204, handle 201..203, inactive 0..195
+  rtl released             value 0: active 204..204, handle 200..204, inactive 0..194
+  css set 0                value 0: active 204..204, handle 200..204, inactive 0..194
+  css set 1                value 1: active 204..204, handle 198..202, inactive 0..192
+  css set 50               value 50: active 110..204, handle 100..104, inactive 0..94
+  css set 100              value 100: active 10..204, handle 0..4, inactive -6..-6
+  css pressed at 62        value 70: active 69..204, handle 61..63, inactive 0..55
+  css held outside         value 0: active 204..204, handle 201..203, inactive 0..195
+  css released             value 0: active 204..204, handle 200..204, inactive 0..194
+  css keyboard focus       value 0: active 204..204, handle 201..203, inactive 0..195
+  formDisabled arg/:disabled true/true,false/false,true/true input.disabled=true

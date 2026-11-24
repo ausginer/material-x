@@ -1,0 +1,66 @@
+# chromium 158.0.8127.18
+bare
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 629 ms]
+the thumb with pointer-events: none
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 632 ms]
+the track and the thumb with pointer-events: none
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 631 ms]
+user-select: none
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 624 ms]
+the thumb with no change of width
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 631 ms]
+pointer capture on pointerdown
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 631 ms]
+preventDefault on mousemove
+  still: pointerdown@q [active #q+#p+html 0 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q lostpointercapture@q [active none 626 ms]
+# firefox 159.0
+bare
+  still: pointerdown@q [active #q+#p+html 3 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q [active none 672 ms]
+the thumb with pointer-events: none
+  still: pointerdown@q [active #q+#p+html 1 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q [active none 657 ms]
+the track and the thumb with pointer-events: none
+  still: pointerdown@q [active #q+#p+html 1 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q [active none 662 ms]
+user-select: none
+  still: pointerdown@q [active #q+#p+html 2 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q [active none 649 ms]
+the thumb with no change of width
+  still: pointerdown@q [active #q+#p+html 2 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q [active none 661 ms]
+pointer capture on pointerdown
+  still: pointerdown@q [active #q+#p+html 2 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q lostpointercapture@q mouseup@q [active none 644 ms]
+preventDefault on mousemove
+  still: pointerdown@q [active #q+#p+html 3 ms]
+  moved out and released: pointermove@q mousemove@q pointerup@q mouseup@q [active none 644 ms]
+# webkit 27.2
+bare
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 74 ms]
+  moved out and released: pointermove@q mousemove@q [active #p+html 510 ms] pointerup@q mouseup@q [active none 623 ms]
+the thumb with pointer-events: none
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 99 ms]
+  moved out and released: pointermove@q mousemove@q [active #p+html 517 ms] pointerup@q mouseup@q [active none 613 ms]
+the track and the thumb with pointer-events: none
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 100 ms]
+  moved out and released: pointermove@q mousemove@q [active #p+html 518 ms] pointerup@q mouseup@q [active none 614 ms]
+user-select: none
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 99 ms]
+  moved out and released: pointermove@q mousemove@q [active #p+html 517 ms] pointerup@q mouseup@q [active none 614 ms]
+the thumb with no change of width
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 48 ms]
+  moved out and released: pointermove@q mousemove@q [active #p+html 515 ms] pointerup@q mouseup@q [active none 612 ms]
+pointer capture on pointerdown
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 80 ms]
+  moved out and released: pointermove@q mousemove@q [active #q+#p+html 515 ms] pointerup@q lostpointercapture@q mouseup@q [active none 611 ms]
+preventDefault on mousemove
+  still: pointerdown@q [active #q+#p+html 0 ms] [active none 103 ms]
+  moved out and released: pointermove@q mousemove@q [active #p+html 505 ms] pointerup@q mouseup@q [active none 624 ms]

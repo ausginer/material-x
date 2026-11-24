@@ -17,8 +17,8 @@ interface Mouse {
     y: number,
     options?: Readonly<{ steps: number }>,
   ): Promise<void>;
-  down(): Promise<void>;
-  up(): Promise<void>;
+  down(options: Readonly<{ button: Button }>): Promise<void>;
+  up(options: Readonly<{ button: Button }>): Promise<void>;
 }
 
 interface ActionChain {
@@ -30,17 +30,26 @@ interface ActionChain {
       duration: number;
     }>,
   ): ActionChain;
-  down(params: Readonly<{ button: 0 }>): ActionChain;
-  up(params: Readonly<{ button: 0 }>): ActionChain;
+  down(params: Readonly<{ button: number }>): ActionChain;
+  up(params: Readonly<{ button: number }>): ActionChain;
   perform(skipRelease?: boolean): Promise<void>;
 }
 
+interface CdpSession {
+  send(method: string, params?: unknown): Promise<unknown>;
+}
+
+interface Page {
+  readonly mouse: Mouse;
+  emulateMedia(options: Readonly<Record<string, string>>): Promise<void>;
+  context(): { newCDPSession(page: Page): Promise<CdpSession> };
+}
+
+type Button = 'left' | 'right';
+
 type Context = Readonly<{
   provider: Readonly<{ name: string }>;
-  page: Readonly<{
-    mouse: Mouse;
-    emulateMedia(options: Readonly<{ reducedMotion: string }>): Promise<void>;
-  }>;
+  page: Page;
   browser: Readonly<{
     action(
       type: 'pointer',
@@ -52,6 +61,9 @@ type Context = Readonly<{
   }>;
 }>;
 
+/** The buttons as WebDriver numbers them. */
+const BUTTONS: Readonly<Record<Button, number>> = { left: 0, right: 2 };
+
 /*
  * One WebDriver pointer under a fixed id, and `perform(true)` doesn't release
  * it, so a press lasts from `pointerPress` to `pointerRelease`, as Playwright's
@@ -62,23 +74,37 @@ const POINTER = {
   parameters: { pointerType: 'mouse' },
 } as const;
 
+const sessions = new WeakMap<Page, Promise<CdpSession>>();
+
+/** One session for a page, because a finger is down across calls. */
+function openSession(page: Page): Promise<CdpSession> {
+  let session = sessions.get(page);
+
+  if (!session) {
+    session = page.context().newCDPSession(page);
+    sessions.set(page, session);
+  }
+
+  return session;
+}
+
 export const inputBrowserCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
 > = {
-  pointerPress: defineBrowserCommand<[number, number]>(
-    async (context, x, y): Promise<void> => {
+  pointerPress: defineBrowserCommand<[number, number, Button?]>(
+    async (context, x, y, button = 'left'): Promise<void> => {
       const { provider, page, browser } = context as unknown as Context;
 
       if (provider.name === 'playwright') {
         await page.mouse.move(x, y);
-        await page.mouse.down();
+        await page.mouse.down({ button });
         return;
       }
 
       await browser
         .action('pointer', POINTER)
         .move({ x, y, origin: 'viewport', duration: 0 })
-        .down({ button: 0 })
+        .down({ button: BUTTONS[button] })
         .perform(true);
     },
   ),
@@ -111,14 +137,78 @@ export const inputBrowserCommands: Readonly<
       });
     },
   ),
-  pointerRelease: defineBrowserCommand<[]>(async (context): Promise<void> => {
-    const { provider, page, browser } = context as unknown as Context;
+  emulateForcedColors: defineBrowserCommand<[boolean]>(
+    async (context, forced): Promise<void> => {
+      const { provider, page } = context as unknown as Context;
 
-    if (provider.name === 'playwright') {
-      await page.mouse.up();
-      return;
+      if (provider.name !== 'playwright') {
+        throw new Error('emulateForcedColors needs Playwright');
+      }
+
+      await page.emulateMedia({ forcedColors: forced ? 'active' : 'none' });
+    },
+  ),
+  // `Input.dispatchTouchEvent` goes through Chromium's own gesture recognition,
+  // so a pan scrolls the page and cancels the pointer, as a finger's does.
+  touch: defineBrowserCommand<
+    [
+      'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel',
+      ...Array<readonly [number, number, id?: number]>,
+    ]
+  >(async (context, type, ...points): Promise<void> => {
+    const { provider, page } = context as unknown as Context;
+
+    if (provider.name !== 'playwright') {
+      throw new Error('touch needs Playwright');
     }
 
-    await browser.action('pointer', POINTER).up({ button: 0 }).perform(true);
+    await (
+      await openSession(page)
+    ).send('Input.dispatchTouchEvent', {
+      type,
+      touchPoints: points.map(([x, y, id], index) => ({
+        x,
+        y,
+        id: id ?? index,
+      })),
+    });
   }),
+  pen: defineBrowserCommand<['down' | 'up', number, number]>(
+    async (context, type, x, y): Promise<void> => {
+      const { provider, page } = context as unknown as Context;
+
+      if (provider.name !== 'playwright') {
+        throw new Error('pen needs Playwright');
+      }
+
+      const isDown = type === 'down';
+      await (
+        await openSession(page)
+      ).send('Input.dispatchMouseEvent', {
+        type: isDown ? 'mousePressed' : 'mouseReleased',
+        x,
+        y,
+        button: 'left',
+        buttons: isDown ? 1 : 0,
+        clickCount: 1,
+        pointerType: 'pen',
+        force: isDown ? 0.5 : 0,
+      });
+    },
+  ),
+  pointerRelease: defineBrowserCommand<[Button?]>(
+    async (context, button = 'left'): Promise<void> => {
+      const { provider, page, browser } = context as unknown as Context;
+
+      if (provider.name === 'playwright') {
+        await page.mouse.up({ button });
+        return;
+      }
+
+      await browser
+        .action('pointer', POINTER)
+        .up({ button: BUTTONS[button] })
+        .perform(true);
+    },
+  ),
 };

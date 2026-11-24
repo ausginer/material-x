@@ -1,0 +1,41 @@
+# chromium 158.0.8127.18
+2720 cases, 265 differ
+column-reverse, the slider on top | outer ltr, slider ltr | number | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | million | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | long | 0 | overflow 0,600,0,444 -> 0,600,0,520
+column-reverse, the slider on top | outer ltr, slider ltr | word | 0 | overflow 0,600,0,444 -> 0,600,0,520
+column-reverse, the slider on top | outer ltr, slider ltr | arabic | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | cjk | 0 | overflow 0,600,0,444 -> 0,600,0,520
+column-reverse, the slider on top | outer ltr, slider ltr | nbsp | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | emoji | 0 | overflow 0,600,0,444 -> 0,600,0,500
+24 px | outer ltr, slider ltr | cjk | 0 | overflow 0,660,0,644 -> 0,660,1,644; text overflows its box by 1
+24 px | outer ltr, slider ltr | emoji | 0 | overflow 0,660,0,644 -> 0,660,4,644; text overflows its box by 4
+20 px (the limit) | outer ltr, slider ltr | long | 0 | overflow 0,960,0,944 -> 0,960,1,944; text overflows its box by 1
+20 px (the limit) | outer ltr, slider ltr | word | 0 | overflow 0,960,0,944 -> 0,960,1,944; text overflows its box by 1
+20 px (the limit) | outer ltr, slider ltr | cjk | 0 | overflow 0,960,0,944 -> 0,960,5,944; text overflows its box by 5
+20 px (the limit) | outer ltr, slider ltr | nbsp | 0 | overflow 0,960,0,944 -> 0,960,1,944; text overflows its box by 1
+20 px (the limit) | outer ltr, slider ltr | emoji | 0 | overflow 0,960,0,944 -> 0,960,8,944; text overflows its box by 8
+# firefox 159.0
+2720 cases, 250 differ
+column-reverse, the slider on top | outer ltr, slider ltr | number | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | million | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | long | 0 | overflow 0,600,0,444 -> 0,600,0,540
+column-reverse, the slider on top | outer ltr, slider ltr | word | 0 | overflow 0,600,0,444 -> 0,600,0,520
+column-reverse, the slider on top | outer ltr, slider ltr | arabic | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | cjk | 0 | overflow 0,600,0,444 -> 0,600,0,520
+column-reverse, the slider on top | outer ltr, slider ltr | nbsp | 0 | overflow 0,600,0,444 -> 0,600,0,500
+column-reverse, the slider on top | outer ltr, slider ltr | emoji | 0 | overflow 0,600,0,444 -> 0,600,0,500
+24 px | outer ltr, slider ltr | cjk | 0 | overflow 0,660,0,644 -> 0,660,1,644; text overflows its box by 1
+24 px | outer ltr, slider ltr | emoji | 0 | overflow 0,660,0,644 -> 0,660,4,644; text overflows its box by 4
+20 px (the limit) | outer ltr, slider ltr | long | 0 | overflow 0,960,0,944 -> 0,960,2,944; text overflows its box by 2
+20 px (the limit) | outer ltr, slider ltr | cjk | 0 | overflow 0,960,0,944 -> 0,960,5,944; text overflows its box by 5
+20 px (the limit) | outer ltr, slider ltr | nbsp | 0 | overflow 0,960,0,944 -> 0,960,2,944; text overflows its box by 2
+20 px (the limit) | outer ltr, slider ltr | emoji | 0 | overflow 0,960,0,944 -> 0,960,8,944; text overflows its box by 8
+# webkit 27.2
+2720 cases, 120 differ
+24 px | outer ltr, slider ltr | cjk | 0 | overflow 0,660,0,644 -> 0,660,1,644; text overflows its box by 1
+24 px | outer ltr, slider ltr | emoji | 0 | overflow 0,660,0,644 -> 0,660,4,644; text overflows its box by 4
+20 px (the limit) | outer ltr, slider ltr | long | 0 | overflow 0,960,0,944 -> 0,960,2,944; text overflows its box by 2
+20 px (the limit) | outer ltr, slider ltr | cjk | 0 | overflow 0,960,0,944 -> 0,960,5,944; text overflows its box by 5
+20 px (the limit) | outer ltr, slider ltr | nbsp | 0 | overflow 0,960,0,944 -> 0,960,2,944; text overflows its box by 2
+20 px (the limit) | outer ltr, slider ltr | emoji | 0 | overflow 0,960,0,944 -> 0,960,8,944; text overflows its box by 8

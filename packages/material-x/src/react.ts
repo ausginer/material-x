@@ -102,6 +102,12 @@ import type {
   RadioEvents,
   RadioProperties,
 } from './radio/radio.ts';
+import type Slider from './slider/slider.ts';
+import type {
+  SliderCSSProperties,
+  SliderEvents,
+  SliderProperties,
+} from './slider/slider.ts';
 import type MultilineTextField from './text-field/multiline-text-field.ts';
 import type TextField from './text-field/text-field.ts';
 import type {
@@ -178,6 +184,8 @@ type CheckboxJSX = JSXWrapper<Checkbox, CheckboxProperties, CheckboxEvents>;
 
 type RadioJSX = JSXWrapper<Radio, RadioProperties, RadioEvents>;
 
+type SliderJSX = JSXWrapper<Slider, SliderProperties, SliderEvents>;
+
 type ListJSX = JSXWrapper<List, ListProperties, ListEvents>;
 
 type ListItemJSX = JSXWrapper<ListItem, ListItemProperties, ListItemEvents>;
@@ -229,6 +237,7 @@ declare module 'react' {
       'mx-list-link-item': ListLinkItemJSX;
       'mx-sortable-list': SortableListJSX;
       'mx-radio': RadioJSX;
+      'mx-slider': SliderJSX;
       'mx-icon': IconJSX;
       'mx-text-field': TextFieldJSX;
       'mx-multiline-text-field': MultilineTextFieldJSX;
@@ -255,6 +264,7 @@ declare module 'react' {
       ListLinkItemCSSProperties,
       SortableListCSSProperties,
       RadioCSSProperties,
+      SliderCSSProperties,
       TextFieldCSSProperties,
       TopAppBarCSSProperties {}
 }

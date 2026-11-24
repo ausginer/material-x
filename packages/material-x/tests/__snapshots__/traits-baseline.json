@@ -119,6 +119,7 @@
       "ButtonLike": true,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -322,6 +323,7 @@
       "ButtonLike": true,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": true,
       "CardLike": false,
@@ -438,6 +440,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": true,
@@ -621,6 +624,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -869,6 +873,7 @@
       "ButtonLike": true,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": true,
       "CardLike": false,
@@ -1053,6 +1058,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": true,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1150,6 +1156,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1303,6 +1310,7 @@
       "ButtonLike": true,
       "IconButtonLike": true,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1523,6 +1531,7 @@
       "ButtonLike": true,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1630,6 +1639,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1715,6 +1725,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1787,6 +1798,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -1906,6 +1918,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -2148,6 +2161,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -2430,6 +2444,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -2566,6 +2581,367 @@
     ]
   },
   {
+    "tag": "mx-slider",
+    "className": "Slider",
+    "observedAttributes": [
+      "value",
+      "min",
+      "max",
+      "step",
+      "size",
+      "indicator",
+      "valuetext",
+      "disabled",
+      "name",
+      "error",
+      "required"
+    ],
+    "reflection": [
+      {
+        "name": "value",
+        "property": {
+          "1": null,
+          "true": null,
+          "false": null,
+          "\"x\"": null,
+          "null": null
+        },
+        "attribute": {
+          "null": 50,
+          "\"\"": 50,
+          "\"x\"": 50,
+          "\"1\"": 1
+        }
+      },
+      {
+        "name": "min",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": null,
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": null,
+          "\"x\"": null,
+          "\"1\"": 1
+        }
+      },
+      {
+        "name": "max",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": null,
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": null,
+          "\"x\"": null,
+          "\"1\"": 1
+        }
+      },
+      {
+        "name": "step",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": null,
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": null,
+          "\"x\"": null,
+          "\"1\"": 1
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "indicator",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "valuetext",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "name",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "error",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "required",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": true,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SliderLike": true,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "CardLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Slider"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Slider",
+        "keys": [
+          {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "error",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "form",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "indicator",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "labels",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "max",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "min",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "required",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "setCustomValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "step",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:SliderLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Validatable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "validationMessage",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "validity",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "valuetext",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "willValidate",
+            "kind": "get",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "tag": "mx-sortable-list",
     "className": "SortableList",
     "observedAttributes": [],
@@ -2581,6 +2957,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -2717,6 +3094,7 @@
       "ButtonLike": true,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": true,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -2951,6 +3329,7 @@
       "ButtonLike": true,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -3277,6 +3656,7 @@
       "ButtonLike": true,
       "IconButtonLike": true,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -3613,6 +3993,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
@@ -3791,6 +4172,7 @@
       "ButtonLike": false,
       "IconButtonLike": false,
       "FABLike": false,
+      "SliderLike": false,
       "SplitButtonLike": false,
       "ButtonGroupLike": false,
       "CardLike": false,
