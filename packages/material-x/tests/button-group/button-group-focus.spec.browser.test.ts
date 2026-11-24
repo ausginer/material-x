@@ -98,6 +98,7 @@ async function focusMember(
   await focusFirst(frame);
 
   for (let step = 0; step < index; step += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- one key press per step
     await userEvent.keyboard(key);
   }
 
@@ -350,6 +351,7 @@ describe("focused mx-button in a group that isn't the group's member", () => {
     const box = boxOf(nested);
 
     for (let step = 0; step < 4 && !box.matches(':focus'); step += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one key press per step
       await userEvent.keyboard(TAB);
     }
 
