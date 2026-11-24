@@ -76,7 +76,7 @@ export const stateSnippet = `mx-top-app-bar:state(scrolled) {
 
 - The bar is `position: sticky` at the block start, with `z-index: 1`. A page rule on `mx-top-app-bar` overrides both, and `position: static` unpins it.
 - It pins within its parent, so make it a child of `body`. A `<header>` around it needs `display: contents`, and `height: 100%` on `body` lets the bar scroll away with it.
-- It follows the document's scroll only. In another scroll container it is sticky there and stays at rest.
+- It follows the document's scroll only. In another scroll container it is sticky there and stays at rest. `overflow-x: hidden` on both `html` and `body` makes `body` one, so the bar scrolls away. `overflow-x: clip` on `body` doesn't.
 
 ## Scrolled state
 

@@ -69,9 +69,11 @@ describe('mx-top-app-bar scrolled state', () => {
     ['a jump to the end', 1e6],
   ] as const)('should be on after %s', async (_, top) => {
     const bar = createPage();
+    await observed();
+    const before = isScrolled(bar);
     await scrollPage(top);
 
-    expect([scrollY > 0, isScrolled(bar)]).toEqual([true, true]);
+    expect([before, scrollY > 0, isScrolled(bar)]).toEqual([false, true, true]);
   });
 
   it('should be off again at the start', async () => {
@@ -118,26 +120,73 @@ describe('mx-top-app-bar scrolled state', () => {
     expect(isScrolled(bar)).toBe(false);
   });
 
-  it('should stay on past one viewport with html { height: 100% }', async () => {
-    addPageRule('html { height: 100%; }');
+  it.each([
+    'html { margin-top: 46px; }',
+    'html { position: relative; top: 20px; }',
+    'body { position: absolute; inset: 0 0 auto; }',
+    'html { height: 0; }',
+    'html { height: 100%; }',
+  ])('should follow the scroll position with %s', async (css) => {
+    addPageRule(css);
     const bar = createPage();
-    await scrollPage(1);
-    await scrollPage(innerHeight * 2);
+    const read: Array<readonly [number, boolean]> = [];
+    const positions = [0, 1, innerHeight * 2, 0];
+
+    for (const top of positions) {
+      // oxlint-disable-next-line no-await-in-loop -- each position is a crossing
+      await scrollPage(top);
+      read.push([scrollY, isScrolled(bar)]);
+    }
+
+    expect(read).toEqual(positions.map((top) => [top, top > 0]));
+  });
+
+  it('should follow the block axis of a wide page scrolled sideways past one viewport', async () => {
+    addPageRule('body { width: max-content; } #content { width: 6000px; }');
+    const bar = createPage();
+    const left = innerWidth * 2;
+    const read: Array<readonly [number, number, boolean]> = [];
+
+    for (const top of [0, 300]) {
+      // oxlint-disable-next-line no-await-in-loop -- the second follows the first
+      await scrollPage(top, left);
+      read.push([scrollX, scrollY, isScrolled(bar)]);
+    }
+
+    expect(read).toEqual([
+      [left, 0, false],
+      [left, 300, true],
+    ]);
+  });
+
+  it('should be off when a scrolled page becomes too short to scroll', async () => {
+    // Vitest's page gives `body` the viewport's height, and its padding scrolls.
+    addPageRule('body { min-block-size: 0 !important; }');
+    const bar = createPage();
+    await scrollPage(300);
+    const before = isScrolled(bar);
+    document.querySelector('#content')!.remove();
+    await observed();
+
+    expect([before, scrollY, isScrolled(bar)]).toEqual([true, 0, false]);
+  });
+
+  it('should be on when a bar hidden at the start is shown at a scrolled position', async () => {
+    const bar = createPage();
+    await observed();
+    bar.style.display = 'none';
+    await scrollPage(300);
+    bar.style.display = '';
+    await observed();
 
     expect(isScrolled(bar)).toBe(true);
   });
 
-  it('should stay on when a wide page is scrolled sideways past one viewport', async () => {
-    addPageRule('body { width: max-content; } #content { width: 6000px; }');
-    const bar = createPage();
-    await scrollPage(300);
-    await scrollPage(300, innerWidth * 2);
-
-    expect([scrollX, isScrolled(bar)]).toEqual([innerWidth * 2, true]);
-  });
-
   it('should change once over many scroll steps away from the start', async () => {
-    const listen = vi.spyOn(EventTarget.prototype, 'addEventListener');
+    // Vitest's page gives `window` an `addEventListener` of its own.
+    const listeners = [EventTarget.prototype, window].map((target) =>
+      vi.spyOn(target, 'addEventListener'),
+    );
     const add = vi.spyOn(CustomStateSet.prototype, 'add');
     const remove = vi.spyOn(CustomStateSet.prototype, 'delete');
     onTestFinished(() => {
@@ -160,12 +209,22 @@ describe('mx-top-app-bar scrolled state', () => {
 
     expect({
       changes: changes() - before,
-      listeners: listen.mock.calls.filter(([type]) => type === 'scroll').length,
+      listeners: listeners
+        .flatMap(({ mock }) => mock.calls)
+        .filter(([type]) => type === 'scroll').length,
     }).toEqual({ changes: 1, listeners: 0 });
   });
 });
 
 describe('mx-top-app-bar position', () => {
+  it('should take its space in the flow', () => {
+    const bar = createPage();
+
+    expect(bar.nextElementSibling!.getBoundingClientRect().top).toBe(
+      bar.getBoundingClientRect().bottom,
+    );
+  });
+
   it('should stay at the top of a scrolled page', async () => {
     const bar = createPage();
     await scrollPage(300);
@@ -193,14 +252,14 @@ describe('mx-top-app-bar position', () => {
 });
 
 describe('mx-top-app-bar accessibility', () => {
-  it('should hold only its three slots in its shadow root', () => {
+  it('should hold only its three slots and the scroll start in its shadow root', () => {
     const bar = createPage();
 
     expect(
       [...bar.shadowRoot!.children].map(
         (child) => `${child.localName}.${child.className}`,
       ),
-    ).toEqual(['slot.lead', 'slot.headline', 'slot.trail']);
+    ).toEqual(['slot.lead', 'slot.headline', 'slot.trail', 'div.scroll-start']);
   });
 
   it('should add no role attribute and no tabindex to its host', async () => {

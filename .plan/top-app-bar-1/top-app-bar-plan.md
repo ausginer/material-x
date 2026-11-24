@@ -1,6 +1,6 @@
 # `mx-top-app-bar` — plan
 
-**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are ready for an implementer.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The recheck is next.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
 
 ## Readings
 
@@ -183,3 +183,24 @@ By the architect, 2026-11-23, on the [report](../reviews/top-app-bar-1/feature-p
 **Two screenshots:** the _Tests_ section now says two. The reason in _Implemented_ is right.
 
 **Then a recheck** by the reviewer, of the state and the changed rows only. The [stopping boundary](#stopping-boundary) stands.
+
+## Dispositions implemented 2026-11-24
+
+On `material-x/top-app-bar-1` from `27e02d677`. `origin/main` at `3aef04f7e` adds only records and merges cleanly, so it wasn't merged. No visual run, no Safari run and no Storybook build was made.
+
+- **Source:** the template's fourth element is `<div class="scroll-start" popover="manual">`. The bar shows it at each connect and observes it, and the state is the opposite of `isIntersecting`.
+- **Tests:** the whole material-x run passes: 3188 passed, 24 skipped and 7 expected failures, with the browser and spec rows in Playwright's Chromium, Firefox and WebKit. The runtime-shape snapshot didn't change. Typecheck, lint and formatting pass.
+- **Witnesses** ([reading](checks/mutations.txt), [script](probes/mutations.mjs)): 22 mutations and a clean control, in the three engines. Each named row fails in the three:
+  - the root element as the target, with its former options, fails exactly the first four pages;
+  - a 2px top margin fails the 1px row, and the five pages, which read 1px too;
+  - 0px sides fail only the sideways row, and the box's top only the row of a bar shown again;
+  - a listener that does nothing, on `window`, bare or on `document`, fails only the steps row, and one that sets the state fails it and the row for a disconnected bar;
+  - a state that never turns off fails the row of a page that shrinks, and a fifth element fails the shadow root's row. The plan named no witness for these two;
+  - without the show the state is always on, and with one show only, the reconnect at the start fails;
+  - `position: fixed`, `flex: initial` and no `align-items` on the slots each fail their new rows, and each of the headline's six declarations, taken away, fails both of its rows.
+- **The proof's pages** ([reading](checks/pages.txt)): no page is `BAD` in the three engines, and the wheel, the keyboard and the smooth scroll match.
+- **The default root** still fails the sideways row in the three engines, and only that one, where it failed 11 rows with the root element as the target.
+- **Size, Brotli:** `top-app-bar/top-app-bar` 1357 to 1407 B (+50 B). `complete` 23160 to 23154 B (−6 B).
+- **No departure from the plan.** In the row for a page that shrinks, the fixture clears the `min-height` that Vitest's page gives `body`, which otherwise leaves 48px to scroll.
+
+**One reading for the architect, not repaired.** If another element's `connectedCallback` removes the bar in the same insertion, the bar's own callback runs while it is disconnected. `showPopover` then throws, so an `InvalidStateError` is reported in the three engines ([reading](checks/removed-while-connecting.txt), [probe](probes/removed-while-connecting.browser.test.ts.txt)). The observer isn't started. The root-element target didn't throw there by construction, and I didn't run it. The repair would be a check that the plan doesn't have: `isConnected`.

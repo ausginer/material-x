@@ -1,0 +1,32 @@
+// Copy to packages/material-x/tests/top-app-bar/zz.browser.test.ts and run it there.
+import { it } from 'vitest';
+import '../../src/top-app-bar/top-app-bar.ts';
+
+it('reports errors of a bar that is removed while it connects', async () => {
+  const errors: string[] = [];
+  window.addEventListener(
+    'error',
+    (event) => {
+      errors.push(event.message);
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    },
+    true,
+  );
+  customElements.define(
+    'x-remover',
+    class extends HTMLElement {
+      connectedCallback() {
+        this.nextElementSibling?.remove();
+      }
+    },
+  );
+  const fragment = document.createDocumentFragment();
+  fragment.append(
+    document.createElement('x-remover'),
+    document.createElement('mx-top-app-bar'),
+  );
+  document.body.append(fragment);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  throw new Error(`@@removed-while-connecting ${JSON.stringify(errors)}`);
+});

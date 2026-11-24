@@ -14,16 +14,14 @@ export type TopAppBarCSSProperties = Readonly<{
 }>;
 
 /*
- * Leaves only the area above the scroll start. The top and side margins are
- * larger than a page, because the root element's box can be as small as the
- * viewport: a page with `html { height: 100% }`, or one scrolled sideways, moves
- * it out of an area with smaller margins. `root` is the document, because with
- * the default root a frame's observer measures against the outermost page.
+ * `root` is the document, because with the default root a frame's observer
+ * measures against the outermost page. The side margins are larger than a page,
+ * so that scrolling sideways doesn't move the target out of the area. The block
+ * margins are 0, because a top margin delays the state by its size.
  */
 const SCROLL_OBSERVER_OPTIONS: IntersectionObserverInit = {
   root: document,
-  rootMargin: '1000000px 1000000px -100%',
-  threshold: 1e-9,
+  rootMargin: '0px 1000000px',
 };
 
 /**
@@ -52,17 +50,19 @@ export default class TopAppBar extends ControlledElement {
     useCore(this, [template], {}, [defaultStyles]);
     useHasSlottedPolyfill(this);
 
+    // The popover is in the top layer, where the page's styles don't move it and
+    // its containing block is the document's initial one rather than the host.
+    const scrollStart =
+      this.shadowRoot!.querySelector<HTMLElement>('.scroll-start')!;
     const observer = new IntersectionObserver((entries) => {
-      toggleState(
-        internals(this),
-        'scrolled',
-        entries.at(-1)!.intersectionRatio > 0,
-      );
+      toggleState(internals(this), 'scrolled', !entries.at(-1)!.isIntersecting);
     }, SCROLL_OBSERVER_OPTIONS);
 
     use(this, {
       connected() {
-        observer.observe(document.documentElement);
+        // A disconnect hides the popover.
+        scrollStart.showPopover();
+        observer.observe(scrollStart);
       },
       disconnected() {
         observer.disconnect();

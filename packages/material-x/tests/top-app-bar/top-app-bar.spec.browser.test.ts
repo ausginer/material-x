@@ -255,9 +255,10 @@ const TEXT_STYLE = [
 
 describe('mx-top-app-bar headline contract', () => {
   // The bar's surroundings set every property to a value that isn't the
-  // token's, so a row fails if the headline only inherits it.
+  // token's, so a row fails if the headline only inherits it. The selector beats
+  // the test page's own `.mx-test-body`.
   const SURROUNDINGS =
-    'body { font: italic 900 9px/99px serif; letter-spacing: 3px; color: red; }';
+    'body.mx-test-body { font: italic 900 9px/99px serif; letter-spacing: 3px; color: red; }';
 
   describe.each(TEXT_STYLE)('%s', (property, token) => {
     it('should apply to text', async () => {
@@ -363,6 +364,48 @@ describe('mx-top-app-bar icon contract', () => {
       Array.from({ length: 4 }, () => center(bar)),
     );
   });
+});
+
+describe('mx-top-app-bar slot layout', () => {
+  it.each(['lead', 'trail'])(
+    'should keep the width of %s in a bar that is too narrow',
+    async (slot) => {
+      const { bar } = await createBar({ lead: false, trail: 0 });
+      const text = document.createElement('span');
+      text.slot = slot;
+      text.textContent = 'Several words that can wrap';
+      bar.append(text);
+      await nextFrame();
+      const { width } = text.getBoundingClientRect();
+      bar.style.inlineSize = '120px';
+      await nextFrame();
+
+      expect([width > 120, text.getBoundingClientRect().width]).toEqual([
+        true,
+        width,
+      ]);
+    },
+  );
+
+  it.each(['lead', 'trail'])(
+    'should center content of different heights in %s',
+    async (slot) => {
+      const { bar } = await createBar({ lead: false, trail: 0 });
+      const items = [20, 40].map((size) => {
+        const item = document.createElement('div');
+        item.slot = slot;
+        item.style.cssText = `inline-size: 20px; block-size: ${size}px;`;
+        return item;
+      });
+      bar.append(...items);
+      await nextFrame();
+      const box = bar.getBoundingClientRect();
+
+      expect(
+        items.map((item) => item.getBoundingClientRect().top - box.top),
+      ).toEqual([20, 40].map((size) => (box.height - size) / 2));
+    },
+  );
 });
 
 describe('mx-top-app-bar inset contract', () => {
