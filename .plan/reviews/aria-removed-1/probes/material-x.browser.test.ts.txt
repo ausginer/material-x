@@ -1,0 +1,182 @@
+// Each useARIA caller in material-x: the names that a page gives it, lost in
+// each way, and the aria-* that the component writes itself after the host had
+// and lost the same name. Copy to packages/material-x/tests/ and run there,
+// after building core. The last test fails on purpose: its message is the reading.
+import { afterEach, expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/button/button.ts';
+import '../src/button/icon-button.ts';
+import '../src/button/link-button.ts';
+import '../src/button/split-button.ts';
+import '../src/button/switch-button.ts';
+import '../src/button/switch-icon-button.ts';
+import '../src/fab/fab.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/list/sortable-list.ts';
+import '../src/text-field/multiline-text-field.ts';
+import '../src/text-field/text-field.ts';
+import { nextFrame } from './browser.ts';
+
+const rows: string[] = [];
+const read = (what: string, value: unknown) =>
+  rows.push(`READ ${server.browser} | ${what} | ${JSON.stringify(value)}`);
+afterEach(() => document.body.replaceChildren());
+
+const TAGS = [
+  'mx-button', 'mx-icon-button', 'mx-link-button', 'mx-switch-button',
+  'mx-switch-icon-button', 'mx-split-button', 'mx-fab', 'mx-list-button-item', 'mx-list-link-item',
+  'mx-text-field', 'mx-multiline-text-field',
+];
+const ATTRS = ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-details', 'aria-haspopup'];
+const settle = async () => { await nextFrame(); await nextFrame(); };
+
+const WAYS: Record<string, (el: HTMLElement, a: string) => void | Promise<void>> = {
+  connected: (el, a) => el.removeAttribute(a),
+  out: async (el, a) => {
+    el.remove(); await nextFrame(); el.removeAttribute(a); await nextFrame();
+    document.body.append(el);
+  },
+  move: (el, a) => { el.removeAttribute(a); document.body.prepend(el); },
+  reinsert: (el, a) => { el.removeAttribute(a); el.remove(); document.body.append(el); },
+};
+
+for (const tag of TAGS) {
+  it(tag, async () => {
+    const result: Record<string, unknown> = {};
+    for (const a of ATTRS) {
+      for (const [w, act] of Object.entries(WAYS)) {
+        document.body.replaceChildren(document.createElement('i'));
+        const el = document.createElement(tag);
+        el.innerHTML = '<span slot="label">Label</span><span slot="support">Help</span><span slot="counter">1/2</span>Content';
+        el.setAttribute(a, 'x');
+        document.body.append(el);
+        await settle();
+        const control = el.shadowRoot!.querySelector(`[${a}="x"]`);
+        if (!control) { result[`${a} ${w}`] = 'NOT MIRRORED'; continue; }
+        await act(el, a);
+        await settle();
+        const v = control.getAttribute(a);
+        ((result[String(v)] as string[]) ??= []).push(`${a.slice(5)}/${w}`);
+      }
+    }
+    read(`${tag} | value left on the control`, result);
+  }, 60_000);
+}
+
+// A text field whose slots change while out, at the same time as the loss.
+for (const tag of ['mx-text-field', 'mx-multiline-text-field']) {
+  it(`${tag} slots`, async () => {
+    const make = async (label: boolean) => {
+      document.body.replaceChildren();
+      const el = document.createElement(tag);
+      if (label) el.innerHTML = '<span slot="label">L</span>';
+      el.setAttribute('aria-labelledby', 'x');
+      document.body.append(el);
+      await settle();
+      return [el, el.shadowRoot!.querySelector('.input')!] as const;
+    };
+    const out: unknown[] = [];
+    {
+      const [el, c] = await make(true);
+      el.remove(); el.removeAttribute('aria-labelledby'); el.replaceChildren();
+      document.body.append(el); await settle();
+      out.push(['label removed while out', c.getAttribute('aria-labelledby')]);
+    }
+    {
+      const [el, c] = await make(false);
+      el.remove(); el.removeAttribute('aria-labelledby'); el.innerHTML = '<span slot="label">L</span>';
+      document.body.append(el); await settle();
+      out.push(['label added while out', c.getAttribute('aria-labelledby')]);
+    }
+    {
+      const [el, c] = await make(true);
+      el.removeAttribute('aria-labelledby'); el.remove(); await settle();
+      document.body.append(el); await settle();
+      document.body.prepend(el); await settle();
+      const s = c.getAttribute('aria-labelledby');
+      el.setAttribute('aria-labelledby', 'y'); await settle();
+      out.push(['two connects, then set', s, c.getAttribute('aria-labelledby')]);
+    }
+    {
+      const [el, c] = await make(true);
+      el.remove(); el.removeAttribute('aria-labelledby'); document.body.append(el);
+      out.push(['synchronously after the connect', c.getAttribute('aria-labelledby')]);
+    }
+    read(`${tag} | slots`, out);
+  });
+}
+
+type Own = readonly [tag: string, aria: string, host: string, set: (el: any) => void, text?: string];
+const OWN: readonly Own[] = [
+  ['mx-text-field', 'aria-invalid', 'true', (e) => { e.error = true; }],
+  ['mx-text-field', 'aria-required', 'true', (e) => { e.required = true; }],
+  ['mx-multiline-text-field', 'aria-invalid', 'true', (e) => { e.error = true; }],
+  ['mx-switch-button', 'aria-checked', 'true', (e) => { e.checked = true; }],
+  ['mx-switch-button', 'aria-invalid', 'true', (e) => { e.error = true; }],
+  ['mx-link-button', 'aria-disabled', 'true', (e) => { e.setAttribute('disabled', ''); }],
+  ['mx-list-link-item', 'aria-disabled', 'true', (e) => { e.setAttribute('disabled', ''); }],
+  ['mx-list-link-item', 'aria-current', 'true', (e) => { e.selected = true; }],
+  ['mx-list-button-item', 'aria-selected', 'true', (e) => { e.selected = true; }],
+];
+for (const [tag, aria, value, set] of OWN) {
+  it(`own ${tag} ${aria}`, async () => {
+    const c = (el: Element) => el.shadowRoot!.querySelector('.input, .host')!.getAttribute(aria);
+    const run = async (had: boolean, setFirst: boolean) => {
+      document.body.replaceChildren(document.createElement('i'));
+      const el = document.createElement(tag);
+      if (had) el.setAttribute(aria, value);
+      if (setFirst) set(el);
+      document.body.append(el);
+      await settle();
+      el.removeAttribute(aria);
+      await settle();
+      if (!setFirst) set(el);
+      await settle();
+      const before = c(el);
+      document.body.prepend(el);
+      await settle();
+      return [before, c(el)];
+    };
+    read(`${tag} ${aria}, [before a move, after it]`, {
+      'host never had it': await run(false, false),
+      'host had and lost it, then the component set it': await run(true, false),
+      'the component set it, host had and lost it': await run(true, true),
+    });
+  });
+}
+
+it('sortable description', async () => {
+  const res: Record<string, unknown> = {};
+  for (const way of ['never', 'connected', 'out', 'move']) {
+    document.body.innerHTML =
+      '<mx-sortable-list><mx-list-button-item>A</mx-list-button-item><mx-list-button-item>B</mx-list-button-item></mx-sortable-list>';
+    const list = document.body.firstElementChild!;
+    const a = list.firstElementChild as HTMLElement;
+    const c = () => a.shadowRoot!.querySelector('.host')!.getAttribute('aria-description');
+    await settle();
+    const log = [c()];
+    if (way !== 'never') {
+      a.setAttribute('aria-description', 'Mine');
+      await settle();
+      log.push(c());
+      if (way === 'connected') a.removeAttribute('aria-description');
+      if (way === 'out') { a.remove(); a.removeAttribute('aria-description'); await settle(); list.append(a); }
+      if (way === 'move') { a.removeAttribute('aria-description'); list.append(a); }
+      await settle();
+      log.push(c());
+    }
+    list.append(list.firstElementChild!);
+    await settle();
+    log.push(c());
+    list.append(a);
+    await settle();
+    log.push(c());
+    res[way] = log;
+  }
+  read('mx-sortable-list, the button item control\'s aria-description over the steps', res);
+});
+
+it('reading', () => {
+  expect.fail(`\n${rows.join('\n')}\nEND`);
+});
