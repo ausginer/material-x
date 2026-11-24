@@ -1,6 +1,6 @@
 # Findings on GitHub — plan
 
-**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is written on this branch and reviewed, and [the rulings](#stage-1-the-reviews-rulings) have its remediation. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
+**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is written on this branch and reviewed, and the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings) have its remediation. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
 
 ## The direction
 
@@ -210,7 +210,7 @@ With Q4 (b) and Q5 (b), two losses are larger than in the proposal: a deletion o
 
 ## Work list for stages 1 and 2
 
-The text is the implementer's, in [technical English](../../.agents/docs/technical-english.md). The rules and the forms aren't. A rule that can't be written as listed comes back to the architect. **Stage 1's list is as reviewed. Where [the rulings](#stage-1-the-reviews-rulings) differ from it or from the sections above, the rulings govern.**
+The text is the implementer's, in [technical English](../../.agents/docs/technical-english.md). The rules and the forms aren't. A rule that can't be written as listed comes back to the architect. **Stage 1's list is as reviewed. Where the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings) differ from it or from the sections above, the rulings govern.**
 
 ### Stage 1: the documents
 
@@ -333,6 +333,84 @@ On this branch. Four files. The text is the implementer's, and the rules aren't.
 **Checks:** `handoff.md`'s Markdown checks, the root `fmt-check`, links and anchors, and `git diff --check origin/main...HEAD`.
 
 **Recheck: owed, bounded.** By a reviewer who reads the changed sentences against this section, and that no added sentence contradicts another document for an issue without a `tier:` label. It doesn't reread item 1 as a whole.
+
+### Stage 1: the recheck's rulings
+
+Ruled on 2026-11-24 by the architect, on the [recheck](../reviews/findings-on-github-1/feature-proof-recheck-claude.md) at `3840b2abc`. Where they differ from the section above, these govern. Nothing is the owner's to answer, and no property of `RD-56` changes.
+
+| Finding | Ruling |
+| --- | --- |
+| `reviewer-11` | **Accepted. One repair for every fault replaces the two cases.** The body gets a number that nothing has had, the amendments are posted again from the first that isn't sound, and the old ones are deleted last. The tool's checks don't change |
+| `reviewer-12` | **Accepted.** `work-queue.md` sends the coordinator to `findings.md`, whose header names those acts. The rule for a prompt stays in `findings.md` alone |
+| `reviewer-13` | **Accepted.** The label takes the place of _a finding's issue_ |
+| The first two observations | **Accepted,** two small edits below. The third stands: `agent-workflow.md` says which architect amends |
+
+**Why one repair is enough.** The [model](probes/repair-model.mjs) has the stage 2 checks of the editor, the label, the form, the numbers and the times. It takes all 46,796 refused states of up to three amendments within its bounds, and [none is refused after the repair](checks/repair-model.txt). It also stops the repair after each write and starts it again, 376,296 times, and none is refused. The tool doesn't exist yet, so this is read from its planned checks.
+
+**Why a number is never used twice.** A repair that returned to a lower number would let an old pin, such as `r2`, read another contract. So R is above every number on the issue, and an old pin is refused as an earlier one. A repair that only posts the missing amendment is shorter after a stop between the edit and the amendment, but it is a second rule.
+
+**Why the old amendments are deleted last.** A stop in the middle then loses no text.
+
+**The rejected simplification:** to register every refused finding again. It needs no repair rule, but an ordinary interruption would change the finding's address and break every prompt, comment and commit that names it. It is the last resort for what no edit repairs: another account's issue, or more than 100 comments. The old issue loses its `tier:` label and stops being a finding, so property 1 holds.
+
+#### The words, for the implementer
+
+On this branch, two files, copied exactly. Nothing else changes.
+
+1. **`findings.md`, the header:**
+
+   ```text
+   > Retrieved before reading a finding that a prompt pins as `#N rM`, and before writing one, a prompt about one, or anything else about its issue to GitHub.
+   ```
+
+2. **`findings.md`,** _A finding is one issue, from its observation to its closure._ becomes:
+
+   ```text
+   A finding with the label is one issue, from its observation to its closure.
+   ```
+
+3. **`findings.md`, _Registering_,** the paragraph on the coordinator becomes:
+
+   ```text
+   The coordinator sets the package or `repo` label and removes `unregistered`, as [`work-queue.md`](work-queue.md) says.
+   ```
+
+4. **`findings.md`, _Amending_,** _A comment of the owner's is recorded as an amendment._ becomes:
+
+   ```text
+   A comment of the owner's is recorded as an amendment, unless one already records it.
+   ```
+
+5. **`findings.md`, _A fault_,** all of it under the heading becomes:
+
+   ```text
+   A role that isn't the architect stops at a refusal and reports it. A failure of `gh` isn't a fault, and neither is a revision that differs from the pinned one. The architect repairs any other refusal in the one way below.
+
+   **The sound amendments** run from 1 in order, each in its form and unedited, up to the first that isn't. **R** is one more than the greatest number that the body or an amendment has.
+
+   1. Edit the body into its form, with the text that is to apply and `Revision R`. Set exactly one `tier:` label.
+   2. Post the amendments after the sound ones, in order, up to Amendment R. Each has the text that it had, and one whose number had no text says so. Amendment R names the fault and quotes any text that would be lost.
+   3. Delete every amendment that was there before step 2 and isn't sound.
+   4. Run the tool at revision R.
+
+   A repair that stops is started again from the beginning. A finding that the tool still refuses is registered again as a new issue. The architect then removes the old issue's `tier:` label, and the coordinator closes that issue with a link to the new one.
+   ```
+
+6. **`work-queue.md`, the second paragraph,** _A prompt about a finding pins its revision, as `#N rM`._ becomes:
+
+   ```text
+   Read it before writing a prompt about such an issue, and before any other act on one.
+   ```
+
+7. **`work-queue.md`, _Writers_,** the architect's bullet becomes:
+
+   ```text
+   - **The architect** writes an issue with a `tier:` label as [`findings.md`](findings.md) says. The coordinator doesn't edit that issue's body.
+   ```
+
+   In _Roles_, _the architect on a finding's issue_ becomes _the architect on an issue with a `tier:` label_.
+
+**Checks:** as for the remediation above. **No recheck is owed,** if the words are copied. The implementer reports that the diff of the two files is these words and nothing else, and any word that it can't copy comes back to the architect.
 
 ### Stage 2: the tool
 
