@@ -1,0 +1,23 @@
+# webkit, 2349 (container, content, property) triples compared
+# summary: container | property: contents
+card filled, no resets | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+card elevated, no resets | --_level (36): mx-button, mx-button  disabled, mx-button tonal, mx-button tonal disabled, mx-button outlined, mx-button outlined disabled, mx-button text, mx-button text disabled, mx-icon-button, mx-icon-button  disabled, mx-icon-button tonal, mx-icon-button tonal disabled, mx-icon-button outlined, mx-icon-button outlined disabled, mx-icon-button standard, mx-icon-button standard disabled, mx-switch-button, mx-switch-button  checked, mx-switch-button  disabled, mx-switch-button outlined, mx-switch-button outlined checked, mx-switch-button outlined disabled, mx-switch-button tonal, mx-switch-button tonal checked, mx-switch-button tonal disabled, mx-switch-icon-button, mx-switch-icon-button  checked, mx-switch-icon-button standard, mx-switch-icon-button standard checked, mx-switch-icon-button outlined, mx-switch-icon-button outlined checked, mx-link-button, mx-link-button text, mx-split-button, mx-button-group, mx-connected-button-group
+card elevated, no resets | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+card outlined, no resets | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+list-item trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+list-item lifted, trail | --_level (36): mx-button, mx-button  disabled, mx-button tonal, mx-button tonal disabled, mx-button outlined, mx-button outlined disabled, mx-button text, mx-button text disabled, mx-icon-button, mx-icon-button  disabled, mx-icon-button tonal, mx-icon-button tonal disabled, mx-icon-button outlined, mx-icon-button outlined disabled, mx-icon-button standard, mx-icon-button standard disabled, mx-switch-button, mx-switch-button  checked, mx-switch-button  disabled, mx-switch-button outlined, mx-switch-button outlined checked, mx-switch-button outlined disabled, mx-switch-button tonal, mx-switch-button tonal checked, mx-switch-button tonal disabled, mx-switch-icon-button, mx-switch-icon-button  checked, mx-switch-icon-button standard, mx-switch-icon-button standard checked, mx-switch-icon-button outlined, mx-switch-icon-button outlined checked, mx-link-button, mx-link-button text, mx-split-button, mx-button-group, mx-connected-button-group
+list-item lifted, trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+list-button-item trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+list-button-item disabled, trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+list-link-item selected, trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+text-field trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+text-field trail | --_trailing-icon-gap (7): mx-text-field, mx-text-field outlined, mx-text-field error, mx-text-field disabled, mx-text-field outlined error, mx-text-field outlined disabled, mx-multiline-text-field
+text-field outlined, trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+text-field outlined, trail | --_trailing-icon-gap (7): mx-text-field, mx-text-field outlined, mx-text-field error, mx-text-field disabled, mx-text-field outlined error, mx-text-field outlined disabled, mx-multiline-text-field
+text-field outlined error disabled, trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+text-field outlined error disabled, trail | --_active-indicator-opacity (3): mx-text-field, mx-text-field error, mx-multiline-text-field
+text-field outlined error disabled, trail | --_container-opacity (5): mx-text-field, mx-text-field error, mx-multiline-text-field, mx-list, mx-list item disabled
+text-field outlined error disabled, trail | --_trailing-icon-gap (7): mx-text-field, mx-text-field outlined, mx-text-field error, mx-text-field disabled, mx-text-field outlined error, mx-text-field outlined disabled, mx-multiline-text-field
+text-field outlined error disabled, trail | --_outline-opacity (2): mx-text-field outlined, mx-text-field outlined error
+top-app-bar trail | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error
+top-app-bar headline | --_container-color (3): mx-checkbox, mx-checkbox disabled, mx-checkbox error

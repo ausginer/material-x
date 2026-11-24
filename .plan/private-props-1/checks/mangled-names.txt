@@ -1,0 +1,4 @@
+names: level --fn, container-color --bh, border-radius --hh, suffix color --an
+chromium 158.0.8127.18 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","button corner":"3px","unchecked checkbox ::after":"rgb(255, 0, 0)","page rule on the registered name":"none"}
+firefox 159.0 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","button corner":"3px","unchecked checkbox ::after":"rgb(255, 0, 0)","page rule on the registered name":"none"}
+webkit 27.2 {"page content outside":"rgb(1, 2, 3)","page content in a text field":"rgb(66, 73, 55)","button corner":"3px","unchecked checkbox ::after":"rgb(255, 0, 0)","page rule on the registered name":"none"}
