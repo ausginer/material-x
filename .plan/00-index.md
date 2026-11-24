@@ -5125,7 +5125,12 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 - **Where:** every caller. Case 1 was read on `mx-button`, `mx-fab`, `mx-list-button-item`, `mx-text-field` and `mx-multiline-text-field`, each with `aria-label`, `aria-labelledby` and `aria-describedby`. In the two text fields, the last two don't fall back to the label and the support text either, as they do after a removal while connected. Cases 2 and 3 were read in core. `mx-slider`, on its branch, has it by the proof's reading.
 - **Why it is a problem:** the control has a name or a description that the page took away. A page that keeps an element, changes it out of the document and puts it back meets it, and so does one that removes the attribute and moves the element in one task.
-- **Required property:** after each connect, for every `aria-*` that the hook has ever mirrored from this host, the target holds what the transformer gives for the host's current value, and no attribute if that is `null`. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return. An `aria-*` that the host has never had isn't touched, because the component may have set it on the target itself. What happens while the host is connected doesn't change.
+- **Required property,** amended 2026-11-24 (the ruling below):
+  1. **The mirror is one of two writers of the target's attribute, and the last write stands.** The component is the other. Each change of the host's attribute is one write, of what the transformer gives for the host's current value, and no attribute if that is `null`. A removal is a change like any other: it is written once, and the hook keeps no claim on the name afterward.
+  2. **A change is written as it is while connected, also when the host is out or moves:** in the microtask after it, and at the connect if that is first. After a connect, the target holds no value that the host has lost. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return.
+  3. **The connect still copies what the host has then,** so the host's value wins over the component's there, as before. It writes each name once.
+  4. **A connect doesn't remove a value that the component wrote after the host's loss was written.** An `aria-*` that the host has never had isn't touched.
+  5. What happens while the host stays connected doesn't change.
 - **Rows:** in core, the three cases, a transformer that gives a value for `null`, and a target's own `aria-*` that survives a reconnect. In material-x, the text field's fallback after case 1. The last core row passes before the repair, and the others fail.
 - **Sizes:** material-x's rows are measured and reported. Core has no row with the hook.
 - **In the same unit:** the row for `useARIA` in `packages/core/README.md` says that it syncs to `ElementInternals`. It syncs to a target element.
@@ -5143,6 +5148,40 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **The browser projects pass** in the three engines: core's 235 rows in each, and material-x's 558, of which 10 are skipped in Firefox and in WebKit and one is an expected failure in Firefox. Both packages' typechecks pass.
 - **Sizes,** in Brotli bytes: `complete` 22844 to 22886, **+42**. The 11 entry rows that have the hook change from −15 to +41, the largest `text-field/multiline-text-field`. The other eight entry rows, and core's, box-quad's and drag's, are 0 ([every row](aria-removed-1/checks/sizes.txt)).
 - **Limits:** Safari, the spec projects and the visual project weren't run.
+
+**Ruled 2026-11-24 by the architect,** on the [feature proof](reviews/aria-removed-1/feature-proof-claude.md) at `6e0ca1d4f`, requested by the coordinator, from `20997b0e2`. Read there with four implementations in Chromium, Firefox and WebKit ([readings](aria-removed-1/checks/ruling.txt), [runner](aria-removed-1/probes/ruling.mjs), [the orders' probe](aria-removed-1/probes/own-order.browser.test.ts.txt)). `origin/main` at `ee7d838cc` is merged.
+
+- **`reviewer-1`: accepted. The property was wrong, and is amended above.** It made the hook keep every name it had ever mirrored, and so remove, at every connect, whatever the component wrote later. A name isn't owned for life: the host's value and the component's are writes to one attribute, as they are while the host is connected. So the host's loss is one write, and the component's later write stands. What it replaced is quoted below.
+- **The second case, read:** the component's own `aria-*` for six pairs of element and name, by the order of the loss and the component's write. `true` is the component's value kept, also after a further move. The engines agree in every row.
+
+  | Where the host loses it | Order | `main` | `6e0ca1d4f` | A `Set` that forgets a lost name | An observer that also runs while out |
+  | --- | --- | --- | --- | --- | --- |
+  | connected | the component's write, then the loss | gone | gone | gone | gone |
+  | connected | the loss, then the write, in one task | gone | gone | gone | gone |
+  | connected | the loss, then the write, in a later task | `true` | **gone at the next move** | `true` | `true` |
+  | out | the write, then the loss | `true` | gone | gone | gone |
+  | out | the loss, then the write, in one task | `true` | gone | gone | gone |
+  | out | the loss, then the write, in a later task | `true` | gone | **gone** | `true` |
+
+  `main` keeps the value in the `out` rows because it misses the loss: that is this entry's defect.
+
+- **The mechanism: an observer that runs from construction to collection, and no `Set`.** On connect the hook takes the observer's pending records first, and then copies the host's current names. It is the only one of the four in which being out of the document changes nothing. The record that the `Set` keeps is already in the observer. It passes the 13 core rows and the 62 text-field rows, and the proof's 54 names in each kind of loss read as at `6e0ca1d4f`, in the three engines. `useMutationObserver` isn't used, because it follows the connection.
+  - **Two readings change, by property 1.** A name that the host had only before its first connect, or only while out, is written when it is lost, as a name that came and went while connected is. Before, it was never written, and a value that the component had for it stayed. And a name set just before a connect is written twice in the candidate as read: property 3 asks for once.
+  - **Why the records are taken at the connect:** otherwise the write comes a microtask after it. Then the text fields still hold the lost label in the connect itself, and the sortable list's writer, which runs in the same connect, finds the lost `aria-description` and doesn't write its own. The second is by reasoning: an observer that doesn't take them was read by the proof, for the text fields.
+  - **Not adopted: a `Set` that forgets a name once it is synced from `null`,** the proof's limit. It repairs the first case, and loses a value that the component wrote while out.
+- **Not repaired here:** the component's write that comes before the loss, or with it in one task, is removed. The branch now does that for a host that is out, as `main` does for one that is connected. A mirror that gives the value back needs the component's own value, which is `RF-130`. No connect repeats it.
+- **`reviewer-2`: the route stands, and the finding closes with the mechanism.** A hook with no record of names can't share one. If the implementation keeps a per-host record after all, its row is owed.
+- **`reviewer-3`: the route stands, and the record is corrected.** The implementer's _"The set is needed"_ doesn't hold: what the connect needs is the pending records, above. A row reads the target synchronously.
+- **Work list,** for the implementer, on this branch:
+  1. Replace the `Set` by the observer, with properties 1 to 5. The JSDoc and the comment say what they are, and the README's row is read again.
+  2. Core rows: the loss while connected, then the target's own value, then a move. The loss while out, then the target's own value in a later task, then the connect. The loss and the move in one task, read synchronously after the move. A name set just before a connect reaches the transformer once in it. **Witnesses:** `6e0ca1d4f` fails the first two, the forgetting `Set` the second, the hook without taking the records the third, and the candidate as read the fourth.
+  3. Material-x rows, on `mx-link-button` with `disabled` and the host's `aria-disabled`: both cases. And in `mx-sortable-list`, a button item that loses its `aria-description` in a move gets the list's. **Witness:** the same as above, and the hook without taking the records.
+  4. The sizes, as the entry asks, and the browser projects in the three engines. The rows of the first implementation stay.
+- **Pending:** a recheck of `reviewer-1` by its reviewer. The proof isn't a pass until then. No code changed in this ruling.
+
+**What the ruling replaced, in the required property:**
+
+> **Required property:** after each connect, for every `aria-*` that the hook has ever mirrored from this host, the target holds what the transformer gives for the host's current value, and no attribute if that is `null`. Where the host no longer has the attribute, the transformer gets `null`, so the text fields' fallbacks return. An `aria-*` that the host has never had isn't touched, because the component may have set it on the target itself. What happens while the host is connected doesn't change.
 
 #### RF-125 — A list item's focus indicator takes the shared offset and not the list's own, so the next item covers it
 
@@ -5239,6 +5278,19 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not read:** an `mx-icon-button` handle's accessible nodes, where the host also has `role="button"`.
 - **Plan needed:** no. **Ready** for an implementer. The rule is adopted in the items' sheets, and takes the values of the shared `focusTokens`, 2px outside. `RF-125` gives the item's own variables the list's −3px, and both are on the item's `:host`, so the handle's offset needs a variable of its own. The two can land in either order.
 - **Size:** _small_.
+
+#### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `RF-124`'s ruling. `RF-129` is the highest `RF-` on any branch on `origin` (`drag/command-signal-1`), so this is the next free number. Read at `114270083` and at `20997b0e2` in Chromium, Firefox and WebKit, with the same result ([readings](aria-removed-1/checks/ruling.txt)).
+
+- **What happens:** a component writes its own value of an `aria-*` on its control, from its own source, and the host has the same name. When the page removes the host's attribute, `useARIA` removes the control's. The component's source hasn't changed, so it doesn't write its value again. The state stays, and the control doesn't say it. The same happens when the source and the host's attribute change in one task, because the mirror runs after. Read for `aria-disabled` (a link with `disabled`), `aria-current` (`mx-list-link-item` with `selected`), `aria-selected` (`mx-list-button-item`), `aria-checked` (`mx-switch-button`), and `aria-invalid` and `aria-required` (the text field).
+- **The reverse,** by reading: while the host has the name, the last of the two to change is on the control, and a connect gives the host's. So a disabled link whose host says `aria-disabled="false"` says it too.
+- **Why it is a problem:** the page doesn't have to misuse anything to meet it. A link's `aria-disabled` and `aria-current` are the page's to give, and it can change to `disabled` or `selected`. The validation names are less likely, because the JSDoc asks for `error` and `required`.
+- **Required property:** while the host doesn't give a name, the control shows the component's own value of it, whatever the order in which the two changed. What it shows while the host gives it is the plan's to say.
+- **Not established:** how the component's value reaches the mirror. The text fields do it for two names, in the transformer's answer for `null`. `useDisableableLinkable` reads the host's value when `disabled` goes, and nothing does the other direction.
+- **Order:** after `RF-124`. `RF-94`'s plan may replace the mirror, and answers this one with it or leaves it.
+- **Plan needed:** yes, by the architect.
+- **Size:** _medium_.
 
 ## Questions
 
