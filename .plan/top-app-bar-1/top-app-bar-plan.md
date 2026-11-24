@@ -1,6 +1,6 @@
 # `mx-top-app-bar` — plan
 
-**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The recheck is next.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). One [change](#ruling-on-a-connect-while-disconnected) is owed, and then the recheck.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
 
 ## Readings
 
@@ -58,7 +58,7 @@
 - **The state is the opposite of `isIntersecting`,** with no threshold. A box without size at the area's edge intersects it. From the box's top alone, a bar hidden at the start and shown at a scrolled position stays off.
 - **`root: document`** is required: with the default root, a frame's observer measures against the outermost page.
 - **Side margins too large for a page to exceed** are required: with 0px, a page scrolled sideways is on at the start. **The block margins are 0.** A top margin delays the state by its size.
-- **It starts at connect and stops at disconnect,** and the box is shown again at each connect, because a disconnect hides it. The first callback sets the initial state, also for a restored scroll position.
+- **It starts at connect and stops at disconnect,** and the box is shown again at each connect, because a disconnect hides it. The first callback sets the initial state, also for a restored scroll position. **A connect callback that runs while the bar is disconnected shows nothing and reports no error** ([ruling](#ruling-on-a-connect-while-disconnected), added 2026-11-24).
 - **No scroll listener and no layout read.** The state changes at a crossing only, which is property 4 of the landing plan.
 - **The state is the platform's, as `:hover` is.** No consumer sets it and no event reports it.
 
@@ -128,6 +128,7 @@ In each engine at `RD-20`'s floor, with real scrolling of the document:
   - with content wider than the viewport and `body { width: max-content }`, a page scrolled sideways past one viewport is off at the start and on when it is scrolled down too. **Witness:** the row fails with side margins of 0px;
   - a scrolled page that becomes too short to scroll is off;
   - a bar hidden with `display: none` at the start and shown at a scrolled position is on. **Witness:** the row fails with the state taken from the box's top;
+  - a bar that another element's `connectedCallback` removes in the same insertion reports no error on the window, and inserted again at a scrolled position it is on, and off at the start. **Witness:** the row fails without the check, and with a bar that starts at its first connect only (added 2026-11-24);
   - many scroll steps away from the start change the host's states once, with no `scroll` listener added to the document or the window. **Witness:** the row fails with a listener that does nothing, in either place, and with one that sets the state;
   - the bar's top stays 0 on a scrolled page, positioned content stays under it, and a page's `position: static` unpins it;
   - the bar adds no role and no tab stop, the focus order is `lead`, headline, `trail`, and a consumer's `role="banner"` stands in Chromium's accessibility tree.
@@ -204,3 +205,17 @@ On `material-x/top-app-bar-1` from `27e02d677`. `origin/main` at `3aef04f7e` add
 - **No departure from the plan.** In the row for a page that shrinks, the fixture clears the `min-height` that Vitest's page gives `body`, which otherwise leaves 48px to scroll.
 
 **One reading for the architect, not repaired.** If another element's `connectedCallback` removes the bar in the same insertion, the bar's own callback runs while it is disconnected. `showPopover` then throws, so an `InvalidStateError` is reported in the three engines ([reading](checks/removed-while-connecting.txt), [probe](probes/removed-while-connecting.browser.test.ts.txt)). The observer isn't started. The root-element target didn't throw there by construction, and I didn't run it. The repair would be a check that the plan doesn't have: `isConnected`.
+
+## Ruling on a connect while disconnected
+
+By the architect, 2026-11-24, on the implementer's reading above at `c3b71774b`, relayed by the coordinator. **A change is required: the bar shows and observes the box only while it is connected.** `scrollStart.isConnected` in `connected` is enough, around both calls.
+
+- **It is inside the contract** (`CONTRIBUTING.md` §1.1, the gate). No misuse is needed. A container that takes its children out when it connects is an ordinary element, and the platform then runs the bar's own connect callback after the removal. §1.1 names reentrancy and event ordering as what the library must be correct under.
+- **The check isn't nannying.** It validates nothing that a consumer passes. `showPopover` requires a connected element, and the call is the bar's own. Without the check, a correct page gets an uncaught error from the library's code.
+- **The other elements report nothing in the same case** ([reading](checks/disconnected-connect.txt), [probe](probes/disconnected-connect.browser.test.ts.txt), in Chromium, Firefox and WebKit). Of the package's 20 tags, the bar alone reports an error. The others' connect callbacks add listeners, observe or request a context, and none of these throws on a disconnected element. With the check, none of the 20 reports one.
+- **The harm is the error report only.** A removal's own callback follows, and without the check a bar inserted again later is also right. So the change is for the error, and the second half of the row is for the check itself: it must not cost a later connect.
+- **A bar that is moved rather than removed is right today,** and stays right with the check: the box is shown, and the state matches at both positions.
+- **Not taken:** a `try`/`catch`, which hides every other failure of the show; a microtask, which delays the state and needs the same check; a check in core's `connectedCallback`, which changes the lifecycle of every element for one element's call.
+- **Outside the contract: a document with no window,** such as `createHTMLDocument()`. The bar reports an error there, and `isConnected` doesn't change that. No element of the package works in another document: its constructed stylesheets belong to the document that made them, and in Chromium three other tags report that. No check and no row are owed.
+- **The implementer** adds the check and the row, reruns the bar's rows in the three engines and the two witnesses, and reads the size of `top-app-bar/top-app-bar` and `complete` again. Then the recheck, which includes this row.
+- **Limits:** Safari isn't run, and the size of the check isn't measured.

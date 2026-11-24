@@ -1,0 +1,118 @@
+// Copy to packages/material-x/tests/top-app-bar/zz.browser.test.ts and run it there,
+// with MX_TEST_ENGINES=chromium,firefox,webkit. It always fails, to print.
+import { it } from 'vitest';
+import { server } from 'vitest/browser';
+import { nextFrame } from '../browser.ts';
+
+for (const load of Object.values(
+  import.meta.glob(['../../src/*/*.ts', '!../../src/**/*.stories.ts']),
+)) {
+  await load();
+}
+
+const errors: string[] = [];
+window.addEventListener(
+  'error',
+  (event) => {
+    errors.push(event.message);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  },
+  true,
+);
+
+const actions: Record<string, (next: Element) => void> = {
+  'x-keep': () => {},
+  'x-remove': (next) => next.remove(),
+  'x-move': (next) => document.querySelector('#other')!.append(next),
+};
+for (const [name, act] of Object.entries(actions)) {
+  customElements.define(
+    name,
+    class extends HTMLElement {
+      connectedCallback() {
+        act(this.nextElementSibling!);
+      }
+    },
+  );
+}
+
+const TAGS = `button icon-button link-button switch-button switch-icon-button
+  split-button button-group connected-button-group checkbox radio switch fab
+  icon list list-item list-button-item list-link-item sortable-list text-field
+  multiline-text-field top-app-bar`
+  .split(/\s+/u)
+  .map((name) => `mx-${name}`)
+  .filter((tag) => customElements.get(tag));
+
+const settle = async () => {
+  await nextFrame();
+  await nextFrame();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+};
+const state = (bar: Element) =>
+  `${bar.isConnected ? 'in' : 'out'} scrolled=${bar.matches(':state(scrolled)')} open=${
+    bar.shadowRoot!.querySelector('.scroll-start')!.matches(':popover-open')
+  }`;
+
+it('connect while disconnected', async () => {
+  const other = document.createElement('div');
+  other.id = 'other';
+  const tall = document.createElement('div');
+  tall.style.cssText = 'block-size: 5000px';
+  document.body.append(other, tall);
+  const out: string[] = [];
+
+  for (const how of Object.keys(actions)) {
+    const bad: string[] = [];
+    for (const tag of TAGS) {
+      errors.length = 0;
+      const fragment = document.createDocumentFragment();
+      const element = document.createElement(tag);
+      const actor = document.createElement(how);
+      fragment.append(actor, element);
+      document.body.append(fragment);
+      await settle();
+      if (errors.length > 0) bad.push(`${tag}: ${[...new Set(errors)].join(' | ')}`);
+      element.remove();
+      actor.remove();
+    }
+    out.push(`${how}: ${TAGS.length} tags, errors: ${bad.join('; ') || 'none'}`);
+  }
+
+  const inert: string[] = [];
+  for (const tag of TAGS) {
+    errors.length = 0;
+    const page = document.implementation.createHTMLDocument();
+    page.body.append(document.createElement(tag));
+    await settle();
+    if (errors.length > 0) inert.push(`${tag}: ${[...new Set(errors)].join(' | ')}`);
+  }
+  out.push(`document with no window: errors: ${inert.join('; ') || 'none'}`);
+
+  for (const how of ['x-remove', 'x-move']) {
+    errors.length = 0;
+    scrollTo(0, 0);
+    const fragment = document.createDocumentFragment();
+    const bar = document.createElement('mx-top-app-bar');
+    const actor = document.createElement(how);
+    fragment.append(actor, bar);
+    document.body.append(fragment);
+    await settle();
+    const row = [`then ${state(bar)}`];
+    scrollTo(0, 500);
+    await settle();
+    row.push(`scrolled: ${state(bar)}`);
+    document.body.prepend(bar);
+    await settle();
+    row.push(`inserted again: ${state(bar)}`);
+    scrollTo(0, 0);
+    await settle();
+    row.push(`at the start: ${state(bar)}`);
+    bar.remove();
+    actor.remove();
+    out.push(`${how}, the bar: ${row.join(', ')}`);
+  }
+
+  throw new Error(`@@${server.browser}\n${out.join('\n')}\n@@end`);
+});
