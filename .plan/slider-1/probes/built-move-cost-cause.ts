@@ -117,10 +117,10 @@ const ids: string[] = await page.evaluate((only) => {
       .filter((rule) => !rule.startsWith('.track:has'))
       .join('\n');
   // Later declarations replace parts of the built ones.
-  const plainAfter =
-    '.track::after{background:#ddd !important}';
+  const plainAfter = '.track::after{background:#ddd !important}';
   const noPadding = '.track::after{padding:0 !important}';
-  const plainBefore = '.track::before{background:purple !important;opacity:1 !important}';
+  const plainBefore =
+    '.track::before{background:purple !important;opacity:1 !important}';
   const noNative = '.input{display:none}';
   const protoGeometry = `
     .handle{inset-inline-start:calc(var(${fraction}) * (100% - 4px)) !important}
@@ -196,10 +196,16 @@ const ids: string[] = await page.evaluate((only) => {
     variants.set(id, {
       el,
       run: el.run,
-      box: el.shadowRoot.querySelector('.handle') ?? el.shadowRoot.querySelector('input'),
+      box:
+        el.shadowRoot.querySelector('.handle') ??
+        el.shadowRoot.querySelector('input'),
     });
   };
-  const addBuilt = (id: string, text: string | null, html = '<mx-slider max="1000"></mx-slider>') => {
+  const addBuilt = (
+    id: string,
+    text: string | null,
+    html = '<mx-slider max="1000"></mx-slider>',
+  ) => {
     if (only && !only.includes(id)) {
       return;
     }
@@ -244,26 +250,55 @@ const ids: string[] = await page.evaluate((only) => {
   addBuilt(
     'literals,no-has,plain-parts,proto-geometry',
     noTokenRules(literal(noHas(built))) +
-      plainAfter + noPadding + plainBefore + protoGeometry,
+      plainAfter +
+      noPadding +
+      plainBefore +
+      protoGeometry,
   );
   // One part of the inactive track's drawing at a time.
   addBuilt('no-padding', built + noPadding);
-  addBuilt('no-stop-gradient', built.replaceAll(/radial-gradient\(.*?\) content-box( no-repeat)?( content-box)?, color-mix/gu, 'color-mix').replaceAll(/radial-gradient\(.*?\) no-repeat( content-box)?, color-mix/gu, 'color-mix'));
-  addBuilt('gradient-only', built + '.track::after{background:radial-gradient(closest-side,#333 calc(100% - .25px),transparent calc(100% + .25px)) content-box no-repeat,#ddd !important}');
+  addBuilt(
+    'no-stop-gradient',
+    built
+      .replaceAll(
+        /radial-gradient\(.*?\) content-box( no-repeat)?( content-box)?, color-mix/gu,
+        'color-mix',
+      )
+      .replaceAll(
+        /radial-gradient\(.*?\) no-repeat( content-box)?, color-mix/gu,
+        'color-mix',
+      ),
+  );
+  addBuilt(
+    'gradient-only',
+    built +
+      '.track::after{background:radial-gradient(closest-side,#333 calc(100% - .25px),transparent calc(100% + .25px)) content-box no-repeat,#ddd !important}',
+  );
   // The stop indicator as its own element: no gradient, padding or color-mix.
   // It reads the same tokens as the built rule, under their minified names.
   const name = (pattern: string) => {
-    const match = new RegExp(pattern.replaceAll('V', 'var\\((--[\\w-]+)(?:, ?1)?\\)'), 'u').exec(built);
+    const match = new RegExp(
+      pattern.replaceAll('V', 'var\\((--[\\w-]+)(?:, ?1)?\\)'),
+      'u',
+    ).exec(built);
     if (!match) {
       throw new Error('no match for ' + pattern);
     }
     return match.slice(1).map((n) => 'var(' + n + ')');
   };
-  const [inactive, trailing, size] = name('max\\(\\s*0px,\\s*V - V - V') as [string, string, string];
+  const [inactive, trailing, size] = name('max\\(\\s*0px,\\s*V - V - V') as [
+    string,
+    string,
+    string,
+  ];
   const [stopColor] = name('--md-slider-stop-indicator-color, ?V');
-  const [stopOpacity] = name('--md-slider-stop-indicator-color, ?var\\([^)]*\\)\\)\\s*calc\\(V');
+  const [stopOpacity] = name(
+    '--md-slider-stop-indicator-color, ?var\\([^)]*\\)\\)\\s*calc\\(V',
+  );
   const [inactiveColor] = name('--md-slider-inactive-track-color, ?V');
-  const [inactiveOpacity] = name('--md-slider-inactive-track-color, ?var\\([^)]*\\)\\)\\s*calc\\(V');
+  const [inactiveOpacity] = name(
+    '--md-slider-inactive-track-color, ?var\\([^)]*\\)\\)\\s*calc\\(V',
+  );
   const [height] = name('block-size: V');
   const withDefault = (ref: string) => ref.replace(')', ',1)');
   const stop = (end: string) => `
@@ -271,10 +306,19 @@ const ids: string[] = await page.evaluate((only) => {
     .stop{position:absolute;inset-block:calc((${height} - ${size}) / 2);inset-inline-end:${trailing};inline-size:${end};border-radius:calc(${size} / 2);background-color:var(--md-slider-stop-indicator-color,${stopColor});opacity:${withDefault(stopOpacity!)};z-index:1;pointer-events:none}`;
   const stopSize = `min(${size}, max(0px, ${inactive} - ${trailing}))`;
   const withStop = (id: string, end: string, html?: string) => {
-    addBuilt(id, built.replace(/--[\w-]+: ?color-mix\(in srgb, ?var\(--md-slider-stop[^;]*;/u, '') + stop(end), html);
+    addBuilt(
+      id,
+      built.replace(
+        /--[\w-]+: ?color-mix\(in srgb, ?var\(--md-slider-stop[^;]*;/u,
+        '',
+      ) + stop(end),
+      html,
+    );
     variants
       .get(id)
-      ?.box.before(Object.assign(document.createElement('span'), { className: 'stop' }));
+      ?.box.before(
+        Object.assign(document.createElement('span'), { className: 'stop' }),
+      );
   };
   withStop('stop-span', stopSize);
   // The input in flow, so it gives the slider a preferred inline size.
@@ -283,9 +327,21 @@ const ids: string[] = await page.evaluate((only) => {
   const indicator = '<mx-slider max="1000" indicator></mx-slider>';
   addBuilt('indicator', null, indicator);
   withStop('indicator,stop-span', stopSize, indicator);
-  addBuilt('indicator,no-text-rule', built.split('\n').filter((r) => !r.includes('attr(data-value)')).join('\n'), indicator);
+  addBuilt(
+    'indicator,no-text-rule',
+    built
+      .split('\n')
+      .filter((r) => !r.includes('attr(data-value)'))
+      .join('\n'),
+    indicator,
+  );
   addBuilt('indicator,literals', noTokenRules(literal(built)), indicator);
-  addBuilt('indicator,no-transition', built + ':host(:state(indicator)) .handle::after{transition:none !important}', indicator);
+  addBuilt(
+    'indicator,no-transition',
+    built +
+      ':host(:state(indicator)) .handle::after{transition:none !important}',
+    indicator,
+  );
   (window as any).round = (id: string, flush: boolean) => {
     const { run, box } = variants.get(id)!;
     let sink = 0;

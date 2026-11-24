@@ -50,9 +50,8 @@ const shoot = async (kind: string, value: number, style: string) => {
           .flatMap((s) => [...s.cssRules])
           .map((r) => r.cssText)
           .join('\n');
-        const inactive = /&::?after \{[^}]*?inline-size: (var\(--[\w-]+\))/u.exec(
-    built,
-  )![1]!;
+        const inactive =
+          /&::?after \{[^}]*?inline-size: (var\(--[\w-]+\))/u.exec(built)![1]!;
         const s = new CSSStyleSheet();
         s.replaceSync(
           `.track::after{background:#cceea1 !important;padding:0 !important}

@@ -1,6 +1,6 @@
 # mx-slider — plan
 
-**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with no question open.** It is [`repo:RD-55`](../00-index.md), and ready for implementation. Where the entry and this plan differ, the entry governs. Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan, and [the last section](#proposed-record-entries) gives the addresses of the entries that were minted from them.
+**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with no question open.** It is [`repo:RD-55`](../00-index.md). Where the entry and this plan differ, the entry governs. Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. Implemented at `6ecdc0155`, with the architect's corrections of 2026-11-24 ([revisions](#revisions)). It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan, and [the last section](#proposed-record-entries) gives the addresses of the entries that were minted from them.
 
 **The unit:** one element, `mx-slider`, a continuous slider with one value. It is horizontal. The range slider, stops and the vertical slider wait ([what stays possible](#what-stays-possible)).
 
@@ -9,7 +9,7 @@
 - **A native `<input type="range">` in the shadow tree is the control** (`SL-D1`). It owns the pointer, touch, the keyboard, the arithmetic and the accessible node. It is transparent, and the component draws everything from one custom property.
 - **The slider's value is the user's, as a text field's text is** (`SL-D2`, the owner's answer to Q1). `value` is a number.
 - **The name comes from a host `aria-labelledby`, the `label` slot, a host `aria-label` or a `<label>`, in that order** (`SL-D4`). Host `aria-*` is mirrored, as the text fields mirror it, so a host `aria-label` also leaves the second named node of `RF-94`. The owner accepted that for now (Q2).
-- **A value change costs 50, 178 and 323 µs of style and layout** in Chromium, Firefox and WebKit on the built element, and reads no layout (`SL-D8`).
+- **A value change costs 52, 135 and 328 µs of style and layout** in Chromium, Firefox and WebKit on the built element with the stop indicator as an element, and reads no layout (`SL-D8`).
 - **No prototype checkpoint is needed** ([why](#prototype-checkpoint)).
 
 ## Inputs
@@ -40,7 +40,7 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 
 - **Assistive technology changes a native range's value, and in Firefox it can't change an ARIA slider's.** Firefox's `LocalAccessible::SetCurValue` returns `false`, and only native ranges and spinners override it. Its Android bridge marks only those two as settable. Chromium and WebKit synthesize arrow keys for an ARIA slider, so the evidence against one is Firefox's alone, and Firefox on desktop and Android is in `RD-20`'s floor. These are readings of each engine's `main`, not runs with assistive technology.
 - **The host as the slider would be named by the platform.** A host with the slider role takes its name from `aria-label` and from `<label for>` in all three engines, as one node. That is its one advantage, and it doesn't outweigh a control that a TalkBack user in Firefox can't move.
-- **A 4 px thumb is enough.** The native thumb has the handle's width, 4 px, so the native travel is the drawn travel. In all three engines a press anywhere on the track jumps there, a press on the thumb's centre doesn't change the value (off the centre Firefox differs: see the costs below), and a drag past an end stops at it. On iOS only the thumb starts a drag, and WebKit widens a thumb's touch area by 12.5 px on each side when a dimension is under 48 px. So 4 × 44 px becomes 29 × 69 px. No input is wider than its track, so nothing overflows.
+- **A 4 px thumb is enough.** The native thumb has the handle's width, 4 px, so the native travel is the drawn travel. In all three engines a press anywhere on the track jumps there, a press on the thumb's centre doesn't change the value (in Firefox at 100 steps on 200 px only: see the costs below), and a drag past an end stops at it. On iOS only the thumb starts a drag, and WebKit widens a thumb's touch area by 12.5 px on each side when a dimension is under 48 px. So 4 × 44 px becomes 29 × 69 px. No input is wider than its track, so nothing overflows.
 - **The arithmetic is the platform's:** clamping, stepping, the step base and decimals. A step of 0.1 gives `0.3` and `0.7`, not `0.30000000000000004`.
 
 **Not adopted:**
@@ -52,7 +52,7 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 **Costs, accepted:**
 
 - **In WebKit the horizontal arrow keys don't mirror in RTL:** `ArrowRight` increases the value and the handle moves left. Chromium and Firefox mirror. The ARIA practices say _Right Arrow increases_ and don't mirror either. The component leaves the engine's behavior.
-- **In Firefox a press off the thumb's centre moves the value to the pointer.** Chromium and WebKit keep the value anywhere on the thumb. Firefox does this to every native range: with its own thumb, a press 6 px from the centre gave 36 from 40, and the slider's 4 px thumb bounds the move at about 2.4 px (12 of 1000 steps over 196 px, with Firefox's pointer rounded to a whole pixel). So a press changes the value only where a step is narrower than about twice that, and then it fires `input` and `change`. To prevent it, the component would need `SL-D1`'s hybrid. It isn't documented for consumers, because it is the native range's and they can do nothing about it.
+- **In Firefox a press off the thumb's centre moves the value to the pointer.** Chromium and WebKit keep the value anywhere on the thumb. Firefox does this to every native range: with its own thumb, a press 6 px from the centre gave 36 from 40. Firefox rounds the pointer down to a whole CSS pixel first, at device scale 1 and 2 ([reading](checks/press-rounding.txt); Playwright's Firefox, and whether a real mouse gives it whole pixels wasn't read). So the slider's 4 px thumb bounds the move under 3 px: half the thumb, and less than one pixel of rounding. The largest read is 15 of 1000 steps, 2.9 px. With narrow steps a press on the centre itself changes the value: 398 and 395 from 400. A press changes the value only where a step is narrower than about 6 px, and then it fires `input` and `change`. To prevent it, the component would need `SL-D1`'s hybrid. It isn't documented for consumers, because it is the native range's and they can do nothing about it.
 - **If an `input` handler changes the value, WebKit drops the native `change`** at the end of that drag, and Chromium and Firefox fire it. Writing the same value back, as a framework does, loses nothing in any engine. The documentation says to read the final value from `input` if the handler rewrites it.
 - **A vertical scroll that starts on the slider changes the value in Chromium** (`i21 c21`, then the page scrolls). `SL-D3` repairs it.
 
@@ -244,7 +244,7 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 1. Each attribute and property, with its default; `step` that isn't a number; a signed range's default.
 2. `value`, `min`, `max` and `step` give the same result in each order, as attributes and as properties. **Witness:** without the rewrite, `value` before `max` fails as properties in every engine (read in all three).
 3. The `value` attribute is followed until a user move or a script write, and a reset restores it.
-4. A press, a drag and a drag past each end: the value, the events and their order, flags and target, and `value` and the form value already current in the handler. A press on the handle's centre changes nothing. A press 1.5 px off it, on a 200 px slider of 100 steps, changes nothing in Chromium and WebKit, and in Firefox gives the value at the pointer, asserted separately so that a change of the engine is seen. A press on the stop indicator gives the value there (**witness:** without `.stop`'s `pointer-events: none` it fails).
+4. A press, a drag and a drag past each end: the value, the events and their order, flags and target, and `value` and the form value already current in the handler. A press on the handle's centre changes nothing. A press 1.5 px off it, on a 200 px slider of 100 steps, changes nothing in Chromium and WebKit, and in Firefox gives the value at the pointer, asserted separately so that a change of the engine is seen. The row puts its slider 0.15 px in, so that the pointer is on a whole pixel: without it Firefox rounds 1.5 px past the centre down and keeps 40. A press on the stop indicator gives the value there (**witness:** without `.stop`'s `pointer-events: none` it fails).
 5. A value written inside an `input` handler during a drag: the drag goes on. The same value written back: `change` fires. `change` after a rewritten value isn't asserted in WebKit.
 6. Every key, in LTR and RTL. The horizontal arrows in RTL assert WebKit's own direction separately, so a change of the engine is seen.
 7. A fractional step over seven presses.
@@ -272,12 +272,12 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 
 ## Prototype checkpoint
 
-**None is needed.** The two assumptions that could have overturned the design were probed: that the name reaches a shadow range once, and that the drawn handle stays under a native drag in both directions. What is left is a range's behavior on a physical phone and under a real screen reader. No finding there would change the surface: a defect in touch moves the pointer code to `SL-D1`'s hybrid, behind it. **The architect asks that the owner try the story on an iPhone and an Android phone before the merge,** including a vertical scroll that starts on the slider.
+**None is needed.** The two assumptions that could have overturned the design were probed: that the name reaches a shadow range once, and that the drawn handle stays under a native drag in both directions. What is left is a range's behavior on a physical phone and under a real screen reader. No finding there would change the surface: a defect in touch moves the pointer code to `SL-D1`'s hybrid, behind it. **The owner tries the story on an iPhone and an Android phone after the merge,** including a vertical scroll that starts on the slider, in the Storybook built from `main`. A defect is a follow-on unit. (Amended 2026-11-24 on the owner's ruling, relayed by the coordinator. It said _before the merge_.)
 
 ## Not measured
 
-- Physical touch, iOS Safari and Android. iOS's touch area is a reading of WebKit's source. Emulated touch ran in Chromium only.
-- **The amended element's cost.** The figures with `.stop` are of the built element with the styles changed by the probe. The probe put `.stop` above with a `z-index`, so the swapped pseudo-elements weren't drawn. The implementer reruns `built-move-cost.ts` on the change.
+- A press in Firefox with a real mouse. Physical touch, iOS Safari and Android. iOS's touch area is a reading of WebKit's source. Emulated touch ran in Chromium only.
+- **The amended element's cost on an idle host.** The figures with `.stop` are of the built element with the styles changed by the probe. The probe put `.stop` above with a `z-index`, so the swapped pseudo-elements weren't drawn. The implementer reran `built-move-cost.ts` on the change on a loaded host ([readings](checks/built-move-cost.txt)), so only the adjacent runs compare, and `RD-55`'s note of 2026-11-24 says what they show.
 - A screen reader or any assistive technology. The accessibility trees were read, not heard, so nothing here says whether the second named node is announced.
 - `aria-valuetext`'s effect in Chromium and WebKit, and descriptions in WebKit: their readers don't give them.
 - Paint in Firefox and WebKit, and frames there. The host was shared, and the figures are of headless software rendering, good for comparing the variants.
@@ -323,7 +323,7 @@ Minted on 2026-11-23 by the main slot's architect, at `eaff88884`. The text belo
 | `SL-F1`                            | `repo:RF-119`, run and confirmed |
 | `SL-F2`                            | `repo:RF-120`, run and confirmed |
 
-**Proposed on 2026-11-23, after the implementation, and not minted:** a dated note in `RD-55`, with no new entry. _"The plan is amended at the implementation's return. The stop indicator is an element of its own (`SL-D6`). A press off the thumb's centre moves the value to the pointer in Firefox, as on every native range there (`SL-D1`). The slider has no inline size of its own, as the text field has none (`SL-D6`). The cost of a move is the built element's (`SL-D8`)."_ The entry's own clauses stay true.
+**Proposed on 2026-11-23, after the implementation, and minted on 2026-11-24** in `RD-55`, adjusted to the built element: a dated note in `RD-55`, with no new entry. _"The plan is amended at the implementation's return. The stop indicator is an element of its own (`SL-D6`). A press off the thumb's centre moves the value to the pointer in Firefox, as on every native range there (`SL-D1`). The slider has no inline size of its own, as the text field has none (`SL-D6`). The cost of a move is the built element's (`SL-D8`)."_ The entry's own clauses stay true.
 
 The first proposals, as they stood:
 
@@ -365,3 +365,9 @@ The first proposals, as they stood:
   - `SL-D6`: the stop indicator is an element, and the two track pseudo-elements change places; the width is a documented limit;
   - `SL-D1`: the press off the thumb's centre in Firefox, an accepted cost;
   - rows 4 and the `spec` rows, the component's docs, and _Not measured_ follow. The proposed note is in [the last section](#proposed-record-entries).
+- **2026-11-24, the architect,** at the amendment's return (`6ecdc0155`), relayed by the coordinator. `RD-55`'s note is minted, and no decision changes:
+  - `SL-D1`: the press in Firefox. The bound was _about 2.4 px_, read at one place, and is under 3 px; the centre was said to change nothing, and with narrow steps it does; a step of about twice the bound is now 6 px. The earlier [reading](checks/press-and-width.txt) already had the centre's 398;
+  - row 4: the 0.15 px inset, and why;
+  - `SL-D8`'s figure in short is the adopted drawing's; it was `ed272a010`'s 50, 178 and 323 µs;
+  - the check on phones is after the merge, and _Not measured_ follows;
+  - three of the plan's probes are formatted, with no other change, because `fmt-check` failed on them.

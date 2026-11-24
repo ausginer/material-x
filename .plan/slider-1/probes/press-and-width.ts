@@ -29,7 +29,10 @@ const build = await rolldown({
       load: (id) =>
         id === 'entry'
           ? ['slider/slider.js', 'text-field/text-field.js']
-              .map((p) => `import ${JSON.stringify(join(PACKAGES, 'material-x', p))};`)
+              .map(
+                (p) =>
+                  `import ${JSON.stringify(join(PACKAGES, 'material-x', p))};`,
+              )
               .join('')
           : null,
     },
@@ -60,7 +63,9 @@ await page.evaluate(() => {
     });
   }
 });
-console.log(' press, from value 40, by the offset from the thumb’s centre in px');
+console.log(
+  ' press, from value 40, by the offset from the thumb’s centre in px',
+);
 // Half a 4px thumb inside the slider, and up to 8px in the native one.
 for (const [id, max, offsets] of [
   ['slider', 100, [-1.9, -1.6, -1, -0.5, 0, 0.5, 1, 1.6, 1.9]],
@@ -109,9 +114,11 @@ const CONTAINERS = {
   'block 400px': 'width:400px',
   'flex row 400px': 'display:flex;width:400px',
   'flex row, beside text': 'display:flex;width:400px',
-  'flex column, align start': 'display:flex;flex-direction:column;align-items:start;width:400px',
+  'flex column, align start':
+    'display:flex;flex-direction:column;align-items:start;width:400px',
   'flex row, long text': 'display:flex;width:400px',
-  'grid, auto columns': 'display:grid;grid-auto-flow:column;justify-content:start;width:400px',
+  'grid, auto columns':
+    'display:grid;grid-auto-flow:column;justify-content:start;width:400px',
   'absolutely positioned': 'position:absolute',
   'inline-block': 'display:inline-block',
   'max-content': 'width:max-content',
@@ -119,7 +126,9 @@ const CONTAINERS = {
   'block 60px': 'width:60px',
   'flex row 60px': 'display:flex;width:60px',
 };
-console.log(' width, in px: the built slider, the input in flow, a native range at display:block, the built mx-text-field');
+console.log(
+  ' width, in px: the built slider, the input in flow, a native range at display:block, the built mx-text-field',
+);
 for (const [name, css] of Object.entries(CONTAINERS)) {
   const sizes = await page.evaluate(
     ([name, css]) =>
