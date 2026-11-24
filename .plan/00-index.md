@@ -2438,6 +2438,13 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
   - a slider **moved in the DOM during a held press:** Chromium drops the press, where the built element kept it, with a `change`. Firefox's own touch ends as a tap at the lift, which the slider reports, and it ends on the pressed number as before.
 - **Not read:** Safari, iOS and Android, and a pen. Firefox's own decision to scroll: its probe sends the cancel.
 
+**Dated 2026-11-24 by the architect: the held state comes from pointer events, on the [report](slider-1/slider-report.md#the-feature-proofs-dispositions)'s return,** relayed by the coordinator. No clause changes. The [rulings](slider-1/slider-plan.md#the-implementation-reports-rulings) have the readings and the work.
+
+- **`SL-D6` is amended.** It took the held state from `:active`, and said that it stays while the pointer is outside, in all three engines. In WebKit 27.2 `:active` goes about 0.1 s after a still press on the track and isn't back for a drag that leaves the slider. A press on the label sets it in the three engines, the right button in Firefox and WebKit, and it stays on a slider that is disabled under a press in Chromium and Firefox. Chromium gives no `:active` to an emulated finger. The component already follows the press.
+- **Accepted:** the report's four additions, the second finger's made a rule for any press in progress; the limit that a page's capturing listener sees the native `input` of a press that isn't reported; and the cost while the indicator is shown, 2 to 8, 40 to 50 and 23 to 53 µs, in place of the bounds in the note above.
+- **Cost:** a custom state that a press sets and its end clears. A slider hidden with `display: none` during a press has it until the next press ends. A scroll that starts on the slider shows it until the browser takes the touch.
+- **Not read:** Safari, a physical touch and a pen.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

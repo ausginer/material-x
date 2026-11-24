@@ -177,10 +177,10 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
   - Either can be added later without a change of the surface.
 - **Corners.** The outer corners are the size's `shape.leading` and `shape.trailing`. The inner corners are the 2 px of `active.track.inner-corner.corner-size`. Its value names right corners, so the package maps them to the active track's end and the inactive track's start.
 - **Sizes** change the track's height, the handle's height and the outer corners. The inset icons of the three larger sizes wait, so `icon.size` and `icon.padding` aren't read.
-- **States.** The handle is 4 px. It is 2 px while the input is `:active` and while it is `:focus-visible`, and both track ends follow it. The held state stays while the pointer is outside, in all three engines. A mouse press isn't `:focus-visible` in any of them. Hover changes nothing but names its token. There is no state layer and no ripple: their tokens are deprecated.
+- **States.** The handle is 4 px. It is 2 px while the handle is held and while the input is `:focus-visible`, and both track ends follow it. A mouse press isn't `:focus-visible` in any engine. **Held** is a state that the component sets from pointer events, and not `:active` (amended 2026-11-24, [ruled below](#the-held-state)). Hover changes nothing but names its token. There is no state layer and no ripple: their tokens are deprecated.
 - **Focus indicator.** The slider sets have no token for one, and 2 px alone is too weak to see. The shared `focusTokens` outline goes around `.handle` on `:focus-visible`.
 - **Disabled** draws each part's disabled color and opacity. The stop indicator's only disabled opacity is deprecated, so it uses `disabled.handle.opacity`, which has the same value (0.38).
-- **Value indicator,** with `indicator` set: shown while the handle is held or has keyboard focus, above it by `value-indicator.active.bottom-space`, centred on it and kept between the slider's ends. Its block padding is that token too, so it is 44 px tall. No current token gives its padding or shape. Literals, with provenance: 10 px inline padding from Material Components for Android's `Widget.Material3.Slider.Label`, read through a subagent on 2026-11-23, and a full corner, which is the architect's inference, not a reading. The visual review settles it. The text is written only when `indicator` is set.
+- **Value indicator,** with `indicator` set: shown while the handle is held, in the sense of _States_, or has keyboard focus, above it by `value-indicator.active.bottom-space`, centred on it and kept between the slider's ends. Its block padding is that token too, so it is 44 px tall. No current token gives its padding or shape. Literals, with provenance: 10 px inline padding from Material Components for Android's `Widget.Material3.Slider.Label`, read through a subagent on 2026-11-23, and a full corner, which is the architect's inference, not a reading. The visual review settles it. The text is written only when `indicator` is set.
   - **Placement.** Required: the shown indicator adds no scrollable overflow, to the page or to a container, at either end, in either direction, whatever its text. It is centred on the handle wherever it fits between the slider's ends, and otherwise it stops at the end. A text that is longer than the slider wraps, and breaks inside a word if it has to, whatever `white-space` the page gives the slider. A slider narrower than the text's inline padding, 20 px, is outside this. It isn't in the box model while it isn't shown, as before.
   - **How, as measured:** `.indicator` is a flex container as wide as the track. Its two pseudo-elements are the spaces beside `.text`, with `flex: 1 1` and the basis `max(0px, 2c − 100%)` and `max(0px, 100% − 2c)`, where `c` is the handle's centre. Each takes half of the free space, so the text is centred, and the longer one gives way first. `.text` is `flex: none` with `max-inline-size: 100%`. It reads no layout, needs no script, no direction and no new platform feature.
   - **Text.** `.text` has `unicode-bidi: plaintext`, for the number and for `valuetext`. The text's own characters give its direction, and a text with no letters is left to right. So `-18` and `-18°` are drawn with the sign at the left in both directions, as a script-neutral number is, and a `valuetext` that begins in Arabic or Hebrew is laid out right to left. `Intl.NumberFormat`'s own direction marks keep working. The text is an element's and no longer generated content, so `data-value` goes. `aria-hidden` moves from `.handle` to `.indicator`.
@@ -324,6 +324,70 @@ Answered by the owner on 2026-11-24, in chat, relayed by the coordinator, both a
 
 - **On touch, should the handle wait for the lift or the first slide?** Recommended: yes, as Material on Android does in a scrolling page. A press on the track then shows nothing until then. The alternative is the handle jumping at the touch and back when the page scrolls, with a rule on whose value is lost. **Answered: yes.** _"Q1: думаю, да, соглашусь"_ ("I think yes, I agree").
 - **At the ends, should the indicator stop at the slider's end?** Recommended: yes ([drawn](checks/indicator-elements-chromium.png), and [as built](checks/indicator-built-chromium.png)). It is off the handle's centre by up to half its width there. The alternative is a centred indicator and a page that can scroll sideways while the handle is held. **Answered: yes.** _"Q2: тоже да"_ ("also yes").
+
+## The implementation report's rulings
+
+The [report](slider-report.md#the-feature-proofs-dispositions) of `244e20a29`, ruled on 2026-11-24 by the architect, at `4a7ffdcda`. Nothing is the owner's to answer.
+
+### The held state
+
+**Ruled: the held state comes from pointer events, and `SL-D6` is amended.** WebKit's `:active` isn't a detail of 0.1 s, and it is wrong in the other two engines as well ([readings](checks/held-state.txt) on the built element, [probe](probes/held-state.ts); [the bare range](checks/press-active-variants.txt); [touch](checks/held-state-touch.txt)):
+
+| While the button is down | Chromium | Firefox | WebKit | Pointer events |
+| --- | --- | --- | --- | --- |
+| A still press on the track | held | held | **not, after 50 to 140 ms** | held |
+| The same, then dragged outside the slider | held | held | **not, for the whole drag** | held |
+| Moved out of it at once | held | held | held | held |
+| A press on the label | **held** | **held** | **held** | not |
+| The right button | not | **held** | **held** | not |
+| Disabled during it | **held** | **held** | not | not, by the rule below |
+| A finger, resting 400 ms (Chromium, emulated) | **not** | not read | not read | held |
+
+- The first rows are `:active`'s, and the last column is what the same events give. In WebKit a press on the track that pauses and is then dragged off the track shows no indicator, which is what the indicator is for. The label, the right button and a disabled slider show one that they shouldn't, in two or three engines.
+- **Chromium never gives a touch `:active` in this emulation**, while a finger rests or slides. Real devices weren't read, so it isn't a claim about a phone, and it isn't a thing to rely on either.
+- **No CSS keeps it:** `pointer-events`, `user-select`, a thumb of the handle's width, `setPointerCapture` and `preventDefault` don't change WebKit's loss. `setPointerCapture` only brings it back for a drag that leaves the slider.
+- **Why not accept it as the engine's limit.** The element documents the indicator as shown while the handle is held, and a press that pauses before it drags is common. The component already follows the press and its pointer, so nothing new is observed, and no listener is added on the window.
+- **Safari wasn't read.** The report of a bare range comes from Playwright's WebKit on Linux. The ruling doesn't rest on Safari having the loss: the label, the right button and the disabled slider are in Chromium and Firefox.
+
+**The held state, as properties:**
+
+1. It begins at a press of the primary button, a finger or a pen on the input, while the slider is enabled. A press on the label isn't one.
+2. It ends at the release or the cancel of **the pointer that began it,** at the slider's being disabled, and at its disconnection. In the three engines the `pointerup` of a press on a range is dispatched at the range, also when the pointer is released outside the slider (read), so no listener outside it is needed.
+3. Another pointer's press doesn't change it, as ruled for the press below.
+4. It begins at the touch of a finger, before the browser has decided whether it scrolls, so a scroll that starts on the slider shows it until the cancel, about 50 ms in Chromium's emulation. Nothing about the value shows (`SL-D3`). The handle narrows and the indicator's fade starts. The owner's trial on phones shows whether it matters. It isn't a question before that.
+5. `.handle`, both track ends and the indicator follow it as they followed `:active`, and the tokens' `pressed` state is this one. `:hover`, `:focus-visible` and `:disabled` don't change. A slider's disabled look wins over it.
+6. Mechanism: a custom state on the host, as the package's other states. The implementer names it. A move of the pointer writes none of it: it changes at the press and at the end, so `SL-D8` doesn't change.
+7. **Limit:** a slider hidden with `display: none` during a press, and shown after the release, has the state until the next press ends. `:active` didn't. It is accepted: a window listener for each press would cost more than it saves.
+
+**What it replaced in `SL-D6`:** _"It is 2 px while the input is `:active` and while it is `:focus-visible`, and both track ends follow it. The held state stays while the pointer is outside, in all three engines."_
+
+### The four additions
+
+All accepted, and they are now the plan's `SL-D3`:
+
+- **A held press is dropped when the slider is disabled.** A disabled slider takes no value.
+- **A key ends a cancelled press.** It is the user's own input, and the engine's event for it must not be mistaken for a restoration.
+- **In Firefox a restored number that equals the shown one is dropped too.** The bounds can have changed, and dropping it changes nothing that is shown.
+- **A second finger doesn't take over a held press: accepted, and it is too narrow.** The rule is: **while one pointer's press is in progress, held back or sliding, another pointer's isn't followed,** except that a primary pointer's press always begins anew, in case a release was missed. As built it holds only for the held back: a second finger that touches while the first slides takes the slide's `pointer`, and by reading a later cancel of the first isn't committed. Not run.
+
+### The held native `input`, seen by a capturing listener
+
+**Accepted as a limit.** A page's capturing listener on an ancestor sees the native event of a press that isn't reported, while `value` is as before the press, and it is consistent: nothing has changed. The component can't stop an event before an ancestor's capture phase, and stopping it at the window would be a listener on the page. A handler that listens in the bubbling phase isn't affected. No row and no documentation.
+
+### The cost while the indicator is shown
+
+**Accepted.** The bounds, 9, 45 and 155 µs, came from minima at a load of 6, of a variant that kept the built attribute write, and they were named upper bounds for the price of the indicator's elements. The built element's is 2 to 8, 40 to 50 and 23 to 53. Firefox's 50 is the first of two runs, at a load of 15, and the second is 40. It is a cost only while the indicator is shown, and 5 µs in a frame isn't a bound that decides anything. `SL-D8`'s figure for the built element is the report's.
+
+### The implementer's work
+
+1. `slider.ts`: the held state by the properties above, and the rule for another pointer. The existing `pointerdown`, `pointerup`, `pointercancel` and disable and disconnect paths are where it goes.
+2. `styles/`: `pressed` is the state and not `:active`, and the indicator's rule with it.
+3. **Rows,** in the three engines unless stated: a still press on the track keeps the indicator and the 2 px handle after 400 ms, and dragged 150 px below the slider it keeps both. **Witness:** with `:active`, WebKit fails both. A press on the label and the right button shows neither. **Witness:** with `:active`, the label fails in the three and the right button in two. A slider disabled during a press shows the resting handle. **Witness:** with `:active`, Chromium and Firefox fail. One removed during a press shows it too. Chromium, by emulated touch: a resting finger shows the indicator, and one that scrolls ends without it. **Witness:** with `:active`, the first fails. A second finger that touches and lifts during a slide changes neither the state nor the value, and the first's later cancel commits. **Witness:** the built rule fails.
+4. Row 12's press goes back to the track, since the state doesn't depend on `:active`.
+5. The readings [`held-state.ts`](probes/held-state.ts) and [`indicator-built-cost.ts`](probes/indicator-built-cost.ts) rerun on the change, and the sizes.
+6. `SL-D6`'s wording in JSDoc, where it says _held_, needs no change.
+
+**Then:** the reviewer reads the accepted items of the proof again with these. The baselines are still after it.
 
 ## What stays possible
 
