@@ -1,0 +1,18 @@
+# chromium 158.0.8127.18
+the slot shrinks: head {"scrollTop":332,"spaceAfter":16}, mutated {"scrollTop":316,"spaceAfter":0}
+the slot scrolls: head {"scrollTop":332,"spaceAfter":16}, mutated {"scrollTop":0,"spaceAfter":-316}
+outline in every variant: a page outline on a filled card: head "dotted 2px 0px", mutated "none 3px 0px"
+a page rule outline-offset: 4px on an outlined card: head "solid 1px -1px"
+:not(:focus): a click on an outlined card with tabindex: head "solid 1px -1px", mutated "none 3px -1px"
+# firefox 159.0
+the slot shrinks: head {"scrollTop":332,"spaceAfter":16}, mutated {"scrollTop":316,"spaceAfter":0}
+the slot scrolls: head {"scrollTop":332,"spaceAfter":16}, mutated {"scrollTop":0,"spaceAfter":-316}
+outline in every variant: a page outline on a filled card: head "dotted 2px 0px", mutated "none 3px 0px"
+a page rule outline-offset: 4px on an outlined card: head "solid 1px -1px"
+:not(:focus): a click on an outlined card with tabindex: head "solid 1px -1px", mutated "none 3px -1px"
+# webkit 27.2
+the slot shrinks: head {"scrollTop":332,"spaceAfter":16}, mutated {"scrollTop":316,"spaceAfter":0}
+the slot scrolls: head {"scrollTop":332,"spaceAfter":16}, mutated {"scrollTop":0,"spaceAfter":-316}
+outline in every variant: a page outline on a filled card: head "dotted 2px 0px", mutated "none 3px 0px"
+a page rule outline-offset: 4px on an outlined card: head "solid 1px -1px"
+:not(:focus): a click on an outlined card with tabindex: head "solid 1px -1px", mutated "none 3px -1px"

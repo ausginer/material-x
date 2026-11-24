@@ -1,0 +1,57 @@
+GEOMETRY chromium
+  natural: host 24 24 200 72 | slot 24 24 200 72
+  taller than content: host 24 96 200 300 | slot 24 96 200 300
+  shorter than content: host 24 396 200 40 | slot 24 396 200 72
+  max-block-size, overflow auto: host 24 436 200 100 | slot 24 436 200 432
+    scrolled 120: host 24 436 200 100 | slot 24 316 200 432
+  min-block-size: host 24 536 200 150 | slot 24 536 200 150
+  wide nowrap content: host 24 686 120 51 | slot 24 686 120 51
+  box-sizing border-box: host 24 737 200 72 | slot 24 737 200 72
+  flex row stretched: host 24 809 1232 200 | slot 24 809 1232 200
+  grid stretched filled: host 24 1009 150 222 | slot 24 1009 150 222
+  percent-height child in 300px card: 40 1247 168 268
+  hidden card: display flex box 24 1531 200 72
+  hidden mx-list-item: display flex
+  sizes by variant: 200x72, 200x72, 200x72
+  :host outline under the reset: none 0px; slot outline solid 1px
+  elevated under the reset: shadow color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px
+  inherits: rgb(9, 8, 7) 21px italic monospace
+  forced-colors match: false; host overflow visible; role null; tabIndex -1
+GEOMETRY firefox
+  natural: host 24 24 200 72 | slot 24 24 200 72
+  taller than content: host 24 96 200 300 | slot 24 96 200 300
+  shorter than content: host 24 396 200 40 | slot 24 396 200 72
+  max-block-size, overflow auto: host 24 436 200 100 | slot 24 436 200 432
+    scrolled 120: host 24 436 200 100 | slot 24 316 200 432
+  min-block-size: host 24 536 200 150 | slot 24 536 200 150
+  wide nowrap content: host 24 686 120 51 | slot 24 686 120 51
+  box-sizing border-box: host 24 737 200 72 | slot 24 737 200 72
+  flex row stretched: host 24 809 1232 200 | slot 24 809 1232 200
+  grid stretched filled: host 24 1009 150 222 | slot 24 1009 150 222
+  percent-height child in 300px card: 40 1247 168 268
+  hidden card: display flex box 24 1531 200 72
+  hidden mx-list-item: display flex
+  sizes by variant: 200x72, 200x72, 200x72
+  :host outline under the reset: none 0px; slot outline solid 1px
+  elevated under the reset: shadow color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px
+  inherits: rgb(9, 8, 7) 21px italic monospace
+  forced-colors match: false; host overflow visible; role null; tabIndex -1
+GEOMETRY webkit
+  natural: host 24 24 200 72 | slot 24 24 200 72
+  taller than content: host 24 96 200 300 | slot 24 96 200 300
+  shorter than content: host 24 396 200 40 | slot 24 396 200 72
+  max-block-size, overflow auto: host 24 436 200 100 | slot 24 436 200 432
+    scrolled 120: host 24 436 200 100 | slot 24 316 200 432
+  min-block-size: host 24 536 200 150 | slot 24 536 200 150
+  wide nowrap content: host 24 686 120 51 | slot 24 686 120 51
+  box-sizing border-box: host 24 737 200 72 | slot 24 737 200 72
+  flex row stretched: host 24 809 1232 200 | slot 24 809 1232 200
+  grid stretched filled: host 24 1009 150 222 | slot 24 1009 150 222
+  percent-height child in 300px card: 40 1247 168 268
+  hidden card: display flex box 24 1531 200 72
+  hidden mx-list-item: display flex
+  sizes by variant: 200x72, 200x72, 200x72
+  :host outline under the reset: none 0px; slot outline solid 1px
+  elevated under the reset: shadow color(srgb 0 0 0 / 0.14) 0px 0.75px 0.75px 0px
+  inherits: rgb(9, 8, 7) 21px italic monospace
+  forced-colors match: false; host overflow visible; role null; tabIndex -1

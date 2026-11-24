@@ -1,0 +1,359 @@
+# chromium 158.0.8127.18
+none | tabindex 0
+   filled: focused visible auto 1px off 0px, 1129px changed
+   elevated: focused visible auto 1px off 0px, 1446px changed
+   outlined: focused visible auto 1px off 0px, 1129px changed
+none | scrolling, no tabindex
+   filled: focused visible auto 1px off 0px, 1241px changed
+   elevated: focused visible auto 1px off 0px, 1615px changed
+   outlined: focused visible auto 1px off 0px, 1241px changed
+none | scrolling, tabindex
+   filled: focused visible auto 1px off 0px, 1241px changed
+   elevated: focused visible auto 1px off 0px, 1615px changed
+   outlined: focused visible auto 1px off 0px, 1241px changed
+none | smaller, tabindex
+   filled: focused visible auto 1px off 0px, 1129px changed
+   elevated: focused visible auto 1px off 0px, 1174px changed
+   outlined: focused visible auto 1px off 0px, 1361px changed
+reset | tabindex 0
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 580px changed
+reset | scrolling, no tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 636px changed
+reset | scrolling, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 636px changed
+reset | smaller, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 516px changed
+reset !important | tabindex 0
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 580px changed
+reset !important | scrolling, no tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 636px changed
+reset !important | scrolling, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 636px changed
+reset !important | smaller, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 516px changed
+page :focus-visible | tabindex 0
+   filled: focused visible dashed 3px off 0px, 1284px changed
+   elevated: focused visible dashed 3px off 0px, 1284px changed
+   outlined: focused visible dashed 3px off 0px, 1804px changed
+page :focus-visible | scrolling, no tabindex
+   filled: focused visible dashed 3px off 0px, 1423px changed
+   elevated: focused visible dashed 3px off 0px, 1423px changed
+   outlined: focused visible dashed 3px off 0px, 2004px changed
+page :focus-visible | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1423px changed
+   elevated: focused visible dashed 3px off 0px, 1423px changed
+   outlined: focused visible dashed 3px off 0px, 2004px changed
+page :focus-visible | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 1152px changed
+   elevated: focused visible dashed 3px off 0px, 1152px changed
+   outlined: focused visible dashed 3px off 0px, 1611px changed
+reset + page :focus-visible | tabindex 0
+   filled: focused visible dashed 3px off 0px, 1284px changed
+   elevated: focused visible dashed 3px off 0px, 1284px changed
+   outlined: focused visible dashed 3px off 0px, 1804px changed
+reset + page :focus-visible | scrolling, no tabindex
+   filled: focused visible dashed 3px off 0px, 1423px changed
+   elevated: focused visible dashed 3px off 0px, 1423px changed
+   outlined: focused visible dashed 3px off 0px, 2004px changed
+reset + page :focus-visible | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1423px changed
+   elevated: focused visible dashed 3px off 0px, 1423px changed
+   outlined: focused visible dashed 3px off 0px, 2004px changed
+reset + page :focus-visible | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 1152px changed
+   elevated: focused visible dashed 3px off 0px, 1152px changed
+   outlined: focused visible dashed 3px off 0px, 1611px changed
+page :focus | tabindex 0
+   filled: focused visible dashed 3px off 0px, 1284px changed
+   elevated: focused visible dashed 3px off 0px, 1284px changed
+   outlined: focused visible dashed 3px off 0px, 1804px changed
+page :focus | scrolling, no tabindex
+   filled: focused visible dashed 3px off 0px, 1423px changed
+   elevated: focused visible dashed 3px off 0px, 1423px changed
+   outlined: focused visible dashed 3px off 0px, 2004px changed
+page :focus | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1423px changed
+   elevated: focused visible dashed 3px off 0px, 1423px changed
+   outlined: focused visible dashed 3px off 0px, 2004px changed
+page :focus | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 1152px changed
+   elevated: focused visible dashed 3px off 0px, 1152px changed
+   outlined: focused visible dashed 3px off 0px, 1611px changed
+forced none | tabindex 0
+   filled: focused visible auto 1px off 0px, 1129px changed
+   elevated: focused visible auto 1px off 0px, 1129px changed
+   outlined: focused visible auto 1px off 0px, 1129px changed
+forced none | scrolling, no tabindex
+   filled: focused visible auto 1px off 0px, 1241px changed
+   elevated: focused visible auto 1px off 0px, 1241px changed
+   outlined: focused visible auto 1px off 0px, 1241px changed
+forced none | scrolling, tabindex
+   filled: focused visible auto 1px off 0px, 1241px changed
+   elevated: focused visible auto 1px off 0px, 1241px changed
+   outlined: focused visible auto 1px off 0px, 1241px changed
+forced none | smaller, tabindex
+   filled: focused visible auto 1px off 0px, 1129px changed
+   elevated: focused visible auto 1px off 0px, 1129px changed
+   outlined: focused visible auto 1px off 0px, 1361px changed
+## space after the content at the end of a scroll, mx-card against a div with padding 16
+block mx-card variant=outlined inline 16 block 16
+block div inline 16 block 16
+inline mx-card variant=outlined inline 0 block 16
+inline div inline 16 block 16
+both mx-card variant=outlined inline 0 block 16
+both div inline 16 block 16
+## which content paints over the outline, at the top edge
+full-bleed, static 255,0,0
+full-bleed, position: relative 0,0,255
+full-bleed, opacity .99 3,0,252
+full-bleed, transform 0,0,255
+# firefox 159.0
+none | tabindex 0
+   filled: focused visible auto 1px off 0px, 1147px changed
+   elevated: focused visible auto 1px off 0px, 1435px changed
+   outlined: focused visible auto 1px off 0px, 1670px changed
+none | scrolling, no tabindex
+   filled: focused visible auto 1px off 0px, 1259px changed
+   elevated: focused visible auto 1px off 0px, 1603px changed
+   outlined: focused visible auto 1px off 0px, 1838px changed
+none | scrolling, tabindex
+   filled: focused visible auto 1px off 0px, 1259px changed
+   elevated: focused visible auto 1px off 0px, 1603px changed
+   outlined: focused visible auto 1px off 0px, 1838px changed
+none | smaller, tabindex
+   filled: focused visible auto 1px off 0px, 1019px changed
+   elevated: focused visible auto 1px off 0px, 1243px changed
+   outlined: focused visible auto 1px off 0px, 1478px changed
+reset | tabindex 0
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 600px changed
+reset | scrolling, no tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 656px changed
+reset | scrolling, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 656px changed
+reset | smaller, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 536px changed
+reset !important | tabindex 0
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 600px changed
+reset !important | scrolling, no tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 656px changed
+reset !important | scrolling, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 656px changed
+reset !important | smaller, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 536px changed
+page :focus-visible | tabindex 0
+   filled: focused visible dashed 3px off 0px, 922px changed
+   elevated: focused visible dashed 3px off 0px, 922px changed
+   outlined: focused visible dashed 3px off 0px, 1472px changed
+page :focus-visible | scrolling, no tabindex
+   filled: focused visible dashed 3px off 0px, 1018px changed
+   elevated: focused visible dashed 3px off 0px, 1018px changed
+   outlined: focused visible dashed 3px off 0px, 1624px changed
+page :focus-visible | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1018px changed
+   elevated: focused visible dashed 3px off 0px, 1018px changed
+   outlined: focused visible dashed 3px off 0px, 1624px changed
+page :focus-visible | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 826px changed
+   elevated: focused visible dashed 3px off 0px, 826px changed
+   outlined: focused visible dashed 3px off 0px, 1312px changed
+reset + page :focus-visible | tabindex 0
+   filled: focused visible dashed 3px off 0px, 922px changed
+   elevated: focused visible dashed 3px off 0px, 922px changed
+   outlined: focused visible dashed 3px off 0px, 1472px changed
+reset + page :focus-visible | scrolling, no tabindex
+   filled: focused visible dashed 3px off 0px, 1018px changed
+   elevated: focused visible dashed 3px off 0px, 1018px changed
+   outlined: focused visible dashed 3px off 0px, 1624px changed
+reset + page :focus-visible | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1018px changed
+   elevated: focused visible dashed 3px off 0px, 1018px changed
+   outlined: focused visible dashed 3px off 0px, 1624px changed
+reset + page :focus-visible | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 826px changed
+   elevated: focused visible dashed 3px off 0px, 826px changed
+   outlined: focused visible dashed 3px off 0px, 1312px changed
+page :focus | tabindex 0
+   filled: focused visible dashed 3px off 0px, 922px changed
+   elevated: focused visible dashed 3px off 0px, 922px changed
+   outlined: focused visible dashed 3px off 0px, 1472px changed
+page :focus | scrolling, no tabindex
+   filled: focused visible dashed 3px off 0px, 1018px changed
+   elevated: focused visible dashed 3px off 0px, 1018px changed
+   outlined: focused visible dashed 3px off 0px, 1624px changed
+page :focus | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1018px changed
+   elevated: focused visible dashed 3px off 0px, 1018px changed
+   outlined: focused visible dashed 3px off 0px, 1624px changed
+page :focus | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 826px changed
+   elevated: focused visible dashed 3px off 0px, 826px changed
+   outlined: focused visible dashed 3px off 0px, 1312px changed
+forced none | tabindex 0
+   filled: focused visible auto 1px off 0px, 1147px changed
+   elevated: focused visible auto 1px off 0px, 1147px changed
+   outlined: focused visible auto 1px off 0px, 1670px changed
+forced none | scrolling, no tabindex
+   filled: focused visible auto 1px off 0px, 1259px changed
+   elevated: focused visible auto 1px off 0px, 1259px changed
+   outlined: focused visible auto 1px off 0px, 1838px changed
+forced none | scrolling, tabindex
+   filled: focused visible auto 1px off 0px, 1259px changed
+   elevated: focused visible auto 1px off 0px, 1259px changed
+   outlined: focused visible auto 1px off 0px, 1838px changed
+forced none | smaller, tabindex
+   filled: focused visible auto 1px off 0px, 1019px changed
+   elevated: focused visible auto 1px off 0px, 1019px changed
+   outlined: focused visible auto 1px off 0px, 1478px changed
+## space after the content at the end of a scroll, mx-card against a div with padding 16
+block mx-card variant=outlined inline 16 block 16
+block div inline 16 block 16
+inline mx-card variant=outlined inline 0 block 16
+inline div inline 16 block 16
+both mx-card variant=outlined inline 0 block 16
+both div inline 16 block 16
+## which content paints over the outline, at the top edge
+full-bleed, static 255,0,0
+full-bleed, position: relative 0,0,255
+full-bleed, opacity .99 0,0,255
+full-bleed, transform 0,0,255
+# webkit 27.2
+none | tabindex 0
+   filled: focused visible auto 3px off 0px, 1145px changed
+   elevated: focused visible auto 3px off 0px, 1145px changed
+   outlined: focused visible auto 3px off 0px, 1663px changed
+none | scrolling, no tabindex
+   filled: not focused none 3px off 0px, 0px changed
+   elevated: not focused none 3px off 0px, 0px changed
+   outlined: not focused solid 1px off -1px, 0px changed
+none | scrolling, tabindex
+   filled: focused visible auto 3px off 0px, 1257px changed
+   elevated: focused visible auto 3px off 0px, 1257px changed
+   outlined: focused visible auto 3px off 0px, 1830px changed
+none | smaller, tabindex
+   filled: focused visible auto 3px off 0px, 1145px changed
+   elevated: focused visible auto 3px off 0px, 1145px changed
+   outlined: focused visible auto 3px off 0px, 1637px changed
+reset | tabindex 0
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 596px changed
+reset | scrolling, no tabindex
+   filled: not focused none 0px off 0px, 0px changed
+   elevated: not focused none 0px off 0px, 0px changed
+   outlined: not focused solid 1px off -1px, 0px changed
+reset | scrolling, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 651px changed
+reset | smaller, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 532px changed
+reset !important | tabindex 0
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 596px changed
+reset !important | scrolling, no tabindex
+   filled: not focused none 0px off 0px, 0px changed
+   elevated: not focused none 0px off 0px, 0px changed
+   outlined: not focused solid 1px off -1px, 0px changed
+reset !important | scrolling, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 651px changed
+reset !important | smaller, tabindex
+   filled: focused visible none 0px off 0px, 0px changed
+   elevated: focused visible none 0px off 0px, 0px changed
+   outlined: focused visible none 0px off 0px, 532px changed
+page :focus-visible | tabindex 0
+   filled: focused visible dashed 3px off 0px, 927px changed
+   elevated: focused visible dashed 3px off 0px, 927px changed
+   outlined: focused visible dashed 3px off 0px, 1477px changed
+page :focus-visible | scrolling, no tabindex
+   filled: not focused none 3px off 0px, 0px changed
+   elevated: not focused none 3px off 0px, 0px changed
+   outlined: not focused solid 1px off -1px, 0px changed
+page :focus-visible | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1011px changed
+   elevated: focused visible dashed 3px off 0px, 1011px changed
+   outlined: focused visible dashed 3px off 0px, 1623px changed
+page :focus-visible | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 806px changed
+   elevated: focused visible dashed 3px off 0px, 806px changed
+   outlined: focused visible dashed 3px off 0px, 1295px changed
+reset + page :focus-visible | tabindex 0
+   filled: focused visible dashed 3px off 0px, 927px changed
+   elevated: focused visible dashed 3px off 0px, 927px changed
+   outlined: focused visible dashed 3px off 0px, 1477px changed
+reset + page :focus-visible | scrolling, no tabindex
+   filled: not focused none 0px off 0px, 0px changed
+   elevated: not focused none 0px off 0px, 0px changed
+   outlined: not focused solid 1px off -1px, 0px changed
+reset + page :focus-visible | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1011px changed
+   elevated: focused visible dashed 3px off 0px, 1011px changed
+   outlined: focused visible dashed 3px off 0px, 1623px changed
+reset + page :focus-visible | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 806px changed
+   elevated: focused visible dashed 3px off 0px, 806px changed
+   outlined: focused visible dashed 3px off 0px, 1295px changed
+page :focus | tabindex 0
+   filled: focused visible dashed 3px off 0px, 927px changed
+   elevated: focused visible dashed 3px off 0px, 927px changed
+   outlined: focused visible dashed 3px off 0px, 1477px changed
+page :focus | scrolling, no tabindex
+   filled: not focused none 3px off 0px, 0px changed
+   elevated: not focused none 3px off 0px, 0px changed
+   outlined: not focused solid 1px off -1px, 0px changed
+page :focus | scrolling, tabindex
+   filled: focused visible dashed 3px off 0px, 1011px changed
+   elevated: focused visible dashed 3px off 0px, 1011px changed
+   outlined: focused visible dashed 3px off 0px, 1623px changed
+page :focus | smaller, tabindex
+   filled: focused visible dashed 3px off 0px, 806px changed
+   elevated: focused visible dashed 3px off 0px, 806px changed
+   outlined: focused visible dashed 3px off 0px, 1295px changed
+## space after the content at the end of a scroll, mx-card against a div with padding 16
+block mx-card variant=outlined inline 16 block 16
+block div inline 16 block 16
+inline mx-card variant=outlined inline 0 block 16
+inline div inline 16 block 16
+both mx-card variant=outlined inline 0 block 16
+both div inline 16 block 16
+## which content paints over the outline, at the top edge
+full-bleed, static 255,0,0
+full-bleed, position: relative 0,0,255
+full-bleed, opacity .99 2,0,252
+full-bleed, transform 0,0,255

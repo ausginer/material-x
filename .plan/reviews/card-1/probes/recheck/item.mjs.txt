@@ -1,0 +1,72 @@
+// mx-list-item with the old host-box stylesheet (f63cc1e79's, in dc3a98c82's tree) against the head.
+import { playwright, code, compare } from './lib.mjs';
+const E = process.argv[2];
+const browser = await playwright[E].launch();
+console.log(`# ${E} ${browser.version()}`);
+const js = { old: code('old'), head: code('head') };
+const lvl = /min\(var\((--[\w-]+)\)/.exec(js.head)[1];
+if (/min\(var\((--[\w-]+)\)/.exec(js.old)[1] !== lvl) throw new Error('names differ');
+const V = { width: 360, height: 300 };
+const base = 'body{margin:0;padding:50px;background:#fff;font:16px/24px sans-serif}mx-list,mx-sortable-list{display:block;inline-size:240px}mx-list-item,mx-list-button-item{transition:none!important}';
+const items = (n = 3, extra = '') => Array.from({ length: n }, (_, i) => `<mx-list-item ${i === 1 ? `id="x" ${extra}` : ''}>${i === 1 ? 'Item<span slot="overline">Over</span><span slot="supporting-text">Support</span><span slot="end">9</span>' : 'Item'}</mx-list-item>`).join('');
+const C = {
+  rest: ['list', ''], 'level 1': ['list', `#x{${lvl}:1}`], 'level 8': ['list', `#x{${lvl}:8}`],
+  'level 8, reset': ['list', `*,*::before,*::after{margin:0;padding:0;border:0;outline:0;box-sizing:border-box}#x{${lvl}:8}`],
+  'level 8, own shape 16px, background': ['list', `#x{${lvl}:8;--md-list-item-container-shape:16px;--md-list-item-container-color:#fc0}`],
+  'level 8, overflow hidden': ['list', `#x{${lvl}:8;overflow:hidden}`],
+  'level 8, RTL': ['list', `body{direction:rtl}#x{${lvl}:8}`],
+  'level 8, next item has a background': ['list', `mx-list-item{--md-list-item-container-color:#cde}#x{${lvl}:8}`],
+  'focus': ['list', '', 'focus'],
+  'sortable rest': ['sortable', ''], 'sortable focus': ['sortable', '', 'tab'], 'sortable lifted': ['sortable', '', 'lift'], 'sortable lifted, reset': ['sortable', '*,*::before,*::after{margin:0;padding:0;border:0;outline:0}', 'lift'],
+  'sortable dropped': ['sortable', '', 'drop'],
+};
+const dump = () => {
+  const out = {};
+  const one = (k, el, ps) => { const s = getComputedStyle(el, ps); const o = {}; for (const p of s) o[p] = s.getPropertyValue(p); out[k] = o; };
+  document.querySelectorAll('mx-list-item').forEach((el, i) => {
+    one(`${i} host`, el); one(`${i} host::before`, el, '::before'); one(`${i} host::after`, el, '::after');
+    el.shadowRoot.querySelectorAll('*').forEach((e, j) => { if (e.localName !== 'style') { one(`${i} ${j}${e.className}`, e); one(`${i} ${j}${e.className}::before`, e, '::before'); } });
+    const r = el.getBoundingClientRect(); out[`${i} rect`] = { x: r.x, y: r.y, w: r.width, h: r.height };
+  });
+  return out;
+};
+for (const forced of E === 'webkit' ? [false] : [false, true]) {
+  const ctx = await browser.newContext({ viewport: V, forcedColors: forced ? 'active' : 'none' });
+  for (const [n, [tag, css, act]] of Object.entries(C)) {
+    const run = async (which) => {
+      // A new page, because `setContent` keeps the element registry of the last bundle.
+      const page = await ctx.newPage(); const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+      const t = tag === 'list' ? 'mx-list' : 'mx-sortable-list';
+      await page.mouse.move(0, 0);
+      await page.setContent(`<!doctype html><style>${base}${css}</style><${t}>${items(3, act === 'focus' ? 'tabindex=0' : '')}</${t}><script>${js[which]}</script>`);
+      await page.evaluate(() => new Promise((r) => setTimeout(r, 150)));
+      if (act === 'focus' || act === 'tab') await page.keyboard.press(E === 'webkit' ? 'Alt+Tab' : 'Tab');
+      let st = '';
+      if (act === 'lift' || act === 'drop') {
+        await page.mouse.move(150, 130); await page.mouse.down(); for (let y = 131; y <= 146; y += 3) await page.mouse.move(150, y);
+        if (act === 'drop') await page.mouse.up();
+      }
+      await page.evaluate(() => new Promise((r) => setTimeout(r, 700)));
+      st = await page.evaluate(() => [...document.querySelectorAll('mx-list-item')].map((e) => `${e.matches(':state(drag)') ? 'drag' : ''}${e.matches(':popover-open') ? ' top' : ''}${e.matches(':focus-visible') ? 'focus' : ''}`).join('/'));
+      const d = await page.evaluate(dump);
+      const shot = (await page.screenshot()).toString('base64');
+      if (act === 'lift') await page.mouse.up();
+      const pseudo = await page.evaluate(() => getComputedStyle(document.querySelector('mx-list-item'), '::before').content);
+      if (errors.length || (pseudo === 'none') !== (which === 'head')) throw new Error(`${which}: ${pseudo} ${errors}`);
+      await page.close();
+      return { st, d, shot };
+    };
+    const a = await run('old'), b = await run('head'), b2 = await run('head');
+    const diffs = new Map();
+    for (const k of Object.keys(b.d)) for (const p of Object.keys(b.d[k])) if (a.d[k]?.[p] !== b.d[k][p]) { const key = `${k.replace(/^\d /, '')} ${p}`; diffs.set(key, (diffs.get(key) ?? 0) + 1); }
+    const list = [...diffs.keys()].filter((k) => !/^host::(before|after) /.test(k));
+    const page = await ctx.newPage();
+    const px = await compare(page, a.shot, b.shot), self = await compare(page, b.shot, b2.shot);
+    const r = b.d['1 rect'];
+    const inside = (await compare(page, a.shot, b.shot, [r.x + 1, r.y + 1, r.x + r.w - 1, r.y + r.h - 1])).px;
+    const cmp = a.st;
+    console.log(`${forced ? 'forced ' : ''}${n}: state ${b.st}${a.st === b.st ? '' : ` OLD ${a.st}`} | pixels ${px.px}, max ${px.max}, mean ${px.mean}, box ${JSON.stringify(px.box)} (inside the item's box: ${inside}; head against head ${self.px}) | computed, but the pseudo-elements: ${list.join(', ') || 'none'}`);
+  }
+  await ctx.close();
+}
+await browser.close();

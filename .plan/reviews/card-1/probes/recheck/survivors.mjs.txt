@@ -1,0 +1,26 @@
+// What each surviving mutation changes on the built card: the head against a sheet adopted after the card's own.
+import { playwright, code } from './lib.mjs';
+const js = code('head');
+for (const E of ['chromium', 'firefox', 'webkit']) {
+  const browser = await playwright[E].launch(); console.log(`# ${E} ${browser.version()}`);
+  const run = async (html, sheet, read, act) => {
+    const page = await browser.newPage({ viewport: { width: 320, height: 260 } });
+    await page.setContent(`<!doctype html><style>body{margin:0;padding:40px}mx-card{inline-size:200px}</style>${html}<script>${js}</script>`);
+    await page.evaluate((s) => { if (!s) return; const c = document.querySelector('mx-card').shadowRoot; const x = new CSSStyleSheet(); x.replaceSync(s); c.adoptedStyleSheets.push(x); }, sheet);
+    if (act) await page.mouse.click(140, 60);
+    const out = await page.evaluate(read); await page.close(); return JSON.stringify(out);
+  };
+  const scroll = '<mx-card variant=outlined style="max-block-size:100px;overflow:auto"><div style="block-size:400px"></div></mx-card>';
+  const readScroll = () => { const c = document.querySelector('mx-card'); c.scrollTop = 9999; return { scrollTop: c.scrollTop, spaceAfter: c.getBoundingClientRect().bottom - c.firstElementChild.getBoundingClientRect().bottom }; };
+  const readOutline = () => { const s = getComputedStyle(document.querySelector('mx-card')); return `${s.outlineStyle} ${s.outlineWidth} ${s.outlineOffset}`; };
+  const page = '<style>mx-card{outline:2px dotted red}</style><mx-card>x</mx-card>';
+  const tab = '<mx-card variant=outlined tabindex=0>x</mx-card>';
+  for (const [n, html, sheet, read, act] of [
+    ['the slot shrinks', scroll, 'slot{flex:1 1 auto;min-block-size:0}', readScroll],
+    ['the slot scrolls', scroll, 'slot{flex:1 1 auto;min-block-size:0;overflow:inherit}', readScroll],
+    ['outline in every variant: a page outline on a filled card', page, ':host(:not(:focus-visible)){outline:var(--nothing) solid red!important}', readOutline],
+    ['a page rule outline-offset: 4px on an outlined card', '<style>mx-card{outline-offset:4px}</style><mx-card variant=outlined>x</mx-card>', null, readOutline],
+    [':not(:focus): a click on an outlined card with tabindex', tab, ':host(:state(outlined):focus:not(:focus-visible)){outline:none!important}', readOutline, true],
+  ]) console.log(`${n}: head ${await run(html, null, read, act)}${sheet ? `, mutated ${await run(html, sheet, read, act)}` : ''}`);
+  await browser.close();
+}

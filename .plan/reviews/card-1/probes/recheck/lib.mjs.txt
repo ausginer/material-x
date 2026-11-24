@@ -1,0 +1,18 @@
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+const require = createRequire('/workspaces/worktrees/b/packages/material-x/package.json');
+export const playwright = require('playwright');
+const here = new URL('.', import.meta.url).pathname;
+export const code = (name) => readFileSync(`${here}${name}.js`, 'utf8').replaceAll('</script', '<\\/script');
+export async function compare(page, a, b, clip = null) {
+  return page.evaluate(async ([a, b, clip]) => {
+    const read = async (d) => { const i = new Image(); i.src = `data:image/png;base64,${d}`; await i.decode(); const c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const x = c.getContext('2d'); x.drawImage(i, 0, 0); return x.getImageData(0, 0, i.width, i.height); };
+    const [x, y] = [await read(a), await read(b)];
+    let px = 0, max = 0, sum = 0, l = 1e9, t = 1e9, r = -1, bo = -1;
+    for (let i = 0; i < x.data.length; i += 4) {
+      const d = Math.max(...[0, 1, 2].map((c) => Math.abs(x.data[i + c] - y.data[i + c])));
+      const cx = (i / 4) % x.width, cy = Math.floor(i / 4 / x.width); if (d && (!clip || (cx >= clip[0] && cx < clip[2] && cy >= clip[1] && cy < clip[3]))) { px++; sum += d; max = Math.max(max, d); const X = (i / 4) % x.width, Y = Math.floor(i / 4 / x.width); l = Math.min(l, X); r = Math.max(r, X); t = Math.min(t, Y); bo = Math.max(bo, Y); }
+    }
+    return { px, max, mean: px ? +(sum / px).toFixed(1) : 0, box: px ? [l, t, r, bo] : null };
+  }, [a, b, clip]);
+}

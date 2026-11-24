@@ -1,0 +1,30 @@
+## chromium 158.0.8127.18
+level 1: three boxes against one list { pixels: 70, max: 3, total: 44800 }
+level 3: three boxes against one list { pixels: 435, max: 3, total: 44800 }
+{
+  host: { padding: '0px', border: '0px' },
+  hostBefore: { border: '0px' },
+  slot: { padding: '16px', outline: '1px', radius: '12px' },
+  hostSize: '100x150',
+  slotSize: '100x150'
+}
+## firefox 159.0
+level 1: three boxes against one list { pixels: 65, max: 18, total: 44800 }
+level 3: three boxes against one list { pixels: 436, max: 18, total: 44800 }
+{
+  host: { padding: '0px', border: '0px' },
+  hostBefore: { border: '0px' },
+  slot: { padding: '16px', outline: '1px', radius: '12px' },
+  hostSize: '100x150',
+  slotSize: '100x150'
+}
+## webkit 27.2
+level 1: three boxes against one list { pixels: 284, max: 24, total: 44800 }
+level 3: three boxes against one list { pixels: 1187, max: 25, total: 44800 }
+{
+  host: { padding: '0px', border: '0px' },
+  hostBefore: { border: '0px' },
+  slot: { padding: '16px', outline: '1px', radius: '12px' },
+  hostSize: '100x150',
+  slotSize: '100x150'
+}

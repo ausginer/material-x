@@ -1,0 +1,41 @@
+// Where the lifted list item differs, old host-box against head; and what `position: relative` on the host does.
+import { playwright, code } from './lib.mjs';
+const E = process.argv[2];
+const browser = await playwright[E].launch();
+console.log(`# ${E} ${browser.version()}`);
+const js = { old: code('old'), head: code('head') };
+const lvl = /min\(var\((--[\w-]+)\)/.exec(js.head)[1];
+const V = { width: 360, height: 300 };
+const shots = async (html, which, act) => {
+  const page = await browser.newPage({ viewport: V }); const errs = []; page.on('pageerror', (e) => errs.push(e.message));
+  await page.setContent(`<!doctype html><style>body{margin:0;padding:50px;background:#fff;font:16px/24px sans-serif}</style>${html}<script>${js[which]}</script>`);
+  await page.evaluate(() => new Promise((r) => setTimeout(r, 200)));
+  if (act) { await page.mouse.move(150, 130); await page.mouse.down(); for (let y = 131; y <= 146; y += 3) await page.mouse.move(150, y); await page.evaluate(() => new Promise((r) => setTimeout(r, 700))); }
+  const rect = await page.evaluate(() => { const e = document.querySelector('#x'); const r = e.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom, radius: parseFloat(getComputedStyle(e).borderTopLeftRadius), pos: getComputedStyle(e).position }; });
+  const shot = (await page.screenshot()).toString('base64'); await page.close(); if (errs.length) throw new Error(errs[0]); return { shot, rect };
+};
+const page = await browser.newPage({ viewport: V });
+const diff = (a, b, r) => page.evaluate(async ([a, b, r]) => {
+  const read = async (d) => { const i = new Image(); i.src = `data:image/png;base64,${d}`; await i.decode(); const c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const x = c.getContext('2d'); x.drawImage(i, 0, 0); return x.getImageData(0, 0, i.width, i.height); };
+  const [x, y] = [await read(a), await read(b)]; const o = { corner: [0, 0, 0], edge: [0, 0, 0], inside: [0, 0, 0] };
+  const R = r.radius + 8;
+  for (let i = 0; i < x.data.length; i += 4) { const d = Math.max(...[0, 1, 2].map((c) => Math.abs(x.data[i + c] - y.data[i + c]))); if (!d) continue; const X = (i / 4) % x.width, Y = Math.floor(i / 4 / x.width);
+    const cx = X < r.l + R || X >= r.r - R, cy = Y < r.t + r.radius || Y >= r.b - r.radius;
+    const k = cx && cy ? 'corner' : X >= r.l && X < r.r && Y >= r.t && Y < r.b ? 'inside' : 'edge'; o[k][0]++; o[k][1] = Math.max(o[k][1], d); o[k][2] += d; }
+  return Object.entries(o).map(([k, [n, m, s]]) => `${k} ${n}px max ${m} mean ${n ? (s / n).toFixed(1) : 0}`).join(', ');
+}, [a, b, r]);
+const list = (t, css = '') => `<style>mx-list,mx-sortable-list{display:block;inline-size:240px}mx-list-item{transition:none!important}${css}</style><${t}><mx-list-item>Item</mx-list-item><mx-list-item id=x>Item<span slot=overline>Over</span><span slot=supporting-text>Support</span></mx-list-item><mx-list-item>Item</mx-list-item></${t}>`;
+for (const [n, h, act] of [...[1, 3].map((l) => [`card ${l}`, `<style>#x{${lvl}:${l};--q:0}</style><mx-card id=x variant=elevated style="inline-size:200px"><div style="block-size:40px"></div></mx-card>`]), ['level 1', list('mx-list', `#x{${lvl}:1}`)], ['level 8', list('mx-list', `#x{${lvl}:8}`)], ['lifted', list('mx-sortable-list'), true]]) {
+  const a = await shots(h, 'old', act), b = await shots(h, 'head', act);
+  console.log(`${n} (radius ${b.rect.radius}): ${await diff(a.shot, b.shot, b.rect)}`);
+}
+await browser.close(); process.exit();
+const card = (p, next, inner = '') => `<style>${p ? `#x{position:${p}}` : ''}</style><mx-card id=x variant=elevated style="inline-size:200px">${inner || '<div style="block-size:40px"></div>'}</mx-card>${next}`;
+for (const [n, f] of [
+  ['mx-card, then a block with a background', (p) => card(p, '<div style="inline-size:200px;block-size:40px;background:#cde"></div>')],
+  ['mx-card, absolute child inset 0', (p) => card(p, '', '<div style="position:absolute;inset:0;background:#f00"></div><div style="block-size:40px"></div>')],
+  ['mx-card alone', (p) => card(p, '')],
+  ['mx-list-item level 8, next item has a background', (p) => list('mx-list', `mx-list-item{--md-list-item-container-color:#cde}#x{${lvl}:8}${p ? `mx-list-item{position:${p}}` : ''}`)],
+  ['mx-list-item level 8, then a div', (p) => `<style>${p ? `#x{position:${p}}` : ''}#x{${lvl}:8;transition:none!important}</style><mx-list><mx-list-item id=x>Item</mx-list-item></mx-list><div style="block-size:40px;background:#cde"></div>`],
+]) { const a = await shots(f('static'), 'head'), b = await shots(f(''), 'head'); console.log(`${n} (${a.rect.pos}/${b.rect.pos}): ${await diff(a.shot, b.shot, b.rect)}`); }
+await browser.close();
