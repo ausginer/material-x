@@ -1,6 +1,6 @@
 # mx-slider — plan
 
-**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with no question open.** It is [`repo:RD-55`](../00-index.md). Where the entry and this plan differ, the entry governs. Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. Implemented at `6ecdc0155`, with the architect's corrections of 2026-11-24 ([revisions](#revisions)). It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan, and [the last section](#proposed-record-entries) gives the addresses of the entries that were minted from them.
+**Status: decided by the owner's answers to [Q1](#q1--whose-is-the-value) and [Q2](#q2--what-does-a-hosts-aria-label-do), with two confirmations asked of the owner on the amendment ([below](#for-the-owner)).** It is [`repo:RD-55`](../00-index.md). Where the entry and this plan differ, the entry governs. Written by an architect on 2026-11-23, on the coordinator's task for [#173](https://github.com/ausginer/material-x/issues/173), on `material-x/slider-1` from `origin/main` at `92a386a17`, and [amended](#revisions) the same day. Implemented at `6ecdc0155`, with the architect's corrections of 2026-11-24 ([revisions](#revisions)). **Amended on 2026-11-24 for the [feature proof](../reviews/slider-1/feature-proof-claude.md): `SL-D2`, `SL-D3`, `SL-D4`, `SL-D6` and the rows state the amended contract, and the implementer's work is in [the dispositions](#feature-proof-dispositions).** Until the proposed note is minted, `RD-55` clause 4 and this plan differ on a press that becomes a scroll. It is unit C of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`). The labels `SL-…` are local to this plan, and [the last section](#proposed-record-entries) gives the addresses of the entries that were minted from them.
 
 **The unit:** one element, `mx-slider`, a continuous slider with one value. It is horizontal. The range slider, stops and the vertical slider wait ([what stays possible](#what-stays-possible)).
 
@@ -29,6 +29,9 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 | [`move-cost.ts`](probes/move-cost.ts) | [`move-cost.txt`](checks/move-cost.txt) — cost of one change |
 | [`built-move-cost-cause.ts`](probes/built-move-cost-cause.ts) | [`built-move-cost-cause.txt`](checks/built-move-cost-cause.txt) — on the built element: why a change costs more than on the prototype |
 | [`stop-indicator.ts`](probes/stop-indicator.ts) | [`stop-indicator.txt`](checks/stop-indicator.txt) — on the built element: the stop indicator as its own element draws the same |
+| [`held-press.ts`](probes/held-press.ts), [`held-press-firefox.ts`](probes/held-press-firefox.ts) | [`held-press.txt`](checks/held-press.txt), [`held-press-firefox.txt`](checks/held-press-firefox.txt) — for the amendment: the built element and two variants under a touch that becomes a scroll, in Chromium by emulated touch and in Firefox by its own synthesized touch |
+| [`indicator-overflow.ts`](probes/indicator-overflow.ts) | [`indicator-overflow.txt`](checks/indicator-overflow.txt) — for the amendment: scrollable overflow and place of the value indicator, the built one and five candidates |
+| [`indicator-cost-and-text.ts`](probes/indicator-cost-and-text.ts) | [`indicator-cost-and-text.txt`](checks/indicator-cost-and-text.txt) — for the amendment: the cost of a change while it is shown, and signed texts in both directions |
 | [`press-and-width.ts`](probes/press-and-width.ts) | [`press-and-width.txt`](checks/press-and-width.txt) — on the built element: presses off the handle's centre, and the width in shrinking containers |
 | — | [`engine-sources.txt`](checks/engine-sources.txt) — what assistive technology can do to an ARIA slider, and iOS's touch area |
 
@@ -78,10 +81,10 @@ Run on 2026-11-23 in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, on 
 
 **Whose the value is.** The user's, as the owner answered to Q1 (a). It is the second exception to the controlled principle after the text fields.
 
-- `value` reads the current value. The consumer may set it at any time, also inside an `input` handler and in the middle of a drag, and the drag goes on.
+- `value` reads the number that the slider shows, which is also the form value. It is the input's, except while a press is held back (`SL-D3`). The consumer may set it at any time, also inside an `input` handler and in the middle of a drag, and the drag goes on.
 - The `value` attribute is the initial value. It is followed until the user moves the slider or a script sets `value`, as in `TextFieldCore`. The property doesn't reflect.
 - Setting `value` fires no event.
-- **The order in which `value`, `min`, `max` and `step` are set doesn't matter.** A native range clamps at each write, so `value = 200` followed by `max = 300` leaves 100, and the engines differ when the value is an attribute (Chromium and Firefox 100, WebKit 200). Frameworks set properties in the order that the markup names them. So the component keeps the number last asked for, by the consumer or the user, and writes it to the input again after each change of `min`, `max` or `step`. `value` reads the input.
+- **The order in which `value`, `min`, `max` and `step` are set doesn't matter.** A native range clamps at each write, so `value = 200` followed by `max = 300` leaves 100, and the engines differ when the value is an attribute (Chromium and Firefox 100, WebKit 200). Frameworks set properties in the order that the markup names them. So the component keeps the number last asked for, by the consumer or the user, and writes it to the input again after each change of `min`, `max` or `step`.
 - The input's `value` **content attribute is never written,** because it would move the step base.
 
 ## SL-D3 — Events
@@ -91,7 +94,15 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 - **`input`:** the native event, which bubbles and is composed, so it crosses the host by itself in all three engines. The component handles it at the input, so `value`, the drawing and the form value are current when the consumer's handler runs.
 - **`change`:** the native event stops at the shadow root. The component dispatches `new Event('change', { bubbles: true })` on the host, not through the notifier that `RF-117` deletes.
 - **Keyboard:** each key that changes the value fires `input`, then `change`.
-- **A press that becomes a scroll restores the value.** On `pointercancel` the component puts back the value that the input had at `pointerdown`, if it differs, and dispatches a plain `input` with the native flags on the input. In Chromium under emulated touch this read `i21 → i50`, no `change`, and the page scrolled. A horizontal touch drag isn't cancelled. Firefox restores by itself on `touchcancel` and fires `input`, by reading, so the component has nothing left to restore there, whichever event comes first.
+- **A press that becomes a scroll does nothing.** A finger's press changes a native range at once in Chromium and Firefox, before the browser knows whether it is a scroll. So the component **holds back** what the press did until the browser has decided:
+  - **What is held:** the `input` that a press by anything but a mouse makes before its first `pointermove`. It doesn't reach the host, and nothing follows it: not `value`, the drawing, the form value, the indicator's text or the ownership.
+  - **What ends it as the user's:** the next native `input`, the lift, or a native `change`. A lift without a move is a tap. The component then dispatches one plain `input` with the native flags, if the number differs from the one shown, and `change` follows.
+  - **What ends it as a scroll:** `pointercancel`. The input is given the number that was asked for, which is what it would be without the press. No `input` and no `change` reaches the host, neither the engine's own `change` after the cancel (Chromium fires one if a script wrote in between) nor the engine's own restoration (Firefox puts its own number back). A disconnection ends it the same way.
+  - **A script's write during it** (`value`, the attribute, a bound, `step`, a form reset) is an ordinary write and stays. Nothing was the user's yet, so there is nothing to overwrite. This is how `SL-D2` and `SL-D3` agree.
+  - **After the press has been reported,** a cancel no longer is a scroll: the browser decides at the start, and in Chromium no pan at 20 to 80 degrees gave a second `input` before its cancel. What is left is the system taking the touch. The slide is then committed: the value stays, in Firefox too, and `change` fires. Material Components for Android takes its `ACTION_CANCEL` as a lift too.
+  - **A mouse isn't held.** Its press moves the handle at once.
+  - **Why held and not restored.** A restoration can't tell the user's press from a script's write that followed it. A consumer that copies the value back, and a player that follows its seek bar, write during the press _because of_ it, and an independent script doesn't. Whoever wins, one of them is wrong ([readings](checks/held-press.txt): with the owner restored and no `input`, the player stays at the pressed 70). Held, the consumer never learns of a press that was a scroll, so no case is left. Material Components for Android does this: `BaseSlider.onTouchEvent` starts in `ACTION_MOVE` inside a vertically scrolling container (read at `3a2969935`).
+  - **Costs.** With a finger, a press on the track moves the handle at the lift or at the first step of the slide, and not at the touch. With a coarse `step` the handle waits for the finger to cross a step. While the finger rests, the input itself holds the pressed number, so assistive technology could read it. A slide from a held press back to the number shown fires an `input` with that number.
 - **`touch-action: pan-y`** on the input. The vertical slider will need `pan-x`.
 
 ## SL-D4 — Name and accessibility
@@ -104,7 +115,7 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 | --- | --- | --- | --- |
 | 1 | Host `aria-labelledby` | `input.ariaLabelledByElements` is the host's `ariaLabelledByElements` | **Differs.** It mirrors the ids, which the shadow tree doesn't have, so the host's reference names nothing. The field is unnamed, or falls to its slot or `aria-label` |
 | 2 | The `label` slot, when it has an element | `input.ariaLabelledByElements` is the shadow label | The same: its slot wins over a host `aria-label` |
-| 3 | Host `aria-label` | mirrored | The same |
+| 3 | Host `aria-label`, unless it is empty or white space | mirrored | The same |
 | 4 | `<label>`, wrapping or `for` | `input.ariaLabelledByElements` is `internals.labels` | **Differs.** It has no such source: a `<label>` leaves the field unnamed |
 
 - **The order is the text field's where it has a source,** and a native input's for `aria-label` over `<label>`.
@@ -151,10 +162,11 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
   <input id="input" class="input" type="range" part="impl" />
   <span class="stop"></span>
   <span class="handle"></span>
+  <span class="indicator" aria-hidden="true"><span class="text"></span></span>
 </div>
 ```
 
-- The host is a block, and the shadow root delegates focus, which reaches the input through a block host in all three engines. `.track`'s `::before` is the inactive track and its `::after` the active track. `.stop` is the stop indicator. `.handle` is the handle, and its `::after` is the value indicator. `.handle` is an element and not the native thumb, so that rows can measure it, and one rule draws it in every engine.
+- The host is a block, and the shadow root delegates focus, which reaches the input through a block host in all three engines. `.track`'s `::before` is the inactive track and its `::after` the active track. `.stop` is the stop indicator. `.handle` is the handle. `.indicator` places the value indicator and `.text` is its box and its text. `.handle` is an element and not the native thumb, so that rows can measure it, and one rule draws it in every engine.
 - **The fraction is one inline custom property on `.track`,** never on the host. On the host with 200 light children a change costs 2.2 to 4.5 times as much. It also doesn't write the consumer's `style`.
 - **Geometry.** With `w` the handle's current width and `c` its centre, `c = handle.width / 2 + f × (100% − handle.width)`. The handle covers `c ± w / 2`. The active track ends `active.handle.leading-space` before it, and the inactive track starts `active.handle.trailing-space` after it. Both stop at zero size inside the track: the probe's zero-width part lies 6 px outside it, where it could add scrollable overflow.
 - **The stop indicator is an element of its own,** and not a gradient in the inactive track's box. Required: it lies at the track's inline end, `stop-indicator.trailing-space` from it, in the computed direction. Its inline size is `min(size, max(0px, inactive track − trailing space))`, so it shrinks to nothing as the handle comes. It paints above the inactive track and below the handle, without a `z-index` that leaves `.track`, which is why the inactive track is `::before`: an `::after` would paint over it. It takes no pointer event. Its corner is `stop-indicator.shape`. The disabled opacities are `opacity` on the parts, so no color is mixed. In forced colors the inactive track, the active track and `.stop` have opacity 1, and `.stop` is `Canvas`.
@@ -168,7 +180,11 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 - **States.** The handle is 4 px. It is 2 px while the input is `:active` and while it is `:focus-visible`, and both track ends follow it. The held state stays while the pointer is outside, in all three engines. A mouse press isn't `:focus-visible` in any of them. Hover changes nothing but names its token. There is no state layer and no ripple: their tokens are deprecated.
 - **Focus indicator.** The slider sets have no token for one, and 2 px alone is too weak to see. The shared `focusTokens` outline goes around `.handle` on `:focus-visible`.
 - **Disabled** draws each part's disabled color and opacity. The stop indicator's only disabled opacity is deprecated, so it uses `disabled.handle.opacity`, which has the same value (0.38).
-- **Value indicator,** with `indicator` set: shown while the handle is held or has keyboard focus, above it by `value-indicator.active.bottom-space`, centred on it. Its block padding is that token too, so it is 44 px tall. No current token gives its padding or shape. Literals, with provenance: 10 px inline padding from Material Components for Android's `Widget.Material3.Slider.Label`, read through a subagent on 2026-11-23, and a full corner, which is the architect's inference, not a reading. The visual review settles it. The text is written only when `indicator` is set.
+- **Value indicator,** with `indicator` set: shown while the handle is held or has keyboard focus, above it by `value-indicator.active.bottom-space`, centred on it and kept between the slider's ends. Its block padding is that token too, so it is 44 px tall. No current token gives its padding or shape. Literals, with provenance: 10 px inline padding from Material Components for Android's `Widget.Material3.Slider.Label`, read through a subagent on 2026-11-23, and a full corner, which is the architect's inference, not a reading. The visual review settles it. The text is written only when `indicator` is set.
+  - **Placement.** Required: the shown indicator adds no scrollable overflow, to the page or to a container, at either end, in either direction, whatever its text. It is centred on the handle wherever it fits between the slider's ends, and otherwise it stops at the end. A text that is longer than the slider wraps, and breaks inside a word if it has to, whatever `white-space` the page gives the slider. A slider narrower than the text's inline padding, 20 px, is outside this. It isn't in the box model while it isn't shown, as before.
+  - **How, as measured:** `.indicator` is a flex container as wide as the track. Its two pseudo-elements are the spaces beside `.text`, with `flex: 1 1` and the basis `max(0px, 2c − 100%)` and `max(0px, 100% − 2c)`, where `c` is the handle's centre. Each takes half of the free space, so the text is centred, and the longer one gives way first. `.text` is `flex: none` with `max-inline-size: 100%`. It reads no layout, needs no script, no direction and no new platform feature.
+  - **Text.** `.text` has `unicode-bidi: plaintext`, for the number and for `valuetext`. The text's own characters give its direction, and a text with no letters is left to right. So `-18` and `-18°` are drawn with the sign at the left in both directions, as a script-neutral number is, and a `valuetext` that begins in Arabic or Hebrew is laid out right to left. `Intl.NumberFormat`'s own direction marks keep working. The text is an element's and no longer generated content, so `data-value` goes. `aria-hidden` moves from `.handle` to `.indicator`.
+  - **Not adopted:** see [`reviewer-2`](#reviewer-2).
 - **Motion.** The value isn't animated: the handle is at the pointer. The handle's width changes at once. Compose's does too, and the sets name no motion. The value indicator fades by `opacity` alone, over the fast-effects duration. So nothing that `RF-107` counts as motion moves, and the unit doesn't wait for it.
 - **Forced colors.** The native input is transparent and backgrounds are overridden there, so a rule draws the parts in system colors (`CanvasText`, `Highlight`, `GrayText`). Without it the slider would be invisible.
 
@@ -195,7 +211,7 @@ Per `input`: one read of the input's value, one `setProperty` on `.track`, one `
   - **The host's load.** The prototype takes 41, 103 and 295 µs on this nearly idle host, near the plan's 36, 94 and 284. On the implementer's loaded host it took 59, 168 and 484.
   - **A real cost of the built styles.** Paired by round, a built change costs 1.3, 1.8 and 1.1 times the prototype's. With the prototype's styles on the built element it costs 0.9 times, and with the built styles on the prototype's script 1.2, 1.6 and 1.0. The script with the event is 4, 13 and 3 to 5 µs of the whole.
 - **What in the styles, in Firefox** (the parts overlap, so they don't add up). The inactive track's gradient, paddings and `color-mix()` are 68 of the built element's 85 µs over the prototype, and the tokens as custom properties 35. The geometry and `:has()` are nothing that can be told from the noise. With the tokens, `:has()`, the geometry and the drawing of both track parts all replaced, the cost is the prototype's. In Chromium the tokens explain the difference, and WebKit's is too small to divide.
-- **What is kept.** The tokens as custom properties are how every component reads them. The value indicator costs 38, 115 and 113 µs while the handle is held, and only then, or with keyboard focus, is it shown.
+- **What is kept.** The tokens as custom properties are how every component reads them. The value indicator as a pseudo-element costs 38, 115 and 113 µs while the handle is held, and only then, or with keyboard focus, is it shown. As `.indicator` and `.text` it costs up to 9, 45 and 155 µs more (the minima of interleaved rounds, 120 to 130, 292 to 338 and 490 to 645 µs, at a load average of 6; the variant also kept the built one's attribute write, so these are upper bounds; [readings](checks/indicator-cost-and-text.txt)).
 - **The prototype's value indicator was hidden and had few styles,** so the plan's first figures were below the cost of a shown one.
 - **In Chromium a round takes one of two speeds,** about a factor of two apart, so there the minima compare better than the medians: 34, 42 and 47 µs for the prototype, the built element and the element with the stop indicator, and 75 and 79 µs for the two held rows. The stop indicator's element saves nothing in WebKit, and in Chromium it costs up to 5 µs more.
 - **In Chromium's frames, with paint,** the built element takes 1763 µs of main-thread tasks, against 1680 and 1630 for the prototype in two rows of the same run, 1135 for the native range and 176 idle. The figures vary by about 200 µs, so none of the drawings can be told from another.
@@ -228,6 +244,87 @@ All six sets are in the store (`RD-47`'s unit T). No deprecated token is read.
 - **The size sets win over the base set's** `full` outer corner: the small track is 24 px tall and its corner 8 px, where `full` would be 12.
 - **The value indicator's style mixes two styles upstream:** `label-large`'s font, size and line height with `body-large`'s weight (400) and tracking (0.5 px). The slider reads what upstream says. `RF-110` is on `main`, and the values above are read through it.
 
+## Feature proof dispositions
+
+The [feature proof](../reviews/slider-1/feature-proof-claude.md) at `3c36609c3`, ruled on 2026-11-24 by the architect. The sections and rows above state each ruling's contract.
+
+### reviewer-1
+
+**Accepted, and the mechanism is replaced.** The restoration goes. The press is held back until the browser has decided (`SL-D3`), so nothing has to be restored and `SL-D2` and `SL-D3` no longer conflict.
+
+- **Not adopted, the restoration of what was asked for, with the script's write overwritten:** it repairs the first three cases and loses an independent script's value.
+- **Not adopted, the same with the script's write kept:** a consumer that writes a number derived from the press, such as a player's position, turns the scroll into a seek. A write that equals the pressed number could be told apart, and a derived one can't.
+- **Not adopted, nothing:** Chromium's native range commits the press that becomes a scroll.
+
+### reviewer-2
+
+**Accepted.** The indicator stays between the slider's ends (`SL-D6`). Candidates, read in the three engines with 17 pages each ([readings](checks/indicator-overflow.txt)); the 40 px in the _translated sheet_ row is the page's own:
+
+| Candidate | Overflow | Where it fails |
+| --- | --- | --- |
+| Built | 19 to 63 px | at the inline end |
+| **Flex, between the slider's ends (adopted)** | none | off the handle's centre by up to half its width at the ends (20 px for `100`) |
+| Anchor positioning in the track | none, except a text longer than the slider | the same place as flex, by a newer feature |
+| Anchor positioning in the viewport, two forms | none | **in Firefox an RTL slider in an LTR page, and the reverse, has its indicator off the screen** (755 px away at 0, 441 at 40). It floats beside its container when that scrolls |
+| The same in the top layer | none | the same in Firefox, and 40 px off under a translated ancestor there. It needs script to open and close it with `:active` and `:focus-visible` |
+| `overflow: clip` | — | not run: it cuts the indicator, which lies outside every box of the slider |
+| Accept it | 19 to 63 px | a page that scrolls sideways while the handle is held |
+
+- **Anchor positioning in the viewport is Material Components for Android's place** (`TooltipDrawable.calculatePointerOffset` keeps the label in the window; read at `3a2969935`), and its other mode, `LABEL_WITHIN_BOUNDS`, is the adopted one. It also escapes a container that clips. It is the better place when Firefox draws it, and a later change to it changes no surface. web-features gives its keys as Baseline since 2026-01-13 and the feature as a whole as not Baseline, read on 2026-11-24.
+- **Limit, documented:** a container that clips above the slider cuts the indicator, as before.
+
+### reviewer-3
+
+**Accepted.** `unicode-bidi: plaintext` on the text, for the number and `valuetext` (`SL-D6`), read in the three engines for twelve texts. `isolate` with `direction: ltr` draws the number the same, and lays an Arabic or Hebrew `valuetext` out left to right. `valuetext` isn't isolated separately: one declaration serves both. A text with no letters, such as `-18 %` or `-١٨`, is drawn left to right in both directions. A consumer that wants the sign at the right puts a direction mark in `valuetext`, as `Intl.NumberFormat` does for its locales.
+
+### reviewer-4
+
+**Confirmed, the implementer's.** An `aria-label` with nothing but white space isn't a source (`SL-D4`).
+
+### reviewer-5
+
+**Confirmed, the implementer's,** with the indicator's elements (row 12).
+
+### reviewer-6
+
+**Amended.**
+
+| Property | Ruling |
+| --- | --- |
+| `touch-action: pan-y` | a row reads the computed value in the three engines (row 8) |
+| _If it differs_ | gone with the restoration. Row 8 has the pan from the handle |
+| The equal bounds' guard | it earns its place: without it the inactive track and the stop indicator vanish. Row 1 reads them |
+| The input's `opacity: 0` | a `spec` row, in the three engines |
+| The fade in | row 12 |
+| The indicator's `z-index` | the baselines, and no row |
+| Forced colors in Firefox | Chromium's visual row, as planned. No row |
+
+### reviewer-7
+
+**Closed by reading:** #220's description says it, read on 2026-11-24. It needs the changes below.
+
+### The implementer's work
+
+In this order, on `material-x/slider-1`:
+
+1. **The held press** (`SL-D3`, and `value` in `SL-D2`): replace the restoration. [`held-press-variants.ts`](probes/held-press-variants.ts) has one form that read right in both engines. It isn't prescribed.
+2. **The indicator** (`SL-D6`): the two elements, the placement, `unicode-bidi`, and no `data-value` or `::after`. The forced-colors rule, the fade and the spec layer's adapters follow the new box.
+3. **The empty `aria-label`** (`SL-D4`).
+4. **Rows** 1, 8, 10, 12, 13 and the `spec` row, each with its witnesses, in the engines that it names. The two rows of the restoration go. Rerun `built.ts` and the Firefox probe on the built element.
+5. **Docs:** JSDoc (`@event input`, and `indicator`) and `slider.mdx`: a touch that becomes a scroll changes nothing and fires nothing; with a finger the handle moves at the lift or the first slide; the indicator stays between the slider's ends and is cut by a container that clips above; a negative number's sign.
+6. **The report:** sizes, and what differs from this list.
+
+The proof's accepted items are then read again by the reviewer. The baselines are recorded after it, not before.
+
+**The coordinator's:** #220's description (_restores the value_; the phones' step 2, where the value doesn't change during the scroll either; step 3, where the handle moves at the lift), and minting the note below.
+
+### For the owner
+
+Neither stops the implementer, who builds the recommended answer.
+
+- **On touch, should the handle wait for the lift or the first slide?** Recommended: yes, as Material on Android does in a scrolling page. A press on the track then shows nothing until then. The alternative is the handle jumping at the touch and back when the page scrolls, with a rule on whose value is lost.
+- **At the ends, should the indicator stop at the slider's end?** Recommended: yes ([drawn](checks/indicator-elements-chromium.png), and [as built](checks/indicator-built-chromium.png)). It is off the handle's centre by up to half its width there. The alternative is a centred indicator and a page that can scroll sideways while the handle is held.
+
 ## What stays possible
 
 - **Range slider:** another element, with two inputs over one `.track` and a second fraction. Nothing here names the only value.
@@ -241,26 +338,36 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 
 **`browser` rows**
 
-1. Each attribute and property, with its default; `step` that isn't a number; a signed range's default.
+1. With equal bounds the handle, the inactive track and the stop indicator are drawn as at 0 (**witness:** without the guard the inactive track has no size). Each attribute and property, with its default; `step` that isn't a number; a signed range's default.
 2. `value`, `min`, `max` and `step` give the same result in each order, as attributes and as properties. **Witness:** without the rewrite, `value` before `max` fails as properties in every engine (read in all three).
 3. The `value` attribute is followed until a user move or a script write, and a reset restores it.
 4. A press, a drag and a drag past each end: the value, the events and their order, flags and target, and `value` and the form value already current in the handler. A press on the handle's centre changes nothing. A press 1.5 px off it, on a 200 px slider of 100 steps, changes nothing in Chromium and WebKit, and in Firefox gives the value at the pointer, asserted separately so that a change of the engine is seen. The row puts its slider 0.15 px in, so that the pointer is on a whole pixel: without it Firefox rounds 1.5 px past the centre down and keeps 40. A press on the stop indicator gives the value there (**witness:** without `.stop`'s `pointer-events: none` it fails).
 5. A value written inside an `input` handler during a drag: the drag goes on. The same value written back: `change` fires. `change` after a rewritten value isn't asserted in WebKit.
 6. Every key, in LTR and RTL. The horizontal arrows in RTL assert WebKit's own direction separately, so a change of the engine is seen.
 7. A fractional step over seven presses.
-8. Chromium, by emulated touch: a vertical pan scrolls and leaves the value as it was, with no `change`. A horizontal drag isn't restored. **Witness:** without the restoration the first one fails.
+8. Chromium, by emulated touch (`SL-D3`):
+   - A vertical pan that starts on the track scrolls and fires neither `input` nor `change`. The value, the form value and the drawing are as before, during it too. So does one that starts on the handle. **Witness:** without the hold the first fails.
+   - After such a pan: a slider that followed its attribute follows it (30, then 60). One that followed its midpoint follows it (`max = 300` gives 150). A number out of bounds is kept (`value = 200`, then `max = 300` gives 200). **Witness:** with the press's number taken as asked for, each fails.
+   - A script's write during the press that becomes a pan stays and fires no event: `value`, the attribute, a bound and a form reset. **Witness:** with the number at `pointerdown` restored, the first two fail. **Witness:** without the drop of the engine's `change`, the first two and the bound fail.
+   - A tap fires one `input` and one `change`, with the new value in both. A horizontal drag that starts off the handle, one from the handle on a coarse step, and one that turns vertical fire `input`s and one `change` and don't scroll. **Witness:** with the first `input` held also after a move, the coarse one fails, so it reads the value before the lift.
+   - A slide that the browser cancels keeps its value and fires `change`.
+   - A key and a tap after a pan work at once. The slider moved in the DOM during a held press shows the number that it had, and its input has it too.
+   - The dispatched `input` has the native flags.
+   - In Firefox the same gestures by the committed probe, rerun on the built element: tap, drag, the coarse drag, press and cancel, a script's write during, a slide and cancel. **Witness:** without the drop of the engine's restoration, the script's write fails there.
+   - The input's computed `touch-action` is `pan-y`, in the three engines. No gesture that the suite can make shows it.
 9. Form: name, `FormData`, reset, disabled by attribute and by fieldset, under pointer and Tab; validity through `setCustomValidity`; `error` and `required`.
-10. Name, from each engine's own accessibility tree: each of the four sources alone; each pair; three sources; each source added and removed at run time; the slot filled at run time. The control's name is `SL-D4`'s. **Witness:** with the text field's transform, the `aria-labelledby` and `<label>` rows fail.
+10. Name, from each engine's own accessibility tree: an empty and a white-space `aria-label` beside a `<label>` (named by the `<label>`), also when it becomes empty at run time; each of the four sources alone; each pair; three sources; each source added and removed at run time; the slot filled at run time. The control's name is `SL-D4`'s. **Witness:** with the text field's transform, the `aria-labelledby` and `<label>` rows fail.
     - The host: not exposed where `SL-D4`'s table says so. **The named host under a host `aria-label` is a known row for each engine, pinned as `RF-94`'s,** so `RF-94`'s repair reverses it.
     - A host `aria-describedby` describes the control. A host `aria-valuenow` doesn't change the reported value in Chromium (**witness:** without the exclusion it reports 5). A host `aria-valuetext` wins over `valuetext`, and its removal restores it.
     - Chromium through CDP in the suite, as the list roles are. Firefox and WebKit by the committed probe, rerun on the built element, with Firefox's value and description from `nsIAccessible`. `aria-valuetext` in Chromium and WebKit is asserted as the input's attribute, because their readers don't give it.
 11. The label click focuses the input, for the slot, the wrapping label and `for`.
-12. The value indicator is shown on a press and on keyboard focus and not otherwise, with `valuetext`'s text.
-13. No scrollable overflow at either end, in both directions.
+12. The value indicator is shown on a press and on keyboard focus and not otherwise, with `valuetext`'s text. Its showing runs an opacity transition (**witness:** without `@starting-style` it fails). Chromium's accessibility tree has no node with its text (**witness:** without `aria-hidden` it fails, so the row reads text nodes, which `readAccessibilityTree` leaves out today).
+    - Signed, in both directions: the sign is drawn at the left of the digit for `-18` as the number and for `valuetext="-18°"`, read by the rects of the two characters. A `valuetext` of Arabic letters is laid out right to left in an LTR slider. **Witness:** without `unicode-bidi` the RTL ones fail.
+13. No scrollable overflow at either end, in both directions, at rest and **with the indicator shown** by keyboard focus: in a container with `overflow: auto` and on the page, for `100`, `1000000` and a `valuetext` longer than the slider, and with an RTL slider in an LTR page. The shown indicator lies within the slider's ends, and it is centred on the handle at 50 and at the first value where it fits. **Witness:** with `flex-shrink: 0` on the spacers the ends fail, and without `max-inline-size` the long text does.
 14. Reconnection and a move in the DOM: no doubled event.
 15. Under `prefers-reduced-motion: reduce`, no motion property animates (`RF-107` property 1). Not in Safari.
 
-**`spec` rows,** against the token package: handle and track geometry and the spaces for each size; the corners; the colors and opacities in each state; the handle's width held and focused, with the track ends; the indicator's box; the stop indicator's box, corner, color and opacity, in both directions and where the track is too short for it, and that it paints above the inactive track; the focus outline. RTL mirrors one size.
+**`spec` rows,** against the token package: handle and track geometry and the spaces for each size; the corners; the colors and opacities in each state; the handle's width held and focused, with the track ends; the indicator's box; the input's `opacity` of 0; the stop indicator's box, corner, color and opacity, in both directions and where the track is too short for it, and that it paints above the inactive track; the focus outline. RTL mirrors one size.
 
 **`visual`:** sizes at three values, disabled, RTL, held with the indicator, keyboard focus, forced colors. The recording workflow makes the baselines.
 
@@ -276,6 +383,8 @@ In each engine of `RD-20`'s floor, unless stated, under the `test-component` and
 
 ## Not measured
 
+- **The held press in Safari and on iOS,** where nothing in the suite can make a touch. By reading, iOS moves only the thumb, so a press there makes no `input` before a move and nothing is held. A pen. Firefox's own decision to scroll: its probe sends the cancel.
+- **The indicator's elements' cost as built,** above.
 - A press in Firefox with a real mouse. Physical touch, iOS Safari and Android. iOS's touch area is a reading of WebKit's source. Emulated touch ran in Chromium only.
 - **The amended element's cost on an idle host.** The figures with `.stop` are of the built element with the styles changed by the probe. The probe put `.stop` above with a `z-index`, so the swapped pseudo-elements weren't drawn. The implementer reran `built-move-cost.ts` on the change on a loaded host ([readings](checks/built-move-cost.txt)), so only the adjacent runs compare, and `RD-55`'s note of 2026-11-24 says what they show.
 - A screen reader or any assistive technology. The accessibility trees were read, not heard, so nothing here says whether the second named node is announced.
@@ -325,6 +434,8 @@ Minted on 2026-11-23 by the main slot's architect, at `eaff88884`. The text belo
 
 **Proposed on 2026-11-23, after the implementation, and minted on 2026-11-24** in `RD-55`, adjusted to the built element: a dated note in `RD-55`, with no new entry. _"The plan is amended at the implementation's return. The stop indicator is an element of its own (`SL-D6`). A press off the thumb's centre moves the value to the pointer in Firefox, as on every native range there (`SL-D1`). The slider has no inline size of its own, as the text field has none (`SL-D6`). The cost of a move is the built element's (`SL-D8`)."_ The entry's own clauses stay true.
 
+**Proposed on 2026-11-24, for the feature proof, and not minted:** a dated note in `RD-55`, with no new entry, and clause 4 amended. _"**Clause 4 now says:** Events are plain `Event`s (`RD-52`). A press that the browser turns into a scroll changes nothing and fires nothing: the component holds back a finger's press until the browser has decided. What it said: a press that the browser turns into a scroll restores the value. **Why:** a restoration can't tell the user's press from a script's write that followed it, so `SL-D2` and `SL-D3` gave different answers (`reviewer-1`). **The value indicator** is two elements inside the track: it stays between the slider's ends and adds no scrollable overflow (`reviewer-2`), and its text takes its direction from its characters, so a negative number keeps its sign at the left in RTL (`reviewer-3`). An empty `aria-label` isn't a name's source (`reviewer-4`). **Costs:** with a finger the handle moves at the lift or the first step of the slide, and the indicator is off the handle's centre at the ends."_
+
 The first proposals, as they stood:
 
 - **A decision entry for `SL-D1` to `SL-D9`,** pointing here, with the owner's answers to Q1 and Q2. Q1 (a) also makes the slider the second exception in `architecture.md` §Components.
@@ -371,3 +482,9 @@ The first proposals, as they stood:
   - `SL-D8`'s figure in short is the adopted drawing's; it was `ed272a010`'s 50, 178 and 323 µs;
   - the check on phones is after the merge, and _Not measured_ follows;
   - three of the plan's probes are formatted, with no other change, because `fmt-check` failed on them.
+- **2026-11-24, the architect,** for the feature proof at `3c36609c3`:
+  - `SL-D3`: a press that becomes a scroll is held back and not restored, which settles its conflict with `SL-D2`. `SL-D2`: `value` is the number shown;
+  - `SL-D4`: an empty `aria-label` isn't a source;
+  - `SL-D6`: the value indicator is two elements, between the slider's ends, with its own text direction. It was the handle's `::after`, centred on the handle, with generated text;
+  - rows 1, 8, 10, 12, 13 and the `spec` rows, `SL-D8`'s cost of the indicator, and _Not measured_ follow. Row 8 said: _"Chromium, by emulated touch: a vertical pan scrolls and leaves the value as it was, with no `change`. A horizontal drag isn't restored. Witness: without the restoration the first one fails."_ Row 13 said: _"No scrollable overflow at either end, in both directions."_;
+  - [the dispositions](#feature-proof-dispositions), with the work list and two questions for the owner.

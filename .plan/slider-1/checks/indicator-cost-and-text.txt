@@ -1,0 +1,42 @@
+
+# chromium 158.0.8127.18
+## no declaration
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+rtl "-18 sign right" "-18° sign right" "−18° sign right" "−18 °C sign right" "-18 % sign right" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign right" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+## unicode-bidi:isolate;direction:ltr
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+rtl "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+## unicode-bidi:plaintext
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+rtl "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+## cost of a change, held by keyboard focus
+  built     median 225.5 µs, min 120.5
+  elements  median 225.5 µs, min 129.5
+
+# firefox 159.0
+## no declaration
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+rtl "-18 sign right" "-18° sign right" "−18° sign right" "−18 °C sign right" "-18 % sign right" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign right" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+## unicode-bidi:isolate;direction:ltr
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+rtl "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+## unicode-bidi:plaintext
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+rtl "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+## cost of a change, held by keyboard focus
+  built     median 395.0 µs, min 292.5
+  elements  median 502.5 µs, min 337.5
+
+# webkit 27.2
+## no declaration
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+rtl "-18 sign right" "-18° sign right" "−18° sign right" "−18 °C sign right" "-18 % sign right" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign right" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+## unicode-bidi:isolate;direction:ltr
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+rtl "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign left"
+## unicode-bidi:plaintext
+ltr "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+rtl "-18 sign left" "-18° sign left" "−18° sign left" "−18 °C sign left" "-18 % sign left" "50 (no sign)" "ten (no sign)" "عشرة (no sign)" "-١٨ sign left" "؜-١٨ sign right" "١٨ درجة (no sign)" "-18 درجة sign right"
+## cost of a change, held by keyboard focus
+  built     median 740.0 µs, min 490.0
+  elements  median 827.5 µs, min 645.0
