@@ -5152,6 +5152,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Ready** for an implementer. **The owner approved the start on 2026-11-24,** in chat, relayed by the coordinator: _"1) 👍"_.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: implemented on `material-x/focus-cover-1`, for #226, and not closed.** Requested by the coordinator. The direction holds in Chromium, Firefox and WebKit.
+
+- **Source:** the allow-list names `focus.indicator.color`, `.outline.offset` and `.thickness`. The three items no longer adopt the shared focus sheet, so the list's own variables apply, and `interactive-box.styles.css` has the rule that `static-box.styles.css` already had. No other allow-list in `src` has the misspelling.
+- **Rows:** in `list-item.spec`, the three values for each kind of item, and the block end's pixels for each kind of item followed by each kind, in both lists. The focus is the keyboard's. **Witnesses** ([reading](focus-cover-1/checks/witnesses.txt), [script](focus-cover-1/probes/mutate.mjs)), in the three engines: with each token misspelled, its row fails for the three kinds. With the shared sheet adopted after a box's own, or an offset of 2px, that box's offset and stacking rows fail, and no other. Without the outline on a box, its color rows fail. Which other rows of the static item fail then differs between the engines.
+- **The entry's probe on the built elements** ([reading](focus-cover-1/checks/focus-indicator-built.txt)): nothing is covered in any of the 25 cases, in the three engines.
+- **Read beside it** ([reading](focus-cover-1/checks/unfocused-and-hover.txt), [script](focus-cover-1/probes/unfocused-and-hover.mjs)): the indicator is inside the item now, so an interactive item's ripple tints it while the item is hovered, by at most 8 of 255 per channel, at the one pixel read. Nothing is changed for it.
+- **Visual baselines:** none is expected to change, because the list has no visual file. The sizes and the checks are in `RF-126`'s note, for both entries.
+
 #### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).

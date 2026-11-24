@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
+import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
-import { nextFrame, resolveComputed } from '../browser.ts';
+import '../../src/list/list.ts';
+import '../../src/list/sortable-list.ts';
+import { nextFrame, pixels, resolveComputed } from '../browser.ts';
+import { coveredIndicator, focusFirst } from '../focus-indicator.ts';
 
 const INTERACTIVE_ITEMS = ['mx-list-button-item', 'mx-list-link-item'] as const;
 
@@ -265,4 +269,95 @@ describe.each(INTERACTIVE_ITEMS)('%s tracking contract', (tag) => {
       );
     },
   );
+});
+
+const LISTS = ['mx-list', 'mx-sortable-list'] as const;
+
+const ITEMS = ['mx-list-item', ...INTERACTIVE_ITEMS] as const;
+
+/** A list of one item of each tag, whose first item has keyboard focus. */
+async function createFocusedList(
+  list: (typeof LISTS)[number],
+  tags: ReadonlyArray<(typeof ITEMS)[number]>,
+): Promise<
+  Readonly<{
+    frame: HTMLElement;
+    /** The element that draws the first item's indicator. */
+    box: HTMLElement;
+    next: HTMLElement;
+  }>
+> {
+  const frame = document.createElement('div');
+  frame.style.cssText = 'padding: 12px; background: white; inline-size: 300px;';
+  const element = document.createElement(list);
+  const items = tags.map((tag) => {
+    const item = document.createElement(tag);
+    item.textContent = tag;
+
+    if (tag === 'mx-list-link-item') {
+      item.setAttribute('href', '#link');
+    }
+
+    return item;
+  });
+
+  // A static item in `mx-list` is a tab stop when the consumer makes it one.
+  if (tags[0] === 'mx-list-item') {
+    items[0]!.tabIndex = 0;
+  }
+
+  element.append(...items);
+  frame.append(element);
+  document.body.append(frame);
+  await nextFrame();
+  await focusFirst(frame);
+
+  const [first, next] = items;
+  const box = first!.shadowRoot!.querySelector<HTMLElement>('.host') ?? first!;
+  expect(box.matches(':focus-visible')).toBe(true);
+
+  return { frame, box, next: next! };
+}
+
+describe.each(ITEMS)('%s focus indicator contract', (tag) => {
+  it.each([
+    ['thickness', 'focus.indicator.thickness', 'outline-width'],
+    ['offset', 'focus.indicator.outline.offset', 'outline-offset'],
+    ['colour', 'focus.indicator.color', 'outline-color'],
+  ])('should render the indicator %s', async (_, token, property) => {
+    const values = await resolveTokens('default', [token]);
+    const { box } = await createFocusedList('mx-list', [tag]);
+
+    const expected = String(values[token]!);
+
+    expect(getComputedStyle(box).getPropertyValue(property)).toBe(
+      property === 'outline-color'
+        ? resolveComputed(property, expected)
+        : `${pixels(expected)}px`,
+    );
+  });
+});
+
+describe.each(LISTS)('%s focus indicator stacking', (list) => {
+  describe.each(ITEMS)('of %s', (tag) => {
+    it.each(ITEMS)(
+      'should not be covered by the next item, %s',
+      async (nextTag) => {
+        const { frame, box, next } = await createFocusedList(list, [
+          tag,
+          nextTag,
+        ]);
+
+        const { painted, covered } = await coveredIndicator(
+          frame,
+          { box, side: 'bottom' },
+          [next],
+        );
+
+        expect(covered).toBe(0);
+        // The row reads a whole edge, and not a few pixels.
+        expect(painted).toBeGreaterThan(box.getBoundingClientRect().width);
+      },
+    );
+  });
 });
