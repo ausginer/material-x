@@ -192,7 +192,7 @@ Read on the built element in Playwright's Chromium 158, Firefox 159 and WebKit 2
 
 ### `reviewer-6`, `reviewer-7` and `reviewer-9`
 
-- **`reviewer-6`: the route stands,** JSDoc and `card.mdx`, with this property: neither says that the card takes no focus, or isn't a tab stop, without saying that a card that scrolls can be one. They say that the card adds no tab stop of its own, and that a browser may make a scrolling card one: Chromium and Firefox do when it has no focusable content, and WebKit doesn't (Playwright's was read, and not Safari, so the words name WebKit). `card.mdx`, _Keyboard_, adds that such a card needs `tabindex="0"`, a role and a name to be scrolled from the keyboard in each browser.
+- **`reviewer-6`: the route stands,** JSDoc and `card.mdx`, with this property: neither says that the card takes no focus, or isn't a tab stop, without saying that a card that scrolls can be one. They say that the card adds no tab stop of its own, and that a browser may make a scrolling card one: Chromium and Firefox do when it has no focusable content, and WebKit doesn't (Playwright's was read, and not Safari, so the words name WebKit). `card.mdx`, _Keyboard_, adds that such a card needs `tabindex="0"`, a role and a name to be scrolled from the keyboard in each browser. _Amended 2026-11-24: these words are replaced by [those below](#reviewer-10-the-words)._
 - **`reviewer-7`: the route stands.** JSDoc and `card.mdx` say that content at the card's edge that is positioned, or has an `opacity` or a `transform`, paints over the outline. They don't name full-bleed media as such. Other properties that create a stacking context weren't read, so the list isn't called complete.
 - **`reviewer-9`: corrected,** in `RD-53` and above. The claim that the shadow's difference is _"mostly at the corners"_ is about the size of the difference, and not the number of pixels. The pull request's description says the same words and is the implementer's.
 
@@ -215,6 +215,43 @@ Read on the built element in Playwright's Chromium 158, Firefox 159 and WebKit 2
 6. **Stop** and return to the architect if a property above can't hold in an engine at the floor, or if a list-item row must change.
 
 **Recheck owed, and narrow:** the box probe of the recheck (its 13 cases for each variant), the focus probe and the mutations, on the implementation. The screenshot's baseline may be recorded before it: no pixel of the 18 cards changes. They aren't the visual file's own page.
+
+## Disposition of the second recheck: the tab stop's words, and two rows
+
+**Decided 2026-11-24 by the architect,** on the coordinator's task, for `reviewer-10` and `reviewer-11` of the [second recheck](../reviews/card-1/recheck-2-claude.md), read at `ac8ab1d26`. Both are accepted. Nothing is the owner's to answer, no element declaration changes, and no pixel does, so the baseline doesn't wait.
+
+### `reviewer-10`: the words
+
+The [reading](../reviews/card-1/checks/recheck-2/docs.txt), in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, and the same for a `div`: in Firefox a scrolling card is a tab stop whatever it contains. In Chromium it is one when Tab reaches nothing inside it, which includes content with `tabindex="-1"`. In WebKit it isn't. Safari wasn't read, so the words name WebKit.
+
+- **JSDoc,** in place of _"A browser may make a scrolling card a tab stop: Chromium and Firefox do when it has no focusable content, and WebKit doesn't."_:
+
+  > A browser may make a scrolling card a tab stop, as it does a `div`: Firefox does, Chromium does when Tab reaches nothing inside it, and WebKit doesn't.
+
+- **`card.mdx`,** _Keyboard_: the same sentence in place of the same one, and in place of _"Such a card needs `tabindex="0"`, a role and a name to be scrolled from the keyboard in each browser."_:
+
+  > With `tabindex="0"`, a role and a name, a scrolling card is a named tab stop in each browser, and can be scrolled from the keyboard there.
+
+  The first says what is so in each browser, and a card that Firefox makes a stop is one with no role and no name whether or not it contains a button. The sentence before them, _"Each link, button or other control inside it is one"_, stays.
+
+**What it replaces** in [_`reviewer-6`, `reviewer-7` and `reviewer-9`_](#reviewer-6-reviewer-7-and-reviewer-9): the words that Chromium and Firefox do when the card has no focusable content, and those on what such a card needs. Their property stands: neither text says that the card takes no focus without saying that one that scrolls can.
+
+### `reviewer-11`: both rows are wanted
+
+Property 2 says that the host is a block formatting context, and a card that doesn't fill its container isn't the box that the specification shows. One row each, in `card.spec`'s _mx-card content_, in each engine:
+
+1. **Adjacent content lays out as in a plain box:** two blocks in a filled card, each with a block margin of 20px, are 20px apart. **Witness:** fails with `display: grid` and with a flex column on the host, where they are 40px apart.
+2. **A natural card fills its container:** in a block of 400px, a card with no size of its own is 400px wide, with content narrower than that. **Witness:** fails with `inline-size: fit-content` on the host.
+
+The two resets on `::slotted(*)`, which the recheck names as not a gap, get no row.
+
+### The work list
+
+1. JSDoc and `card.mdx`: the words above.
+2. The two rows, with their witnesses in the three engines, and the affected file in them. The size rows don't change, because the words are in JSDoc.
+3. **The report.**
+
+**No further recheck is owed.** The implementer's witnesses answer `reviewer-11`, and the words are this section's.
 
 ## Owed after the merge
 
