@@ -1,0 +1,26 @@
+import subprocess,re,collections,json
+def sh(*a): 
+    r=subprocess.run(a,capture_output=True,text=True); return r.stdout
+log=sh('git','log','origin/main','--since=2026-11-10T00:00:00','--first-parent','--format=@%h|%ad|%s','--date=short','--numstat')
+cs=[]
+for l in log.split('\n'):
+    if l.startswith('@'):
+        h,d,s=l[1:].split('|',2);cs.append(dict(h=h,d=d,s=s,f=[]))
+    elif l.strip():
+        a,b,f=l.split('\t',2);cs[-1]['f'].append((int(a) if a!='-' else 0,int(b) if b!='-' else 0,f))
+isp=lambda f:bool(re.match(r'(\.plan|packages/[^/]+/\.plan)/',f))
+ev=lambda f:'/checks/' in f or '/probes/' in f
+print('first-parent commits on main since 2026-11-10:',len(cs))
+rows=collections.Counter()
+for c in cs:
+    fs=[f for _,_,f in c['f']]
+    if not fs or not all(isp(f) for f in fs): continue
+    idx=[x for x in c['f'] if x[2].endswith('00-index.md')]
+    newent=len(re.findall(r'^\+#### (RF|DRF)-\d+',sh('git','show','--format=','--unified=0',c['h'],'--','.plan/00-index.md','packages/drag/.plan/00-index.md'),re.M))
+    newdec=len(re.findall(r'^\+#### (RD|DRD)-\d+',sh('git','show','--format=','--unified=0',c['h'],'--','.plan/00-index.md','packages/drag/.plan/00-index.md'),re.M))
+    k=('index only' if len(idx)==len(fs) else 'index + evidence' if idx and any(ev(f) for f in fs) else 'index + other record' if idx else 'record without index')
+    rows[k]+=1
+    print(c['h'],c['d'],k,'| new findings',newent,'decisions',newdec,'| files',len(fs),'evidence',sum(ev(f) for f in fs),'|',c['s'][:70])
+print(rows)
+t=[c for c in cs if any(f.endswith('.plan/00-index.md') for _,_,f in c['f'])]
+print('commits touching a register',len(t))

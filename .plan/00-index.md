@@ -2393,6 +2393,30 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
 
+#### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
+
+**Proposed 2026-11-24 by the architect, on `repo/findings-on-github-1` from `ee7d838cc`, and not in force.** It waits for the owner's answers to its [plan](findings-on-github-1/findings-on-github-plan.md#questions-for-the-owner), which has the owner's words, the counts, the alternatives, what is lost and the stages. Until it is accepted, `RD-22` and `work-queue.md` apply as they stand. `RD-55` (`material-x/slider-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number.
+
+**The owner's direction,** relayed by the coordinator: new findings live wholly in an issue, with additions as comments. Decisions, plans, probes and readings stay in the repository. Existing entries aren't migrated.
+
+**Properties proposed:**
+
+1. **A finding is one issue,** from its observation to its closure. `RF-`, `DRF-` and `RQ-` end at the numbers that are on any branch at the cut-over, and a new finding's address is `#N`. Old addresses keep resolving.
+2. **Its body is the contract, and current text.** Each change is one comment, _Amendment N_, which says what changed, why, what it replaced and whose answer asked for it, and nobody edits it afterward. The body ends with `Revision N`. A prompt pins `#N rM`, and a role that finds a later revision stops.
+3. **The tier is a label** and nothing else states it. The body has the headings that the plan's table lists.
+4. **The architect writes the body, the amendments and the tier,** in any slot. The coordinator writes `Status`, rank and package labels, and opens an `unregistered` issue. Other roles write only through a pull request's description.
+5. **A role takes only `Lodin`'s stamped text as the contract,** and a finding's issue is locked to strangers when it is registered. A tool reads an issue that way, and refuses a revision without its amendment or an edit by another account.
+6. **Evidence stays in the repository, linked by commit,** where no squash merge removes it.
+7. **Decisions, contracts, invariants, plans, reviews and readings stay in the repository,** with their series, their registers and their review. A ruling that changes a public surface or a package's contract is a decision.
+8. **`Closes #N` still closes a finding at the merge.** The architect's acceptance and the proof it rests on is a comment made before.
+9. **Open entries are frozen where they are.** Their frozen text is revision 0 of their issue, and the first change to one writes the whole contract into the body. Closed ones are the archive.
+
+**What it supersedes, if accepted:** `RD-22`'s _"the `.plan/` records stay the only record"_ and its properties 1 to 5 for findings, and the rule that only the main slot's architect mints, for findings. `RD-22`'s board, `Status`, trust, stamp, language and closing rules stay. It amends `RD-1` by taking findings out of its series.
+
+**Why.** The counts of two weeks: 31 of 124 merges conflict in a register, and 19 of them in its findings alone. 19 commits of 95 change only records. The owner names two addresses for one thing. A finding is closed by its repair, so its text is short-lived, and a decision's isn't.
+
+**Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's and can be deleted, two edits of one body aren't reported, and offline work reads a cache. It saves 19 of the 31 conflicts and 2 of the 19 pull requests outright, and 7 more only if evidence needs no pull request of its own.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
