@@ -23,7 +23,7 @@
 - **The split button's 6 or 7 pixels are antialiasing, as the note supposed.** Each is at one column, at the two curved ends of the outline. With the second button hidden, the edge blends with white (165 179 149). With it shown, it blends with the second button's green (68 102 21). Of the indicator's own color, 0 of 117 or 118 are lost, where `main` loses 89 or 90.
 - **Contrast** ([readings](checks/focus-and-contrast.txt)). The ripple's tint doesn't take the indicator below 3:1 against the item's container, in any state that I read: 6.17 at rest, 5.57 to 5.61 hovered and 5.03 to 5.07 pressed. Selected: 5.05, 4.58 to 4.61 and 4.18 to 4.22. A color that the page gives an item (`--md-list-item-container-color`) isn't in this.
 - **Stacking around a group, and the private variable's reach** ([readings](checks/stacking.txt)): `reviewer-1` and `reviewer-2`.
-- **The rows fail without what they guard** ([readings](checks/mutations.txt)). I reran all 14 of the implementer's mutations in Chromium, and six of them in Firefox and WebKit. The counts are as recorded. Two mutations of my own pass: `reviewer-4`.
+- **The rows fail without what they guard** ([readings](checks/mutations.txt)). I reran the implementer's 13 mutations and the unmutated run in Chromium, and five of them and the unmutated run in Firefox and WebKit. The counts are as recorded. Two mutations of my own pass: `reviewer-4`.
 - **CI** on `e00c28db4` passes.
 
 **Not covered:** Safari, forced colors in WebKit (no emulation), the visual project, sizes, a user's dark theme, real media (`<video>`) in the lead slot, and screen readers.
