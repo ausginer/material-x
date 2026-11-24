@@ -1,0 +1,199 @@
+## axe-core 4.14.1, chromium 158.0.8127.18
+aria-allowed-attr (critical) [["div[data-name=\"list button item selected\"] > mx-list > mx-list-button-item","button"]] <button class="host" part="impl" type="button" aria-selected="true">
+label (critical) [["div[data-name=\"checkbox off\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["div[data-name=\"checkbox on\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["mx-checkbox[indeterminate=\"\"]","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["div[data-name=\"checkbox disabled on\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox" disabled="">
+label (critical) [["div[data-name=\"radio off\"] > mx-radio","#input"]] <input class="input" id="input" part="impl" type="radio" name="r" value="1">
+label (critical) [["div[data-name=\"radio on\"] > mx-radio","#input"]] <input class="input" id="input" part="impl" type="radio" name="q" value="1">
+
+## Chromium's accessibility tree: buttons and links, with their properties
+button "Go" disabled=true invalid=false
+button "Go" invalid=false
+button "Go" invalid=false
+button "Go" invalid=false
+button "Go" invalid=false
+button "Go" invalid=false
+link "Go" 
+button "Edit" invalid=false
+button "Edit" invalid=false
+button "Edit" invalid=false
+switch "On" invalid=false checked=false
+switch "On" invalid=false checked=true
+switch "Like" invalid=false checked=false
+switch "Like" invalid=false checked=true
+button "Add" invalid=false
+switch "A" invalid=false checked=true
+switch "B" invalid=false checked=false
+button "Go" invalid=false
+button "keyboard_arrow_down" invalid=false
+button "Item" invalid=false
+button "Item" invalid=false
+link "Item" 
+link "Item" 
+
+## no emulation, chromium 158.0.8127.18: size, hash of the pixels, the four most frequent colours
+button filled 49x40 #1c951eaf: 62,103,0×1492 255,255,255×259 140,164,103×8 236,240,230×7
+button elevated 49x40 #7241f7d5: 242,245,229×1492 255,255,255×174 254,254,254×16 241,244,228×9
+button tonal 49x40 #f1a1feda: 204,238,161×1493 255,255,255×254 250,254,246×8 228,246,205×7
+button outlined 51x40 #cdc4d95c: 255,255,255×1724 194,202,178×24 252,252,251×10 196,204,181×8
+button text 49x40 #69d4e10e: 255,255,255×1876 62,103,0×5 249,250,247×3 252,253,251×3
+button disabled 49x40 #ba8b1d70: 232,232,231×1502 255,255,255×262 253,253,253×16 233,233,232×12
+link-button 49x40 #bb534c05: 62,103,0×1493 255,255,255×259 68,107,8×8 236,240,230×7
+icon-button filled 25x36 #c26009fe: 62,103,0×646 255,255,255×126 197,209,179×9 200,212,183×8
+icon-button outlined 27x38 #80389b23: 255,255,255×818 194,202,178×24 199,206,185×8 249,250,247×8
+icon-button text 25x36 #f0f11e79: 255,255,255×856 122,150,80×8 125,153,84×7 108,139,61×6
+switch-button off 49x40 #69c07b1: 236,240,223×1493 255,255,255×262 236,240,224×11 245,247,238×10
+switch-button on 49x40 #f9001951: 62,103,0×1722 255,255,255×78 121,150,79×5 152,174,120×5
+switch-icon-button off 25x36 #c2442235: 236,240,223×668 255,255,255×128 237,240,224×9 119,125,107×8
+switch-icon-button on 25x36 #13f29ded: 62,103,0×657 255,255,255×126 197,209,179×10 200,212,183×8
+fab 43x50 #86bc6ff1: 0,105,78×1739 255,255,255×45 253,253,253×13 254,254,254×12
+connected group 86x40 #f085064d: 236,240,223×1370 62,103,0×1209 255,255,255×525 245,247,238×10
+split-button 97x40 #b0417697: 62,103,0×3086 255,255,255×417 250,251,249×19 128,155,88×19
+checkbox off 40x44 #67ea435a: 255,255,255×1632 66,73,55×116 192,195,189×4 97,103,87×4
+checkbox on 40x44 #aa735c96: 255,255,255×1446 62,103,0×258 95,129,44×12 234,239,228×7
+checkbox indeterminate 40x44 #f77d2eb7: 255,255,255×1460 62,103,0×288 191,205,171×4 93,128,42×4
+checkbox disabled on 40x44 #7ac75f18: 255,255,255×1446 166,168,164×258 181,183,179×12 245,245,245×9
+radio off 40x44 #e7a3316f: 255,255,255×1624 66,73,55×28 74,80,63×8 149,153,143×4
+radio on 40x44 #52af9969: 255,255,255×1552 62,103,0×81 61,102,0×7 62,103,1×5
+text-field filled 41x56 #f48590f: 224,228,212×2038 255,255,255×56 66,73,55×40 159,165,148×5
+text-field outlined 55x56 #f43d77a1: 255,255,255×2828 114,122,102×111 158,161,152×4 161,164,155×4
+text-field error 41x56 #6291b8e0: 224,228,212×2038 255,255,255×56 186,26,26×40 209,148,138×7
+text-field disabled 41x56 #46dc471: 246,246,246×2042 255,255,255×56 162,163,159×40 213,213,212×7
+card filled 67x50 #d198175: 224,228,212×2917 255,255,255×142 0,0,0×24 225,229,214×11
+card elevated 67x50 #7f82b112: 242,245,229×2913 255,255,255×49 243,243,243×28 0,0,0×24
+card outlined 67x50 #3ae6ff0d: 247,251,234×2717 255,255,255×142 194,202,178×136 0,0,0×24
+list item 63x56 #6722bc41: 247,251,234×3351 101,106,93×15 25,29,19×10 68,72,60×9
+list button item 63x56 #6722bc41: 247,251,234×3351 101,106,93×15 25,29,19×10 68,72,60×9
+list button item selected 63x56 #c35b3089: 204,238,161×3111 255,255,255×152 119,149,82×15 81,109,47×11
+list link item 63x56 #6722bc41: 247,251,234×3351 101,106,93×15 25,29,19×10 68,72,60×9
+list link item selected 63x56 #acaf9360: 204,238,161×3111 255,255,255×152 119,149,82×15 81,109,47×11
+
+## forced colours, chromium 158.0.8127.18: size, hash of the pixels, the four most frequent colours
+button filled 49x40 #79ec7985: 255,255,255×1876 0,0,0×5 247,247,247×3 251,251,251×3
+button elevated 49x40 #79ec7985: 255,255,255×1876 0,0,0×5 247,247,247×3 251,251,251×3
+button tonal 49x40 #79ec7985: 255,255,255×1876 0,0,0×5 247,247,247×3 251,251,251×3
+button outlined 51x40 #472c2d25: 255,255,255×1724 0,0,0×29 143,143,143×9 243,243,243×8
+button text 49x40 #79ec7985: 255,255,255×1876 0,0,0×5 247,247,247×3 251,251,251×3
+button disabled 49x40 #ac74d65e: 255,255,255×1876 96,0,0×5 250,247,247×3 252,251,251×3
+link-button 49x40 #9583a006: 255,255,255×1876 0,0,159×5 247,247,252×3 251,251,254×3
+icon-button filled 25x36 #34900dd5: 255,255,255×856 88,88,88×8 92,92,92×7 68,68,68×6
+icon-button outlined 27x38 #fa4d4386: 255,255,255×818 0,0,0×24 24,24,24×8 231,231,231×8
+icon-button text 25x36 #34900dd5: 255,255,255×856 88,88,88×8 92,92,92×7 68,68,68×6
+switch-button off 49x40 #35a332c9: 255,255,255×1870 153,153,153×5 72,72,72×5 126,126,126×4
+switch-button on 49x40 #35a332c9: 255,255,255×1870 153,153,153×5 72,72,72×5 126,126,126×4
+switch-icon-button off 25x36 #5e4092ed: 255,255,255×867 88,88,88×8 92,92,92×8 149,149,149×2
+switch-icon-button on 25x36 #5e4092ed: 255,255,255×867 88,88,88×8 92,92,92×8 149,149,149×2
+fab 43x50 #e735a749: 255,255,255×2081 0,0,0×12 191,191,191×5 254,254,254×3
+connected group 86x40 #29c508fb: 255,255,255×3331 24,24,24×8 153,153,153×8 0,0,0×6
+split-button 97x40 #36f77542: 255,255,255×3636 0,0,0×50 184,184,184×19 10,10,10×15
+checkbox off 40x44 #3fa32653: 255,255,255×1632 0,0,0×116 171,171,171×4 42,42,42×4
+checkbox on 40x44 #1c9b46cb: 255,255,255×1706 223,223,223×12 0,0,0×10 38,38,38×7
+checkbox indeterminate 40x44 #15343fe8: 255,255,255×1736 0,0,0×24
+checkbox disabled on 40x44 #79d7f850: 255,255,255×1706 242,242,242×12 157,157,157×10 171,171,171×10
+radio off 40x44 #5e22f87c: 255,255,255×1624 0,0,0×25 16,16,16×5 119,119,119×4
+radio on 40x44 #8c1d8a7b: 255,255,255×1552 0,0,0×69 16,16,16×5 248,248,248×4
+text-field filled 41x56 #5a344a59: 255,255,255×2106 0,0,0×42 157,157,157×7 88,88,88×5
+text-field outlined 55x56 #4463b32d: 255,255,255×2828 0,0,0×113 157,157,157×4 130,130,130×4
+text-field error 41x56 #5a344a59: 255,255,255×2106 0,0,0×42 157,157,157×7 88,88,88×5
+text-field disabled 41x56 #9cabb2: 255,255,255×2106 0,0,0×40 217,217,217×7 245,245,245×6
+card filled 67x50 #bdd2650: 255,255,255×3135 0,0,0×24 172,172,172×11 33,33,33×9
+card elevated 67x50 #bdd2650: 255,255,255×3135 0,0,0×24 172,172,172×11 33,33,33×9
+card outlined 67x50 #aa860331: 255,255,255×2867 0,0,0×160 172,172,172×11 33,33,33×9
+list item 63x56 #e38e8457: 255,255,255×3371 88,88,88×15 0,0,0×10 49,49,49×9
+list button item 63x56 #e38e8457: 255,255,255×3371 88,88,88×15 0,0,0×10 49,49,49×9
+list button item selected 63x56 #e38e8457: 255,255,255×3371 88,88,88×15 0,0,0×10 49,49,49×9
+list link item 63x56 #b264c03d: 255,255,255×3371 88,88,192×15 0,0,159×10 49,49,177×9
+list link item selected 63x56 #b264c03d: 255,255,255×3371 88,88,192×15 0,0,159×10 49,49,177×9
+
+## axe-core 4.14.1, firefox 159.0
+aria-allowed-attr (critical) [["div[data-name=\"list button item selected\"] > mx-list > mx-list-button-item","button"]] <button class="host" part="impl" type="button" aria-selected="true">
+label (critical) [["div[data-name=\"checkbox off\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["div[data-name=\"checkbox on\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["mx-checkbox[indeterminate=\"\"]","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["div[data-name=\"checkbox disabled on\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox" disabled="">
+label (critical) [["div[data-name=\"radio off\"] > mx-radio","#input"]] <input class="input" id="input" part="impl" type="radio" name="r" value="1">
+label (critical) [["div[data-name=\"radio on\"] > mx-radio","#input"]] <input class="input" id="input" part="impl" type="radio" name="q" value="1">
+
+## no emulation, firefox 159.0: size, hash of the pixels, the four most frequent colours
+button filled 49x40 #bf022858: 62,103,0×1409 255,255,255×320 234,238,227×8 90,125,38×6
+button elevated 49x40 #3aee6863: 242,245,229×1415 255,255,255×146 254,254,254×64 251,251,251×18
+button tonal 49x40 #d7961f6d: 204,238,161×1409 255,255,255×320 250,253,245×6 236,249,220×6
+button outlined 51x40 #26a15d85: 255,255,255×1670 194,202,178×31 196,204,181×7 253,253,252×7
+button text 49x40 #8d3c8e46: 255,255,255×1863 82,119,27×3 130,157,91×2 156,177,125×2
+button disabled 49x40 #1c848319: 232,232,231×1420 255,255,255×327 253,253,253×18 234,234,233×12
+link-button 49x40 #bf022858: 62,103,0×1409 255,255,255×320 234,238,227×8 90,125,38×6
+icon-button filled 24x36 #8217eef5: 62,103,0×642 255,255,255×96 219,227,208×9 66,106,6×7
+icon-button outlined 26x38 #9ceebeb3: 255,255,255×768 194,202,178×24 100,106,91×9 253,253,252×7
+icon-button text 24x36 #d333e34e: 255,255,255×816 97,131,47×9 140,164,103×5 62,103,0×5
+switch-button off 49x40 #5235fc3f: 236,240,223×1417 255,255,255×327 253,254,252×10 254,254,253×10
+switch-button on 49x40 #6069536: 62,103,0×1650 255,255,255×132 91,126,39×8 116,146,72×7
+switch-icon-button off 23x36 #dabfae74: 236,240,223×668 255,255,255×77 179,185,167×9 87,94,75×7
+switch-icon-button on 23x36 #904df809: 62,103,0×664 255,255,255×77 125,153,84×9 231,236,224×7
+fab 41x53 #8b39d66e: 0,105,78×1770 254,254,254×27 207,207,207×18 253,253,253×15
+connected group 83x40 #609ed3f8: 236,240,223×1288 62,103,0×1135 255,255,255×561 174,179,161×9
+split-button 97x40 #74f7f630: 62,103,0×2998 255,255,255×482 213,222,200×18 152,174,120×15
+checkbox off 40x45 #5b5968f3: 255,255,255×1672 66,73,55×116 196,198,193×2 200,202,197×2
+checkbox on 40x45 #c9068a5: 255,255,255×1486 62,103,0×258 77,115,21×17 221,228,210×14
+checkbox indeterminate 40x45 #d6db8515: 255,255,255×1500 62,103,0×288 195,208,176×2 199,211,181×2
+checkbox disabled on 40x45 #54ee2d02: 255,255,255×1486 166,168,164×258 173,175,171×17 239,239,238×14
+radio off 40x45 #b060d3af: 255,255,255×1666 66,73,55×23 190,193,186×4 68,75,57×4
+radio on 40x45 #e2d5b59e: 255,255,255×1595 62,103,0×61 62,102,0×6 61,102,0×6
+text-field filled 40x56 #804de9f5: 224,228,212×2013 66,73,55×41 221,225,209×12 216,220,204×10
+text-field outlined 57x56 #ec2b97ab: 255,255,255×2919 114,122,102×113 252,252,252×12 91,98,82×5
+text-field error 40x56 #1cdd7e16: 224,228,212×2013 186,26,26×41 223,224,208×11 222,218,203×9
+text-field disabled 40x56 #1f29170e: 246,246,246×2019 162,163,159×40 245,245,245×17 242,242,242×12
+card filled 64x53 #7706665: 224,228,212×3009 255,255,255×92 0,0,0×20 210,213,198×10
+card elevated 64x53 #b80d59aa: 242,245,229×3015 254,254,254×28 0,0,0×20 255,255,255×14
+card outlined 64x53 #9988bad0: 247,251,234×2799 194,202,178×138 255,255,255×92 0,0,0×20
+list item 65x56 #2d8d3871: 247,251,234×3416 25,29,19×23 191,195,179×13 219,222,206×11
+list button item 65x56 #2d8d3871: 247,251,234×3416 25,29,19×23 191,195,179×13 219,222,206×11
+list button item selected 65x56 #9eaab798: 204,238,161×3180 255,255,255×150 81,109,47×23 173,205,131×13
+list link item 65x56 #2d8d3871: 247,251,234×3416 25,29,19×23 191,195,179×13 219,222,206×11
+list link item selected 65x56 #9eaab798: 204,238,161×3180 255,255,255×150 81,109,47×23 173,205,131×13
+
+## forced colours, firefox 159.0: size, hash of the pixels, the four most frequent colours
+button filled 49x40 #20b84a89: 233,233,237×1419 255,255,255×334 235,235,239×11 254,254,254×10
+button elevated 49x40 #20b84a89: 233,233,237×1419 255,255,255×334 235,235,239×11 254,254,254×10
+button tonal 49x40 #20b84a89: 233,233,237×1419 255,255,255×334 235,235,239×11 254,254,254×10
+button outlined 51x40 #d8f05c81: 255,255,255×1670 129,127,132×31 247,247,247×6 244,244,244×6
+button text 49x40 #d4ec2901: 255,255,255×1863 27,27,27×3 91,91,91×2 125,125,125×2
+button disabled 49x40 #eb42176d: 244,244,246×1215 255,255,255×328 243,243,245×207 254,254,254×24
+link-button 49x40 #6390dd30: 255,255,255×1863 27,27,239×3 91,91,244×2 125,125,246×2
+icon-button filled 24x36 #9696c8e9: 233,233,237×660 255,255,255×92 43,43,44×9 252,252,253×8
+icon-button outlined 26x38 #ca1b83bc: 255,255,255×768 129,127,132×24 47,47,47×9 250,250,250×5
+icon-button text 24x36 #371d7335: 255,255,255×816 47,47,47×9 103,103,103×5 0,0,0×5
+switch-button off 49x40 #bfc4812c: 233,233,237×1423 255,255,255×334 235,235,239×11 254,254,254×10
+switch-button on 49x40 #37561580: 233,233,237×1667 255,255,255×132 236,236,239×8 245,245,247×7
+switch-icon-button off 23x36 #229d44f7: 233,233,237×668 255,255,255×78 156,156,159×9 29,29,29×7
+switch-icon-button on 23x36 #229d44f7: 233,233,237×668 255,255,255×78 156,156,159×9 29,29,29×7
+fab 41x53 #861e24ee: 233,233,237×1782 255,255,255×237 254,254,254×12 238,238,241×12
+connected group 83x40 #371acc1f: 233,233,237×2435 255,255,255×582 235,235,239×18 254,254,254×14
+split-button 97x40 #c21bb230: 233,233,237×3008 255,255,255×452 0,0,0×47 50,50,51×18
+checkbox off 40x45 #a5ebb8d5: 255,255,255×1672 0,0,0×116 176,176,176×2 181,181,181×2
+checkbox on 40x45 #5bc05ded: 255,255,255×1746 234,234,234×17 45,45,45×14 0,0,0×10
+checkbox indeterminate 40x45 #27b4d5e8: 255,255,255×1776 0,0,0×24
+checkbox disabled on 40x45 #2d63d67e: 255,255,255×1746 174,174,174×18 246,246,246×17 157,157,157×10
+radio off 40x45 #b47b1d78: 255,255,255×1666 0,0,0×20 168,168,168×4 3,3,3×4
+radio on 40x45 #32007113: 255,255,255×1595 0,0,0×59 252,252,252×5 168,168,168×4
+text-field filled 40x56 #bd3f7a15: 255,255,255×2029 0,0,0×41 251,251,251×11 243,243,243×10
+text-field outlined 57x56 #52379243: 255,255,255×2919 0,0,0×116 251,251,251×13 231,231,231×7
+text-field error 40x56 #bd3f7a15: 255,255,255×2029 0,0,0×41 251,251,251×11 243,243,243×10
+text-field disabled 40x56 #38d10071: 255,255,255×2029 0,0,0×40 253,253,253×18 250,250,250×13
+card filled 64x53 #1663ef35: 255,255,255×3181 0,0,0×20 239,239,239×10 167,167,167×8
+card elevated 64x53 #1663ef35: 255,255,255×3181 0,0,0×20 239,239,239×10 167,167,167×8
+card outlined 64x53 #8fcbcb39: 255,255,255×2891 0,0,0×158 239,239,239×12 23,23,23×9
+list item 65x56 #f31e5feb: 255,255,255×3440 0,0,0×23 191,191,191×13 223,223,223×11
+list button item 65x56 #7414a1de: 233,233,237×3416 0,0,0×23 174,174,177×13 203,203,207×11
+list button item selected 65x56 #5747c823: 233,233,237×3192 255,255,255×162 0,0,0×23 174,174,177×13
+list link item 65x56 #589ac690: 255,255,255×3440 0,0,238×23 191,191,251×13 223,223,253×11
+list link item selected 65x56 #589ac690: 255,255,255×3440 0,0,238×23 191,191,251×13 223,223,253×11
+
+## axe-core 4.14.1, webkit 27.2
+aria-allowed-attr (critical) [["div[data-name=\"list button item selected\"] > mx-list > mx-list-button-item","button"]] <button class="host" part="impl" type="button" aria-selected="true">
+label (critical) [["div[data-name=\"checkbox off\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["div[data-name=\"checkbox on\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["mx-checkbox[indeterminate=\"\"]","#input"]] <input class="input" id="input" part="impl" type="checkbox">
+label (critical) [["div[data-name=\"checkbox disabled on\"] > mx-checkbox","#input"]] <input class="input" id="input" part="impl" type="checkbox" disabled="">
+label (critical) [["div[data-name=\"radio off\"] > mx-radio","#input"]] <input class="input" id="input" part="impl" type="radio" name="r" value="1">
+label (critical) [["div[data-name=\"radio on\"] > mx-radio","#input"]] <input class="input" id="input" part="impl" type="radio" name="q" value="1">

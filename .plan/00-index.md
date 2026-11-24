@@ -2434,6 +2434,27 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
+#### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
+
+**Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
+
+**The dependency is approved by the owner,** the same day in chat, relayed by the coordinator: _"Согласие на axe-core сразу даю, зря что ли инициировал"_ ("I give my consent to axe-core right away, I didn't start this for nothing"). It is a development dependency only. axe-core 4.14.1 is MPL-2.0 and its manifest has no `dependencies` (read).
+
+1. **It is supplementary,** as `test-architecture.md` says of automated rule engines. A component's accessibility contract stays in the rows that assert it, and no such row is removed because axe passes.
+2. **Each component is checked, in each state that changes its role, name or ARIA:** for example, checked, selected, disabled, with an error, and open.
+3. **The expected result is exact.** A known violation is listed by rule id and target, with the entry that owns it. A violation that isn't listed fails the test, and so does a listed one that is gone. So the repair of a finding edits the list in its own pull request.
+4. **Nothing published depends on it,** and no module in `src` imports it. The version is exact.
+
+**Not adopted: Playwright's ARIA snapshots.** They compute the tree in page script. The relayed reading is that one showed no duplicate for a host `aria-label`, which the browsers' own trees do show (`RF-94`). Where a row needs a tree, it reads the browser's own, so widening `readAccessibilityTree` past Chromium is the better direction. It isn't part of this entry.
+
+**What it finds today,** on 35 elements and states, with a name on each element that takes one ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)), read at `eddf39e7b` with the same result in Chromium, Firefox and WebKit: `aria-allowed-attr` on a selected `mx-list-button-item` (`RF-132`), and `label` on every `mx-checkbox` and `mx-radio` (`RF-94`). The Explainer's run over the stories is relayed: the same two, with `label` in 6 checkbox and radio stories.
+
+**Its limits, read:** it reports only what it has a rule for. `mx-split-button`'s trailing control is a button named `keyboard_arrow_down` in Chromium's tree, the icon's ligature text, and no rule reports it. A name that a shadow control takes by `ariaLabelledByElements` is seen, in the three engines ([reading](accessibility-findings-1/checks/axe-ref.txt), [probe](accessibility-findings-1/probes/axe-ref.mjs.txt)), so a repair of `RF-94` by element reference doesn't read as a violation.
+
+**For the plan:** the rules that apply to an element rather than a page (`region` and `page-has-heading-one` don't), the states of property 2, the engines, where the check and its list live, and the run time that it adds. The readings give no difference between engines, so Chromium alone is the starting proposal.
+
+**Order:** it waits for nothing. It is most useful before `RF-132` and `RF-94`, whose repairs then change its list. **Size:** _large_, because a plan comes first. The plan is short.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -4459,6 +4480,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Next, the owner's:** he listens to VoiceOver in Safari, for whether it announces the second node at all. That is part of _Not established_. It answers for VoiceOver only.
 - **No other option is decided by this.** The required property stands, with _on the control only_.
 
+**Dated 2026-11-24 by the architect, on `repo/accessibility-findings-1`: a reading of another library's answer to the naming half,** proposed by Mx Architect Explainer and relayed by the coordinator. The source is [slab-elements](https://github.com/ynotdraw/slab-elements/blob/d7b3c2ca95b3cf43e134d088fd652e85a80e5a2c/src/library/aria-forwarding.ts), read at `d7b3c2ca9`. The repository was created on 2026-10-11 and has 28 stars. It has a `CLAUDE.md`, and 4 of its last 100 commits name Claude as a co-author; _"largely with Claude Code"_ is relayed and not confirmed. **It is a source of ideas and not an authority.**
+
+- **What it does.** It resolves the ids of the host's `aria-labelledby`, `aria-describedby`, `aria-details` and `aria-controls` in the host's root, and assigns the target's `ariaLabelledByElements`, `ariaDescribedByElements`, `ariaDetailsElements` and `ariaControlsElements`. A host's labels replace the target's own. Its descriptions, details and controlled elements are added to the target's own. When the host's attribute goes, the target's own references are put back as an attribute. It also copies `aria-label`, `aria-description`, `aria-expanded`, `aria-haspopup` and `aria-keyshortcuts`, unless the target has its own value.
+- **What it doesn't do.** It leaves the host's attributes in place, so the second node of `FV-F2` stays by reading. It gives no evidence that a screen reader ignores the host, so **the owner's VoiceOver check stays next.**
+- **What it adds here.** It is the element-reference mechanism that the note on `material-x/slider-1` read in three engines, with two parts this entry didn't have: the replace-or-add rule for each name, and the restoring of the control's own references.
+- **Its comment that Playwright and axe read only attributes doesn't hold for `aria-labelledby` in axe-core 4.14.1** ([reading](accessibility-findings-1/checks/axe-ref.txt)). Its changelog entry #177 says that Safari doesn't pass `aria-activedescendant` to VoiceOver when it is set as an element reference. Unverified. No material-x element uses one.
+- **The axe run has only `label`, critical, for this entry,** and its other violation is `RF-132`'s ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt)). The same elements in the Explainer's run over the stories are relayed: 6 checkbox and radio stories.
+
 #### RF-95 — `mx-checkbox` draws no error appearance
 
 Tier A, **open**. It applies once #155 merges, because that unit gives `mx-checkbox` its `error` attribute and `:state(error)`. Registered on 2026-11-22 by the architect, on `repo/register-observations-4`, from [#149](https://github.com/ausginer/material-x/issues/149), relayed by the coordinator. The finding was proposed as `FV-F3` in the [form-validation plan](https://github.com/ausginer/material-x/blob/be7d4c3b5/.plan/form-validation-1/form-validation-plan.md#8-proposed-findings) §8, on `material-x/form-validation-1` at `be7d4c3b5` (#155), not yet on `main`. `RF-94` is the highest `RF-` on any branch on `origin`, so this is the next free number. In the code at `6a67badfd`, the architect confirmed that the token grouping in `checkbox/styles/utils.ts` returns `null` for any token name that has an `error` part.
@@ -5532,6 +5561,75 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `c
 - **Not read:** Safari, screen readers, page-built callers of `useSlot`, and the sizes.
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_.
+
+#### RF-132 — A selected `mx-list-button-item` gives its button `aria-selected`, which the button role doesn't support
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
+
+- **What happens:** axe-core 4.14.1 reports `aria-allowed-attr`, critical, on the inner `<button>` of a selected `mx-list-button-item`, in Chromium, Firefox and WebKit. It reports nothing on an item that was never selected.
+- **Cause:** core's `useSelectable` writes `aria-selected` on its target: `true` while `selected` is set, and `false` when it is removed. Core's own rows assert both.
+- **Who is affected:** `mx-list-button-item` is the only adopter of `useSelectable` in `packages/*/src` (read). `mx-list-link-item` doesn't use it: it writes `aria-current="page"`, which every role supports, and axe reports nothing on it. The `Selectable` trait, which both have for the attribute, writes no ARIA.
+- **Why it is a problem:** no assistive technology has to announce it. Chromium's tree exposes a selected item as a button with the same properties as one that isn't selected (read). Its selection is then only a color and a shape, and in forced colors not those either (`RF-133`).
+- **Required property:** a selected `mx-list-button-item` gives its button no ARIA that the role doesn't support, and says that it is selected, or the record says that the page says it.
+- **The replacement is the architect's ruling, and not the owner's.** The `@ydinjs` packages aren't on the registry, so core's hook can change or go with no compatibility to keep (`CONTRIBUTING.md` §8). The candidates:
+  - **`aria-current="true"` while selected, and no attribute otherwise.** It is the architect's proposal. It is valid on a button, has no unselected value to choose, and the link item writes the same attribute. A page that has several selected items says _current_ for each, and ARIA asks for one in a set.
+  - **`aria-pressed`.** It needs an explicit `false` for an unselected item, which `selected`, a boolean attribute, can't tell from an ordinary action. So the button would change between a toggle and a plain one.
+  - **Nothing written by the component.** The page writes its own `aria-*` on the host, which `useARIA` mirrors.
+- **Interaction:** `RF-130` is about a component's own value on the same control and reads `aria-selected` here. Its row changes with this repair, so the second to land merges the first. `RD-57`'s list names this violation, and the repair removes it there.
+- **Rows:** the rule is gone, and a selected item says what the ruling gives. Core's `selectable.browser.test.ts` changes, or goes with the hook.
+- **Order:** after `RD-57`, or before it with no list to edit. It doesn't wait for `RF-130`.
+- **Not read:** a screen reader, Safari.
+- **Plan needed:** no, only the ruling on the replacement.
+- **Size:** _small_, after the ruling.
+
+#### RF-133 — material-x doesn't adapt to forced colors: a checked, selected or filled element loses what tells it apart
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-132` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, at rest, with Playwright's `forcedColors: 'active'` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [Chromium](accessibility-findings-1/checks/forced-chromium.png), [Firefox](accessibility-findings-1/checks/forced-firefox.png), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
+
+- **Corrected from the proposal:** material-x has forced-colors handling in one place, not none. The ripple draws nothing while the query matches (`ripple.ts` and its stylesheet), and no test of material-x emulates forced colors. The proposal hadn't read the selected radio, the switch buttons, the FAB, the text field, the card, the list or a resting button. They are read here. The [card's reviews](reviews/card-1/checks/forced-colors.txt) and the focus indicators' read forced colors before.
+- **What happens.** Forced colors replace `background-color`, and Material's containers and states are drawn with it.
+
+  | Element | Chromium | Firefox |
+  | --- | --- | --- |
+  | Checkbox, checked or indeterminate | No box, only the mark | The same |
+  | Filled, tonal and elevated button, filled icon button, FAB, split button | No container, no outline. The three buttons are identical to a text button, and the filled icon button to a text one | A container in one color. The three buttons are identical |
+  | `mx-link-button`, filled | No container | No container |
+  | `mx-switch-button`, checked and not | **Identical** | Only the corner shape differs |
+  | `mx-switch-icon-button`, checked and not | **Identical** | **Identical** |
+  | Connected group, the checked button and the other | No containers, so no difference (screenshot) | One color, so only the corners differ (screenshot) |
+  | `mx-list-button-item`, selected and not | **Identical** | Only the corner shape differs |
+  | `mx-list-link-item`, selected and not | **Identical** | **Identical** |
+  | Text field with `error` and without | **Identical** | **Identical** |
+  | Filled and elevated card | No edge, only the text | The same |
+  | Radio, selected and not; outlined button, card and text field; checkbox unchecked | Drawn, and the radio's states differ | The same |
+
+  Identical means the same pixels in the element's box. Each pair differs without forced colors.
+
+- **Why it is a problem:** a user with a high-contrast theme, such as Windows' contrast themes, can't see whether a switch is on, which list item is selected or whether a field has an error, and a checked checkbox has no edge.
+- **Required properties,** for the plan to complete:
+  1. Under forced colors, each state that Material gives an element a different appearance for stays visible without color alone: checked, selected, disabled and error.
+  2. A control keeps a visible edge or container, as it does where its outline is drawn.
+  3. Colors come from system colors. Without the preference nothing changes.
+- **The survey comes first,** on every element and state, and not only at rest: hovered, pressed, focused, disabled, selected radio with each state, multiline and outlined text fields, the split button open, the sortable list while a drag is in flight, and a high-contrast theme in both color schemes. The probe here has 35 elements and states at rest. WebKit's emulation forces no color, so it can't be read there.
+- **The elements that aren't all on `main`:** `mx-card` is on `main` (its outline is read, above). `mx-slider` is on `material-x/slider-1` (#220) and has its own rule, which takes system colors for its parts, with visual rows and a command that emulates forced colors, `emulateForcedColors`. `mx-top-app-bar` is on `material-x/top-app-bar-1` (#211) and has none. The survey starts with the slider's rule, because the package's approach should be one.
+- **Tests** go with it, through the slider's command once it merges.
+- **RTL** is beside it and not in it: `RF-134`.
+- **Order:** after #220 merges, so that its command and its rule are the starting point. It doesn't wait for `RF-132`, whose selection is what a list item's forced-colors row would show.
+- **Not read:** Windows itself, Safari, a real contrast theme. Emulation is Chromium's and Firefox's, and the two don't agree on a button.
+- **Plan needed:** yes, by the architect, after the survey. Nothing is the owner's to answer now.
+- **Size:** _large_.
+
+#### RF-134 — No test covers the button groups in right-to-left text
+
+Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-133` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, by searching `packages/material-x/tests` for `rtl` and `direction`.
+
+- **What is missing:** no row in material-x observes `mx-button-group`, `mx-connected-button-group` or `mx-split-button` under RTL. The sortable list is the only element with one. Core's `useRovingTabindex` has rows for the arrow keys, and no row reads them through a group.
+- **What could break and not be seen:** the connected group's end shapes, the standard group's neighbors that widen when one is pressed, and the roving order. By reading, the standard group's `padding-inline` follows the direction, and `LEADING`/`TRAILING` props are logical.
+- **Required property:** in RTL, the first button of a group has its outer corners at the inline start, the press widens toward the correct side, and the arrow keys follow what is seen.
+- **Rows,** in each engine at `RD-20`'s floor: the connected group's corners, the standard group's press and the arrow keys, for `dir` on the group and on an ancestor. **Witness:** a deliberate reversal of the mapping fails them.
+- **Other elements:** the slider and the top app bar have RTL rows on their branches. Which of the rest need them is the survey's to say (`RF-133`), because both are per-element sweeps. This entry covers the groups only.
+- **Order:** it waits for nothing.
+- **Plan needed:** no. **Size:** _medium_.
 
 ## Questions
 

@@ -1,0 +1,93 @@
+// Run from packages/material-x, with the package builds made, on eddf39e7b:
+//   AXE=<path of axe-core 4.14.1's axe.js> OUT=<directory> node a11y.mjs
+// Two readings of the elements on this page, through Vite's dev transform:
+//   axe: axe-core's violations, in the three engines, with the rule id and the target.
+//   forced: for each element, the colours of its box in a screenshot, without and
+//   with forced colours emulated (Chromium, Firefox). WebKit has no emulation.
+import { createRequire } from 'node:module';
+const require = createRequire(`${process.cwd()}/package.json`);
+const { createServer } = await import(require.resolve('vite').replace(/index\.cjs$/, 'dist/node/index.js'));
+const playwright = require('playwright');
+const MODULES = ['button/button', 'button/link-button', 'button/icon-button', 'button/split-button', 'button/switch-button', 'button/switch-icon-button', 'button-group/button-group', 'button-group/connected-button-group', 'card/card', 'checkbox/checkbox', 'radio/radio', 'fab/fab', 'icon/icon', 'list/list', 'list/list-item', 'list/list-button-item', 'list/list-link-item', 'text-field/text-field', 'text-field/multiline-text-field'];
+const row = (id, html) => `<div class=row><div class=cell data-name="${id}">${html}</div></div>`;
+const BODY = [
+  ['button filled', '<mx-button>Go</mx-button>'],
+  ['button elevated', '<mx-button color=elevated>Go</mx-button>'],
+  ['button tonal', '<mx-button color=tonal>Go</mx-button>'],
+  ['button outlined', '<mx-button color=outlined>Go</mx-button>'],
+  ['button text', '<mx-button color=text>Go</mx-button>'],
+  ['button disabled', '<mx-button disabled>Go</mx-button>'],
+  ['link-button', '<mx-link-button href="#x">Go</mx-link-button>'],
+  ['icon-button filled', '<mx-icon-button aria-label=Edit>E</mx-icon-button>'],
+  ['icon-button outlined', '<mx-icon-button color=outlined aria-label=Edit>E</mx-icon-button>'],
+  ['icon-button text', '<mx-icon-button color=text aria-label=Edit>E</mx-icon-button>'],
+  ['switch-button off', '<mx-switch-button>On</mx-switch-button>'],
+  ['switch-button on', '<mx-switch-button checked>On</mx-switch-button>'],
+  ['switch-icon-button off', '<mx-switch-icon-button aria-label=Like>L</mx-switch-icon-button>'],
+  ['switch-icon-button on', '<mx-switch-icon-button checked aria-label=Like>L</mx-switch-icon-button>'],
+  ['fab', '<mx-fab aria-label=Add>A</mx-fab>'],
+  ['connected group', '<mx-connected-button-group aria-label=View value=a><mx-switch-button value=a>A</mx-switch-button><mx-switch-button value=b>B</mx-switch-button></mx-connected-button-group>'],
+  ['split-button', '<mx-split-button>Go</mx-split-button>'],
+  ['checkbox off', '<mx-checkbox aria-label=C></mx-checkbox>'],
+  ['checkbox on', '<mx-checkbox checked aria-label=C></mx-checkbox>'],
+  ['checkbox indeterminate', '<mx-checkbox indeterminate aria-label=C></mx-checkbox>'],
+  ['checkbox disabled on', '<mx-checkbox checked disabled aria-label=C></mx-checkbox>'],
+  ['radio off', '<mx-radio aria-label=R name=r value=1></mx-radio>'],
+  ['radio on', '<mx-radio checked aria-label=R name=q value=1></mx-radio>'],
+  ['text-field filled', '<mx-text-field value=v><span slot=label>Name</span></mx-text-field>'],
+  ['text-field outlined', '<mx-text-field outlined value=v><span slot=label>Name</span></mx-text-field>'],
+  ['text-field error', '<mx-text-field error value=v><span slot=label>Name</span></mx-text-field>'],
+  ['text-field disabled', '<mx-text-field disabled value=v><span slot=label>Name</span></mx-text-field>'],
+  ['card filled', '<mx-card>Card</mx-card>'],
+  ['card elevated', '<mx-card variant=elevated>Card</mx-card>'],
+  ['card outlined', '<mx-card variant=outlined>Card</mx-card>'],
+  ['list item', '<mx-list><mx-list-item>Item</mx-list-item></mx-list>'],
+  ['list button item', '<mx-list><mx-list-button-item>Item</mx-list-button-item></mx-list>'],
+  ['list button item selected', '<mx-list><mx-list-button-item selected>Item</mx-list-button-item></mx-list>'],
+  ['list link item', '<mx-list><mx-list-link-item href="#x">Item</mx-list-link-item></mx-list>'],
+  ['list link item selected', '<mx-list><mx-list-link-item href="#x" selected>Item</mx-list-link-item></mx-list>'],
+].map(([n, h]) => row(n, h)).join('\n');
+const HTML = `<!doctype html><html lang=en><title>Probe</title><style>@font-face{font-family:'Material Symbols Outlined';src:url(/tests/support/fonts/material-symbols-subset.ttf)}body{margin:0;font:16px sans-serif}main{display:grid;grid-template-columns:repeat(4,300px)}.row{block-size:88px;display:grid;place-items:center}.cell{max-inline-size:280px}</style><body><main><h1 style="grid-column:1/-1;font-size:12px">Probe</h1>${BODY}</main>${MODULES.map((m) => `<script type=module src="/src/${m}.ts"></script>`).join('')}`;
+const server = await createServer({ root: process.cwd(), configFile: `${process.cwd()}/vite.config.ts`, logLevel: 'error', server: { port: 5998 } });
+await server.listen();
+const top = (colors) => colors.map(([c, n]) => `${c}×${n}`).join(' ');
+for (const engine of ['chromium', 'firefox', 'webkit']) {
+  const b = await playwright[engine].launch();
+  for (const forced of engine === 'webkit' ? [false] : [false, true]) {
+    const p = await b.newPage({ viewport: { width: 1200, height: 900 }, ...(forced && { forcedColors: 'active' }) });
+    p.on('pageerror', (e) => console.log('PAGE ERROR', e.message));
+    await p.route('**/probe.html', (r) => r.fulfill({ contentType: 'text/html', body: HTML }));
+    await p.goto('http://localhost:5998/probe.html');
+    for (const tag of new Set([...BODY.matchAll(/<(mx-[a-z-]+)/g)].map((m) => m[1]))) await p.waitForFunction((t) => customElements.get(t), tag, { timeout: 90000 });
+    await p.evaluate(() => document.fonts.load('24px "Material Symbols Outlined"'));
+    await p.waitForTimeout(800);
+    if (!forced) {
+      await p.addScriptTag({ path: process.env.AXE });
+      const { violations, version } = await p.evaluate(async () => { const r = await window.axe.run(); return { violations: r.violations, version: window.axe.version }; });
+      console.log(`\n## axe-core ${version}, ${engine} ${b.version()}`);
+      for (const v of violations) for (const n of v.nodes) console.log(`${v.id} (${v.impact}) ${JSON.stringify(n.target)} ${n.html.slice(0, 110)}`);
+    }
+    if (engine === 'chromium' && !forced) {
+      const cdp = await p.context().newCDPSession(p);
+      console.log('\n## Chromium\'s accessibility tree: buttons and links, with their properties');
+      for (const n of (await cdp.send('Accessibility.getFullAXTree')).nodes) if (['button', 'link', 'switch'].includes(n.role?.value)) console.log(n.role.value, JSON.stringify(n.name?.value), (n.properties ?? []).filter((q) => !['focusable', 'settable', 'url'].includes(q.name)).map((q) => `${q.name}=${q.value.value}`).join(' '));
+    }
+    if (engine !== 'webkit') {
+      const png = (await p.screenshot({ path: `${process.env.OUT}/${engine}${forced ? '-forced' : ''}.png`, fullPage: true })).toString('base64');
+      const read = await p.evaluate(async (data) => {
+        const img = new Image(); img.src = `data:image/png;base64,${data}`; await img.decode();
+        const c = new OffscreenCanvas(img.width, img.height).getContext('2d'); c.drawImage(img, 0, 0);
+        return [...document.querySelectorAll('.cell')].map((cell) => {
+          const r = cell.getBoundingClientRect(); const d = c.getImageData(Math.round(r.x + scrollX), Math.round(r.y + scrollY), Math.round(r.width), Math.round(r.height)).data; const m = new Map(); let h = 0; for (const v of d) h = (Math.imul(h, 31) + v) | 0;
+          for (let i = 0; i < d.length; i += 4) { const k = `${d[i]},${d[i + 1]},${d[i + 2]}`; m.set(k, (m.get(k) ?? 0) + 1); }
+          return [cell.dataset.name, `${Math.round(r.width)}x${Math.round(r.height)}`, [...m].sort((x, y) => y[1] - x[1]).slice(0, 4), (h >>> 0).toString(16)];
+        });
+      }, png);
+      console.log(`\n## ${forced ? 'forced colours' : 'no emulation'}, ${engine} ${b.version()}: size, hash of the pixels, the four most frequent colours`);
+      for (const [n, size, colors, hash] of read) console.log(`${n} ${size} #${hash}: ${top(colors)}`);
+    }
+    await p.close();
+  }
+  await b.close();
+}
+await server.close(); process.exit(0);
