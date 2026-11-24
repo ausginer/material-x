@@ -1,0 +1,150 @@
+# chromium 158.0.8127.18
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 21; flight 40 frames, 21 to 650 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (13 to 13 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 9, removed 9, placed 9, removed 27; flight 40 frames, 29 to 679 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 7 (11 to 105 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 10, removed 10, placed 10, removed 123; flight 40 frames, 123 to 771 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 31 (4 to 501 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 3, removed 4, placed 4, removed 514, placed 514, removed 514; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 12, placed 12, removed 12; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 2 (6 to 18 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 29; flight 39 frames, 34 to 668 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 14; flight 40 frames, 15 to 663 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 10, removed 10, placed 10, removed 22; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 2 (8 to 22 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 8, removed 8, placed 8, removed 34; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 7 (13 to 106 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 12, removed 12, placed 12, removed 127; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (13 to 496 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 509, placed 509, removed 509; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 11, removed 11, placed 11, removed 11, placed 11, removed 12; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (9 to 9 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 5, removed 5, placed 5, removed 26; flight 0 frames; at rest item 156 next 98
+# chromium 158.0.8127.18
+with @keyframes fi { from { opacity: 0 } } ::slotted([data-drag-placeholder]) { animation: fi 200ms linear }
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 11, removed 11, placed 11, removed 20; flight 40 frames, 20 to 656 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 2 (14 to 20 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 14, removed 14, placed 14, removed 36; flight 39 frames, 36 to 672 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 7 (10 to 107 ms, at 156, opacity up to 0.080, lifted item at 98, next at 98); marks placed 10, removed 10, placed 10, removed 120; flight 39 frames, 124 to 757 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (13 to 496 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 510, placed 510, removed 510; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 12, placed 12, removed 12; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (16 to 16 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 16, removed 16, placed 16, removed 64; flight 38 frames, 68 to 655 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 35; flight 41 frames, 41 to 687 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 8, removed 8, placed 8, removed 15; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (15 to 15 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 9, removed 9, placed 9, removed 31; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 7 (6 to 101 ms, at 156, opacity up to 0.080, lifted item at 98, next at 98); marks placed 5, removed 5, placed 5, removed 126; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 31 (9 to 506 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 8, removed 8, placed 8, removed 517, placed 517, removed 517; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 14, removed 14, placed 14, removed 14, placed 14, removed 14; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (11 to 11 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 28; flight 0 frames; at rest item 156 next 98
+# chromium 158.0.8127.18
+with ::slotted([data-drag-placeholder]) { transition: opacity 200ms linear; } @starting-style { ::slotted([data-drag-placeholder]) { opacity: 0 } }
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 10, removed 10, placed 10, removed 17; flight 39 frames, 17 to 648 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 2 (8 to 21 ms, at 156, opacity up to 0.013, lifted item at 98, next at 98); marks placed 8, removed 8, placed 8, removed 33; flight 39 frames, 37 to 671 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (11 to 94 ms, at 156, opacity up to 0.067, lifted item at 98, next at 98); marks placed 5, removed 5, placed 5, removed 114; flight 39 frames, 114 to 744 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 31 (23 to 510 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 23, removed 23, placed 23, removed 525, placed 525, removed 525; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 12, placed 12, removed 12; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (12 to 12 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 5, removed 5, placed 5, removed 31; flight 39 frames, 32 to 662 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 13; flight 40 frames, 15 to 658 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 14, removed 14, placed 14, removed 24; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (11 to 11 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 25; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (7 to 90 ms, at 156, opacity up to 0.067, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 119; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 31 (7 to 504 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 510, placed 510, removed 510; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 9, removed 9, placed 9, removed 9, placed 9, removed 9; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (12 to 12 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 8, removed 8, placed 8, removed 23; flight 0 frames; at rest item 156 next 98
+# firefox 159.0
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 8, removed 8, placed 8, removed 15; flight 40 frames, 16 to 658 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 0; marks placed 7, removed 7, placed 7, removed 17; flight 40 frames, 17 to 660 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (7 to 92 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 113; flight 39 frames, 113 to 742 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (14 to 495 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 505, placed 505, removed 505; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 10, removed 10, placed 10, removed 10, placed 10, removed 10; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (8 to 8 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 19; flight 40 frames, 19 to 666 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 10; flight 39 frames, 16 to 650 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 7, removed 7, placed 7, removed 14; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (5 to 5 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 4, removed 4, placed 4, removed 11; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (13 to 95 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 111; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (6 to 492 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 5, removed 5, placed 5, removed 506, placed 506, removed 506; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 12, placed 12, removed 12; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (10 to 10 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 8, removed 8, placed 8, removed 18; flight 0 frames; at rest item 156 next 98
+# firefox 159.0
+with @keyframes fi { from { opacity: 0 } } ::slotted([data-drag-placeholder]) { animation: fi 200ms linear }
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 7, removed 7, placed 7, removed 14; flight 40 frames, 14 to 650 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 0; marks placed 9, removed 10, placed 10, removed 28; flight 38 frames, 28 to 644 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 7 (8 to 99 ms, at 156, opacity up to 0.080, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 115; flight 40 frames, 116 to 765 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (14 to 497 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 8, removed 8, placed 8, removed 510, placed 510, removed 510; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 11, removed 11, placed 11, removed 11, placed 11, removed 11; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (11 to 11 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 9, removed 9, placed 9, removed 25; flight 39 frames, 25 to 652 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 12; flight 39 frames, 18 to 651 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 22; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (8 to 8 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 22; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (7 to 89 ms, at 156, opacity up to 0.067, lifted item at 98, next at 98); marks placed 6, removed 6, placed 7, removed 112; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (23 to 505 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 22, removed 22, placed 22, removed 517, placed 517, removed 517; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 7, removed 8, placed 8, removed 8, placed 8, removed 8; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 0; marks placed 7, removed 7, placed 7, removed 19; flight 0 frames; at rest item 156 next 98
+# firefox 159.0
+with ::slotted([data-drag-placeholder]) { transition: opacity 200ms linear; } @starting-style { ::slotted([data-drag-placeholder]) { opacity: 0 } }
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 9, removed 9, placed 9, removed 20; flight 40 frames, 20 to 658 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 0; marks placed 7, removed 7, placed 7, removed 17; flight 40 frames, 17 to 657 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (7 to 90 ms, at 156, opacity up to 0.067, lifted item at 98, next at 98); marks placed 5, removed 5, placed 5, removed 114; flight 39 frames, 114 to 739 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 31 (13 to 503 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 12, removed 12, placed 12, removed 515, placed 515, removed 515; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 8, removed 9, placed 9, removed 9, placed 9, removed 9; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 0; marks placed 4, removed 4, placed 4, removed 7; flight 40 frames, 7 to 658 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 8; flight 40 frames, 13 to 656 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 10, removed 10, placed 10, removed 30; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (12 to 12 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 10, removed 10, placed 10, removed 31; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 6 (11 to 94 ms, at 156, opacity up to 0.066, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 114; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 30 (9 to 491 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 6, removed 6, placed 6, removed 505, placed 505, removed 505; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 7, removed 8, placed 8, removed 8, placed 8, removed 8; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (6 to 6 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 4, removed 4, placed 4, removed 12; flight 0 frames; at rest item 156 next 98
+# webkit 27.2
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 12, removed 12, placed 12, removed 21; flight 36 frames, 23 to 660 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (29 to 29 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 25, removed 25, placed 25, removed 48; flight 33 frames, 55 to 698 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 5 (13 to 92 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 10, removed 10, placed 10, removed 117; flight 36 frames, 119 to 749 ms, item 101 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 26 (21 to 506 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 17, removed 17, placed 17, removed 529, placed 529, removed 529; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 20, removed 20, placed 20, removed 20, placed 20, removed 20; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (12 to 12 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 9, removed 9, placed 9, removed 27; flight 40 frames, 46 to 695 ms, item 98 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 26; flight 34 frames, 30 to 649 ms, item 153 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 34, removed 34, placed 34, removed 49; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (18 to 18 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 14, removed 15, placed 15, removed 32; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 5 (19 to 103 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 15, removed 16, placed 16, removed 120; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 27 (12 to 495 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 9, removed 9, placed 9, removed 517, placed 517, removed 517; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 22, removed 22, placed 23, removed 23, placed 23, removed 23; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (21 to 21 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 17, removed 17, placed 17, removed 43; flight 0 frames; at rest item 156 next 98
+# webkit 27.2
+with @keyframes fi { from { opacity: 0 } } ::slotted([data-drag-placeholder]) { animation: fi 200ms linear }
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 24, removed 24, placed 24, removed 40; flight 27 frames, 46 to 686 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (18 to 18 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 13, removed 13, placed 13, removed 35; flight 35 frames, 38 to 672 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 3 (10 to 91 ms, at 156, opacity up to 0.065, lifted item at 98, next at 98); marks placed 7, removed 7, placed 7, removed 117; flight 32 frames, 120 to 742 ms, item 102 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 21 (21 to 503 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 16, removed 16, placed 16, removed 532, placed 532, removed 532; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 20, removed 20, placed 20, removed 20, placed 20, removed 20; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (24 to 24 ms, at 156, opacity up to 0.017, lifted item at 98, next at 98); marks placed 17, removed 17, placed 18, removed 53; flight 29 frames, 103 to 692 ms, item 113 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 13; flight 33 frames, 17 to 642 ms, item 152 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 20, removed 20, placed 20, removed 33; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (26 to 26 ms, at 156, opacity up to 0.026, lifted item at 98, next at 98); marks placed 22, removed 22, placed 22, removed 42; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 2 (21 to 91 ms, at 156, opacity up to 0.057, lifted item at 98, next at 98); marks placed 17, removed 17, placed 17, removed 128; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 22 (20 to 505 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 15, removed 15, placed 15, removed 521, placed 521, removed 521; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 19, removed 19, placed 19, removed 19, placed 19, removed 19; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (18 to 18 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 12, removed 13, placed 13, removed 32; flight 0 frames; at rest item 156 next 98
+# webkit 27.2
+with ::slotted([data-drag-placeholder]) { transition: opacity 200ms linear; } @starting-style { ::slotted([data-drag-placeholder]) { opacity: 0 } }
+## no preference
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 11, removed 11, placed 11, removed 20; flight 37 frames, 22 to 670 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (16 to 16 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 13, removed 13, placed 13, removed 30; flight 32 frames, 35 to 656 ms, item 98 to 156, next at 98; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 3 (22 to 94 ms, at 156, opacity up to 0.078, lifted item at 98, next at 98); marks placed 16, removed 16, placed 16, removed 133; flight 33 frames, 138 to 757 ms, item 105 to 156, next at 98; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 23 (16 to 500 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 12, removed 12, placed 12, removed 518, placed 518, removed 518; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 30, removed 30, placed 30, removed 30, placed 30, removed 30; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 1 (25 to 25 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 18, removed 19, placed 19, removed 47; flight 31 frames, 112 to 693 ms, item 116 to 156, next at 98; at rest item 156 next 98
+pointer drop, in the handler, after the release: frames with a placeholder 0; marks removed 19; flight 34 frames, 24 to 641 ms, item 153 to 156, next at 98; at rest item 156 next 98
+## prefers-reduced-motion: reduce
+key, in the handler (insertBefore) (Starred): frames with a placeholder 0; marks placed 18, removed 18, placed 18, removed 31; flight 0 frames; at rest item 156 next 98
+key, in the next task (setTimeout 0) (Starred): frames with a placeholder 1 (17 to 17 ms, at 156, opacity up to 0.000, lifted item at 98, next at 98); marks placed 13, removed 13, placed 13, removed 30; flight 0 frames; at rest item 156 next 98
+key, after 100 ms (Starred): frames with a placeholder 3 (15 to 83 ms, at 156, opacity up to 0.054, lifted item at 98, next at 98); marks placed 11, removed 11, placed 11, removed 117; flight 0 frames; at rest item 156 next 98
+key, never (Starred): frames with a placeholder 22 (31 to 518 ms, at 156, opacity up to 0.160, lifted item at 98, next at 98); marks placed 26, removed 26, placed 26, removed 533, placed 533, removed 533; flight 0 frames; at rest item 98 next 156
+key, rejected (Starred): frames with a placeholder 0; marks placed 24, removed 24, placed 24, removed 24, placed 24, removed 24; flight 0 frames; at rest item 98 next 156
+key, React state, as the story does it (Starred): frames with a placeholder 0; marks placed 6, removed 6, placed 6, removed 15; flight 0 frames; at rest item 156 next 98

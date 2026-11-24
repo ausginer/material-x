@@ -4353,6 +4353,8 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Ready** for an implementer.
 - **Size:** _medium_.
 
+**Dated 2026-11-24 by the architect:** the list items are an exception. Their set has an offset of its own, so their rows are `RF-125`'s and compare with `md.comp.list`.
+
 #### RF-91 — No visual contract covers the connected button group's between space or its outer corners
 
 Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#button-groups)'s reviewer's task 10 (`RD-34`), relayed by the coordinator. `RF-90` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -5130,6 +5132,102 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Order:** it depends on nothing. `RF-94`'s plan may replace the mirror for some components. Until it does, this repair stands by itself.
 - **Not read:** Safari, and what a screen reader says.
 - **Ready** for an implementer. Nothing is left to decide. The source change is in core alone.
+- **Size:** _small_.
+
+#### RF-125 — A list item's focus indicator takes the shared offset and not the list's own, so the next item covers it
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's first observation of that day about the sortable list, in chat with a screenshot, relayed by the coordinator: _"Outline скрыт нижним элементом"_ ("The outline is hidden by the element below"). `RF-124` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `114270083`, on the built elements, in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
+
+- **What happens:** the block end of the outline is covered in each list, `mx-list` and `mx-sortable-list`, for each item, static, button and link, when another item follows. 834 to 838 of its 863 to 871 pixels are covered (96 %). The last item's is whole. The other three sides are whole. A disabled and a selected neighbor cover it too. A lifted item's is whole, because it is in the top layer ([screenshot](sortable-observations-1/checks/lifted-chromium.png)). By reading, one in flight is too, because `landing()` raises it, and it is cut when the flight ends.
+- **Cause:** the outline is 3px wide and 2px outside the item, and the gap between items is 2px. Each item's box is positioned, so a later one paints over an earlier one's outline.
+- **Why it is the wrong place:** `md.comp.list.focus.indicator.outline.offset` is `md.sys.state.focus-indicator.inner-offset`, **−3px**. It is the only set in the store with an inner offset: each other set that has the token refers to `outer-offset`. The list item's allow-list names `focus-indicator.color`, `.outline.offset` and `.thickness`, with a hyphen, and the grouper gives `focus.indicator.…`. So none is selected, and the item's package renders no line of them (read). The shared sheet, with `focusTokens` and its 2px, is the only source.
+- **With −3px** nothing is covered in any of the 25 cases, in the three engines, and the outline lies inside the item, where `md.comp.list` puts it.
+- **Required properties:**
+  1. The focus indicator of `mx-list-item`, `mx-list-button-item` and `mx-list-link-item` has the thickness, offset and color of `md.comp.list.focus.indicator.*`.
+  2. No sibling covers any pixel of it, in either list.
+- **Direction:** the allow-list names the tokens as the grouper gives them. The items stop taking the shared sheet's offset, whose variables are adopted after the item's own and would win. It is in `list/styles` and the items' sheets, and nothing else.
+- **Rows,** `spec`, in each engine: the three values against the list's package for each kind of item, and the block end's pixels with a next item of each kind. **Witness:** the offset row fails before the repair.
+- **Merges with** `RF-71`, which changes the items' sheets, and `RF-84`.
+- **Nothing is the owner's to answer.** The specification's value is the repair.
+- **Ready** for an implementer. **The owner approved the start on 2026-11-24,** in chat, relayed by the coordinator: _"1) 👍"_.
+- **Size:** _small_.
+
+#### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
+
+- **What happens:** in `mx-connected-button-group`, with buttons or switch buttons, the next button covers 80 % (89 to 91 of 111 pixels) of the outline's inline end. In `mx-split-button` it covers 53 % (92 of 172 to 174). Neighbors cover part of it because the gap is 2px and the outline reaches 5px out. The token is the button's own and refers to `outer-offset`, so the offset is right here, unlike in `RF-125`. `mx-button-group` has a wider gap, and nothing is covered.
+- **The same with a page's own layout:** buttons, checkboxes, radios and FABs that a page puts closer than 5px cover each other's indicator, as two native elements with an outline do. That is the page's, and it isn't part of this entry.
+- **Required property:** in a connected group and a split button, no button of the same group covers a pixel of a focused button's indicator. Outside the group, stacking is unchanged: nothing of the page is covered by a focused button that it wasn't covered by.
+- **Direction:** the focused button's `.host` is raised above its siblings, inside a stacking context that the group makes. With `.host:focus-visible { z-index: 1 }` on the button, nothing is covered in the connected group in the three engines (read). Without the group's own stacking context it would also rise above the page's, so the group needs one. Not read: the split button, the context, and the ripple.
+- **Rows,** `spec`, in each engine: the pixels of the indicator at the inner edge of each kind of button in each group. **Witness:** each row fails before the repair.
+- **Nothing is the owner's to answer.** **Ready** for an implementer. **The owner approved the start on 2026-11-24,** with `RF-125`: _"1) 👍"_.
+- **Size:** _small_.
+
+#### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's second observation of that day, relayed by the coordinator: _"При управлении с клавиатуры на мгновение появляется placeholder, a затем немедленно исчезает, и элемент просто перемещается на его место"_ ("When controlled from the keyboard, a placeholder appears for a moment, then disappears at once, and the item simply moves to its place"). Read at `114270083` on the built elements, frame by frame, in Chromium, Firefox and WebKit, with the preference and without ([readings](sortable-observations-1/checks/keyboard-move.txt), [probe](sortable-observations-1/probes/keyboard-move.mjs)).
+
+- **What happens:** an arrow key makes a whole operation. The item is lifted at its home (top layer), the placeholder is inserted and moved to the destination, and the neighbor takes the item's old slot under the lifted item. The consumer's commit then ends it, and the item flies from its old slot to its new one for 650 ms, with the placeholder gone. So the footprint lasts exactly as long as the commit. The runs are three stylesheets, two preferences and three engines, and the sheets don't change the number of frames:
+
+  | Commit | Frames with the footprint |
+  | --- | --- |
+  | In the `reorder` handler, with `insertBefore` | 0 |
+  | In the next task (`setTimeout`) | 1 in 12 of 18 runs, 2 in three (Chromium), 0 in three (Firefox) |
+  | **React state, as the story does it** | **1 in 14 of 18 runs, 2 in one, 0 in three** |
+  | After 100 ms | 5 to 7, and 2 to 5 in WebKit |
+  | Never | all of 500 ms, in which the lifted item lies on its neighbor |
+  | Rejected, in the handler | 0 |
+
+  The flight's target is right: after the release the item's layout is at its destination, and a pointer drop ends the same way. Under `reduce` the flight has zero duration, as `RF-107` asks, and the footprint's frame stays.
+
+- **Cause:** the footprint is material-x's style of drag's placeholder (`::slotted([data-drag-placeholder])`, color and opacity), shown from the first frame. A pointer drag shows it because it is where the item will land. A command commits at once, so it appears only for the render between the event and the commit. React's update is a task after a custom event's handler, and the documentation allows a commit _"in a later render"_. So it isn't the story's fault, though committing synchronously (`flushSync`) hides it.
+- **Not drag's:** its contract makes the placeholder for the whole operation, unstyled, and its own stories commit with `flushSync`. Nothing there is wrong, and `DRF-56` isn't minted.
+- **What the contract and the specification say:** `RD-31` property 4 has the placeholder with _"today's footprint style"_, and the keyboard as _"moves the item one slot at once"_ and proposes it. It doesn't say what a command shows. Material's list pages (guidelines, accessibility, specs; rendered in Chromium on 2026-11-24) don't describe a reorder, by pointer or by keyboard. Only the token set has `reorder` tokens.
+- **Why it is a problem:** a gray box flashes, which reads as a glitch. A slow commit also shows the item lying on its neighbor for its whole duration.
+- **Answered by the owner on 2026-11-24,** in chat, relayed by the coordinator: **(a)**. _"2) (а) и вопрос: это изменение в drag?"_ ("(a), and a question: is this a change in drag?"). It isn't: the change is material-x's alone, and drag gets nothing. A signal from drag would be a separate decision.
+- **Required properties:**
+  1. a key move paints no footprint, however long the commit takes;
+  2. the flight stays as it is, and so does a pointer drag's footprint. Reduced motion behaves as `RF-107` says.
+- **The question as asked, Q1 — what should a keyboard move show?**
+  - **(a) No footprint for a keyboard move. The flight stays. Recommended. Chosen:** the flight already shows where the item went. Nothing changes for the pointer, and it doesn't wait for a timing. With a slow commit the list shows an empty slot and the lifted item. It costs that the list tells a command from a pointer drag by itself (below).
+  - **(b) The footprint fades in, by a transition on opacity.** Read: with 200 ms, the footprint's frames in the story's commit and the next task's have an opacity of at most 0.026, and not 0.16, in the three engines, by `@keyframes` or by `@starting-style`, and a slow commit still shows the footprint. It needs nothing from drag. It costs that a pointer drag's footprint fades in again at each slot, because drag re-inserts the placeholder to move it. That part wasn't drawn.
+  - (c) No footprint and no flight: the item jumps, as with `reduce`. The user has to find it.
+  - (d) The placeholder stays as it is.
+- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`.
+- **How the list tells a command, settled by the architect on 2026-11-24:** by the run of its own callbacks, and not by a key. A command's drop follows `onStart` synchronously (drag's contract, _Consistency_), and the session asks for the verdict in the same pass, so `onStart` and `onReorder` are one run with no microtask between them. A pointer drag's `onStart` is in a `pointermove` and its `onReorder` in the `pointerup`. Read with real input in the three engines: a microtask queued in `onStart` hasn't run at a command's `onReorder` and has at a pointer drop's, also when the drop follows a single move ([reading](sortable-observations-1/checks/command-or-pointer.txt), [probe](sortable-observations-1/probes/command-or-pointer.mjs)).
+  1. `onStart` marks the operation as new, and a microtask ends the mark. `onReorder`, if the mark still holds, sets the list's state that hides the footprint, before it dispatches `reorder`. No `keydown` is listened to.
+  2. The state is cleared at `onEnd`, and at the list's disconnect, because a destruction calls no `onEnd`. The placeholder is removed at the operation's release, before `onEnd`, so it doesn't show again.
+  3. **A key that starts no command sets nothing,** because it reaches no `onStart`: a key at the edge, a key that isn't an arrow, one that drag declines, one inside `data-drag-ignore`, and one that goes to a handle-less item's other controls. A cancel between the two callbacks calls no `onReorder` and sets nothing. So the state can't outlive a key.
+  4. The placeholder keeps its size and place. Only its painting is hidden, and nothing else of the operation changes.
+  5. **Limit:** `pointermove` and `pointerup` that a script dispatches in one run are taken for a command, and the footprint is hidden while that commit is pending. No real input does this.
+- **Not adopted:** a captured `keydown`. A key whose command is declined leaves nothing to clear it, and a microtask set in a capture listener runs before drag's bubble listener does.
+- **Plan needed:** no.
+- **Rows,** in each engine: a key with a React commit, a commit after 100 ms, and a refused one paint no footprint in any frame. A pointer drag does, in the drag and while its commit is pending. **Witness:** the first two fail before the repair. After a key at the edge and after one that drag declines (`data-drag-ignore`), the next pointer drag has its footprint. After a key move that is accepted, refused, or timed out after 500 ms, and after the list is disconnected during its commit and connected again, the next pointer drag has it too. **Witness:** without clearing at `onEnd`, and without clearing at the disconnect, each of its rows fails.
+- **Ready** for an implementer.
+- **Merges with** `RF-118`, which moves the hook's code. The second to land takes the first's lines.
+- **Seen, and not registered:** the footprint's color and opacity are the list item's `dragged` state layer, which the token set describes as _"baseline only"_: expressive lists use the `reorder` tokens, such as `reorder.list-item.drop-zone.color` and `reorder.list-item.container.color`. No rule reads them, apart from the shadow's color. `RD-31` fixed today's style, so it is the owner's to raise.
+- **Size:** _small_.
+
+#### RF-128 — A handle shows the browser's focus indicator, and not Material's
+
+Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
+
+- **Whose element:** the consumer's, in the item's `lead` or `trail` slot. In a sortable list the package makes it a button: `sortItem` writes its `tabindex`, `role="button"`, name, description and `touch-action`.
+- **What draws it:** the browser. Nothing in the package or the story has a rule for it, and the computed outline is `auto`, 1px in Chromium and Firefox and 3px in WebKit, in the engine's color. That is the same for `mx-icon`, a `span` and a native `button`. A `mx-icon-button` as a handle already draws Material's, on its inner button.
+- **What says what it should be:** `RD-31` property 4 makes the handle focusable and names it, and is silent on its indicator. Material has no handle in its list pages. Every control of the package draws the system's focus indicator: 3px, `md.sys.color.secondary`, 2px outside.
+- **Why it matters, and how little:** focus is visible today, so nothing is inaccessible. A button that the package makes looks unlike every other control, and like three things in the three engines.
+- **Required property:** a focused handle that the list made a button shows Material's focus indicator, and a page's own rule on it still wins.
+- **Candidate read:** `::slotted([data-handle]:focus-visible)` in the item's sheet. In the three engines, on static and button items, it draws the indicator on `mx-icon`, `span` and `button`, a page rule on the handle wins over it, and `* { outline: 0 }` removes it, as it removes the browser's. `mx-icon-button` is unchanged, with one indicator. An `!important` outline isn't taken: the handle is the consumer's element.
+- **Answered by the owner on 2026-11-24,** in chat, relayed by the coordinator: **(a)**. _"3) (a)"_.
+- **The question as asked, Q1 — who owns the handle's indicator?**
+  - **(a) The package draws it, by that rule. Recommended. Chosen:** the package makes the handle a button, so the button looks like its buttons, whatever the consumer used. It costs one rule in each item's sheet, not measured, also for a plain `mx-list`, and a focusable `[data-handle]` that a consumer puts there takes it.
+  - (b) The documentation says that the handle keeps the browser's indicator, and how to style it: `mx-sortable-list [data-handle]:focus-visible { outline: … }` works today (read). It costs nothing, and each consumer does it or doesn't.
+  - (c) The story styles its own handle only, so the Storybook looks right and a consumer's doesn't.
+  - (d) Nothing changes.
+- **Rows,** `spec`, in each engine: the outline of a focused handle in each slot and each kind of item against `focusTokens`, and a page's rule winning. **Witness:** the outline row fails before the repair.
+- **Not read:** an `mx-icon-button` handle's accessible nodes, where the host also has `role="button"`.
+- **Plan needed:** no. **Ready** for an implementer. The rule is adopted in the items' sheets, and takes the values of the shared `focusTokens`, 2px outside. `RF-125` gives the item's own variables the list's −3px, and both are on the item's `:host`, so the handle's offset needs a variable of its own. The two can land in either order.
 - **Size:** _small_.
 
 ## Questions
