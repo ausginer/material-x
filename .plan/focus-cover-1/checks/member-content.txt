@@ -1,0 +1,49 @@
+Read on the elements built from 9c1834b30, the head of #245 (d3961f63a adds records only).
+# chromium 158.0.8127.18
+as on main | a badge with z-index 1 on the first member's corner | at rest 1202, with keyboard focus 1202
+as on main | a badge with z-index 2 on the first member's corner | at rest 1202, with keyboard focus 1202
+as on main | a badge with z-index 1 on the focused member's corner | at rest 1202, with keyboard focus 1202
+as on main | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 1600
+as on main | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 0
+the member raised (built) | a badge with z-index 1 on the first member's corner | at rest 1202, with keyboard focus 768
+the member raised (built) | a badge with z-index 2 on the first member's corner | at rest 1202, with keyboard focus 1202
+the member raised (built) | a badge with z-index 1 on the focused member's corner | at rest 1202, with keyboard focus 1202
+the member raised (built) | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 640
+the member raised (built) | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 31
+the indicator alone raised | a badge with z-index 1 on the first member's corner | at rest 1202, with keyboard focus 944
+the indicator alone raised | a badge with z-index 2 on the first member's corner | at rest 1202, with keyboard focus 1202
+the indicator alone raised | a badge with z-index 1 on the focused member's corner | at rest 1202, with keyboard focus 892
+the indicator alone raised | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 1600
+the indicator alone raised | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 27
+# firefox 159.0
+as on main | a badge with z-index 1 on the first member's corner | at rest 1201, with keyboard focus 1201
+as on main | a badge with z-index 2 on the first member's corner | at rest 1201, with keyboard focus 1201
+as on main | a badge with z-index 1 on the focused member's corner | at rest 1201, with keyboard focus 1201
+as on main | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 1600
+as on main | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 0
+the member raised (built) | a badge with z-index 1 on the first member's corner | at rest 1201, with keyboard focus 752
+the member raised (built) | a badge with z-index 2 on the first member's corner | at rest 1201, with keyboard focus 1201
+the member raised (built) | a badge with z-index 1 on the focused member's corner | at rest 1201, with keyboard focus 1201
+the member raised (built) | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 680
+the member raised (built) | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 28
+the indicator alone raised | a badge with z-index 1 on the first member's corner | at rest 1201, with keyboard focus 924
+the indicator alone raised | a badge with z-index 2 on the first member's corner | at rest 1201, with keyboard focus 1201
+the indicator alone raised | a badge with z-index 1 on the focused member's corner | at rest 1201, with keyboard focus 875
+the indicator alone raised | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 1600
+the indicator alone raised | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 25
+# webkit 27.2
+as on main | a badge with z-index 1 on the first member's corner | at rest 1202, with keyboard focus 1202
+as on main | a badge with z-index 2 on the first member's corner | at rest 1202, with keyboard focus 1202
+as on main | a badge with z-index 1 on the focused member's corner | at rest 1202, with keyboard focus 1202
+as on main | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 1600
+as on main | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 0
+the member raised (built) | a badge with z-index 1 on the first member's corner | at rest 1202, with keyboard focus 769
+the member raised (built) | a badge with z-index 2 on the first member's corner | at rest 1202, with keyboard focus 1202
+the member raised (built) | a badge with z-index 1 on the focused member's corner | at rest 1202, with keyboard focus 1202
+the member raised (built) | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 680
+the member raised (built) | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 30
+the indicator alone raised | a badge with z-index 1 on the first member's corner | at rest 1202, with keyboard focus 944
+the indicator alone raised | a badge with z-index 2 on the first member's corner | at rest 1202, with keyboard focus 1202
+the indicator alone raised | a badge with z-index 1 on the focused member's corner | at rest 1202, with keyboard focus 891
+the indicator alone raised | a tooltip with z-index 10 in the focused member, under z-index 1 in the next | at rest 1600, with keyboard focus 1600
+the indicator alone raised | a z-index -1 decoration in the focused member | at rest 0, with keyboard focus 27

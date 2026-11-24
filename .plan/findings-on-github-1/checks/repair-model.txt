@@ -1,0 +1,5 @@
+refused states: 46796
+still refused after the repair: 0
+repaired under a number that the issue already showed: 0
+repairs stopped and started again: 376296
+still refused after that: 0
