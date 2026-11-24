@@ -63,6 +63,20 @@ const M = [
       ],
     ],
   ],
+  ['no connected check', [[T, r('if (scrollStart.isConnected) {', '{')]]],
+  [
+    'started at the first connect only, also one while disconnected',
+    [
+      [
+        T,
+        (s) =>
+          r(
+            'if (scrollStart.isConnected) {',
+            'if (started) { return; }\n started = true;\n if (scrollStart.isConnected) {',
+          )(r(use, '    let started = false;\n' + use)(s)),
+      ],
+    ],
+  ],
   [
     'window listener, no work',
     [[T, r(use, "    window.addEventListener('scroll', () => {});\n" + use)]],

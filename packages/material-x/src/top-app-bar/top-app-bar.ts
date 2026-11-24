@@ -60,9 +60,13 @@ export default class TopAppBar extends ControlledElement {
 
     use(this, {
       connected() {
-        // A disconnect hides the popover.
-        scrollStart.showPopover();
-        observer.observe(scrollStart);
+        // Another element's connect callback can have removed the host already,
+        // and a disconnected popover can't be shown.
+        if (scrollStart.isConnected) {
+          // A disconnect hides the popover.
+          scrollStart.showPopover();
+          observer.observe(scrollStart);
+        }
       },
       disconnected() {
         observer.disconnect();

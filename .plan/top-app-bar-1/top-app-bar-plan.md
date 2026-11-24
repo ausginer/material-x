@@ -1,6 +1,6 @@
 # `mx-top-app-bar` — plan
 
-**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). One [change](#ruling-on-a-connect-while-disconnected) is owed, and then the recheck.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
+**Status: decided as [`repo:RD-54`](../00-index.md), and implemented at `6dbdcbbd1`. After the [feature proof](../reviews/top-app-bar-1/feature-proof-claude.md), the [scrolled state](#the-scrolled-state) has another target, and the [dispositions](#disposition-of-the-feature-proof-at-6dbdcbbd1) are [implemented](#dispositions-implemented-2026-11-24). The [connect while disconnected](#ruling-on-a-connect-while-disconnected) is ruled on and [implemented](#the-ruling-implemented-2026-11-24). The recheck is next.** Written by the architect on 2026-11-23, on the coordinator's task for [#172](https://github.com/ausginer/material-x/issues/172), on `material-x/top-app-bar-1` from `origin/main` at `92a386a17`. It is unit H of the [landing plan](../landing-1/landing-plan.md#order) (`repo:RD-47`), and answers its [six properties](../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component). Where the entry and this plan differ, the entry governs. Size: medium.
 
 ## Readings
 
@@ -219,3 +219,13 @@ By the architect, 2026-11-24, on the implementer's reading above at `c3b71774b`,
 - **Outside the contract: a document with no window,** such as `createHTMLDocument()`. The bar reports an error there, and `isConnected` doesn't change that. No element of the package works in another document: its constructed stylesheets belong to the document that made them, and in Chromium three other tags report that. No check and no row are owed.
 - **The implementer** adds the check and the row, reruns the bar's rows in the three engines and the two witnesses, and reads the size of `top-app-bar/top-app-bar` and `complete` again. Then the recheck, which includes this row.
 - **Limits:** Safari isn't run, and the size of the check isn't measured.
+
+## The ruling implemented 2026-11-24
+
+On `material-x/top-app-bar-1` from `85f7c64d0`. `origin/main` wasn't merged.
+
+- **Source:** `connected` shows and observes the box only if `scrollStart.isConnected`.
+- **Tests:** the row is three `it`s: no error on the window, and the state of the bar inserted again at the start and at a scrolled position. Both positions are followed to the other one, so that a bar without an observer doesn't match. The bar's rows pass in Playwright's Chromium, Firefox and WebKit. The whole material-x run was made in Chromium with the node project: 1098 passed and 2 expected failures. Typecheck, lint, formatting and publint pass.
+- **Witnesses** ([reading](checks/mutations.txt), [script](probes/mutations.mjs)), now 24 mutations and a clean control, read again in the three engines. Without the check, only the error row fails. A bar that starts at its first connect only, where a connect while disconnected counts, fails both rows of a later insertion, and both older reconnect rows. Every former mutation fails rows in the three engines, as before.
+- **Size, Brotli:** `top-app-bar/top-app-bar` 1407 to 1418 B (+11 B). `complete` 23154 to 23134 B (−20 B). No other row moved.
+- **No departure from the ruling.** Safari and the visual project weren't run, and neither was the Storybook build.

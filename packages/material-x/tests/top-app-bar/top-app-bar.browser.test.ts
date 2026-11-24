@@ -6,6 +6,22 @@ import { nextFrame } from '../browser.ts';
 
 const TAB = server.browser === 'safari' ? '{Alt>}{Tab}{/Alt}' : '{Tab}';
 
+/** Takes its children out when it connects, before their own callbacks run. */
+class EmptyingContainer extends HTMLElement {
+  connectedCallback(): void {
+    this.replaceChildren();
+  }
+}
+
+customElements.define('test-emptying-container', EmptyingContainer);
+
+/** Inserts the bar in a container that removes it in the same insertion. */
+function insertAndRemove(bar: HTMLElement): void {
+  const container = document.createElement('test-emptying-container');
+  container.append(bar);
+  document.body.append(container);
+}
+
 function addPageRule(css: string): void {
   const style = document.createElement('style');
   style.textContent = css;
@@ -108,6 +124,45 @@ describe('mx-top-app-bar scrolled state', () => {
       await observed();
 
       expect(isScrolled(bar)).toBe(after > 0);
+    },
+  );
+
+  it('should report no error when another element removes the bar as it connects', () => {
+    const errors: string[] = [];
+    const listeners = new AbortController();
+    onTestFinished(() => listeners.abort());
+    window.addEventListener(
+      'error',
+      (event) => {
+        event.preventDefault();
+        errors.push(event.message);
+      },
+      { signal: listeners.signal },
+    );
+    const bar = document.createElement('mx-top-app-bar');
+
+    insertAndRemove(bar);
+
+    expect([bar.isConnected, errors]).toEqual([false, []]);
+  });
+
+  it.each([
+    ['the start', 0],
+    ['a scrolled position', 300],
+  ] as const)(
+    'should match %s when a bar removed as it connected is inserted there',
+    async (_, top) => {
+      createPage().remove();
+      const bar = document.createElement('mx-top-app-bar');
+      insertAndRemove(bar);
+      await scrollPage(top);
+      document.body.prepend(bar);
+      await observed();
+      const inserted = isScrolled(bar);
+      // The other position, so that a bar without an observer doesn't match.
+      await scrollPage(300 - top);
+
+      expect([inserted, isScrolled(bar)]).toEqual([top > 0, top === 0]);
     },
   );
 
