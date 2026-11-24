@@ -1,0 +1,113 @@
+## drag: only a key toward the end is a command | chromium | 172 passed (172)
+## drag: only a key toward the end is a command | firefox | 168 passed | 4 skipped (172)
+## drag: only a key toward the end is a command | webkit | 168 passed | 4 skipped (172)
+## drag: the kind goes first | chromium | 8 failed | 164 passed (172)
+   drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   drag:DRD-71 onStart's operation kind > should report 'pointer' once for a touch drag
+   drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: the kind goes first | firefox | 6 failed | 162 passed | 4 skipped (172)
+   drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: the kind goes first | webkit | 6 failed | 162 passed | 4 skipped (172)
+   drag:DRD-71 onStart's operation kind > should report 'pointer' once for a mouse drag
+   drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   drag:DRD-71 onStart's operation kind > should report 'pointer' for the drag after a command
+## drag: onStart after the drop has begun | chromium | 14 failed | 158 passed (172)
+   drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   drag:DRI-14 commands with a handle > should reorder from a focused handle
+   drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+## drag: onStart after the drop has begun | firefox | 14 failed | 154 passed | 4 skipped (172)
+   drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   drag:DRI-14 commands with a handle > should reorder from a focused handle
+   drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+## drag: onStart after the drop has begun | webkit | 14 failed | 154 passed | 4 skipped (172)
+   drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+   drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+   drag:DRD-71 onStart's operation kind > should report 'command' once for an arrow key, before onReorder
+   drag:DRI-14 commands with a handle > should reorder from a focused handle
+   drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+## list: the state hides every slotted element | chromium | 6 failed | 169 passed (175)
+   mx-sortable-list keyboard > should keep focus on the handle and move again on a second ArrowDown
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state hides every slotted element | firefox | 6 failed | 167 passed | 2 skipped (175)
+   mx-sortable-list keyboard > should keep focus on the handle and move again on a second ArrowDown
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the state hides every slotted element | webkit | 6 failed | 167 passed | 2 skipped (175)
+   mx-sortable-list keyboard > should keep focus on the handle and move again on a second ArrowDown
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a key move that timed out
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a disconnection during the commit of a key move
+## list: the placeholder gives up its place | chromium | 3 failed | 172 passed (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the placeholder gives up its place | firefox | 3 failed | 170 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the placeholder gives up its place | webkit | 3 failed | 170 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: no footprint at all | chromium | 7 failed | 168 passed (175)
+   mx-sortable-list footprint > should paint the footprint in a pointer drag
+   mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+## list: no footprint at all | firefox | 7 failed | 166 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint the footprint in a pointer drag
+   mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+## list: no footprint at all | webkit | 7 failed | 166 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint the footprint in a pointer drag
+   mx-sortable-list footprint > should paint the footprint in the handler of a pointer drop
+   mx-sortable-list footprint > should paint the footprint in each frame while the commit of a pointer drop is pending
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after an accepted key move
+   mx-sortable-list footprint > should paint the footprint in the pointer drag after a refused key move
+## list: the state is set after the handler | chromium | 3 failed | 172 passed (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is set after the handler | firefox | 3 failed | 170 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is set after the handler | webkit | 3 failed | 170 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is the item's | chromium | 3 failed | 172 passed (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is the item's | firefox | 3 failed | 170 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is the item's | webkit | 3 failed | 170 passed | 2 skipped (175)
+   mx-sortable-list footprint > should paint nothing in the handler of a key move
+   mx-sortable-list footprint > should paint nothing in any frame while the commit of a key move is pending
+   mx-sortable-list footprint > should paint nothing in the handler of a refused key move
+## list: the state is cleared when the command ends | chromium | 175 passed (175)
+## list: the state is cleared when the command ends | firefox | 173 passed | 2 skipped (175)
+## list: the state is cleared when the command ends | webkit | 173 passed | 2 skipped (175)
+## list: the footprint is hidden by transparency | chromium | 175 passed (175)
+## list: the footprint is hidden by transparency | firefox | 173 passed | 2 skipped (175)
+## list: the footprint is hidden by transparency | webkit | 173 passed | 2 skipped (175)
+DONE

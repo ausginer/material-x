@@ -35,6 +35,12 @@ const COMMIT_TIMEOUT = 500;
 
 const DRAG_STATE = 'drag';
 
+/**
+ * The list's state from a command's start until the next operation's. Nothing
+ * clears it, because it matters only to the placeholder, which an operation has.
+ */
+const COMMAND_STATE = 'command';
+
 /** The landing's timing. */
 const CSS_PROPS = {
   duration: ['--_drag-duration', parseMs],
@@ -172,7 +178,8 @@ export default class SortableList extends SortableListConstructor {
         ...landing(),
         timing: useCSSProps(this, CSS_PROPS),
       },
-      onStart: (item) => {
+      onStart: (item, kind) => {
+        toggleState(internals(this), COMMAND_STATE, kind === 'command');
         dragged = item as ControlledElement;
         // WebKit starts no transition when the lift's top-layer entry and the
         // state change share one style update, so the item's style is computed

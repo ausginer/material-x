@@ -58,6 +58,8 @@ function prependRow(row: HTMLElement): void {
 }
 ```
 
+An arrow key moves the focused row one slot and proposes the reorder. `onStart(item, kind)` says how the operation runs: `kind` is `'pointer'` while a pointer drags the item, by mouse, touch or pen, and `'command'` for an arrow key. A command's drop follows `onStart` synchronously, unless `onStart` ends the operation, so nothing is in progress for the user to see before your commit.
+
 Lists nest with no marking. An event that one controller admitted is offered to no other, so the innermost list that admits a press takes it, and an outer list still takes a press its inner lists declined, such as on a column header.
 
 ```ts

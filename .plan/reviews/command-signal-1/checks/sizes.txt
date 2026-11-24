@@ -1,0 +1,62 @@
+## ba
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20916 min   7232 gz   6533 br  20 modules
+sortable + xy                   20607 min   7191 gz   6484 br  19 modules
+complete                        22652 min   7900 gz   7143 br  22 modules
+mx button/button 4858
+mx button/icon-button 5140
+mx button/link-button 4829
+mx button/switch-button 5446
+mx button/switch-icon-button 5834
+mx button/split-button 7480
+mx button-group/button-group 3040
+mx button-group/connected-button-group 3809
+mx checkbox/checkbox 4226
+mx fab/fab 4137
+mx icon/icon 631
+mx list/list 659
+mx list/list-item 2868
+mx list/list-button-item 4854
+mx list/list-link-item 5065
+mx list/sortable-list 8906
+mx radio/radio 3781
+mx text-field/multiline-text-field 4457
+mx text-field/text-field 8489
+mx complete 22844
+## br
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    20951 min   7243 gz   6538 br  20 modules
+sortable + xy                   20642 min   7202 gz   6506 br  19 modules
+complete                        22687 min   7911 gz   7156 br  22 modules
+mx button/button 4858
+mx button/icon-button 5140
+mx button/link-button 4829
+mx button/switch-button 5446
+mx button/switch-icon-button 5834
+mx button/split-button 7480
+mx button-group/button-group 3040
+mx button-group/connected-button-group 3809
+mx checkbox/checkbox 4226
+mx fab/fab 4137
+mx icon/icon 631
+mx list/list 687
+mx list/list-item 2868
+mx list/list-button-item 4854
+mx list/list-link-item 5065
+mx list/sortable-list 8944
+mx radio/radio 3781
+mx text-field/multiline-text-field 4457
+mx text-field/text-field 8489
+mx complete 22877
