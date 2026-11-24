@@ -1,0 +1,582 @@
+## padding on the host | chromium | 4 failed | 57 passed (61)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## outline on the host | chromium | 3 failed | 58 passed (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline as a slot border | chromium | 5 failed | 56 passed (61)
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline drawn outside | chromium | 2 failed | 59 passed (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline in every variant | chromium | 61 passed (61)
+## outline color property ignored | chromium | 2 failed | 59 passed (61)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## slot corners not inherited | chromium | 2 failed | 59 passed (61)
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## host does not stretch its slot | chromium | 1 failed | 60 passed (61)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## host is a block | chromium | 1 failed | 60 passed (61)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## inline padding only | chromium | 6 failed | 55 passed (61)
+   mx-card filled container contract > should inset the content from the container's edge
+   mx-card elevated container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+## padding property ignored | chromium | 1 failed | 60 passed (61)
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## shape property ignored | chromium | 1 failed | 60 passed (61)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## color property ignored | chromium | 3 failed | 58 passed (61)
+   mx-card public CSS overrides > should apply --md-card-container-color to the filled container
+   mx-card public CSS overrides > should apply --md-card-container-color to the elevated container
+   mx-card public CSS overrides > should apply --md-card-container-color to the outlined container
+## no shape | chromium | 4 failed | 57 passed (61)
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## slot keeps the level | chromium | 1 failed | 60 passed (61)
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## slot keeps the container color | chromium | 1 failed | 60 passed (61)
+   mx-card content > should not give its container colour to a checkbox inside it
+## no level | chromium | 2 failed | 59 passed (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## level from a constant 1 | chromium | 4 failed | 57 passed (61)
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## no shadow.color | chromium | 1 failed | 60 passed (61)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## container.shadow-color not read | chromium | 1 failed | 60 passed (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+## container.elevation not read | chromium | 2 failed | 59 passed (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## outline.width not read | chromium | 3 failed | 58 passed (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## deprecated tint and icon read | chromium | 61 passed (61)
+## interaction groups selected | chromium | 6 failed | 55 passed (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## no elevation stylesheet | chromium | 2 failed | 59 passed (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no host-box stylesheet on the card | chromium | 2 failed | 59 passed (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no elevated stylesheet | chromium | 3 failed | 58 passed (61)
+   mx-card elevated container contract > should render the container colour
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no outlined stylesheet | chromium | 4 failed | 57 passed (61)
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## level not registered | chromium | 61 passed (61)
+## the old state stays | chromium | 2 failed | 59 passed (61)
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card > variant > should clear the state when the variant is removed
+## host has a role | chromium | 1 failed | 60 passed (61)
+   mx-card > accessibility tree > should add no role
+## host is focusable | chromium | 32 failed | 29 passed (61)
+   mx-card > variant > should have no variant by default
+   mx-card > variant > should reflect the property to the attribute
+   mx-card > variant > should read the attribute through the property
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card > shadow tree > should hold only the default slot
+   mx-card filled container contract > should render the container colour
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card filled container contract > should inset the content from the container's edge
+   mx-card elevated container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card outline contract > should render no outline on the filled card
+   mx-card outline contract > should render no outline on the elevated card
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+   mx-card public CSS overrides > should apply --md-card-container-color to the filled container
+   mx-card public CSS overrides > should apply --md-card-container-color to the elevated container
+   mx-card public CSS overrides > should apply --md-card-container-color to the outlined container
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+## host-box without ::after | chromium | 3 failed | 269 passed (272)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## host-box without content | chromium | 272 passed (272)
+## host-box pseudo without radius | chromium | 272 passed (272)
+## host-box pseudo without inset | chromium | 272 passed (272)
+## one box-shadow list | chromium | 3 failed | 269 passed (272)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## list item without the host-box stylesheet | chromium | 2 failed | 270 passed (272)
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should raise the layers continuously from level 0
+## X outlined tokens and rule unscoped | chromium | 4 failed | 57 passed (61)
+   mx-card filled container contract > should render the container colour
+   mx-card outline contract > should render no outline on the filled card
+   mx-card outline contract > should render no outline on the elevated card
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+## X tab stop on connect | chromium | 1 failed | 60 passed (61)
+   mx-card > focus > should reach a link and a button inside it in order, with no stop on the card
+## X role img | chromium | 1 failed | 60 passed (61)
+   mx-card > accessibility tree > should add no role
+## X role attribute replaced | chromium | 2 failed | 59 passed (61)
+   mx-card > accessibility tree > should add no role
+   mx-card > accessibility tree > should keep the consumer's role and name
+## X an element around the slot | chromium | 4 failed | 57 passed (61)
+   mx-card > shadow tree > should hold only the default slot
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## X delegatesFocus | chromium | 61 passed (61)
+## padding on the host | firefox | 4 failed | 54 passed | 3 skipped (61)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## outline on the host | firefox | 3 failed | 55 passed | 3 skipped (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline as a slot border | firefox | 5 failed | 53 passed | 3 skipped (61)
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline drawn outside | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline in every variant | firefox | 58 passed | 3 skipped (61)
+## outline color property ignored | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## slot corners not inherited | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## host does not stretch its slot | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## host is a block | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## inline padding only | firefox | 6 failed | 52 passed | 3 skipped (61)
+   mx-card filled container contract > should inset the content from the container's edge
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should inset the content from the container's edge
+## padding property ignored | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## shape property ignored | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## color property ignored | firefox | 3 failed | 55 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-container-color to the filled container
+   mx-card public CSS overrides > should apply --md-card-container-color to the elevated container
+   mx-card public CSS overrides > should apply --md-card-container-color to the outlined container
+## no shape | firefox | 4 failed | 54 passed | 3 skipped (61)
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## slot keeps the level | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## slot keeps the container color | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card content > should not give its container colour to a checkbox inside it
+## no level | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## level from a constant 1 | firefox | 4 failed | 54 passed | 3 skipped (61)
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## no shadow.color | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## container.shadow-color not read | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+## container.elevation not read | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## outline.width not read | firefox | 3 failed | 55 passed | 3 skipped (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## deprecated tint and icon read | firefox | 58 passed | 3 skipped (61)
+## interaction groups selected | firefox | 6 failed | 52 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## no elevation stylesheet | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no host-box stylesheet on the card | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no elevated stylesheet | firefox | 3 failed | 55 passed | 3 skipped (61)
+   mx-card elevated container contract > should render the container colour
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no outlined stylesheet | firefox | 4 failed | 54 passed | 3 skipped (61)
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## level not registered | firefox | 58 passed | 3 skipped (61)
+## the old state stays | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card > variant > should clear the state when the variant is removed
+## host has a role | firefox | 58 passed | 3 skipped (61)
+## host is focusable | firefox | 32 failed | 26 passed | 3 skipped (61)
+   mx-card > variant > should have no variant by default
+   mx-card > variant > should reflect the property to the attribute
+   mx-card > variant > should read the attribute through the property
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card > shadow tree > should hold only the default slot
+   mx-card filled container contract > should render the container colour
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card filled container contract > should inset the content from the container's edge
+   mx-card elevated container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card outline contract > should render no outline on the filled card
+   mx-card outline contract > should render no outline on the elevated card
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+   mx-card public CSS overrides > should apply --md-card-container-color to the filled container
+   mx-card public CSS overrides > should apply --md-card-container-color to the elevated container
+   mx-card public CSS overrides > should apply --md-card-container-color to the outlined container
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+## host-box without ::after | firefox | 3 failed | 264 passed | 5 skipped (272)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## host-box without content | firefox | 267 passed | 5 skipped (272)
+## host-box pseudo without radius | firefox | 267 passed | 5 skipped (272)
+## host-box pseudo without inset | firefox | 267 passed | 5 skipped (272)
+## one box-shadow list | firefox | 3 failed | 264 passed | 5 skipped (272)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## list item without the host-box stylesheet | firefox | 2 failed | 265 passed | 5 skipped (272)
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should raise the layers continuously from level 0
+## X outlined tokens and rule unscoped | firefox | 3 failed | 55 passed | 3 skipped (61)
+   mx-card filled container contract > should render the container colour
+   mx-card outline contract > should render no outline on the filled card
+   mx-card outline contract > should render no outline on the elevated card
+## X tab stop on connect | firefox | 1 failed | 57 passed | 3 skipped (61)
+   mx-card > focus > should reach a link and a button inside it in order, with no stop on the card
+## X role img | firefox | 58 passed | 3 skipped (61)
+## X role attribute replaced | firefox | 58 passed | 3 skipped (61)
+## X an element around the slot | firefox | 4 failed | 54 passed | 3 skipped (61)
+   mx-card > shadow tree > should hold only the default slot
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## X delegatesFocus | firefox | 58 passed | 3 skipped (61)
+## padding on the host | webkit | 4 failed | 54 passed | 3 skipped (61)
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## outline on the host | webkit | 3 failed | 55 passed | 3 skipped (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline as a slot border | webkit | 5 failed | 53 passed | 3 skipped (61)
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## outline drawn outside | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+## outline in every variant | webkit | 58 passed | 3 skipped (61)
+## outline color property ignored | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## slot corners not inherited | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## host does not stretch its slot | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## host is a block | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+## inline padding only | webkit | 6 failed | 52 passed | 3 skipped (61)
+   mx-card filled container contract > should inset the content from the container's edge
+   mx-card elevated container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+## padding property ignored | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-padding to the inset
+## shape property ignored | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## color property ignored | webkit | 3 failed | 55 passed | 3 skipped (61)
+   mx-card public CSS overrides > should apply --md-card-container-color to the filled container
+   mx-card public CSS overrides > should apply --md-card-container-color to the elevated container
+   mx-card public CSS overrides > should apply --md-card-container-color to the outlined container
+## no shape | webkit | 4 failed | 54 passed | 3 skipped (61)
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## slot keeps the level | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card elevation layers > should not raise a filled button inside an elevated card
+## slot keeps the container color | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card content > should not give its container colour to a checkbox inside it
+## no level | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## level from a constant 1 | webkit | 4 failed | 54 passed | 3 skipped (61)
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## no shadow.color | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## container.shadow-color not read | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+## container.elevation not read | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## outline.width not read | webkit | 3 failed | 55 passed | 3 skipped (61)
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## deprecated tint and icon read | webkit | 58 passed | 3 skipped (61)
+## interaction groups selected | webkit | 6 failed | 52 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## no elevation stylesheet | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no host-box stylesheet on the card | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no elevated stylesheet | webkit | 3 failed | 55 passed | 3 skipped (61)
+   mx-card elevated container contract > should render the container colour
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## no outlined stylesheet | webkit | 4 failed | 54 passed | 3 skipped (61)
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+## level not registered | webkit | 58 passed | 3 skipped (61)
+## the old state stays | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card > variant > should clear the state when the variant is removed
+## host has a role | webkit | 58 passed | 3 skipped (61)
+## host is focusable | webkit | 32 failed | 26 passed | 3 skipped (61)
+   mx-card > variant > should have no variant by default
+   mx-card > variant > should reflect the property to the attribute
+   mx-card > variant > should read the attribute through the property
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card > shadow tree > should hold only the default slot
+   mx-card filled container contract > should render the container colour
+   mx-card filled container contract > should render the container shape on its four corners
+   mx-card filled container contract > should inset the content from the container's edge
+   mx-card elevated container contract > should inset the content from the container's edge
+   mx-card outlined container contract > should inset the content from the container's edge
+   mx-card filled container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should keep the inset under a page's universal reset
+   mx-card outlined container contract > should keep the inset under a page's universal reset
+   mx-card elevated container contract > should render the container colour
+   mx-card elevated container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container shape on its four corners
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card outline contract > should render no outline on the filled card
+   mx-card outline contract > should render no outline on the elevated card
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+   mx-card public CSS overrides > should apply --md-card-container-color to the filled container
+   mx-card public CSS overrides > should apply --md-card-container-color to the elevated container
+   mx-card public CSS overrides > should apply --md-card-container-color to the outlined container
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+## host-box without ::after | webkit | 3 failed | 264 passed | 5 skipped (272)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## host-box without content | webkit | 267 passed | 5 skipped (272)
+## host-box pseudo without radius | webkit | 267 passed | 5 skipped (272)
+## host-box pseudo without inset | webkit | 267 passed | 5 skipped (272)
+## one box-shadow list | webkit | 3 failed | 264 passed | 5 skipped (272)
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+## list item without the host-box stylesheet | webkit | 2 failed | 265 passed | 5 skipped (272)
+   mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-item)
+   elevation at level 0 > should raise the layers continuously from level 0
+## X outlined tokens and rule unscoped | webkit | 3 failed | 55 passed | 3 skipped (61)
+   mx-card filled container contract > should render the container colour
+   mx-card outline contract > should render no outline on the filled card
+   mx-card outline contract > should render no outline on the elevated card
+## X tab stop on connect | webkit | 1 failed | 57 passed | 3 skipped (61)
+   mx-card > focus > should reach a link and a button inside it in order, with no stop on the card
+## X role img | webkit | 58 passed | 3 skipped (61)
+## X role attribute replaced | webkit | 58 passed | 3 skipped (61)
+## X an element around the slot | webkit | 4 failed | 54 passed | 3 skipped (61)
+   mx-card > shadow tree > should hold only the default slot
+   mx-card outline contract > should round the outline as the container's corners
+   mx-card outline contract > should draw the outline around the host's box in a grid that stretches the card
+   mx-card public CSS overrides > should apply --md-card-container-shape to the container and its outline
+## X delegatesFocus | webkit | 58 passed | 3 skipped (61)
+## Y accessibility tree hidden | chromium | 3 failed | 58 passed (61)
+   mx-card > accessibility tree > should add no role
+   mx-card > accessibility tree > should keep the roles of a heading and a link inside it
+   mx-card > accessibility tree > should keep the consumer's role and name
+## Y accessibility tree hidden | firefox | 58 passed | 3 skipped (61)
+## Y accessibility tree hidden | webkit | 58 passed | 3 skipped (61)
+## Y tabIndex when attached | chromium | 2 failed | 59 passed (61)
+   mx-card > focus > should reach a link and a button inside it in order, with no stop on the card
+   mx-card > focus > should not focus the card
+## Y tabIndex when attached | firefox | 2 failed | 56 passed | 3 skipped (61)
+   mx-card > focus > should reach a link and a button inside it in order, with no stop on the card
+   mx-card > focus > should not focus the card
+## Y tabIndex when attached | webkit | 2 failed | 56 passed | 3 skipped (61)
+   mx-card > focus > should reach a link and a button inside it in order, with no stop on the card
+   mx-card > focus > should not focus the card
+## Y variant attribute not wired | chromium | 8 failed | 53 passed (61)
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## Y variant attribute not wired | firefox | 8 failed | 50 passed | 3 skipped (61)
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## Y variant attribute not wired | webkit | 8 failed | 50 passed | 3 skipped (61)
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## Y no variant attribute trait | chromium | 11 failed | 50 passed (61)
+   mx-card > variant > should have no variant by default
+   mx-card > variant > should reflect the property to the attribute
+   mx-card > variant > should read the attribute through the property
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## Y no variant attribute trait | firefox | 11 failed | 47 passed | 3 skipped (61)
+   mx-card > variant > should have no variant by default
+   mx-card > variant > should reflect the property to the attribute
+   mx-card > variant > should read the attribute through the property
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## Y no variant attribute trait | webkit | 11 failed | 47 passed | 3 skipped (61)
+   mx-card > variant > should have no variant by default
+   mx-card > variant > should reflect the property to the attribute
+   mx-card > variant > should read the attribute through the property
+   mx-card > variant > should replace the previous state when the variant changes
+   mx-card elevated container contract > should render the container colour
+   mx-card outlined container contract > should render the container colour
+   mx-card outline contract > should render the outline on the outlined card
+   mx-card outline contract > should keep the outline under a page's universal reset
+   mx-card public CSS overrides > should apply --md-card-outline-color to the outline
+   mx-card elevation layers > should draw the three elevation layers of its level
+   mx-card elevation layers > should draw its layers in its own shadow colour
+## Y initial elevated state | chromium | 5 failed | 56 passed (61)
+   mx-card filled container contract > should render the container colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## Y initial elevated state | firefox | 5 failed | 53 passed | 3 skipped (61)
+   mx-card filled container contract > should render the container colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers
+## Y initial elevated state | webkit | 5 failed | 53 passed | 3 skipped (61)
+   mx-card filled container contract > should render the container colour
+   elevation at level 0 > should draw each layer of filled mx-card transparent
+   elevation at level 0 > should draw each layer of outlined mx-card transparent
+   elevation at level 0 > should paint filled mx-card as it does with no layers
+   elevation at level 0 > should paint outlined mx-card as it does with no layers

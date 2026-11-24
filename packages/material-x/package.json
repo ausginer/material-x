@@ -15,6 +15,7 @@
   "files": [
     "button",
     "button-group",
+    "card",
     "checkbox",
     "custom-elements.json",
     "fab",
@@ -58,6 +59,10 @@
     "./button-group/connected-button-group.js": {
       "types": "./button-group/connected-button-group.d.ts",
       "default": "./button-group/connected-button-group.js"
+    },
+    "./card/card.js": {
+      "types": "./card/card.d.ts",
+      "default": "./card/card.js"
     },
     "./checkbox/checkbox.js": {
       "types": "./checkbox/checkbox.d.ts",

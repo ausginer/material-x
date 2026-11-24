@@ -52,6 +52,7 @@ const { SliderLike } = await import('../src/slider/slider.ts');
 const { SplitButtonLike } = await import('../src/button/split-button.ts');
 const { ButtonGroupLike } =
   await import('../src/button-group/ButtonGroupCore.ts');
+const { CardLike } = await import('../src/card/card.ts');
 const { Indeterminable } = await import('../src/checkbox/checkbox.ts');
 const { TextFieldLike } = await import('../src/text-field/TextFieldCore.ts');
 const { FocusForwarding } =
@@ -72,6 +73,7 @@ const TRAITS: Readonly<Record<string, unknown>> = {
   SliderLike,
   SplitButtonLike,
   ButtonGroupLike,
+  CardLike,
   Indeterminable,
   TextFieldLike,
   FocusForwarding,

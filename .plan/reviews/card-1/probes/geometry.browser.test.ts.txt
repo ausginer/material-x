@@ -1,0 +1,29 @@
+/* Probe: mx-card geometry, hidden, constrained host, forced colors, reset on the host. */
+import { it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../../src/card/card.ts'; import '../../src/list/list-item.ts';
+const mk = (css: string, v: string | null = 'outlined', html = '<div style="height:40px">x</div>') => { const c = document.createElement('mx-card'); if (v) c.setAttribute('variant', v); c.style.cssText = css; c.innerHTML = html; document.body.append(c); return c; };
+const r = (e: Element) => { const b = e.getBoundingClientRect(); return [b.x, b.y, b.width, b.height].map((n) => Math.round(n * 100) / 100).join(' '); };
+it('geometry', async () => {
+  const log: string[] = []; const slot = (c: Element) => c.shadowRoot!.querySelector('slot')!;
+  const say = (n: string, c: Element) => log.push(`${n}: host ${r(c)} | slot ${r(slot(c))}`);
+  say('natural', mk('inline-size:200px'));
+  say('taller than content', mk('inline-size:200px;block-size:300px'));
+  say('shorter than content', mk('inline-size:200px;block-size:40px'));
+  const m = mk('inline-size:200px;max-block-size:100px;overflow:auto', 'outlined', '<div style="height:400px">x</div>'); say('max-block-size, overflow auto', m); m.scrollTop = 120; say('  scrolled 120', m);
+  say('min-block-size', mk('inline-size:200px;min-block-size:150px'));
+  say('wide nowrap content', mk('inline-size:120px', 'outlined', '<div style="white-space:nowrap">' + 'wide content '.repeat(8) + '</div>'));
+  say('box-sizing border-box', mk('inline-size:200px;box-sizing:border-box'));
+  const flexRow = document.createElement('div'); flexRow.style.cssText = 'display:flex'; const tall = document.createElement('div'); tall.style.height = '200px'; document.body.append(flexRow); const fr = mk('flex:1'); flexRow.append(fr, tall); say('flex row stretched', fr);
+  const g = document.createElement('div'); g.style.cssText = 'display:grid;grid-template-columns:150px 150px'; document.body.append(g); const gc = mk('', null); const gt = document.createElement('div'); gt.style.height = '222px'; g.append(gc, gt); say('grid stretched filled', gc);
+  const pct = mk('inline-size:200px;block-size:300px', 'outlined', '<div style="height:100%">x</div>'); log.push(`percent-height child in 300px card: ${r(pct.firstElementChild!)}`);
+  const h = mk('inline-size:200px'); h.hidden = true; log.push(`hidden card: display ${getComputedStyle(h).display} box ${r(h)}`);
+  const li = document.createElement('mx-list-item'); li.hidden = true; document.body.append(li); log.push(`hidden mx-list-item: display ${getComputedStyle(li).display}`);
+  const a = mk('inline-size:200px', null), b = mk('inline-size:200px', 'elevated'), c = mk('inline-size:200px', 'outlined'); log.push(`sizes by variant: ${[a, b, c].map((x) => r(x).split(' ').slice(2).join('x')).join(', ')}`);
+  const st = document.createElement('style'); st.textContent = '*,*::before,*::after{padding:0;border:0;outline:0}'; document.head.append(st);
+  const x = mk('inline-size:200px'); const sh = new CSSStyleSheet(); sh.replaceSync(':host{outline:1px solid red}'); x.shadowRoot!.adoptedStyleSheets.push(sh); log.push(`:host outline under the reset: ${getComputedStyle(x).outlineStyle} ${getComputedStyle(x).outlineWidth}; slot outline ${getComputedStyle(slot(x)).outlineStyle} ${getComputedStyle(slot(x)).outlineWidth}`);
+  const el = mk('inline-size:200px', 'elevated'); log.push(`elevated under the reset: shadow ${getComputedStyle(el).boxShadow}`); st.remove();
+  const txt = mk('', null, 'text'); const outer = document.createElement('div'); outer.style.cssText = 'color:rgb(9,8,7);font:italic 21px/1.5 monospace'; outer.append(txt); document.body.append(outer); const cs = getComputedStyle(slot(txt)); log.push(`inherits: ${cs.color} ${cs.fontSize} ${cs.fontStyle} ${cs.fontFamily}`);
+  log.push(`forced-colors match: ${matchMedia('(forced-colors: active)').matches}; host overflow ${getComputedStyle(el).overflow}; role ${el.getAttribute('role')}; tabIndex ${el.tabIndex}`);
+  console.log(`GEOMETRY ${server.browser}\n  ${log.join('\n  ')}`);
+});

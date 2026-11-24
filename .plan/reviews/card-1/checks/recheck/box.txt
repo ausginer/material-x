@@ -1,0 +1,88 @@
+# chromium 158.0.8127.18
+none | filled: 13/13 equal the reference
+none | elevated: 13/13 equal the reference
+none | outlined: 13/13 equal the reference
+reset | filled: 13/13 equal the reference
+reset | elevated: 13/13 equal the reference
+reset | outlined: 13/13 equal the reference
+reset !important | filled: 13/13 equal the reference
+reset !important | elevated: 13/13 equal the reference
+reset !important | outlined: 13/13 equal the reference
+preflight | filled: 13/13 equal the reference
+preflight | elevated: 13/13 equal the reference
+preflight | outlined: 13/13 equal the reference
+offset rule | filled: 13/13 equal the reference
+offset rule | elevated: 13/13 equal the reference
+offset rule | outlined: 13/13 equal the reference
+forced none | filled: 13/13 equal the reference
+forced none | elevated: 13/13 equal the reference
+forced none | outlined: 13/13 equal the reference
+forced reset | filled: 13/13 equal the reference
+forced reset | elevated: 13/13 equal the reference
+forced reset | outlined: 13/13 equal the reference
+forced reset !important | filled: 13/13 equal the reference
+forced reset !important | elevated: 13/13 equal the reference
+forced reset !important | outlined: 13/13 equal the reference
+forced preflight | filled: 13/13 equal the reference
+forced preflight | elevated: 13/13 equal the reference
+forced preflight | outlined: 13/13 equal the reference
+forced offset rule | filled: 13/13 equal the reference
+forced offset rule | elevated: 13/13 equal the reference
+forced offset rule | outlined: 13/13 equal the reference
+# firefox 159.0
+none | filled: 13/13 equal the reference
+none | elevated: 13/13 equal the reference
+none | outlined: 13/13 equal the reference
+reset | filled: 13/13 equal the reference
+reset | elevated: 13/13 equal the reference
+reset | outlined: 13/13 equal the reference
+reset !important | filled: 13/13 equal the reference
+reset !important | elevated: 13/13 equal the reference
+reset !important | outlined: 13/13 equal the reference
+preflight | filled: 13/13 equal the reference
+preflight | elevated: 13/13 equal the reference
+preflight | outlined: 13/13 equal the reference
+offset rule | filled: 13/13 equal the reference
+offset rule | elevated: 13/13 equal the reference
+offset rule | outlined: 13/13 equal the reference
+forced none | filled: 13/13 equal the reference
+forced none | elevated: 13/13 equal the reference
+forced none | outlined: 13/13 equal the reference
+forced reset | filled: 13/13 equal the reference
+forced reset | elevated: 13/13 equal the reference
+forced reset | outlined: 13/13 equal the reference
+forced reset !important | filled: 13/13 equal the reference
+forced reset !important | elevated: 13/13 equal the reference
+forced reset !important | outlined: 13/13 equal the reference
+forced preflight | filled: 13/13 equal the reference
+forced preflight | elevated: 13/13 equal the reference
+forced preflight | outlined: 13/13 equal the reference
+forced offset rule | filled: 13/13 equal the reference
+forced offset rule | elevated: 13/13 equal the reference
+forced offset rule | outlined: 13/13 equal the reference
+# webkit 27.2
+none | filled: 13/13 equal the reference
+none | elevated: 13/13 equal the reference
+none | outlined: 13/13 equal the reference
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+reset | filled: 13/13 equal the reference
+reset | elevated: 13/13 equal the reference
+reset | outlined: 13/13 equal the reference
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+reset !important | filled: 13/13 equal the reference
+reset !important | elevated: 13/13 equal the reference
+reset !important | outlined: 13/13 equal the reference
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+preflight | filled: 13/13 equal the reference
+preflight | elevated: 13/13 equal the reference
+preflight | outlined: 13/13 equal the reference
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)
+offset rule | filled: 13/13 equal the reference
+offset rule | elevated: 13/13 equal the reference
+offset rule | outlined: 13/13 equal the reference
+   (overflow hidden: 1px, max 2)
+   (overflow clip: 1px, max 2)

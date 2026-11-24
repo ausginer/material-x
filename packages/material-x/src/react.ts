@@ -46,6 +46,12 @@ import type {
   ConnectedButtonGroupProperties,
 } from './button-group/connected-button-group.ts';
 import type ConnectedButtonGroup from './button-group/connected-button-group.ts';
+import type {
+  CardCSSProperties,
+  CardEvents,
+  CardProperties,
+} from './card/card.ts';
+import type Card from './card/card.ts';
 import type Checkbox from './checkbox/checkbox.ts';
 import type {
   CheckboxCSSProperties,
@@ -166,6 +172,8 @@ type FABJSX = JSXWrapper<FAB, FABProperties, FABEvents>;
 
 type IconJSX = JSXWrapper<Icon, IconProperties, IconEvents>;
 
+type CardJSX = JSXWrapper<Card, CardProperties, CardEvents>;
+
 type CheckboxJSX = JSXWrapper<Checkbox, CheckboxProperties, CheckboxEvents>;
 
 type RadioJSX = JSXWrapper<Radio, RadioProperties, RadioEvents>;
@@ -212,6 +220,7 @@ declare module 'react' {
       'mx-switch-icon-button': SwitchIconButtonJSX;
       'mx-button-group': ButtonGroupJSX;
       'mx-connected-button-group': ConnectedButtonGroupJSX;
+      'mx-card': CardJSX;
       'mx-checkbox': CheckboxJSX;
       'mx-fab': FABJSX;
       'mx-list': ListJSX;
@@ -236,6 +245,7 @@ declare module 'react' {
       SwitchIconButtonCSSProperties,
       ButtonGroupCSSProperties,
       ConnectedButtonGroupCSSProperties,
+      CardCSSProperties,
       CheckboxCSSProperties,
       FABCSSProperties,
       IconCSSProperties,

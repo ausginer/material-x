@@ -2393,6 +2393,47 @@ Registered from `FV-D12` (see `RD-35`), the owner's answer to `FV-Q3`. All six c
 
 **Why.** The factory saves nothing it costs a reader: five calls in two packages, with three definitions written twice, and it can't serve the one event that has data. `new Event('change', { bubbles: true })` says what the event is, at the place where it is dispatched.
 
+#### RD-53 — `mx-card` is a static container with one slot, its host is its box, and the divider doesn't come with it
+
+**Decided 2026-11-23 by the architect, on `material-x/card-1`,** on the coordinator's task for #171, as unit B of `RD-47`'s landing plan. `RD-52` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [plan](card-1/card-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** `mx-card` has one attribute, `variant` (`elevated` or `outlined`, and filled when omitted), the default slot, and four CSS properties: `--md-card-container-color`, `--md-card-container-shape`, `--md-card-outline-color` and `--md-card-padding`. It has no event, no part and no interactive attribute.
+2. **Its host is its box,** so it falls under the `.host` exception _The host is the box_, as `mx-list-item` does. The shadow root holds only the slot.
+3. **The slot draws the 16px padding and the outline,** so a page's universal reset changes neither. The outline takes no layout space and isn't a shadow. The card doesn't clip its content.
+4. **Elevation is the shared three layers,** drawn on a host box by one stylesheet that `mx-list-item` and `mx-card` both adopt. A single `box-shadow` list would save two pseudo-elements. It isn't adopted, because it paints differently from the other components' three boxes in all three engines ([reading](card-1/checks/card-box.txt)).
+5. **All three variants ship.** The landing plan kept cards from _elevated_ until `RF-77` was fixed. #152 (merged as `986ad3719`) fixed it, with `RF-78`.
+6. **It reads each set's enabled tokens,** and neither `icon.*`, the deprecated surface tint nor the interaction groups. It sets no text colour or font, because the sets have none.
+7. **No role, no tab stop and no activation,** as M3 says of a non-actionable card. What the consumer sets on the host stands. The interactive card isn't designed, and nothing here takes its vocabulary.
+8. **No divider in this unit.** No part of the page uses one, and `RD-47` adds a component when a page or a consumer asks for it.
+
+**Why.** M3 requires only the container, and its tokens specify only that. Slots for headlines or actions would be public surface with no specification behind it, and a slot can be added later without breaking a consumer, where one can't be removed. The card's use on the page, package entries and demo frames, needs a container that adds no semantics.
+
+**Costs.** A consumer writes its own headings and layout inside the card, and rounds a full-bleed image itself. `variant` is a new word beside `mx-button`'s `color`. `mx-list-item`'s stylesheet changes its source, though not its rendering.
+
+**Dated 2026-11-23 by the architect: `variant` is the specification's word, and the owner accepted it,** relayed by the coordinator, with the implementation authorized. He asked because `mx-button`'s `variant` was renamed to `color` to follow the specification. Each element follows its own page, and the architect read them the same day:
+
+- **Cards:** _"Three variants:"_ ([overview](https://m3.material.io/components/cards/overview)), _"There are three card variants:"_ ([guidelines](https://m3.material.io/components/cards/guidelines)) and _"Select a component variant below"_ ([specs](https://m3.material.io/components/cards/specs)).
+- **Buttons:** _"Two variants: default and toggle"_ and _"Five color options: elevated, filled, tonal, outlined, and text"_ ([overview](https://m3.material.io/components/buttons/overview)).
+
+So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specification's own difference between the two components, and not a departure from it.
+
+**Dated 2026-11-24 by the architect: the host draws the outline and the whole shadow,** on `reviewer-1` of #213's [feature proof](reviews/card-1/feature-proof-claude.md), relayed by the coordinator. The [disposition](card-1/card-plan.md#disposition-of-reviewer-1-the-host-draws-the-outline-and-the-whole-shadow) has the candidates, the readings in the three engines and the work. Nothing is the owner's to answer.
+
+- **What the card promises, added to clause 2:** whatever the consumer's layout and `overflow` do to the card's size, the background, the shape, the outline and the shadow stay on the host's box. The content and its padding overflow, are clipped or scroll.
+- **Clause 3 is amended:** the slot draws the padding only, and the host draws the outline, `!important`, so a page's universal reset changes neither. While the host matches `:focus-visible` the card declares no outline, because Chromium and Firefox focus a scrolling card, and the outline would take the place of the focus indicator. It still takes no layout space, isn't a shadow, and the card doesn't clip its content. The clause said that the slot draws both, and on the slot the outline leaves the host's box and scrolls away.
+- **Clause 4 is amended:** the shared host-box stylesheet draws the three layers in one `box-shadow` list on the host, for `mx-list-item` and `mx-card`. The clause rejected the list for painting differently from three boxes. Any `overflow` clips two of the three boxes, which loses about two thirds of the shadow's darkest point, and the list loses nothing. The list differs from three boxes by at most 24 of 255 per channel for a list item, and 26 for a card (WebKit, level 3). Away from the corners it is at most 1 for a list item, and at most 1 for a card in Chromium and Firefox, and 5 in WebKit. `.host` elements keep the three boxes.
+- **Costs:** on an outlined card a page's own `outline` is applied only while the host is `:focus-visible`. `mx-list-item`'s shadow changes by the pixels above, so the cost sentence _"though not its rendering"_ no longer holds. Content at the card's edge that is positioned, or has an `opacity` or a `transform`, still covers the outline, as it did.
+- **Witness:** `checks/outline-owner.txt` and `checks/elevation-overflow.txt`, in the card's record.
+
+**Dated 2026-11-24 by the architect: the host draws the padding too,** on `reviewer-5` of #213's [recheck](reviews/card-1/recheck-claude.md), relayed by the coordinator. The [disposition](card-1/card-plan.md#disposition-of-the-recheck-the-host-draws-the-padding-too) has the candidates, the readings in the three engines, the rulings on `reviewer-6` to `reviewer-9` and the work. Nothing is the owner's to answer.
+
+- **Clause 2 is amended:** the shadow root still holds only the slot, and the slot generates no box. The content is laid out in the host.
+- **Clause 3 is amended again:** the host draws the padding, `!important`, with `box-sizing: border-box`, `!important`, and the slot draws nothing. The note above left the padding on the slot, where an inline scroll reached its end with 0px after the content. On the host it is a plain box's padding in both axes.
+- **Clause 4 stands, with `position: relative` given its reason:** the card is the containing block of its content's absolutely positioned elements, and its shadow paints over the next block's background.
+- **Costs:** a page's `padding` on `mx-card` is ignored, where it was added to the slot's. `--md-card-padding` is the one way to set it. The card can't be smaller than its padding, 32px in each axis by default, as a `div` with `border-box` can't. With `block-size: 10px` it was 10px high. This was read on the implementation and accepted the same day.
+- **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
+- **Witness:** `checks/padding-owner.txt`, in the card's record.
+
 #### RD-55 — `mx-slider` is a native range whose value is the user's, and it mirrors host `aria-*` as the text fields do
 
 **Decided 2026-11-23, on `material-x/slider-1`,** for #173, as unit C of `RD-47`'s landing plan. Mx Architect B wrote the [plan](slider-1/slider-plan.md) and proposed this entry, on the coordinator's task. The architect read the plan and minted the entry at `eaff88884`. `RD-54` is the highest `RD-` on any branch on `origin` (`material-x/top-app-bar-1`), so this is the next free number. The plan's `SL-D1` to `SL-D9` hold each decision with its readings, what wasn't adopted and what wasn't measured.

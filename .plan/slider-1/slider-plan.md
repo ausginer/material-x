@@ -94,14 +94,15 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
 - **`input`:** the native event, which bubbles and is composed, so it crosses the host by itself in all three engines. The component handles it at the input, so `value`, the drawing and the form value are current when the consumer's handler runs.
 - **`change`:** the native event stops at the shadow root. The component dispatches `new Event('change', { bubbles: true })` on the host, not through the notifier that `RF-117` deletes.
 - **Keyboard:** each key that changes the value fires `input`, then `change`.
+- **The native range's gesture and commit are its own. The component adds one rule: a press that the browser takes for a scroll before the engine has reported anything more does nothing.** (Contract stated as one rule on 2026-11-24, [ruled below](#the-rechecks-rulings).) What an engine's range does with focus, a second finger, a second button or a removed element, the slider reports as the range does it, and it adds no rule of its own.
 - **A press that becomes a scroll does nothing.** A finger's press changes a native range at once in Chromium and Firefox, before the browser knows whether it is a scroll. So the component **holds back** what the press did until the browser has decided:
   - **What is held:** the `input` that a press by anything but a mouse makes before its first `pointermove`. It doesn't reach the host, and nothing follows it: not `value`, the drawing, the form value, the indicator's text or the ownership.
-  - **What ends it as the user's:** the next native `input`, the lift, or a native `change`. A lift without a move is a tap. The component then dispatches one plain `input` with the native flags, if the number differs from the one shown, and `change` follows.
-  - **What ends it as a scroll:** `pointercancel`. The input is given the number that was asked for, which is what it would be without the press. No `input` and no `change` reaches the host, neither the engine's own `change` after the cancel (Chromium fires one if a script wrote in between) nor the engine's own restoration (Firefox puts its own number back). A disconnection ends it the same way, except that Firefox's own touch then ends as a tap at the lift, and the slider reports it.
+  - **What ends it as the user's:** the next native `input`, the lift, or a native `change`, **whatever made the engine fire it.** So the engine's own commit is the user's where it comes before the cancel: in Chromium and Firefox when a focused range loses its focus, in Chromium when a focused one is disabled, moved or removed, and in Chromium at another finger's lift. In Firefox another finger's lift fires a native `input` with that finger's number, and hiding the slider fires one with the number shown. A press that then scrolls keeps that number. A bare range in the same engine gives the same events and numbers, and the slider's `input` is the one it held back. A lift without a move is a tap. The component then dispatches one plain `input` with the native flags, if the number differs from the one shown, and `change` follows.
+  - **What ends it as a scroll:** `pointercancel`. The input is given the number that was asked for, which is what it would be without the press. No `input` and no `change` reaches the host, neither the engine's own `change` after the cancel (Chromium fires one if a script wrote in between) nor the engine's own restoration (Firefox puts its own number back). A disconnection ends it the same way, except that Firefox's own touch then ends as a tap at the lift, and the slider reports it, and that a commit the engine fired first stands.
   - **A script's write during it** (`value`, the attribute, a bound, `step`, a form reset) is an ordinary write and stays. Nothing was the user's yet, so there is nothing to overwrite. This is how `SL-D2` and `SL-D3` agree. After a write during a tap, the engine decides: Chromium keeps the script's number, with `change` and no `input`, and Firefox ends on the pressed one.
   - **After the press has been reported,** a cancel no longer is a scroll: the browser decides at the start, and in Chromium no pan at 20 to 80 degrees gave a second `input` before its cancel. What is left is the system taking the touch. The slide is then committed: the value stays, in Firefox too, and `change` fires. Material Components for Android takes its `ACTION_CANCEL` as a lift too.
   - **A mouse isn't held.** Its press moves the handle at once.
-  - **What else ends or follows a press** (added 2026-11-24, [ruled below](#the-four-additions)): a slider that is disabled drops a held press; a key ends a cancelled one; in Firefox a restored number that equals the one shown is dropped too; and while one pointer's press is in progress, another pointer's isn't followed, unless it is primary. **Limit:** a page's capturing listener on an ancestor sees the native `input` of a held press.
+  - **What else ends or follows a press** (added 2026-11-24, [ruled below](#the-four-additions)): a slider that is disabled drops a held press that the engine hasn't committed; a key ends a cancelled one; in Firefox a restored number that equals the one shown is dropped too; and while one pointer's press is in progress, the component's tracking of the press and the held look ignore another pointer, unless it is primary. The native range's number and commit do not: they are the engine's. In Chromium a second finger's touch ends the slide, and the slide's one `change` comes at the first lift of either finger, or at the cancel if neither lifts. The held look lasts until the first finger's end, although its handle no longer follows it. **Limits:** a page's capturing listener on an ancestor sees the native `input` of a held press. After a cancelled press in Firefox, an assistive technology's set of exactly the number from before the press is refused if the number has changed since, until the next press, key or other number.
   - **Why held and not restored.** A restoration can't tell the user's press from a script's write that followed it. A consumer that copies the value back, and a player that follows its seek bar, write during the press _because of_ it, and an independent script doesn't. Whoever wins, one of them is wrong ([readings](checks/held-press.txt): with the owner restored and no `input`, the player stays at the pressed 70). Held, the consumer never learns of a press that was a scroll, so no case is left. Material Components for Android does this: `BaseSlider.onTouchEvent` starts in `ACTION_MOVE` inside a vertically scrolling container (read at `3a2969935`).
   - **Costs.** With a finger, a press on the track moves the handle at the lift or at the first step of the slide, and not at the touch. With a coarse `step` the handle waits for the finger to cross a step. While the finger rests, the input itself holds the pressed number, so assistive technology could read it. A slide from a held press back to the number shown fires an `input` with that number.
 - **`touch-action: pan-y`** on the input. The vertical slider will need `pan-x`.
@@ -178,11 +179,11 @@ As `RD-52` says. Both are plain `Event`s, and the value is read from the element
   - Either can be added later without a change of the surface.
 - **Corners.** The outer corners are the size's `shape.leading` and `shape.trailing`. The inner corners are the 2 px of `active.track.inner-corner.corner-size`. Its value names right corners, so the package maps them to the active track's end and the inactive track's start.
 - **Sizes** change the track's height, the handle's height and the outer corners. The inset icons of the three larger sizes wait, so `icon.size` and `icon.padding` aren't read.
-- **States.** The handle is 4 px. It is 2 px while the handle is held and while the input is `:focus-visible`, and both track ends follow it. A mouse press isn't `:focus-visible` in any engine. **Held** is a state that the component sets from pointer events, and not `:active` (amended 2026-11-24, [ruled below](#the-held-state)). Hover changes nothing but names its token. There is no state layer and no ripple: their tokens are deprecated.
+- **States.** The handle is 4 px. It is 2 px while the handle is held and while the input is `:focus-visible`, and both track ends follow it. A mouse press isn't `:focus-visible` in any engine. **Held** is a state that the component sets from pointer events, and not `:active` (amended 2026-11-24, [ruled below](#the-held-state)). With two mouse buttons it follows the pointer's press, which the platform counts as one for all buttons, and not the engine's drag. Hover changes nothing but names its token. There is no state layer and no ripple: their tokens are deprecated.
 - **Focus indicator.** The slider sets have no token for one, and 2 px alone is too weak to see. The shared `focusTokens` outline goes around `.handle` on `:focus-visible`.
 - **Disabled** draws each part's disabled color and opacity. The stop indicator's only disabled opacity is deprecated, so it uses `disabled.handle.opacity`, which has the same value (0.38).
 - **Value indicator,** with `indicator` set: shown while the handle is held, in the sense of _States_, or has keyboard focus, above it by `value-indicator.active.bottom-space`, centred on it and kept between the slider's ends. Its block padding is that token too, so it is 44 px tall. No current token gives its padding or shape. Literals, with provenance: 10 px inline padding from Material Components for Android's `Widget.Material3.Slider.Label`, read through a subagent on 2026-11-23, and a full corner, which is the architect's inference, not a reading. The visual review settles it. The text is written only when `indicator` is set.
-  - **Placement.** Required: the shown indicator adds no scrollable overflow, to the page or to a container, at either end, in either direction, whatever its text. It is centred on the handle wherever it fits between the slider's ends, and otherwise it stops at the end. A text that is longer than the slider wraps, and breaks inside a word if it has to, whatever `white-space` the page gives the slider. A slider narrower than the text's inline padding, 20 px, is outside this. It isn't in the box model while it isn't shown, as before.
+  - **Placement.** Required: the shown indicator adds no scrollable overflow, to the page or to a container, at either inline end, in either direction, whatever its text. (A block end isn't meant: above its handle it is overflow like any box drawn above another, which a normal scroller can't reach.) It is centred on the handle wherever it fits between the slider's ends, and otherwise it stops at the end. A text that is longer than the slider wraps, and breaks inside a word if it has to, whatever `white-space` the page gives the slider. A slider narrower than the text's inline padding, 20 px, is outside this. It isn't in the box model while it isn't shown, as before.
   - **How, as measured:** `.indicator` is a flex container as wide as the track. Its two pseudo-elements are the spaces beside `.text`, with `flex: 1 1` and the basis `max(0px, 2c − 100%)` and `max(0px, 100% − 2c)`, where `c` is the handle's centre. Each takes half of the free space, so the text is centred, and the longer one gives way first. `.text` is `flex: none` with `max-inline-size: 100%`. It reads no layout, needs no script, no direction and no new platform feature.
   - **Text.** `.text` has `unicode-bidi: plaintext`, for the number and for `valuetext`. The text's own characters give its direction, and a text with no letters is left to right. So `-18` and `-18°` are drawn with the sign at the left in both directions, as a script-neutral number is, and a `valuetext` that begins in Arabic or Hebrew is laid out right to left. `Intl.NumberFormat`'s own direction marks keep working. The text is an element's and no longer generated content, so `data-value` goes. `aria-hidden` moves from `.handle` to `.indicator`.
   - **Not adopted:** see [`reviewer-2`](#reviewer-2).
@@ -352,8 +353,8 @@ The [report](slider-report.md#the-feature-proofs-dispositions) of `244e20a29`, r
 
 **The held state, as properties:**
 
-1. It begins at a press of the primary button, a finger or a pen on the input, while the slider is enabled. A press on the label isn't one.
-2. It ends at the release or the cancel of **the pointer that began it,** at the slider's being disabled, and at its disconnection. In the three engines the `pointerup` of a press on a range is dispatched at the range, also when the pointer is released outside the slider (read), so no listener outside it is needed.
+1. It begins at a press of the primary button, a finger or a pen on the input, with no other button of that pointer down, while the slider is enabled. A press on the label isn't one.
+2. It ends at the `pointerup` (the release of that pointer's last button) or the cancel of **the pointer that began it,** at the slider's being disabled, and at its disconnection. In the three engines the `pointerup` of a press on a range is dispatched at the range, also when the pointer is released outside the slider (read), so no listener outside it is needed.
 3. Another pointer's press doesn't change it, as ruled for the press below.
 4. It begins at the touch of a finger, before the browser has decided whether it scrolls, so a scroll that starts on the slider shows it until the cancel, about 50 ms in Chromium's emulation. Nothing about the value shows (`SL-D3`). The handle narrows and the indicator's fade starts. The owner's trial on phones shows whether it matters. It isn't a question before that.
 5. `.handle`, both track ends and the indicator follow it as they followed `:active`, and the tokens' `pressed` state is this one. `:hover`, `:focus-visible` and `:disabled` don't change. A slider's disabled look wins over it.
@@ -389,6 +390,69 @@ All accepted, and they are now the plan's `SL-D3`:
 6. `SL-D6`'s wording in JSDoc, where it says _held_, needs no change.
 
 **Then:** the reviewer reads the accepted items of the proof again with these. The baselines are still after it.
+
+## The recheck's rulings
+
+The [recheck](../reviews/slider-1/feature-proof-recheck-claude.md) at `2230ead7b`, ruled on 2026-11-24 by the architect. Nothing is the owner's to answer. `slider.ts` changes in one comment, and no rule is added.
+
+### A simpler contract, and what it removes
+
+**Ruled: `SL-D3` states one rule, and the engine's own gesture and commit are the engine's.** Three rounds have found what the hold does beside a native range that commits by itself. Each finding repaired by a rule leaves the next native path. The component exists to keep a scroll from changing a value. It does that by holding the press's first `input` until the browser decides, and every other path is the range's own. So:
+
+- **The built code already follows it.** A native `change` while a press is held reports the press, and a next native `input` is the user's, whatever caused either. That reading of the events is the contract, and the sentences that promised more are narrowed.
+- **The class it removes:** `reviewer-8`'s focus, disabling, moving, removing and hiding, and `reviewer-9` in both engines. It also answers the departure. No such case is a finding again unless the slider differs from a bare range in the same engine, or a press that the browser takes for a scroll is reported with no native event of the engine's after it.
+- **Nothing is deleted from `slider.ts`.** The drop at disabling and at a disconnection stays, because the input would otherwise hold a number that isn't shown.
+- **What the user loses:** a press is kept, and not dropped, when it was committed by the engine before the scroll. It needs a resting finger, and an act of the page or a second finger on the slider within it.
+
+### reviewer-8
+
+**Accepted as a finding about the text, and the behavior stands as a limit.** Read in the recheck beside a bare range: `input` 70 and `change` 70 come for a disabled range in both. The same holds for the focus, and for a moved or removed range in Chromium.
+
+- **A cheaper repair was read and fails.** Running the drop before `input.disabled` is written changes nothing, because Chromium fires its `change` at the host's being disabled, before `formDisabled` ([reading](checks/disabled-order.txt)). What remains is a `:disabled` test in the handler, and another for each other cause. A disabled slider that fires `input` is what a native range does there.
+- **The loss of focus ends a held press as the user's.** The engine commits it. The contract's letter already said so.
+- **Firefox's hidden case** is a native `input` with the number shown. The slider takes it as the user's, and from then on it follows no attribute. A bare range fires the same. It is a limit.
+- **Not explained:** in Firefox a focused slider moved in the DOM in the middle of a touch ended at 0, where a bare range ended at 70, and the other forms of the same probe, unfocused, ended at the lifted number. A move during a touch is not supported, so it is not followed up.
+
+### reviewer-9 and the departure
+
+**The departure is accepted, and the tracking's rule is narrowed to the tracking and the held look.** In the native range another finger is followed in Firefox, and ends the drag in Chromium. The component can't change the range's number without taking its gesture over, which `SL-D1` rejects. A press on the same slider with two fingers is rare, and the value is the one the native range gives.
+
+- **The commit is at the first lift of either finger,** or at the cancel if neither lifts, in Chromium. One `change`, read. A consumer is promised nothing that this loses.
+- **Not adopted:** a rule that suppresses the native `input` and `change` of another pointer. It can't restore the number, and it would lose the first finger's `change` in Chromium, which fires only there.
+
+### reviewer-10
+
+**Accepted as a limit.** It needs a cancelled press, then a write, then an assistive technology's set of exactly the old number, in Firefox, with no press and no key between. The next number works. To end the phase with the restoration would need the end of the touch, so another listener and its own engine differences.
+
+### reviewer-11
+
+**Accepted as a limit.** A second button's press isn't a `pointerdown`, and the pointer's `pointerup` is its last button's. The state is cosmetic, the value is the native range's, and an answer in `pointermove`'s `buttons` would add a write to the path that `SL-D8` keeps free.
+
+### reviewer-12, 13 and 14
+
+- **`reviewer-12`: accepted, the implementer's.** `recordEvents` must not merge two `change`s. It may keep merging repeats of `input`.
+- **`reviewer-13`: accepted** for the press anew after a scroll, the primary pointer's press anew, the uncommitted slide, a pen's hold, a native `change` while held, and the indicator's `pointer-events`. The other three stay without a row.
+- **`reviewer-14`: accepted.** The texts are below.
+- **The 56 px block overflow in a `column-reverse` scroller doesn't count.** `SL-D6` means the inline ends, and it now says so. The indicator is a transient box above the handle. In a normal scroller its block overflow can't be reached. No geometry without a top layer avoids it.
+
+### The implementer's work
+
+In this order, on `material-x/slider-1`. Nothing in `styles/` or the template changes.
+
+1. `tests/slider/slider.browser.test.ts`:
+   - `recordEvents` reports each `change` (`reviewer-12`). **Witness:** `isUncommitted = false` removed from the commit makes _"should not follow a second finger during a slide"_, and a cancel after it, fail. Each row that states one `change` is read once through the changed helper.
+   - Chromium, by emulated touch: two scrolls in a row on the slider leave 30 and fire nothing. **Witness:** without the fresh phase at `pointerdown` the second gives 70, with `input` and `change`.
+   - A slide ended by disabling the slider, enabled again, then a press that scrolls, fires no `change`. **Witness:** without the reset of `isUncommitted` at `pointerdown`.
+   - A focused slider whose held press meets the focus of another element fires one `input` 70 and one `change` 70, and the value is 70. It pins the engine's commit as the contract. **Witness:** without the report in the `change` handler it fails.
+   - A pen's press on the track, by CDP, leaves the value and the events until its release, which fires one `input` and one `change`. **Witness:** with only a finger held.
+   - In the three engines: a press after a release that was missed (the slider hidden with `display: none` during a mouse press, released, shown, pressed again) looks held and its `pointerup` ends it. **Witness:** without the primary pointer's press beginning anew.
+   - In the three engines: while the indicator shows, a hit test at its centre is not the indicator. **Witness:** without `pointer-events: none`.
+2. **Texts:** `slider.mdx` and JSDoc's `@event input` say that a touch or a pen moves the handle at the lift or the first step, and that one that becomes a scroll changes nothing and fires nothing. The comment on `pointerdown` says that the tracking and the look, not the range, ignore another pointer.
+3. The report: the second finger in both engines, as `SL-D3`, the rows and their witnesses. No cost is expected: no path of a move changes, and the published size changes only by a comment. It is read anyway.
+
+**The coordinator's,** #220: the second finger's paragraph becomes _"A second finger isn't followed by the component's tracking or the held look. The native range's is its own, and the same as a bare range's: in Firefox its lift moves the value to that finger, and in Chromium its touch ends the slide and the slide's `change` comes at the first lift. A focused slider that is blurred, disabled, moved or removed while a finger rests is committed as the native range commits it."_ The list of checks adds the pen to _a finger's press_. The phones' trial can read the second finger too.
+
+**Baselines:** this remediation changes neither a style, the template nor a drawing, so they can be recorded now, after the commit that carries this note, which includes `origin/main`. They don't wait for the remediation.
 
 ## What stays possible
 
@@ -501,6 +565,8 @@ Minted on 2026-11-23 by the main slot's architect, at `eaff88884`. The text belo
 
 **Proposed on 2026-11-24, for the feature proof, and minted the same day** in `RD-55`, with the owner's answers, the indicator's cost and two limits added: a dated note in `RD-55`, with no new entry, and clause 4 amended. _"**Clause 4 now says:** Events are plain `Event`s (`RD-52`). A press that the browser turns into a scroll changes nothing and fires nothing: the component holds back a finger's press until the browser has decided. What it said: a press that the browser turns into a scroll restores the value. **Why:** a restoration can't tell the user's press from a script's write that followed it, so `SL-D2` and `SL-D3` gave different answers (`reviewer-1`). **The value indicator** is two elements inside the track: it stays between the slider's ends and adds no scrollable overflow (`reviewer-2`), and its text takes its direction from its characters, so a negative number keeps its sign at the left in RTL (`reviewer-3`). An empty `aria-label` isn't a name's source (`reviewer-4`). **Costs:** with a finger the handle moves at the lift or the first step of the slide, and the indicator is off the handle's centre at the ends."_
 
+**Proposed on 2026-11-24, for the recheck, and not minted:** a dated note in `RD-55`, with no new entry and no clause changed. _"Clause 4's press that the browser turns into a scroll is one that the engine hasn't committed. A commit that the engine makes first, by a loss of focus, by disabling, moving or removing a focused slider, or by a second finger, is the user's, as on a bare range in that engine. The held look ignores a second pointer and a second button. The plan's [rulings](slider-1/slider-plan.md#the-rechecks-rulings) have the readings. No source behavior changes."_
+
 The first proposals, as they stood:
 
 - **A decision entry for `SL-D1` to `SL-D9`,** pointing here, with the owner's answers to Q1 and Q2. Q1 (a) also makes the slider the second exception in `architecture.md` §Components.
@@ -555,3 +621,4 @@ The first proposals, as they stood:
   - [the dispositions](#feature-proof-dispositions), with the work list and two questions for the owner.
 - **2026-11-24, the architect,** when minting `RD-55`'s note: the owner's answers, and two limits in `SL-D3`. A script's write during a tap and a move in the DOM during a held press are the engine's, as the readings have them.
 - **2026-11-24, the architect,** for the implementation report at `4a7ffdcda`: `SL-D6`'s held state comes from pointer events and not from `:active`; `SL-D3` has the report's additions and limit; [the rulings](#the-implementation-reports-rulings), with the work list.
+- **2026-11-24, the architect,** for the recheck at `2230ead7b`: `SL-D3` states one rule, and narrows _a press that becomes a scroll does nothing_, disabling, a disconnection and the second finger to what the engine hasn't committed. It said that a slider that is disabled drops a held press, and that another pointer's press isn't followed. `SL-D6`: the held state's begin and end with two mouse buttons, and the indicator's overflow means the inline ends. [The rulings](#the-rechecks-rulings).

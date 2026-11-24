@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { commands, page } from 'vitest/browser';
 import '../../src/button/button.ts';
+import '../../src/card/card.ts';
 import '../../src/fab/fab.ts';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
@@ -62,16 +63,30 @@ async function expectedLayers(
   };
 }
 
-/** The three shadows `box` draws: its own, and its `::before` and `::after`. */
+/**
+ * The three shadows `box` draws: on a `.host`, its own, and its `::before` and
+ * `::after`. On a host that is its box, the three in its one list, in order.
+ */
 function renderedLayers(box: Element): ElevationLayers {
-  return {
-    penumbra: getComputedStyle(box).boxShadow,
-    umbra: getComputedStyle(box, '::before').boxShadow,
-    ambient: getComputedStyle(box, '::after').boxShadow,
-  };
+  const { boxShadow } = getComputedStyle(box);
+
+  if (!box.shadowRoot) {
+    return {
+      penumbra: boxShadow,
+      umbra: getComputedStyle(box, '::before').boxShadow,
+      ambient: getComputedStyle(box, '::after').boxShadow,
+    };
+  }
+
+  // A comma inside a colour function doesn't separate two shadows.
+  const layers = boxShadow.split(/, (?![^(]*\))/u);
+  expect(layers).toHaveLength(3);
+  const [umbra, penumbra, ambient] = layers;
+
+  return { umbra: umbra!, penumbra: penumbra!, ambient: ambient! };
 }
 
-/** The element that draws the shadow: the shadow `.host`, or a static item's host. */
+/** The element that draws the shadow: the shadow `.host`, or a host that is its box. */
 function boxOf(element: HTMLElement): HTMLElement {
   return element.shadowRoot!.querySelector<HTMLElement>('.host') ?? element;
 }
@@ -184,6 +199,87 @@ describe('mx-fab elevation layers', () => {
   });
 });
 
+describe('mx-card elevation layers', () => {
+  it('should draw the three elevation layers of its level', async () => {
+    const card = createCard('elevated');
+    document.body.append(card);
+    await nextFrame();
+    const { values } = await commands.resolveTokenContract({
+      contract: 'card.elevated',
+      state: 'default',
+      tokens: ['container.elevation', 'container.shadow-color'],
+    });
+
+    expect(renderedLayers(boxOf(card))).toEqual(
+      await expectedLayers(
+        values['container.elevation']!,
+        values['container.shadow-color']!,
+      ),
+    );
+  });
+
+  it('should draw its layers in its own shadow colour', async () => {
+    const card = createCard('elevated');
+    card.style.setProperty('--_container-shadow-color', OWN_SHADOW_COLOR);
+    document.body.append(card);
+    await nextFrame();
+    const { values } = await commands.resolveTokenContract({
+      contract: 'card.elevated',
+      state: 'default',
+      tokens: ['container.elevation'],
+    });
+
+    expect(renderedLayers(boxOf(card))).toEqual(
+      await expectedLayers(values['container.elevation']!, OWN_SHADOW_COLOR),
+    );
+  });
+
+  // A filled button sets no level, so it draws the level it inherits.
+  it('should not raise a filled button inside an elevated card', async () => {
+    const card = createCard('elevated');
+    const button = document.createElement('mx-button');
+    button.textContent = 'Button';
+    card.append(button);
+    document.body.append(card);
+    await nextFrame();
+
+    expect(layerAlphas(boxOf(button))).toEqual([0, 0, 0]);
+  });
+});
+
+describe('host-box elevation layers', () => {
+  it('should generate no pseudo-element box on mx-card', async () => {
+    const card = createCard('elevated');
+    document.body.append(card);
+    await nextFrame();
+
+    expect(pseudoContents(card)).toEqual(['none', 'none']);
+  });
+
+  it('should generate no pseudo-element box on a lifted mx-list-item', async () => {
+    const [item] = createSortableList('mx-list-item');
+    await nextFrame();
+    await lift(item!);
+
+    expect(pseudoContents(item!)).toEqual(['none', 'none']);
+  });
+});
+
+/** The `content` of both pseudo-elements: one with `none` generates no box. */
+function pseudoContents(element: Element): readonly string[] {
+  return ['::before', '::after'].map(
+    (pseudo) => getComputedStyle(element, pseudo).content,
+  );
+}
+
+/** Drags `item` a little, and keeps the button down. */
+async function lift(item: HTMLElement): Promise<void> {
+  const [x, y] = centerOf(boxOf(item));
+  await commands.pointerPress(x, y);
+  await commands.pointerMove(x, y + 12, 3);
+  await expect.poll(() => item.matches(':state(drag)')).toBe(true);
+}
+
 function createSortableList(tag: string): readonly HTMLElement[] {
   const list = document.createElement('mx-sortable-list');
   list.style.setProperty('--_drag-duration', '0s');
@@ -213,18 +309,14 @@ describe('mx-list items elevation layers', () => {
     async (tag) => {
       const [item] = createSortableList(tag);
       await nextFrame();
-      const box = boxOf(item!);
-      const [x, y] = centerOf(box);
-      await commands.pointerPress(x, y);
-      await commands.pointerMove(x, y + 12, 3);
-      await expect.poll(() => item!.matches(':state(drag)')).toBe(true);
+      await lift(item!);
       const { values } = await commands.resolveTokenContract({
         contract: 'list-item.default',
         state: 'dragged',
         tokens: ['container.elevation'],
       });
 
-      expect(renderedLayers(box)).toEqual(
+      expect(renderedLayers(boxOf(item!))).toEqual(
         await expectedLayers(
           values['container.elevation']!,
           await listShadowColor(),
@@ -290,7 +382,25 @@ const RESTING_CASES = [
       return button;
     },
   },
+  { name: 'filled mx-card', create: () => createCard(null) },
+  {
+    name: 'outlined mx-card',
+    create: () => {
+      const card = createCard('outlined');
+      // Two screenshots of an unchanged rounded outline can differ by 1 per
+      // channel in Chromium, and the rows compare the layers.
+      card.style.setProperty('--md-card-outline-color', 'transparent');
+      return card;
+    },
+  },
 ] as const;
+
+function createCard(variant: 'elevated' | 'outlined' | null): HTMLElement {
+  const card = document.createElement('mx-card');
+  card.variant = variant;
+  card.textContent = 'Card';
+  return card;
+}
 
 function createResting(tag: string): HTMLElement {
   const list = document.createElement('mx-list');
