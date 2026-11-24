@@ -14,7 +14,6 @@ import type {
 } from '@ydinjs/core/traits/selectable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
-import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
   type ListItemCoreTraits,
   useListItemCore,
@@ -46,12 +45,9 @@ export function useInteractiveListItemCore(
   host: ListInteractiveItemCore,
   template: HTMLTemplateElement,
 ): HTMLButtonElement | HTMLAnchorElement {
-  const target = useListItemCore(
-    host,
-    [interactiveBoxStyles, focusStyles],
-    template,
-    { delegatesFocus: true },
-  )!;
+  const target = useListItemCore(host, [interactiveBoxStyles], template, {
+    delegatesFocus: true,
+  })!;
 
   useDisableable(host, target);
   useARIA(host, target);

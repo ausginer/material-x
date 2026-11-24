@@ -1,0 +1,482 @@
+## no mutation | chromium | 86 passed (86)
+## no mutation | firefox | 86 passed (86)
+## no mutation | webkit | 86 passed (86)
+## list: color misspelled | chromium | 21 failed | 65 passed (86)
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: color misspelled | firefox | 21 failed | 65 passed (86)
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: color misspelled | webkit | 21 failed | 65 passed (86)
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: outline.offset misspelled | chromium | 21 failed | 65 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: outline.offset misspelled | firefox | 21 failed | 65 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: outline.offset misspelled | webkit | 21 failed | 65 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: thickness misspelled | chromium | 24 failed | 62 passed (86)
+   mx-list-item focus indicator contract > should render the indicator thickness
+   mx-list-button-item focus indicator contract > should render the indicator thickness
+   mx-list-link-item focus indicator contract > should render the indicator thickness
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: thickness misspelled | firefox | 24 failed | 62 passed (86)
+   mx-list-item focus indicator contract > should render the indicator thickness
+   mx-list-button-item focus indicator contract > should render the indicator thickness
+   mx-list-link-item focus indicator contract > should render the indicator thickness
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: thickness misspelled | webkit | 24 failed | 62 passed (86)
+   mx-list-item focus indicator contract > should render the indicator thickness
+   mx-list-button-item focus indicator contract > should render the indicator thickness
+   mx-list-link-item focus indicator contract > should render the indicator thickness
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: the shared sheet after the interactive box | chromium | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: the shared sheet after the interactive box | firefox | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: the shared sheet after the interactive box | webkit | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: the shared sheet after the static box | chromium | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: the shared sheet after the static box | firefox | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: the shared sheet after the static box | webkit | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: no outline on the interactive box | chromium | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: no outline on the interactive box | firefox | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: no outline on the interactive box | webkit | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator colour
+   mx-list-link-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: no outline on the static box | chromium | 2 failed | 84 passed (86)
+   mx-list-item focus indicator contract > should render the indicator thickness
+   mx-list-item focus indicator contract > should render the indicator colour
+## list: no outline on the static box | firefox | 8 failed | 78 passed (86)
+   mx-list-item focus indicator contract > should render the indicator thickness
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: no outline on the static box | webkit | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator colour
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: 2px outside, interactive | chromium | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: 2px outside, interactive | firefox | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: 2px outside, interactive | webkit | 14 failed | 72 passed (86)
+   mx-list-button-item focus indicator contract > should render the indicator offset
+   mx-list-link-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-button-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-link-item > should not be covered by the next item, mx-list-link-item
+## list: 2px outside, static | chromium | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: 2px outside, static | firefox | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## list: 2px outside, static | webkit | 7 failed | 79 passed (86)
+   mx-list-item focus indicator contract > should render the indicator offset
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-button-item
+   mx-sortable-list focus indicator stacking > of mx-list-item > should not be covered by the next item, mx-list-link-item
+## group: the button does not read the z-index | chromium | 6 failed | 80 passed (86)
+   focus indicator in a group > should not be covered by the button next to mx-button in mx-connected-button-group
+   focus indicator in a group > should not be covered by the button next to mx-link-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to the leading button of mx-split-button
+   focus indicator in a group > should not be covered by the button next to mx-icon-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-switch-button in mx-connected-button…
+   focus indicator in a group > should not be covered by the button next to mx-switch-icon-button in mx-connected-b…
+## group: the button does not read the z-index | firefox | 6 failed | 80 passed (86)
+   focus indicator in a group > should not be covered by the button next to mx-button in mx-connected-button-group
+   focus indicator in a group > should not be covered by the button next to mx-link-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to the leading button of mx-split-button
+   focus indicator in a group > should not be covered by the button next to mx-icon-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-switch-button in mx-connected-button…
+   focus indicator in a group > should not be covered by the button next to mx-switch-icon-button in mx-connected-b…
+## group: the button does not read the z-index | webkit | 6 failed | 80 passed (86)
+   focus indicator in a group > should not be covered by the button next to mx-button in mx-connected-button-group
+   focus indicator in a group > should not be covered by the button next to mx-link-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to the leading button of mx-split-button
+   focus indicator in a group > should not be covered by the button next to mx-icon-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-switch-button in mx-connected-button…
+   focus indicator in a group > should not be covered by the button next to mx-switch-icon-button in mx-connected-b…
+## group: the group sets no z-index | chromium | 6 failed | 80 passed (86)
+   focus indicator in a group > should not be covered by the button next to mx-button in mx-connected-button-group
+   focus indicator in a group > should not be covered by the button next to mx-link-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to the leading button of mx-split-button
+   focus indicator in a group > should not be covered by the button next to mx-icon-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-switch-button in mx-connected-button…
+   focus indicator in a group > should not be covered by the button next to mx-switch-icon-button in mx-connected-b…
+## group: the group sets no z-index | firefox | 6 failed | 80 passed (86)
+   focus indicator in a group > should not be covered by the button next to mx-button in mx-connected-button-group
+   focus indicator in a group > should not be covered by the button next to mx-link-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-icon-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-switch-button in mx-connected-button…
+   focus indicator in a group > should not be covered by the button next to mx-switch-icon-button in mx-connected-b…
+   focus indicator in a group > should not be covered by the button next to the leading button of mx-split-button
+## group: the group sets no z-index | webkit | 6 failed | 80 passed (86)
+   focus indicator in a group > should not be covered by the button next to mx-button in mx-connected-button-group
+   focus indicator in a group > should not be covered by the button next to mx-link-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to the leading button of mx-split-button
+   focus indicator in a group > should not be covered by the button next to mx-icon-button in mx-connected-button-g…
+   focus indicator in a group > should not be covered by the button next to mx-switch-button in mx-connected-button…
+   focus indicator in a group > should not be covered by the button next to mx-switch-icon-button in mx-connected-b…
+## group: no isolation | chromium | 6 failed | 80 passed (86)
+   focused button in the page > should stay below a positioned element that follows mx-button in mx-connected-button-group
+   focused button in the page > should stay below a positioned element that follows mx-link-button in mx-connected-button-g…
+   focused button in the page > should stay below a positioned element that follows mx-icon-button in mx-connected-button-g…
+   focused button in the page > should stay below a positioned element that follows mx-switch-button in mx-connected-button…
+   focused button in the page > should stay below a positioned element that follows mx-switch-icon-button in mx-connected-b…
+   focused button in the page > should stay below a positioned element that follows the leading button of mx-split-button
+## group: no isolation | firefox | 6 failed | 80 passed (86)
+   focused button in the page > should stay below a positioned element that follows mx-button in mx-connected-button-group
+   focused button in the page > should stay below a positioned element that follows mx-link-button in mx-connected-button-g…
+   focused button in the page > should stay below a positioned element that follows mx-icon-button in mx-connected-button-g…
+   focused button in the page > should stay below a positioned element that follows mx-switch-button in mx-connected-button…
+   focused button in the page > should stay below a positioned element that follows mx-switch-icon-button in mx-connected-b…
+   focused button in the page > should stay below a positioned element that follows the leading button of mx-split-button
+## group: no isolation | webkit | 6 failed | 80 passed (86)
+   focused button in the page > should stay below a positioned element that follows mx-button in mx-connected-button-group
+   focused button in the page > should stay below a positioned element that follows mx-link-button in mx-connected-button-g…
+   focused button in the page > should stay below a positioned element that follows mx-icon-button in mx-connected-button-g…
+   focused button in the page > should stay below a positioned element that follows mx-switch-button in mx-connected-button…
+   focused button in the page > should stay below a positioned element that follows mx-switch-icon-button in mx-connected-b…
+   focused button in the page > should stay below a positioned element that follows the leading button of mx-split-button
+## group: every focused button is raised | chromium | 1 failed | 85 passed (86)
+   focused button in the page > should stay below a positioned element that follows mx-button alone
+## group: every focused button is raised | firefox | 1 failed | 85 passed (86)
+   focused button in the page > should stay below a positioned element that follows mx-button alone
+## group: every focused button is raised | webkit | 1 failed | 85 passed (86)
+   focused button in the page > should stay below a positioned element that follows mx-button alone

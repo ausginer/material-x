@@ -5177,7 +5177,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 #### RF-125 — A list item's focus indicator takes the shared offset and not the list's own, so the next item covers it
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's first observation of that day about the sortable list, in chat with a screenshot, relayed by the coordinator: _"Outline скрыт нижним элементом"_ ("The outline is hidden by the element below"). `RF-124` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `114270083`, on the built elements, in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
+Tier A, **closed on 2026-11-24** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's first observation of that day about the sortable list, in chat with a screenshot, relayed by the coordinator: _"Outline скрыт нижним элементом"_ ("The outline is hidden by the element below"). `RF-124` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `114270083`, on the built elements, in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
 
 - **What happens:** the block end of the outline is covered in each list, `mx-list` and `mx-sortable-list`, for each item, static, button and link, when another item follows. 834 to 838 of its 863 to 871 pixels are covered (96 %). The last item's is whole. The other three sides are whole. A disabled and a selected neighbor cover it too. A lifted item's is whole, because it is in the top layer ([screenshot](sortable-observations-1/checks/lifted-chromium.png)). By reading, one in flight is too, because `landing()` raises it, and it is cut when the flight ends.
 - **Cause:** the outline is 3px wide and 2px outside the item, and the gap between items is 2px. Each item's box is positioned, so a later one paints over an earlier one's outline.
@@ -5193,6 +5193,32 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Ready** for an implementer. **The owner approved the start on 2026-11-24,** in chat, relayed by the coordinator: _"1) 👍"_.
 - **Size:** _small_.
 
+**Dated 2026-11-24 by the implementer: implemented on `material-x/focus-cover-1`, for #226, and not closed.** Requested by the coordinator. The direction holds in Chromium, Firefox and WebKit.
+
+- **Source:** the allow-list names `focus.indicator.color`, `.outline.offset` and `.thickness`. The three items no longer adopt the shared focus sheet, so the list's own variables apply, and `interactive-box.styles.css` has the rule that `static-box.styles.css` already had. No other allow-list in `src` has the misspelling.
+- **Rows:** in `list-item.spec`, the three values for each kind of item, and the block end's pixels for each kind of item followed by each kind, in both lists. The focus is the keyboard's. **Witnesses** ([reading](focus-cover-1/checks/witnesses.txt), [script](focus-cover-1/probes/mutate.mjs)), in the three engines: with each token misspelled, its row fails for the three kinds. With the shared sheet adopted after a box's own, or an offset of 2px, that box's offset and stacking rows fail, and no other. Without the outline on a box, its color rows fail. Which other rows of the static item fail then differs between the engines.
+- **The entry's probe on the built elements** ([reading](focus-cover-1/checks/focus-indicator-built.txt)): nothing is covered in any of the 25 cases, in the three engines.
+- **Read beside it** ([reading](focus-cover-1/checks/unfocused-and-hover.txt), [script](focus-cover-1/probes/unfocused-and-hover.mjs)): the indicator is inside the item now, so an interactive item's ripple tints it while the item is hovered, by at most 8 of 255 per channel, at the one pixel read. Nothing is changed for it.
+- **Visual baselines:** none is expected to change, because the list has no visual file. The sizes and the checks are in `RF-126`'s note, for both entries.
+
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/focus-cover-1/feature-proof-claude.md) at `e00c28db4`, relayed by the coordinator. **The entry holds as implemented, and lands alone:** `RF-126` waits (its note below). No source change is owed here.
+
+- **`reviewer-3`, accepted as a limit: the required property is about siblings, and an item's own content may cover the indicator.** Content that is positioned, or has an opacity below 1, paints over an indicator that lies inside its item. The page gives the content that, and a native button with an inside outline does the same. At most the side that the content lies on is lost. With the large leading image it is the start side, in the proof's 18 cases, and the other three sides are whole.
+- **Not taken:** the indicator on a layer above the content. The interactive items could draw it on their ripple, and the static item has none, so it would need a box of its own. A `z-index` in the content would still cover both, and the image's colors give it no contrast in any case. It was reasoned, and not read.
+- **Not owed:** a row, or a sentence in the documentation.
+- **The hover tint** that the implementer read stays: the proof reads at least 4.18:1 against the item's container in each state.
+
+**Dated 2026-11-24 by the implementer: `RF-126`'s raise is out of the branch, and this entry is alone on it.** No source of this entry changes.
+
+- **Size, Brotli, of this entry alone,** against `main` at `ee7d838cc`, built in the same worktree: `button/button` 4858 to 4866, `button/icon-button` 5140 to 5126, `button/link-button` 4829 to 4822, `button/switch-button` 5446 to 5440, `button/switch-icon-button` 5834 to 5847, `button/split-button` 7480 to 7455, `button-group/button-group` 3040 to 3049, `button-group/connected-button-group` 3809 to 3810, `fab/fab` 4137 to 4144, `list/list` 659 to 676, `list/list-item` 2868 to 2847, `list/list-button-item` 4854 to 4839, `list/list-link-item` 5065 to 5058, `list/sortable-list` 8906 to 8905, `text-field/text-field` 8489 to 8465, `complete` 22844 to 22826. No other row moves. The source outside the lists equals `main`'s, and the cause of the moves there wasn't read.
+- **Checks:** in `RF-126`'s note of the same date.
+
+**Dated 2026-11-24 by the architect: closed, on `59827b44e`.** #231 merges it, with `Closes #226`.
+
+- **The removal, read:** `packages/` differs from `origin/main` at `ee7d838cc` by this entry's four files in `src/list`, `list-item.spec` and `tests/focus-indicator.ts`, and `src/button` and `src/button-group` don't differ at all. From `e00c28db4`, which the proof read, only `RF-126`'s two stylesheets and its spec go. So the proof of this entry stands.
+- **Both required properties hold** by the [feature proof](reviews/focus-cover-1/feature-proof-claude.md), with the limit that the architect's note above states for an item's own content. `verify` passes on `59827b44e`. The revert's recheck that `RF-126`'s note asks for is this reading and [`without-raise.txt`](focus-cover-1/checks/without-raise.txt).
+- **Nothing is missing.** The size moves outside the lists, by at most 24 bytes in `text-field` and `split-button`, have no cause in their source, and they don't hold the entry.
+
 #### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
@@ -5204,6 +5230,109 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows,** `spec`, in each engine: the pixels of the indicator at the inner edge of each kind of button in each group. **Witness:** each row fails before the repair.
 - **Nothing is the owner's to answer.** **Ready** for an implementer. **The owner approved the start on 2026-11-24,** with `RF-125`: _"1) 👍"_.
 - **Size:** _small_.
+
+**Dated 2026-11-24 by the implementer: implemented on `material-x/focus-cover-1`, for #227, and not closed.** Requested by the coordinator. The direction holds in Chromium, Firefox and WebKit.
+
+- **Source:** the connected group's host has `isolation: isolate`, and it sets `--_focus-z-index: 1` on its slotted buttons. The button's `.host:focus-visible` has `z-index: var(--_focus-z-index)`, which is `auto` outside a group. A custom property is used because the button's host is `display: contents`, so it has no box for a `z-index`. `mx-split-button` has a connected group in its shadow tree, so it needs nothing of its own.
+- **Rows:** `button-group-focus.spec`, one for each of the five buttons of a connected group and one for a split button's leading one, on the inline end's pixels. The last button of a group has no later one, so it gets no row. Seven more read that a positioned element that follows stays above the focused button, in each group and for a button alone. **Witnesses** ([reading](focus-cover-1/checks/witnesses.txt)), in the three engines: without the `z-index`, on either side, the six covering rows fail, and no other. Without the isolation only the six stacking rows of the groups fail. With every focused button raised, only the row of the button alone fails.
+- **The entry's probe on the built elements** ([reading](focus-cover-1/checks/focus-indicator-built.txt)): 0 pixels are covered in the connected group, with buttons and with switch buttons. The split button's count falls from 92 to 6 or 7 of 172 to 174. The probe counts each dark pixel that changes there, which can include the indicator's antialiased edge over another background; those pixels weren't inspected. The row counts the indicator's own color and finds 0.
+- **The stacking context changes no paint without focus:** four built groups equal the same group with `isolation: auto`, in the three engines ([reading](focus-cover-1/checks/unfocused-and-hover.txt)). A page's `z-index` on a button's content no longer leaves the group. That follows from the declaration and wasn't read.
+- **Visual baselines:** none is expected to change: no visual test focuses a button in a connected group.
+- **Size, Brotli, for both entries together:** `button/button` 4858 to 4870, `button/icon-button` 5140 to 5107, `button/link-button` 4829 to 4833, `button/switch-button` 5446 to 5443, `button/switch-icon-button` 5834 to 5845, `button/split-button` 7480 to 7462, `button-group/button-group` 3040 to 3060, `button-group/connected-button-group` 3809 to 3830, `fab/fab` 4137 to 4144, `list/list` 659 to 676, `list/list-item` 2868 to 2847, `list/list-button-item` 4854 to 4839, `list/list-link-item` 5065 to 5058, `list/sortable-list` 8906 to 8905, `text-field/text-field` 8489 to 8453, `complete` 22844 to 22872. No other row moves. The causes of the moves in `fab/fab`, `text-field/text-field` and `button-group/button-group` were not read.
+- **Checks, for both entries,** before `origin/main` at `ee7d838cc` was merged (#225, records only): the suite without the visual project, one engine at a time: Chromium 1060 passed and 2 expected failures; Firefox 1049 passed, 3 expected failures and 10 skipped; WebKit 1050 passed, 2 expected failures and 10 skipped. Format, lint, typecheck, publint, `docs-build` and `docs-smoke` (112 of 112) pass.
+- **Not run, for both entries:** the visual project, Safari, forced colors, RTL.
+
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/focus-cover-1/feature-proof-claude.md) at `e00c28db4`, relayed by the coordinator. **The direction is withdrawn, the implementation leaves the branch, and the entry stays open for the owner's answer below.** `RF-125` lands without it.
+
+- **`reviewer-1`, accepted.** The required property asks for two things that the direction can't give together. A stacking context holds the content's `z-index` inside it, and paints as one block at the group's place. So it changes the page's stacking by being there, and raising without one changes it while a button has focus. The entry's sentence _"so the group needs one"_ was the architect's error: _"Not read: … the context"_ was the part that mattered.
+- **Read,** on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, each candidate as styles adopted after the elements' own ([reading](focus-cover-1/checks/stacking-candidates.txt), [probe](focus-cover-1/probes/stacking-candidates.mjs)). The engines agree on the table. Other pixels differ by a few:
+
+  | Candidate | The indicator's end edge | The page at rest | The page while a button has keyboard focus |
+  | --- | --- | --- | --- |
+  | As on `main` | Covered, 0 of 44 samples | Unchanged | Unchanged |
+  | Isolate at rest, raise (built) | Whole | **A tooltip with a `z-index` in a button is covered by positioned content after the group. A button that precedes the group isn't clickable over its empty end** | The same |
+  | Raise, no isolation | Whole | Unchanged | **The focused button is above a page's menu after the group, and above a bar before it with `z-index: 1`, such as `mx-top-app-bar`.** A tooltip in it is below `z-index: 1` content |
+  | Raise the ring only, no isolation | Whole | Unchanged | **The ring shows through that menu and that bar** (2351 to 2659 pixels) |
+  | Isolate while focus is inside, raise | Whole | Unchanged | The built candidate's two effects |
+  | An offset of −1px, so that the indicator lies in the gap | Whole | Unchanged | Unchanged |
+  | An offset of −3px, inside | Tinted by the focus layer in each edge | Unchanged | Unchanged |
+
+  `isolate` while a button matches `:focus-visible` can't be written: `:host(:has(:focus-visible))` doesn't see a focus in a button's shadow tree. The read of it equals _raise, no isolation_.
+
+- **Also found not to work:** a group can't style the button's box (`::slotted()::part()` isn't supported in any of the three). `order` on an item paints it last without a stacking context in Chromium and Firefox, and the hit test in WebKit doesn't follow it (read with a scratch probe that wasn't kept); it would also need the group as a grid, with each button's column. Reordering, the top layer and a box that the group positions over the button are machinery that the property doesn't need.
+- **Contrast of the indicator** against what lies beside it, where the indicator's end edge would lie ([reading](focus-cover-1/checks/stacking-candidates.txt)): the next button is 1.03:1 (filled), 5.05:1 (tonal), 5.87:1 (elevated). Outlined and text buttons are transparent and cover nothing of it. A selected switch button is 1.00 to 1.03:1 in each color except outlined, 2.02:1. An unselected one is 5.05:1 or more. **So in a group of filled buttons and beside a selected one, a raised edge isn't visible, and the proof's observation is right.** The entry didn't mean that, and meant the covering.
+- **`reviewer-2`, accepted and settled by the removal:** `--_focus-z-index` goes. If (b) is chosen below, the group sets the button's own `--_focus-indicator-outline-offset`, which each button declares on its host, so nothing slotted inherits it (by reading: the shared focus sheet's `:host` rule declares it unconditionally).
+- **`reviewer-4`, accepted and settled by the removal.** If (b) or (c) is chosen, the rows read each of the three members, and (c)'s rows are the tooltip and the click, at rest and focused.
+
+**The question for the owner: what does a connected group do about the edge?** [Screenshot](focus-cover-1/checks/options-chromium.png), the middle button focused, in Chromium.
+
+- **(a) Nothing. Recommended.** The indicator is open on the end side, for a tonal or elevated neighbor and for an unselected switch button. The other three sides are whole and keep the token's offset. In the default color and beside a selected button, a repair couldn't be seen. It costs the incomplete ring, which is what a page's own buttons placed closely have. The entry is then closed as a known limit, and no row is owed.
+- **(b) The indicator in the gap.** The offset in a connected group is the gap less the indicator's thickness, so −1px. All sides are whole and no stacking changes. It costs the token's offset, and the space between the button and its indicator, so on a filled and a selected button (1.03:1) the button seems to grow by 2px. One declaration.
+- **(c) The raise, with the group isolated while focus is inside.** The ring is the token's and whole. It costs a page's hand-made tooltip in a group's button, which is covered by positioned content below while the keyboard user is in the group, and a page's button before the group that loses clicks over its empty end.
+- **Not offered:** isolation at rest (`reviewer-1`'s effects always), and raising without it, which paints over a page's bar and menus.
+
+**The work now, for the implementer,** on the branch:
+
+1. **Take out `e00c28db4`'s source and tests, with a new commit that leaves the record as it is:** `isolation` and `--_focus-z-index` in `button-group/styles/connected/main.styles.css`, the `z-index` in `button/styles/default/main.styles.css`, and `button-group-focus.spec.browser.test.ts`. `tests/focus-indicator.ts` stays, because `list-item.spec` uses it. Nothing in the two entries' records goes.
+2. **The report,** here: the sizes of `RF-125` alone, the lists' rows and the groups' existing rows in the three engines, and the proof's `stack.mjs` and `hit.mjs` giving `main`'s reading.
+3. **The pull request** says `Closes #226` and `Refs #227`.
+
+**A recheck is owed of the revert only:** nothing of `main` differs in the groups. This entry's state is open until the owner answers, and its earlier sentence that nothing is the owner's to answer is withdrawn.
+
+**Dated 2026-11-24 by the implementer: the raise is taken out, and the entry isn't closed.** Requested by the coordinator.
+
+- **Source and tests:** the two stylesheets are as before `e00c28db4`, and `button-group-focus.spec` is gone. `packages/` differs from `main` at `ee7d838cc` by `RF-125`'s source, `list-item.spec` and `tests/focus-indicator.ts` only.
+- **The proof's `stack.mjs` and `hit.mjs`** on the built head give `main`'s reading, line for line, in Chromium, Firefox and WebKit ([reading](focus-cover-1/checks/without-raise.txt)). They equal `main` built in the same worktree, and the lines that the proof recorded for it.
+- **Sizes of `RF-125` alone:** in its note.
+- **Checks:** the suite without the visual project, one engine at a time, which has the lists' rows and the groups' existing ones: Chromium 1047 passed and 2 expected failures (with the node project); Firefox 1001 passed, 3 expected failures and 10 skipped; WebKit 1002 passed, 2 expected failures and 10 skipped. Typecheck, format, publint, `docs-build` and `docs-smoke` (112 of 112) pass. Lint doesn't apply to the changed files, which are CSS and Markdown.
+- **The record of the raise stays:** the group mutations of [`mutate.mjs`](focus-cover-1/probes/mutate.mjs) and their readings are of `e00c28db4`, and don't run on this head.
+- **Not run:** the visual project, Safari, forced colors, RTL.
+
+**Dated 2026-11-24: answered by the owner, (c).** In chat, relayed by the coordinator, on [`options-chromium.png`](focus-cover-1/checks/options-chromium.png): _"Обводка: с (raised на скрине, выглядит прям как надо)"_ ("The outline: (c) (raised in the screenshot, it looks just right)"). **The costs, as they were stated to him** by the architect of slot `b`, relayed by the coordinator: while the keyboard is in the group, a page's hand-made tooltip in it can be covered by content that follows, and a page's button before the group loses clicks over its empty end. The first direction stays withdrawn, and the question above is closed.
+
+**Dated 2026-11-24 by the architect: the contract. Ready for an implementer,** on a branch of its own from `main` after #231 merges. Read at `59827b44e` with the mechanism below built from a scratch change ([source](focus-cover-1/checks/keyboard-raise-scratch.patch.txt), restored afterward; [readings](focus-cover-1/checks/keyboard-raise.txt), [probe](focus-cover-1/probes/keyboard-raise.mjs)), in Playwright's Chromium 158, Firefox 159 and WebKit 27.2. The engines agree except where it says so.
+
+**Required properties.** They replace the entry's. A _member_ is an element that is assigned to the group's slot and is one of material-x's five buttons that a group takes. The split button's two buttons are the members of the group in its shadow tree.
+
+1. No other member covers a pixel of the indicator of a member that has keyboard focus, whichever member it is.
+2. **Keyboard focus means that the member's own control matches `:focus-visible`.** The group is a stacking context exactly while that holds for one of its members and focus is inside. At rest, with a pointer's focus, and after focus leaves, by any way, stacking in and around the group is `main`'s.
+3. No member is raised while the group isn't a stacking context. So a focused member never rises over anything of the page outside the group: a menu after it, or a bar with `z-index: 1` before it.
+4. The raise reaches members alone. A button inside a member's content, beside the members in a popover, or in a wrapper isn't raised, and doesn't make the group a stacking context.
+
+**The mechanism, so that nothing is left to choose:**
+
+- **How the group knows.** `mx-connected-button-group` keeps a custom state, `focus-visible`. It sets it on its own `focusin` and `keydown`, each time to whether one of its children has a `shadowRoot.activeElement` that matches `:focus-visible`. It reads the focused control then, and not the event's target: a roving arrow key moves focus inside `keydown`, so the target is the former control (the first scratch form read the target, and lost the raise after an arrow).
+- **`keydown` is needed.** After a click, the control starts to match `:focus-visible` at the next key without a `focusin`: in Chromium at Shift, in WebKit at a letter, in Firefox not at all. Without it, the indicator is covered in that case.
+- **The stacking context:** `:host(:state(focus-visible):focus-within) { isolation: isolate }`. `:focus-within` ends it when focus leaves, so no `focusout` listener is needed, and also when the focused member is disabled or removed. A hidden member keeps its focus in Firefox and WebKit, and the group stays a stacking context with it.
+- **The raise:** `:host(:state(focus-visible)) ::slotted(*) { --_focus-z-index: 1 }`, and the button's `.host:focus-visible` has `z-index: var(--_focus-z-index)`. The button's `:host` declares `--_focus-z-index: auto`, unconditionally, beside its other private properties. The group's `::slotted` rule wins over the button's own `:host` (read), and what is inside a member has its own declaration. This is `RF-122`'s rule, and its check needs no exception. The scratch change has `::slotted(:focus)`, and the form here reads the same.
+- **Where:** `connected-button-group.ts`, `button-group/styles/connected/main.styles.css` and `button/styles/default/main.styles.css`. `mx-split-button` needs nothing. `mx-button-group` doesn't change.
+
+**Why keyboard focus alone, and why not in CSS.** The stated costs are the keyboard's. With `:host(:focus-within)` alone they come with a pointer too, in the three engines: after a click on a member, its tooltip is covered and the page's button loses its clicks until focus leaves. CSS can't tell the two apart ([selectors](focus-cover-1/checks/focus-selectors.txt), [probe](focus-cover-1/probes/focus-selectors.mjs)): a button's host matches `:focus` and never `:focus-visible`, `:host(:has(…))` sees no light child in Chromium, and in the others it has nothing to match. So it takes a listener.
+
+**Costs:**
+
+- **The owner's two,** in the group and the split button, in each engine: a tooltip with a `z-index` in a member is covered by positioned content that follows, and a page's positioned button that precedes the group isn't clickable over the group's empty end. Both only while a member has keyboard focus.
+- **A third, inside the group, found in this reading:** a page's badge slotted beside the members, positioned and without a `z-index`, is below the focused member. With `z-index: 1` it isn't. The slot is documented for buttons.
+- **Size,** Brotli, of the scratch change: `connected-button-group` 3810 to 3931, `split-button` 7455 to 7577, `complete` 22826 to 22894, and no other row moves by more than 15.
+- **Not a repair of contrast:** beside a filled or selected member the raised edge is 1.00 to 1.03:1, as before.
+
+**Outside the properties:** a split button or a group as a member of a connected group, and a button in a wrapper. Their indicator may be covered by the outer group's next member, as on `main`. The five-button member is what the group documents.
+
+**Rows,** `spec`, in each engine, in `tests/button-group/button-group-focus.spec.browser.test.ts`, with a tonal group, because the tolerance hardly tells the indicator from a filled button. `tests/focus-indicator.ts` gets the left side. Focus is moved with the keyboard.
+
+| Rows | What | Witness (each in the three engines, and each fails no other group of rows unless it says so) |
+| --- | --- | --- |
+| A | For each of the five kinds, the end edge of the first and of the middle member, and the start edge of the last. The split button's leading end and trailing start. 0 covered | Without the `z-index`: the first and middle rows and the split's leading row fail. The start-edge rows are controls. With `::slotted([data-first])`: the middle rows alone (`reviewer-4`) |
+| B | A tooltip with `z-index: 10` in a member, then positioned content; and a page's positioned button before the group, over its empty end. In a group and in a split button. On top **at rest, with a pointer's focus, and after the keyboard's focus leaves** | Isolation at rest: all fail. `:host(:focus-within)` alone: the pointer rows fail. Without `:focus-within`: the rows after focus leaves fail |
+| C | While a member has keyboard focus, a menu after the group with `z-index: auto` and a bar before it with `z-index: 1` stay on top of the focused member, in a group and in a split button. A button alone: a positioned element that follows stays above it | Without the isolation: the group's and the split's fail. With every focused button raised: the button alone |
+| D | `reviewer-2`'s: an overlay in a popover, over a focused `mx-button` in that popover, in a member's content. The overlay is on top, and the group isn't isolated | `e00c28db4`'s rule, an unconditional `::slotted(*)` value with no declaration on the button's host |
+| E | The group's `isolation` is `isolate` exactly when a member's control matches `:focus-visible`, and that control's `z-index` is then 1 and otherwise `auto`: after Tab, a click, a click and then a letter, an arrow on switch buttons after a click, a click outside, and the focused member disabled and removed | Without `keydown`: the letter case fails in Chromium and WebKit, and not in Firefox, where the control doesn't start to match. With the event's target in place of the focused control: the arrow case |
+
+**A row doesn't assert the costs.** The keyboard's covered tooltip and lost click are what the owner accepted, and a later change that removes them isn't a defect.
+
+**Also owed:** one sentence on the pages of the connected group and the split button: while a button in it has keyboard focus, the group is a stacking context, so an overlay that a page puts in or near it belongs in the top layer, such as a popover. Not in an API comment. The probe above and the proof's `stack.mjs` and `hit.mjs` on the built head, with the differences that [`keyboard-raise.txt`](focus-cover-1/checks/keyboard-raise.txt) has. The sizes. A forced-colors and an RTL run of the rows isn't owed: the indicator is whole in RTL by the probe.
+
+**Not read:** Safari itself, where a click doesn't focus a button by default, forced colors, and screenshots. **No visual baseline** is expected to change. **Nothing is the owner's to answer.** **Size:** _small_.
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
