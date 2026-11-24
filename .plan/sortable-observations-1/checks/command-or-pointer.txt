@@ -1,0 +1,18 @@
+# chromium 158.0.8127.18
+a key, down: start > reorder, the same run as start: true > end accepted
+a key at the edge, down: nothing
+a key that names no command: nothing
+a pointer drop, one slot: start > reorder, the same run as start: false > end accepted
+a pointer drop after one move of 60 px: start > reorder, the same run as start: false > end accepted
+# firefox 159.0
+a key, down: start > reorder, the same run as start: true > end accepted
+a key at the edge, down: nothing
+a key that names no command: nothing
+a pointer drop, one slot: start > reorder, the same run as start: false > end accepted
+a pointer drop after one move of 60 px: start > reorder, the same run as start: false > end accepted
+# webkit 27.2
+a key, down: start > reorder, the same run as start: true > end accepted
+a key at the edge, down: nothing
+a key that names no command: nothing
+a pointer drop, one slot: start > reorder, the same run as start: false > end accepted
+a pointer drop after one move of 60 px: start > reorder, the same run as start: false > end accepted

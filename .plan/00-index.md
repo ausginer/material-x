@@ -5149,7 +5149,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows,** `spec`, in each engine: the three values against the list's package for each kind of item, and the block end's pixels with a next item of each kind. **Witness:** the offset row fails before the repair.
 - **Merges with** `RF-71`, which changes the items' sheets, and `RF-84`.
 - **Nothing is the owner's to answer.** The specification's value is the repair.
-- **Ready** for an implementer.
+- **Ready** for an implementer. **The owner approved the start on 2026-11-24,** in chat, relayed by the coordinator: _"1) 👍"_.
 - **Size:** _small_.
 
 #### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
@@ -5161,7 +5161,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Required property:** in a connected group and a split button, no button of the same group covers a pixel of a focused button's indicator. Outside the group, stacking is unchanged: nothing of the page is covered by a focused button that it wasn't covered by.
 - **Direction:** the focused button's `.host` is raised above its siblings, inside a stacking context that the group makes. With `.host:focus-visible { z-index: 1 }` on the button, nothing is covered in the connected group in the three engines (read). Without the group's own stacking context it would also rise above the page's, so the group needs one. Not read: the split button, the context, and the ripple.
 - **Rows,** `spec`, in each engine: the pixels of the indicator at the inner edge of each kind of button in each group. **Witness:** each row fails before the repair.
-- **Nothing is the owner's to answer.** **Ready** for an implementer.
+- **Nothing is the owner's to answer.** **Ready** for an implementer. **The owner approved the start on 2026-11-24,** with `RF-125`: _"1) 👍"_.
 - **Size:** _small_.
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
@@ -5185,17 +5185,26 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not drag's:** its contract makes the placeholder for the whole operation, unstyled, and its own stories commit with `flushSync`. Nothing there is wrong, and `DRF-56` isn't minted.
 - **What the contract and the specification say:** `RD-31` property 4 has the placeholder with _"today's footprint style"_, and the keyboard as _"moves the item one slot at once"_ and proposes it. It doesn't say what a command shows. Material's list pages (guidelines, accessibility, specs; rendered in Chromium on 2026-11-24) don't describe a reorder, by pointer or by keyboard. Only the token set has `reorder` tokens.
 - **Why it is a problem:** a gray box flashes, which reads as a glitch. A slow commit also shows the item lying on its neighbor for its whole duration.
-- **Required properties,** for the owner's answer to Q1:
+- **Answered by the owner on 2026-11-24,** in chat, relayed by the coordinator: **(a)**. _"2) (а) и вопрос: это изменение в drag?"_ ("(a), and a question: is this a change in drag?"). It isn't: the change is material-x's alone, and drag gets nothing. A signal from drag would be a separate decision.
+- **Required properties:**
   1. a key move paints no footprint, however long the commit takes;
   2. the flight stays as it is, and so does a pointer drag's footprint. Reduced motion behaves as `RF-107` says.
-- **Question for the owner, Q1 — what should a keyboard move show?**
-  - **(a) No footprint for a keyboard move. The flight stays. Recommended:** the flight already shows where the item went. Nothing changes for the pointer, and it doesn't wait for a timing. With a slow commit the list shows an empty slot and the lifted item. It costs that the list learns a command from its own `keydown`, or that drag tells it, which is a public addition in drag.
+- **The question as asked, Q1 — what should a keyboard move show?**
+  - **(a) No footprint for a keyboard move. The flight stays. Recommended. Chosen:** the flight already shows where the item went. Nothing changes for the pointer, and it doesn't wait for a timing. With a slow commit the list shows an empty slot and the lifted item. It costs that the list tells a command from a pointer drag by itself (below).
   - **(b) The footprint fades in, by a transition on opacity.** Read: with 200 ms, the footprint's frames in the story's commit and the next task's have an opacity of at most 0.026, and not 0.16, in the three engines, by `@keyframes` or by `@starting-style`, and a slow commit still shows the footprint. It needs nothing from drag. It costs that a pointer drag's footprint fades in again at each slot, because drag re-inserts the placeholder to move it. That part wasn't drawn.
   - (c) No footprint and no flight: the item jumps, as with `reduce`. The user has to find it.
   - (d) The placeholder stays as it is.
 - **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`.
-- **Direction for (a):** material-x only. The list hides the footprint with a state of its own that it sets on a `keydown` it captures before drag's listener and clears at `onEnd` or at a pointer drag. A drag-side signal is a separate decision in drag's index and isn't proposed. **Plan needed:** no, after the answer.
-- **Rows,** in each engine: a key with a React commit, a commit after 100 ms and a refused one paint no footprint in any frame. A pointer drag does. **Witness:** the first two fail before the repair. The state clears after `onEnd`, and after a command that drag declines, so that the next pointer drag has its footprint.
+- **How the list tells a command, settled by the architect on 2026-11-24:** by the run of its own callbacks, and not by a key. A command's drop follows `onStart` synchronously (drag's contract, _Consistency_), and the session asks for the verdict in the same pass, so `onStart` and `onReorder` are one run with no microtask between them. A pointer drag's `onStart` is in a `pointermove` and its `onReorder` in the `pointerup`. Read with real input in the three engines: a microtask queued in `onStart` hasn't run at a command's `onReorder` and has at a pointer drop's, also when the drop follows a single move ([reading](sortable-observations-1/checks/command-or-pointer.txt), [probe](sortable-observations-1/probes/command-or-pointer.mjs)).
+  1. `onStart` marks the operation as new, and a microtask ends the mark. `onReorder`, if the mark still holds, sets the list's state that hides the footprint, before it dispatches `reorder`. No `keydown` is listened to.
+  2. The state is cleared at `onEnd`, and at the list's disconnect, because a destruction calls no `onEnd`. The placeholder is removed at the operation's release, before `onEnd`, so it doesn't show again.
+  3. **A key that starts no command sets nothing,** because it reaches no `onStart`: a key at the edge, a key that isn't an arrow, one that drag declines, one inside `data-drag-ignore`, and one that goes to a handle-less item's other controls. A cancel between the two callbacks calls no `onReorder` and sets nothing. So the state can't outlive a key.
+  4. The placeholder keeps its size and place. Only its painting is hidden, and nothing else of the operation changes.
+  5. **Limit:** `pointermove` and `pointerup` that a script dispatches in one run are taken for a command, and the footprint is hidden while that commit is pending. No real input does this.
+- **Not adopted:** a captured `keydown`. A key whose command is declined leaves nothing to clear it, and a microtask set in a capture listener runs before drag's bubble listener does.
+- **Plan needed:** no.
+- **Rows,** in each engine: a key with a React commit, a commit after 100 ms, and a refused one paint no footprint in any frame. A pointer drag does, in the drag and while its commit is pending. **Witness:** the first two fail before the repair. After a key at the edge and after one that drag declines (`data-drag-ignore`), the next pointer drag has its footprint. After a key move that is accepted, refused, or timed out after 500 ms, and after the list is disconnected during its commit and connected again, the next pointer drag has it too. **Witness:** without clearing at `onEnd`, and without clearing at the disconnect, each of its rows fails.
+- **Ready** for an implementer.
 - **Merges with** `RF-118`, which moves the hook's code. The second to land takes the first's lines.
 - **Seen, and not registered:** the footprint's color and opacity are the list item's `dragged` state layer, which the token set describes as _"baseline only"_: expressive lists use the `reorder` tokens, such as `reorder.list-item.drop-zone.color` and `reorder.list-item.container.color`. No rule reads them, apart from the shadow's color. `RD-31` fixed today's style, so it is the owner's to raise.
 - **Size:** _small_.
@@ -5210,14 +5219,16 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Why it matters, and how little:** focus is visible today, so nothing is inaccessible. A button that the package makes looks unlike every other control, and like three things in the three engines.
 - **Required property:** a focused handle that the list made a button shows Material's focus indicator, and a page's own rule on it still wins.
 - **Candidate read:** `::slotted([data-handle]:focus-visible)` in the item's sheet. In the three engines, on static and button items, it draws the indicator on `mx-icon`, `span` and `button`, a page rule on the handle wins over it, and `* { outline: 0 }` removes it, as it removes the browser's. `mx-icon-button` is unchanged, with one indicator. An `!important` outline isn't taken: the handle is the consumer's element.
-- **Question for the owner, Q1 — who owns the handle's indicator?**
-  - **(a) The package draws it, by that rule. Recommended:** the package makes the handle a button, so the button looks like its buttons, whatever the consumer used. It costs one rule in each item's sheet, not measured, also for a plain `mx-list`, and a focusable `[data-handle]` that a consumer puts there takes it.
+- **Answered by the owner on 2026-11-24,** in chat, relayed by the coordinator: **(a)**. _"3) (a)"_.
+- **The question as asked, Q1 — who owns the handle's indicator?**
+  - **(a) The package draws it, by that rule. Recommended. Chosen:** the package makes the handle a button, so the button looks like its buttons, whatever the consumer used. It costs one rule in each item's sheet, not measured, also for a plain `mx-list`, and a focusable `[data-handle]` that a consumer puts there takes it.
   - (b) The documentation says that the handle keeps the browser's indicator, and how to style it: `mx-sortable-list [data-handle]:focus-visible { outline: … }` works today (read). It costs nothing, and each consumer does it or doesn't.
   - (c) The story styles its own handle only, so the Storybook looks right and a consumer's doesn't.
   - (d) Nothing changes.
-- **Rows,** for (a), `spec`, in each engine: the outline of a focused handle in each slot and each kind of item against `focusTokens`, and a page's rule winning. **Witness:** the outline row fails before the repair.
+- **Rows,** `spec`, in each engine: the outline of a focused handle in each slot and each kind of item against `focusTokens`, and a page's rule winning. **Witness:** the outline row fails before the repair.
 - **Not read:** an `mx-icon-button` handle's accessible nodes, where the host also has `role="button"`.
-- **Plan needed:** no, after the answer. **Size:** _small_.
+- **Plan needed:** no. **Ready** for an implementer. The rule is adopted in the items' sheets, and takes the values of the shared `focusTokens`, 2px outside. `RF-125` gives the item's own variables the list's −3px, and both are on the item's `:host`, so the handle's offset needs a variable of its own. The two can land in either order.
+- **Size:** _small_.
 
 ## Questions
 
