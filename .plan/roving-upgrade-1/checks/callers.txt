@@ -1,0 +1,42 @@
+# chromium: differ 0, same 126
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# firefox: differ 0, same 126
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>2 Tab>body Tab>button
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>2 Tab>body Tab>button
+errors: none
+# webkit-again: differ 0, same 126
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# webkit-r1: differ 0, same 126
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# webkit-r2: differ 0, same 126
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# webkit-r3: differ 0, same 126
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# webkit: differ 76, same 50
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# webkit-main: differ 9, same 117
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+errors: none
+# the first webkit run: the first line of every differing 'got'
+     76    got   mx-text-field[]{has-support}</>1232x76 

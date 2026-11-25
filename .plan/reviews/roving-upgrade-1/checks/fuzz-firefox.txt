@@ -1,0 +1,259 @@
+# firefox
+A: one batch; value, focus, blur: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 12 | 0 | 0
+  boolean: 12 | 0 | 0
+  candidate: 98 | 0 | 3
+  intended: 0 | 0 | 0
+  main: 808 | 808 | 0
+  moved: 85 | 0 | 0
+  mutantJoin: 12 | 0 | 0
+  mutantMatch: 12 | 0 | 0
+  mutantMoved: 20 | 0 | 0
+  mutantNodes: 12 | 0 | 0
+  mutantSelect: 22 | 0 | 0
+  mutantValue: 31 | 0 | 0
+  priority: 13 | 0 | 0
+  registered: 98 | 0 | 3
+  single: 12 | 0 | 0
+  snapshot: 22 | 0 | 0
+  subject: 12 | 0 | 0
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":"b","late":false},{"do":"blur","at":0.63840835634619,"sync":false},{"do":"value","at":0.8073839489370584,"sync":false,"value":null},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i0:0 i1:-1
+      want i0:-1 i1:0
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":"b","late":false},{"do":"blur","at":0.63840835634619,"sync":false},{"do":"value","at":0.8073839489370584,"sync":false,"value":null},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i0:0 i1:-1
+      want i0:-1 i1:0
+B: A, and ready or late items added: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 39 | 0 | 0
+  boolean: 41 | 0 | 0
+  candidate: 132 | 0 | 2
+  intended: 0 | 0 | 0
+  main: 654 | 605 | 0
+  moved: 121 | 0 | 0
+  mutantJoin: 37 | 0 | 0
+  mutantMatch: 38 | 0 | 0
+  mutantMoved: 45 | 0 | 0
+  mutantNodes: 21 | 5 | 0
+  mutantSelect: 45 | 0 | 0
+  mutantValue: 52 | 0 | 0
+  priority: 8 | 0 | 0
+  registered: 132 | 0 | 2
+  single: 37 | 0 | 0
+  snapshot: 32 | 0 | 0
+  subject: 37 | 0 | 0
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"B","value":"a","disabled":false}],"value":"e","late":false},{"do":"add","at":0.8817695714533329,"sync":false,"item":{"id":1,"kind":"clone","value":"b","disabled":false},"where":0.3385720578953624},{"do":"define","k":"A","sync":false},{"do":"define","k":"B","sync":false},{"do":"blur","at":0.7230348628945649,"sync":false}]
+      got i1:0 i0:-1
+      want i1:-1 i0:0
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"ready","value":"b","disabled":false},{"id":2,"kind":"A","value":"c","disabled":false},{"id":3,"kind":"ready","value":"d","disabled":false}],"value":"c","late":false},{"do":"value","at":0.4885877254419029,"sync":false,"value":"e"},{"do":"blur","at":0.2838935819454491,"sync":false},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i0:0 i1:-1 i2:-1 i3:-1
+      want i0:-1 i1:-1 i2:0 i3:-1
+C: B, and items removed: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 26 | 0 | 0
+  boolean: 27 | 0 | 0
+  candidate: 108 | 0 | 2
+  intended: 0 | 0 | 0
+  main: 485 | 448 | 0
+  moved: 99 | 0 | 0
+  mutantJoin: 23 | 0 | 0
+  mutantMatch: 26 | 0 | 0
+  mutantMoved: 30 | 2 | 0
+  mutantNodes: 17 | 4 | 0
+  mutantSelect: 31 | 0 | 0
+  mutantValue: 34 | 0 | 0
+  priority: 5 | 0 | 0
+  registered: 108 | 0 | 2
+  single: 23 | 0 | 0
+  snapshot: 22 | 0 | 0
+  subject: 23 | 0 | 0
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":false}],"value":null,"late":true},{"do":"add","at":0.46052491781301796,"sync":false,"item":{"id":2,"kind":"ready","value":"c","disabled":false},"where":0.0606214941944927},{"do":"define","k":"A","sync":false},{"do":"define","k":"B","sync":false}]
+      got i2:0 i0:-1 i1:-1
+      want i2:-1 i0:0 i1:-1
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false},{"id":2,"kind":"ready","value":"c","disabled":false},{"id":3,"kind":"A","value":"d","disabled":false}],"value":null,"late":false},{"do":"value","at":0.7475987002253532,"sync":false,"value":"b"},{"do":"blur","at":0.2770066009834409,"sync":false},{"do":"define","k":"A","sync":false},{"do":"value","at":0.06506942771375179,"sync":false,"value":"e"},{"do":"define","k":"B","sync":false}]
+      got i0:0 i1:-1 i2:-1 i3:-1
+      want i0:-1 i1:0 i2:-1 i3:-1
+D: C, and items moved or put back: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 46 | 0 | 0
+  boolean: 49 | 0 | 1
+  candidate: 141 | 0 | 0
+  intended: 8 | 0 | 1
+  main: 477 | 419 | 0
+  moved: 140 | 0 | 0
+  mutantJoin: 46 | 0 | 1
+  mutantMatch: 47 | 0 | 1
+  mutantMoved: 50 | 0 | 1
+  mutantNodes: 10 | 0 | 0
+  mutantSelect: 61 | 0 | 1
+  mutantValue: 57 | 0 | 1
+  priority: 8 | 0 | 0
+  registered: 143 | 0 | 1
+  single: 46 | 0 | 1
+  snapshot: 39 | 0 | 0
+  subject: 46 | 0 | 1
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":false}],"value":"f","late":false},{"do":"define","k":"B","sync":false},{"do":"move","at":0.8094225560780615,"sync":false,"where":0.3649633857421577},{"do":"define","k":"A","sync":false}]
+      got i1:0 i0:-1
+      want i1:-1 i0:0
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"B","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":false}],"value":null,"late":false},{"do":"remove","at":0.2611022850032896,"sync":false},{"do":"define","k":"B","sync":false},{"do":"back","at":0.23262654128484428,"sync":false,"where":0.9385440729092807},{"do":"focus","at":0.12296860944479704,"sync":false},{"do":"define","k":"A","sync":false}]
+      got i1:-1 i0:0
+      want i1:0 i0:-1
+    shortest move of subject: [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":false},{"id":2,"kind":"A","value":"c","disabled":false},{"id":3,"kind":"ready","value":"d","disabled":false}],"value":null,"late":false},{"do":"add","at":0.6278878783341497,"sync":false,"item":{"id":4,"kind":"ready","value":"e","disabled":false},"where":0.0855345232412219},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i4:0 i0:-1 i1:-1 i2:-1 i3:-1
+      want i4:-1 i0:0 i1:-1 i2:-1 i3:-1
+E: A, and items disabled: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 63 | 31 | 0
+  boolean: 64 | 31 | 0
+  candidate: 143 | 31 | 1
+  intended: 60 | 31 | 1
+  main: 806 | 806 | 0
+  moved: 128 | 31 | 0
+  mutantJoin: 64 | 31 | 0
+  mutantMatch: 70 | 31 | 0
+  mutantMoved: 66 | 32 | 0
+  mutantNodes: 64 | 31 | 0
+  mutantSelect: 69 | 31 | 0
+  mutantValue: 75 | 31 | 0
+  priority: 65 | 41 | 0
+  registered: 143 | 31 | 1
+  single: 64 | 31 | 0
+  snapshot: 69 | 31 | 0
+  subject: 64 | 31 | 0
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":true}],"value":null,"late":true},{"do":"disable","at":0.0245356447994709,"sync":false},{"do":"define","k":"A","sync":false},{"do":"define","k":"B","sync":false}]
+      got i0!:-1 i1!:-1
+      want i0!:0 i1!:-1
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":true}],"value":null,"late":true},{"do":"disable","at":0.0245356447994709,"sync":false},{"do":"define","k":"A","sync":false},{"do":"define","k":"B","sync":false}]
+      got i0!:-1 i1!:-1
+      want i0!:0 i1!:-1
+F: D, E, and host in and out: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 58 | 15 | 1
+  boolean: 60 | 15 | 1
+  candidate: 132 | 15 | 0
+  intended: 24 | 15 | 1
+  main: 544 | 501 | 0
+  moved: 124 | 15 | 0
+  mutantJoin: 48 | 15 | 0
+  mutantMatch: 51 | 15 | 0
+  mutantMoved: 49 | 15 | 0
+  mutantNodes: 28 | 15 | 0
+  mutantSelect: 60 | 15 | 0
+  mutantValue: 51 | 15 | 0
+  priority: 27 | 16 | 0
+  registered: 133 | 16 | 0
+  single: 48 | 15 | 0
+  snapshot: 45 | 15 | 0
+  subject: 48 | 15 | 0
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":true}],"value":null,"late":true},{"do":"disable","at":0.0245356447994709,"sync":false},{"do":"define","k":"A","sync":false},{"do":"define","k":"B","sync":false}]
+      got i0!:-1 i1!:-1
+      want i0!:0 i1!:-1
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":true}],"value":null,"late":true},{"do":"disable","at":0.0245356447994709,"sync":false},{"do":"define","k":"A","sync":false},{"do":"define","k":"B","sync":false}]
+      got i0!:-1 i1!:-1
+      want i0!:0 i1!:-1
+G: B, several steps in a task: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 61 | 0 | 0
+  boolean: 67 | 0 | 2
+  candidate: 156 | 0 | 2
+  intended: 16 | 0 | 0
+  main: 614 | 547 | 0
+  moved: 143 | 0 | 0
+  mutantJoin: 64 | 0 | 2
+  mutantMatch: 68 | 0 | 3
+  mutantMoved: 74 | 0 | 2
+  mutantNodes: 57 | 16 | 2
+  mutantSelect: 74 | 0 | 2
+  mutantValue: 76 | 0 | 1
+  priority: 29 | 0 | 0
+  registered: 156 | 0 | 2
+  single: 64 | 0 | 2
+  snapshot: 63 | 0 | 0
+  subject: 64 | 0 | 2
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":"a","late":true},{"do":"define","k":"A","sync":true},{"do":"define","k":"B","sync":true},{"do":"focus","at":0.6746256661135703,"sync":true}]
+      got i0:0 i1:-1
+      want i0:-1 i1:0
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":"a","late":true},{"do":"define","k":"A","sync":true},{"do":"define","k":"B","sync":true},{"do":"focus","at":0.6746256661135703,"sync":true}]
+      got i0:0 i1:-1
+      want i0:-1 i1:0
+    shortest move of subject: [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":null,"late":false},{"do":"define","k":"A","sync":true},{"do":"define","k":"B","sync":true},{"do":"add","at":0.7952027942519635,"sync":false,"item":{"id":2,"kind":"ready","value":"c","disabled":false},"where":0.03461795346811414}]
+      got i2:0 i0:-1 i1:-1
+      want i2:-1 i0:0 i1:-1
+H: one batch, nothing else: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 0 | 0 | 0
+  boolean: 0 | 0 | 0
+  candidate: 298 | 0 | 0
+  intended: 0 | 0 | 0
+  main: 810 | 810 | 0
+  moved: 298 | 0 | 0
+  mutantJoin: 0 | 0 | 0
+  mutantMatch: 0 | 0 | 0
+  mutantMoved: 0 | 0 | 0
+  mutantNodes: 0 | 0 | 0
+  mutantSelect: 43 | 0 | 0
+  mutantValue: 0 | 0 | 0
+  priority: 0 | 0 | 0
+  registered: 298 | 0 | 0
+  single: 0 | 0 | 0
+  snapshot: 43 | 0 | 0
+  subject: 0 | 0 | 0
+I: one batch, items added, no value: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 269 | 0 | 6
+  boolean: 331 | 0 | 26
+  candidate: 434 | 0 | 0
+  intended: 0 | 0 | 0
+  main: 622 | 323 | 0
+  moved: 434 | 0 | 0
+  mutantJoin: 239 | 0 | 17
+  mutantMatch: 239 | 0 | 17
+  mutantMoved: 239 | 0 | 17
+  mutantNodes: 42 | 0 | 0
+  mutantSelect: 247 | 0 | 17
+  mutantValue: 239 | 0 | 17
+  priority: 0 | 0 | 0
+  registered: 434 | 0 | 0
+  single: 239 | 0 | 17
+  snapshot: 102 | 0 | 0
+  subject: 239 | 0 | 17
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false}],"value":null,"late":true},{"do":"add","at":0.977473734645173,"sync":false,"item":{"id":1,"kind":"A","value":"b","disabled":false},"where":0.38157550361938775},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i1:0 i0:-1
+      want i1:-1 i0:0
+    shortest move of subject: [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false},{"id":1,"kind":"A","value":"b","disabled":false}],"value":null,"late":false},{"do":"add","at":0.10707901581190526,"sync":false,"item":{"id":2,"kind":"ready","value":"c","disabled":false},"where":0.15483137010596693},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i2:0 i0:-1 i1:-1
+      want i2:-1 i0:0 i1:-1
+J: one batch with late elements that are no items, or never defined: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 0 | 0 | 0
+  boolean: 0 | 0 | 0
+  candidate: 162 | 0 | 0
+  intended: 24 | 0 | 0
+  main: 669 | 669 | 0
+  moved: 162 | 0 | 0
+  mutantJoin: 0 | 0 | 0
+  mutantMatch: 0 | 0 | 0
+  mutantMoved: 0 | 0 | 0
+  mutantNodes: 0 | 0 | 0
+  mutantSelect: 51 | 0 | 0
+  mutantValue: 0 | 0 | 0
+  priority: 0 | 0 | 0
+  registered: 162 | 0 | 0
+  single: 0 | 0 | 0
+  snapshot: 51 | 0 | 0
+  subject: 0 | 0 | 0
+K: one batch of one way; the focus moves, and a value: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  before: 5 | 0 | 0
+  boolean: 5 | 0 | 0
+  candidate: 55 | 0 | 2
+  intended: 0 | 0 | 0
+  main: 808 | 808 | 0
+  moved: 36 | 0 | 0
+  mutantJoin: 5 | 0 | 0
+  mutantMatch: 6 | 0 | 0
+  mutantMoved: 15 | 0 | 0
+  mutantNodes: 5 | 0 | 0
+  mutantSelect: 11 | 0 | 0
+  mutantValue: 17 | 0 | 0
+  priority: 6 | 0 | 0
+  registered: 55 | 0 | 2
+  single: 5 | 0 | 0
+  snapshot: 11 | 0 | 0
+  subject: 5 | 0 | 0
+    shortest of subject: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":"b","late":false},{"do":"focus","at":0.63840835634619,"sync":false},{"do":"value","at":0.8073839489370584,"sync":false,"value":null},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i0:0 i1:-1
+      want i0:-1 i1:0
+    shortest of priority: [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false},{"id":1,"kind":"B","value":"b","disabled":false}],"value":"b","late":false},{"do":"focus","at":0.63840835634619,"sync":false},{"do":"value","at":0.8073839489370584,"sync":false,"value":null},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false}]
+      got i0:0 i1:-1
+      want i0:-1 i1:0

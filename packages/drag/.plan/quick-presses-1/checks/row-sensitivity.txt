@@ -1,0 +1,38 @@
+# focus.browser.test.ts 'two arrow presses', browser and browser/webkit, --repeats=19 (20 runs), Playwright 1.65.0, at 923ab358a, no second page. base: keyPress of main; ack: key-press-ack.diff.
+# Mutations of session.ts's two restoreFocus calls: removed, or wrapped in the named scheduler. 'failed' is at least one of the runs; the count of runs isn't read.
+== base unmutated
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 passed | 12 skipped (13);
+== base ((_: () => void) => {})
+chromium:       1       Tests  1 failed | 12 skipped (13);      1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+webkit:       1       Tests  1 failed | 12 skipped (13);      2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+== base queueMicrotask
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 passed | 12 skipped (13);
+== base requestAnimationFrame
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 failed | 12 skipped (13);      1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+== base setTimeout
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 passed | 12 skipped (13);
+== base ((f: () => void) => setTimeout(f, 30))
+chromium:       1       Tests  1 failed | 12 skipped (13);      1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+webkit:       1       Tests  1 failed | 12 skipped (13);      2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+== ack unmutated
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 passed | 12 skipped (13);
+== ack ((_: () => void) => {})
+chromium:       1       Tests  1 failed | 12 skipped (13);      1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+webkit:       1       Tests  1 failed | 12 skipped (13);      2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+== ack queueMicrotask
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 passed | 12 skipped (13);
+== ack requestAnimationFrame
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 failed | 12 skipped (13);      1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+== ack setTimeout
+chromium:       1       Tests  1 passed | 12 skipped (13);
+webkit:       1       Tests  1 passed | 12 skipped (13);
+== ack ((f: () => void) => setTimeout(f, 30))
+chromium:       1       Tests  1 failed | 12 skipped (13);      1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;
+webkit:       1       Tests  1 failed | 12 skipped (13);      2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality;      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯;

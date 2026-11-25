@@ -1,0 +1,116 @@
+/**
+ * DRF-54's probe. Copies of it run as files of their own, because the row that
+ * failed is the first of its file and its press is the first input of its frame.
+ * `first` is the row itself, traced. `later` repeats it in the same frame, and
+ * `unawaited` sends the second press before the first one has returned.
+ */
+import { describe, expect, it } from 'vitest';
+import {
+  basicSortable,
+  commands,
+  faults,
+  focusableList,
+  foreignErrors,
+  frames,
+  log,
+  order,
+  row,
+} from './support/harness.ts';
+
+type Entry = readonly [string, number, ...unknown[]];
+
+const name = (node: unknown): string => {
+  const element = node as Partial<Element> | null;
+  return element ? element.id || element.nodeName || 'window' : 'null';
+};
+
+function trace(list: HTMLElement): Entry[] {
+  const out: Entry[] = [];
+  const at = (): number => Math.round(performance.now() * 10) / 10;
+
+  for (const type of ['keydown', 'keyup'] as const) {
+    addEventListener(
+      type,
+      (event) => {
+        const before = document.activeElement;
+        out.push([type, at(), event.key, event.isTrusted, event.repeat, name(event.target), name(before), document.hasFocus(), order(list)]);
+        if (type === 'keydown') {
+          // After the dispatch, and before the next task.
+          queueMicrotask(() => {
+            out.push(['microtask', at(), event.defaultPrevented, name(document.activeElement), order(list)]);
+          });
+        }
+      },
+      { capture: true, signal: stop.signal },
+    );
+    // A key that reached another frame of the page.
+    for (let w: Window = window; w !== w.parent; w = w.parent) {
+      w.parent.addEventListener(
+        type,
+        (event) => {
+          out.push([`parent-${type}`, at(), (event as KeyboardEvent).key, name(event.target)]);
+        },
+        { capture: true, signal: stop.signal },
+      );
+    }
+  }
+  for (const type of ['focus', 'blur'] as const) {
+    addEventListener(
+      type,
+      (event) => {
+        out.push([type, at(), name(event.target), name(document.activeElement)]);
+      },
+      { capture: true, signal: stop.signal },
+    );
+  }
+  return out;
+}
+
+let stop = new AbortController();
+
+async function run(label: string, isAwaited: boolean): Promise<void> {
+  stop = new AbortController();
+  const list = focusableList(4);
+  const out = trace(list);
+  const state = (what: string): void => {
+    out.push([what, Math.round(performance.now() * 10) / 10, name(document.activeElement), document.hasFocus(), parent.document.hasFocus(), name(parent.document.activeElement), order(list)]);
+  };
+
+  basicSortable(list);
+  state('before-focus');
+  row('r0').focus();
+  state('focused');
+  const t0 = performance.now();
+  if (isAwaited) {
+    await commands.keyPress('ArrowDown');
+    state('press-1-returned');
+    await commands.keyPress('ArrowDown');
+  } else {
+    await Promise.all([commands.keyPress('ArrowDown'), commands.keyPress('ArrowDown')]);
+  }
+  const ms = Math.round(performance.now() - t0);
+  state('press-2-returned');
+  await frames();
+  state('frames');
+  const result = order(list);
+  const active = name(document.activeElement);
+  const good = result === 'r1,r2,r0,r3' && active === 'r0';
+  if (!good) {
+    await new Promise((r) => { setTimeout(r, 1000); });
+    state('1s-later');
+  }
+  stop.abort();
+  // eslint-disable-next-line no-console
+  console.log(`PROBE ${label} ${good ? 'pass' : 'FAIL'} ${ms}ms ${result}`);
+  expect(good, JSON.stringify({ label, out, log, faults: faults.map(String), foreignErrors: foreignErrors.map(String) }, null, 1)).toBe(true);
+}
+
+describe('quick presses', () => {
+  it('first', () => run('first', true));
+  for (let i = 0; i < 10; i += 1) {
+    it(`later ${i}`, () => run('later', true));
+  }
+  for (let i = 0; i < 10; i += 1) {
+    it(`unawaited ${i}`, () => run('unawaited', false));
+  }
+});

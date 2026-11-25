@@ -1,0 +1,392 @@
+# The 62 core rows against each mutation; chromium, firefox and webkit read the same, line for line
+none: 62 passed (62)
+a read forgets the chosen item unless it is focused: 4 failed | 58 passed (62)
+a read prefers the former choice to the focused item: 62 passed (62)
+a disabled item that is focused at a read is recorded (settled): 62 passed (62)
+a focused item is the choice only while it is focused (the ruling’s current): 1 failed | 61 passed (62)
+the chosen item is preferred to the value: 1 failed | 61 passed (62)
+a disabled chosen item is still the choice: 1 failed | 61 passed (62)
+focus does not move the tab stop at once: 2 failed | 60 passed (62)
+a change of the value forgets the chosen item: 2 failed | 60 passed (62)
+a change of the value does not choose again: 2 failed | 60 passed (62)
+the first choice is the only one that focus makes: 62 passed (62)
+a definition adds the item and does not choose again: 11 failed | 51 passed (62)
+a definition forgets the chosen item: 2 failed | 60 passed (62)
+a definition of an item that does not take the tab stop chooses the late item: 8 failed | 54 passed (62)
+a definition keeps the tab stop of an item that matches no value: 8 failed | 54 passed (62)
+a definition leaves a stop that focus moved off the value: 1 failed | 61 passed (62)
+only the last wait of a slot change reads: 12 failed | 50 passed (62)
+the upgrade of a node that the read does not wait for: 2 failed | 60 passed (62)
+disabled items are focusable choices: 1 failed | 61 passed (62)
+
+# Chromium, the model with each mutation as a hook (m0 is the head), 1000 sequences; the page lost its connection before H, I and K
+m0: none
+m1: a read forgets the chosen item unless it is focused
+m2: a read prefers the former choice to the focused item
+m3: a disabled item that is focused at a read is recorded (settled)
+m4: a focused item is the choice only while it is focused (the ruling’s current)
+m5: the chosen item is preferred to the value
+m6: a disabled chosen item is still the choice
+m7: focus does not move the tab stop at once
+m8: a change of the value forgets the chosen item
+m9: a change of the value does not choose again
+m10: the first choice is the only one that focus makes
+m11: a definition adds the item and does not choose again
+m12: a definition forgets the chosen item
+m13: a definition of an item that does not take the tab stop chooses the late item
+m14: a definition keeps the tab stop of an item that matches no value
+m15: a definition leaves a stop that focus moved off the value
+m16: only the last wait of a slot change reads
+m17: the upgrade of a node that the read does not wait for
+m18: disabled items are focusable choices
+A: one batch; value, focus, blur: of 1000, at the end | after one more slot change
+  m0, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  m0, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m1, late: {"contract":952,"focus moved it off the value":39,"other":9} | {"contract":962,"other":38}
+  m1, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":962,"other":38}
+  m10, late: {"contract":957,"focus moved it off the value":39,"other":4} | {"contract":993,"other":7}
+  m10, all ready: {"contract":943,"focus moved it off the value":52,"other":5} | {"contract":992,"other":8}
+  m11, late: {"contract":599,"count":362,"focus moved it off the value":39} | {"contract":1000}
+  m11, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m12, late: {"contract":952,"focus moved it off the value":39,"other":9} | {"contract":991,"other":9}
+  m12, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m13, late: {"contract":713,"other":248,"focus moved it off the value":39} | {"contract":1000}
+  m13, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m14, late: {"contract":843,"other":97,"focus moved it off the value":60} | {"contract":1000}
+  m14, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m15, late: {"contract":943,"focus moved it off the value":57} | {"contract":1000}
+  m15, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m16, late: {"contract":649,"count":325,"focus moved it off the value":24,"other":2} | {"contract":997,"other":3}
+  m16, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m17, late: {"contract":859,"count":109,"focus moved it off the value":32} | {"contract":999,"other":1}
+  m17, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m18, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  m18, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m2, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  m2, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m3, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  m3, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m4, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  m4, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m5, late: {"contract":915,"focus moved it off the value":85} | {"contract":915,"focus moved it off the value":85}
+  m5, all ready: {"contract":915,"focus moved it off the value":85} | {"contract":915,"focus moved it off the value":85}
+  m6, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  m6, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  m7, late: {"contract":897,"other":103} | {"contract":1000}
+  m7, all ready: {"contract":865,"other":135} | {"contract":1000}
+  m8, late: {"contract":953,"focus moved it off the value":39,"other":8} | {"contract":992,"other":8}
+  m8, all ready: {"contract":940,"focus moved it off the value":52,"other":8} | {"contract":992,"other":8}
+  m9, late: {"other":63,"contract":876,"focus moved it off the value":61} | {"contract":1000}
+  m9, all ready: {"other":91,"contract":824,"focus moved it off the value":85} | {"contract":1000}
+B: A, and ready or late items added: of 1000, at the end | after one more slot change
+  m0, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  m0, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m1, late: {"contract":947,"focus moved it off the value":40,"other":13} | {"contract":969,"other":31}
+  m1, all ready: {"contract":943,"focus moved it off the value":50,"other":7} | {"contract":969,"other":31}
+  m10, late: {"contract":958,"focus moved it off the value":40,"other":2} | {"contract":995,"other":5}
+  m10, all ready: {"contract":947,"focus moved it off the value":50,"other":3} | {"contract":995,"other":5}
+  m11, late: {"contract":598,"count":362,"focus moved it off the value":40} | {"contract":1000}
+  m11, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m12, late: {"contract":951,"focus moved it off the value":40,"other":9} | {"contract":991,"other":9}
+  m12, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m13, late: {"contract":691,"other":269,"focus moved it off the value":40} | {"contract":1000}
+  m13, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m14, late: {"contract":824,"other":118,"focus moved it off the value":58} | {"contract":1000}
+  m14, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m15, late: {"contract":944,"focus moved it off the value":56} | {"contract":1000}
+  m15, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m16, late: {"contract":686,"count":286,"focus moved it off the value":28} | {"contract":998,"other":2}
+  m16, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m17, late: {"contract":899,"count":65,"focus moved it off the value":36} | {"contract":1000}
+  m17, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m18, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  m18, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m2, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  m2, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m3, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  m3, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m4, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  m4, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m5, late: {"contract":898,"focus moved it off the value":102} | {"contract":898,"focus moved it off the value":102}
+  m5, all ready: {"contract":898,"focus moved it off the value":102} | {"contract":898,"focus moved it off the value":102}
+  m6, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  m6, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  m7, late: {"contract":942,"other":58} | {"contract":1000}
+  m7, all ready: {"contract":926,"other":74} | {"contract":1000}
+  m8, late: {"contract":955,"focus moved it off the value":40,"other":5} | {"contract":995,"other":5}
+  m8, all ready: {"contract":945,"focus moved it off the value":50,"other":5} | {"contract":995,"other":5}
+  m9, late: {"contract":881,"other":62,"focus moved it off the value":57} | {"contract":1000}
+  m9, all ready: {"contract":833,"focus moved it off the value":69,"other":98} | {"contract":1000}
+C: B, and items removed: of 1000, at the end | after one more slot change
+  m0, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m0, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m1, late: {"contract":967,"focus moved it off the value":24,"other":9} | {"contract":979,"other":21}
+  m1, all ready: {"contract":959,"focus moved it off the value":33,"other":8} | {"contract":979,"other":21}
+  m10, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m10, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m11, late: {"contract":683,"focus moved it off the value":24,"count":293} | {"contract":1000}
+  m11, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m12, late: {"contract":973,"focus moved it off the value":24,"other":3} | {"contract":997,"other":3}
+  m12, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m13, late: {"contract":784,"focus moved it off the value":24,"other":192} | {"contract":1000}
+  m13, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m14, late: {"contract":868,"focus moved it off the value":38,"other":94} | {"contract":1000}
+  m14, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m15, late: {"contract":966,"focus moved it off the value":34} | {"contract":1000}
+  m15, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m16, late: {"contract":801,"count":181,"focus moved it off the value":17,"other":1} | {"contract":998,"other":2}
+  m16, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m17, late: {"contract":936,"focus moved it off the value":22,"count":42} | {"contract":1000}
+  m17, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m18, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m18, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m2, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m2, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m3, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m3, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m4, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m4, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m5, late: {"contract":936,"focus moved it off the value":64} | {"contract":936,"focus moved it off the value":64}
+  m5, all ready: {"contract":936,"focus moved it off the value":64} | {"contract":936,"focus moved it off the value":64}
+  m6, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m6, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  m7, late: {"other":45,"contract":955} | {"contract":1000}
+  m7, all ready: {"other":58,"contract":942} | {"contract":1000}
+  m8, late: {"contract":975,"focus moved it off the value":24,"other":1} | {"contract":999,"other":1}
+  m8, all ready: {"contract":966,"focus moved it off the value":33,"other":1} | {"contract":999,"other":1}
+  m9, late: {"contract":921,"focus moved it off the value":35,"other":44} | {"contract":1000}
+  m9, all ready: {"contract":892,"focus moved it off the value":46,"other":62} | {"contract":1000}
+D: C, and items moved or put back: of 1000, at the end | after one more slot change
+  m0, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m0, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m1, late: {"contract":974,"focus moved it off the value":21,"other":5} | {"contract":990,"other":10}
+  m1, all ready: {"contract":973,"focus moved it off the value":22,"other":5} | {"contract":990,"other":10}
+  m10, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m10, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m11, late: {"contract":678,"count":301,"focus moved it off the value":21} | {"contract":1000}
+  m11, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m12, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m12, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m13, late: {"contract":779,"other":200,"focus moved it off the value":21} | {"contract":1000}
+  m13, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m14, late: {"contract":874,"other":101,"focus moved it off the value":25} | {"contract":1000}
+  m14, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m15, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  m15, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m16, late: {"contract":814,"count":177,"focus moved it off the value":9} | {"contract":1000}
+  m16, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m17, late: {"contract":941,"count":40,"focus moved it off the value":19} | {"contract":1000}
+  m17, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m18, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m18, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m2, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m2, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m3, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m3, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m4, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m4, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m5, late: {"contract":962,"focus moved it off the value":38} | {"contract":962,"focus moved it off the value":38}
+  m5, all ready: {"contract":962,"focus moved it off the value":38} | {"contract":962,"focus moved it off the value":38}
+  m6, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m6, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m7, late: {"contract":961,"other":39} | {"contract":1000}
+  m7, all ready: {"contract":950,"other":50} | {"contract":1000}
+  m8, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  m8, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  m9, late: {"contract":941,"other":33,"focus moved it off the value":26} | {"contract":1000}
+  m9, all ready: {"contract":924,"other":48,"focus moved it off the value":28} | {"contract":1000}
+E: A, and items disabled: of 1000, at the end | after one more slot change
+  m0, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":1000}
+  m0, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m1, late: {"contract":807,"count":104,"other":65,"focus moved it off the value":24} | {"contract":984,"other":16}
+  m1, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":984,"other":16}
+  m10, late: {"contract":809,"count":104,"other":63,"focus moved it off the value":24} | {"contract":998,"other":2}
+  m10, all ready: {"contract":758,"count":121,"other":89,"focus moved it off the value":32} | {"contract":998,"other":2}
+  m11, late: {"contract":405,"count":545,"other":26,"focus moved it off the value":24} | {"contract":1000}
+  m11, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m12, late: {"contract":807,"count":104,"other":65,"focus moved it off the value":24} | {"contract":995,"other":5}
+  m12, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m13, late: {"contract":557,"count":132,"other":287,"focus moved it off the value":24} | {"contract":1000}
+  m13, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m14, late: {"contract":711,"count":106,"other":150,"focus moved it off the value":33} | {"contract":1000}
+  m14, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m15, late: {"contract":784,"count":106,"other":79,"focus moved it off the value":31} | {"contract":1000}
+  m15, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m16, late: {"contract":521,"count":427,"other":38,"focus moved it off the value":14} | {"contract":998,"other":2}
+  m16, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m17, late: {"contract":691,"count":235,"other":55,"focus moved it off the value":19} | {"contract":999,"other":1}
+  m17, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m18, late: {"contract":782,"count":102,"other":93,"focus moved it off the value":23} | {"contract":999,"other":1}
+  m18, all ready: {"contract":716,"count":121,"other":132,"focus moved it off the value":31} | {"contract":999,"other":1}
+  m2, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":1000}
+  m2, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m3, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":999,"other":1}
+  m3, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":999,"other":1}
+  m4, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":1000}
+  m4, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m5, late: {"contract":793,"count":104,"focus moved it off the value":42,"other":61} | {"contract":961,"focus moved it off the value":39}
+  m5, all ready: {"contract":750,"count":121,"focus moved it off the value":42,"other":87} | {"contract":961,"focus moved it off the value":39}
+  m6, late: {"contract":807,"count":104,"other":65,"focus moved it off the value":24} | {"contract":978,"other":22}
+  m6, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":979,"other":21}
+  m7, late: {"other":122,"contract":774,"count":104} | {"contract":1000}
+  m7, all ready: {"other":173,"contract":706,"count":121} | {"contract":1000}
+  m8, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":1000}
+  m8, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  m9, late: {"contract":749,"count":116,"focus moved it off the value":32,"other":103} | {"contract":1000}
+  m9, all ready: {"contract":659,"other":153,"count":146,"focus moved it off the value":42} | {"contract":1000}
+F: D, E, and host in and out: of 1000, at the end | after one more slot change
+  m0, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  m0, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m1, late: {"contract":918,"focus moved it off the value":3,"other":38,"count":41} | {"contract":981,"other":19}
+  m1, all ready: {"contract":895,"focus moved it off the value":10,"other":43,"count":52} | {"contract":981,"other":19}
+  m10, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  m10, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m11, late: {"contract":566,"count":417,"focus moved it off the value":3,"other":14} | {"contract":1000}
+  m11, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m12, late: {"contract":922,"focus moved it off the value":3,"count":41,"other":34} | {"contract":996,"other":4}
+  m12, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m13, late: {"contract":687,"other":256,"focus moved it off the value":3,"count":54} | {"contract":1000}
+  m13, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m14, late: {"contract":821,"focus moved it off the value":12,"other":125,"count":42} | {"contract":1000}
+  m14, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m15, late: {"contract":915,"focus moved it off the value":9,"count":42,"other":34} | {"contract":1000}
+  m15, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m16, late: {"contract":693,"count":290,"other":16,"focus moved it off the value":1} | {"contract":999,"other":1}
+  m16, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m17, late: {"contract":852,"focus moved it off the value":3,"count":118,"other":27} | {"contract":1000}
+  m17, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m18, late: {"contract":915,"focus moved it off the value":3,"count":44,"other":38} | {"contract":1000}
+  m18, all ready: {"contract":885,"focus moved it off the value":10,"count":56,"other":49} | {"contract":1000}
+  m2, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  m2, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m3, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  m3, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m4, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  m4, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  m5, late: {"contract":913,"focus moved it off the value":17,"count":41,"other":29} | {"contract":983,"focus moved it off the value":17}
+  m5, all ready: {"contract":895,"focus moved it off the value":17,"count":52,"other":36} | {"contract":983,"focus moved it off the value":17}
+  m6, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":998,"other":2}
+  m6, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":998,"other":2}
+  m7, late: {"contract":908,"other":51,"count":41} | {"contract":1000}
+  m7, all ready: {"contract":885,"other":64,"count":51} | {"contract":1000}
+  m8, late: {"contract":925,"focus moved it off the value":3,"count":41,"other":31} | {"contract":999,"other":1}
+  m8, all ready: {"contract":901,"focus moved it off the value":10,"count":52,"other":37} | {"contract":999,"other":1}
+  m9, late: {"contract":899,"focus moved it off the value":4,"other":55,"count":42} | {"contract":1000}
+  m9, all ready: {"contract":857,"focus moved it off the value":11,"count":56,"other":76} | {"contract":1000}
+G: B, several steps in a task: of 1000, at the end | after one more slot change
+  m0, late: {"contract":976,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  m0, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m1, late: {"contract":949,"other":28,"focus moved it off the value":23} | {"contract":956,"other":44}
+  m1, all ready: {"contract":941,"other":17,"focus moved it off the value":42} | {"contract":956,"other":44}
+  m10, late: {"contract":972,"focus moved it off the value":23,"other":5} | {"contract":993,"other":7}
+  m10, all ready: {"contract":953,"focus moved it off the value":42,"other":5} | {"contract":993,"other":7}
+  m11, late: {"count":371,"contract":605,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  m11, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m12, late: {"contract":962,"other":15,"focus moved it off the value":23} | {"contract":985,"other":15}
+  m12, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m13, late: {"contract":683,"other":287,"focus moved it off the value":30} | {"contract":999,"other":1}
+  m13, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m14, late: {"other":119,"contract":835,"focus moved it off the value":46} | {"contract":999,"other":1}
+  m14, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m15, late: {"contract":950,"focus moved it off the value":49,"other":1} | {"contract":999,"other":1}
+  m15, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m16, late: {"contract":723,"count":256,"focus moved it off the value":20,"other":1} | {"contract":997,"other":3}
+  m16, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m17, late: {"contract":931,"count":45,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  m17, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m18, late: {"contract":976,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  m18, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m2, late: {"contract":975,"focus moved it off the value":23,"other":2} | {"contract":998,"other":2}
+  m2, all ready: {"contract":956,"focus moved it off the value":42,"other":2} | {"contract":998,"other":2}
+  m3, late: {"contract":976,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  m3, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m4, late: {"contract":973,"focus moved it off the value":23,"other":4} | {"contract":993,"other":7}
+  m4, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":997,"other":3}
+  m5, late: {"contract":897,"focus moved it off the value":102,"other":1} | {"contract":897,"focus moved it off the value":102,"other":1}
+  m5, all ready: {"contract":897,"focus moved it off the value":102,"other":1} | {"contract":897,"focus moved it off the value":102,"other":1}
+  m6, late: {"contract":976,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  m6, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+  m7, late: {"contract":952,"other":48} | {"contract":999,"other":1}
+  m7, all ready: {"contract":929,"other":71} | {"contract":999,"other":1}
+  m8, late: {"contract":970,"other":7,"focus moved it off the value":23} | {"contract":993,"other":7}
+  m8, all ready: {"contract":951,"other":7,"focus moved it off the value":42} | {"contract":993,"other":7}
+  m9, late: {"contract":917,"other":47,"focus moved it off the value":36} | {"contract":999,"other":1}
+  m9, all ready: {"other":84,"contract":854,"focus moved it off the value":62} | {"contract":999,"other":1}
+L: B, with an item focused in the task that adds it: of 1000, at the end | after one more slot change
+  m0, late: {"contract":965,"focus moved it off the value":35} | {"contract":1000}
+  m0, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m1, late: {"contract":950,"focus moved it off the value":35,"other":15} | {"contract":965,"other":35}
+  m1, all ready: {"contract":946,"focus moved it off the value":46,"other":8} | {"contract":965,"other":35}
+  m10, late: {"contract":962,"focus moved it off the value":35,"other":3} | {"contract":997,"other":3}
+  m10, all ready: {"contract":952,"focus moved it off the value":46,"other":2} | {"contract":997,"other":3}
+  m11, late: {"contract":605,"focus moved it off the value":35,"count":360} | {"contract":1000}
+  m11, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m12, late: {"contract":956,"focus moved it off the value":35,"other":9} | {"contract":991,"other":9}
+  m12, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m13, late: {"contract":679,"focus moved it off the value":35,"other":286} | {"contract":1000}
+  m13, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m14, late: {"contract":832,"focus moved it off the value":69,"other":99} | {"contract":1000}
+  m14, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m15, late: {"contract":926,"focus moved it off the value":74} | {"contract":1000}
+  m15, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m16, late: {"contract":708,"count":265,"focus moved it off the value":26,"other":1} | {"contract":997,"other":3}
+  m16, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m17, late: {"contract":918,"focus moved it off the value":32,"count":50} | {"contract":1000}
+  m17, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m18, late: {"contract":965,"focus moved it off the value":35} | {"contract":1000}
+  m18, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m2, late: {"contract":914,"focus moved it off the value":35,"other":51} | {"contract":949,"other":51}
+  m2, all ready: {"contract":903,"focus moved it off the value":46,"other":51} | {"contract":949,"other":51}
+  m3, late: {"contract":965,"focus moved it off the value":35} | {"contract":1000}
+  m3, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m4, late: {"contract":957,"focus moved it off the value":35,"other":8} | {"contract":980,"other":20}
+  m4, all ready: {"contract":950,"focus moved it off the value":46,"other":4} | {"contract":980,"other":20}
+  m5, late: {"contract":797,"focus moved it off the value":203} | {"contract":797,"focus moved it off the value":203}
+  m5, all ready: {"contract":797,"focus moved it off the value":203} | {"contract":797,"focus moved it off the value":203}
+  m6, late: {"contract":965,"focus moved it off the value":35} | {"contract":1000}
+  m6, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  m7, late: {"other":55,"contract":945} | {"contract":1000}
+  m7, all ready: {"other":69,"contract":931} | {"contract":1000}
+  m8, late: {"contract":964,"focus moved it off the value":35,"other":1} | {"contract":999,"other":1}
+  m8, all ready: {"contract":953,"focus moved it off the value":46,"other":1} | {"contract":999,"other":1}
+  m9, late: {"contract":896,"focus moved it off the value":65,"other":39} | {"contract":1000}
+  m9, all ready: {"contract":860,"focus moved it off the value":83,"other":57} | {"contract":1000}
+M: L, with items removed, moved, put back, and the host in and out: of 1000, at the end | after one more slot change
+  m0, late: {"contract":982,"focus moved it off the value":18} | {"contract":1000}
+  m0, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m1, late: {"contract":960,"other":22,"focus moved it off the value":18} | {"contract":964,"other":36}
+  m1, all ready: {"contract":964,"focus moved it off the value":20,"other":16} | {"contract":964,"other":36}
+  m10, late: {"contract":981,"focus moved it off the value":18,"other":1} | {"contract":999,"other":1}
+  m10, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":998,"other":2}
+  m11, late: {"contract":628,"count":354,"focus moved it off the value":18} | {"contract":1000}
+  m11, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m12, late: {"contract":973,"other":9,"focus moved it off the value":18} | {"contract":991,"other":9}
+  m12, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m13, late: {"contract":734,"other":248,"focus moved it off the value":18} | {"contract":1000}
+  m13, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m14, late: {"contract":854,"other":115,"focus moved it off the value":31} | {"contract":1000}
+  m14, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m15, late: {"contract":970,"focus moved it off the value":30} | {"contract":1000}
+  m15, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m16, late: {"contract":739,"count":251,"focus moved it off the value":9,"other":1} | {"contract":999,"other":1}
+  m16, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m17, late: {"contract":914,"count":69,"focus moved it off the value":17} | {"contract":1000}
+  m17, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m18, late: {"contract":982,"focus moved it off the value":18} | {"contract":1000}
+  m18, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m2, late: {"contract":956,"other":26,"focus moved it off the value":18} | {"contract":974,"other":26}
+  m2, all ready: {"contract":954,"other":26,"focus moved it off the value":20} | {"contract":974,"other":26}
+  m3, late: {"contract":982,"focus moved it off the value":18} | {"contract":1000}
+  m3, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m4, late: {"contract":972,"focus moved it off the value":18,"other":10} | {"contract":979,"other":21}
+  m4, all ready: {"contract":972,"focus moved it off the value":20,"other":8} | {"contract":979,"other":21}
+  m5, late: {"contract":923,"focus moved it off the value":77} | {"contract":923,"focus moved it off the value":77}
+  m5, all ready: {"contract":923,"focus moved it off the value":77} | {"contract":923,"focus moved it off the value":77}
+  m6, late: {"contract":982,"focus moved it off the value":18} | {"contract":1000}
+  m6, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  m7, late: {"contract":969,"other":31} | {"contract":1000}
+  m7, all ready: {"contract":959,"other":41} | {"contract":1000}
+  m8, late: {"contract":981,"focus moved it off the value":18,"other":1} | {"contract":999,"other":1}
+  m8, all ready: {"contract":979,"focus moved it off the value":20,"other":1} | {"contract":999,"other":1}
+  m9, late: {"contract":949,"other":27,"focus moved it off the value":24} | {"contract":1000}
+  m9, all ready: {"contract":931,"other":43,"focus moved it off the value":26} | {"contract":1000}

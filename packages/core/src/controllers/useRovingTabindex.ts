@@ -54,6 +54,8 @@ type Direction = typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT;
 class RovingItems {
   readonly #host: Host;
   #items: readonly Item[] = [];
+  // The item that focus moved the tab stop to last, while it is managed.
+  #chosen: Item | undefined;
 
   constructor(host: Host) {
     this.#host = host;
@@ -63,6 +65,13 @@ class RovingItems {
   // oxlint-disable-next-line accessor-pairs
   set value(value: readonly Item[]) {
     this.#items = value;
+
+    const { focused } = this;
+    // An item that is focused in the task that adds it has no `focusin` as a
+    // managed item.
+    this.#chosen =
+      this.enabled.find((item) => item === focused) ??
+      value.find((item) => item === this.#chosen);
   }
 
   contains(item: Item): boolean {
@@ -115,11 +124,21 @@ class RovingItems {
   }
 
   /**
+   * Moves the tab stop to the item that focus entered.
+   *
+   * @param item - Enabled managed item that becomes the chosen one.
+   */
+  choose(item: Item): void {
+    this.#chosen = item;
+    this.setTabStop(item);
+  }
+
+  /**
    * Selects the next tab stop candidate for the current host state.
    *
    * Candidates are chosen in this order:
    * 1. enabled item matching `host.value`
-   * 2. current active enabled item
+   * 2. enabled item that focus moved the tab stop to last
    * 3. first enabled item
    *
    * @returns The preferred tabbable item, if any enabled item exists.
@@ -130,9 +149,7 @@ class RovingItems {
 
     return (
       enabled.find((item) => item.value === this.#host.value) ??
-      (this.active && !this.active.disabled && this.contains(this.active)
-        ? this.active
-        : undefined) ??
+      enabled.find((item) => item === this.#chosen) ??
       enabled[0]
     );
   }
@@ -214,9 +231,13 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  * `Valuable` on top of `ControlledElement`. Elements that do not match that
  * contract are ignored.
  *
- * The controller keeps exactly one enabled item tabbable, updates that tab
- * stop from `host.value`, and handles `Home`, `End`, and arrow-key navigation
- * with wrap-around semantics.
+ * The controller keeps exactly one enabled item tabbable, and handles `Home`,
+ * `End`, and arrow-key navigation with wrap-around semantics.
+ *
+ * The tab stop is the enabled item that matches `host.value`; or else the
+ * enabled item that focus moved it to last, while that item is in the slot; or
+ * else the first enabled item. It is chosen again when the slot's content or
+ * `host.value` changes, and when a slotted element is defined later.
  *
  * @remarks Focus entering a managed item, or a composed descendant inside that
  * item, updates the current tab stop immediately. Modified key combos
@@ -229,6 +250,15 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  */
 export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   const items = new RovingItems(host);
+
+  const select = () => {
+    items.setTabStop(items.getTabStopCandidate());
+  };
+
+  const read = (nodes: readonly Node[]) => {
+    items.value = nodes.filter(isItem);
+    select();
+  };
 
   const createEdgeHandler =
     (edge: Edge): KeyboardListener =>
@@ -256,10 +286,29 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
       }
     };
 
-  useSlot(host, slotSelector, (_, nodes) => {
-    items.value = nodes.filter(isItem);
-    // When slot content changes, recompute the active tab stop.
-    items.setTabStop(items.getTabStopCandidate());
+  useSlot(host, slotSelector, (slot, nodes) => {
+    read(nodes);
+
+    for (const node of nodes) {
+      // A customized built-in element is never an item, and its local name is
+      // no name that `whenDefined` accepts.
+      if (
+        node instanceof HTMLElement &&
+        node.localName.includes('-') &&
+        !node.matches(':defined')
+      ) {
+        void customElements.whenDefined(node.localName).then(() => {
+          const current = slot.assignedNodes();
+
+          if (current.includes(node)) {
+            // A node cloned from a template isn't upgraded by its definition
+            // until it is connected.
+            customElements.upgrade(node);
+            read(current);
+          }
+        });
+      }
+    }
   });
 
   const hasRtl = () =>
@@ -286,7 +335,7 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   useAttributes(host, {
     value() {
       // Keep tab stop in sync with controlled value updates.
-      items.setTabStop(items.getTabStopCandidate());
+      select();
     },
   });
 
@@ -301,7 +350,7 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
         );
 
       if (target) {
-        items.setTabStop(target);
+        items.choose(target);
       }
     },
   });
