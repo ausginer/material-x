@@ -1,0 +1,27 @@
+# The row's result in CI, read on 2026-11-25 by the architect from the job logs of `verify`'s `webkit` job.
+# 437 jobs that ended in success or failure, 2026-11-16 to 2026-11-25; cancelled jobs (93) and skipped ones (44) weren't read.
+# 436 of them ran consumer/drag/webkit tests/focus.browser.test.ts, each also in browser/drag/webkit.
+# The log that `gh run view` gives for a rerun job is its last attempt: 45142741219 shows attempt 2, which passed, so its failure isn't among the two below.
+# The register has run 45142741219 already. The two others, whose drag, core and tests differ from 35ea25892 only in core's useCSSProps and .scripts/css:
+# 45267554979 (job 138018792575), head ed0d43490, and 45361184938 (job 138331699185), head f01d76bee. The second run ended as cancelled, so no failed gate shows it.
+# The file before focus.browser.test.ts in the order of the logs is verdict.browser.test.ts in 436 of 436 (consumer) and 435 of 436 (browser); In the consumer project y-geometry.browser.test.ts, 44 s on the second page, ends after it in 427 of 436.
+
+== job 138018792575
+ ✓  consumer/drag/webkit (webkit)  tests/verdict.browser.test.ts (12 tests) 1727ms
+ ❯  consumer/drag/webkit (webkit)  tests/focus.browser.test.ts (13 tests | 1 failed) 761ms
+   ❯ drag:DRI-12 focus (13)
+     × should let two arrow presses in a row reorder twice 127ms
+     ✓ should keep focus through a pointer reorder 73ms
+     ✓ should restore focus after an async verdict 65ms
+ ✓  consumer/drag/webkit (webkit)  tests/y-geometry.browser.test.ts (13 tests) 44297ms
+AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+
+== job 138331699185
+ ✓  consumer/drag/webkit (webkit)  tests/verdict.browser.test.ts (12 tests) 1723ms
+ ❯  consumer/drag/webkit (webkit)  tests/focus.browser.test.ts (13 tests | 1 failed) 746ms
+   ❯ drag:DRI-12 focus (13)
+     × should let two arrow presses in a row reorder twice 94ms
+     ✓ should keep focus through a pointer reorder 73ms
+     ✓ should restore focus after an async verdict 66ms
+ ✓  consumer/drag/webkit (webkit)  tests/y-geometry.browser.test.ts (13 tests) 44252ms
+AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
