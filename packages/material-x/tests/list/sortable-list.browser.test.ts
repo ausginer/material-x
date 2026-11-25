@@ -4,7 +4,7 @@ import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list.ts';
 import { ReorderEvent } from '../../src/list/sortable-list.ts';
-import { nextFrame, resolveComputed } from '../browser.ts';
+import { nextFrame } from '../browser.ts';
 
 type ListTag = 'mx-list' | 'mx-sortable-list';
 type ItemTag = 'mx-list-item' | 'mx-list-button-item';
@@ -93,8 +93,8 @@ function placeholderOf(list: HTMLElement): HTMLElement | null {
   return list.querySelector('[data-drag-placeholder]');
 }
 
-/** Whether the list's placeholder paints its footprint. */
-function paintsFootprint(list: HTMLElement): boolean {
+/** Whether the list's placeholder paints its drop zone. */
+function paintsDropZone(list: HTMLElement): boolean {
   const { visibility, backgroundColor, opacity } = getComputedStyle(
     placeholderOf(list)!,
   );
@@ -277,19 +277,6 @@ describe('mx-sortable-list pointer', () => {
     await lift(visualOf(a!));
 
     expect(isDragged(a!)).toBe(true);
-  });
-
-  it('should give the placeholder the list footprint color', async () => {
-    const [list, [a]] = await createList(['A', 'B']);
-    await lift(visualOf(a!));
-    const expected = resolveComputed(
-      'background-color',
-      getComputedStyle(list).getPropertyValue('--_footprint-color'),
-    );
-
-    expect(getComputedStyle(placeholderOf(list)!).backgroundColor).toBe(
-      expected,
-    );
   });
 
   it('should dispatch the move with its neighbors on the drop', async () => {
@@ -691,7 +678,7 @@ describe('mx-sortable-list keyboard', () => {
   });
 });
 
-describe('mx-sortable-list footprint', () => {
+describe('mx-sortable-list drop zone', () => {
   /** Commits each proposed move 100 ms after it. */
   function commitLater(list: HTMLElement): void {
     list.addEventListener('reorder', (event) => {
@@ -706,7 +693,7 @@ describe('mx-sortable-list footprint', () => {
   function readInHandler(list: HTMLElement): readonly boolean[] {
     const read: boolean[] = [];
     list.addEventListener('reorder', () => {
-      read.push(paintsFootprint(list));
+      read.push(paintsDropZone(list));
     });
     return read;
   }
@@ -716,7 +703,7 @@ describe('mx-sortable-list footprint', () => {
     const read: boolean[] = [];
 
     while (placeholderOf(list)) {
-      read.push(paintsFootprint(list));
+      read.push(paintsDropZone(list));
       // oxlint-disable-next-line no-await-in-loop -- one read per frame
       await nextFrame();
     }
@@ -774,15 +761,15 @@ describe('mx-sortable-list footprint', () => {
     expect(read).toEqual([false]);
   });
 
-  it('should paint the footprint in a pointer drag', async () => {
+  it('should paint the drop zone in a pointer drag', async () => {
     const [list, [a]] = await createList(['A', 'B', 'C']);
 
     await lift(visualOf(a!));
 
-    expect(paintsFootprint(list)).toBe(true);
+    expect(paintsDropZone(list)).toBe(true);
   });
 
-  it('should paint the footprint in the handler of a pointer drop', async () => {
+  it('should paint the drop zone in the handler of a pointer drop', async () => {
     const [list, [a, b]] = await createList(['A', 'B', 'C']);
     const read = readInHandler(list);
     commitOnReorder(list);
@@ -793,7 +780,7 @@ describe('mx-sortable-list footprint', () => {
     expect(read).toEqual([true]);
   });
 
-  it('should paint the footprint in each frame while the commit of a pointer drop is pending', async () => {
+  it('should paint the drop zone in each frame while the commit of a pointer drop is pending', async () => {
     const [list, [a, b]] = await createList(['A', 'B', 'C']);
     commitLater(list);
     let frames: Promise<readonly boolean[]> | undefined;
@@ -850,7 +837,7 @@ describe('mx-sortable-list footprint', () => {
       },
     ],
   ])(
-    'should paint the footprint in the pointer drag after %s',
+    'should paint the drop zone in the pointer drag after %s',
     async (_, move) => {
       const [list, [a, , c]] = await createList(['A', 'B', 'C']);
       const events = recordReorders(list);
@@ -860,9 +847,179 @@ describe('mx-sortable-list footprint', () => {
       await lift(visualOf(c!));
 
       // The key move ran, so the state was set.
-      expect([events.length, paintsFootprint(list)]).toEqual([1, true]);
+      expect([events.length, paintsDropZone(list)]).toEqual([1, true]);
     },
   );
+});
+
+describe('mx-sortable-list lifted item in a key move', () => {
+  type Look = Readonly<Record<string, string>>;
+
+  const ITEMS: ReadonlyArray<
+    readonly [string, Readonly<{ item: ItemTag; selected: boolean }>]
+  > = [
+    ['a static item', { item: 'mx-list-item', selected: false }],
+    ['a button item', { item: 'mx-list-button-item', selected: false }],
+    ['a selected button item', { item: 'mx-list-button-item', selected: true }],
+  ];
+
+  /** Creates a list and focuses its first item, which has an icon on each side. */
+  async function createFocused({
+    item,
+    selected,
+  }: Readonly<{ item: ItemTag; selected: boolean }>): Promise<
+    readonly [HTMLElement, HTMLElement]
+  > {
+    const [list, [a]] = await createList(['A', 'B', 'C'], { item });
+    for (const slot of ['lead', 'trail']) {
+      const icon = document.createElement('i');
+      icon.slot = slot;
+      icon.dataset['icon'] = '';
+      a!.append(icon);
+    }
+    a!.toggleAttribute('selected', selected);
+    a!.focus();
+    await nextFrame();
+    // The focused shape transitions.
+    await Promise.all(
+      visualOf(a!)
+        .getAnimations()
+        .map(async ({ finished }) => await finished),
+    );
+    return [list, a!];
+  }
+
+  function lookOf(item: HTMLElement): Look {
+    const { backgroundColor, color, borderTopLeftRadius } = getComputedStyle(
+      visualOf(item),
+    );
+    const colorOf = (element: Element): string =>
+      getComputedStyle(element).color;
+
+    return {
+      backgroundColor,
+      color,
+      borderTopLeftRadius,
+      ripple: getComputedStyle(item).getPropertyValue('--_ripple-color'),
+      label: colorOf(item.shadowRoot!.querySelector('.label')!),
+      lead: colorOf(item.querySelector('[slot=lead]')!),
+      trail: colorOf(item.querySelector('[slot=trail]')!),
+    };
+  }
+
+  it.each(ITEMS)(
+    'should have its resting colors and corners in the handler, for %s',
+    async (_, options) => {
+      const [list, item] = await createFocused(options);
+      const rest = lookOf(item);
+      const read: Array<readonly [boolean, Look]> = [];
+      list.addEventListener('reorder', () => {
+        read.push([isDragged(item), lookOf(item)]);
+      });
+      commitOnReorder(list);
+
+      await userEvent.keyboard('{ArrowDown}');
+      await whenSettled(list, item);
+
+      expect(read).toEqual([[true, rest]]);
+    },
+  );
+
+  it.each(ITEMS)(
+    'should have its resting colors and corners in each frame while the commit is pending, for %s',
+    async (_, options) => {
+      const [list, item] = await createFocused(options);
+      const rest = lookOf(item);
+      const read: Look[] = [];
+      let frames: Promise<void> | undefined;
+      list.addEventListener('reorder', (event) => {
+        const { next } = event as ReorderEvent;
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 100);
+        frames = (async () => {
+          while (isDragged(item)) {
+            read.push(lookOf(item));
+            // oxlint-disable-next-line no-await-in-loop -- one read per frame
+            await nextFrame();
+          }
+        })();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+      await frames!;
+
+      expect(read.length).toBeGreaterThan(1);
+      expect(read).toEqual(read.map(() => rest));
+    },
+  );
+
+  it('should take the dragged elevation', async () => {
+    const [list, item] = await createFocused({
+      item: 'mx-list-item',
+      selected: false,
+    });
+    const read: string[] = [];
+    list.addEventListener('reorder', () => {
+      read.push(
+        getComputedStyle(item).getPropertyValue('--_container-elevation'),
+      );
+    });
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(read).toEqual(['8']);
+  });
+
+  it("should keep a page's background-color and color on a static item", async () => {
+    const [list, item] = await createFocused({
+      item: 'mx-list-item',
+      selected: false,
+    });
+    item.style.backgroundColor = 'rgb(0, 0, 255)';
+    item.style.color = 'rgb(255, 0, 0)';
+    const read: Array<readonly [string, string]> = [];
+    const record = (): void => {
+      const { backgroundColor, color } = getComputedStyle(item);
+      read.push([backgroundColor, color]);
+    };
+    list.addEventListener('reorder', record);
+    commitOnReorder(list);
+
+    record();
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, item);
+    record();
+
+    expect(read).toEqual(
+      Array.from({ length: 3 }, () => ['rgb(0, 0, 255)', 'rgb(255, 0, 0)']),
+    );
+  });
+
+  it("should keep a static item's own background-color and color with a page rule for popovers", async () => {
+    const style = document.createElement('style');
+    style.textContent = '[popover] { background: red; color: blue; }';
+    document.head.append(style);
+    onTestFinished(() => style.remove());
+    const [list, item] = await createFocused({
+      item: 'mx-list-item',
+      selected: false,
+    });
+    const read: Array<readonly [string, string]> = [];
+    const record = (): void => {
+      const { backgroundColor, color } = getComputedStyle(item);
+      read.push([backgroundColor, color]);
+    };
+    list.addEventListener('reorder', record);
+    commitOnReorder(list);
+
+    record();
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, item);
+    record();
+
+    expect(read).toEqual(Array.from({ length: 3 }, () => read[0]));
+  });
 });
 
 describe('mx-sortable-list static item focus', () => {

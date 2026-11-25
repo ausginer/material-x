@@ -8,7 +8,13 @@ export type ListCoreCSSProperties = Readonly<{
   '--md-list-container-shape'?: string;
 }>;
 
-/** The template, role and styles that `mx-list` and `mx-sortable-list` share. */
-export function useListCore(host: ControlledElement): void {
-  useCore(host, [template], { role: 'list' }, [defaultStyles]);
+/**
+ * Sets up the template, role and styles that `mx-list` and `mx-sortable-list`
+ * share, and then `styles`.
+ */
+export function useListCore(
+  host: ControlledElement,
+  styles: ReadonlyArray<CSSStyleSheet | string> = [],
+): void {
+  useCore(host, [template], { role: 'list' }, [defaultStyles, ...styles]);
 }
