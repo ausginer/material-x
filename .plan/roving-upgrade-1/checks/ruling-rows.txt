@@ -1,0 +1,7 @@
+none 65 passed (65)
+first 1 failed | 64 passed (65)
+    NEW1 last of two focuses
+former 1 failed | 64 passed (65)
+    NEW2 focused in the task that adds it, over a former choice
+settled 1 failed | 64 passed (65)
+    NEW3 disabled focused in the task that adds it

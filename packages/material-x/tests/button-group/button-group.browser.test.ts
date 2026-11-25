@@ -288,6 +288,42 @@ describe('mx-connected-button-group slot bookkeeping', () => {
   });
 });
 
+describe('mx-connected-button-group with buttons cloned from a template', () => {
+  async function createFromTemplate(): Promise<HTMLElement> {
+    const template = document.createElement('template');
+    template.innerHTML = ['a', 'b', 'c']
+      .map(
+        (value) =>
+          `<mx-switch-button value="${value}">${value}</mx-switch-button>`,
+      )
+      .join('');
+    const group = document.createElement('mx-connected-button-group');
+    group.append(template.content.cloneNode(true));
+    await nextFrame();
+    document.body.append(group);
+    await nextFrame();
+
+    return group;
+  }
+
+  it('should have one tab stop', async () => {
+    const group = await createFromTemplate();
+
+    expect(
+      Array.from(group.children, (item) => item.getAttribute('tabindex')),
+    ).toEqual(['0', '-1', '-1']);
+  });
+
+  it('should move focus with an arrow key', async () => {
+    const group = await createFromTemplate();
+
+    (group.firstElementChild as HTMLElement).focus();
+    await userEvent.keyboard('{ArrowRight}');
+
+    expect(document.activeElement).toBe(group.children[1]);
+  });
+});
+
 describe('mx-connected-button-group roving tabindex', () => {
   it('should make only the first enabled item tabbable', async () => {
     const group = createConnected(['one', 'two', 'three']);

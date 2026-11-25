@@ -1,0 +1,64 @@
+// @ts-nocheck
+// Connected groups with ready switch buttons and switch icon buttons that are defined by a later import, while a button has focus.
+// From packages/material-x: copy to tests/button-group/zz-focus.browser.test.ts
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/switch-button.ts';
+
+const task = () => new Promise((r) => setTimeout(r, 50));
+const R = (v, a = '') => `<mx-switch-button value=${v} ${a}>${v}</mx-switch-button>`;
+const L = (v, a = '') => `<mx-switch-icon-button value=${v} ${a}>${v}</mx-switch-icon-button>`;
+it('focus', async () => {
+  const out = [`# ${server.browser}`];
+  const g = {};
+  const make = (name, html, value) => {
+    const e = document.createElement('mx-connected-button-group');
+    if (value) e.setAttribute('value', value);
+    e.innerHTML = html;
+    document.body.append(e);
+    g[name] = e;
+    return e;
+  };
+  const show = (e) => `${[...e.children].map((c) => `${c.getAttribute('value') ?? c.localName}:${c.getAttribute('tabindex')}`).join(' ')}`;
+  make('late first, default', L('late') + R('b') + R('c'));
+  make('late first, value b', L('late') + R('b') + R('c'), 'b');
+  make('late first, value late', L('late') + R('b'), 'late');
+  make('late first and disabled', L('late', 'disabled') + R('b'));
+  make('value c, focus moved to b, then left', L('late') + R('b') + R('c'), 'c');
+  make('b, late; a ready one is put first later', R('b') + L('late'));
+  make('late alone; a ready one is put first later', L('late'));
+  make('late first; a ready one is put first later', L('late') + R('b'));
+  make('never defined first', '<x-never></x-never>' + R('b') + L('late'));
+  make('focus on b, late first', L('late') + R('b') + R('c'));
+  await task();
+  g['value c, focus moved to b, then left'].children[1].focus();
+  await task();
+  for (const n of ['b, late; a ready one is put first later', 'late alone; a ready one is put first later', 'late first; a ready one is put first later']) {
+    const t = document.createElement('div'); t.innerHTML = R('new'); g[n].prepend(t.firstChild);
+  }
+  const f = g['focus on b, late first'];
+  f.children[1].focus();
+  await task();
+  const log = [];
+  for (const n of ['focusin', 'focusout', 'input', 'change']) document.addEventListener(n, (e) => log.push(`${n} ${e.target.getAttribute?.('value')}`));
+  for (const [n, e] of Object.entries(g)) out.push(`before | ${n}: ${show(e)}`);
+  await import('../../src/button/switch-icon-button.ts');
+  await task();
+  for (const [n, e] of Object.entries(g)) out.push(`after | ${n}: ${show(e)}`);
+  out.push(`active ${document.activeElement.getAttribute('value')}, events [${log}]`);
+  await userEvent.keyboard('{ArrowLeft}');
+  out.push(`ArrowLeft: active ${document.activeElement.getAttribute('value')}, ${show(f)}, events [${log}]`);
+  // A button that is late and arrives in a group that is out and holds the focus when it comes back.
+  const t = document.createElement('template'); t.innerHTML = R('x') + L('y');
+  const o = document.createElement('mx-connected-button-group'); o.append(t.content.cloneNode(true)); await task();
+  out.push(`clones while out: ${show(o)}, defined ${[...o.children].map((c) => c.matches(':defined'))}`);
+  document.body.append(o); o.children[1].focus(); await task();
+  out.push(`connected and focused on y in one task: ${show(o)}, active ${document.activeElement.getAttribute('value')}`);
+  // The focus in the task of a late button's definition, before the hook's wait: the clone is connected and focused at once.
+  const p = document.createElement('mx-connected-button-group'); document.body.append(p); await task(); p.remove(); await task();
+  const q = document.createElement('template'); q.innerHTML = R('m') + R('n');
+  p.append(q.content.cloneNode(true)); document.body.append(p); p.children[1].focus(); await task();
+  out.push(`clones appended, connected and focused on n in one task: ${show(p)}, active ${document.activeElement.getAttribute('value')}`);
+  await commands.writeFile(`./zz-focus-${server.browser}.txt`, `${out.join('\n')}\n`);
+});
