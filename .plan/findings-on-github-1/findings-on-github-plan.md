@@ -1,6 +1,6 @@
 # Findings on GitHub — plan
 
-**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **He approved stage 3, the trial, on 2026-11-25,** relayed by the coordinator: _"да на этап 3"_ ("yes to stage 3"). The status said until then: _"Stage 3 isn't approved. It waits for stages 1 and 2 on `main` and for his word."_ The labels exist, and no finding is named yet. Stage 4 isn't approved. Stage 1 is on `main` as `8663d722b` (#244), with the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings). Stage 2 is on `main` as `855990331` (#250), by [its closure](#stage-2-closed). The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
+**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **He approved stage 3, the trial, on 2026-11-25,** relayed by the coordinator: _"да на этап 3"_ ("yes to stage 3"). The status said until then: _"Stage 3 isn't approved. It waits for stages 1 and 2 on `main` and for his word."_ The labels exist, and the trial's finding is #265 (it said _"no finding is named yet"_). [Corrections](#stage-3-the-trials-corrections) that the trial showed are proposed, and not in force. Stage 4 isn't approved. Stage 1 is on `main` as `8663d722b` (#244), with the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings). Stage 2 is on `main` as `855990331` (#250), by [its closure](#stage-2-closed). The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
 
 ## The direction
 
@@ -488,6 +488,91 @@ On `repo/finding-tool-1`, two files. Nothing else in them changes.
 - **The root type check passes** (`tsc -p tsconfig.json`, exit 0) with core and drag rebuilt. The implementer's three errors in `sortable-list.ts` were the slot's stale drag build: its declarations, of 2026-11-24 13:32, had the lift callback that `DRD-71` (#235) changed, and the sources didn't. It isn't a defect, and nothing is registered.
 - **What holds after the merge:** the second row of [`RD-56`'s table](../00-index.md) is in force. Nothing changes for a new finding until stage 3, which waits for the owner's word. No `tier:` label exists.
 - **Unread:** as in the rulings.
+
+### Stage 3: the trial's corrections
+
+**Proposed on 2026-11-25 by the architect, on `repo/findings-rules-1` from `ca6918376`, for the owner's decision at stage 4. Nothing here is in force.** Requested by the coordinator, from Mx Architect Explainer's six points on #265 and the coordinator's notes of the trial so far. The owner approved sending them, relayed: _"ух ты ж, сколько багов в воркфлоу нашли 😅 Да, давай отправим, пусть запрягает кого-нибудь из архитекторов на починку ))"_ ("wow, how many bugs in the workflow we found. Yes, let's send it, and have it put one of the architects on the repair"). His direction is that decisions stay in the repository's documents, because they are needed all the time while code is written, and that a question and its answer have one place. He preferred it to moving decisions into issues: _"нет, я тоже про это думал, и ты мои опасения подтвердил. А вот второй вариант выглядит интересно."_ ("no, I thought about that too, and you confirmed my fears. But the second option looks interesting."). It approves no wording and no timing.
+
+**#265 stays at `r2` and is finished under today's rules.** No document, tool or text that its implementer or its reviewer reads changes before it closes.
+
+#### What the trial showed
+
+Read at `5e1b88dd8` (`drag/displacement-1`), #265 `r2`, `DRD-72` and its plan.
+
+- **One answer is in five places:** the body's Q1, Amendment 2, `DRD-72`'s Q1 with the options again, the register's index row, and the plan's status line. The answer changed no property, and it cost the issue a revision and an amendment.
+- **Six of the body's eight properties restate `DRD-72`'s:** 1 and 4 to 8 restate 1 and 2, 7, 9, 10, 4 and 5, and 3, and some are abridged. Property 6 leaves out when `timing` is called and what its throw does. Property 2 is partly `DRD-72`'s 3. I found no contradiction. Nothing in `findings.md` says which text applies if there is one: it says _"The finding's body names it"_ of a decision, and its form always has _Required property_.
+- **The revisions pin each other.** `DRD-72` and its plan say _"with #265 at `r2`"_. An amendment of #265 that changes nothing of theirs makes both false.
+- **`#265 r2` doesn't fix `DRD-72`'s text.** The entry is on an unmerged branch, and `.scripts/entry.sh drag:DRD-72` refuses in any other worktree.
+- **The answer reached the issue first:** Amendment 2 is of 13:12:04 and `DRD-72`'s commit of 13:12:25. The registration had the other order.
+- **The pull request that `findings.md` wants cited doesn't exist yet.** `agent-workflow.md` opens it after the implementation.
+
+#### The rules
+
+The exact text is [`stage-3-documents.patch.txt`](checks/stage-3-documents.patch.txt), against `ca6918376`, for `findings.md` and one sentence of `agent-workflow.md`. It applies there with `git apply`. `findings.md` grows from 7.3 to 9.9 kB.
+
+1. **One place for each text, when a finding has a decision.** A property that a decision states is in the decision, and _Required property_ names its address and its numbers and restates nothing. Witnesses, and properties that no decision states, are in the body. A question about the decision is in the decision with its options and its answer, and _Questions_ has the reference alone. The plan has the design, the readings and the work list. So the finding is amended only when the body's text becomes false.
+2. **A prompt pins both:** `#N rM, decisions at <sha>`. The commit fixes the plan and the evidence too. A role stops when the branch has a later text of a property or an answer, as it does for a later revision. A decision or a plan names `#N` with no revision. `documentation.md` §6 already makes a substantive change a new decision, so the body's reference changes then, the body has a new revision, and the tool refuses the old one. The commit covers what is left: an open decision that is edited in place, and an unmerged one.
+3. **Evidence is cited by branch and path.** The pull request is found from the issue's timeline.
+4. **No change of the tool.** A refusal between the edit and the amendment reaches a role only if its prompt was written in those seconds, so the rule is the prompt's: it names a new revision after the tool has passed. A message that says _"may still be being written"_ would be true of a real fault too, and a role stops at either. If a report of the trial shows a role stopped that way, the message is looked at again.
+5. **The title names no package.** #265's title stays.
+6. **A plan in the repository isn't a defect** (`RD-56`, property 7).
+7. **The writer's order:** the decision is pushed first, and then the body, the amendment and the tool. The changed `Revision` line isn't quoted as replaced. The owner's comment or relayed answer is recorded where the question is.
+
+**A finding without a decision** keeps everything in the issue, its questions and answers with an amendment each, and its prompt pins `#N rM` alone. Only rules 3, 5 and 7 touch it. A question that was asked in the issue stays there when its answer makes a decision, and the decision names it. A finding that a decision joins later moves those properties out of the body, in an amendment that quotes them.
+
+**#265 under these rules:** _Required property_ would say `drag:DRD-72` properties 1 to 10, on `drag/displacement-1`, with the witnesses of 1, 2, 7 and 9, and two properties of its own: a move that is undone at once leaves the rows still, and the animation survives the consumer's commit and the release. _Questions_ would say `drag:DRD-72 Q1`, the answer would be there alone, and the issue would be at `r1` with no Amendment 2.
+
+#### Costs
+
+- **A reader of the issue alone doesn't see the contract.** He sees what happens, why, the witnesses and the numbers of properties, and needs the repository for the rest. The owner, on the board or a phone, sees a reference where the question is. The coordinator states it in chat, as now.
+- **A reader of an old issue** finds the decision by its address on `main`, and it may have been superseded since. What held at the closure is at the acceptance's commit, which GitHub keeps under `refs/pull/N/head` (read for #244 and #250). That is two steps instead of one.
+- **Nothing checks the decision's text.** The tool doesn't read it, and the prompt's commit and the role's stop are conventions.
+- **Whoever changes a decision has a search to make,** of the open findings that name it.
+- **Two forms exist:** a finding with a decision and one without. #265 is of neither, and isn't rewritten.
+
+**Not adopted:**
+
+- **The issue restates, and one text applies where they differ.** It is one sentence, and it removes neither the double edit nor the amendment that changes nothing.
+- **Decisions in issues.** The owner decided against it, and `RD-56`'s reason stands.
+- **The tool prints the decisions too.** It would need an address parser, a commit and a tree, for what two commands do.
+- **A writing tool** that edits and amends at once (point 4): one writer, few amendments, and GitHub makes two requests of it anyway.
+
+#### What it amends
+
+On the owner's word the architect records it as a decision of its own (`documentation.md` §6), under the next free `RD-`, because it changes what `RD-56` requires:
+
+- **Property 2** gains: _a prompt also pins the commit at which the named decisions are read._
+- **Property 6's** last sentence, _"The issue cites the path and the pull request"_, becomes _the issue cites the branch and the path._
+- **Property 7** gains: _a finding's body names a decision's properties and questions, and restates none of them._
+
+The stage 4 rows of [What changes](#what-changes) don't change. `work-queue.md` doesn't either: `findings.md` already applies where the two differ, on a question in the body too.
+
+#### When
+
+| Option | For | Against |
+| --- | --- | --- |
+| **(a) In stage 4's pull request, recommended** | Between #265's closure and stage 4 no finding has the form, so an earlier change has no reader. Stage 4 edits `findings.md` and `agent-workflow.md` anyway. If the owner stops at the trial, nothing was written for nothing | The rules first meet a finding at the cut-over. The first finding with a decision is their trial, and stage 5 reads it |
+| (b) A documentation unit after #265 closes and before stage 4 | Stage 4 is smaller by one patch | One more pull request and review, and no reader in between |
+| (c) As (b), and then a second finding as a trial | The new rules are tried before the cut-over | The cut-over waits for a finding that has a decision. Days or weeks |
+
+(a) holds unless a second finding gets a tier label before stage 4. Then it is (b), before that finding is registered. The rules aren't merged before #265 closes in any of them.
+
+#### The trial's other reports
+
+Each is added here, with the architect's ruling, before stage 4 is put to the owner. A report that contradicts a rule above changes the rule.
+
+| Report | What it is to tell | State |
+| --- | --- | --- |
+| The implementer, slot f | What it couldn't find or had to ask. Which text it followed, the body's or `DRD-72`'s, and whether they differed. Whether the plan's row list or the body's witnesses governed its tests | Awaited |
+| The fresh reviewer | The same, and which commit it read `DRD-72` at. Whether the references and the branch's evidence resolved | Awaited |
+| The architect's acceptance | Whether one commit was enough to fix the finding, the decision and the plan | Awaited |
+| The coordinator's count | The amendments and each refusal of the tool. So far: 2 amendments, 1 with no change of a property, and no refusal after the last step | Open |
+
+#### Questions
+
+- **Q1, for the owner — has each text one place, as rule 1 says?** (a) **Yes. Recommended.** (b) The issue restates a decision, and one sentence says that the decision applies. (c) As today.
+- **Q2, for the owner — what does the issue show of a question that is in a decision?** (a) **The reference alone. Recommended,** because any words of it are a second copy. (b) The reference and one plain sentence on what is asked, with no options and no answer. He can then read the board without the repository, and an answer still adds no revision.
+- **Q3, for the owner — when?** (a) **With stage 4. Recommended.** (b) A documentation unit before it. (c) That unit, and then a second trial.
 
 ## Questions for the owner
 
