@@ -5995,7 +5995,7 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-131 — An element whose slotted content changes while it is out of the document doesn't see the change, nor one that is built first and appended later
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `reviewer-5` of `RF-124`'s [recheck](reviews/aria-removed-1/feature-proof-recheck-claude.md), requested by the coordinator. `RF-130` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-124` is about the host's attributes, and `RF-75` and the button groups' entry are about which nodes `useSlot` passes. Read on built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, with the same result ([readings](aria-removed-1/checks/slot-out.txt), [probe](aria-removed-1/probes/slot-out.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `reviewer-5` of `RF-124`'s [recheck](reviews/aria-removed-1/feature-proof-recheck-claude.md), requested by the coordinator. `RF-130` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-124` is about the host's attributes, and `RF-75` and the button groups' entry are about which nodes `useSlot` passes. Read on built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, with the same result ([readings](aria-removed-1/checks/slot-out.txt), [probe](aria-removed-1/probes/slot-out.mjs)).
 
 - **The cause.** Core's `useSlot` registers its `slotchange` listener through `useEvents`, which is active only while the host is connected. A slot dispatches the event also when its host is out of the document, in a microtask after the change. With no listener it is lost, and nothing asks for the content again at the connect.
 - **What happens.** The report read a text field's label. The architect read the other callers, and two ways to meet it:
@@ -6058,6 +6058,17 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `c
 - **#256's description** has the note's corrections.
 - **Checks on the merged tree,** core and material-x rebuilt. Core's `useSlot` and `useRovingTabindex` rows: 50 passed in each engine. material-x's `slotted-content`, slider, top app bar, list, button group, text field and `aria-own-value` rows: Chromium 1146 passed and 2 expected failures; Firefox and WebKit 1080 passed, 2 expected failures and 66 skipped. Both packages without the visual project, in Chromium: core 330 passed; material-x 1720 passed and 2 expected failures. Typecheck, `typecheck-declarations`, lint, the root format check, material-x's publint, `docs-build` and `docs-smoke` pass.
 - **Not run:** the visual project, Safari, screen readers, the sizes, and the whole suites in Firefox and WebKit, which the list doesn't ask for.
+
+**Closed 2026-11-25 by the architect,** on the [feature proof](reviews/slot-listener-1/feature-proof-claude.md) of `96442bad3`, the rulings above, and the implementer's list, read at `7d65cd89c`, requested by the coordinator. `origin/main` at `855990331` (#250) is merged after it without a conflict, and it has records and `.scripts` only. #256 merges the entry, with `Closes #234`.
+
+- **No recheck is owed.** The proof read `useSlot.ts` as it is now: against `main`, the branch changes no other source. Of `main`'s changes since, #211 is the top app bar, which the proof ran. #248 changes no caller's slot, and the implementer's checks ran on the tree with it. #250 and #258 have no package source.
+- **The witnesses, read in the [record](slot-listener-1/checks/witnesses-large-image.txt) and not run again:** the two rows fail in each engine with the listener through `useEvents` (56px, the image at -24px) and with `lead-large` never set (76px, the image at 16px), and pass unmutated (76px, 0).
+- **`reviewer-1` is `RF-141`. `reviewer-2` to `reviewer-4` are closed,** the third with no rows owed and the fourth by the correction above. Property 1 is about the nodes that the slot reports, as ruled. Properties 2 and 3 hold in the three engines by the proof.
+- **The two departures are accepted:** a script of its own for the two rows, because the first one mutates `useSlot` alone and runs whole files, and the `aria-own-value` rows beside the text fields', which are #248's.
+- **The gate** passed at `96442bad3`. Its run on `7d65cd89c` hadn't finished when this was written, and the push of this commit may end it. The run on the closing commit is the coordinator's to read, the visual project and the sizes included. No visual change is expected.
+- **What remains elsewhere:** `RF-141`, which is ready after this; and the text fields' fallback as a pushed value, a cleanup that [`RF-130`'s plan](aria-own-value-1/aria-own-value-plan.md#not-in-this-unit) has after both entries, for the owner and the coordinator to take.
+- **Not read,** as before: Safari, screen readers, the whole suites in Firefox and WebKit on the merged tree, and a page-built caller of `useSlot`.
+- **Nothing is the owner's to answer.**
 
 #### RF-132 — A selected `mx-list-button-item` gives its button `aria-selected`, which the button role doesn't support
 
