@@ -1,0 +1,54 @@
+# chromium
+none: 125 passed, 0 failed {}
+the rule out: 89 passed, 36 failed {"thickness":12,"offset":12,"colour":12}
+clip back in .trail: 113 passed, 12 failed {"edge":12}
+overflow: clip, 4px margin in .trail: 122 passed, 3 failed {"edge":3}
+clip in .lead: 116 passed, 9 failed {"edge":9}
+clip on both slots: 116 passed, 9 failed {"edge":9}
+the item's own offset: 113 passed, 12 failed {"offset":12}
+thickness 2px: 113 passed, 12 failed {"thickness":12}
+primary color: 113 passed, 12 failed {"colour":12}
+dashed: 125 passed, 0 failed {}
+without :focus-visible: 125 passed, 0 failed {}
+:focus: 125 passed, 0 failed {}
+without [data-handle]: 125 passed, 0 failed {}
+!important: 121 passed, 4 failed {"page's rule":4}
+lead only: 104 passed, 21 failed {"thickness":6,"offset":6,"colour":6,"edge":3}
+the variable out: 113 passed, 12 failed {"offset":12}
+align-content out of .trail: 125 passed, 0 failed {}
+# webkit
+none: 125 passed, 0 failed {}
+the rule out: 100 passed, 25 failed {"offset":12,"colour":12,"edge":1}
+clip back in .trail: 113 passed, 12 failed {"edge":12}
+overflow: clip, 4px margin in .trail: 113 passed, 12 failed {"edge":12}
+clip in .lead: 116 passed, 9 failed {"edge":9}
+clip on both slots: 116 passed, 9 failed {"edge":9}
+the item's own offset: 113 passed, 12 failed {"offset":12}
+thickness 2px: 113 passed, 12 failed {"thickness":12}
+primary color: 113 passed, 12 failed {"colour":12}
+dashed: 125 passed, 0 failed {}
+without :focus-visible: 125 passed, 0 failed {}
+:focus: 125 passed, 0 failed {}
+without [data-handle]: 125 passed, 0 failed {}
+!important: 121 passed, 4 failed {"page's rule":4}
+lead only: 110 passed, 15 failed {"offset":6,"colour":6,"edge":3}
+the variable out: 113 passed, 12 failed {"offset":12}
+align-content out of .trail: 125 passed, 0 failed {}
+# firefox
+none: 125 passed, 0 failed {}
+the rule out: 88 passed, 37 failed {"thickness":12,"offset":12,"colour":12,"edge":1}
+clip back in .trail: 113 passed, 12 failed {"edge":12}
+overflow: clip, 4px margin in .trail: 122 passed, 3 failed {"edge":3}
+clip in .lead: 113 passed, 12 failed {"edge":12}
+clip on both slots: 113 passed, 12 failed {"edge":12}
+the item's own offset: 113 passed, 12 failed {"offset":12}
+thickness 2px: 113 passed, 12 failed {"thickness":12}
+primary color: 113 passed, 12 failed {"colour":12}
+dashed: 125 passed, 0 failed {}
+without :focus-visible: 125 passed, 0 failed {}
+:focus: 125 passed, 0 failed {}
+without [data-handle]: 125 passed, 0 failed {}
+!important: 121 passed, 4 failed {"page's rule":4}
+lead only: 104 passed, 21 failed {"thickness":6,"offset":6,"colour":6,"edge":3}
+the variable out: 113 passed, 12 failed {"offset":12}
+align-content out of .trail: 125 passed, 0 failed {}

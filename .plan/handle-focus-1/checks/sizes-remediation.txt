@@ -1,0 +1,37 @@
+Brotli, at cec5091db: with the three source files of main at 2c83c7bc0, as the head has them, difference
+box-quad index: 1182 1182 0 (limit 1182)
+core element: 277 277 0 (limit 340)
+core emitter: 198 198 0 (limit 210)
+material-x button/button: 4902 4909 7
+material-x button/icon-button: 5166 5182 16
+material-x button/link-button: 4869 4872 3
+material-x button/switch-button: 5510 5507 -3
+material-x button/switch-icon-button: 5907 5906 -1
+material-x button/split-button: 7562 7585 23
+material-x button-group/button-group: 3049 3060 11
+material-x button-group/connected-button-group: 3912 3916 4
+material-x card/card: 1316 1317 1
+material-x checkbox/checkbox: 4255 4260 5
+material-x fab/fab: 4174 4176 2
+material-x icon/icon: 631 631 0
+material-x list/list: 591 592 1
+material-x list/list-item: 2726 2772 46
+material-x list/list-button-item: 4895 4898 3
+material-x list/list-link-item: 5094 5121 27
+material-x list/sortable-list: 9093 9092 -1
+material-x radio/radio: 3811 3811 0
+material-x slider/slider: 4015 4015 0
+material-x text-field/multiline-text-field: 4521 4547 26
+material-x text-field/text-field: 8595 8585 -10
+material-x top-app-bar/top-app-bar: 1354 1354 0
+material-x complete: 25699 25743 44
+drag draggable alone: 2189 2189 0 (limit 2189)
+drag draggable + lift: 3932 3932 0 (limit 3932)
+drag example: resize handle: 3265 3265 0 (limit 3265)
+drag example: drop zone: 4570 4570 0 (limit 4570)
+drag example: canvas group: 3261 3261 0 (limit 3261)
+drag freeDrag: 4984 4984 0 (limit 4984)
+drag freeDrag + bounds + landing: 5465 5465 0 (limit 5465)
+drag sortable + y: 6538 6538 0 (limit 6538)
+drag sortable + xy: 6506 6506 0 (limit 6506)
+drag complete: 7156 7156 0 (limit 7156)

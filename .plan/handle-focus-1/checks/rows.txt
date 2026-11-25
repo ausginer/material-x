@@ -1,0 +1,153 @@
+The rows of list-item.spec.browser.test.ts, by engine: at the head, with the ::slotted([data-handle]:focus-visible) rule out, and with overflow: hidden back in .trail.
+
+# head, chromium: 125 passed, 0 failed
+
+# head, firefox: 125 passed, 0 failed
+
+# head, webkit: 125 passed, 0 failed
+
+# norule, chromium: 89 passed, 36 failed
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator thickness: expected '1px' to be '3px'
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator offset: expected '0px' to be '2px'
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator colour: expected 'rgb(16, 16, 16)' to be 'rgb(75, 102, 42)'
+
+# norule, firefox: 88 passed, 37 failed
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator thickness
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator thickness
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator offset
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator colour
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator thickness
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator offset
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator colour
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator thickness
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator thickness
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator offset
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator colour
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator thickness
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator offset
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator colour
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator thickness
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator thickness
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator offset
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator colour
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator thickness
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator offset
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator colour
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator thickness
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator thickness
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator offset
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator colour
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator thickness
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator offset
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator colour
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its right edge in the trail slot as in the lead slot
+
+# norule, webkit: 100 passed, 25 failed
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-item in the lead slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator offset
+handle focus indicator in mx-list-item in the lead slot of span should render the indicator colour
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator offset
+handle focus indicator in mx-list-item in the lead slot of button should render the indicator colour
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-item in the trail slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator offset
+handle focus indicator in mx-list-item in the trail slot of span should render the indicator colour
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator offset
+handle focus indicator in mx-list-item in the trail slot of button should render the indicator colour
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-button-item in the lead slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator offset
+handle focus indicator in mx-list-button-item in the lead slot of span should render the indicator colour
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator offset
+handle focus indicator in mx-list-button-item in the lead slot of button should render the indicator colour
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator offset
+handle focus indicator in mx-list-button-item in the trail slot of mx-icon should render the indicator colour
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator offset
+handle focus indicator in mx-list-button-item in the trail slot of span should render the indicator colour
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator offset
+handle focus indicator in mx-list-button-item in the trail slot of button should render the indicator colour
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its right edge in the trail slot as in the lead slot
+
+# clip, chromium: 113 passed, 12 failed
+whole focus indicator of mx-icon-button in mx-list-item should paint its left edge in the trail slot as in the lead slot: expected 42 to be greater than or equal to 91.8
+whole focus indicator of mx-icon-button in mx-list-item should paint its right edge in the trail slot as in the lead slot: expected 38 to be greater than or equal to 86.4
+whole focus indicator of mx-icon-button in mx-list-item should paint its bottom edge in the trail slot as in the lead slot: expected 38 to be greater than or equal to 86.4
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its left edge in the trail slot as in the lead slot: expected 42 to be greater than or equal to 91.8
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its right edge in the trail slot as in the lead slot: expected 38 to be greater than or equal to 86.4
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its bottom edge in the trail slot as in the lead slot: expected 38 to be greater than or equal to 86.4
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its left edge in the trail slot as in the lead slot: expected 42 to be greater than or equal to 91.8
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its right edge in the trail slot as in the lead slot: expected 38 to be greater than or equal to 86.4
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its bottom edge in the trail slot as in the lead slot: expected 38 to be greater than or equal to 86.4
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its left edge in the trail slot as in the lead slot: expected 0 to be greater than or equal to 129.6
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its right edge in the trail slot as in the lead slot: expected 0 to be greater than or equal to 124.2
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its bottom edge in the trail slot as in the lead slot: expected 0 to be greater than or equal to 124.2
+
+# clip, firefox: 113 passed, 12 failed
+whole focus indicator of mx-icon-button in mx-list-item should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its bottom edge in the trail slot as in the lead slot
+
+# clip, webkit: 113 passed, 12 failed
+whole focus indicator of mx-icon-button in mx-list-item should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its bottom edge in the trail slot as in the lead slot

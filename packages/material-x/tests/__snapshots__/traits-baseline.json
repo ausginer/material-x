@@ -2999,7 +2999,8 @@
       "size",
       "shape",
       "disabled",
-      "open"
+      "open",
+      "secondarylabel"
     ],
     "reflection": [
       {
@@ -3081,6 +3082,22 @@
           "\"x\"": true,
           "\"1\"": true
         }
+      },
+      {
+        "name": "secondarylabel",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
       }
     ],
     "instanceOf": {
@@ -3143,6 +3160,11 @@
           },
           {
             "key": "open",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "secondarylabel",
             "kind": "get+set",
             "enumerable": false
           },

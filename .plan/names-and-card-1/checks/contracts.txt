@@ -1,0 +1,132 @@
+
+# chromium 158.0.8127.18
+card, built, token: card 12px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 12px
+card, built, consumer 20px: card 20px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 20px
+card, built, consumer 4 corners: card 1px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 1px
+card, built, page radius: card 7px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 12px
+card, slot inherits, token: card 12px | child 12px 12px | grandchild 12px | plain 0px | button 20px | nested card 12px
+card, slot inherits, consumer 20px: card 20px | child 20px 20px | grandchild 20px | plain 0px | button 20px | nested card 20px
+card, slot inherits, consumer 4 corners: card 1px | child 1px 2px | grandchild 1px | plain 0px | button 20px | nested card 1px
+card, slot inherits, page radius: card 7px | child 7px 7px | grandchild 7px | plain 0px | button 20px | nested card 12px
+card, page's display: grid: 16,16 96 | 120,16 96 (card padding 16px)
+card, page's display: flex: 16,16 96 | 120,16 96 (card padding 16px)
+card, overflow clip: shadow kept
+list, built, wide button, ltr: trail 250x40, its text 218x15, item height 60, past the end 17, page scroll 0
+list, built, wide button, rtl: trail 250x40, its text 218x15, item height 60, past the end 17, page scroll 0
+list, built, wide button, long label, ltr: trail 250x40, its text 218x15, item height 164, past the end 27, page scroll 0
+list, built, wide button, long label, rtl: trail 250x40, its text 218x15, item height 164, past the end 27, page scroll 0
+list, built, two words, ltr: trail 95x40, its text 63x15, item height 60, past the end 0, page scroll 0
+list, built, two words, rtl: trail 95x40, its text 63x15, item height 60, past the end 0, page scroll 0
+list, built, long text, ltr: trail 268x12, its text 268x12, item height 56, past the end 35, page scroll 0
+list, built, long text, rtl: trail 268x12, its text 268x12, item height 56, past the end 35, page scroll 0
+list, built, checkbox, ltr: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, built, checkbox, rtl: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, bound, wide button, ltr: trail 150x40, its text 95x55, item height 61, past the end 0, page scroll 0
+list, bound, wide button, rtl: trail 150x40, its text 95x55, item height 61, past the end 0, page scroll 0
+list, bound, wide button, long label, ltr: trail 150x40, its text 95x55, item height 92, past the end 0, page scroll 0
+list, bound, wide button, long label, rtl: trail 150x40, its text 95x55, item height 92, past the end 0, page scroll 0
+list, bound, two words, ltr: trail 95x40, its text 63x15, item height 60, past the end 0, page scroll 0
+list, bound, two words, rtl: trail 95x40, its text 63x15, item height 60, past the end 0, page scroll 0
+list, bound, long text, ltr: trail 133x28, its text 133x28, item height 56, past the end 0, page scroll 0
+list, bound, long text, rtl: trail 133x28, its text 133x28, item height 56, past the end 0, page scroll 0
+list, bound, checkbox, ltr: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, bound, checkbox, rtl: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+icon, built, ligature: 14x14 at 20,20
+icon, built, svg: 14x14 at 20,20 svg 16x16 at 0,0
+icon, built, svg 100%: 24x24 at 20,20 svg 24x24 at 0,0
+icon, built, in a button: 20x20 at 36,30
+icon, built, in a FAB: 14x14 at 36,36
+icon, span, ligature: 14x14 at 20,20
+icon, span, svg: 14x14 at 20,20 svg 16x16 at 0,0
+icon, span, svg 100%: 24x24 at 20,20 svg 24x24 at 0,0
+icon, span, in a button: 20x20 at 36,30
+icon, span, in a FAB: 14x14 at 36,36
+split button: native aria-label More, aria-expanded false
+
+# firefox 159.0
+card, built, token: card 12px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 12px
+card, built, consumer 20px: card 20px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 20px
+card, built, consumer 4 corners: card 1px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 1px
+card, built, page radius: card 7px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 12px
+card, slot inherits, token: card 12px | child 12px 12px | grandchild 12px | plain 0px | button 20px | nested card 12px
+card, slot inherits, consumer 20px: card 20px | child 20px 20px | grandchild 20px | plain 0px | button 20px | nested card 20px
+card, slot inherits, consumer 4 corners: card 1px | child 1px 2px | grandchild 1px | plain 0px | button 20px | nested card 1px
+card, slot inherits, page radius: card 7px | child 7px 7px | grandchild 7px | plain 0px | button 20px | nested card 12px
+card, page's display: grid: 16,16 96 | 120,16 96 (card padding 16px)
+card, page's display: flex: 16,16 96 | 120,16 96 (card padding 16px)
+card, overflow clip: shadow kept
+list, built, wide button, ltr: trail 264x40, its text 232x19, item height 60, past the end 33, page scroll 0
+list, built, wide button, rtl: trail 264x40, its text 232x19, item height 60, past the end 33, page scroll 0
+list, built, wide button, long label, ltr: trail 264x40, its text 232x19, item height 164, past the end 46, page scroll 0
+list, built, wide button, long label, rtl: trail 264x40, its text 232x19, item height 164, past the end 46, page scroll 0
+list, built, two words, ltr: trail 97x40, its text 65x19, item height 60, past the end 0, page scroll 0
+list, built, two words, rtl: trail 97x40, its text 65x19, item height 60, past the end 0, page scroll 0
+list, built, long text, ltr: trail 289x15, its text 289x15, item height 56, past the end 57, page scroll 0
+list, built, long text, rtl: trail 289x15, its text 289x15, item height 56, past the end 57, page scroll 0
+list, built, checkbox, ltr: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, built, checkbox, rtl: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, bound, wide button, ltr: trail 150x40, its text 102x59, item height 60, past the end 0, page scroll 0
+list, bound, wide button, rtl: trail 150x40, its text 102x59, item height 60, past the end 0, page scroll 0
+list, bound, wide button, long label, ltr: trail 150x40, its text 102x59, item height 92, past the end 0, page scroll 0
+list, bound, wide button, long label, rtl: trail 150x40, its text 102x59, item height 92, past the end 0, page scroll 0
+list, bound, two words, ltr: trail 97x40, its text 65x19, item height 60, past the end 0, page scroll 0
+list, bound, two words, rtl: trail 97x40, its text 65x19, item height 60, past the end 0, page scroll 0
+list, bound, long text, ltr: trail 145x31, its text 145x31, item height 56, past the end 0, page scroll 0
+list, bound, long text, rtl: trail 145x31, its text 145x31, item height 56, past the end 0, page scroll 0
+list, bound, checkbox, ltr: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, bound, checkbox, rtl: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+icon, built, ligature: 14x14 at 20,20
+icon, built, svg: 14x14 at 20,20 svg 16x16 at 0,0
+icon, built, svg 100%: 24x24 at 20,20 svg 24x24 at 0,0
+icon, built, in a button: 20x20 at 36,30
+icon, built, in a FAB: 14x14 at 36,36
+icon, span, ligature: 14x14 at 20,20
+icon, span, svg: 14x14 at 20,20 svg 16x16 at 0,0
+icon, span, svg 100%: 24x24 at 20,20 svg 24x24 at 0,0
+icon, span, in a button: 20x20 at 36,30
+icon, span, in a FAB: 14x14 at 36,36
+split button: native aria-label More, aria-expanded false
+
+# webkit 27.2
+card, built, token: card 12px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 12px
+card, built, consumer 20px: card 20px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 20px
+card, built, consumer 4 corners: card 1px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 1px
+card, built, page radius: card 7px | child 0px 0px | grandchild 0px | plain 0px | button 20px | nested card 12px
+card, slot inherits, token: card 12px | child 12px 12px | grandchild 12px | plain 0px | button 20px | nested card 12px
+card, slot inherits, consumer 20px: card 20px | child 20px 20px | grandchild 20px | plain 0px | button 20px | nested card 20px
+card, slot inherits, consumer 4 corners: card 1px | child 1px 2px | grandchild 1px | plain 0px | button 20px | nested card 1px
+card, slot inherits, page radius: card 7px | child 7px 7px | grandchild 7px | plain 0px | button 20px | nested card 12px
+card, page's display: grid: 16,16 96 | 120,16 96 (card padding 16px)
+card, page's display: flex: 16,16 96 | 120,16 96 (card padding 16px)
+card, overflow clip: shadow kept
+list, built, wide button, ltr: trail 264x40, its text 232x17, item height 60, past the end 33, page scroll 0
+list, built, wide button, rtl: trail 264x40, its text 232x17, item height 60, past the end 33, page scroll 0
+list, built, wide button, long label, ltr: trail 264x40, its text 232x17, item height 164, past the end 46, page scroll 0
+list, built, wide button, long label, rtl: trail 264x40, its text 232x17, item height 164, past the end 46, page scroll 0
+list, built, two words, ltr: trail 97x40, its text 65x17, item height 60, past the end 0, page scroll 0
+list, built, two words, rtl: trail 97x40, its text 65x17, item height 60, past the end 0, page scroll 0
+list, built, long text, ltr: trail 288x14, its text 288x14, item height 56, past the end 57, page scroll 0
+list, built, long text, rtl: trail 288x14, its text 288x14, item height 56, past the end 57, page scroll 0
+list, built, checkbox, ltr: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, built, checkbox, rtl: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, bound, wide button, ltr: trail 150x40, its text 102x57, item height 60, past the end 0, page scroll 0
+list, bound, wide button, rtl: trail 150x40, its text 102x57, item height 60, past the end 0, page scroll 0
+list, bound, wide button, long label, ltr: trail 150x40, its text 102x57, item height 92, past the end 0, page scroll 0
+list, bound, wide button, long label, rtl: trail 150x40, its text 102x57, item height 92, past the end 0, page scroll 0
+list, bound, two words, ltr: trail 97x40, its text 65x17, item height 60, past the end 0, page scroll 0
+list, bound, two words, rtl: trail 97x40, its text 65x17, item height 60, past the end 0, page scroll 0
+list, bound, long text, ltr: trail 145x30, its text 145x30, item height 56, past the end 0, page scroll 0
+list, bound, long text, rtl: trail 145x30, its text 145x30, item height 56, past the end 0, page scroll 0
+list, bound, checkbox, ltr: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+list, bound, checkbox, rtl: trail 40x40, its text 0x0, item height 60, past the end 0, page scroll 0
+icon, built, ligature: 14x14 at 20,20
+icon, built, svg: 14x14 at 20,20 svg 16x16 at 0,0
+icon, built, svg 100%: 24x24 at 20,20 svg 24x24 at 0,0
+icon, built, in a button: 20x20 at 36,30
+icon, built, in a FAB: 14x14 at 36,36
+icon, span, ligature: 14x14 at 20,20
+icon, span, svg: 14x14 at 20,20 svg 16x16 at 0,0
+icon, span, svg 100%: 24x24 at 20,20 svg 24x24 at 0,0
+icon, span, in a button: 20x20 at 36,30
+icon, span, in a FAB: 14x14 at 36,36
+split button: native aria-label More, aria-expanded false

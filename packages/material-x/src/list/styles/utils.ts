@@ -67,9 +67,17 @@ export function groupListItemTokens(tokenName: string): GroupResult | null {
     nameParts.push(part);
   }
 
+  const name = nameParts.join('.');
+
+  // The set's dragged state is the baseline list's. Its elevation is the only
+  // one that Material names for a dragged item.
+  if (state === 'dragged' && name !== 'container.elevation') {
+    return null;
+  }
+
   return {
     path: selection ? `${selection}.${state}` : state,
-    tokenName: nameParts.join('.'),
+    tokenName: name,
   };
 }
 

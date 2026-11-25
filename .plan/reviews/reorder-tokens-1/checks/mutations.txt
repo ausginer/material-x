@@ -1,0 +1,185 @@
+## as it is | chromium | Tests  297 passed (297)
+## repeated: the sheet not adopted | chromium | Tests  24 failed | 273 passed (297)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with the consumer's rule on the item
+   mx-sortable-list drop zone > should paint the drop zone in a pointer drag
+   mx-sortable-list drop zone > should paint the drop zone in the handler of a pointer drop
+   mx-sortable-list drop zone > should paint the drop zone in each frame while the commit of a pointer drop is pending
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after an accepted key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a refused key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a key move that timed out
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a disconnection during the commit of a key move
+   mx-sortable-list reorder contract > of a static item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a static item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > should render the state layer on a button item in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a button item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a selected button item in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a link item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a selected link item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the drop zone in its color, opaque
+   mx-sortable-list reorder contract > should keep the consumer's list shape on the drop zone
+## repeated: in a key move too | chromium | Tests  7 failed | 290 passed (297)
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a static item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a selected button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a static item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a selected button item
+   mx-sortable-list lifted item in a key move > should keep a page's background-color and color on a static item
+## repeated: every dragged token | chromium | Tests  2 failed | 295 passed (297)
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a selected button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a selected button item
+## the static item's rule on every item's host | chromium | Tests  297 passed (297)
+## a plain list adopts the sheet too | chromium | Tests  297 passed (297)
+## a transition of the container's color | chromium | Tests  14 failed | 283 passed (297)
+   mx-list-button-item selection colour contract > should render the unselected colours again once selected is cleared
+   mx-list-link-item selection colour contract > should render the unselected colours again once selected is cleared
+   mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+   mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the resting colors again after the drop
+## the static item's rule at rest too | chromium | Tests  2 failed | 295 passed (297)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should have the page's background-color at rest and after the drop
+   mx-sortable-list lifted item in a key move > should keep a page's background-color and color on a static item
+## the drop zone painted in no operation | chromium | Tests  8 failed | 289 passed (297)
+   mx-sortable-list drop zone > should paint the drop zone in a pointer drag
+   mx-sortable-list drop zone > should paint the drop zone in the handler of a pointer drop
+   mx-sortable-list drop zone > should paint the drop zone in each frame while the commit of a pointer drop is pending
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after an accepted key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a refused key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a key move that timed out
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a disconnection during the commit of a key move
+   mx-sortable-list reorder contract > should render the drop zone in its color, opaque
+## as it is | firefox | Tests  285 passed | 2 skipped (287)
+## repeated: the sheet not adopted | firefox | Tests  20 failed | 265 passed | 2 skipped (287)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with the consumer's rule on the item
+   mx-sortable-list drop zone > should paint the drop zone in a pointer drag
+   mx-sortable-list drop zone > should paint the drop zone in the handler of a pointer drop
+   mx-sortable-list drop zone > should paint the drop zone in each frame while the commit of a pointer drop is pending
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after an accepted key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a refused key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a key move that timed out
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a disconnection during the commit of a key move
+   mx-sortable-list reorder contract > of a static item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a static item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > should render the state layer on a button item in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a button item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a selected button item in a pointer drag
+   mx-sortable-list reorder contract > should render the drop zone in its color, opaque
+   mx-sortable-list reorder contract > should keep the consumer's list shape on the drop zone
+## repeated: in a key move too | firefox | Tests  7 failed | 278 passed | 2 skipped (287)
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a static item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a selected button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a static item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a selected button item
+   mx-sortable-list lifted item in a key move > should keep a page's background-color and color on a static item
+## repeated: every dragged token | firefox | Tests  2 failed | 283 passed | 2 skipped (287)
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a selected button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a selected button item
+## the static item's rule on every item's host | firefox | Tests  285 passed | 2 skipped (287)
+## a plain list adopts the sheet too | firefox | Tests  285 passed | 2 skipped (287)
+## a transition of the container's color | firefox | Tests  8 failed | 277 passed | 2 skipped (287)
+   mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+   mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the resting colors again after the drop
+## the static item's rule at rest too | firefox | Tests  2 failed | 283 passed | 2 skipped (287)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should have the page's background-color at rest and after the drop
+   mx-sortable-list lifted item in a key move > should keep a page's background-color and color on a static item
+## the drop zone painted in no operation | firefox | Tests  8 failed | 277 passed | 2 skipped (287)
+   mx-sortable-list drop zone > should paint the drop zone in a pointer drag
+   mx-sortable-list drop zone > should paint the drop zone in the handler of a pointer drop
+   mx-sortable-list drop zone > should paint the drop zone in each frame while the commit of a pointer drop is pending
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after an accepted key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a refused key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a key move that timed out
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a disconnection during the commit of a key move
+   mx-sortable-list reorder contract > should render the drop zone in its color, opaque
+## as it is | webkit | Tests  295 passed | 2 skipped (297)
+## repeated: the sheet not adopted | webkit | Tests  24 failed | 271 passed | 2 skipped (297)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should take the reorder container and label colors with the consumer's rule on the item
+   mx-sortable-list drop zone > should paint the drop zone in a pointer drag
+   mx-sortable-list drop zone > should paint the drop zone in the handler of a pointer drop
+   mx-sortable-list drop zone > should paint the drop zone in each frame while the commit of a pointer drop is pending
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after an accepted key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a refused key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a key move that timed out
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a disconnection during the commit of a key move
+   mx-sortable-list reorder contract > of a static item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a static item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > should render the state layer on a button item in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a button item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a selected button item in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a link item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the state layer on a selected link item by its handle in a pointer drag
+   mx-sortable-list reorder contract > should render the drop zone in its color, opaque
+   mx-sortable-list reorder contract > should keep the consumer's list shape on the drop zone
+## repeated: in a key move too | webkit | Tests  7 failed | 288 passed | 2 skipped (297)
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a static item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a selected button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a static item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a selected button item
+   mx-sortable-list lifted item in a key move > should keep a page's background-color and color on a static item
+## repeated: every dragged token | webkit | Tests  2 failed | 293 passed | 2 skipped (297)
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in the handler, for a selected button item
+   mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a selected button item
+## the static item's rule on every item's host | webkit | Tests  295 passed | 2 skipped (297)
+## a plain list adopts the sheet too | webkit | Tests  295 passed | 2 skipped (297)
+## a transition of the container's color | webkit | Tests  11 failed | 284 passed | 2 skipped (297)
+   mx-list-button-item press transition contract > should transition the container shape over the press duration and easing
+   mx-list-link-item press transition contract > should transition the container shape over the press duration and easing
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the container and content colors at once
+   mx-sortable-list reorder contract > of a button item in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a button item by its handle in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the resting colors again after the drop
+   mx-sortable-list reorder contract > of a selected button item in a pointer drag > should render the resting colors again after the drop
+## the static item's rule at rest too | webkit | Tests  2 failed | 293 passed | 2 skipped (297)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should have the page's background-color at rest and after the drop
+   mx-sortable-list lifted item in a key move > should keep a page's background-color and color on a static item
+## the drop zone painted in no operation | webkit | Tests  8 failed | 287 passed | 2 skipped (297)
+   mx-sortable-list drop zone > should paint the drop zone in a pointer drag
+   mx-sortable-list drop zone > should paint the drop zone in the handler of a pointer drop
+   mx-sortable-list drop zone > should paint the drop zone in each frame while the commit of a pointer drop is pending
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after an accepted key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a refused key move
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a key move that timed out
+   mx-sortable-list drop zone > should paint the drop zone in the pointer drag after a disconnection during the commit of a key move
+   mx-sortable-list reorder contract > should render the drop zone in its color, opaque

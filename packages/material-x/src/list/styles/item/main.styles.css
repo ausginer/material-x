@@ -60,6 +60,15 @@ slot:has-slotted {
   --_leading-space: 0;
 }
 
+/*
+ * The consumer's element, so a page's own rule on it wins. The element's own
+ * `:host` rule doesn't.
+ */
+:is(.lead, .trail)::slotted([data-handle]:focus-visible) {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_handle-focus-indicator-outline-offset);
+}
+
 .content {
   flex: 1 1 auto;
   display: flex;
@@ -80,8 +89,7 @@ slot:has-slotted {
 
 .label,
 .overline,
-.support,
-.trail {
+.support {
   overflow: hidden;
   text-overflow: ellipsis;
   align-content: center;
@@ -168,7 +176,9 @@ slot:has-slotted {
   }
 }
 
+/* It clips nothing, so a control's focus indicator shows around it. */
 .trail {
+  align-content: center;
   margin-inline-start: var(--_between-space);
 
   &::slotted(:not(mx-icon):not([data-icon])) {
