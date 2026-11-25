@@ -69,14 +69,19 @@ slot:has-slotted {
   outline-offset: var(--_handle-focus-indicator-outline-offset);
 }
 
+/*
+ * The label starts from a part of the item, so a trailing child that can get
+ * narrower leaves it that room. The part isn't a minimum: beside a trailing
+ * child that can't get narrower, the label yields.
+ */
 .content {
-  flex: 1 1 auto;
+  flex: 1 1 15%;
+  min-inline-size: 0;
   display: flex;
   flex-direction: column;
 }
 
-.lead,
-.trail {
+.lead {
   flex: 0 0 min-content;
   min-inline-size: 0;
 }
@@ -183,8 +188,14 @@ slot:has-slotted {
   }
 }
 
-/* It clips nothing, so a control's focus indicator shows around it. */
+/*
+ * It takes nearly all of the shrinking, down to its narrowest content. It clips
+ * nothing, so a control's focus indicator shows around it.
+ */
 .trail {
+  flex: 0 1000 auto;
+  min-inline-size: min-content;
+  max-inline-size: 50%;
   align-content: center;
   margin-inline-start: var(--_between-space);
 
@@ -196,7 +207,8 @@ slot:has-slotted {
     font-weight: var(--_trailing-supporting-text-weight);
     line-height: var(--_trailing-supporting-text-line-height);
     letter-spacing: var(--_trailing-supporting-text-tracking);
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   &::slotted(mx-icon),
