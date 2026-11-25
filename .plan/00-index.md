@@ -6473,7 +6473,7 @@ Tier A, **open**, **ready** after `material-x/handle-focus-1` (the last note), p
 
 #### RF-140 — The list's documentation names slots that the templates don't have
 
-Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
+Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
 
 - **What is wrong:** the items' shared template has the slots `lead`, `overline`, the default one, `support` and `trail`. The published JSDoc of `mx-list-item`, `mx-list-button-item` and `mx-list-link-item` has `@slot start`, `end`, `supporting-text` and `trailing-supporting-text`, and only `overline` and the default slot are right. `list.mdx` names the four in _Anatomy_, and its quick start has `<mx-icon slot="start">`. So does what is made from the JSDoc: the manifest, and the page's API tables. Both came with the list, in `3632ccd77`, where the template already had `lead`, `trail` and `support`.
 - **Why it matters:** a page that copies the quick start, or reads the types in its editor, puts content in a slot that doesn't exist, and it isn't drawn. The text of `trail` has no slot of its own.
@@ -6482,6 +6482,13 @@ Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows:** none. A check that compares each `@slot` with the template is a possible instrument, and this entry doesn't require one.
 - **Order:** it waits for nothing. The unit of `RF-128` and `RF-135` doesn't change these files, by its list.
 - **Plan needed:** no. **Ready** for an implementer. **Size:** _small_. A published JSDoc changes, so the package's declarations change and no code does.
+- **Fixed 2026-11-25 by the implementer** on `material-x/list-slots-doc-1`, for #255. The three items' JSDoc and `list.mdx` name `lead`, `overline`, `support`, `trail` and the default slot, and the built manifest has these five for each item. The quick start also imports the icon and the button item, because `list/list.js` defines neither. Read in Chromium with a temporary probe: its icon has no box in `start`, and a 20 by 20 px box in `lead`.
+
+**Closed 2026-11-25 by the architect,** at `429c50354` on `material-x/list-slots-doc-1`, requested by the coordinator. Read: the diff, and the template that the three items share. The three items' JSDoc and `list.mdx` name its five slots and no other. No feature proof is owed, because no code changes.
+
+- **The quick start's two more imports stand.** The property says that the quick start draws its icon, and `list/list.js` defines neither the icon nor the item. Other pages import their own component alone, and this entry decides nothing for them.
+- **`lead` also takes a video,** which its line doesn't name. The line is the entry's, the slot is named, and nothing is owed.
+- **Not read by the architect:** the built page. The implementer's probe read it in Chromium. CI was still running on this head.
 
 **Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). **Ready,** on a branch of its own, and it waits for nothing. `RF-139` edits `list.mdx` later, elsewhere on the page. The description has `Closes #255`. No feature proof is owed: the coordinator compares the names with `list-item`'s template, and `docs-build` and `docs-smoke` pass.
 
