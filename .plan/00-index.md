@@ -2443,6 +2443,51 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
+#### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
+
+**Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** the default slot is the headline, with `lead` and `trail` beside it. There is one public custom state, `:state(scrolled)`, and two CSS properties, the container's color at rest and on scroll. There is no attribute, event or part. Its host is its box.
+2. **The host places itself,** with `position: sticky` at the block start and `z-index: 1`, so a page writes no code. A page rule on the element overrides it.
+3. **The state comes from one `IntersectionObserver`** on the document's root element, with `root: document`. It changes only when the scroll position crosses the start, with no scroll listener and no layout read. It matches the scroll position in Chromium, Firefox and WebKit in every case [read](top-app-bar-1/checks/scroll-state.txt). `scroll-state()` is in Chromium only, and a scroll-driven animation gives neither a state to style against nor a change with a duration of its own.
+4. **The state is the platform's, as `:hover` is.** It is derived from the scroll position, so the controlled principle doesn't apply to it.
+5. **Scrolled is a color change only, and it amends the landing plan's property 3.** M3's spec shows and describes a color change, and upstream's message on the replaced set's shadow color is _"Bug: should not have been created. Remove any shadows on navigation bars."_ `container.elevation` and `on-scroll.container.elevation` of `md.comp.app-bar` are excluded by this ruling (`RD-34`). The color transitions over M3's default effects duration.
+6. **No landmark.** The page sets `role="banner"` on the bar. A `<header>` around it would unpin it, unless the header is `display: contents`.
+
+**Why.** The owner requires a sticky header, and property 2 asks for it with no page code. Only an observer gives a state that a consumer can style against, in every engine, with no work per frame. The shadow is a parity question, as the shadow color was in `RF-77`, and upstream answers it.
+
+**Costs.** A `<header>` wrapper needs a style of its own, and a pinned bar needs the page's `scroll-padding-block-start`. Without a shadow, content in `surface-container` shows no edge under the bar. The bar follows the document's scroll only. `mx-icon-button` keeps its own icon color in `lead`, where M3's token differs.
+
+**Answered 2026-11-23 by the owner,** in chat, relayed by the coordinator. He confirmed properties 5 and 6, and authorized the implementation:
+
+- **The shadow:** _"(а), и поехали"_ ("(a), and let's go"). He was asked whether the scrolled bar draws a shadow: (a) color only, which the architect recommended, or (b) color and the level-2 shadow that the landing plan named. So property 5 stands.
+- **The landmark:** he asked about it, and after the explanation said _"Да, тогда role="banner" выглядит правильнее всего"_ ("Yes, then role="banner" looks the most correct"). So property 6 stands: the page sets the role on the bar.
+
+**Amended 2026-11-23 by the architect, property 3's reading,** on Mx Implementer B's stop at the plan's boundary, relayed by the coordinator. The observer's side margins are as large as its top margin. With the plan's 0px sides the state was wrong in the three engines on a page scrolled sideways by a viewport or more, which the first reading hadn't scrolled, so _"in every case read"_ didn't cover it. With large sides it matches there too ([reading](top-app-bar-1/checks/scroll-sideways.txt)). The mechanism doesn't change, and the plan gains a row.
+
+**Amended 2026-11-23 by the architect, property 3's target,** on `reviewer-1` and `reviewer-2` of the [feature proof](reviews/top-app-bar-1/feature-proof-claude.md) of #211, relayed by the coordinator. The observer's target is now a box without size that the component keeps in the top layer, at the document's scroll start. It isn't the root element. The rest of property 3 stands: one observer, `root: document`, a change only at a crossing, no scroll listener and no layout read.
+
+- **Why:** the root element's place and size are the page's. The state was wrong, in the three engines, with a root that has no height or starts below the page's top, after a first correction for sideways scrolling. No page style moves a top-layer box, so the geometry isn't the page's any more. It is right on all 22 pages [read](top-app-bar-1/checks/mechanisms.txt), where the root element is wrong on 8.
+- **Not taken:** limits in the documentation; a `scroll` listener, which the landing plan's property 4 excludes; and a scroll-driven animation's events. Property 3's sentence on the animation, that it gives no state, isn't the reason any more: its events give one, and it is in `RD-20`'s floor. It is wrong in each engine in some case, and recalculates a style on each scroll frame.
+- **Costs:** one element in the shadow root, so property 1's shadow root holds it beside the three slots. A bar shown again at the start draws the scrolled color for one frame, by reasoning.
+- The plan holds the [dispositions](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-feature-proof-at-6dbdcbbd1) of all seven findings. `reviewer-3` is `RF-122`'s case, and owes nothing here.
+
+**Amended 2026-11-24 by the architect, property 3's area,** on `reviewer-8` of the [recheck](reviews/top-app-bar-1/feature-proof-recheck-claude.md) of #211, relayed by the coordinator. The observer's area is everything above the viewport, and the box in the top layer is 1px. So the state is on while the box's top is above the viewport, and a bar that isn't rendered is at rest. The rest of property 3 stands.
+
+- **Why:** the area was the viewport, where a box that isn't rendered is reported as a box that is scrolled away. A bar first rendered at the start then drew a fade of about 110 to 135ms from the scrolled color, in the three engines. The note above accepted it as one frame, by reasoning, for a bar shown again.
+- **Costs:** a bar that the page shows or inserts on a scrolled page draws its resting color first, and then the transition, which a bar that connects there did already. A bar that is removed on a scrolled page and inserted again at the start draws the scrolled color first, as before. A page longer than 10000000px is wrong when it jumps across that length in one frame. The first is documented.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-recheck-at-8f5ad01db) has the candidates, the readings in the three engines, the ruling on `reviewer-9` (two rows for the box's popover kind, and one for a bar that moves as it connects) and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/first-rendering.txt` and `checks/box-rows.txt`, in the bar's record.
+
+**Amended 2026-11-24 by the architect, the costs of property 3's area,** on the [second recheck](reviews/top-app-bar-1/feature-proof-recheck-2-claude.md) of #211, relayed by the coordinator. The mechanism doesn't change.
+
+- **Both of the first two costs are documented,** where the note above says the first only. The component page's sentence was false for a bar that is removed and inserted again (`reviewer-11`).
+- **A cost is added, and accepted as WebKit's** (`reviewer-12`). In a frame with a CSS zoom above 1 the state turns on late, by about the frame's height times (zoom − 1). The engine pins nothing there until then: a page's own sticky and fixed boxes scroll away by the same length, and the bar with them. A state that is right would color a bar that is mostly out of view.
+- **A page zoom is right** in WebKit at 12 factors, on a page and in a frame, apart from a scroll of less than 1px at 1.75. Safari isn't read.
+- **A row for the box's `visibility: hidden` is owed** (`reviewer-10`). The ruling that it wasn't was read with a box of 0px.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-second-recheck-at-634dae5ef) has the rulings, the words and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/page-zoom.txt` and `checks/box-visibility.txt`, in the bar's record.
+
 #### RD-55 — `mx-slider` is a native range whose value is the user's, and it mirrors host `aria-*` as the text fields do
 
 **Decided 2026-11-23, on `material-x/slider-1`,** for #173, as unit C of `RD-47`'s landing plan. Mx Architect B wrote the [plan](slider-1/slider-plan.md) and proposed this entry, on the coordinator's task. The architect read the plan and minted the entry at `eaff88884`. `RD-54` is the highest `RD-` on any branch on `origin` (`material-x/top-app-bar-1`), so this is the next free number. The plan's `SL-D1` to `SL-D9` hold each decision with its readings, what wasn't adopted and what wasn't measured.
@@ -2510,9 +2555,19 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
   - `RF-94`'s second named node, `RF-120`'s restoring of the value, and `RF-121`.
 - **Not read:** Safari, a physical touch, and assistive technology.
 
+**Dated 2026-11-24 by the architect: the check on phones is done, and it found no defect,** on the owner's words, relayed by the coordinator. The slider is on `main` since #220 (`ab4e536bd`). No clause changes.
+
+- **His words,** in chat that day:
+  - to Mx Architect Explainer, relayed by it: _"Телефон проверил, кстати! Там всё превосходно работает. На FF \_вроде бы\_ есть какой-то нано-лаг, но возможно, мне показалось. Надо померить. Anyway, телефон закрыт."_ ("I checked the phone, by the way! Everything works superbly there. In Firefox there _seems_ to be some nano-lag, but maybe I imagined it. It should be measured. Anyway, the phone is closed.");
+  - to the coordinator: _"Слайдер, chrome/FF на телефоне - работает превосходно"_ ("The slider, Chrome/Firefox on a phone: works superbly").
+- **What this closes:** the check that the notes above put after the merge. Nothing of it waits.
+- **What it establishes:** a person used the slider by touch in Chrome and in Firefox on a phone, and saw nothing wrong but the possible lag.
+- **What it doesn't:** the device, its system and the versions of the browsers aren't known, nor which of the steps in #220's description were tried. #220 asked for an iPhone and an Android phone. A pen, a second finger and a screen reader aren't known to have been tried. So the notes' _Not read_ stays for Safari, a pen and assistive technology.
+- **The lag in Firefox is an impression, unmeasured, and isn't a finding.** He said that it should be measured, and nobody has. No measurement is ordered by this note. `SL-D8` and the notes above have the cost of a move on a desktop, where Firefox's is the second of three, 135 µs. No phone was read.
+
 #### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
 
-**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`).** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
 
 **What is in force, and when:**
 
@@ -2548,6 +2603,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Dated 2026-11-24 by the architect, on stage 1's review:** no property changes. The [rulings](findings-on-github-1/findings-on-github-plan.md#stage-1-the-reviews-rulings) have the remediation. The owner approved the start of stages 1 and 2 only, so the table's first row says so. It said _"the authority for stages 1 to 3"_. `findings.md` applies wherever another document says otherwise of a finding's issue, which replaces the plan's list of limited statements. A faulty amendment is deleted and posted again by the architect, which property 2's _nobody edits it afterward_ doesn't cover. Property 4 stands as written: the coordinator sets the package labels.
 
 **Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's, a deletion there has no other copy, two edits of one body at once aren't reported, and a role without a network has no finding. It saves 19 of the 31 conflicts and 2 of the 19 pull requests.
+
+**Dated 2026-11-24 by the architect: stage 1 is on `main`,** as #244 (`8663d722b`). The status above said _"Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged."_ Stage 2 is #250, open. So the first row of the table is still the one in force: there is no `tier:` label and no trial, and a new finding goes to its register. The plan's status line is stage 2's branch's to change, because that branch edits it.
 
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
@@ -5272,6 +5329,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 - **Not read:** `mx-split-button`, controls in groups, and the drawing.
 - **Size:** _medium_.
 
+**Dated 2026-11-24 by the architect, on `repo/records-batch-1`:** `mx-split-button` is read. In a disabled fieldset neither of its buttons is disabled, and its own `disabled` doesn't disable them either, which is `RF-138`'s ([reading](records-batch-1/checks/split-disabled.txt)). `RF-138` takes the attribute, and this entry takes the fieldset for this element too. `RF-138` doesn't wait for it.
+
 #### RF-120 — A form control doesn't restore its value after a navigation
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F2` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-119` is the entry before this one, so this is the next free number. Same [reading](observations-9/checks/form-and-hidden.txt) and [probe](observations-9/probes/form-and-hidden.mjs).
@@ -5516,7 +5575,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Registered on 20
 
 #### RF-126 — In a connected button group and a split button, the next button covers the focus indicator
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
+Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, from the reading for `RF-125`, on the coordinator's question whether another element has the same defect. Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt), [probe](sortable-observations-1/probes/focus-indicator.mjs)).
 
 - **What happens:** in `mx-connected-button-group`, with buttons or switch buttons, the next button covers 80 % (89 to 91 of 111 pixels) of the outline's inline end. In `mx-split-button` it covers 53 % (92 of 172 to 174). Neighbors cover part of it because the gap is 2px and the outline reaches 5px out. The token is the button's own and refers to `outer-offset`, so the offset is right here, unlike in `RF-125`. `mx-button-group` has a wider gap, and nothing is covered.
 - **The same with a page's own layout:** buttons, checkboxes, radios and FABs that a page puts closer than 5px cover each other's indicator, as two native elements with an outline do. That is the page's, and it isn't part of this entry.
@@ -5628,6 +5687,95 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 **Also owed:** one sentence on the pages of the connected group and the split button: while a button in it has keyboard focus, the group is a stacking context, so an overlay that a page puts in or near it belongs in the top layer, such as a popover. Not in an API comment. The probe above and the proof's `stack.mjs` and `hit.mjs` on the built head, with the differences that [`keyboard-raise.txt`](focus-cover-1/checks/keyboard-raise.txt) has. The sizes. A forced-colors and an RTL run of the rows isn't owed: the indicator is whole in RTL by the probe.
 
 **Not read:** Safari itself, where a click doesn't focus a button by default, forced colors, and screenshots. **No visual baseline** is expected to change. **Nothing is the owner's to answer.** **Size:** _small_.
+
+**Dated 2026-11-24 by the implementer: (c) is implemented on `material-x/group-focus-1`, for #227, from `main` at `01ccdcb84`, with `main` at `eddf39e7b` merged.** Requested by the coordinator. The entry closes when its pull request merges.
+
+- **Source:** the contract's mechanism and its three files, with `::slotted(*)`. The page of the connected group and the page of the split button have the sentence about the top layer. The code agrees with the contract.
+- **Rows:** 47 in `button-group-focus.spec`, A to E. `tests/focus-indicator.ts` has the left side. Row D also reads a popover beside the members and a wrapper, for property 4. The icon buttons have a narrow glyph: a wide text stretches one to a fractional width, and then one antialiased corner pixel of the indicator differs by 13 levels from its color, against a tolerance of 12, in Chromium.
+- **Witnesses** ([reading](focus-cover-1/checks/keyboard-raise-witnesses.txt), [probe](focus-cover-1/probes/keyboard-raise-mutate.mjs)), in the three engines. They fail as the table says, and these other rows fail too:
+  - Without the `z-index`, or the isolation: also E's rows with a raised member, which assert both.
+  - With the first member alone raised: the middle rows alone.
+  - With isolation at rest, and with any focus inside: also D's isolation rows (at rest, all three; with any focus, the wrapper's, and the popovers' in Firefox alone) and E's rows of the state that each changes.
+  - Without `:focus-within`: B's rows after focus leaves, and E's three rows of leaving.
+  - With every focused button raised: the button alone, and D's overlay rows.
+  - With the event's target: the arrow row, and the middle rows of both switch buttons, which arrows reach.
+  - Without `keydown`: the letter row in Chromium and WebKit, none in Firefox. Without `focusin`: the rows of the first member's edge, the Tab row, and others.
+- **No row holds the button's own `--_focus-z-index: auto` alone:** taken out, with the group's state kept, all 47 pass. It matters with an unconditional raise, where D fails. It is kept for `RF-122`'s rule.
+- **The start-edge rows are controls,** as the table says, and fail under no mutation.
+- **The entry's probe on the built elements** equals the contract's reading, line for line, in the three engines. The proof's `stack.mjs` differs from the merge base in the two lines that the contract has, and `hit.mjs` in none ([reading](focus-cover-1/checks/keyboard-raise-built.txt)).
+- **Size, Brotli, against `eddf39e7b`** ([reading](focus-cover-1/checks/keyboard-raise-built.txt)): `complete` 23098 to 23126 (+28), `button-group/connected-button-group` 3801 to 3893 (+92), `button/split-button` 7441 to 7525 (+84), `text-field/text-field` 8479 to 8511 (+32), `button/icon-button` 5105 to 5136 (+31), and the other rows that move by 8 to 11.
+- **Why it isn't the stated +68:** the scratch lacked no behavior. It differs from the built form in the selector alone, `::slotted(:focus)`. At `f805df22a`, against `01ccdcb84`, the built form read +91 and the scratch form +61. Against `eddf39e7b` the same two read +52 and +15, so the figure depends on the base. The forms that have one behavior read from +15 to +53 there. The build also shortens each private property's name by the order in which it is collected, so a new property renames those after it: with the merge base's names kept, the same forms read from +17 to +80. `complete` doesn't tell such forms apart.
+- **The text field's growth:** it imports `mx-icon-button`, and so it has the button's two declarations. It isn't the new names alone: with the merge base's names kept it reads +38.
+- **Forms tried, each on `eddf39e7b`:** the isolation's rule before the raise's is in the source now. It changes nothing but the order of two rules that don't meet, and is smaller than the raise first in `complete` (+28 to +52), in the group (+92 to +96) and in the split button (+84 to +89). Not taken: `::slotted(:focus)` +15, but the group +117 and the split button +106, and the contract names `*`; a spread for `Array.from` +15, but the group +115; both rules nested in `:host` +40, group +120; before the group's block +53. Outside the contract, read for what its parts cost: no `keydown` -8, no declaration on the button +21, no `:focus-within` +61. These scatter as the forms do.
+- **Checks,** with `eddf39e7b` merged: the suite without the visual project, one engine at a time: Chromium 1164 passed and 2 expected failures; Firefox 1150 passed, 3 expected failures and 13 skipped; WebKit 1151 passed, 2 expected failures and 13 skipped. The root format check, lint of the changed files, typecheck and publint pass. The spec's two sequential key presses disable `no-await-in-loop` with the reason, on the coordinator's request. `docs-build` and `docs-smoke` (117 of 117) passed at `f805df22a`, and weren't run again.
+- **Not run:** the visual project, Safari, forced colors, and RTL rows.
+
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/group-focus-1/feature-proof-claude.md) at `d3961f63a`, relayed by the coordinator. **The mechanism stands. The contract's words change, two rows are owed, and one question is the owner's before the merge.**
+
+- **`reviewer-1`, accepted, and it is in part a new cost.** The record's third cost said that a page's badge with `z-index: 1` isn't covered, which is so only for one that follows the focused member. Read again in the three engines, which agree within a few pixels, beside a candidate that raises an indicator element alone in the same isolated group ([reading](focus-cover-1/checks/member-content.txt), [probe](focus-cover-1/probes/member-content.mjs)). Red pixels with keyboard focus in Chromium. At rest they are `main`'s:
+
+  | Content of the page, while a member has keyboard focus | `main` | Built | The indicator alone raised |
+  | --- | --- | --- | --- |
+  | 1. A badge with `z-index: 1` on an earlier member's corner, over the focused one | 1202 | **768** | **944** |
+  | The same with `z-index: 2` | 1202 | 1202 | 1202 |
+  | A badge with `z-index: 1` on the focused member's own corner | 1202 | 1202 | **892** |
+  | 2. A tooltip with `z-index: 10` in the focused member, over `z-index: 1` content in the next | 1600 | **640** | 1600 |
+  | 3. A `z-index: -1` decoration in the focused member | 0 | **31,** and more tinted | **27** |
+  - **2 is inside the named cost:** _a page's hand-made tooltip in it can be covered by content that follows._ It was read as content after the group, and content of a later member follows too.
+  - **1 and 3 are new.** Neither is a tooltip. 1 is how a page draws a notification badge. They are costs of raising and of isolating, so each form of (c) has them in some part: the indicator alone covers less of 1, and covers part of a badge on the focused member's own corner, which the built form keeps.
+  - **No value removes 1.** The raise needs a `z-index` above 0, and 1 is the lowest. A tie goes to the later element.
+
+- **`reviewer-2`, accepted as a correction of the words.** The contract said twice which children count, and the two differ. It says once now: **any child element whose shadow root's focused control matches `:focus-visible` makes the group a stacking context. The five buttons are the ones that a group supports, and they alone are raised.** Another kind of child is outside the slot's documented use, so `CONTRIBUTING.md` §1.1 asks for no check, and the result is the isolation's costs with no raise. Properties 2 and 4 are read with this. A button in a member's content, in a popover or in a wrapper stays excluded.
+- **`reviewer-3`, accepted, both.** The two rows are in the work list.
+- **`reviewer-4`, accepted as limits, and property 2 is narrowed:** the group's state is as of the last `focusin` or `keydown` that reached it. It is stale when a page stops them; in a group defined after its member has keyboard focus, until the next key or focus; and after a `moveBefore` of a focused member, where Chromium keeps the former group isolated while its `:focus-within` still matches, and Firefox isolates a group that had keyboard focus before for a clicked button that is moved into it. The result is `main`'s covered indicator, or the costs until the next event. **Not adopted:** a capturing listener, which a page can still precede, and a read at connect, for a definition that comes late under the focus.
+- **The observations:**
+  - _"the indicator is whole in RTL by the probe"_ said more than the probe read, which is straight edges. The proof's pixel reading, which discriminates, has it whole in RTL, and replaces that sentence.
+  - `:state(focus-visible)` on the group is internal and undocumented, as `mx-sortable-list`'s `command` is.
+  - The split button's page says _the group_, a word that it doesn't introduce. It is in the work list.
+  - The corners in RTL are `RF-134`'s, and aren't this branch's.
+
+**The question for the owner: (c) has a third cost that wasn't told to him. Is it accepted?** While the keyboard is on a button in a connected group, a mark that hangs over onto it from the button before it, such as a notification badge with `z-index: 1`, is cut where they overlap, by about a third in the reading. With `z-index: 2` it is whole. Also, a decoration that a page puts behind its content with `z-index: -1` shows in the group while the keyboard is there.
+
+- **(a) Accept, and say it on both pages. Recommended.** It is of the kind that he accepted, it lasts while the keyboard is there, and a page avoids it with one number. Work: the sentence in the list below, which is written for it.
+- (b) The indicator as an element of its own, raised alone. The neighbor's badge loses less, and the tooltip nothing, but a badge on the focused button's own corner is then crossed by the indicator. It takes an element in five buttons, a page's `::part(impl)` no longer styles the indicator (by reasoning), and it needs a contract and a proof of its own.
+- (c) No raise: the indicator in the gap, or nothing, as the first question's (b) and (a). No stacking changes. He preferred the raised look to both.
+
+**The work list, for the implementer,** on this branch. `origin/main` at `e10c9a48d` is merged, and it brings #235. No source of the mechanism changes. Only the merge waits for the answer.
+
+1. **Rows in `button-group-focus.spec`,** in each engine, with the keyboard:
+   - the last member of a group and the split button's trailing button with keyboard focus: the group's `isolation` is `isolate`, and the control's `z-index` is 1. **Witness:** with the last child left out of the read, both fail;
+   - Tab to a member and then a click on another: the group's `isolation` is `auto`, and no member's control has a `z-index` of 1. **Witness:** with a state that is never cleared, it fails.
+2. **The sentence on the connected group's page:** _"While a button in the group has keyboard focus, it is raised above the others, and the group is a stacking context. An overlay that a page puts in or near the group belongs in the top layer, such as a popover, and a mark that hangs over from one button onto the next needs a `z-index` above 1."_ **On the split button's page:** _"While one of its two buttons has keyboard focus, that button is raised above the other, and the two are in a stacking context. An overlay that a page puts in or near the split button belongs in the top layer, such as a popover, and a mark that hangs over from the first button onto the second needs a `z-index` above 1."_
+3. **After the merge of `main`:** core, drag and material-x are rebuilt, and these are run: `button-group-focus` in the three engines, material-x without the visual project in one, typecheck, lint, the root `fmt-check`, publint, `docs-build` and `docs-smoke`. The sizes are the gate's.
+4. **#245's description:** the third cost, as pending the owner's answer, the two rows, and the gate's sizes.
+5. **Stop** and return if a row's reading differs in an engine.
+
+**A recheck isn't owed:** the mechanism doesn't change, and the rows have the proof's own mutations as witnesses. The coordinator checks them and the two sentences. **If the owner answers (b) or (c),** the branch isn't merged and the entry comes back.
+
+**Not read:** Safari, forced colors, screen readers.
+
+**Dated 2026-11-24 by the implementer: the work list is done,** on `e10c9a48d` merged. Requested by the coordinator. No source of the mechanism changes.
+
+- **Rows:** three more in `button-group-focus.spec`, 50 in all: the last member of a group, the split button's trailing button, and Tab and then a click on another member. All 50 pass in Chromium, Firefox and WebKit.
+- **Witnesses** ([reading](focus-cover-1/checks/keyboard-raise-rows-2.txt), by the proof's [`mutate.mjs`](reviews/group-focus-1/probes/mutate.mjs)), the same for the new rows in each engine: with the last child left out of the read, the two rows of the last button fail, and no other. With a state that is never cleared, the row of the click fails, and D's isolation rows as the proof had them: the wrapper's, and the popovers' in Firefox alone.
+- **The two sentences** are the list's without the clause on a mark that hangs over, in words that the coordinator relayed from the architect after the owner's answer.
+- **Size, by the gate,** Brotli, at `2f937c7e2` against its merge base `e10c9a48d`: `complete` 23045 to 23196 (+151), `button-group/connected-button-group` +92, `button/split-button` +84, `text-field/text-field` +32, `button/icon-button` +31, `button/switch-button` and `button/switch-icon-button` +11, `button/link-button` and `button-group/button-group` +9, `button/button` +8, and no other row moves. The note above has +28 for `complete`, against `eddf39e7b`, by a local reading. The cause of the difference wasn't read.
+- **Checks:** core, drag and material-x rebuilt. material-x without the visual project in Chromium: 1178 passed and 2 expected failures. Typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke` (117 of 117) pass.
+- **Not run:** the suite in Firefox and WebKit beyond these rows, the visual project locally, Safari, forced colors, RTL rows.
+
+**Dated 2026-11-24 by the architect: the third cost is accepted, and the entry is closed for the merge,** relayed by the coordinator. Read at `cb75b4134`, with `main` at `8663d722b` merged after it.
+
+- **The owner's answer** to the question above, in chat: _"(a) По идее, бейдж вылезать за пределы кнопки не должен 🤔 А значит, это неверное использование -> no nannying"_ ("(a) In principle a badge shouldn't go outside the button, which means that it's an incorrect use → no nannying"). The question is closed.
+- **No page warns about a mark that hangs over.** He answered (a), which offered the clause, and his reason leaves it no correct use to serve: a button's content doesn't go outside the button. `CONTRIBUTING.md` §1.1 is about runtime checks and lets documentation state a precondition, so it doesn't decide this, and his words do. A workaround with a `z-index` above 1 would document the use as supported.
+- **The stacking context and the top layer stay on both pages.** A page's overlay in or near a group is correct use, and the sentence states the two costs that he accepted first. So item 2 of the work list loses its last clause, and nothing else of it.
+- **The `z-index: -1` decoration is accepted too, and has no sentence.** His reason doesn't cover it, because it lies inside the button. The question named it under the same cost and he answered (a). The page says that the group is a stacking context, which is the whole of it.
+- **The work list is met.** Checked by the architect: the two pages have the ruled words, and [`keyboard-raise-rows-2.txt`](focus-cover-1/checks/keyboard-raise-rows-2.txt) has the three rows passing and each failing under its mutation in the three engines, with no other row than those that the note above names. The checks on the merged tree are the implementer's and weren't run again. The gate's run on the merged head is the coordinator's.
+- **Size: `complete`'s +28 and +151 are one change, and its Brotli difference doesn't resolve it.** Read again at the four commits, and the gate's figures reproduce to the byte, so nothing is random in the measurement ([reading](focus-cover-1/checks/complete-noise.txt), [probe](focus-cover-1/probes/complete-noise.mjs)).
+  - **The change adds 309 minified bytes to `complete` on each base.** What differs is how Brotli finds matches in 118 kB whose private names and order differ. With nothing but the names reassigned (200 times) or the entries imported in another order (60 times), one tree's `complete` has a standard deviation of 23 to 28 B by names, and 40 to 43 B by order.
+  - **The difference, with the same names or the same order in both trees,** averages +81 to +86 B on each base, with a standard deviation of 30 to 45 B and single readings from -11 to +188. So +28, +151 and the +68 that was stated are all single draws of it. #235's -53 is too: it adds 150 minified bytes and averages +30 to +34.
+  - **The rows of the changed elements** give the same figures on both bases, because #235 changes nothing in them. Other forms of the same change moved the group by 92 to 126 and the split button by 84 to 106, so they have the same kind of spread, and it is smaller.
+- **Costs:** the owner's three, as above. A consumer of one group pays 92 B, and of the split button 84 B.
+- **Not read:** Safari, forced colors, screen readers.
 
 #### RF-127 — A keyboard move shows the placeholder for a frame, and the item lifted over its neighbor
 
@@ -5885,9 +6033,9 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Plan needed:** yes, by the architect, after the survey. Nothing is the owner's to answer now.
 - **Size:** _large_.
 
-#### RF-134 — No test covers the button groups in right-to-left text
+#### RF-134 — In right-to-left text, a connected group's and a split button's outer corners are on the inner side, and no test covers the groups
 
-Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-133` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, by searching `packages/material-x/tests` for `rtl` and `direction`.
+Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier B, with the title _No test covers the button groups in right-to-left text_. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-133` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, by searching `packages/material-x/tests` for `rtl` and `direction`.
 
 - **What is missing:** no row in material-x observes `mx-button-group`, `mx-connected-button-group` or `mx-split-button` under RTL. The sortable list is the only element with one. Core's `useRovingTabindex` has rows for the arrow keys, and no row reads them through a group.
 - **What could break and not be seen:** the connected group's end shapes, the standard group's neighbors that widen when one is pressed, and the roving order. By reading, the standard group's `padding-inline` follows the direction, and `LEADING`/`TRAILING` props are logical.
@@ -5896,6 +6044,143 @@ Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Other elements:** the slider and the top app bar have RTL rows on their branches. Which of the rest need them is the survey's to say (`RF-133`), because both are per-element sweeps. This entry covers the groups only.
 - **Order:** it waits for nothing.
 - **Plan needed:** no. **Size:** _medium_.
+
+**Dated 2026-11-24 by the architect, on `material-x/group-focus-1`: the required property fails today,** on an observation in `RF-126`'s [feature proof](reviews/group-focus-1/feature-proof-claude.md), relayed by the coordinator, and read again on the built elements in the three engines, which agree ([reading](focus-cover-1/checks/rtl-groups.txt), [probe](focus-cover-1/probes/rtl-groups.mjs)). The branch doesn't change it.
+
+- **The corners, a defect:** with `dir="rtl"` on the group or on an ancestor, the first button of `mx-connected-button-group` is at the right and has its outer corners (20px) at its left, and the last one, at the left, has them at its right. So each end of the group has the inner corners, and the outer corners face the neighbor. `mx-split-button` is the same. The cause is in `connected/main.styles.css`: `--_border-radius` for `data-first` and `data-last` is a value of `border-radius`, whose four corners are physical.
+- **The arrow keys are right:** in the connected group ArrowRight moves to the right and ArrowLeft to the left, in both directions. In `mx-button-group` no arrow moved the focus in either direction, so that part of the property has no subject there.
+- **The standard group's press can't be read:** it changes no width in LTR either, which is `RF-80`'s. So that part waits for `RF-80`, and the rest waits for nothing. _"Order: it waits for nothing"_ above is read so.
+- **The tier is A,** because a consumer in RTL sees another shape, and the title says the defect.
+- **The required property adds:** in RTL, a connected group's last button and a split button's two have their outer corners at the outer side, at rest, selected and pressed.
+- **Rows:** the corners of the first and the last button of the connected group and of the split button's two, and the connected group's arrow keys. The corner rows fail before the repair, which is their witness.
+- **The repair's form** is the implementer's. `--md-button-group-inner-corner-size` works as it does, in both directions.
+- **`RF-126` isn't affected:** its indicator is whole in RTL by the proof's pixels, and follows the button's shape.
+- **Plan needed:** no. **Ready** for an implementer. **Size:** _medium_, unchanged: the repair is a few lines, and the rows are the rest.
+
+#### RF-136 — The split button's trailing button is named by its icon's ligature, can't be given a name, and doesn't expose `open`
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#243](https://github.com/ausginer/material-x/issues/243), relayed by the coordinator. It was seen when `RD-57` was registered. `RF-135` is on `material-x/handle-focus-1`, so this is the next free number. Read at `4e2972514`, on the built elements, in each engine's own accessibility tree, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, which agree ([Chromium](records-batch-1/checks/names-chromium.txt), [Firefox](records-batch-1/checks/names-firefox.txt), [WebKit](records-batch-1/checks/names-webkit.txt), [probe](records-batch-1/probes/names.ts)).
+
+- **What happens (the name):** the trailing button is a `button` named `keyboard_arrow_down`, the text of the `mx-icon` in the template. `RD-57` read it in Chromium only. `aria-label` on the host leaves the two buttons as they are, and names the host itself, `generic` in Chromium and Firefox and `group` in WebKit. There is no slot, attribute or property for the trailing button's name, and a part can't carry one.
+- **What happens (the state):** the trailing button has no expanded state, with `open` and without. `open` sets only the custom state `open`, which the styles read. A host `aria-expanded` or `aria-haspopup` doesn't reach the button. The split button's page says that _"`open` and `secondaryaction` communicate expanded/collapsed secondary action state"_, and to assistive technology `open` communicates nothing. The controls of the probe, a native `<button aria-expanded aria-haspopup>`, read as expanded in Chromium and Firefox, and as a pop-up button in WebKit. Its expanded state didn't come back through WebKit's protocol, so WebKit's row has the attribute's absence on the button and not a reading of the state.
+- **Why it is a problem:** a screen reader would announce an icon's name in place of the action, in English on any page, and doesn't say whether the menu is open. The page's author can't repair either.
+- **Not affected:** the leading button. It is named by its content.
+- **Required properties:**
+  1. The trailing button's accessible name is the page's to give, in the page's language, and no icon's text is part of it.
+  2. The trailing button exposes `open` as its expanded state, from the first render and at each change: `false` without `open`, `true` with it.
+  3. A host `aria-label` doesn't name the trailing button, because the host has two.
+- **Property 2 adds no public surface,** so it is ruled here. `aria-haspopup` and `aria-controls` aren't set: what opens is the page's. A split button whose `secondaryaction` opens nothing has `aria-expanded="false"` as well. The documentation calls the trailing button a toggle.
+- **Precedent, read:** Material Components for Android at `6061a6991` sets the trailing button's state description to _Expanded_ or _Collapsed_, and leaves its name to the app, as `android:contentDescription` in its example. Material's pages weren't read.
+- **Q1, for the owner — how does a page name the trailing button?**
+  - **(a) An attribute and property for it, `secondarylabel`, with no default. Recommended.** It goes to the trailing button as its name, beside `secondaryaction`. The documentation says that it is required. Without it the button has no name, which axe-core's `button-name` reports (`RD-57`), and the ligature hides from that rule today. The name of the attribute is the architect's proposal.
+  - (b) (a), with an English default such as _More options_. The button is never unnamed. A page in another language that forgets it has an English name, and the string is in every bundle. `mx-sortable-list` has English defaults for its handle, which the page overrides on its own element.
+  - (c) A slot for the trailing button's content, whose named icon names it. It also lets a page change the icon. The named icon (`role="img"` with `aria-label`) does name a button today (read). It is more surface than the name needs, and the icon's turn on `open` would apply to a page's content.
+  - (d) Nothing in the API. The trailing button takes a name from the leading one's label, so that two buttons have one name and differ by the expanded state.
+- **Order:** property 2 waits for nothing, and property 1 for Q1. One unit does both. Its name's second node is `RF-94`'s: an `aria-label` on the inner `mx-icon-button` names that element too. If `RF-137` lands first without this, the trailing button has no name, so **this one goes before `RF-137` or with it.**
+- **Rows,** each engine's own accessibility tree, as `RF-94` says: the name with and without the label, the expanded state in both states, and a change of `open`. **Witness:** they fail before the repair.
+- **Plan needed:** no, once Q1 is answered. A new attribute is public surface, so the answer is minted as a decision. **Size:** _medium_.
+
+#### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
+
+- **What happens:** with `<mx-icon>edit</mx-icon>` and the label _Save_, in Chromium, Firefox and WebKit:
+
+  | Element | Accessible name |
+  | --- | --- |
+  | `mx-button`, `mx-link-button`, `mx-switch-button`, extended `mx-fab`, and the split button's leading button, with the icon in `icon` | `edit Save` |
+  | `mx-list-button-item` and `mx-list-link-item`, with icons in `lead` and `trail` | `edit Save edit` |
+  | `mx-icon-button`, `mx-switch-icon-button` and `mx-fab` with the icon alone | `edit` |
+  | Any of them with a host `aria-label` | The label |
+  | A text field with a label and icons in `lead` and `trail` | `Save` |
+
+  A static list item and an `mx-icon` alone expose the text as text (Firefox's tree; WebKit's name of the list item has it too). The checkbox's and the radio's own icons are hidden in their templates.
+
+- **What the documentation says:** `icon.mdx` tells the page to set `aria-hidden="true"` on a decorative icon. That works: the name is `Save`. No page, story or usage snippet of material-x does so, on any `mx-icon`.
+- **Why it is a problem:** a screen reader says _edit Save_, and _chevron_right_ at the end of a list item. The voice user who says the visible label still matches, because the label is in the name. The ligature isn't seen by anybody, so it isn't content.
+- **Required property:** in each engine at `RD-20`'s floor, the text of an `mx-icon` is in no accessible name and no accessible text, and a page can still give an icon a name of its own, which is then part of its control's name.
+- **Candidates, read in the three engines:**
+  - **The slot inside a `<span aria-hidden="true">` in the icon's shadow tree:** every name above is without the icon's text, and `role="img" aria-label="Draft"` on the icon still gives `Draft Save`.
+  - `aria-hidden="true"` on the slot itself: the same in Chromium and Firefox. WebKit ignores it, so its names don't change.
+  - The internals' `ariaHidden` on the host: the names are without the text, and `role="img"` with a label no longer gives the icon a name, in any engine.
+  - material-web at `268681913` writes the attribute `aria-hidden="true"` on the icon's host, and a page that writes `false` gets it removed. It edits the page's attribute. Read in its source, and not run.
+- **Q2, for the owner — is an `mx-icon`'s text hidden by the package?**
+  - **(a) Yes, by the first candidate. Recommended.** A page can't get it wrong, and an icon with a meaning takes `role="img"` and `aria-label`. **Cost:** an icon-only control without `aria-label` has no name, where today it has the ligature. The pages of the two icon buttons already ask for `aria-label`, and the FAB's asks for it when the icon is ambiguous. An SVG or text with a meaning inside an `mx-icon` is hidden too. One element for each icon, whose size, layout and speed weren't measured.
+  - (b) No: it stays the page's, and material-x's pages, stories and snippets gain `aria-hidden="true"`. No code changes. Each page has to know it, and the split button's template hides its own icon.
+  - (c) The package hides it only in the `icon`, `lead` and `trail` slots of its elements. An icon-only button keeps its ligature name. It is more code than (a), and an icon outside those slots is as today.
+- **Order:** after `RF-136` or with it. It doesn't wait for `RF-94`.
+- **Rows,** each engine's own tree: the rows of the table, the named icon, and an icon alone. **Witness:** they fail before the repair. Pixels: no visual baseline changes.
+- **Not read:** screen readers, Safari, and what `RD-57`'s check gives after the repair: its `button-name` and `link-name` would then report an icon-only control with no label.
+- **Plan needed:** no, once Q2 is answered. With (a) the answer is a decision, because it is what `mx-icon` promises. **Size:** _small_ for (a) and (b).
+
+#### RF-138 — A disabled split button isn't disabled
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
+
+- **What happens,** with `disabled` in the markup or set later, or in a disabled fieldset, the same in the three engines except where said:
+  - neither inner button is `disabled`, and neither has the disabled state or look. The background is the enabled one;
+  - **a click on the trailing button fires `secondaryaction`;**
+  - a click on the leading button gives no `click` on the host, only because the host is a disabled form-associated element;
+  - Tab reaches both buttons. Enter on the trailing one fires `secondaryaction`. Enter on the leading one fires `click` in Chromium, and nothing in the other two.
+  - Chromium's tree exposes both buttons as disabled, from the host. Firefox's and WebKit's don't.
+- **What is documented:** `@attr disabled` is _"Disables both actions"_, and the page says that _"`disabled` disables both split action segments"_.
+- **The cause:** the constructor transfers `BUTTON_ATTRS` to the inner group, and those are `color`, `size` and `shape`. `disabled` is in `DISABLEABLE_ATTRS`, which it doesn't take. When this began wasn't read.
+- **Why it is a problem:** a page that disables the split button while it works still gets the secondary action, and its user sees an enabled control.
+- **Required property:** with `disabled` on the split button, both inner buttons are natively disabled, take no focus and no activation, fire nothing, and draw the disabled appearance. Without it they return. The group's other attributes keep working.
+- **A candidate that holds, read:** with the host and the inner group both `disabled`, the property holds in the three engines: no focus, no event, the disabled background. `ButtonCore` already takes the group's `disabled`.
+- **The fieldset is `RF-119`'s,** which hadn't read this element. This entry doesn't wait for it.
+- **Rows,** in each engine: for the attribute, the property and their removal, `disabled` on both inner buttons, no focus by Tab, no event from a click and from the keyboard on each button, and the disabled colors. **Witness:** without the transfer they fail. The `open` and `secondaryaction` rows that exist pass unchanged.
+- **Plan needed:** no. **Ready** for an implementer. **Size:** _small_.
+
+#### RF-139 — A list item's long texts run out of it, and two trailing children stack
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#254](https://github.com/ausginer/material-x/issues/254), relayed by the coordinator. It was seen in `RF-128`'s reading of the trail slot's clip, on `material-x/handle-focus-1`. `RF-138` is the entry before this one. Read at `4e2972514`, on the built elements, in a 300 px list, on static and button items, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/trail-long.txt), [probe](records-batch-1/probes/trail-long.mjs)).
+
+- **What happens,** in each engine. The widths differ by the fallback font:
+  - **Long trailing text** stays on one line and runs out of the item: 35 px past its end in Chromium, 57 px in Firefox and WebKit, with a text that is 268 to 289 px wide. Nothing shortens it. The slot's `text-overflow: ellipsis` never applies, because the slot is as wide as its content.
+  - **It squeezes the label.** A label of several words beside it gets 49 to 54 px, one word to a line, and the item is 308 to 380 px high, where a short trailing text leaves it at 92 px.
+  - **One long word as the label** runs out too, and pushes the trailing text 212 to 266 px past the item's end. `.content` has no smaller minimum than its longest word. The page, 400 px wide, gets a horizontal scroll.
+  - **Two trailing children stack:** two icons are 20 × 40 px, two icon buttons 40 × 80 px in an item of 100 px, and a text and an icon are one above the other. Two texts stay on a line.
+- **The cause:** `.trail` is `flex: 0 0 min-content`, so it doesn't shrink, and it is as narrow as its content allows. Slotted text is `white-space: nowrap`. `.content` keeps the automatic minimum.
+- **With `RF-135`'s repair,** which removes the slot's clip, every box is the same, read here as `noclip`.
+- **Why it is a problem:** a date, an amount or a name that is longer than expected covers what is beside the list or gives the page a scroll, and two trailing actions make a tall item.
+- **Required properties:**
+  1. No text of a list item, in any slot, runs past the item's end, and none adds a scroll to the page.
+  2. A long text in one slot doesn't take the other's whole width: the label and the trailing text stay readable.
+  3. Trailing children are side by side while the item has room.
+  4. Short texts, icons, and controls keep their boxes, and a control in `trail` isn't narrowed, cut or clipped (`RF-135`).
+- **Candidates, read:**
+
+  | Rule | Long trailing text | Long label, short text | One long word as the label | Two icon buttons |
+  | --- | --- | --- | --- | --- |
+  | The slot may shrink, text on one line (`shrink`) | Past the end | The trailing text is 13 px wide in Chromium, of 28 | Past the end | Side by side |
+  | The slot may shrink and the text wraps (`wrap`) | Two lines | The trailing text is 13 px wide in Chromium, broken in three lines | Past the end | Side by side |
+  | The slot may shrink and the slotted element clips with an ellipsis (`ellipsis`) | One line, ellipsis | Cut to 13 px in Chromium | Past the end | Stacked: the element becomes a block |
+  | **`bound`:** `.content` starts from zero with no minimum, `.trail` is its content's width up to half of the item, the text wraps and a long word breaks | 2 or 3 lines in the item | Unchanged | In the item, with the label's own ellipsis | Side by side |
+
+  Only `bound` has nothing past the end in any of the 13 contents, both kinds of item and the three engines, and it keeps the boxes of short texts, icons, a checkbox and a button. Its cost: a trailing text of more than half of the item wraps, also beside a short label, where it fits on one line today.
+
+- **Q3, for the owner — what does a trailing text do when it is too long?**
+  - **(a) It wraps, and takes up to half of the item. Recommended:** the whole text is seen, and nothing is clipped, so it doesn't conflict with `RF-135`. It is `bound`.
+  - (b) It stays on one line and ends with an ellipsis. The text is then cut on the page's element, whose own clip cuts a focus indicator inside it, and a control can't be told from a text there. It needs a rule for which children it applies to.
+  - (c) It stays as it is, documented: a page bounds its own trailing text. Properties 1 and 2 then hold for the label only.
+- **The other properties don't wait for Q3's answer in substance,** but they are the same three declarations, so one unit does all of it.
+- **Not established:** what Material says. `md.comp.list` has no token for it. material-web's item (`268681913`) doesn't shrink its trailing slot either, and clips the host. Material's pages weren't read. Also not read: RTL, 200 % text, the link item, the sortable list, a supporting text and an overline that are long.
+- **Order:** after `material-x/handle-focus-1` merges, because `RF-135` edits the same rules. It doesn't wait for `RF-64`, whose subject is the support slot's line count.
+- **Rows,** `spec`, in each engine: the properties for the contents of the probe, on the static, button and link items, in both directions. **Witness:** they fail before the repair. A visual baseline that changes is expected only where a trailing text or a control is wider than half of its item.
+- **Plan needed:** no, once Q3 is answered. **Size:** _medium_.
+
+#### RF-140 — The list's documentation names slots that the templates don't have
+
+Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
+
+- **What is wrong:** the items' shared template has the slots `lead`, `overline`, the default one, `support` and `trail`. The published JSDoc of `mx-list-item`, `mx-list-button-item` and `mx-list-link-item` has `@slot start`, `end`, `supporting-text` and `trailing-supporting-text`, and only `overline` and the default slot are right. `list.mdx` names the four in _Anatomy_, and its quick start has `<mx-icon slot="start">`. So does what is made from the JSDoc: the manifest, and the page's API tables. Both came with the list, in `3632ccd77`, where the template already had `lead`, `trail` and `support`.
+- **Why it matters:** a page that copies the quick start, or reads the types in its editor, puts content in a slot that doesn't exist, and it isn't drawn. The text of `trail` has no slot of its own.
+- **Not affected:** the stories and the tests use the real names. The `@slot` names of the button family, the FAB, the text fields, the card, the slider and the top app bar match their templates.
+- **Required property:** every slot that the package's documentation names exists in the element, and every slot of the element is named. For the list: `lead` for a leading icon, avatar or image, `trail` for a trailing icon, control or text, `overline`, `support` and the default slot, in the three items' JSDoc and in `list.mdx`, and the quick start draws its icon.
+- **Rows:** none. A check that compares each `@slot` with the template is a possible instrument, and this entry doesn't require one.
+- **Order:** it waits for nothing. The unit of `RF-128` and `RF-135` doesn't change these files, by its list.
+- **Plan needed:** no. **Ready** for an implementer. **Size:** _small_. A published JSDoc changes, so the package's declarations change and no code does.
 
 ## Questions
 

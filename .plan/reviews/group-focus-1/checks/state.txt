@@ -1,0 +1,384 @@
+# chromium 158.0.8127.18
+## arriving
+rest: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state false
+script focus with no input before: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+script focus after a click: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+script focus after Tab: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+script focus of another member with focusVisible: true, after a click: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+script focus of the clicked control itself with focusVisible: true: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+script focus of the Tab-focused control itself with focusVisible: false: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+autofocus: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+a modal dialog that opens by script: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+and closes: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+a modal dialog elsewhere, opened from a Tab-focused member: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+closed, focus restored: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+the same from a clicked member: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+closed by Escape, focus restored: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+## while focused
+a click, then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then Control: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Alt: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Meta: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then a: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then Enter: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then F2: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then Escape: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then a, with the page stopping keydown on the member: MISMATCH isolation auto, visible [1,0,0], focus within true, z [auto,auto,auto], state false
+Tab, then a click on the same member: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+Tab, then pressed: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+then a click on another: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+and again: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+then Tab: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+then Tab out: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+a member with a focusable span, Tab 1: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+the span, Tab 2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+back to the control: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+a click on the span: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+## leaving
+blur(): ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+disabled: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+removed: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+replaced by a clone: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+re-appended: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+hidden: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+visibility: hidden: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+inert: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+slot=none: MISMATCH isolation isolate, visible [0,0,0], focus within true, z [,auto,auto], state true
+  then Shift: MISMATCH isolation isolate, visible [0,0,0], focus within true, z [,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [,1,auto], state true
+group disabled: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group hidden: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group inert: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group removed and put back: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+moveBefore to the end of the group: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+  then Shift: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+moveBefore out of the group: MISMATCH isolation isolate, visible [0,0], focus within true, z [auto,auto], state true
+  then Shift: MISMATCH isolation isolate, visible [0,0], focus within true, z [auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+group moved by moveBefore: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state false
+## a window switch
+Tab, another page in front: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+back: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, another page in front: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+back: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+## two groups, moves and late definitions
+focus moved to a second group, the first: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  the second: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+moveBefore of the Tab-focused member into a second group, the first: MISMATCH isolation isolate, visible [0,0], focus within true, z [auto,auto], state true
+  the second: MISMATCH isolation auto, visible [0,0,1], focus within false, z [auto,auto,auto], state false
+  the second after a key: MISMATCH isolation auto, visible [0,0,1], focus within false, z [auto,auto,1], state true
+a clicked button moved by moveBefore into a group that had keyboard focus: ok       isolation auto, visible [0,0,0,0], focus within false, z [auto,auto,auto,auto], state true
+## what a child can be
+mx-checkbox as a child, Tab-focused: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-fab as a child: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-text-field as a child: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-text-field as a child, clicked: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+a page's own element with a native button in its shadow tree: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+a child in no slot of the group: ok       isolation isolate, visible [0,1], focus within true, z [,1], state true
+buttons forwarded through a slot into a group: isolation auto, visible true, z auto, data-first false, inner corner set 8px
+## the split button
+leading, Tab: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+content, Tab: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+trailing, Tab: ok       isolation isolate, visible [0,1], focus within true, z [auto,1], state true
+then disabled: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+then removed and put back: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+then Tab: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+# firefox 159.0
+## arriving
+rest: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state false
+script focus with no input before: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+script focus after a click: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+script focus after Tab: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+script focus of another member with focusVisible: true, after a click: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+script focus of the clicked control itself with focusVisible: true: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+script focus of the Tab-focused control itself with focusVisible: false: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+autofocus: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+a modal dialog that opens by script: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+and closes: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+a modal dialog elsewhere, opened from a Tab-focused member: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+closed, focus restored: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+the same from a clicked member: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+closed by Escape, focus restored: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+## while focused
+a click, then Shift: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Control: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Alt: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Meta: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then a: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Enter: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then F2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Escape: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then a, with the page stopping keydown on the member: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+Tab, then a click on the same member: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+Tab, then pressed: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+then a click on another: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+and again: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+then Tab: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+then Tab out: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+a member with a focusable span, Tab 1: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+the span, Tab 2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+back to the control: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+a click on the span: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+## leaving
+blur(): ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+disabled: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+removed: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+replaced by a clone: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+re-appended: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+hidden: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+visibility: hidden: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+inert: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+slot=none: MISMATCH isolation isolate, visible [0,0,0], focus within true, z [,auto,auto], state true
+  then Shift: MISMATCH isolation isolate, visible [0,0,0], focus within true, z [,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [,1,auto], state true
+group disabled: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group hidden: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group inert: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group removed and put back: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+moveBefore to the end of the group: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+  then Shift: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+moveBefore out of the group: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+group moved by moveBefore: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state false
+## a window switch
+Tab, another page in front: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+back: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, another page in front: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+back: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+## two groups, moves and late definitions
+focus moved to a second group, the first: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  the second: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+moveBefore of the Tab-focused member into a second group, the first: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  the second: MISMATCH isolation auto, visible [0,0,1], focus within true, z [auto,auto,auto], state false
+  the second after a key: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+a clicked button moved by moveBefore into a group that had keyboard focus: MISMATCH isolation isolate, visible [0,0,0,0], focus within true, z [auto,auto,auto,auto], state true
+## what a child can be
+mx-checkbox as a child, Tab-focused: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-fab as a child: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-text-field as a child: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-text-field as a child, clicked: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+a page's own element with a native button in its shadow tree: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+a child in no slot of the group: ok       isolation isolate, visible [0,1], focus within true, z [,1], state true
+buttons forwarded through a slot into a group: isolation auto, visible true, z auto, data-first false, inner corner set 8px
+## the split button
+leading, Tab: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+content, Tab: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+trailing, Tab: ok       isolation isolate, visible [0,1], focus within true, z [auto,1], state true
+then disabled: ok       isolation isolate, visible [0,1], focus within true, z [auto,1], state true
+then removed and put back: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+then Tab: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+# webkit 27.2
+## arriving
+rest: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state false
+script focus with no input before: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+script focus after a click: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+script focus after Tab: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+script focus of another member with focusVisible: true, after a click: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+script focus of the clicked control itself with focusVisible: true: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+script focus of the Tab-focused control itself with focusVisible: false: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+autofocus: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+a modal dialog that opens by script: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+and closes: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+a modal dialog elsewhere, opened from a Tab-focused member: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+closed, focus restored: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+the same from a clicked member: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+closed by Escape, focus restored: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+## while focused
+a click, then Shift: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Control: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Alt: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then Meta: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+a click, then a: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then Enter: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then F2: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then Escape: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, then a, with the page stopping keydown on the member: MISMATCH isolation auto, visible [1,0,0], focus within true, z [auto,auto,auto], state false
+Tab, then a click on the same member: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+Tab, then pressed: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+then a click on another: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+and again: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+then Tab: ok       isolation isolate, visible [0,0,1], focus within true, z [auto,auto,1], state true
+then Tab out: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+a member with a focusable span, Tab 1: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+the span, Tab 2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+back to the control: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+a click on the span: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+## leaving
+blur(): ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+disabled: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+removed: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+replaced by a clone: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+re-appended: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+hidden: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+visibility: hidden: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+inert: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [0,1,0], focus within true, z [auto,1,auto], state true
+slot=none: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: MISMATCH isolation auto, visible [0,0,0], focus within true, z [1,auto,auto], state false
+  then Tab in again: MISMATCH isolation isolate, visible [0,1,0], focus within true, z [1,1,auto], state true
+group disabled: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group hidden: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group inert: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group removed and put back: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then Shift: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+moveBefore to the end of the group: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+moveBefore out of the group: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+group moved by moveBefore: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then Shift: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  then a click on b2: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+  then Tab in again: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+## a window switch
+Tab, another page in front: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+back: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+a click, another page in front: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+back: ok       isolation auto, visible [0,0,0], focus within true, z [auto,auto,auto], state false
+## two groups, moves and late definitions
+focus moved to a second group, the first: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+  the second: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+moveBefore of the Tab-focused member into a second group, the first: ok       isolation isolate, visible [1,0,0], focus within true, z [1,auto,auto], state true
+  the second: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+  the second after a key: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state false
+a clicked button moved by moveBefore into a group that had keyboard focus: ok       isolation auto, visible [0,0,0], focus within false, z [auto,auto,auto], state true
+## what a child can be
+mx-checkbox as a child, Tab-focused: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-fab as a child: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-text-field as a child: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+mx-text-field as a child, clicked: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+a page's own element with a native button in its shadow tree: MISMATCH isolation isolate, visible [0], focus within true, z [auto], state true
+a child in no slot of the group: ok       isolation isolate, visible [0,1], focus within true, z [auto,1], state true
+buttons forwarded through a slot into a group: isolation auto, visible true, z auto, data-first false, inner corner set 8px
+## the split button
+leading, Tab: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true
+content, Tab: ok       isolation auto, visible [0,0], focus within true, z [auto,auto], state false
+trailing, Tab: ok       isolation isolate, visible [0,1], focus within true, z [auto,1], state true
+then disabled: ok       isolation isolate, visible [0,1], focus within true, z [auto,1], state true
+then removed and put back: ok       isolation auto, visible [0,0], focus within false, z [auto,auto], state true
+then Tab: ok       isolation isolate, visible [1,0], focus within true, z [1,auto], state true

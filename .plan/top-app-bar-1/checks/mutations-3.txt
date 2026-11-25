@@ -1,0 +1,33 @@
+## as it is | chromium | 36 passed (36)
+## as it is | firefox | 34 passed | 2 skipped (36)
+## as it is | webkit | 34 passed | 2 skipped (36)
+## no visibility | chromium | 1 failed | 35 passed (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected <mx-top-app-bar …(1)></mx-top-app-bar> to be <button …(1)></button> // Object.is equality
+   AssertionError: expected true to be false // Object.is equality
+## no visibility | firefox | 1 failed | 33 passed | 2 skipped (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected <mx-top-app-bar …(1)></mx-top-app-bar> to be <button …(1)></button> // Object.is equality
+   AssertionError: expected true to be false // Object.is equality
+## no visibility | webkit | 1 failed | 33 passed | 2 skipped (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected <mx-top-app-bar …(1)></mx-top-app-bar> to be <button …(1)></button> // Object.is equality
+   AssertionError: expected true to be false // Object.is equality
+## opacity: 0 in its place | chromium | 1 failed | 35 passed (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected <mx-top-app-bar …(1)></mx-top-app-bar> to be <button …(1)></button> // Object.is equality
+## opacity: 0 in its place | firefox | 1 failed | 33 passed | 2 skipped (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected <mx-top-app-bar …(1)></mx-top-app-bar> to be <button …(1)></button> // Object.is equality
+## opacity: 0 in its place | webkit | 1 failed | 33 passed | 2 skipped (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected <mx-top-app-bar …(1)></mx-top-app-bar> to be <button …(1)></button> // Object.is equality
+## pointer-events: none in its place | chromium | 1 failed | 35 passed (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected true to be false // Object.is equality
+## pointer-events: none in its place | firefox | 1 failed | 33 passed | 2 skipped (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected true to be false // Object.is equality
+## pointer-events: none in its place | webkit | 1 failed | 33 passed | 2 skipped (36)
+   mx-top-app-bar scroll start > should neither draw nor take a hit at the page's corner
+   AssertionError: expected true to be false // Object.is equality

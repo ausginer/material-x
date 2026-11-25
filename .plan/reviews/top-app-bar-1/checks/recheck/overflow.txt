@@ -1,0 +1,21 @@
+# chromium 158.0.8127.18
+html,body{overflow-x:hidden} | bar top -300 on@300
+body{overflow-x:hidden} | bar top 0 on@300
+body{overflow-x:clip} | bar top 0 on@300
+html{overflow-x:hidden} body{overflow-x:clip} | bar top 0 on@300
+html{overflow-x:clip} body{overflow-x:clip} | bar top 0 on@300
+
+# firefox 159.0
+html,body{overflow-x:hidden} | bar top -300 on@300
+body{overflow-x:hidden} | bar top 0 on@300
+body{overflow-x:clip} | bar top 0 on@300
+html{overflow-x:hidden} body{overflow-x:clip} | bar top 0 on@300
+html{overflow-x:clip} body{overflow-x:clip} | bar top 0 on@300
+
+# webkit 27.2
+html,body{overflow-x:hidden} | bar top -300 on@300
+body{overflow-x:hidden} | bar top 0 on@300
+body{overflow-x:clip} | bar top 0 on@300
+html{overflow-x:hidden} body{overflow-x:clip} | bar top 0 on@300
+html{overflow-x:clip} body{overflow-x:clip} | bar top 0 on@300
+

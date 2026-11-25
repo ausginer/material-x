@@ -1,0 +1,47 @@
+disconnected-connect.browser.test.ts, at c3b71774b. Another element's connectedCallback keeps, removes or moves the element in the same insertion.
+
+# As implemented
+chromium
+x-keep: 20 tags, errors: none
+x-remove: 20 tags, errors: mx-top-app-bar: Uncaught InvalidStateError: Failed to execute 'showPopover' on 'HTMLElement': Invalid on disconnected popover elements.
+x-move: 20 tags, errors: none
+document with no window: errors: mx-split-button: Uncaught NotAllowedError: Failed to set the 'adoptedStyleSheets' property on 'ShadowRoot': Sharing constructed stylesheets in multiple documents is not allowed; mx-checkbox: Uncaught NotAllowedError: Failed to set the 'adoptedStyleSheets' property on 'ShadowRoot': Sharing constructed stylesheets in multiple documents is not allowed; mx-radio: Uncaught NotAllowedError: Failed to set the 'adoptedStyleSheets' property on 'ShadowRoot': Sharing constructed stylesheets in multiple documents is not allowed; mx-top-app-bar: Uncaught InvalidStateError: Failed to execute 'showPopover' on 'HTMLElement': Invalid for popovers within documents that are not fully active.
+x-remove, the bar: then out scrolled=false open=false, scrolled: out scrolled=false open=false, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+x-move, the bar: then in scrolled=false open=true, scrolled: in scrolled=true open=true, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+firefox
+x-keep: 20 tags, errors: none
+x-remove: 20 tags, errors: mx-top-app-bar: InvalidStateError: HTMLElement.showPopover: Element is not connected
+x-move: 20 tags, errors: none
+document with no window: errors: mx-top-app-bar: InvalidStateError: HTMLElement.showPopover: Element's document is not fully active
+x-remove, the bar: then out scrolled=false open=false, scrolled: out scrolled=false open=false, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+x-move, the bar: then in scrolled=false open=true, scrolled: in scrolled=true open=true, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+webkit
+x-keep: 20 tags, errors: none
+x-remove: 20 tags, errors: mx-top-app-bar: InvalidStateError: Element is not connected
+x-move: 20 tags, errors: none
+document with no window: errors: mx-top-app-bar: InvalidStateError: Invalid for popovers within documents that are not fully active
+x-remove, the bar: then out scrolled=false open=false, scrolled: out scrolled=false open=false, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+x-move, the bar: then in scrolled=false open=true, scrolled: in scrolled=true open=true, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+
+# With the show and the observation behind scrollStart.isConnected (a temporary edit, reverted)
+chromium
+x-keep: 20 tags, errors: none
+x-remove: 20 tags, errors: none
+x-move: 20 tags, errors: none
+document with no window: errors: mx-split-button: Uncaught NotAllowedError: Failed to set the 'adoptedStyleSheets' property on 'ShadowRoot': Sharing constructed stylesheets in multiple documents is not allowed; mx-checkbox: Uncaught NotAllowedError: Failed to set the 'adoptedStyleSheets' property on 'ShadowRoot': Sharing constructed stylesheets in multiple documents is not allowed; mx-radio: Uncaught NotAllowedError: Failed to set the 'adoptedStyleSheets' property on 'ShadowRoot': Sharing constructed stylesheets in multiple documents is not allowed; mx-top-app-bar: Uncaught InvalidStateError: Failed to execute 'showPopover' on 'HTMLElement': Invalid for popovers within documents that are not fully active.
+x-remove, the bar: then out scrolled=false open=false, scrolled: out scrolled=false open=false, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+x-move, the bar: then in scrolled=false open=true, scrolled: in scrolled=true open=true, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+firefox
+x-keep: 20 tags, errors: none
+x-remove: 20 tags, errors: none
+x-move: 20 tags, errors: none
+document with no window: errors: mx-top-app-bar: InvalidStateError: HTMLElement.showPopover: Element's document is not fully active
+x-remove, the bar: then out scrolled=false open=false, scrolled: out scrolled=false open=false, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+x-move, the bar: then in scrolled=false open=true, scrolled: in scrolled=true open=true, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+webkit
+x-keep: 20 tags, errors: none
+x-remove: 20 tags, errors: none
+x-move: 20 tags, errors: none
+document with no window: errors: mx-top-app-bar: InvalidStateError: Invalid for popovers within documents that are not fully active
+x-remove, the bar: then out scrolled=false open=false, scrolled: out scrolled=false open=false, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true
+x-move, the bar: then in scrolled=false open=true, scrolled: in scrolled=true open=true, inserted again: in scrolled=true open=true, at the start: in scrolled=false open=true

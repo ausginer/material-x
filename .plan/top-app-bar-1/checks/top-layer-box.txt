@@ -1,0 +1,36 @@
+## chromium 158.0.8127.18
+as ruled: 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+as ruled, RTL: 0,0:off  0,1:on  0,300:on  0,0:off  -3000,0:off  -3000,1:on  -3000,300:on  0,0:off
+as ruled, vertical-rl: 0,0:off  0,1:on  0,300:on  0,0:off  -3000,0:off  -3000,1:on  -3000,300:on  0,0:off
+COUNTERFACTUAL 0px sides: 0,0:off  0,1:on  0,300:on  0,0:off  WRONG 3000,0:on  3000,1:on  3000,300:on  0,0:off
+COUNTERFACTUAL 2px at the top: 0,0:off  WRONG 0,1:off  0,300:on  0,0:off  3000,0:off  WRONG 3000,1:off  3000,300:on  0,0:off
+COUNTERFACTUAL not in the top layer: 0,0:off  WRONG 0,1:off  WRONG 0,300:off  0,0:off  3000,0:off  WRONG 3000,1:off  WRONG 3000,300:off  0,0:off
+in a frame, as ruled: 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+COUNTERFACTUAL in a frame, default root: WRONG 0,0:on  0,1:on  0,300:on  WRONG 0,0:on  WRONG 3000,0:on  3000,1:on  3000,300:on  WRONG 0,0:on
+hidden and shown, as ruled: block@0:off  none@0:on  none@300:on  block@300:on  none@300:on  none@0:on  block@0:off
+hidden and shown, COUNTERFACTUAL state from the box top: block@0:off  none@0:off  none@300:off  block@300:off  none@300:off  none@0:off  block@0:off
+moveBefore, then scrolled: no error, box shown true 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+## firefox 159.0
+as ruled: 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+as ruled, RTL: 0,0:off  0,1:on  0,300:on  0,0:off  -3000,0:off  -3000,1:on  -3000,300:on  0,0:off
+as ruled, vertical-rl: 0,0:off  0,1:on  0,300:on  0,0:off  -3000,0:off  -3000,1:on  -3000,300:on  0,0:off
+COUNTERFACTUAL 0px sides: 0,0:off  0,1:on  0,300:on  0,0:off  WRONG 3000,0:on  3000,1:on  3000,300:on  0,0:off
+COUNTERFACTUAL 2px at the top: 0,0:off  WRONG 0,1:off  0,300:on  0,0:off  3000,0:off  WRONG 3000,1:off  3000,300:on  0,0:off
+COUNTERFACTUAL not in the top layer: 0,0:off  WRONG 0,1:off  WRONG 0,300:off  0,0:off  3000,0:off  WRONG 3000,1:off  WRONG 3000,300:off  0,0:off
+in a frame, as ruled: 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+COUNTERFACTUAL in a frame, default root: WRONG 0,0:on  0,1:on  0,300:on  WRONG 0,0:on  WRONG 3000,0:on  3000,1:on  3000,300:on  WRONG 0,0:on
+hidden and shown, as ruled: block@0:off  none@0:on  none@300:on  block@300:on  none@300:on  none@0:on  block@0:off
+hidden and shown, COUNTERFACTUAL state from the box top: block@0:off  none@0:off  none@300:off  block@300:off  none@300:off  none@0:off  block@0:off
+moveBefore, then scrolled: no error, box shown true 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+## webkit 27.2
+as ruled: 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+as ruled, RTL: 0,0:off  0,1:on  0,300:on  0,0:off  -3000,0:off  -3000,1:on  -3000,300:on  0,0:off
+as ruled, vertical-rl: 0,0:off  0,1:on  0,300:on  0,0:off  -3000,0:off  -3000,1:on  -3000,300:on  0,0:off
+COUNTERFACTUAL 0px sides: 0,0:off  0,1:on  0,300:on  0,0:off  WRONG 3000,0:on  3000,1:on  3000,300:on  0,0:off
+COUNTERFACTUAL 2px at the top: 0,0:off  WRONG 0,1:off  0,300:on  0,0:off  3000,0:off  WRONG 3000,1:off  3000,300:on  0,0:off
+COUNTERFACTUAL not in the top layer: 0,0:off  WRONG 0,1:off  WRONG 0,300:off  0,0:off  3000,0:off  WRONG 3000,1:off  WRONG 3000,300:off  0,0:off
+in a frame, as ruled: 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
+COUNTERFACTUAL in a frame, default root: WRONG 0,0:on  0,1:on  0,300:on  WRONG 0,0:on  WRONG 3000,0:on  3000,1:on  3000,300:on  WRONG 0,0:on
+hidden and shown, as ruled: block@0:off  none@0:on  none@300:on  block@300:on  none@300:on  none@0:on  block@0:off
+hidden and shown, COUNTERFACTUAL state from the box top: block@0:off  none@0:off  none@300:off  block@300:off  none@300:off  none@0:off  block@0:off
+moveBefore, then scrolled: not in this engine 0,0:off  0,1:on  0,300:on  0,0:off  3000,0:off  3000,1:on  3000,300:on  0,0:off
