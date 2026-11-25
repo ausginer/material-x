@@ -1,5 +1,6 @@
 import { useShadowDOM } from '@ydinjs/core/controllers/useShadowDOM.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+import hostStyles from '../styles/host/host.css.ts' with { type: 'css' };
 
 // oxlint-disable-next-line max-params
 export function useCore(
@@ -10,6 +11,11 @@ export function useCore(
   init?: Partial<ShadowRootInit>,
 ): void {
   Object.assign(internals(host), aria);
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  useShadowDOM(host, templates, styles as readonly CSSStyleSheet[], init);
+  useShadowDOM(
+    host,
+    templates,
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    [...styles, hostStyles] as readonly CSSStyleSheet[],
+    init,
+  );
 }

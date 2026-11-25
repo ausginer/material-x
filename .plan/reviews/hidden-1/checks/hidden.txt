@@ -1,0 +1,186 @@
+
+# chromium 158.0.8127.18
+
+## head
+  hidden="": 22 of 22 without a box
+  hidden="hidden": 22 of 22 without a box
+  hidden="true": 22 of 22 without a box
+  hidden="false": 22 of 22 without a box
+  hidden="until-found ": 22 of 22 without a box
+  hidden="until-found": 0 of 22 without a box
+  hidden="Until-Found": 0 of 22 without a box
+  states: 264 read, 0 with a box
+  page type rule: inline-block 23 (native div inline-block)
+  page universal: inline-block 23 (native div inline-block)
+  page :where: inline-block 23 (native div inline-block)
+  page layer: inline-block 23 (native div inline-block)
+  page page [hidden]!important: none 23 (native div none)
+  page page [hidden]: none 23 (native div none)
+  page display: revert: inline 22; block div (native div block)
+  page all: unset (page): inline 23 (native div inline)
+  page display: revert-layer: none 23 (native div none)
+  inline display: grid
+  in the lead slot, hidden, mx-icon: data-avatar grid 1 boxes; plain none
+  in the lead slot, hidden, mx-card: data-avatar grid 1 boxes; plain none
+  in the lead slot, hidden, mx-icon-button: data-avatar grid 3 boxes; plain none
+  in the lead slot, hidden, span: data-avatar grid 1 boxes; plain none
+  shown again: 44 elements, two ways each, 0 differ in pixels from the never hidden 
+  until-found: display/content-visibility, height of the plain: mx-button contents/hidden 0 of 0; mx-icon-button contents/hidden 0 of 0; mx-link-button contents/hidden 0 of 0; mx-switch-button contents/hidden 0 of 0; mx-switch-icon-button contents/hidden 0 of 0; mx-split-button contents/hidden 0 of 0; mx-button-group flex/hidden 0 of 18; mx-connected-button-group flex/hidden 0 of 18; mx-card flow-root/hidden 32 of 50; mx-checkbox inline-grid/hidden 40 of 40; mx-fab contents/hidden 0 of 0; mx-icon inline-block/hidden 16 of 16; mx-list flex/hidden 0 of 18; mx-list-item flex/hidden 56 of 56; mx-list-button-item block/hidden 0 of 56; mx-list-link-item block/hidden 0 of 56; mx-sortable-list flex/hidden 0 of 18; mx-radio inline-grid/hidden 40 of 40; mx-slider block/hidden 0 of 44; mx-multiline-text-field grid/hidden 0 of 56; mx-text-field grid/hidden 0 of 56; mx-top-app-bar flex/hidden 64 of 64; div block/hidden 0 of 18
+  focus: mx-button focused true, after hidden body, focus() false; mx-checkbox focused true, after hidden body, focus() false; mx-text-field focused true, after hidden body, focus() false; mx-slider focused true, after hidden body, focus() false; mx-list-button-item focused true, after hidden body, focus() false; mx-card focused false, after hidden body, focus() false
+  mx-connected-button-group of mx-switch-button, the first hidden after the connect: a tabindex 0 first, b tabindex -1, c tabindex -1 last; Tab from before: after, body, before, after; ArrowLeft from b: b, b, b, b
+  mx-button-group of mx-button, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: b, c, after, body; ArrowLeft from b: b, b, b, b
+  div of mx-radio, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: b, c, after, body; ArrowLeft from b: b, b, b, b
+
+## main
+  hidden="": 0 of 22 without a box
+  hidden="hidden": 0 of 22 without a box
+  hidden="true": 0 of 22 without a box
+  hidden="false": 0 of 22 without a box
+  hidden="until-found ": 0 of 22 without a box
+  hidden="until-found": 0 of 22 without a box
+  hidden="Until-Found": 0 of 22 without a box
+  states: 264 read, 264 with a box
+  page type rule: inline-block 23 (native div inline-block)
+  page universal: inline-block 23 (native div inline-block)
+  page :where: inline-block 23 (native div inline-block)
+  page layer: inline-block 23 (native div inline-block)
+  page page [hidden]!important: none 23 (native div none)
+  page page [hidden]: none 23 (native div none)
+  page display: revert: inline 22; block div (native div block)
+  page all: unset (page): inline 23 (native div inline)
+  page display: revert-layer: contents 7; flex 6; flow-root mx-card; inline-grid mx-checkbox,mx-radio; inline-block mx-icon; block mx-list-button-item,mx-list-link-item,mx-slider; grid mx-multiline-text-field,mx-text-field; none div (native div none)
+  inline display: grid
+  in the lead slot, hidden, mx-icon: data-avatar grid 1 boxes; plain inline-block
+  in the lead slot, hidden, mx-card: data-avatar grid 1 boxes; plain flow-root
+  in the lead slot, hidden, mx-icon-button: data-avatar grid 3 boxes; plain contents
+  in the lead slot, hidden, span: data-avatar grid 1 boxes; plain none
+  shown again: 44 elements, two ways each, 0 differ in pixels from the never hidden 
+  until-found: display/content-visibility, height of the plain: mx-button contents/hidden 0 of 0; mx-icon-button contents/hidden 0 of 0; mx-link-button contents/hidden 0 of 0; mx-switch-button contents/hidden 0 of 0; mx-switch-icon-button contents/hidden 0 of 0; mx-split-button contents/hidden 0 of 0; mx-button-group flex/hidden 0 of 18; mx-connected-button-group flex/hidden 0 of 18; mx-card flow-root/hidden 32 of 50; mx-checkbox inline-grid/hidden 40 of 40; mx-fab contents/hidden 0 of 0; mx-icon inline-block/hidden 16 of 16; mx-list flex/hidden 0 of 18; mx-list-item flex/hidden 56 of 56; mx-list-button-item block/hidden 0 of 56; mx-list-link-item block/hidden 0 of 56; mx-sortable-list flex/hidden 0 of 18; mx-radio inline-grid/hidden 40 of 40; mx-slider block/hidden 0 of 44; mx-multiline-text-field grid/hidden 0 of 56; mx-text-field grid/hidden 0 of 56; mx-top-app-bar flex/hidden 64 of 64; div block/hidden 0 of 18
+  focus: mx-button focused true, after hidden body, focus() true; mx-checkbox focused true, after hidden body, focus() true; mx-text-field focused true, after hidden body, focus() true; mx-slider focused true, after hidden body, focus() true; mx-list-button-item focused true, after hidden body, focus() true; mx-card focused false, after hidden body, focus() false
+  mx-connected-button-group of mx-switch-button, the first hidden after the connect: a tabindex 0 first, b tabindex -1, c tabindex -1 last; Tab from before: a, after, body, before; ArrowLeft from b: a, c, b, a
+  mx-button-group of mx-button, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: a, b, c, after; ArrowLeft from b: b, b, b, b
+  div of mx-radio, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: a, b, c, after; ArrowLeft from b: b, b, b, b
+
+# firefox 159.0
+
+## head
+  hidden="": 22 of 22 without a box
+  hidden="hidden": 22 of 22 without a box
+  hidden="true": 22 of 22 without a box
+  hidden="false": 22 of 22 without a box
+  hidden="until-found ": 22 of 22 without a box
+  hidden="until-found": 0 of 22 without a box
+  hidden="Until-Found": 0 of 22 without a box
+  states: 264 read, 0 with a box
+  page type rule: inline-block 23 (native div inline-block)
+  page universal: inline-block 23 (native div inline-block)
+  page :where: inline-block 23 (native div inline-block)
+  page layer: inline-block 23 (native div inline-block)
+  page page [hidden]!important: none 23 (native div none)
+  page page [hidden]: none 23 (native div none)
+  page display: revert: inline 22; block div (native div block)
+  page all: unset (page): inline 23 (native div inline)
+  page display: revert-layer: none 23 (native div none)
+  inline display: grid
+  in the lead slot, hidden, mx-icon: data-avatar grid 1 boxes; plain none
+  in the lead slot, hidden, mx-card: data-avatar grid 1 boxes; plain none
+  in the lead slot, hidden, mx-icon-button: data-avatar grid 3 boxes; plain none
+  in the lead slot, hidden, span: data-avatar grid 1 boxes; plain none
+  shown again: 44 elements, two ways each, 0 differ in pixels from the never hidden 
+  until-found: display/content-visibility, height of the plain: mx-button contents/hidden 0 of 0; mx-icon-button contents/hidden 0 of 0; mx-link-button contents/hidden 0 of 0; mx-switch-button contents/hidden 0 of 0; mx-switch-icon-button contents/hidden 0 of 0; mx-split-button contents/hidden 0 of 0; mx-button-group flex/hidden 0 of 21; mx-connected-button-group flex/hidden 0 of 21; mx-card flow-root/hidden 32 of 53; mx-checkbox inline-grid/hidden 40 of 40; mx-fab contents/hidden 0 of 0; mx-icon inline-block/hidden 16 of 16; mx-list flex/hidden 0 of 21; mx-list-item flex/hidden 56 of 56; mx-list-button-item block/hidden 0 of 56; mx-list-link-item block/hidden 0 of 56; mx-sortable-list flex/hidden 0 of 21; mx-radio inline-grid/hidden 40 of 40; mx-slider block/hidden 0 of 44; mx-multiline-text-field grid/hidden 0 of 56; mx-text-field grid/hidden 0 of 56; mx-top-app-bar flex/hidden 64 of 64; div block/hidden 0 of 21
+  focus: mx-button focused true, after hidden body, focus() false; mx-checkbox focused true, after hidden body, focus() false; mx-text-field focused true, after hidden body, focus() false; mx-slider focused true, after hidden body, focus() false; mx-list-button-item focused true, after hidden body, focus() false; mx-card focused false, after hidden body, focus() false
+  mx-connected-button-group of mx-switch-button, the first hidden after the connect: a tabindex 0 first, b tabindex -1, c tabindex -1 last; Tab from before: after, body, before, after; ArrowLeft from b: b, b, b, b
+  mx-button-group of mx-button, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: b, c, after, after; ArrowLeft from b: b, b, b, b
+  div of mx-radio, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: b, c, after, body; ArrowLeft from b: b, b, b, b
+
+## main
+  hidden="": 0 of 22 without a box
+  hidden="hidden": 0 of 22 without a box
+  hidden="true": 0 of 22 without a box
+  hidden="false": 0 of 22 without a box
+  hidden="until-found ": 0 of 22 without a box
+  hidden="until-found": 0 of 22 without a box
+  hidden="Until-Found": 0 of 22 without a box
+  states: 264 read, 264 with a box
+  page type rule: inline-block 23 (native div inline-block)
+  page universal: inline-block 23 (native div inline-block)
+  page :where: inline-block 23 (native div inline-block)
+  page layer: inline-block 23 (native div inline-block)
+  page page [hidden]!important: none 23 (native div none)
+  page page [hidden]: none 23 (native div none)
+  page display: revert: inline 22; block div (native div block)
+  page all: unset (page): inline 23 (native div inline)
+  page display: revert-layer: contents 7; flex 6; flow-root mx-card; inline-grid mx-checkbox,mx-radio; inline-block mx-icon; block mx-list-button-item,mx-list-link-item,mx-slider; grid mx-multiline-text-field,mx-text-field; none div (native div none)
+  inline display: grid
+  in the lead slot, hidden, mx-icon: data-avatar grid 1 boxes; plain inline-block
+  in the lead slot, hidden, mx-card: data-avatar grid 1 boxes; plain flow-root
+  in the lead slot, hidden, mx-icon-button: data-avatar grid 3 boxes; plain contents
+  in the lead slot, hidden, span: data-avatar grid 1 boxes; plain none
+  shown again: 44 elements, two ways each, 0 differ in pixels from the never hidden 
+  until-found: display/content-visibility, height of the plain: mx-button contents/hidden 0 of 0; mx-icon-button contents/hidden 0 of 0; mx-link-button contents/hidden 0 of 0; mx-switch-button contents/hidden 0 of 0; mx-switch-icon-button contents/hidden 0 of 0; mx-split-button contents/hidden 0 of 0; mx-button-group flex/hidden 0 of 21; mx-connected-button-group flex/hidden 0 of 21; mx-card flow-root/hidden 32 of 53; mx-checkbox inline-grid/hidden 40 of 40; mx-fab contents/hidden 0 of 0; mx-icon inline-block/hidden 16 of 16; mx-list flex/hidden 0 of 21; mx-list-item flex/hidden 56 of 56; mx-list-button-item block/hidden 0 of 56; mx-list-link-item block/hidden 0 of 56; mx-sortable-list flex/hidden 0 of 21; mx-radio inline-grid/hidden 40 of 40; mx-slider block/hidden 0 of 44; mx-multiline-text-field grid/hidden 0 of 56; mx-text-field grid/hidden 0 of 56; mx-top-app-bar flex/hidden 64 of 64; div block/hidden 0 of 21
+  focus: mx-button focused true, after hidden still, focus() true; mx-checkbox focused true, after hidden still, focus() true; mx-text-field focused true, after hidden still, focus() true; mx-slider focused true, after hidden still, focus() true; mx-list-button-item focused true, after hidden still, focus() true; mx-card focused false, after hidden body, focus() false
+  mx-connected-button-group of mx-switch-button, the first hidden after the connect: a tabindex 0 first, b tabindex -1, c tabindex -1 last; Tab from before: a, after, body, before; ArrowLeft from b: a, c, b, a
+  mx-button-group of mx-button, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: a, b, c, after; ArrowLeft from b: b, b, b, b
+  div of mx-radio, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: a, b, c, after; ArrowLeft from b: b, b, b, b
+
+# webkit 27.2
+
+## head
+  hidden="": 22 of 22 without a box
+  hidden="hidden": 22 of 22 without a box
+  hidden="true": 22 of 22 without a box
+  hidden="false": 22 of 22 without a box
+  hidden="until-found ": 22 of 22 without a box
+  hidden="until-found": 0 of 22 without a box
+  hidden="Until-Found": 0 of 22 without a box
+  states: 264 read, 0 with a box
+  page type rule: inline-block 23 (native div inline-block)
+  page universal: inline-block 23 (native div inline-block)
+  page :where: inline-block 23 (native div inline-block)
+  page layer: inline-block 23 (native div inline-block)
+  page page [hidden]!important: none 23 (native div none)
+  page page [hidden]: none 23 (native div none)
+  page display: revert: inline 22; block div (native div block)
+  page all: unset (page): inline 23 (native div inline)
+  page display: revert-layer: none 23 (native div none)
+  inline display: grid
+  in the lead slot, hidden, mx-icon: data-avatar grid 1 boxes; plain none
+  in the lead slot, hidden, mx-card: data-avatar grid 1 boxes; plain none
+  in the lead slot, hidden, mx-icon-button: data-avatar grid 3 boxes; plain none
+  in the lead slot, hidden, span: data-avatar grid 1 boxes; plain none
+  shown again: 44 elements, two ways each, 0 differ in pixels from the never hidden 
+  until-found: display/content-visibility, height of the plain: mx-button contents/hidden 0 of 0; mx-icon-button contents/hidden 0 of 0; mx-link-button contents/hidden 0 of 0; mx-switch-button contents/hidden 0 of 0; mx-switch-icon-button contents/hidden 0 of 0; mx-split-button contents/hidden 0 of 0; mx-button-group flex/hidden 0 of 21; mx-connected-button-group flex/hidden 0 of 21; mx-card flow-root/hidden 32 of 53; mx-checkbox inline-grid/hidden 40 of 40; mx-fab contents/hidden 0 of 0; mx-icon inline-block/hidden 16 of 16; mx-list flex/hidden 0 of 21; mx-list-item flex/hidden 56 of 56; mx-list-button-item block/hidden 0 of 56; mx-list-link-item block/hidden 0 of 56; mx-sortable-list flex/hidden 0 of 21; mx-radio inline-grid/hidden 40 of 40; mx-slider block/hidden 0 of 44; mx-multiline-text-field grid/hidden 0 of 56; mx-text-field grid/hidden 0 of 56; mx-top-app-bar flex/hidden 64 of 64; div block/hidden 0 of 21
+  focus: mx-button focused true, after hidden body, focus() false; mx-checkbox focused true, after hidden body, focus() false; mx-text-field focused true, after hidden body, focus() false; mx-slider focused true, after hidden body, focus() false; mx-list-button-item focused true, after hidden body, focus() false; mx-card focused false, after hidden body, focus() false
+  mx-connected-button-group of mx-switch-button, the first hidden after the connect: a tabindex 0 first, b tabindex -1, c tabindex -1 last; Tab from before: after, body, before, after; ArrowLeft from b: b, b, b, b
+  mx-button-group of mx-button, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: b, c, after, body; ArrowLeft from b: b, b, b, b
+  div of mx-radio, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: b, after, body, before; ArrowLeft from b: b, b, b, b
+
+## main
+  hidden="": 0 of 22 without a box
+  hidden="hidden": 0 of 22 without a box
+  hidden="true": 0 of 22 without a box
+  hidden="false": 0 of 22 without a box
+  hidden="until-found ": 0 of 22 without a box
+  hidden="until-found": 0 of 22 without a box
+  hidden="Until-Found": 0 of 22 without a box
+  states: 264 read, 264 with a box
+  page type rule: inline-block 23 (native div inline-block)
+  page universal: inline-block 23 (native div inline-block)
+  page :where: inline-block 23 (native div inline-block)
+  page layer: inline-block 23 (native div inline-block)
+  page page [hidden]!important: none 23 (native div none)
+  page page [hidden]: none 23 (native div none)
+  page display: revert: inline 22; block div (native div block)
+  page all: unset (page): inline 23 (native div inline)
+  page display: revert-layer: contents 7; flex 6; flow-root mx-card; inline-grid mx-checkbox,mx-radio; inline-block mx-icon; block mx-list-button-item,mx-list-link-item,mx-slider; grid mx-multiline-text-field,mx-text-field; none div (native div none)
+  inline display: grid
+  in the lead slot, hidden, mx-icon: data-avatar grid 1 boxes; plain inline-block
+  in the lead slot, hidden, mx-card: data-avatar grid 1 boxes; plain flow-root
+  in the lead slot, hidden, mx-icon-button: data-avatar grid 3 boxes; plain contents
+  in the lead slot, hidden, span: data-avatar grid 1 boxes; plain none
+  shown again: 44 elements, two ways each, 0 differ in pixels from the never hidden 
+  until-found: display/content-visibility, height of the plain: mx-button contents/hidden 0 of 0; mx-icon-button contents/hidden 0 of 0; mx-link-button contents/hidden 0 of 0; mx-switch-button contents/hidden 0 of 0; mx-switch-icon-button contents/hidden 0 of 0; mx-split-button contents/hidden 0 of 0; mx-button-group flex/hidden 0 of 21; mx-connected-button-group flex/hidden 0 of 21; mx-card flow-root/hidden 32 of 53; mx-checkbox inline-grid/hidden 40 of 40; mx-fab contents/hidden 0 of 0; mx-icon inline-block/hidden 16 of 16; mx-list flex/hidden 0 of 21; mx-list-item flex/hidden 56 of 56; mx-list-button-item block/hidden 0 of 56; mx-list-link-item block/hidden 0 of 56; mx-sortable-list flex/hidden 0 of 21; mx-radio inline-grid/hidden 40 of 40; mx-slider block/hidden 0 of 44; mx-multiline-text-field grid/hidden 0 of 56; mx-text-field grid/hidden 0 of 56; mx-top-app-bar flex/hidden 64 of 64; div block/hidden 0 of 21
+  focus: mx-button focused true, after hidden still, focus() true; mx-checkbox focused true, after hidden still, focus() true; mx-text-field focused true, after hidden still, focus() true; mx-slider focused true, after hidden still, focus() true; mx-list-button-item focused true, after hidden still, focus() true; mx-card focused false, after hidden body, focus() false
+  mx-connected-button-group of mx-switch-button, the first hidden after the connect: a tabindex 0 first, b tabindex -1, c tabindex -1 last; Tab from before: a, after, body, before; ArrowLeft from b: a, c, b, a
+  mx-button-group of mx-button, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: a, b, c, after; ArrowLeft from b: b, b, b, b
+  div of mx-radio, the first hidden after the connect: a tabindex -1, b tabindex -1, c tabindex -1; Tab from before: a, after, body, before; ArrowLeft from b: b, b, b, b

@@ -62,6 +62,10 @@ const CardConstructor: Composed<
  * set on it stands. It doesn't clip its content, and the content inherits the
  * page's text color and font.
  *
+ * Full-bleed content rounds its own corners: a direct child of the card takes
+ * the card's corner with `border-radius: inherit`, or with one corner's
+ * property, such as `border-start-start-radius: inherit`.
+ *
  * The card may be smaller than its content, or scroll it: the container, the
  * outline and the shadow stay on its own box. A browser may make a scrolling
  * card a tab stop, as it does a `div`: Firefox does, Chromium does when Tab

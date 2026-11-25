@@ -1,0 +1,12 @@
+/*
+ * What every element has on its host, whatever its component is. `useCore`
+ * adopts it after the component's own sheets.
+ *
+ * A component's `display` on the host outranks the user agent's `hidden` rule.
+ * This rule's specificity is above that of a host rule with a state. A page's
+ * `display` on the element outranks it, as it does on a native element.
+ * `hidden="until-found"` isn't `display: none`, so the rule leaves it out.
+ */
+:host([hidden]:not([hidden='until-found' i])) {
+  display: none;
+}
