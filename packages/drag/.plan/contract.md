@@ -311,10 +311,11 @@ With `displacement` composed, each row that a placeholder write of the library d
 - **A return.** An operation that ends with the placeholder away from where the item goes moves it there at `settle`, before the landing's target is read, and reports the rows. The place is home for a cancel, a rejection and a fault. It is the item's own place for an accepted item that isn't beside the placeholder, and for an item that left the collection. The visual's path doesn't change.
 - **The order in a drop:** after the request is built and before the verdict is asked.
 - **What isn't reported:** a destruction, and a return with no place to go, which is one whose anchor left the container, or whose placeholder or item the consumer moved out of it or removed. The rows may then jump once, and the return adds no fault.
-- **An item lifted while its own row animation runs** is drawn where it was, and the animation ends there. A press that activates nothing ends none.
+- **An item lifted while its own row animation runs** is drawn where it was, and the animation ends there. A press that is declined ends none.
 - **`layoutAnimation`'s animations** outlive the operation, and destruction cancels them. They are true through the consumer's commit and the placeholder's release, also when the commit moves the row's own node.
 - **Timing.** `timing` is called when a row's animation starts, its values are copied, and a throw is a fault (DRI-7).
 - **Reduced motion.** With `prefers-reduced-motion: reduce`, read at each report, the row starts no animation and its running one ends. `timing` isn't called then.
+- **A commit after the verdict accepted** is a move of the consumer's own. The rows are sent to the item's own place by the return, and the commit then moves them, so they may be drawn up to the commit's distance away and slide. `onReorder` commits first and then accepts.
 - **Limit.** In Firefox, a return while a scroll that the page itself anchors hasn't settled may be reported short.
 
 ### Geometry and cost
