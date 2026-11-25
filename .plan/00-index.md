@@ -6614,6 +6614,25 @@ Tier A, **open**, **ready** after `material-x/handle-focus-1` (the last note), p
 - **Rows** are the entry's, and: the wide button, on its width and the item's end; a long word in each text slot; both directions. **Documentation:** `list.mdx`, in _Anatomy_ or _Content guidelines_, says that a trailing text wraps in at most half of the item.
 - **Baselines:** stop and return if one changes where neither a trailing text nor a control is wider than half of its item. **The description** has `Closes #254`. A feature proof is owed.
 
+**Dated 2026-11-25 by the implementer, on `material-x/item-overflow-1`: stopped before any source change.** Properties 2 and 4 conflict beside a wide lead, and the contract doesn't say which one wins. Read at `8bed561de` on the built elements, in a 300px list, in Chromium, Firefox and WebKit: the static, button and link items, the sortable list, both directions on the static and button items, and text at twice its size ([probe](item-overflow-1/probes/overflow.mjs), readings for [Chromium](item-overflow-1/checks/candidate-chromium.txt), [Firefox](item-overflow-1/checks/candidate-firefox.txt) and [WebKit](item-overflow-1/checks/candidate-webkit.txt)). Each mode was read as a sheet adopted by the built item. The probe's `200%` mode enlarges the item's own texts and not a control's, because the tokens are in px and don't follow the root's font size.
+
+- **`bound` doesn't hold property 1 for a long word in `lead`.** `.lead` is as wide as its longest word, so the word runs 116 to 169px past the item's end. With `.lead { max-inline-size: max(50%, 114px) }` and `overflow-wrap: break-word` on its children (the mode `lead`), no text passes the item in any of the 243 rows in each engine, and the page gets no scroll. 114px is the large leading video's width, so no lead media of the default sizes is bounded. `break-word` doesn't change min-content, so a short lead text and two lead icons keep their boxes. This needs no ruling.
+- **`bound` doesn't hold property 2 beside a leading video.** With a long trailing text, `.content` is 0px wide in a static item and 10px in a button item. The label has 39 or 40px today, with the trailing text past the item's end.
+- **A minimum for the label conflicts with property 4.** Any minimum takes its room from the trailing child, and a rule in the item can't tell a text from a control. In `.content`, as `min-inline-size`:
+
+  | With a leading video, in the 300px item | `lead`, no minimum | 15% | 25% |
+  | --- | --- | --- | --- |
+  | `.content`, with a long trailing text, static and button item | 0, 10px | 45, 40px | 75, 67px |
+  | A button of 95 to 97px in `trail` | Its own width | Its own width | 69 to 77px |
+  | A button of 110 to 118px in `trail` | Its own width, and `.content` is 26 to 34px, so a label of 39px is cut | 99 to 104px | 69 to 77px |
+
+  Each of those buttons is under half of the item. The short label isn't cut today, because `.content` keeps its longest word.
+
+- **Q4 — which property yields beside a lead so wide that the label's room runs out?**
+  - **(a) The trailing child yields. Recommended:** `.content` keeps 15% of the item, and property 4 is narrowed to a control that fits beside the lead and that minimum. The label is never 0px wide, and the two-word button keeps its box in each mode of the table but 25%.
+  - (b) The label yields: `lead` as it is. Property 4 holds as written, and property 2 doesn't hold beside a wide lead, where the label can be 0px wide.
+- **Not done:** the rule, the rows and their witnesses, `list.mdx`, the sizes and the checks. They follow the answer. No source file is changed, and no pull request is open.
+
 #### RF-140 — The list's documentation names slots that the templates don't have
 
 Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
