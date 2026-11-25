@@ -31,11 +31,10 @@ const ListButtonItemConstructor: Composed<
  * @attr {boolean} disabled - Disables interaction.
  *
  * @slot - Primary label text.
- * @slot start - Leading icon, avatar, or image.
- * @slot end - Trailing icon or control.
+ * @slot lead - Leading icon, avatar, or image.
  * @slot overline - Overline text.
- * @slot supporting-text - Supporting text below the label.
- * @slot trailing-supporting-text - Trailing supporting text.
+ * @slot support - Supporting text below the label.
+ * @slot trail - Trailing icon, control, or text.
  *
  * @csspart impl - Internal native button element.
  *

@@ -6335,6 +6335,7 @@ Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows:** none. A check that compares each `@slot` with the template is a possible instrument, and this entry doesn't require one.
 - **Order:** it waits for nothing. The unit of `RF-128` and `RF-135` doesn't change these files, by its list.
 - **Plan needed:** no. **Ready** for an implementer. **Size:** _small_. A published JSDoc changes, so the package's declarations change and no code does.
+- **Fixed 2026-11-25 by the implementer** on `material-x/list-slots-doc-1`, for #255. The three items' JSDoc and `list.mdx` name `lead`, `overline`, `support`, `trail` and the default slot, and the built manifest has these five for each item. The quick start also imports the icon and the button item, because `list/list.js` defines neither. Read in Chromium with a temporary probe: its icon has no box in `start`, and a 20 by 20 px box in `lead`.
 
 #### RF-141 — A button that is upgraded after the connected group's last slot change isn't in its roving order
 
