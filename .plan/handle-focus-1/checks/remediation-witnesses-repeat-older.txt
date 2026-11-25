@@ -1,0 +1,46 @@
+ 10:59:35 up 1 day, 15:43,  0 users,  load average: 34.22, 22.19, 15.11
+narrowed 1: 
+narrowed 2:       Tests  no tests
+      1 Error: Failed to connect to the browser session "1297d786-dc31-414d-8621-d2a208322cd2" [spec/firefox (firefox)] within the timeout.
+narrowed 3:       Tests  no tests
+      1 Error: Failed to connect to the browser session "8cead15b-7674-44f1-a765-77b034f8485a" [spec/firefox (firefox)] within the timeout.
+narrowed 4:       Tests  no tests
+      1 Error: Failed to connect to the browser session "f1a3bdc3-c932-4704-aeae-9cda67fd5e7e" [spec/firefox (firefox)] within the timeout.
+narrowed 5:       Tests  134 passed (134)
+in every slot 1: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 131 passed (134)
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the label slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the overline slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the support slot alone
+      1 AssertionError: expected 'solid' not to be 'solid' // Object.is equality
+in every slot 2: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 131 passed (134)
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the label slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the overline slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the support slot alone
+      1 AssertionError: expected 'solid' not to be 'solid' // Object.is equality
+in every slot 3: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 131 passed (134)
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the label slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the overline slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the support slot alone
+      1 AssertionError: expected 'solid' not to be 'solid' // Object.is equality
+in every slot 4: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 131 passed (134)
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the label slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the overline slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the support slot alone
+      1 AssertionError: expected 'solid' not to be 'solid' // Object.is equality
+in every slot 5: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 131 passed (134)
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the label slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the overline slot alone
+      1  FAIL  |spec/firefox (firefox)| tests/list/list-item.spec.browser.test.ts:525 > handle focus indicator conditions > should leave a focusable data-handle in the support slot alone
+      1 AssertionError: expected 'solid' not to be 'solid' // Object.is equality
+ packages/material-x/src/list/sortable-list.ts      |  6 +-
+ .../src/list/styles/item/main.styles.css           |  7 +-
+ .../tests/list/list-item.spec.browser.test.ts      | 76 +++++++++++++++++++++-
+ 3 files changed, 85 insertions(+), 4 deletions(-)
+ 11:11:25 up 1 day, 15:55,  0 users,  load average: 20.21, 51.35, 42.50
+
+[exited with code 0]
