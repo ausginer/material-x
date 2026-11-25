@@ -35,6 +35,26 @@ const mutations = [
     swap('this.enabled.find((item) => item === focused) ??', ''),
   ],
   [
+    'only the first focus recorded',
+    swap(
+      '    this.#chosen = item;\n    this.setTabStop(item);',
+      '    this.#chosen ??= item;\n    this.setTabStop(item);',
+    ),
+  ],
+  [
+    'the former choice preferred at a read',
+    swap(
+      `      this.enabled.find((item) => item === focused) ??
+      value.find((item) => item === this.#chosen);`,
+      `      value.find((item) => item === this.#chosen) ??
+      this.enabled.find((item) => item === focused);`,
+    ),
+  ],
+  [
+    'a focused item recorded without the check that it is enabled',
+    swap('this.enabled.find((item) => item === focused)', 'focused'),
+  ],
+  [
     'a removed item still the chosen one',
     swap('value.find((item) => item === this.#chosen);', 'this.#chosen;'),
   ],

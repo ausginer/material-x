@@ -6637,7 +6637,7 @@ Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-141 — A button that is upgraded after the connected group's last slot change isn't in its roving order
 
-Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/slot-listener-1`, from `reviewer-1` of `RF-131`'s [feature proof](reviews/slot-listener-1/feature-proof-claude.md), requested by the coordinator. `RF-140` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-69` is about a consumer that is there before its provider, and `RF-131` about a slot change that is lost. Read at `96442bad3` with `main` at `a110683b3`, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](slot-listener-1/checks/ruling.txt), [probe](reviews/slot-listener-1/probes/callers.browser.test.ts.txt)). The former `useSlot` reads the same.
+Tier A, **closed on 2026-11-25** (the architect's last note, whose list the note after it completes), pre-existing. Before closure: open. Registered on 2026-11-25 by the architect, on `core/slot-listener-1`, from `reviewer-1` of `RF-131`'s [feature proof](reviews/slot-listener-1/feature-proof-claude.md), requested by the coordinator. `RF-140` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-69` is about a consumer that is there before its provider, and `RF-131` about a slot change that is lost. Read at `96442bad3` with `main` at `a110683b3`, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](slot-listener-1/checks/ruling.txt), [probe](reviews/slot-listener-1/probes/callers.browser.test.ts.txt)). The former `useSlot` reads the same.
 
 - **The cause.** `useRovingTabindex` keeps the slot's nodes that are items, at each `slotchange`. A node that isn't upgraded yet isn't an item, and its upgrade is no slot change. So it stays out until the next one.
 - **What happens,** in `mx-connected-button-group`, the hook's only user:
@@ -6767,6 +6767,8 @@ Bytes are of `connected-button-group` as the review reads them. The H and I numb
 **No further look** by the architect or the reviewer is owed when the list is as written. The implementer adds the witnesses' counts here, changes the entry's state to closed on that date with a pointer to this note, and the row counts in #269's description (`Closes #262` is there). The coordinator compares the diff with the list: three rows, no change in `packages/*/src`. A row that fails on the head, or a witness that passes, comes back to the architect.
 
 **Observations of the recheck:** nothing is owed. The row that keeps the name _"fall back to the active item"_ asserts the contract. An item that can't take focus is `RF-143`'s.
+
+**Dated 2026-11-25 by the implementer: the three rows are in, and the entry is closed** by the architect's note above. No source changes. Core's file has 65 rows, which pass in Chromium, Firefox and WebKit, and material-x's 30 of the groups pass. Each witness fails its own row and no other, of 65, in each engine ([reading](roving-upgrade-1/checks/rows-witnesses.txt), [probe](roving-upgrade-1/probes/mutate.mjs)): only the first focus recorded 1, the former choice preferred at a read 1, a focused item recorded without the check that it is enabled 1. Core's format, lint and typecheck and the root format check pass. `main` hasn't moved since the last merge.
 
 #### RF-142 — A disabled list item dims the focus indicator of the controls in it, which still work
 
