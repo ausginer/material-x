@@ -1,4 +1,5 @@
 import { Bool } from '@ydinjs/core/attribute.js';
+import { setOwnARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import {
   ControlledElement,
@@ -64,7 +65,7 @@ export default class ListLinkItem extends ListLinkItemConstructor {
 
     useAttributes(this, {
       selected: via(Bool, (_, value) => {
-        target.ariaCurrent = value ? 'page' : null;
+        setOwnARIA(target, 'aria-current', value ? 'page' : null);
       }),
     });
   }
