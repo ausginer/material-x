@@ -37,6 +37,10 @@ const mutations = [
   ],
   ['every avatar, as before', once(LIST, AVATAR, '[data-avatar]')],
   ['no avatar with hidden', once(LIST, AVATAR, '[data-avatar]:not([hidden])')],
+  [
+    "the selector on the avatar's whole rule",
+    once(LIST, '::slotted([data-avatar]) {', `::slotted(${AVATAR}) {`),
+  ],
   ["the avatar's until-found in lower case alone", once(LIST, "' i]", "']")],
 ];
 const restore = () => {

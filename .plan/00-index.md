@@ -5532,6 +5532,40 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 
 **Recheck:** none. **Closure,** which takes the place of the one above: on the merge of #270, when the coordinator has confirmed that the repair's diff has no source outside the list item's sheet and no test outside the rows, that the witnesses of the three items are recorded, and that CI passes on its last commit. Anything else comes back to the architect. Nothing is the owner's.
 
+**Dated 2026-11-25 by the implementer: the third item is implemented, and not closed.** Requested by the coordinator. `main` is at `ca6918376`, merged before.
+
+- **Source:** in the list item's sheet, the avatar's `display` has the selector and the comment, in a rule of its own. The rest has `::slotted([data-avatar])` again.
+- **Row:** a `span` avatar with `hidden` and a page's `display: block` is 40 by 40. The file has 145 rows in each engine. The function that makes an avatar moved to the top of the file, because this row isn't one of the group's. The earlier note's observation about `data-image` and `data-video` no longer holds.
+- **Witnesses,** every mutation again and the new one ([reading](hidden-1/checks/witnesses.txt), [script](hidden-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: the selector on the avatar's whole rule fails this row, and no other. The other counts stand: not adopted 49, without the exception 45, lower case alone 22, no specificity 1, `!important` 22, the empty value alone 1, every avatar 2, no avatar with `hidden` 4, the avatar's lower case alone 2. Unmutated, none.
+- **Checks,** core and drag rebuilt: `tests/core/hidden` and `tests/list`: Chromium 515 passed, Firefox 503 passed and 2 skipped, WebKit 513 passed and 2 skipped. Typecheck, lint on the rows' file and the root format check pass. CI on the head is #270's.
+- **Size, Brotli, local, the branch against `main` at `ca6918376`:** `complete` 25813 to 25825 (+12). Each row changes by -1 (`button/split-button`) to +70 (`list/list-button-item`):
+
+  | Row                                   | `main` | Branch | Change |
+  | ------------------------------------- | ------ | ------ | ------ |
+  | `button/button`                       | 4909   | 4936   | +27    |
+  | `button/icon-button`                  | 5182   | 5208   | +26    |
+  | `button/link-button`                  | 4872   | 4911   | +39    |
+  | `button/switch-button`                | 5507   | 5537   | +30    |
+  | `button/switch-icon-button`           | 5906   | 5962   | +56    |
+  | `button/split-button`                 | 7668   | 7667   | -1     |
+  | `button-group/button-group`           | 3060   | 3097   | +37    |
+  | `button-group/connected-button-group` | 3916   | 3954   | +38    |
+  | `card/card`                           | 1317   | 1350   | +33    |
+  | `checkbox/checkbox`                   | 4260   | 4290   | +30    |
+  | `fab/fab`                             | 4176   | 4206   | +30    |
+  | `icon/icon`                           | 631    | 667    | +36    |
+  | `list/list`                           | 592    | 625    | +33    |
+  | `list/list-item`                      | 2772   | 2803   | +31    |
+  | `list/list-button-item`               | 4898   | 4968   | +70    |
+  | `list/list-link-item`                 | 5121   | 5146   | +25    |
+  | `list/sortable-list`                  | 9092   | 9117   | +25    |
+  | `radio/radio`                         | 3811   | 3841   | +30    |
+  | `slider/slider`                       | 4015   | 4037   | +22    |
+  | `text-field/multiline-text-field`     | 4547   | 4559   | +12    |
+  | `text-field/text-field`               | 8585   | 8618   | +33    |
+  | `top-app-bar/top-app-bar`             | 1354   | 1391   | +37    |
+  | `complete`                            | 25813  | 25825  | +12    |
+
 #### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.

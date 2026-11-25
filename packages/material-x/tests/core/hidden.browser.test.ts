@@ -26,6 +26,23 @@ async function create(
   return element;
 }
 
+/** An element in the `lead` slot of a list item, marked as an avatar. */
+async function createAvatar(
+  tag: string,
+  attributes: Readonly<Record<string, string>> = {},
+): Promise<HTMLElement> {
+  const item = document.createElement('mx-list-item');
+  document.body.append(item);
+  const avatar = await create(tag, {
+    slot: 'lead',
+    'data-avatar': '',
+    ...attributes,
+  });
+  item.append(avatar);
+  await nextFrame();
+  return avatar;
+}
+
 function displayOf(element: Element): string {
   return getComputedStyle(element).display;
 }
@@ -96,29 +113,14 @@ describe('hidden', () => {
   });
 
   describe.each(['mx-icon', 'span'])("a list item's %s avatar", (tag) => {
-    async function createAvatar(
-      attributes: Readonly<Record<string, string>> = {},
-    ): Promise<HTMLElement> {
-      const item = document.createElement('mx-list-item');
-      document.body.append(item);
-      const avatar = await create(tag, {
-        slot: 'lead',
-        'data-avatar': '',
-        ...attributes,
-      });
-      item.append(avatar);
-      await nextFrame();
-      return avatar;
-    }
-
     it('should be rendered without it', async () => {
-      const avatar = await createAvatar();
+      const avatar = await createAvatar(tag);
 
       expect(displayOf(avatar)).toBe('grid');
     });
 
     it('should be hidden with it', async () => {
-      const avatar = await createAvatar({ hidden: '' });
+      const avatar = await createAvatar(tag, { hidden: '' });
 
       expect([displayOf(avatar), avatar.getClientRects().length]).toEqual([
         'none',
@@ -129,11 +131,19 @@ describe('hidden', () => {
     it.each(['until-found', 'UNTIL-FOUND'])(
       'should keep its display with the value %s',
       async (value) => {
-        const avatar = await createAvatar({ hidden: value });
+        const avatar = await createAvatar(tag, { hidden: value });
 
         expect(displayOf(avatar)).toBe('grid');
       },
     );
+  });
+
+  it("should keep the look of a list item's avatar that a page shows", async () => {
+    addPageRule('[data-avatar] { display: block; }');
+    const avatar = await createAvatar('span', { hidden: '' });
+    const { width, height } = avatar.getBoundingClientRect();
+
+    expect([displayOf(avatar), width, height]).toEqual(['block', 40, 40]);
   });
 
   it('should hide an extended and disabled FAB', async () => {

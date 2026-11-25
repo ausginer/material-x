@@ -142,6 +142,9 @@ slot:has-slotted {
    */
   &::slotted([data-avatar]:not([hidden]:not([hidden='until-found' i]))) {
     display: grid;
+  }
+
+  &::slotted([data-avatar]) {
     place-items: center;
     inline-size: var(--_leading-avatar-size);
     aspect-ratio: 1;
