@@ -1,3 +1,5 @@
+| DRD-72 | decided on 2026-11-25 by the architect, on `drag/displacement-1`, for #265. Unimplemented. It waits for the owner's Q1, on the cost. Amends `DRI-14`, `DRI-17` and the public surface in the implementing commit |
+
 # `@ydinjs/drag` record: decisions
 
 The register for scope `drag`, under `repo:RD-1`: decisions are `DRD-n`, invariants `DRI-n`, owner decisions `DRO-n`. Numbering starts at 1. drag2's bare `D-` series is separate. To read one entry:
@@ -3303,6 +3305,48 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 - **The bench's stale injections aren't a finding of their own:** they are `DRD-45` property 9's, whose note of this day has them. `DRF-56` isn't minted.
 - **`verify` passes on `2e2c80ca0`.** This commit adds records, and the contract's one sentence.
 - **Not run:** Safari, a touch device, assistive technology, and the bench's readings.
+
+#### DRD-72 — With `displacement`, every row move that the library makes is reported, and `layoutAnimation` takes a `timing` and honors reduced motion
+
+**Decided on 2026-11-25 by the architect, on `drag/displacement-1`. Unimplemented, and the contract doesn't state it yet.** For [#265](https://github.com/ausginer/material-x/issues/265), which is the trial finding of `repo:RD-56` and has no `DRF-` number. Its body is the finding's contract, and this entry has the decisions of it that change a public surface or a package's contract. From Mx Architect Explainer's message, whose sending the owner approved, relayed by the coordinator, with the owner's observation of the neighbors, in chat: _"Если мы в sortable делаем сортировку через мышку/палец, всё красиво анимируется. Однако если мы это делаем через клавиатуру - анимируется только сам переносимый элемент, а его сосед перемещается на место переносимого элемента резко, без анимаций"_ ("If we sort in sortable by mouse or finger, everything animates nicely. But if we do it by keyboard, only the moved element itself animates, and its neighbor moves abruptly to the moved element's place, without animation"). The [plan](displacement-1/displacement-plan.md) has the readings, the design and the work list. `DRD-71` is the highest `DRD-` on any branch on `origin`.
+
+**Properties.**
+
+1. **Each row that a placeholder write of the library displaces is reported once,** with the distance that the write moved it, in viewport units, whatever made the write: a resolution, a pointer drop's last resolution, a command, or a return. It holds for `y()` and `xy()`.
+2. **A return is animated with or without `landing`.** A return is home for a cancel, a rejection and a fault. It is the item's own place for an accepted item that isn't beside the placeholder, as when the consumer never commits. With `displacement`, the operation moves the placeholder there at `settle`. The visual's path doesn't change.
+3. **What isn't reported:** a destruction, and a return with no place to go: an anchor that left the container, or a placeholder that the consumer moved or removed. The rows then carry nothing of the operation, and no frame draws a row further from its place than the frame before. Such a return adds no fault that the same composition without `displacement` doesn't report.
+4. **The sink measures** what no resolution measured: it reads the displaced rows before the write and after it, settled, and reports the difference. With `y()`, for a command and a return home, it reads only the rows that the write crosses. With `xy()` it reads every row. **A composition without `displacement` reads, copies and measures nothing more than at `e57c9f074`.**
+5. **The array isn't read after the drop.** With `displacement`, the operation keeps its own list of the rows, from the activation's pull and each rebase. `DRI-14` says it.
+6. **The order:** in a drop, after the request is built and before the verdict is asked. In a return, at `settle`, before the landing's target is read.
+7. **An item lifted while its own row animation runs stays where it is drawn,** and the animation ends there, as `DRI-13` has it for a landing.
+8. **The sink's lifetime doesn't change:** its animations outlive the operation, a press that activates nothing cancels none, and destruction cancels them.
+9. **`layoutAnimation` honors `prefers-reduced-motion: reduce`.** The preference is read at each report. With it, the row starts no animation, and a running one ends. Present behavior is the implementer's choice of `implementation-report.md`'s decision 5, which no decision recorded. The owner, relayed by the coordinator: _"Хмм, а почему намеренно?"_ ("Hm, and why on purpose?"), and he approved the proposal.
+10. **`layoutAnimation`'s options are `timing` alone,** `LayoutAnimationOptions = Readonly<{ timing?: () => Readonly<{ duration: number; easing: string }> }>`. It is called with no argument when a row's animation starts, and not under the preference, its values are copied, and a throw is a fault (`DRI-7`). Without it the values are 160 ms and `ease-out`, as today. `duration` and `easing` go. The owner, relayed by the coordinator: _"Скорее, он должен задаваться извне, с неким дефолтом. В mx-sortable-list это будет M3"_ ("Rather, it should be given from outside, with some default. In `mx-sortable-list` it will be M3").
+
+**Why.**
+
+- **One rule for every write,** because a reader of _"every push is animated"_ can't know which of the library's writes is which. `layout-animation.ts` already says it.
+- **`timing`, in the shape that `Landing.timing` returns,** because a consumer such as `mx-sortable-list` reads its values from CSS at the moment of the start, through `useCSSProps`, which already returns this shape. Two ways to say one thing are one too many, and drag isn't released, so the old one goes. `LandingOptions` isn't changed: its `duration` function takes a distance, and a redesign of `Landing` is the owner's separate question (`DRO-20`).
+- **The sink measures, not the axis:** the plan has both candidates and their readings. A composition without `displacement` then carries less of it (`DRI-18`).
+
+**Cost,** on a candidate that isn't final code ([readings](displacement-1/checks/sizes.txt)): Brotli +235 in _sortable + y_, +209 in _sortable + xy_ and +360 in _complete_; the other seven rows 0. _sortable + y_ and _sortable + xy_ are compositions without `displacement`, so a consumer who doesn't compose it carries about 0.2 kB. A key move with it forces two more layouts, and reads two rows with `y()` and every row twice with `xy()`.
+
+**Amends:** `DRI-14` (the rows that the operation keeps), `DRI-17` (a command and a return measure rows when a displacement is composed) and the public surface. A new `DRI-22` states properties 1 to 8. `DRD-39` doesn't change: the two installer types stay private.
+
+**Not adopted:**
+
+- **The axis measures:** above, and in the plan.
+- **Animating the release of the placeholder,** without moving it first: the rows would be read on both sides of the lift's release, where the visual's own styles change too.
+- **A zero-duration animation under the preference,** as `landing()` has it: a row's animation has no end that anyone waits for, so starting none is the same to see and does less.
+- **`duration` and `easing` as functions, each:** two calls for one reading, and the pair can disagree.
+
+**Owner's question:** Q1 below. **Ready** for an implementer when it is answered.
+
+**Q1, for the owner — is the cost accepted?**
+
+- **(a) Yes. Recommended.** The rows' ceilings move to the unit's readings (`DRO-20`), and a consumer without `displacement` carries about 0.2 kB more. The cost is mostly the operation's part, which has to know when it writes.
+- (b) Only a pointer drop and a command, with no return home. It is cheaper by a part that wasn't measured, and a canceled drag and a refused key still jump.
+- (c) No. The defect stays as it is, and the README says so.
 
 ## Disposition of the 2026-11-07 reviews
 

@@ -202,7 +202,7 @@ With Q4 (b) and Q5 (b), two losses are larger than in the proposal: a deletion o
 
 **The trial.**
 
-1. It is the next new finding, after stages 1 and 2 are on `main` and the owner has approved the trial, that a unit repairs at once. The coordinator names it and creates the labels `tier:A`, `tier:B` and `tier:C`. It gets no `RF-` or `DRF-` number, and it is the only issue with a tier label. Tier A isn't excluded.
+1. It is the next new finding, after stages 1 and 2 are on `main` and the owner has approved the trial, that a unit repairs at once. The coordinator names it and creates the labels `tier:A`, `tier:B` and `tier:C`. It gets no `RF-` or `DRF-` number, and it is the only issue with a tier label. Tier A isn't excluded. **Named on 2026-11-25: [#265](https://github.com/ausginer/material-x/issues/265),** the rows of drag's sortable that jump, by the coordinator, and the owner agreed, relayed by it: _"агась, давай"_ ("yep, go ahead").
 2. The main slot's architect opens the issue and runs the tool. The coordinator adds it to the board.
 3. The implementer and a fresh reviewer each get `#N rM` and no copy of its text. Each reports what it couldn't find or had to ask.
 4. It ends when the finding closes. The coordinator gives the owner the reports, the number of amendments, and each refusal of the tool. A trial without an amendment hasn't tried the revision rule, and the coordinator says so.
