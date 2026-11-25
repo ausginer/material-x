@@ -5382,6 +5382,23 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 - **Size, Brotli, local, against `e57c9f074`:** `complete` 25641 to 25677 (+36). Every row grows, by 12 (`text-field/multiline-text-field`) to 54 (`list/list-button-item`). The rows have no limit yet.
 - **Not run:** the visual project, Safari, screen readers.
 
+**Dated 2026-11-25 by the architect: the [feature proof](reviews/hidden-1/feature-proof-claude.md) of `dce82dffa` is ruled,** requested by the coordinator. The rule and its place stand. Read on the built head in the three engines ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs), [variants](hidden-1/probes/ruling-variants.mjs)).
+
+- **`reviewer-1`: confirmed, and it isn't this unit's. It is `RF-143`.** This unit doesn't wait for it: a page's `display: none` and a member that is disabled later have the same result without the rule, and the rule is what this entry requires.
+- **`reviewer-2`: confirmed, and it is this unit's.** The property is this entry's, and the list item's `display` for an avatar is the one declaration that breaks it. The native element with `data-avatar` comes with the same selector.
+- **`reviewer-3`: confirmed, and it is this unit's.**
+- **`until-found` on a `display: contents` host: no finding.** The property leaves the value out, and the unit doesn't change it. The value works by skipping the content of the element's box, and these hosts have none.
+- **A hidden item in a sortable list keeps its place in the order, so a key step can move past it unseen: no finding.** The page's order has the item, and a page's `display: none` does the same.
+
+**The list:**
+
+1. In a list item's `lead` slot, an element with `data-avatar` and `hidden` isn't rendered, whether it is native or an `mx-*`. Without `hidden` and with `until-found` in both letter cases it keeps `grid`. A page's own `display` on it wins. The direction: the selector of the avatar's `display` leaves out what the host rule hides, `::slotted([data-avatar]:not([hidden]:not([hidden='until-found' i])))`. Read as a candidate on the whole avatar rule: each of these holds in the three engines. Rows: an `mx-icon` and a `span`, hidden and not, and `until-found`. **Witness:** the hidden ones fail before it, and the `until-found` ones fail with `:not([hidden])` alone.
+2. A row for a value that is neither empty nor `until-found`, on one element, because one sheet is shared. **Witness:** it fails with `:host([hidden='']:not([hidden=x]))`.
+
+**Checks:** the branch has `main` at `2c83c7bc0`. The hidden and list rows in the three engines, the two witnesses, typecheck, lint, the root format check, the size table again, and #270's CI with its visual project. One heavy run at a time. #267 changes other rules of the same list sheet. Whichever merges second reads its rows again.
+
+**Recheck:** none. **Closure:** on the merge of #270, when the coordinator has confirmed that the repair's diff has no source outside the list item's sheet and no test outside the rows, that both witnesses are recorded, and that CI passes on its last commit. Anything else comes back to the architect. Nothing is the owner's.
+
 #### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.
@@ -6376,6 +6393,33 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Order:** after #256 (`RF-131`), because the group's rows read its slot while out. It doesn't wait for `RF-94` or `RF-130`.
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_. One hook in core and its rows.
+
+#### RF-143 — A member that can't take focus keeps a connected group's tab stop
+
+Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/hidden-1`, from `reviewer-1` of `RF-121`'s [feature proof](reviews/hidden-1/feature-proof-claude.md), requested by the coordinator. `RF-142` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-141` is about a member that isn't in the order. Read on the head of `RF-121`, built, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs)).
+
+- **What happens,** in `mx-connected-button-group`, the only user of `useRovingTabindex`:
+  - **The tab stop's member is hidden or disabled after the slot change:** Tab passes the whole group. `hidden` in the markup does the same. `disabled` there doesn't.
+  - **Any member is hidden:** an arrow key that meets it goes no further. The tab stop moves to it and focus doesn't, so after that Tab passes the group too. A disabled member is skipped.
+  - **The end member is hidden:** the first or last visible member has inner corners in place of the outer ones.
+  - A page's `display: none` is as `hidden`, on the base also. `hidden` reaches this with `RF-121`, because before it a hidden member was shown.
+- **The causes.** The hook excludes disabled items alone, and it chooses the tab stop at a slot change, a change of the group's value, a key and a `focusin`. No change of an item's own state is one of them. The group marks its ends by the slot's elements.
+- **Why it is a problem:** a keyboard user can't reach visible, enabled controls. Disabling or hiding an option is ordinary use.
+- **Required properties:**
+  1. A member with `display: none` or `disabled` is never the tab stop and no key stops at it, whenever the hook chooses. `hidden` alone doesn't decide: a page's own `display` can show the member, and it is then one like the others.
+  2. After a change of a member's `hidden` or `disabled`, the tab stop is chosen again, without a slot change. A tab stop that can still take focus stays, unless the group's value names another, so a first member that is shown again doesn't take it back.
+  3. The same for a group that was built or changed while out, after its connect.
+  4. The outer corners are on the first and the last member that isn't `display: none`, after the same changes.
+  5. With no member that can take focus, there is no tab stop, as now.
+- **Not required:** a change of a page's style alone, such as a media query, is heard at the next read. The arrow keys are right at once, by property 1. The tab stop isn't. The group's page says to hide a member with `hidden`.
+- **It isn't the owner's.** An element that isn't rendered can't take focus in any engine, so skipping it is the one behavior that leaves the others reachable. Native radios do it: Tab reaches the first that is shown, in the three engines.
+- **Direction, settled:** eligibility reads the computed `display` with `disabled`, and one `MutationObserver` for the hook hears both attributes. Read as a [candidate](hidden-1/probes/ruling-variants.mjs) on the head, for properties 1 and 2: each of its readings is right, except that Tab passes the group after a class hides its tab stop, which isn't required. The candidate doesn't read properties 3 and 4. While out, the computed `display` is empty, so property 3 needs a read at the connect. The group's ends can hear the same change or be CSS alone, the implementer's choice.
+- **Not adopted.** `item.hidden` alone: wrong where a page shows the member, and it leaves the arrow keys stopped at a page's `display: none`. A `ResizeObserver`, for style changes too: the member's host is `display: contents` and has no size, and core doesn't know the member's shadow tree.
+- **Relation to `RF-141` (#269).** Neither causes the other, and #269 waits for nothing here. Both change how the hook chooses, so this one is built on #269 merged, and `RF-141`'s rows pass unchanged. An upgraded item that is hidden isn't given the tab stop, and neither is a moved tab stop that can no longer take focus.
+- **Rows,** three engines. In core: the tab stop's item hidden, disabled, and shown again; a hidden item in the arrow keys, Home and End; an item that a page's `display` shows; an item hidden in the markup; a group built while out; no eligible item. In material-x: Tab into a group whose first member is hidden, and disabled, and the corners with a hidden first and last member. **Witness:** each fails before the repair, except the page's `display` and no eligible item, which say what must not change. With `item.hidden` in place of the computed `display`, the page's `display` fails.
+- **Not read:** Safari, screen readers, sizes, the group's own `disabled`, a member hidden or disabled while it has focus, and the standard group's `:first-child` and `:last-child` with a hidden member.
+- **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
+- **Size:** _medium_. One hook in core, the connected group, its page and their rows.
 
 ## Questions
 
