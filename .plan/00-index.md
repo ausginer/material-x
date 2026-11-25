@@ -6750,6 +6750,24 @@ Bytes are of `connected-button-group` as the review reads them. The H and I numb
 - **Checks:** before the merge of `49bd95038`, core's projects (361 rows) in the three engines. On the merged tree: the hook's rows (62) and `tests/button-group` (130) in the three engines, the size gate, root typecheck, the declarations' typecheck, lint, format check, `docs-build` and `docs-smoke` (129 pages). Nothing fails.
 - **`main` moved again,** to `ca6918376` (#268, the split button), and is merged: the index conflicts, where both sides append, and both are kept. The hook's rows (62) and `tests/button-group` with the split button's rows pass again in the three engines, and so do the size gate, root typecheck, lint and format check. The declarations' typecheck and the docs weren't run again.
 
+**Dated 2026-11-25 by the architect: the [recheck](reviews/roving-upgrade-1/feature-proof-claude.md#recheck-of-2026-11-25-at-35eb0c0ef) of `35eb0c0ef` is ruled, and the entry closes with the list below,** requested by the coordinator.
+
+- **`reviewer-1` to `reviewer-3`: answered.** The repairs are read by the recheck, and the contract holds.
+- **Departure (1) is accepted.** A focused item that is enabled is recorded at the read. The choice says _the item that focus moved it to last_, and doesn't ask that the item is still focused. The ruling's `current` was a direction and not the contract.
+- **`reviewer-4`: confirmed, this unit's, Tier C. Three rows are owed.** The choice is this unit's contract, and its word _last_ has no row on either path: the `focusin` and the read. The third mutation is owed too, because the read's check that the item is enabled is this unit's and no row needs it. It is the second row with `disabled` added.
+
+**The list,** rows in core's file and no source. Each was run in a copy of the file in Chromium: the head passes all three, and each mutation fails the row that is named for it and no other ([reading](roving-upgrade-1/checks/ruling-rows.txt), [probe](roving-upgrade-1/probes/ruling-rows.mjs)). Names are the implementer's.
+
+1. Focus moves from the second item to the third, and the third is blurred. An item is then put first: the third has the tab stop. **Witness:** only the first focus is recorded (`this.#chosen ??= item`).
+2. Focus chose the second item. A third is added and focused in one task: the third has the tab stop. **Witness:** the read prefers the former choice to the focused item.
+3. The same, with the added item disabled: the second keeps the tab stop. **Witness:** the read records the focused item without the check that it is enabled.
+
+**Checks:** core's file (65 rows) and the three witnesses in each engine, format, lint and typecheck of core, the root format check and #269's CI. The hook doesn't change, so sizes, memory, the fuzz and material-x's rows aren't run again unless the merge of `main` changes the hook or the groups.
+
+**No further look** by the architect or the reviewer is owed when the list is as written. The implementer adds the witnesses' counts here, changes the entry's state to closed on that date with a pointer to this note, and the row counts in #269's description (`Closes #262` is there). The coordinator compares the diff with the list: three rows, no change in `packages/*/src`. A row that fails on the head, or a witness that passes, comes back to the architect.
+
+**Observations of the recheck:** nothing is owed. The row that keeps the name _"fall back to the active item"_ asserts the contract. An item that can't take focus is `RF-143`'s.
+
 #### RF-142 — A disabled list item dims the focus indicator of the controls in it, which still work
 
 Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. Registered on 2026-11-25 by the architect, on `material-x/split-button-names-1`, from [#271](https://github.com/ausginer/material-x/issues/271), requested by the coordinator. It was seen by `RF-128`'s feature proof, on `material-x/handle-focus-1`. `RF-141` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c7db9e65a`, with `main` at `e57c9f074`, on the built elements, by Tab and from screenshots, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](disabled-handle-1/checks/ring.txt), [probe](disabled-handle-1/probes/ring.mjs)).
