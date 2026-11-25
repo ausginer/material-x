@@ -370,7 +370,7 @@ async function createListWithControl(
   list: (typeof LISTS)[number],
   tag: (typeof ITEMS)[number],
   control: HTMLElement,
-  slot: ControlSlot,
+  slot: ControlSlot | 'overline' | 'support' | '',
 ): Promise<HTMLElement> {
   const frame = document.createElement('div');
   frame.style.cssText = 'padding: 12px; background: white; inline-size: 300px;';
@@ -466,6 +466,80 @@ describe.each(SORTABLE_ITEMS)('handle focus indicator in %s', (tag) => {
       });
     });
   });
+});
+
+describe('handle focus indicator conditions', () => {
+  describe.each(CONTROL_SLOTS)('in the %s slot', (slot) => {
+    it('should draw a solid outline with keyboard focus alone', async () => {
+      const handle = createHandle('mx-icon');
+      const frame = await createListWithControl(
+        'mx-sortable-list',
+        'mx-list-item',
+        handle,
+        slot,
+      );
+      const before = getComputedStyle(handle).outlineStyle;
+
+      await focusControl(frame, handle);
+
+      expect([before, getComputedStyle(handle).outlineStyle]).toEqual([
+        'none',
+        'solid',
+      ]);
+    });
+
+    it('should draw no outline after a mouse click', async () => {
+      const handle = createHandle('mx-icon');
+      await createListWithControl(
+        'mx-sortable-list',
+        'mx-list-item',
+        handle,
+        slot,
+      );
+
+      await userEvent.click(handle);
+
+      expect(document.activeElement).toBe(handle);
+      expect(getComputedStyle(handle).outlineStyle).toBe('none');
+    });
+
+    it('should leave a focusable child without data-handle alone', async () => {
+      const child = document.createElement('span');
+      child.tabIndex = 0;
+      child.textContent = 'child';
+
+      await focusControl(
+        await createListWithControl('mx-list', 'mx-list-item', child, slot),
+        child,
+      );
+
+      expect(getComputedStyle(child).outlineStyle).not.toBe('solid');
+    });
+  });
+
+  it.each([
+    ['label', ''],
+    ['overline', 'overline'],
+    ['support', 'support'],
+  ] as const)(
+    'should leave a focusable data-handle in the %s slot alone',
+    async (_, slot) => {
+      const handle = createHandle('span');
+      handle.tabIndex = 0;
+
+      await focusControl(
+        await createListWithControl(
+          'mx-sortable-list',
+          'mx-list-item',
+          handle,
+          slot,
+        ),
+        handle,
+      );
+
+      expect(getComputedStyle(handle).outlineStyle).not.toBe('solid');
+    },
+  );
 });
 
 type ControlCase = Readonly<{

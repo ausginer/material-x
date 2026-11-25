@@ -60,8 +60,11 @@ slot:has-slotted {
   --_leading-space: 0;
 }
 
-/* The consumer's element, so a page's own rule on it wins. */
-::slotted([data-handle]:focus-visible) {
+/*
+ * The consumer's element, so a page's own rule on it wins. The element's own
+ * `:host` rule doesn't.
+ */
+:is(.lead, .trail)::slotted([data-handle]:focus-visible) {
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_handle-focus-indicator-outline-offset);
 }
