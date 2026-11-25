@@ -1,0 +1,26 @@
+# run 45596031366 of #270 at dce82dffa, job chromium: the visual project's files and the job's totals
+ ✓  visual/material-x (chromium)  tests/button/button.visual.browser.test.ts (7 tests) 985ms
+ ✓  visual/material-x (chromium)  tests/slider/slider.visual.browser.test.ts (10 tests) 1679ms
+ ✓  visual/material-x (chromium)  tests/button-group/button-group.visual.browser.test.ts (4 tests) 625ms
+ ✓  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (4 tests) 671ms
+ ✓  visual/material-x (chromium)  tests/radio/radio.visual.browser.test.ts (4 tests) 671ms
+ ✓  visual/material-x (chromium)  tests/card/card.visual.browser.test.ts (1 test) 173ms
+ ✓  visual/material-x (chromium)  tests/top-app-bar/top-app-bar.visual.browser.test.ts (2 tests) 401ms
+ Test Files  181 passed (181)
+      Tests  4173 passed | 2 expected fail | 12 skipped (4187)
+
+chromium	pass
+codecov/patch	pass
+codecov/project	pass
+docs	pass
+firefox	pass
+measurements	pass
+static	pass
+system-deps (webkit)	pass
+verify	pass
+webkit	pass
+deploy	skipping
+system-deps (chromium)	pass
+system-deps (firefox)	pass
+records	skipping
+scope	pass

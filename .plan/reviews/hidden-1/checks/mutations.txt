@@ -1,0 +1,177 @@
+## no mutation | chromium | Tests  135 passed (135)
+## an element that does not reach useCore (mx-icon) | chromium | Tests  2 failed | 133 passed (135)
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+## the sheet before those of the component | chromium | Tests  135 passed (135)
+## a specificity below two states | chromium | Tests  1 failed | 134 passed (135)
+   hidden > should outrank a host display of a state
+## the empty value alone, at the same specificity | chromium | Tests  135 passed (135)
+## visibility in place of display | chromium | Tests  47 failed | 88 passed (135)
+   hidden > mx-button > should be hidden with it
+   hidden > mx-button > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be rendered as before when it is removed
+   hidden > mx-link-button > should be rendered as before when it is removed
+   hidden > mx-switch-button > should be rendered as before when it is removed
+   hidden > mx-switch-icon-button > should be rendered as before when it is removed
+   hidden > mx-split-button > should be rendered as before when it is removed
+   hidden > mx-fab > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be hidden with it
+   hidden > mx-link-button > should be hidden with it
+   hidden > mx-switch-button > should be hidden with it
+   hidden > mx-switch-icon-button > should be hidden with it
+   hidden > mx-split-button > should be hidden with it
+   hidden > mx-button-group > should be hidden with it
+   hidden > mx-button-group > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be rendered as before when it is removed
+   hidden > mx-list > should be rendered as before when it is removed
+   hidden > mx-list-item > should be rendered as before when it is removed
+   hidden > mx-sortable-list > should be rendered as before when it is removed
+   hidden > mx-top-app-bar > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be hidden with it
+   hidden > mx-card > should be hidden with it
+   hidden > mx-card > should be rendered as before when it is removed
+   hidden > mx-checkbox > should be hidden with it
+   hidden > mx-checkbox > should be rendered as before when it is removed
+   hidden > mx-radio > should be rendered as before when it is removed
+   hidden > mx-fab > should be hidden with it
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+   hidden > mx-list > should be hidden with it
+   hidden > mx-list-item > should be hidden with it
+   hidden > mx-list-button-item > should be hidden with it
+   hidden > mx-list-button-item > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be rendered as before when it is removed
+   hidden > mx-slider > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be hidden with it
+   hidden > mx-sortable-list > should be hidden with it
+   hidden > mx-radio > should be hidden with it
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-multiline-text-field > should be hidden with it
+   hidden > mx-multiline-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be hidden with it
+   hidden > mx-top-app-bar > should be hidden with it
+   hidden > should hide an extended and disabled FAB
+   hidden > should hide a list item that is an open popover
+   hidden > should outrank a host display of a state
+## a component host display above the rule (mx-slider) | chromium | Tests  2 failed | 133 passed (135)
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-slider > should be rendered as before when it is removed
+## no mutation | firefox | Tests  135 passed (135)
+## an element that does not reach useCore (mx-icon) | firefox | Tests  2 failed | 133 passed (135)
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+## the sheet before those of the component | firefox | Tests  135 passed (135)
+## a specificity below two states | firefox | Tests  1 failed | 134 passed (135)
+   hidden > should outrank a host display of a state
+## the empty value alone, at the same specificity | firefox | Tests  135 passed (135)
+## visibility in place of display | firefox | Tests  47 failed | 88 passed (135)
+   hidden > mx-button > should be hidden with it
+   hidden > mx-button > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be hidden with it
+   hidden > mx-icon-button > should be rendered as before when it is removed
+   hidden > mx-link-button > should be rendered as before when it is removed
+   hidden > mx-switch-button > should be rendered as before when it is removed
+   hidden > mx-switch-icon-button > should be rendered as before when it is removed
+   hidden > mx-split-button > should be rendered as before when it is removed
+   hidden > mx-fab > should be rendered as before when it is removed
+   hidden > mx-link-button > should be hidden with it
+   hidden > mx-switch-button > should be hidden with it
+   hidden > mx-switch-icon-button > should be hidden with it
+   hidden > mx-split-button > should be hidden with it
+   hidden > mx-button-group > should be hidden with it
+   hidden > mx-button-group > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be rendered as before when it is removed
+   hidden > mx-list > should be rendered as before when it is removed
+   hidden > mx-list-item > should be rendered as before when it is removed
+   hidden > mx-sortable-list > should be rendered as before when it is removed
+   hidden > mx-top-app-bar > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be hidden with it
+   hidden > mx-card > should be hidden with it
+   hidden > mx-card > should be rendered as before when it is removed
+   hidden > mx-checkbox > should be hidden with it
+   hidden > mx-checkbox > should be rendered as before when it is removed
+   hidden > mx-radio > should be rendered as before when it is removed
+   hidden > mx-fab > should be hidden with it
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+   hidden > mx-list > should be hidden with it
+   hidden > mx-list-item > should be hidden with it
+   hidden > mx-list-button-item > should be hidden with it
+   hidden > mx-list-button-item > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be rendered as before when it is removed
+   hidden > mx-slider > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be hidden with it
+   hidden > mx-sortable-list > should be hidden with it
+   hidden > mx-radio > should be hidden with it
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-multiline-text-field > should be hidden with it
+   hidden > mx-multiline-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be hidden with it
+   hidden > mx-top-app-bar > should be hidden with it
+   hidden > should hide an extended and disabled FAB
+   hidden > should hide a list item that is an open popover
+   hidden > should outrank a host display of a state
+## a component host display above the rule (mx-slider) | firefox | Tests  2 failed | 133 passed (135)
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-slider > should be rendered as before when it is removed
+## no mutation | webkit | Tests  135 passed (135)
+## an element that does not reach useCore (mx-icon) | webkit | Tests  2 failed | 133 passed (135)
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+## the sheet before those of the component | webkit | Tests  135 passed (135)
+## a specificity below two states | webkit | Tests  1 failed | 134 passed (135)
+   hidden > should outrank a host display of a state
+## the empty value alone, at the same specificity | webkit | Tests  135 passed (135)
+## visibility in place of display | webkit | Tests  47 failed | 88 passed (135)
+   hidden > mx-button > should be hidden with it
+   hidden > mx-button > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be rendered as before when it is removed
+   hidden > mx-link-button > should be rendered as before when it is removed
+   hidden > mx-switch-button > should be rendered as before when it is removed
+   hidden > mx-switch-icon-button > should be rendered as before when it is removed
+   hidden > mx-split-button > should be rendered as before when it is removed
+   hidden > mx-fab > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be hidden with it
+   hidden > mx-link-button > should be hidden with it
+   hidden > mx-switch-button > should be hidden with it
+   hidden > mx-switch-icon-button > should be hidden with it
+   hidden > mx-split-button > should be hidden with it
+   hidden > mx-button-group > should be hidden with it
+   hidden > mx-button-group > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be rendered as before when it is removed
+   hidden > mx-list > should be rendered as before when it is removed
+   hidden > mx-list-item > should be rendered as before when it is removed
+   hidden > mx-sortable-list > should be rendered as before when it is removed
+   hidden > mx-top-app-bar > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be hidden with it
+   hidden > mx-card > should be hidden with it
+   hidden > mx-card > should be rendered as before when it is removed
+   hidden > mx-checkbox > should be hidden with it
+   hidden > mx-checkbox > should be rendered as before when it is removed
+   hidden > mx-radio > should be rendered as before when it is removed
+   hidden > mx-fab > should be hidden with it
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+   hidden > mx-list > should be hidden with it
+   hidden > mx-list-item > should be hidden with it
+   hidden > mx-list-button-item > should be hidden with it
+   hidden > mx-list-button-item > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be rendered as before when it is removed
+   hidden > mx-slider > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be hidden with it
+   hidden > mx-sortable-list > should be hidden with it
+   hidden > mx-radio > should be hidden with it
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-multiline-text-field > should be hidden with it
+   hidden > mx-multiline-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be hidden with it
+   hidden > mx-top-app-bar > should be hidden with it
+   hidden > should hide an extended and disabled FAB
+   hidden > should hide a list item that is an open popover
+   hidden > should outrank a host display of a state
+## a component host display above the rule (mx-slider) | webkit | Tests  2 failed | 133 passed (135)
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-slider > should be rendered as before when it is removed
