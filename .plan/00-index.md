@@ -6391,6 +6391,47 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Size, Brotli:** `button-group/connected-button-group` 3914 to 4065 (+151), `button/split-button` 7587 to 7736 (+149), `complete` 25641 to 25793 (+152). No other row moves, and none has a limit that is exceeded ([sizes](roving-upgrade-1/checks/sizes.txt)).
 - **Checks:** every Vitest project of core (28 files) and material-x (42 files) in the three engines, without the visual one and with no failure. Root typecheck, lint, format check, `docs-build` and `docs-smoke` (129 pages) pass, and material-x's publint. Core has no publint recipe, and publint on its tarball exits 0 with two suggestions about the manifest, which this unit does not change.
 
+**Dated 2026-11-25 by the architect: the [feature proof](reviews/roving-upgrade-1/feature-proof-claude.md) of `df687de7d` is ruled, and property 1's last sentence is replaced,** requested by the coordinator. Read in Playwright's Chromium, Firefox and WebKit, which agree line for line ([fuzz](roving-upgrade-1/checks/ruling-fuzz.txt), [its probe](roving-upgrade-1/probes/ruling-fuzz.browser.test.ts.txt), [hooks](roving-upgrade-1/probes/ruling-variants.mjs)), and for sizes and memory in Chromium ([reading](roving-upgrade-1/checks/ruling-sizes.txt)).
+
+**The cause of the growth is the choice, and the property asked to reproduce it.** The hook keeps a tab stop that it chose only because an item was first, and so the result depends on the order in which items came. _"What it would be if the button had been an item at the slot change"_ makes a late definition rewrite that history, which takes a record of it. No user chose that tab stop, so nothing is owed to it.
+
+**The contract now, in place of property 1's last sentence:**
+
+- **The choice.** The tab stop is the enabled item that matches the group's value; or else the enabled item that focus moved it to last, while that item is in the slot; or else the first enabled item. Nothing else of the past counts. `focusin` still moves it at once.
+- **A definition is read as a slot change is.** With the choice above, the same items then give the same tab stop, however late each was upgraded.
+- **What changes for a group with no late button.** With no match and no focus, an item put first takes the tab stop, where the former one kept it. When the value stops matching, the tab stop goes to the item of the last focus or to the first one, where it stayed on the former match. Native radios with none checked are entered at the first one. The hook's JSDoc states the choice.
+- **Accepted limit.** When focus has moved off the value's item and the value hasn't followed, a definition gives the tab stop back to the value's item, as each slot change does on `main`. Each difference that the fuzz shows in A to D and K is this one. So `reviewer-1`'s required property holds except where the value names the item. In G, 10 of the 29 differences are steps within one task and weren't classified.
+
+| Contract | Bytes over `main` | Wrong tab stop, of 1000: H, I | Removed items kept |
+| --- | --: | --: | --- |
+| The branch's hook | +150 | 0, 365 | Yes |
+| The same, right in I too (`priority`, `intended`) | +155, +198 | 0, 0 by the review's reference | Yes |
+| The candidate's plain second read, with the subject's two checks | +67 | 298, 715 | No |
+| **The choice above, with that read** | **+76** | **0, 0** | **No** |
+
+Bytes are of `connected-button-group` as the review reads them. The H and I numbers are against the items upgraded from the start with this choice, so I isn't comparable with the review's 239. The plain read is 9 B less. Its limit, that a late first button isn't the default, isn't taken, because the limit is the history again, and `RF-143` would carry it.
+
+- **`reviewer-1`: confirmed, this unit's,** and answered by the choice.
+- **`reviewer-2`: confirmed, this unit's.** A removed item can be collected while its group stays, also beside an element that is never defined. The accepted cost stays as it was.
+- **`reviewer-3`: confirmed, this unit's.** Its five mutations are of the state that goes. The list has the rows for what replaces it.
+- **The rest of the unit stands:** a node that left isn't upgraded, and a customized built-in element isn't waited for. The WebKit `callers` readings are the probe's, by the review, and nothing is owed.
+- **It isn't the owner's.** What a page can see changes only where neither the value nor focus decides, and core has no release. In E and F, whose items are disabled, the rest of the differences are `RF-143`'s, by the review.
+
+**The list:**
+
+1. The choice and the read replace `chosenBy`, `isMoved`, `select` and `join`. The hook named `current` in the probe is a direction, and isn't prescribed. The hook's JSDoc states the choice.
+2. Two rows change to the contract: _"should keep the tab stop that focus moved away from the host value"_ becomes the accepted limit, and _"should keep the tab stop of an item that was there before the late one"_ gives it to the late one. With the direction, the other 50 core rows pass in each engine.
+3. Rows added in core: two late names defined in reverse order; a ready item put first, with no focus, and with focus earlier on another and blurred; a late item behind it then defined; a value that stops matching, with no focus and with focus earlier; an item added after a late one is slotted is still managed after the definition; a chosen item that is removed and put back isn't the chosen one; an item focused in the task that adds it.
+4. **Witnesses,** each failing a row in each engine: `main`'s choice kept with the new read; focus not recorded; a removed item still the chosen one; the read of the slot change's own nodes in place of the current ones; no upgrade; no wait; a node that left upgraded; customized built-in elements waited for, which WebKit may not show.
+
+**Checks:** on this branch with `main` at `2c83c7bc0`: core's and material-x's rows of the hook and the groups in the three engines, the review's memory probe and the size table, typecheck, lint, the root format check, and #269's CI. One heavy run at a time.
+
+**Recheck:** a targeted one by the same reviewer, because the hook's behavior changes: the fuzz with this reference, memory, the new mutations, and focus in the real group. Nothing else of the proof is read again.
+
+**`RF-143`, on `core/hidden-1`, is amended by this choice,** and that entry gets a pointer here when both are on `main`. Its property 2's sentence _"A tab stop that can still take focus stays, unless the group's value names another, so a first member that is shown again doesn't take it back"_ is replaced: the choice above is made again over the members that can take focus, so a first member that is shown or enabled again has the tab stop, unless the value or focus chose another, and a focused choice that is shown again has it back. Its row _shown again_ then says what must not change, with the page's `display` and no eligible item. Its relation to this entry is otherwise unchanged. By the candidate, its reads are +68 B over this hook, and the two together, +144 B, are less than the branch's hook alone.
+
+**#262's description** still holds, and #273's too.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
