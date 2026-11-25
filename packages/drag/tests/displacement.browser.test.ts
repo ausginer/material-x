@@ -14,6 +14,7 @@ import { xy } from '../src/sortable/xy.ts';
 import {
   ReorderResolution,
   type OnReorder,
+  type ReorderRequest,
   type SortableConfig,
   type SortableController,
 } from '../src/sortable.ts';
@@ -133,6 +134,39 @@ function watch(list: HTMLElement, item: HTMLElement): () => number {
   };
 }
 
+/** Drops `r0` with no frame between its last move and the release. */
+async function flick(
+  axis: Axis,
+  list: HTMLElement,
+): Promise<
+  Readonly<{ before: ReadonlyMap<HTMLElement, Point>; stop: () => number }>
+> {
+  const [left, top] = drawn(row('r0'));
+  const native = requestAnimationFrame;
+
+  await commands.pointerMove(left + 20, top + 10);
+  await commands.pointerDown();
+  await commands.pointerMove(left + 30, top + 14, 2);
+  await frames();
+
+  const stop = watch(list, row('r0'));
+  const before = positions(list, row('r0'));
+
+  // No frame resolves the move, so the drop's resolution is the first to see it.
+  globalThis.requestAnimationFrame = () => 0;
+  onCleanup(() => {
+    globalThis.requestAnimationFrame = native;
+  });
+  await commands.pointerMove(
+    left + (axis === 'xy' ? 110 : 20),
+    top + (axis === 'xy' ? 20 : 120),
+  );
+  await commands.pointerUp();
+  globalThis.requestAnimationFrame = native;
+  await frames(3);
+  return { before, stop };
+}
+
 /** Whether each row that the action displaced is drawn where it was. */
 async function expectHeld(
   list: HTMLElement,
@@ -187,7 +221,21 @@ async function hold(axis: Axis, id = 'r0'): Promise<void> {
   await frames(3);
 }
 
-/** The same, with the rows at rest. */
+/** Drags `id` over the row `over`, with the rows at rest. */
+async function holdOver(id: string, over: string): Promise<void> {
+  const [left, top] = drawn(row(id));
+  const [overLeft, overTop] = drawn(row(over));
+
+  await commands.pointerMove(left + 20, top + 10);
+  await commands.pointerDown();
+  await commands.pointerMove(left + 30, top + 12, 2);
+  await frames();
+  await commands.pointerMove(overLeft + 20, overTop + 10, 3);
+  await frames(3);
+  finish(document.querySelectorAll<HTMLElement>('.row'));
+}
+
+/** The same as `hold`, with the rows at rest. */
 async function holdDisplaced(axis: Axis, id?: string): Promise<void> {
   await hold(axis, id);
   finish(document.querySelectorAll<HTMLElement>('.row'));
@@ -245,6 +293,38 @@ const commitNeighbors: OnReorder = ({ item, from, to }) => {
   return ReorderResolution.accept();
 };
 
+/** Appends every row in `rows`' order, as a renderer that keeps no position may. */
+function appendAll(list: HTMLElement, rows: readonly HTMLElement[]): void {
+  for (const element of rows) {
+    list.append(element);
+  }
+}
+
+/** Appends every row, with the item at `index`, or else where the request asks. */
+function commitAll(
+  { item, to }: ReorderRequest,
+  index = to,
+): ReorderResolution {
+  const list = item.parentElement!;
+  const rows = rowsOf(list).filter((element) => element !== item);
+
+  rows.splice(index, 0, item);
+  appendAll(list, rows);
+  return ReorderResolution.accept();
+}
+
+/** Puts every row back in the order that it has. */
+function putBack({ item }: ReorderRequest): void {
+  const list = item.parentElement!;
+
+  appendAll(list, rowsOf(list));
+}
+
+const rejectAll: OnReorder = (request) => {
+  putBack(request);
+  return ReorderResolution.reject();
+};
+
 const COMMITS = [
   ['at once', commit],
   ['after 100 ms', commitLater],
@@ -260,29 +340,8 @@ const LANDINGS = [
 describe.each(AXES)('#265 the rows that %s() displaces', (axis) => {
   it('should be drawn where they were after a drop whose last resolution moves the gap', async () => {
     const { list } = build(axis);
-    const [left, top] = drawn(row('r0'));
-    const native = requestAnimationFrame;
+    const { before, stop } = await flick(axis, list);
 
-    await commands.pointerMove(left + 20, top + 10);
-    await commands.pointerDown();
-    await commands.pointerMove(left + 30, top + 14, 2);
-    await frames();
-
-    const stop = watch(list, row('r0'));
-    const before = positions(list, row('r0'));
-
-    // No frame resolves the move, so the drop's resolution is the first to see it.
-    globalThis.requestAnimationFrame = () => 0;
-    onCleanup(() => {
-      globalThis.requestAnimationFrame = native;
-    });
-    await commands.pointerMove(
-      left + (axis === 'xy' ? 110 : 20),
-      top + (axis === 'xy' ? 20 : 120),
-    );
-    await commands.pointerUp();
-    globalThis.requestAnimationFrame = native;
-    await frames(3);
     expect(order(list)).not.toBe('r0,r1,r2,r3,r4');
     expect(stop()).toBeLessThan(1);
     finish(before.keys());
@@ -396,6 +455,149 @@ describe.each(AXES)('#265 the rows that %s() displaces', (axis) => {
     });
   });
 
+  describe.each(LANDINGS)(
+    'and a consumer moves around the placeholder, %s',
+    (_, config) => {
+      it.each([
+        ['down', 'r1', 'ArrowDown', 'r0,r2,r1,r3,r4'],
+        ['up', 'r3', 'ArrowUp', 'r0,r1,r3,r2,r4'],
+      ])(
+        'should be drawn where they were after a key move %s that appends every row',
+        async (_name, id, name, expected) => {
+          const { list } = build(axis, {
+            ...config,
+            onReorder: (request) => commitAll(request),
+          });
+
+          await expectHeld(list, row(id), () => key(id, name));
+          expect(order(list)).toBe(expected);
+        },
+      );
+
+      it('should be drawn where they were after a key move whose later verdict appends every row', async () => {
+        const { list } = build(axis, {
+          ...config,
+          onReorder: async (request) => {
+            await wait(50);
+            return commitAll(request);
+          },
+        });
+
+        await expectHeld(list, row('r1'), async () => {
+          await key('r1', 'ArrowDown');
+          await wait(150);
+        });
+        expect(order(list)).toBe('r0,r2,r1,r3,r4');
+      });
+
+      it.each([
+        ['down', 'r0', 'r3'],
+        ['up', 'r4', 'r1'],
+      ])(
+        'should stay where they are after a drop %s that appends every row',
+        async (_name, id, over) => {
+          const { list } = build(axis, {
+            ...config,
+            onReorder: (request) => commitAll(request),
+          });
+
+          await holdOver(id, over);
+          await expectStill(list, row(id), () => commands.pointerUp());
+          expect(order(list)).not.toBe('r0,r1,r2,r3,r4');
+          expect(log).toEqual(['start', 'end:accepted']);
+        },
+      );
+
+      it('should stay where they are after a drop whose later verdict appends every row', async () => {
+        const { list } = build(axis, {
+          ...config,
+          onReorder: async (request) => {
+            await wait(50);
+            return commitAll(request);
+          },
+        });
+
+        await holdOver('r0', 'r3');
+        await expectStill(list, row('r0'), async () => {
+          await commands.pointerUp();
+          await wait(100);
+        });
+        expect(log).toEqual(['start', 'end:accepted']);
+      });
+
+      it('should be drawn where they were after a flick that appends every row', async () => {
+        const { list } = build(axis, {
+          ...config,
+          onReorder: (request) => commitAll(request),
+        });
+        const { before, stop } = await flick(axis, list);
+
+        expect(order(list)).not.toBe('r0,r1,r2,r3,r4');
+        expect(stop()).toBeLessThan(1);
+        finish(before.keys());
+        expect(farthest(before)).toBeGreaterThan(10);
+      });
+
+      it('should stay where they are after a key move that puts every row back and rejects', async () => {
+        const { list } = build(axis, { ...config, onReorder: rejectAll });
+
+        await expectStill(list, row('r1'), () => key('r1', 'ArrowDown'));
+        expect(log).toEqual(['start', 'end:rejected']);
+      });
+
+      it('should be drawn where they were after a drop that puts every row back and rejects', async () => {
+        const { list } = build(axis, { ...config, onReorder: rejectAll });
+
+        await holdOver('r0', 'r3');
+        await expectHeld(list, row('r0'), () => commands.pointerUp());
+        expect(log).toEqual(['start', 'end:rejected']);
+      });
+
+      it('should be drawn where they were after a drop that puts every row back and throws', async () => {
+        const { list } = build(axis, {
+          ...config,
+          onReorder(request) {
+            putBack(request);
+            throw new Error('no');
+          },
+        });
+
+        await holdOver('r0', 'r3');
+        await expectHeld(list, row('r0'), () => commands.pointerUp());
+        expect(faultMessages()).toEqual(['no']);
+      });
+
+      it.each([
+        ['another place', 'r0', 'r3', 1, 'r1,r0,r2,r3,r4'],
+        ['the first place', 'r1', 'r4', 0, 'r1,r0,r2,r3,r4'],
+      ])(
+        'should be drawn where they were after a drop that puts the item in %s',
+        async (_name, id, over, index, expected) => {
+          const { list } = build(axis, {
+            ...config,
+            onReorder: (request) => commitAll(request, index),
+          });
+
+          await holdOver(id, over);
+          await expectHeld(list, row(id), () => commands.pointerUp());
+          expect(order(list)).toBe(expected);
+        },
+      );
+
+      it('should stay where they are after a cancel in onStart of a key move', async () => {
+        const fixture = build(axis, {
+          ...config,
+          onStart() {
+            fixture.controller.requestCancel();
+          },
+        });
+        const { list } = fixture;
+
+        await expectStill(list, row('r1'), () => key('r1', 'ArrowDown'));
+      });
+    },
+  );
+
   it('should keep their animations through the commit and the release', async () => {
     const verdict = pending();
     const { list } = build(axis, {
@@ -482,22 +684,26 @@ describe('#265 a row move', () => {
     });
   });
 
-  it('should hold the rows when the item leaves the collection and stays in the list', async () => {
-    let hasItem = true;
-    const { list, controller } = build('y', {
-      items: () =>
-        rowsOf(document.querySelector('#list')!).filter(
-          (element) => hasItem || element.id !== 'r1',
-        ),
-    });
+  it.each(LANDINGS)(
+    'should hold the rows when the item leaves the collection and stays in the list, %s',
+    async (_, config) => {
+      let hasItem = true;
+      const { list, controller } = build('y', {
+        ...config,
+        items: () =>
+          rowsOf(document.querySelector('#list')!).filter(
+            (element) => hasItem || element.id !== 'r1',
+          ),
+      });
 
-    await holdDisplaced('y', 'r1');
-    hasItem = false;
-    await expectHeld(list, row('r1'), () => {
-      controller.invalidate();
-    });
-    expect(log).toEqual(['start', 'end:canceled']);
-  });
+      await holdDisplaced('y', 'r1');
+      hasItem = false;
+      await expectHeld(list, row('r1'), () => {
+        controller.invalidate();
+      });
+      expect(log).toEqual(['start', 'end:canceled']);
+    },
+  );
 
   it('should start no animation in a drop on its own gap', async () => {
     const { list } = build();
@@ -551,6 +757,32 @@ describe('#265 a return that has no place to go', () => {
     expect(rowsOf(list).flatMap((element) => element.getAnimations())).toEqual(
       [],
     );
+  });
+
+  it('should start no animation and add no fault when the item was moved to another container', async () => {
+    const { list, verdict } = await keyPending('y', {});
+    const other = document.createElement('div');
+
+    document.body.append(other);
+    onCleanup(() => other.remove());
+    other.append(row('r0'));
+    verdict.resolve(ReorderResolution.reject());
+    await frames(3);
+    expect(faultMessages()).toEqual([]);
+    expect(rowsOf(list).flatMap((element) => element.getAnimations())).toEqual(
+      [],
+    );
+  });
+
+  it('should start no animation and add no fault when the anchor of the drop left the container', async () => {
+    const { list, verdict } = await keyPending('y', {});
+
+    // The drop's gap is between r1 and r2, and the home gap is before r1.
+    row('r2').remove();
+    verdict.resolve(ReorderResolution.reject());
+    await frames(3);
+    expect(faultMessages()).toEqual([]);
+    expect(list.querySelector('[data-drag-placeholder]')).toBeNull();
   });
 
   it('should report what a landing reports without displacement', async () => {

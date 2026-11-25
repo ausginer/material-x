@@ -1,0 +1,4 @@
+Brotli by bench/size: main ee0afea12's source, 8340bcac0's, the head's, over main. The other seven rows read the same.
+sortable + y 6538 6689 6698 +160
+sortable + xy 6506 6641 6651 +145
+complete 7156 7489 7554 +398

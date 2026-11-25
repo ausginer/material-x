@@ -234,13 +234,14 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   /** Moves the placeholder to a gap that no resolution measured. */
-  #relocate(insertion: Insertion): void {
+  #relocate(insertion: Insertion, request: ReorderRequest | null = null): void {
     if (this.#rows) {
       this.#context.displacement!.relocate(
         this.#rows,
         this.#behavior.axis.isLinear,
         insertion,
         this.#context,
+        request,
       );
     } else {
       movePlaceholder(this.#context.placeholder, insertion);
@@ -266,7 +267,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       placeholder.parentNode === item.parentNode &&
       (target.after ?? target.before)?.parentNode === placeholder.parentNode
     ) {
-      this.#relocate(target);
+      this.#relocate(target, this.#request);
     }
   }
 

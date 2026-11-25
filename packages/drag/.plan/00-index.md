@@ -3434,6 +3434,18 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 
 **What the trial took for this ruling:** one amendment (the fourth), no refusal of the tool in two runs (`r3` before, `r4` after), and no correction of an amendment. The body was written by a script from the body of `r3`.
 
+**Dated 2026-11-25 by the implementer: the list is done on `drag/displacement-1`, against #265 at `r4`, with `main` at `ee0afea12` merged.** Requested by the coordinator. No stop was met. Chromium alone, by the owner's rule; the recheck reads the three engines.
+
+- **The repair** is in the sink: `relocate` takes the operation's request, and puts the placeholder back at the request's gap before it reads the rows. Without a displacement the operation only passes a `null`. The three traps: an operation that hasn't dropped has no request, the item between the placeholder and the gap's anchor is skipped, and an anchor that left the container writes nothing. The architect's probe reads 64 of 76 lines still, and the 12 others are the three commits that a frame draws before the verdict ([reading](displacement-1/checks/remediation-commit-around.txt)).
+- **Rows:** 140 in `displacement.browser.test.ts`, 55 more: the list's 13 cases for each axis, with a landing and without; the absent item with a landing; an item moved to another container; and the drop's anchor that left the container, which the list doesn't ask for.
+- **Witnesses** of the new rows, of 140 ([reading](displacement-1/checks/remediation-witnesses.txt), [probe](displacement-1/probes/mutate.mjs)): the rows not read from the gap 48, all but the four of the `onStart` cancel; the gap of an operation that hasn't dropped 4; the gap restored wherever the item stands 2, the rects' of `xy()`; the gap's lost anchor not checked 1. The former mutations were run too, and each fails a row.
+- **The surviving mutations, once against drag's suite,** 537 rows, before the new ones ([reading](displacement-1/checks/remediation-suite.txt)): _the vector is not local_ fails 4 and _home kept at a rebase_ fails 1, so neither gets a row. _The placeholder's parent is not compared_ failed none, and its new row fails with it.
+- **Texts:** the JSDoc of `onReorder`, the README's sentence, and its limit.
+- **Sizes, Brotli** ([reading](displacement-1/checks/remediation-sizes.txt)), over `main`: _sortable + y_ 6698 (+160), _sortable + xy_ 6651 (+145), _complete_ 7554 (+398). Against `7afeebd11`'s source, +9, +10 and +65. Against what the owner accepts, -56, -62 and +5. The three ceilings are these readings (`DRO-20`).
+- **Checks:** drag's projects in Chromium (1234 rows), `tests/list` of material-x (370), both size gates, root format check, typecheck and lint. **Not run:** Firefox, WebKit, `docs-build`.
+- **A mutation run was ended by its own time limit** with a mutation in the source. The line was put back by hand, and the diff read again. The rows and the checks above are of the restored source.
+- **The trial:** one run of the tool at `r4`, no refusal. The body governed, and DRD-72's list named the rows. Where the list asks more than the body's witnesses, the list is what the rows follow.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).

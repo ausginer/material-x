@@ -1,5 +1,5 @@
 // #265: applies each mutation to the source, runs displacement.browser.test.ts in the source project, and restores it.
-// Run from packages/drag: node .plan/displacement-1/probes/mutate.mjs <engine> [name of one mutation]
+// Run from packages/drag: node .plan/displacement-1/probes/mutate.mjs <engine> [names of mutations, separated by ;] ['suite' for drag's whole suite]
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -113,6 +113,48 @@ const mutations = [
     '',
   ],
   ['y() reads every row', Y, 'isLinear = true', 'isLinear = false'],
+  [
+    'the rows not read from the gap',
+    SINK,
+    'if (request) {',
+    'if (!placeholder) {',
+  ],
+  [
+    'the rows read from the gap of an operation that has not dropped',
+    OP,
+    'this.#relocate(target, this.#request);',
+    'this.#relocate(target, this.#request ?? ({ item, previous: this.#query.insertion.before, next: this.#query.insertion.after } as ReorderRequest));',
+  ],
+  [
+    'the gap restored wherever the item stands',
+    SINK,
+    '(beside === item ? item[side] : beside) !== placeholder',
+    'beside !== placeholder',
+  ],
+  [
+    "a lost anchor of the drop's gap not checked",
+    SINK,
+    'anchor?.parentNode === placeholder.parentNode &&',
+    'anchor &&',
+  ],
+  [
+    'the vector is not local',
+    SINK,
+    '!localDelta(space, sx, sy, this.#local)',
+    'true',
+  ],
+  [
+    'home kept at a rebase',
+    OP,
+    '    this.#home = homeInsertion(next, this.#drag.item);\n',
+    '',
+  ],
+  [
+    "the placeholder's parent is not compared",
+    OP,
+    'placeholder.parentNode === item.parentNode &&',
+    'item.isConnected &&',
+  ],
 ];
 const out = `${tmpdir()}/displacement-${process.pid}.json`;
 const restore = () => {
@@ -120,7 +162,7 @@ const restore = () => {
 };
 try {
   for (const [name, file, from, to] of mutations) {
-    if (process.argv[3] && process.argv[3] !== name) continue;
+    if (process.argv[3] && !process.argv[3].split(';').includes(name)) continue;
     if (file) {
       const text = source[file];
       if (text.split(from).length !== 2)
@@ -141,7 +183,9 @@ try {
         'vitest.config.ts',
         '--project',
         'browser*',
-        'tests/displacement.browser.test.ts',
+        ...(process.argv[4] === 'suite'
+          ? []
+          : ['tests/displacement.browser.test.ts']),
         '--reporter=json',
         `--outputFile=${out}`,
       ],

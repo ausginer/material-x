@@ -24,7 +24,7 @@ import type {
   DisplacementInstaller,
   DisplacementSink,
 } from './axis.ts';
-import type { Insertion } from './domain.ts';
+import type { Insertion, ReorderRequest } from './domain.ts';
 import { movePlaceholder, placeholderAt } from './placement.ts';
 
 export type LayoutAnimationOptions = Readonly<{
@@ -173,7 +173,28 @@ class LayoutAnimationSink implements DisplacementSink {
     isLinear: boolean,
     insertion: Insertion,
     { placeholder, space }: AxisContext,
+    request: ReorderRequest | null,
   ): void {
+    if (request) {
+      const { item, previous, next } = request;
+      const anchor = next ?? previous;
+      const side = next ? 'previousElementSibling' : 'nextElementSibling';
+      const beside = anchor?.[side];
+
+      // The item between the placeholder and the gap's anchor moves no row: it has
+      // no box there.
+      if (
+        anchor?.parentNode === placeholder.parentNode &&
+        (beside === item ? item[side] : beside) !== placeholder
+      ) {
+        movePlaceholder(placeholder, {
+          index: 0,
+          before: previous,
+          after: next,
+        });
+      }
+    }
+
     if (placeholderAt(placeholder, insertion)) {
       return;
     }
