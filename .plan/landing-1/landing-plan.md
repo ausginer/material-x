@@ -254,6 +254,8 @@ Material Theme Builder doesn't export one ([above](#what-material-theme-builder-
 
 Each component unit plans itself in material-x's record when it is taken.
 
+- **Dated 2026-11-25 by the architect: Card has one default slot,** where [the table](#missing-components-sized) says _slots_. `RD-53` and its note of this date have the reason.
+
 ## Issues to open
 
 #54 stays the site unit, and its description still holds. The coordinator may open one issue per unit in [Order](#order): T (small), B (medium), H (medium), C (large) and P (medium).

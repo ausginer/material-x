@@ -24,7 +24,7 @@
 
 - **`variant`, not `color`, because each element follows its own page of the specification** (read in rendered Chromium on 2026-11-23). The card's pages say _"Three variants:"_ ([overview](https://m3.material.io/components/cards/overview)), _"There are three card variants:"_ ([guidelines](https://m3.material.io/components/cards/guidelines)) and _"Select a component variant below"_ ([specs](https://m3.material.io/components/cards/specs)). The button's [overview](https://m3.material.io/components/buttons/overview) says _"Two variants: default and toggle"_ and _"Five color options: elevated, filled, tonal, outlined, and text"_, which is what `mx-button`'s `color` follows. The cost is that the two elements spell `elevated` and `outlined` under different names, as the specification does.
 - **Filled is the default,** because it has no shadow and no outline, so it adds nothing to what the consumer puts beside it.
-- **One slot, because M3 requires only the container** and the sets have no text tokens. Slots for a headline, a subhead or actions would add typography that M3 doesn't specify. A consumer writes its own headings and buttons, with its own heading level. A `media` slot can come later and break nothing.
+- **One slot, because M3 requires only the container** and the sets have no text tokens. Slots for a headline, a subhead or actions would add typography that M3 doesn't specify. A consumer writes its own headings and buttons, with its own heading level. A `media` slot can come later and break nothing. (2026-11-25: that is compatibility and no direction. `RD-53`'s note of that date has the owner's reason.)
 - **Padding is 16px on every side.** The inline value is M3's. The block value is this plan's choice, equal to it. `--md-card-padding: 0` gives full-bleed content. The card doesn't clip its content, because clipping would cut focus rings and popups. A full-bleed image rounds its own corners.
 - **The card sets no text colour or font.** Content inherits the page's, which is `on-surface` on the landing page.
 
@@ -174,7 +174,7 @@ Read on the built element in Playwright's Chromium 158, Firefox 159 and WebKit 2
   - **No row and no sentence in the documentation.** The size row in the work list reads the declaration, and a row on this would test how the browser computes it. The JSDoc and `card.mdx` say that a card may be smaller than its content, which still holds.
 - **The narrower promise was rejected.** It would have left a card that scrolls a wide table ending on its own outline, where this costs two `!important` declarations and removes the slot's layout.
 - **`!important` on padding has the same reason as the outline's,** and it leaves one way to set the padding, `--md-card-padding`. A page that styles `mx-card { padding }` changes nothing. The JSDoc says so.
-- **The content is laid out by the host,** so a page's own `display: grid` or `flex` on the card lays out the content directly. Before, it laid out the slot. Not read.
+- **The content is laid out by the host,** so a page's own `display: grid` or `flex` on the card lays out the content directly. Before, it laid out the slot. Not read then. Read on 2026-11-25, as `RD-53`'s note of that date says, which owes a row.
 - **Not read:** Safari, classic scrollbars, page zoom, print, a percentage `--md-card-padding` (it resolves against the card's container, and not the card), and fragmentation. A real implementation wasn't built.
 
 ### `reviewer-8`: the rows
